@@ -22,11 +22,10 @@ import flask
 from flask import blueprints
 import flask_restful
 import flask_restful.utils
+import http.client
 from oslo_log import log
 from oslo_log import versionutils
 from oslo_serialization import jsonutils
-import six
-from six.moves import http_client
 
 from keystone.common import authorization
 from keystone.common import context
@@ -156,13 +155,12 @@ def _assert_rbac_enforcement_called(resp):
 
 def _remove_content_type_on_204(resp):
     # Remove content-type if the resp is 204.
-    if resp.status_code == http_client.NO_CONTENT:
+    if resp.status_code == http.client.NO_CONTENT:
         resp.headers.pop('content-type', None)
     return resp
 
 
-@six.add_metaclass(abc.ABCMeta)
-class APIBase(object):
+class APIBase(object, metaclass=abc.ABCMeta):
 
     @property
     @abc.abstractmethod
@@ -807,7 +805,7 @@ class ResourceBase(flask_restful.Resource):
         val = False
         if filter_name in flask.request.args:
             filter_value = flask.request.args.get(filter_name)
-            if (isinstance(filter_value, six.string_types) and
+            if (isinstance(filter_value, str) and
                     filter_value == '0'):
                 val = False
             else:

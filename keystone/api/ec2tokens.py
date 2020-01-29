@@ -13,9 +13,9 @@
 # This file handles all flask-restful resources for /v3/ec2tokens
 
 import flask
+import http.client
 from keystoneclient.contrib.ec2 import utils as ec2_utils
 from oslo_serialization import jsonutils
-from six.moves import http_client
 
 from keystone.api._shared import EC2_S3_Resource
 from keystone.api._shared import json_home_relations
@@ -67,7 +67,7 @@ class EC2TokensResource(EC2_S3_Resource.ResourceBase):
         token = self.handle_authenticate()
         token_reference = render_token.render_token_response_from_model(token)
         resp_body = jsonutils.dumps(token_reference)
-        response = flask.make_response(resp_body, http_client.OK)
+        response = flask.make_response(resp_body, http.client.OK)
         response.headers['X-Subject-Token'] = token.id
         response.headers['Content-Type'] = 'application/json'
         return response

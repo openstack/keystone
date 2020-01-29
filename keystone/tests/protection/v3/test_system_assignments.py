@@ -12,8 +12,8 @@
 
 import uuid
 
+import http.client
 from oslo_serialization import jsonutils
-from six.moves import http_client
 
 from keystone.common.policies import base
 from keystone.common import provider_api
@@ -62,7 +62,7 @@ class _SystemUserSystemAssignmentTests(object):
                 '/v3/system/users/%s/roles/%s' % (
                     user['id'], self.bootstrapper.member_role_id
                 ), headers=self.headers,
-                expected_status_code=http_client.NO_CONTENT
+                expected_status_code=http.client.NO_CONTENT
             )
 
     def test_user_can_list_group_system_role_assignments(self):
@@ -98,7 +98,7 @@ class _SystemUserSystemAssignmentTests(object):
                 '/v3/system/groups/%s/roles/%s' % (
                     group['id'], self.bootstrapper.member_role_id
                 ), headers=self.headers,
-                expected_status_code=http_client.NO_CONTENT
+                expected_status_code=http.client.NO_CONTENT
             )
 
 
@@ -114,7 +114,7 @@ class _SystemMemberAndReaderSystemAssignmentTests(object):
                 '/v3/system/users/%s/roles/%s' % (
                     user['id'], self.bootstrapper.member_role_id
                 ), headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_revoke_system_assignments(self):
@@ -131,7 +131,7 @@ class _SystemMemberAndReaderSystemAssignmentTests(object):
                 '/v3/system/users/%s/roles/%s' % (
                     user['id'], self.bootstrapper.member_role_id
                 ), headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_grant_group_system_assignment(self):
@@ -144,7 +144,7 @@ class _SystemMemberAndReaderSystemAssignmentTests(object):
                 '/v3/system/groups/%s/roles/%s' % (
                     group['id'], self.bootstrapper.member_role_id
                 ), headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_revoke_group_system_assignment(self):
@@ -161,7 +161,7 @@ class _SystemMemberAndReaderSystemAssignmentTests(object):
                 '/v3/system/groups/%s/roles/%s' % (
                     group['id'], self.bootstrapper.member_role_id
                 ), headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -179,7 +179,7 @@ class _DomainAndProjectUserSystemAssignmentTests(object):
         with self.test_client() as c:
             c.get(
                 '/v3/system/users/%s/roles' % user['id'], headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_check_user_system_role_assignments(self):
@@ -196,7 +196,7 @@ class _DomainAndProjectUserSystemAssignmentTests(object):
                 '/v3/system/users/%s/roles/%s' % (
                     user['id'], self.bootstrapper.member_role_id
                 ), headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_grant_system_assignments(self):
@@ -209,7 +209,7 @@ class _DomainAndProjectUserSystemAssignmentTests(object):
                 '/v3/system/users/%s/roles/%s' % (
                     user['id'], self.bootstrapper.member_role_id
                 ), headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_revoke_system_assignments(self):
@@ -226,7 +226,7 @@ class _DomainAndProjectUserSystemAssignmentTests(object):
                 '/v3/system/users/%s/roles/%s' % (
                     user['id'], self.bootstrapper.member_role_id
                 ), headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_list_group_system_role_assignments(self):
@@ -242,7 +242,7 @@ class _DomainAndProjectUserSystemAssignmentTests(object):
             c.get(
                 '/v3/system/groups/%s/roles' % group['id'],
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_check_group_system_role_assignments(self):
@@ -259,7 +259,7 @@ class _DomainAndProjectUserSystemAssignmentTests(object):
                 '/v3/system/groups/%s/roles/%s' % (
                     group['id'], self.bootstrapper.member_role_id
                 ), headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_grant_group_system_assignments(self):
@@ -272,7 +272,7 @@ class _DomainAndProjectUserSystemAssignmentTests(object):
                 '/v3/system/groups/%s/roles/%s' % (
                     group['id'], self.bootstrapper.member_role_id
                 ), headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_revoke_group_system_assignments(self):
@@ -289,7 +289,7 @@ class _DomainAndProjectUserSystemAssignmentTests(object):
                 '/v3/system/groups/%s/roles/%s' % (
                     group['id'], self.bootstrapper.member_role_id
                 ), headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 

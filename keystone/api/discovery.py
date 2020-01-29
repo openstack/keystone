@@ -12,8 +12,8 @@
 
 import flask
 from flask import request
+import http.client
 from oslo_serialization import jsonutils
-from six.moves import http_client
 
 from keystone.common import json_home
 import keystone.conf
@@ -79,7 +79,7 @@ def get_versions():
                 {'versions': {
                     'values': list(versions.values())}}),
             mimetype=MimeTypes.JSON,
-            status=http_client.MULTIPLE_CHOICES)
+            status=http.client.MULTIPLE_CHOICES)
         response.headers['Location'] = preferred_location
         return response
 

@@ -15,7 +15,7 @@
 import flask
 import flask_restful
 import functools
-from six.moves import http_client
+import http.client
 
 from keystone.common import json_home
 from keystone.common import provider_api
@@ -73,7 +73,7 @@ class SystemUsersResource(flask_restful.Resource):
         ENFORCER.enforce_call(action='identity:check_system_grant_for_user',
                               build_target=_build_enforcement_target)
         PROVIDERS.assignment_api.check_system_grant_for_user(user_id, role_id)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
     def put(self, user_id, role_id):
         """Grant a role to a user on the system.
@@ -83,7 +83,7 @@ class SystemUsersResource(flask_restful.Resource):
         ENFORCER.enforce_call(action='identity:create_system_grant_for_user',
                               build_target=_build_enforcement_target)
         PROVIDERS.assignment_api.create_system_grant_for_user(user_id, role_id)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
     def delete(self, user_id, role_id):
         """Revoke a role from user on the system.
@@ -96,7 +96,7 @@ class SystemUsersResource(flask_restful.Resource):
                 _build_enforcement_target,
                 allow_non_existing=True))
         PROVIDERS.assignment_api.delete_system_grant_for_user(user_id, role_id)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
 
 class SystemGroupsRolesListResource(flask_restful.Resource):
@@ -122,7 +122,7 @@ class SystemGroupsRolestResource(flask_restful.Resource):
                               build_target=_build_enforcement_target)
         PROVIDERS.assignment_api.check_system_grant_for_group(
             group_id, role_id)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
     def put(self, group_id, role_id):
         """Grant a role to a group on the system.
@@ -133,7 +133,7 @@ class SystemGroupsRolestResource(flask_restful.Resource):
                               build_target=_build_enforcement_target)
         PROVIDERS.assignment_api.create_system_grant_for_group(
             group_id, role_id)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
     def delete(self, group_id, role_id):
         """Revoke a role from the group on the system.
@@ -147,7 +147,7 @@ class SystemGroupsRolestResource(flask_restful.Resource):
                 allow_non_existing=True))
         PROVIDERS.assignment_api.delete_system_grant_for_group(
             group_id, role_id)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
 
 class SystemAPI(ks_flask.APIBase):

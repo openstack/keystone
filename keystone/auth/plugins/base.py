@@ -15,8 +15,6 @@
 import abc
 import collections
 
-import six
-
 from keystone.common import provider_api
 from keystone import exception
 
@@ -25,8 +23,8 @@ AuthHandlerResponse = collections.namedtuple(
     'AuthHandlerResponse', 'status, response_body, response_data')
 
 
-@six.add_metaclass(abc.ABCMeta)
-class AuthMethodHandler(provider_api.ProviderAPIMixin, object):
+class AuthMethodHandler(provider_api.ProviderAPIMixin, object,
+                        metaclass=abc.ABCMeta):
     """Abstract base class for an authentication plugin."""
 
     def __init__(self):

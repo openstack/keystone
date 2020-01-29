@@ -16,7 +16,7 @@ import uuid
 import flask
 from oslo_log import log
 from pycadf import cadftaxonomy as taxonomy
-from six.moves.urllib import parse
+from urllib import parse
 
 from keystone.auth import plugins as auth_plugins
 from keystone.auth.plugins import base

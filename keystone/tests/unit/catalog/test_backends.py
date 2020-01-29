@@ -14,7 +14,6 @@ import copy
 import uuid
 
 import mock
-from six.moves import range
 from testtools import matchers
 
 from keystone.catalog.backends import base

@@ -17,8 +17,8 @@ import os
 import uuid
 
 import flask
+import http.client
 from oslo_serialization import jsonutils
-from six.moves import http_client
 from werkzeug import exceptions
 
 from keystone.api._shared import json_home_relations
@@ -209,7 +209,7 @@ class UserResource(ks_flask.ResourceBase):
         ref = PROVIDERS.identity_api.create_user(
             user_data,
             initiator=self.audit_initiator)
-        return self.wrap_member(ref), http_client.CREATED
+        return self.wrap_member(ref), http.client.CREATED
 
     def patch(self, user_id):
         """Update a user.
@@ -238,7 +238,7 @@ class UserResource(ks_flask.ResourceBase):
             build_target=_build_user_target_enforcement
         )
         PROVIDERS.identity_api.delete_user(user_id)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
 
 class UserChangePasswordResource(ks_flask.ResourceBase):
@@ -262,7 +262,7 @@ class UserChangePasswordResource(ks_flask.ResourceBase):
             raise ks_exception.Unauthorized(
                 _('Error when changing user password: %s') % e
             )
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
 
 class UserProjectsResource(ks_flask.ResourceBase):
@@ -370,7 +370,7 @@ class UserOSEC2CredentialsResourceListCreate(_UserOSEC2CredBaseResource):
         )
         PROVIDERS.credential_api.create_credential(credential_id, cred_data)
         ref = _convert_v3_to_ec2_credential(cred_data)
-        return self.wrap_member(ref), http_client.CREATED
+        return self.wrap_member(ref), http.client.CREATED
 
 
 class UserOSEC2CredentialsResourceGetDelete(_UserOSEC2CredBaseResource):
@@ -408,7 +408,7 @@ class UserOSEC2CredentialsResourceGetDelete(_UserOSEC2CredBaseResource):
         ec2_cred_id = utils.hash_access_key(credential_id)
         self._get_cred_data(ec2_cred_id)
         PROVIDERS.credential_api.delete_credential(ec2_cred_id)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
 
 class _OAuth1ResourceBase(ks_flask.ResourceBase):
@@ -476,7 +476,7 @@ class OAuth1AccessTokenCRUDResource(_OAuth1ResourceBase):
         notifications.invalidate_token_cache_notification(reason)
         PROVIDERS.oauth_api.delete_access_token(
             user_id, access_token_id, initiator=self.audit_initiator)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
 
 class OAuth1AccessTokenRoleListResource(ks_flask.ResourceBase):
@@ -621,7 +621,7 @@ class UserAppCredListCreateResource(ks_flask.ResourceBase):
             # https://specs.openstack.org/openstack/api-wg/guidelines/http.html#failure-code-clarifications
             raise ks_exception.ApplicationCredentialValidationError(
                 detail=str(e))
-        return self.wrap_member(ref), http_client.CREATED
+        return self.wrap_member(ref), http.client.CREATED
 
 
 class UserAppCredGetDeleteResource(ks_flask.ResourceBase):
@@ -650,7 +650,7 @@ class UserAppCredGetDeleteResource(ks_flask.ResourceBase):
         _check_unrestricted_application_credential(token)
         PROVIDERS.application_credential_api.delete_application_credential(
             application_credential_id, initiator=self.audit_initiator)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
 
 class UserAccessRuleListResource(ks_flask.ResourceBase):
@@ -701,7 +701,7 @@ class UserAccessRuleGetDeleteResource(ks_flask.ResourceBase):
         )
         PROVIDERS.application_credential_api.delete_access_rule(
             access_rule_id, initiator=self.audit_initiator)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
 
 class UserAPI(ks_flask.APIBase):

@@ -14,8 +14,6 @@
 
 """oAuthlib request validator."""
 
-import six
-
 from keystone.common import provider_api
 from keystone import exception
 from keystone.oauth1.backends import base
@@ -178,7 +176,7 @@ class OAuthValidator(provider_api.ProviderAPIMixin, oauth1.RequestValidator):
 
     def verify_request_token(self, token, request):
         # there aren't strong expectations on the request token format
-        return isinstance(token, six.string_types)
+        return isinstance(token, str)
 
     def verify_realms(self, token, realms, request):
         return True

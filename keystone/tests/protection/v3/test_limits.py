@@ -12,7 +12,7 @@
 
 import uuid
 
-from six.moves import http_client
+import http.client
 
 from keystone.common import provider_api
 import keystone.conf
@@ -134,7 +134,7 @@ class _UserLimitTests(object):
         with self.test_client() as c:
             c.post(
                 '/v3/limits', json=create, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_limits(self):
@@ -146,7 +146,7 @@ class _UserLimitTests(object):
             c.patch(
                 '/v3/limits/%s' % limit_id, json=update,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_limits(self):
@@ -156,7 +156,7 @@ class _UserLimitTests(object):
             c.delete(
                 '/v3/limits/%s' % limit_id,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -377,7 +377,7 @@ class DomainUserTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.get(
                 '/v3/limits/%s' % project_limit_id, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_get_domain_limits_for_other_domain(self):
@@ -386,7 +386,7 @@ class DomainUserTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.get(
                 '/v3/limits/%s' % domain_limit_id, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_can_list_limits_within_domain(self):
@@ -439,7 +439,7 @@ class DomainUserTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.post(
                 '/v3/limits', json=create, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_create_limits_for_other_domain(self):
@@ -471,7 +471,7 @@ class DomainUserTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.post(
                 '/v3/limits', json=create, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_create_limits_for_projects_in_domain(self):
@@ -507,7 +507,7 @@ class DomainUserTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.post(
                 '/v3/limits', json=create, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_create_limits_for_projects_outside_domain(self):
@@ -544,7 +544,7 @@ class DomainUserTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.post(
                 '/v3/limits', json=create, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_limits_for_domain(self):
@@ -558,7 +558,7 @@ class DomainUserTests(base_classes.TestCaseWithBootstrap,
             c.patch(
                 '/v3/limits/%s' % domain_limit_id, json=update,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_limits_for_other_domain(self):
@@ -570,7 +570,7 @@ class DomainUserTests(base_classes.TestCaseWithBootstrap,
             c.patch(
                 '/v3/limits/%s' % domain_limit_id, json=update,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_limits_for_projects_in_domain(self):
@@ -583,7 +583,7 @@ class DomainUserTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.patch(
                 '/v3/limits/%s' % project_limit_id, headers=self.headers,
-                json=update, expected_status_code=http_client.FORBIDDEN
+                json=update, expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_limits_for_projects_outside_domain(self):
@@ -594,7 +594,7 @@ class DomainUserTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.patch(
                 '/v3/limits/%s' % project_limit_id, headers=self.headers,
-                json=update, expected_status_code=http_client.FORBIDDEN
+                json=update, expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_limits_for_domain(self):
@@ -605,7 +605,7 @@ class DomainUserTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.delete(
                 '/v3/limits/%s' % domain_limit_id, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_limits_for_other_domain(self):
@@ -614,7 +614,7 @@ class DomainUserTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.delete(
                 '/v3/limits/%s' % domain_limit_id, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_limits_for_projects_in_domain(self):
@@ -625,7 +625,7 @@ class DomainUserTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.delete(
                 '/v3/limits/%s' % project_limit_id, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_limits_for_projects_outside_domain(self):
@@ -634,7 +634,7 @@ class DomainUserTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.delete(
                 '/v3/limits/%s' % project_limit_id, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -693,7 +693,7 @@ class ProjectUserTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.get(
                 '/v3/limits/%s' % project_limit_id, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_get_domain_limit(self):
@@ -702,7 +702,7 @@ class ProjectUserTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.get(
                 '/v3/limits/%s' % domain_limit_id, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_can_list_limits(self):
@@ -775,7 +775,7 @@ class ProjectUserTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.post(
                 '/v3/limits', json=create, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_limits(self):
@@ -787,7 +787,7 @@ class ProjectUserTests(base_classes.TestCaseWithBootstrap,
             c.patch(
                 '/v3/limits/%s' % limit_id, json=update,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_limits(self):
@@ -797,7 +797,7 @@ class ProjectUserTests(base_classes.TestCaseWithBootstrap,
             c.delete(
                 '/v3/limits/%s' % limit_id,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 

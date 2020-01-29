@@ -13,7 +13,7 @@
 import datetime
 import uuid
 
-from six.moves import http_client
+import http.client
 
 from keystone.common import provider_api
 import keystone.conf
@@ -45,7 +45,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
         # The server returns a 403 Forbidden rather than a 400 Bad Request, see
         # bug 1133435
         self.post('/OS-TRUST/trusts', body={'trust': {}},
-                  expected_status=http_client.FORBIDDEN)
+                  expected_status=http.client.FORBIDDEN)
 
     def test_create_trust_with_invalid_expiration_fails(self):
         # create a new trust
@@ -59,21 +59,21 @@ class TestTrustOperations(test_v3.RestfulTestCase):
         self.post(
             '/OS-TRUST/trusts',
             body={'trust': ref},
-            expected_status=http_client.BAD_REQUEST
+            expected_status=http.client.BAD_REQUEST
         )
 
         ref['expires_at'] = ''
         self.post(
             '/OS-TRUST/trusts',
             body={'trust': ref},
-            expected_status=http_client.BAD_REQUEST
+            expected_status=http.client.BAD_REQUEST
         )
 
         ref['expires_at'] = 'Z'
         self.post(
             '/OS-TRUST/trusts',
             body={'trust': ref},
-            expected_status=http_client.BAD_REQUEST
+            expected_status=http.client.BAD_REQUEST
         )
 
     def test_trusts_do_not_implement_updates(self):
@@ -93,12 +93,12 @@ class TestTrustOperations(test_v3.RestfulTestCase):
                 '/v3/OS-TRUST/trusts/%(trust_id)s' % {'trust_id': trust_id},
                 json={'trust': ref},
                 headers={'X-Auth-Token': token},
-                expected_status_code=http_client.METHOD_NOT_ALLOWED)
+                expected_status_code=http.client.METHOD_NOT_ALLOWED)
             c.put(
                 '/v3/OS-TRUST/trusts/%(trust_id)s' % {'trust_id': trust_id},
                 json={'trust': ref},
                 headers={'X-Auth-Token': token},
-                expected_status_code=http_client.METHOD_NOT_ALLOWED)
+                expected_status_code=http.client.METHOD_NOT_ALLOWED)
 
     def test_trust_crud(self):
         # create a new trust
@@ -125,7 +125,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
             '/OS-TRUST/trusts/%(trust_id)s/roles/%(role_id)s' % {
                 'trust_id': trust['id'],
                 'role_id': self.role['id']},
-            expected_status=http_client.OK)
+            expected_status=http.client.OK)
         r = self.get(
             '/OS-TRUST/trusts/%(trust_id)s/roles/%(role_id)s' % {
                 'trust_id': trust['id'],
@@ -143,7 +143,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
         # ensure the trust is not found
         self.get(
             '/OS-TRUST/trusts/%(trust_id)s' % {'trust_id': trust['id']},
-            expected_status=http_client.NOT_FOUND)
+            expected_status=http.client.NOT_FOUND)
 
     def test_list_trusts(self):
         # create three trusts with the same trustor and trustee
@@ -163,7 +163,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
         # list all trusts
         list_url = '/OS-TRUST/trusts'
         r = self.get(list_url)
-        self.head(list_url, expected_status=http_client.OK)
+        self.head(list_url, expected_status=http.client.OK)
         trusts = r.result['trusts']
         self.assertEqual(3, len(trusts))
         self.assertValidTrustListResponse(r)
@@ -173,7 +173,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
             '/OS-TRUST/trusts?trustor_user_id=%s' % self.user_id
         )
         r = self.get(list_for_trustor_url)
-        self.head(list_for_trustor_url, expected_status=http_client.OK)
+        self.head(list_for_trustor_url, expected_status=http.client.OK)
         trusts = r.result['trusts']
         self.assertEqual(3, len(trusts))
         self.assertValidTrustListResponse(r)
@@ -183,7 +183,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
             '/OS-TRUST/trusts?trustee_user_id=%s' % self.user_id
         )
         r = self.get(list_as_trustor_url)
-        self.head(list_as_trustor_url, expected_status=http_client.OK)
+        self.head(list_as_trustor_url, expected_status=http.client.OK)
         trusts = r.result['trusts']
         self.assertEqual(0, len(trusts))
 
@@ -193,11 +193,11 @@ class TestTrustOperations(test_v3.RestfulTestCase):
         )
         r = self.get(
             list_all_as_trustee_url,
-            expected_status=http_client.FORBIDDEN
+            expected_status=http.client.FORBIDDEN
         )
         self.head(
             list_all_as_trustee_url,
-            expected_status=http_client.FORBIDDEN
+            expected_status=http.client.FORBIDDEN
         )
 
     def test_create_trust_with_expiration_in_the_past_fails(self):
@@ -213,7 +213,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
         self.post(
             '/OS-TRUST/trusts',
             body={'trust': ref},
-            expected_status=http_client.BAD_REQUEST
+            expected_status=http.client.BAD_REQUEST
         )
 
     def test_delete_trust(self):
@@ -235,7 +235,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
         # ensure the trust isn't found
         self.get('/OS-TRUST/trusts/%(trust_id)s' % {
             'trust_id': trust['id']},
-            expected_status=http_client.NOT_FOUND)
+            expected_status=http.client.NOT_FOUND)
 
     def test_create_trust_without_trustee_returns_bad_request(self):
         ref = unit.new_trust_ref(
@@ -249,7 +249,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
 
         self.post('/OS-TRUST/trusts',
                   body={'trust': ref},
-                  expected_status=http_client.BAD_REQUEST)
+                  expected_status=http.client.BAD_REQUEST)
 
     def test_create_trust_without_impersonation_returns_bad_request(self):
         ref = unit.new_trust_ref(
@@ -263,7 +263,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
 
         self.post('/OS-TRUST/trusts',
                   body={'trust': ref},
-                  expected_status=http_client.BAD_REQUEST)
+                  expected_status=http.client.BAD_REQUEST)
 
     def test_create_trust_with_bad_remaining_uses_returns_bad_request(self):
         # negative numbers, strings, non-integers, and 0 are not value values
@@ -276,7 +276,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
                 role_ids=[self.role_id])
             self.post('/OS-TRUST/trusts',
                       body={'trust': ref},
-                      expected_status=http_client.BAD_REQUEST)
+                      expected_status=http.client.BAD_REQUEST)
 
     def test_create_trust_with_non_existant_trustee_returns_not_found(self):
         ref = unit.new_trust_ref(
@@ -285,7 +285,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
             project_id=self.project_id,
             role_ids=[self.role_id])
         self.post('/OS-TRUST/trusts', body={'trust': ref},
-                  expected_status=http_client.NOT_FOUND)
+                  expected_status=http.client.NOT_FOUND)
 
     def test_create_trust_with_trustee_as_trustor_returns_forbidden(self):
         ref = unit.new_trust_ref(
@@ -296,7 +296,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
         # NOTE(lbragstad): This fails because the user making the request isn't
         # the trustor defined in the request.
         self.post('/OS-TRUST/trusts', body={'trust': ref},
-                  expected_status=http_client.FORBIDDEN)
+                  expected_status=http.client.FORBIDDEN)
 
     def test_create_trust_with_non_existant_project_returns_not_found(self):
         ref = unit.new_trust_ref(
@@ -305,7 +305,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
             project_id=uuid.uuid4().hex,
             role_ids=[self.role_id])
         self.post('/OS-TRUST/trusts', body={'trust': ref},
-                  expected_status=http_client.NOT_FOUND)
+                  expected_status=http.client.NOT_FOUND)
 
     def test_create_trust_with_non_existant_role_id_returns_not_found(self):
         ref = unit.new_trust_ref(
@@ -314,7 +314,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
             project_id=self.project_id,
             role_ids=[uuid.uuid4().hex])
         self.post('/OS-TRUST/trusts', body={'trust': ref},
-                  expected_status=http_client.NOT_FOUND)
+                  expected_status=http.client.NOT_FOUND)
 
     def test_create_trust_with_extra_attributes_fails(self):
         ref = unit.new_trust_ref(trustor_user_id=self.user_id,
@@ -324,7 +324,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
         ref['roles'].append({'fake_key': 'fake_value'})
 
         self.post('/OS-TRUST/trusts', body={'trust': ref},
-                  expected_status=http_client.BAD_REQUEST)
+                  expected_status=http.client.BAD_REQUEST)
 
     def test_create_trust_with_non_existant_role_name_returns_not_found(self):
         ref = unit.new_trust_ref(
@@ -333,7 +333,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
             project_id=self.project_id,
             role_names=[uuid.uuid4().hex])
         self.post('/OS-TRUST/trusts', body={'trust': ref},
-                  expected_status=http_client.NOT_FOUND)
+                  expected_status=http.client.NOT_FOUND)
 
     def test_create_trust_with_role_name_ambiguous_returns_bad_request(self):
         # Create second role with the same name
@@ -348,7 +348,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
             role_names=[self.role['name']]
         )
         self.post('/OS-TRUST/trusts', body={'trust': ref},
-                  expected_status=http_client.BAD_REQUEST)
+                  expected_status=http.client.BAD_REQUEST)
 
     def test_exercise_trust_scoped_token_without_impersonation(self):
         # create a new trust
@@ -451,7 +451,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
                            body={'trust': ref},
                            token=resp.headers.get('X-Subject-Token'),
                            method='POST',
-                           expected_status=http_client.FORBIDDEN)
+                           expected_status=http.client.FORBIDDEN)
 
     def test_trust_deleted_when_user_deleted(self):
         # create trust
@@ -476,7 +476,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
 
         self.get(
             '/OS-TRUST/trusts/%(trust_id)s' % {'trust_id': trust['id']},
-            expected_status=http_client.NOT_FOUND)
+            expected_status=http.client.NOT_FOUND)
 
         # create another user as the new trustee
         trustee_user = unit.create_user(PROVIDERS.identity_api,
@@ -555,7 +555,7 @@ class TrustsWithApplicationCredentials(test_v3.RestfulTestCase):
         auth_data = self.build_authentication_request(
             app_cred_id=app_cred['id'], secret=app_cred['secret'])
         token_data = self.v3_create_token(auth_data,
-                                          expected_status=http_client.CREATED)
+                                          expected_status=http.client.CREATED)
         trust_body = unit.new_trust_ref(trustor_user_id=self.user_id,
                                         trustee_user_id=self.trustee_user_id,
                                         project_id=self.project_id,
@@ -564,7 +564,7 @@ class TrustsWithApplicationCredentials(test_v3.RestfulTestCase):
             path='/OS-TRUST/trusts',
             body={'trust': trust_body},
             token=token_data.headers['x-subject-token'],
-            expected_status=http_client.FORBIDDEN)
+            expected_status=http.client.FORBIDDEN)
 
     def test_delete_trust_with_application_credential(self):
         ref = unit.new_trust_ref(
@@ -590,9 +590,9 @@ class TrustsWithApplicationCredentials(test_v3.RestfulTestCase):
         auth_data = self.build_authentication_request(
             app_cred_id=app_cred['id'], secret=app_cred['secret'])
         token_data = self.v3_create_token(auth_data,
-                                          expected_status=http_client.CREATED)
+                                          expected_status=http.client.CREATED)
         # delete the trust
         self.delete(path='/OS-TRUST/trusts/%(trust_id)s' % {
             'trust_id': trust['id']},
             token=token_data.headers['x-subject-token'],
-            expected_status=http_client.FORBIDDEN)
+            expected_status=http.client.FORBIDDEN)

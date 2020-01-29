@@ -12,7 +12,7 @@
 
 import uuid
 
-from six.moves import http_client
+import http.client
 
 from keystone.common import provider_api
 import keystone.conf
@@ -83,7 +83,7 @@ class _UserRegisteredLimitTests(object):
         with self.test_client() as c:
             c.post(
                 '/v3/registered_limits', json=create, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_registered_limits(self):
@@ -107,7 +107,7 @@ class _UserRegisteredLimitTests(object):
             c.patch(
                 '/v3/registered_limits/%s' % limit_id, json=update,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_registered_limits(self):
@@ -126,7 +126,7 @@ class _UserRegisteredLimitTests(object):
         with self.test_client() as c:
             c.delete(
                 '/v3/registered_limits/%s' % limit_id, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 

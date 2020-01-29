@@ -14,10 +14,10 @@
 
 import flask
 import flask_restful
+import http.client
 from oslo_log import log
 from oslo_utils import timeutils
-from six.moves import http_client
-from six.moves.urllib import parse as urlparse
+from urllib import parse as urlparse
 from werkzeug import exceptions
 
 from keystone.api._shared import json_home_relations
@@ -108,7 +108,7 @@ class ConsumerResource(ks_flask.ResourceBase):
         consumer = self._assign_unique_id(consumer)
         ref = PROVIDERS.oauth_api.create_consumer(
             consumer, initiator=self.audit_initiator)
-        return self.wrap_member(ref), http_client.CREATED
+        return self.wrap_member(ref), http.client.CREATED
 
     def delete(self, consumer_id):
         ENFORCER.enforce_call(action='identity:delete_consumer')
@@ -122,7 +122,7 @@ class ConsumerResource(ks_flask.ResourceBase):
         notifications.invalidate_token_cache_notification(reason)
         PROVIDERS.oauth_api.delete_consumer(
             consumer_id, initiator=self.audit_initiator)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
     def patch(self, consumer_id):
         ENFORCER.enforce_call(action='identity:update_consumer')
@@ -184,7 +184,7 @@ class RequestTokenResource(_OAuth1ResourceBase):
             expiry_bit = '&oauth_expires_at=%s' % token_ref['expires_at']
             result += expiry_bit
 
-        resp = flask.make_response(result, http_client.CREATED)
+        resp = flask.make_response(result, http.client.CREATED)
         resp.headers['Content-Type'] = 'application/x-www-form-urlencoded'
         return resp
 
@@ -276,7 +276,7 @@ class AccessTokenResource(_OAuth1ResourceBase):
             expiry_bit = '&oauth_expires_at=%s' % (token_ref['expires_at'])
             result += expiry_bit
 
-        resp = flask.make_response(result, http_client.CREATED)
+        resp = flask.make_response(result, http.client.CREATED)
         resp.headers['Content-Type'] = 'application/x-www-form-urlencoded'
         return resp
 

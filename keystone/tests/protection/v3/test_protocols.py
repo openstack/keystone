@@ -12,7 +12,7 @@
 
 import uuid
 
-from six.moves import http_client
+import http.client
 
 from keystone.common import provider_api
 import keystone.conf
@@ -91,7 +91,7 @@ class _SystemReaderAndMemberProtocolTests(object):
             )
             c.put(
                 path, json=create, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_protocols(self):
@@ -109,7 +109,7 @@ class _SystemReaderAndMemberProtocolTests(object):
             )
             c.patch(
                 path, json=update, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_protocol(self):
@@ -122,7 +122,7 @@ class _SystemReaderAndMemberProtocolTests(object):
             )
             c.delete(
                 path, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -148,7 +148,7 @@ class _DomainAndProjectUserProtocolTests(object):
             )
             c.put(
                 path, json=create, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_protocols(self):
@@ -166,7 +166,7 @@ class _DomainAndProjectUserProtocolTests(object):
             )
             c.patch(
                 path, json=update, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_protocol(self):
@@ -179,7 +179,7 @@ class _DomainAndProjectUserProtocolTests(object):
             )
             c.delete(
                 path, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_list_protocols(self):
@@ -192,7 +192,7 @@ class _DomainAndProjectUserProtocolTests(object):
             )
             c.get(
                 path, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_get_a_protocol(self):
@@ -205,7 +205,7 @@ class _DomainAndProjectUserProtocolTests(object):
             )
             c.get(
                 path, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -326,7 +326,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
             )
             c.put(
                 path, json=create, headers=self.headers,
-                expected_status_code=http_client.CREATED
+                expected_status_code=http.client.CREATED
             )
 
     def test_user_can_update_protocols(self):

@@ -15,8 +15,6 @@
 
 import abc
 
-import six
-
 import keystone.conf
 from keystone import exception
 
@@ -24,8 +22,7 @@ from keystone import exception
 CONF = keystone.conf.CONF
 
 
-@six.add_metaclass(abc.ABCMeta)
-class UnifiedLimitDriverBase(object):
+class UnifiedLimitDriverBase(object, metaclass=abc.ABCMeta):
 
     def _get_list_limit(self):
         return CONF.unified_limit.list_limit or CONF.list_limit

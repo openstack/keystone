@@ -14,13 +14,10 @@
 
 import abc
 
-import six
-
 from keystone import exception
 
 
-@six.add_metaclass(abc.ABCMeta)
-class Provider(object):
+class Provider(object, metaclass=abc.ABCMeta):
     """Interface description for a Token provider."""
 
     @abc.abstractmethod

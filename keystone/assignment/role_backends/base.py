@@ -14,8 +14,6 @@
 
 import abc
 
-import six
-
 import keystone.conf
 from keystone import exception
 
@@ -31,8 +29,7 @@ NULL_DOMAIN_ID = '<<null>>'
 CONF = keystone.conf.CONF
 
 
-@six.add_metaclass(abc.ABCMeta)
-class RoleDriverBase(object):
+class RoleDriverBase(object, metaclass=abc.ABCMeta):
 
     def _get_list_limit(self):
         return CONF.role.list_limit or CONF.list_limit

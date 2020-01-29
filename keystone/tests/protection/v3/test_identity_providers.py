@@ -12,7 +12,7 @@
 
 import uuid
 
-from six.moves import http_client
+import http.client
 
 from keystone.common import provider_api
 import keystone.conf
@@ -65,7 +65,7 @@ class _SystemReaderAndMemberIdentityProviderTests(object):
             c.put(
                 '/v3/OS-FEDERATION/identity_providers/%s' % uuid.uuid4().hex,
                 json=create, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_identity_providers(self):
@@ -79,7 +79,7 @@ class _SystemReaderAndMemberIdentityProviderTests(object):
             c.patch(
                 '/v3/OS-FEDERATION/identity_providers/%s' % idp['id'],
                 json=update, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_identity_providers(self):
@@ -91,7 +91,7 @@ class _SystemReaderAndMemberIdentityProviderTests(object):
             c.delete(
                 '/v3/OS-FEDERATION/identity_providers/%s' % idp['id'],
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -105,7 +105,7 @@ class _DomainAndProjectUserIdentityProviderTests(object):
             c.put(
                 '/v3/OS-FEDERATION/identity_providers/%s' % uuid.uuid4().hex,
                 json=create, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_identity_providers(self):
@@ -119,7 +119,7 @@ class _DomainAndProjectUserIdentityProviderTests(object):
             c.patch(
                 '/v3/OS-FEDERATION/identity_providers/%s' % idp['id'],
                 json=update, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_list_identity_providers(self):
@@ -130,7 +130,7 @@ class _DomainAndProjectUserIdentityProviderTests(object):
         with self.test_client() as c:
             c.get(
                 '/v3/OS-FEDERATION/identity_providers', headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_get_an_identity_provider(self):
@@ -142,7 +142,7 @@ class _DomainAndProjectUserIdentityProviderTests(object):
             c.get(
                 '/v3/OS-FEDERATION/identity_providers/%s' % idp['id'],
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_identity_providers(self):
@@ -154,7 +154,7 @@ class _DomainAndProjectUserIdentityProviderTests(object):
             c.delete(
                 '/v3/OS-FEDERATION/identity_providers/%s' % idp['id'],
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -259,7 +259,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
             c.put(
                 '/v3/OS-FEDERATION/identity_providers/%s' % uuid.uuid4().hex,
                 json=create, headers=self.headers,
-                expected_status_code=http_client.CREATED
+                expected_status_code=http.client.CREATED
             )
 
     def test_user_can_update_identity_providers(self):

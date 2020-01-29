@@ -11,10 +11,8 @@
 # under the License.
 
 from functools import partial
-import sys
 
 from oslo_log import log
-import six
 import stevedore
 
 from keystone.common import driver_hints
@@ -146,9 +144,8 @@ class AuthInfo(provider_api.ProviderAPIMixin, object):
                 project_id=project_ref['id'],
                 project=project_ref)
         except AssertionError as e:
-            LOG.warning(six.text_type(e))
-            six.reraise(exception.Unauthorized, exception.Unauthorized(e),
-                        sys.exc_info()[2])
+            LOG.warning(e)
+            raise exception.Unauthorized from e
 
     def _assert_domain_is_enabled(self, domain_ref):
         try:
@@ -156,9 +153,8 @@ class AuthInfo(provider_api.ProviderAPIMixin, object):
                 domain_id=domain_ref['id'],
                 domain=domain_ref)
         except AssertionError as e:
-            LOG.warning(six.text_type(e))
-            six.reraise(exception.Unauthorized, exception.Unauthorized(e),
-                        sys.exc_info()[2])
+            LOG.warning(e)
+            raise exception.Unauthorized from e
 
     def _lookup_domain(self, domain_info):
         domain_id = domain_info.get('id')
@@ -177,7 +173,7 @@ class AuthInfo(provider_api.ProviderAPIMixin, object):
             else:
                 domain_ref = PROVIDERS.resource_api.get_domain(domain_id)
         except exception.DomainNotFound as e:
-            LOG.warning(six.text_type(e))
+            LOG.warning(e)
             raise exception.Unauthorized(e)
         self._assert_domain_is_enabled(domain_ref)
         return domain_ref
@@ -210,7 +206,7 @@ class AuthInfo(provider_api.ProviderAPIMixin, object):
                 # disabled.
                 self._lookup_domain({'id': domain_id})
         except exception.ProjectNotFound as e:
-            LOG.warning(six.text_type(e))
+            LOG.warning(e)
             raise exception.Unauthorized(e)
         self._assert_project_is_enabled(project_ref)
         return project_ref
@@ -254,7 +250,7 @@ class AuthInfo(provider_api.ProviderAPIMixin, object):
         if len(app_creds) != 1:
             message = "Could not find application credential: %s" % name
             tr_message = _("Could not find application credential: %s") % name
-            LOG.warning(six.text_type(message))
+            LOG.warning(message)
             raise exception.Unauthorized(tr_message)
         return app_creds[0]
 
@@ -515,7 +511,7 @@ class UserMFARulesValidator(provider_api.ProviderAPIMixin, object):
                 # No empty rules are allowed.
                 _ok_rule = True
                 for item in r_list:
-                    if not isinstance(item, six.string_types):
+                    if not isinstance(item, str):
                         # Rules may only contain strings for method names
                         # Reject a rule with non-string values
                         LOG.info('Ignoring Rule %(rule)r; rule contains '

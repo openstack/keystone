@@ -12,8 +12,8 @@
 
 import uuid
 
+import http.client
 from oslo_serialization import jsonutils
-from six.moves import http_client
 
 from keystone.common.policies import base as bp
 from keystone.common import provider_api
@@ -192,14 +192,14 @@ class _ProjectUsersTests(object):
             path = '/v3/credentials/%s' % credential_id
             c.get(
                 path, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_get_non_existant_credential_forbidden(self):
         with self.test_client() as c:
             c.get(
                 '/v3/credentials/%s' % uuid.uuid4().hex, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_list_credentials_for_other_users(self):
@@ -351,7 +351,7 @@ class _ProjectUsersTests(object):
             path = '/v3/credentials/%s' % credential_id
             c.patch(
                 path, json=update, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_non_existant_credential_forbidden(self):
@@ -361,7 +361,7 @@ class _ProjectUsersTests(object):
             c.patch(
                 '/v3/credentials/%s' % uuid.uuid4().hex, json=update,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_create_credentials_for_other_users(self):
@@ -379,7 +379,7 @@ class _ProjectUsersTests(object):
             }
             c.post(
                 '/v3/credentials', json=create, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_credentials_for_others(self):
@@ -418,14 +418,14 @@ class _ProjectUsersTests(object):
             path = '/v3/credentials/%s' % credential_id
             c.delete(
                 path, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_non_existant_credential_forbidden(self):
         with self.test_client() as c:
             c.delete(
                 '/v3/credentials/%s' % uuid.uuid4().hex, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -474,7 +474,7 @@ class _SystemUserCredentialTests(object):
         with self.test_client() as c:
             c.get(
                 '/v3/credentials/%s' % uuid.uuid4().hex, headers=self.headers,
-                expected_status_code=http_client.NOT_FOUND
+                expected_status_code=http.client.NOT_FOUND
             )
 
     def test_user_can_filter_credentials_by_type_for_others(self):
@@ -617,7 +617,7 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
             }
             c.post(
                 '/v3/credentials', json=create, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_credentials_for_others(self):
@@ -657,7 +657,7 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
             path = '/v3/credentials/%s' % credential_id
             c.patch(
                 path, json=update, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_non_existant_credential_forbidden(self):
@@ -667,7 +667,7 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
             c.patch(
                 '/v3/credentials/%s' % uuid.uuid4().hex, json=update,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_credentials_for_others(self):
@@ -706,14 +706,14 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
             path = '/v3/credentials/%s' % credential_id
             c.delete(
                 path, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_non_existant_credential_forbidden(self):
         with self.test_client() as c:
             c.delete(
                 '/v3/credentials/%s' % uuid.uuid4().hex, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -765,7 +765,7 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
             }
             c.post(
                 '/v3/credentials', json=create, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_credentials_for_others(self):
@@ -805,7 +805,7 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
             path = '/v3/credentials/%s' % credential_id
             c.patch(
                 path, json=update, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_non_existant_credential_forbidden(self):
@@ -815,7 +815,7 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
             c.patch(
                 '/v3/credentials/%s' % uuid.uuid4().hex, json=update,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_credentials_for_others(self):
@@ -854,14 +854,14 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
             path = '/v3/credentials/%s' % credential_id
             c.delete(
                 path, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_non_existant_credential_forbidden(self):
         with self.test_client() as c:
             c.delete(
                 '/v3/credentials/%s' % uuid.uuid4().hex, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -954,7 +954,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
             c.patch(
                 '/v3/credentials/%s' % uuid.uuid4().hex, json=update,
                 headers=self.headers,
-                expected_status_code=http_client.NOT_FOUND
+                expected_status_code=http.client.NOT_FOUND
             )
 
     def test_user_can_delete_credentials_for_others(self):
@@ -997,7 +997,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.delete(
                 '/v3/credentials/%s' % uuid.uuid4().hex, headers=self.headers,
-                expected_status_code=http_client.NOT_FOUND
+                expected_status_code=http.client.NOT_FOUND
             )
 
 

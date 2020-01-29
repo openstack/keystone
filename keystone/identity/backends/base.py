@@ -14,8 +14,6 @@
 
 import abc
 
-import six
-
 import keystone.conf
 from keystone import exception
 
@@ -48,8 +46,7 @@ def filter_user(user_ref):
     return user_ref
 
 
-@six.add_metaclass(abc.ABCMeta)
-class IdentityDriverBase(object):
+class IdentityDriverBase(object, metaclass=abc.ABCMeta):
     """Interface description for an Identity driver.
 
     The schema for users and groups is different depending on whether the

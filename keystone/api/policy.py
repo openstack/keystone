@@ -13,8 +13,8 @@
 # This file handles all flask-restful resources for /policy
 
 import flask_restful
+import http.client
 from oslo_log import versionutils
-from six.moves import http_client
 
 from keystone.api._shared import json_home_relations
 from keystone.common import json_home
@@ -72,7 +72,7 @@ class PolicyResource(ks_flask.ResourceBase):
         ref = PROVIDERS.policy_api.create_policy(
             policy['id'], policy, initiator=self.audit_initiator
         )
-        return self.wrap_member(ref), http_client.CREATED
+        return self.wrap_member(ref), http.client.CREATED
 
     @versionutils.deprecated(
         as_of=versionutils.deprecated.QUEENS,
@@ -97,7 +97,7 @@ class PolicyResource(ks_flask.ResourceBase):
         res = PROVIDERS.policy_api.delete_policy(
             policy_id, initiator=self.audit_initiator
         )
-        return (res, http_client.NO_CONTENT)
+        return (res, http.client.NO_CONTENT)
 
 
 class EndpointPolicyResource(flask_restful.Resource):
@@ -128,7 +128,7 @@ class EndpointPolicyAssociations(flask_restful.Resource):
         PROVIDERS.endpoint_policy_api.check_policy_association(
             policy_id, endpoint_id=endpoint_id
         )
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
     def put(self, policy_id, endpoint_id):
         action = 'identity:create_policy_association_for_endpoint'
@@ -138,7 +138,7 @@ class EndpointPolicyAssociations(flask_restful.Resource):
         PROVIDERS.endpoint_policy_api.create_policy_association(
             policy_id, endpoint_id=endpoint_id
         )
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
     def delete(self, policy_id, endpoint_id):
         action = 'identity:delete_policy_association_for_endpoint'
@@ -148,7 +148,7 @@ class EndpointPolicyAssociations(flask_restful.Resource):
         PROVIDERS.endpoint_policy_api.delete_policy_association(
             policy_id, endpoint_id=endpoint_id
         )
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
 
 class ServicePolicyAssociations(flask_restful.Resource):
@@ -161,7 +161,7 @@ class ServicePolicyAssociations(flask_restful.Resource):
         PROVIDERS.endpoint_policy_api.check_policy_association(
             policy_id, service_id=service_id
         )
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
     def put(self, policy_id, service_id):
         action = 'identity:create_policy_association_for_service'
@@ -171,7 +171,7 @@ class ServicePolicyAssociations(flask_restful.Resource):
         PROVIDERS.endpoint_policy_api.create_policy_association(
             policy_id, service_id=service_id
         )
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
     def delete(self, policy_id, service_id):
         action = 'identity:delete_policy_association_for_service'
@@ -181,7 +181,7 @@ class ServicePolicyAssociations(flask_restful.Resource):
         PROVIDERS.endpoint_policy_api.delete_policy_association(
             policy_id, service_id=service_id
         )
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
 
 class ServiceRegionPolicyAssociations(flask_restful.Resource):
@@ -195,7 +195,7 @@ class ServiceRegionPolicyAssociations(flask_restful.Resource):
         PROVIDERS.endpoint_policy_api.check_policy_association(
             policy_id, service_id=service_id, region_id=region_id
         )
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
     def put(self, policy_id, service_id, region_id):
         action = 'identity:create_policy_association_for_region_and_service'
@@ -206,7 +206,7 @@ class ServiceRegionPolicyAssociations(flask_restful.Resource):
         PROVIDERS.endpoint_policy_api.create_policy_association(
             policy_id, service_id=service_id, region_id=region_id
         )
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
     def delete(self, policy_id, service_id, region_id):
         action = 'identity:delete_policy_association_for_region_and_service'
@@ -217,7 +217,7 @@ class ServiceRegionPolicyAssociations(flask_restful.Resource):
         PROVIDERS.endpoint_policy_api.delete_policy_association(
             policy_id, service_id=service_id, region_id=region_id
         )
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
 
 class PolicyAPI(ks_flask.APIBase):

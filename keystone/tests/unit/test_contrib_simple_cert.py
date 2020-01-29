@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from six.moves import http_client
+import http.client
 
 from keystone.tests.unit import test_v3
 
@@ -27,7 +27,7 @@ class TestSimpleCert(BaseTestCase):
         self.request(app=self.public_app,
                      method='GET',
                      path=path,
-                     expected_status=http_client.GONE)
+                     expected_status=http.client.GONE)
 
     def test_ca_cert(self):
         self.request_cert(self.CA_PATH)

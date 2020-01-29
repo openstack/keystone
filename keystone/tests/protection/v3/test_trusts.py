@@ -12,8 +12,8 @@
 
 import uuid
 
+import http.client
 from oslo_serialization import jsonutils
-from six.moves import http_client
 
 from keystone.common import provider_api
 import keystone.conf
@@ -133,7 +133,7 @@ class _AdminTestsMixin(object):
                 '/v3/OS-TRUST/trusts',
                 json=json,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_admin_list_all_trusts(self):
@@ -168,7 +168,7 @@ class AdminTokenTests(TrustTests, _AdminTestsMixin):
             c.delete(
                 '/v3/OS-TRUST/trusts/%s' % ref['id'],
                 headers=self.headers,
-                expected_status_code=http_client.NO_CONTENT
+                expected_status_code=http.client.NO_CONTENT
             )
 
     def test_admin_can_get_non_existent_trust_not_found(self):
@@ -177,7 +177,7 @@ class AdminTokenTests(TrustTests, _AdminTestsMixin):
             c.get(
                 '/v3/OS-TRUST/trusts/%s' % trust_id,
                 headers=self.headers,
-                expected_status_code=http_client.NOT_FOUND
+                expected_status_code=http.client.NOT_FOUND
             )
 
     def test_admin_cannot_get_trust_for_other_user(self):
@@ -188,7 +188,7 @@ class AdminTokenTests(TrustTests, _AdminTestsMixin):
             c.get(
                 '/v3/OS-TRUST/trusts/%s' % self.trust_id,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_admin_cannot_list_trust_roles_for_other_user(self):
@@ -199,7 +199,7 @@ class AdminTokenTests(TrustTests, _AdminTestsMixin):
             c.get(
                 '/v3/OS-TRUST/trusts/%s/roles' % self.trust_id,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_admin_cannot_get_trust_role_for_other_user(self):
@@ -211,7 +211,7 @@ class AdminTokenTests(TrustTests, _AdminTestsMixin):
                 ('/v3/OS-TRUST/trusts/%s/roles/%s' %
                  (self.trust_id, self.bootstrapper.member_role_id)),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -224,7 +224,7 @@ class _SystemUserTests(object):
             c.get(
                 '/v3/OS-TRUST/trusts/%s' % trust_id,
                 headers=self.headers,
-                expected_status_code=http_client.NOT_FOUND
+                expected_status_code=http.client.NOT_FOUND
             )
 
     def test_user_can_get_trust_for_other_user(self):
@@ -296,7 +296,7 @@ class _SystemReaderMemberTests(_SystemUserTests):
                 '/v3/OS-TRUST/trusts',
                 json=json,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_trust(self):
@@ -307,7 +307,7 @@ class _SystemReaderMemberTests(_SystemUserTests):
             c.delete(
                 '/v3/OS-TRUST/trusts/%s' % ref['id'],
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -414,7 +414,7 @@ class SystemAdminTests(TrustTests, _AdminTestsMixin, _SystemUserTests):
             c.delete(
                 '/v3/OS-TRUST/trusts/%s' % ref['id'],
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_admin_cannot_get_trust_for_other_user_overridden_defaults(self):
@@ -426,7 +426,7 @@ class SystemAdminTests(TrustTests, _AdminTestsMixin, _SystemUserTests):
             c.get(
                 '/v3/OS-TRUST/trusts/%s' % self.trust_id,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_admin_cannot_list_roles_for_other_user_overridden_defaults(self):
@@ -438,7 +438,7 @@ class SystemAdminTests(TrustTests, _AdminTestsMixin, _SystemUserTests):
             c.get(
                 '/v3/OS-TRUST/trusts/%s/roles' % self.trust_id,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_admin_cannot_get_trust_role_for_other_user_overridden(self):
@@ -451,7 +451,7 @@ class SystemAdminTests(TrustTests, _AdminTestsMixin, _SystemUserTests):
                 ('/v3/OS-TRUST/trusts/%s/roles/%s' %
                  (self.trust_id, self.bootstrapper.member_role_id)),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_list_all_trusts_overridden_defaults(self):
@@ -527,7 +527,7 @@ class ProjectUserTests(TrustTests):
                 ('/v3/OS-TRUST/trusts?trustee_user_id=%s' %
                  self.trustee_user_id),
                 headers=self.trustor_headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_trustee_cannot_list_trusts_for_trustor(self):
@@ -539,7 +539,7 @@ class ProjectUserTests(TrustTests):
                 ('/v3/OS-TRUST/trusts?trustor_user_id=%s' %
                  self.trustor_user_id),
                 headers=self.trustee_headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_list_trusts_for_other_trustor(self):
@@ -551,7 +551,7 @@ class ProjectUserTests(TrustTests):
                 ('/v3/OS-TRUST/trusts?trustor_user_id=%s' %
                  self.trustor_user_id),
                 headers=self.other_headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_list_trusts_for_other_trustee(self):
@@ -563,7 +563,7 @@ class ProjectUserTests(TrustTests):
                 ('/v3/OS-TRUST/trusts?trustee_user_id=%s' %
                  self.trustee_user_id),
                 headers=self.other_headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_list_all_trusts(self):
@@ -574,7 +574,7 @@ class ProjectUserTests(TrustTests):
             c.get(
                 '/v3/OS-TRUST/trusts',
                 headers=self.trustee_headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_get_another_users_trust(self):
@@ -585,7 +585,7 @@ class ProjectUserTests(TrustTests):
             c.get(
                 '/v3/OS-TRUST/trusts/%s' % ref['id'],
                 headers=self.other_headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_can_get_non_existent_trust_not_found(self):
@@ -594,7 +594,7 @@ class ProjectUserTests(TrustTests):
             c.get(
                 '/v3/OS-TRUST/trusts/%s' % trust_id,
                 headers=self.other_headers,
-                expected_status_code=http_client.NOT_FOUND
+                expected_status_code=http.client.NOT_FOUND
             )
 
     def test_user_can_get_trust_of_whom_they_are_the_trustor(self):
@@ -638,7 +638,7 @@ class ProjectUserTests(TrustTests):
                 '/v3/OS-TRUST/trusts',
                 json=json,
                 headers=self.trustee_headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_trustor_can_delete_trust(self):
@@ -659,7 +659,7 @@ class ProjectUserTests(TrustTests):
             c.delete(
                 '/v3/OS-TRUST/trusts/%s' % ref['id'],
                 headers=self.trustee_headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_trust_for_other_user(self):
@@ -670,7 +670,7 @@ class ProjectUserTests(TrustTests):
             c.delete(
                 '/v3/OS-TRUST/trusts/%s' % ref['id'],
                 headers=self.other_headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_trustor_can_list_trust_roles(self):
@@ -705,7 +705,7 @@ class ProjectUserTests(TrustTests):
             c.get(
                 '/v3/OS-TRUST/trusts/%s/roles' % self.trust_id,
                 headers=self.other_headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_trustor_can_get_trust_role(self):
@@ -739,7 +739,7 @@ class ProjectUserTests(TrustTests):
                 ('/v3/OS-TRUST/trusts/%s/roles/%s' %
                  (self.trust_id, self.bootstrapper.member_role_id)),
                 headers=self.other_headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_trustor_cannot_list_trusts_for_trustee_overridden_default(self):
@@ -752,7 +752,7 @@ class ProjectUserTests(TrustTests):
                 ('/v3/OS-TRUST/trusts?trustee_user_id=%s' %
                  self.trustee_user_id),
                 headers=self.trustor_headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_trustee_cannot_list_trusts_for_trustor_overridden_default(self):
@@ -765,7 +765,7 @@ class ProjectUserTests(TrustTests):
                 ('/v3/OS-TRUST/trusts?trustor_user_id=%s' %
                  self.trustor_user_id),
                 headers=self.trustee_headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_list_trusts_for_other_trustor_overridden(self):
@@ -778,7 +778,7 @@ class ProjectUserTests(TrustTests):
                 ('/v3/OS-TRUST/trusts?trustor_user_id=%s' %
                  self.trustor_user_id),
                 headers=self.other_headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_list_trusts_for_trustee_overridden_default(self):
@@ -791,7 +791,7 @@ class ProjectUserTests(TrustTests):
                 ('/v3/OS-TRUST/trusts?trustee_user_id=%s' %
                  self.trustee_user_id),
                 headers=self.other_headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_list_all_trusts_overridden_default(self):
@@ -803,7 +803,7 @@ class ProjectUserTests(TrustTests):
             c.get(
                 '/v3/OS-TRUST/trusts',
                 headers=self.trustee_headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_trustor_can_delete_trust_overridden_default(self):
@@ -826,7 +826,7 @@ class ProjectUserTests(TrustTests):
             c.delete(
                 '/v3/OS-TRUST/trusts/%s' % ref['id'],
                 headers=self.trustee_headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_trust_for_other_user_overridden_default(self):
@@ -838,7 +838,7 @@ class ProjectUserTests(TrustTests):
             c.delete(
                 '/v3/OS-TRUST/trusts/%s' % ref['id'],
                 headers=self.other_headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_can_get_trust_of_whom_they_are_the_trustor_overridden(self):
@@ -899,7 +899,7 @@ class ProjectUserTests(TrustTests):
             c.get(
                 '/v3/OS-TRUST/trusts/%s/roles' % self.trust_id,
                 headers=self.other_headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_trustor_can_get_trust_role_overridden_default(self):
@@ -936,7 +936,7 @@ class ProjectUserTests(TrustTests):
                 ('/v3/OS-TRUST/trusts/%s/roles/%s' %
                  (self.trust_id, self.bootstrapper.member_role_id)),
                 headers=self.other_headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -978,7 +978,7 @@ class DomainUserTests(TrustTests):
                 ('/v3/OS-TRUST/trusts?trustee_user_id=%s' %
                  self.trustee_user_id),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_trustee_cannot_list_trusts_for_trustor(self):
@@ -990,7 +990,7 @@ class DomainUserTests(TrustTests):
                 ('/v3/OS-TRUST/trusts?trustor_user_id=%s' %
                  self.trustor_user_id),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_list_all_trusts(self):
@@ -1001,7 +1001,7 @@ class DomainUserTests(TrustTests):
             c.get(
                 '/v3/OS-TRUST/trusts',
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_get_trust(self):
@@ -1012,7 +1012,7 @@ class DomainUserTests(TrustTests):
             c.get(
                 '/v3/OS-TRUST/trusts/%s' % ref['id'],
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_can_get_non_existent_trust_not_found(self):
@@ -1021,7 +1021,7 @@ class DomainUserTests(TrustTests):
             c.get(
                 '/v3/OS-TRUST/trusts/%s' % trust_id,
                 headers=self.headers,
-                expected_status_code=http_client.NOT_FOUND
+                expected_status_code=http.client.NOT_FOUND
             )
 
     def test_user_cannot_create_trust(self):
@@ -1035,7 +1035,7 @@ class DomainUserTests(TrustTests):
                 '/v3/OS-TRUST/trusts',
                 json=json,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_trust(self):
@@ -1046,7 +1046,7 @@ class DomainUserTests(TrustTests):
             c.delete(
                 '/v3/OS-TRUST/trusts/%s' % ref['id'],
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_list_trust_roles(self):
@@ -1057,7 +1057,7 @@ class DomainUserTests(TrustTests):
             c.get(
                 '/v3/OS-TRUST/trusts/%s/roles' % self.trust_id,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_get_trust_role(self):
@@ -1069,5 +1069,5 @@ class DomainUserTests(TrustTests):
                 ('/v3/OS-TRUST/trusts/%s/roles/%s' %
                  (self.trust_id, self.bootstrapper.member_role_id)),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )

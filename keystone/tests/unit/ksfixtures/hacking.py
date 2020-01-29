@@ -309,7 +309,7 @@ class HackingTranslations(fixtures.Fixture):
                 try:
                     something = True
                 except AssertionError as e:
-                    LOG.warning(six.text_type(e))
+                    LOG.warning(e)
                     raise exception.Unauthorized(e)
             """,
             'expected_errors': [],

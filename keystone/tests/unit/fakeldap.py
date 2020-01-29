@@ -28,8 +28,6 @@ import shelve
 
 import ldap
 from oslo_log import log
-import six
-from six import moves
 
 import keystone.conf
 from keystone import exception
@@ -119,7 +117,7 @@ def _paren_groups(source):
     count = 0
     start = 0
     result = []
-    for pos in moves.range(len(source)):
+    for pos in range(len(source)):
         if source[pos] == '(':
             if count == 0:
                 start = pos
@@ -168,8 +166,8 @@ def _match(key, value, attrs):
         # For serviceId, the backend is returning a list of numbers.
         # Make sure we convert them to strings first before comparing
         # them.
-        str_sids = [six.text_type(x) for x in attrs[key]]
-        return six.text_type(value) in str_sids
+        str_sids = [str(x) for x in attrs[key]]
+        return str(value) in str_sids
     if key != 'objectclass':
         check_value = _internal_attr(key, value)[0].lower()
         norm_values = list(

@@ -12,8 +12,6 @@
 
 import uuid
 
-from six.moves import range
-
 from keystone.common import provider_api
 from keystone.credential.providers import fernet as credential_provider
 from keystone.tests import unit

@@ -10,7 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from six import text_type
 from sqlalchemy import orm
 from sqlalchemy.orm import collections
 
@@ -102,7 +101,7 @@ class Project(sql.ModelBase, sql.ModelDictMixinWithExtras):
         for tag in values:
             tag_ref = ProjectTag()
             tag_ref.project_id = self.id
-            tag_ref.name = text_type(tag)
+            tag_ref.name = str(tag)
             new_tags.append(tag_ref)
         self._tags = new_tags
 

@@ -31,7 +31,6 @@ from oslo_serialization import jsonutils
 from oslo_utils import timeutils
 from osprofiler import opts as profiler
 import osprofiler.sqlalchemy
-import six
 import sqlalchemy as sql
 from sqlalchemy.ext import declarative
 from sqlalchemy.orm.attributes import flag_modified, InstrumentedAttribute
@@ -103,8 +102,8 @@ def initialize_decorator(init):
                 if isinstance(attr, InstrumentedAttribute):
                     column = attr.property.columns[0]
                     if isinstance(column.type, String):
-                        if not isinstance(v, six.text_type):
-                            v = six.text_type(v)
+                        if not isinstance(v, str):
+                            v = str(v)
                         if column.type.length and column.type.length < len(v):
                             raise exception.StringLengthExceeded(
                                 string=v, type=k, length=column.type.length)
@@ -521,7 +520,7 @@ def handle_conflicts(conflict_type='object'):
                 # exception details out with the raised Conflict exception
                 # as it can contain raw SQL.
                 LOG.debug(_conflict_msg, {'conflict_type': conflict_type,
-                                          'details': six.text_type(e)})
+                                          'details': e})
                 name = None
                 field = None
                 domain_id = None
@@ -560,7 +559,7 @@ def handle_conflicts(conflict_type='object'):
                     # exception details out with the raised Conflict exception
                     # as it can contain raw SQL.
                     LOG.debug(_conflict_msg, {'conflict_type': conflict_type,
-                                              'details': six.text_type(e)})
+                                              'details': e})
                     # NOTE(morganfainberg): This is really a case where the SQL
                     # failed to store the data. This is not something that the
                     # user has done wrong. Example would be a ForeignKey is

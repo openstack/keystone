@@ -19,7 +19,6 @@
 
 import flask
 from oslo_log import log
-import six
 
 from keystone.auth import core
 from keystone.common import provider_api
@@ -55,7 +54,7 @@ def _check_and_set_default_scoping(auth_info, auth_context):
     try:
         user_ref = PROVIDERS.identity_api.get_user(auth_context['user_id'])
     except exception.UserNotFound as e:
-        LOG.warning(six.text_type(e))
+        LOG.warning(e)
         raise exception.Unauthorized(e)
 
     default_project_id = user_ref.get('default_project_id')
@@ -235,7 +234,7 @@ def authenticate_for_token(auth=None):
 
         return token
     except exception.TrustNotFound as e:
-        LOG.warning(six.text_type(e))
+        LOG.warning(e)
         raise exception.Unauthorized(e)
 
 

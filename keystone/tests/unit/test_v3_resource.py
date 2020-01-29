@@ -12,8 +12,7 @@
 
 import uuid
 
-from six.moves import http_client
-from six.moves import range
+import http.client
 from testtools import matchers
 
 from keystone.common import provider_api
@@ -75,7 +74,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
     def test_create_domain_bad_request(self):
         """Call ``POST /domains``."""
         self.post('/domains', body={'domain': {}},
-                  expected_status=http_client.BAD_REQUEST)
+                  expected_status=http.client.BAD_REQUEST)
 
     def test_create_domain_unsafe(self):
         """Call ``POST /domains with unsafe names``."""
@@ -95,7 +94,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
             self.post(
                 '/domains',
                 body={'domain': ref},
-                expected_status=http_client.BAD_REQUEST)
+                expected_status=http.client.BAD_REQUEST)
 
     def test_create_domain_unsafe_default(self):
         """Check default for unsafe names for ``POST /domains``."""
@@ -173,7 +172,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         r = self.post(
             '/domains',
             body={'domain': ref},
-            expected_status=http_client.CONFLICT)
+            expected_status=http.client.CONFLICT)
 
     def test_create_domain_invalid_explicit_ids(self):
         """Call ``POST /domains`` with various invalid explicit_domain_ids."""
@@ -188,7 +187,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         for explicit_domain_id in bad_ids:
             ref['explicit_domain_id'] = explicit_domain_id
             self.post('/domains', body={'domain': {}},
-                      expected_status=http_client.BAD_REQUEST)
+                      expected_status=http.client.BAD_REQUEST)
 
     def test_list_head_domains(self):
         """Call ``GET & HEAD /domains``."""
@@ -196,7 +195,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         r = self.get(resource_url)
         self.assertValidDomainListResponse(r, ref=self.domain,
                                            resource_url=resource_url)
-        self.head(resource_url, expected_status=http_client.OK)
+        self.head(resource_url, expected_status=http.client.OK)
 
     def test_list_limit_for_domains(self):
         for x in range(6):
@@ -217,7 +216,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
             'domain_id': self.domain_id}
         r = self.get(resource_url)
         self.assertValidDomainResponse(r, self.domain)
-        self.head(resource_url, expected_status=http_client.OK)
+        self.head(resource_url, expected_status=http.client.OK)
 
     def test_update_domain(self):
         """Call ``PATCH /domains/{domain_id}``."""
@@ -249,7 +248,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
             self.patch('/domains/%(domain_id)s' % {
                 'domain_id': self.domain_id},
                 body={'domain': ref},
-                expected_status=http_client.BAD_REQUEST)
+                expected_status=http.client.BAD_REQUEST)
 
     def test_update_domain_unsafe_default(self):
         """Check default for unsafe names for ``POST /domains``."""
@@ -324,7 +323,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
             password=user2['password'],
             project_id=project2['id'])
         self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
         auth_data = self.build_authentication_request(
             username=user2['name'],
@@ -332,7 +331,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
             password=user2['password'],
             project_id=project2['id'])
         self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
     def test_delete_enabled_domain_fails(self):
         """Call ``DELETE /domains/{domain_id}`` (when domain enabled)."""
@@ -441,7 +440,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         self.put('/OS-FEDERATION/identity_providers/test_idp',
                  body={"identity_provider": {
                      "domain_id": domain_id}},
-                 expected_status=http_client.CREATED)
+                 expected_status=http.client.CREATED)
         # Disable and delete the domain with no error.
         self.patch('/domains/%(domain_id)s' % {
             'domain_id': domain_id},
@@ -449,7 +448,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         self.delete('/domains/%s' % domain_id)
         # The Idp is deleted as well
         self.get('/OS-FEDERATION/identity_providers/test_idp',
-                 expected_status=http_client.NOT_FOUND)
+                 expected_status=http.client.NOT_FOUND)
 
     def test_delete_domain_deletes_is_domain_project(self):
         """Check the project that acts as a domain is deleted.
@@ -510,7 +509,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         # validates the returned token and it should be valid.
         self.head('/auth/tokens',
                   headers={'x-subject-token': subject_token},
-                  expected_status=http_client.OK)
+                  expected_status=http.client.OK)
 
         # now disable the domain
         domain['enabled'] = False
@@ -522,7 +521,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         # as the domain has already been disabled.
         self.head('/auth/tokens',
                   headers={'x-subject-token': subject_token},
-                  expected_status=http_client.NOT_FOUND)
+                  expected_status=http.client.NOT_FOUND)
 
     def test_delete_domain_hierarchy(self):
         """Call ``DELETE /domains/{domain_id}``."""
@@ -627,7 +626,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         r = self.get(resource_url)
         self.assertValidProjectListResponse(r, ref=self.project,
                                             resource_url=resource_url)
-        self.head(resource_url, expected_status=http_client.OK)
+        self.head(resource_url, expected_status=http.client.OK)
 
     def test_create_project(self):
         """Call ``POST /projects``."""
@@ -640,13 +639,13 @@ class ResourceTestCase(test_v3.RestfulTestCase,
     def test_create_project_bad_request(self):
         """Call ``POST /projects``."""
         self.post('/projects', body={'project': {}},
-                  expected_status=http_client.BAD_REQUEST)
+                  expected_status=http.client.BAD_REQUEST)
 
     def test_create_project_invalid_domain_id(self):
         """Call ``POST /projects``."""
         ref = unit.new_project_ref(domain_id=uuid.uuid4().hex)
         self.post('/projects', body={'project': ref},
-                  expected_status=http_client.BAD_REQUEST)
+                  expected_status=http.client.BAD_REQUEST)
 
     def test_create_project_unsafe(self):
         """Call ``POST /projects with unsafe names``."""
@@ -666,7 +665,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
             self.post(
                 '/projects',
                 body={'project': ref},
-                expected_status=http_client.BAD_REQUEST)
+                expected_status=http.client.BAD_REQUEST)
 
     def test_create_project_unsafe_default(self):
         """Check default for unsafe names for ``POST /projects``."""
@@ -987,25 +986,25 @@ class ResourceTestCase(test_v3.RestfulTestCase,
             'project_id': self.project_id}
         r = self.get(resource_url)
         self.assertValidProjectResponse(r, self.project)
-        self.head(resource_url, expected_status=http_client.OK)
+        self.head(resource_url, expected_status=http.client.OK)
 
     def test_get_project_with_parents_as_list_with_invalid_id(self):
         """Call ``GET /projects/{project_id}?parents_as_list``."""
         self.get('/projects/%(project_id)s?parents_as_list' % {
-                 'project_id': None}, expected_status=http_client.NOT_FOUND)
+                 'project_id': None}, expected_status=http.client.NOT_FOUND)
 
         self.get('/projects/%(project_id)s?parents_as_list' % {
                  'project_id': uuid.uuid4().hex},
-                 expected_status=http_client.NOT_FOUND)
+                 expected_status=http.client.NOT_FOUND)
 
     def test_get_project_with_subtree_as_list_with_invalid_id(self):
         """Call ``GET /projects/{project_id}?subtree_as_list``."""
         self.get('/projects/%(project_id)s?subtree_as_list' % {
-                 'project_id': None}, expected_status=http_client.NOT_FOUND)
+                 'project_id': None}, expected_status=http.client.NOT_FOUND)
 
         self.get('/projects/%(project_id)s?subtree_as_list' % {
                  'project_id': uuid.uuid4().hex},
-                 expected_status=http_client.NOT_FOUND)
+                 expected_status=http.client.NOT_FOUND)
 
     def test_get_project_with_parents_as_ids(self):
         """Call ``GET /projects/{project_id}?parents_as_ids``."""
@@ -1136,7 +1135,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         self.get(
             '/projects/%(project_id)s?parents_as_list&parents_as_ids' % {
                 'project_id': projects[1]['project']['id']},
-            expected_status=http_client.BAD_REQUEST)
+            expected_status=http.client.BAD_REQUEST)
 
     def test_get_project_with_include_limits(self):
         PROVIDERS.assignment_api.create_system_grant_for_user(
@@ -1158,7 +1157,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
             '/registered_limits',
             body={'registered_limits': [reg_limit]},
             token=system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
         limit1 = unit.new_limit_ref(project_id=parent['project']['id'],
                                     service_id=self.service_id,
                                     region_id=self.region_id,
@@ -1175,7 +1174,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
             '/limits',
             body={'limits': [limit1, limit2, limit3]},
             token=system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
         # "include_limits" should work together with "parents_as_list" or
         # "subtree_as_list". Only using "include_limits" really does nothing.
         r = self.get('/projects/%(project_id)s?include_limits' %
@@ -1431,7 +1430,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         self.get(
             '/projects/%(project_id)s?subtree_as_list&subtree_as_ids' % {
                 'project_id': projects[1]['project']['id']},
-            expected_status=http_client.BAD_REQUEST)
+            expected_status=http.client.BAD_REQUEST)
 
     def test_update_project(self):
         """Call ``PATCH /projects/{project_id}``."""
@@ -1471,7 +1470,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
                 '/projects/%(project_id)s' % {
                     'project_id': self.project_id},
                 body={'project': ref},
-                expected_status=http_client.BAD_REQUEST)
+                expected_status=http.client.BAD_REQUEST)
 
     def test_update_project_unsafe_default(self):
         """Check default for unsafe names for ``POST /projects``."""
@@ -1510,7 +1509,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
             '/projects/%(project_id)s' % {
                 'project_id': leaf_project['id']},
             body={'project': leaf_project},
-            expected_status=http_client.FORBIDDEN)
+            expected_status=http.client.FORBIDDEN)
 
     def test_update_project_is_domain_not_allowed(self):
         """Call ``PATCH /projects/{project_id}`` with is_domain.
@@ -1527,7 +1526,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         self.patch('/projects/%(project_id)s' % {
             'project_id': resp.result['project']['id']},
             body={'project': project},
-            expected_status=http_client.BAD_REQUEST)
+            expected_status=http.client.BAD_REQUEST)
 
     def test_disable_leaf_project(self):
         """Call ``PATCH /projects/{project_id}``."""
@@ -1550,7 +1549,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
             '/projects/%(project_id)s' % {
                 'project_id': root_project['id']},
             body={'project': root_project},
-            expected_status=http_client.FORBIDDEN)
+            expected_status=http.client.FORBIDDEN)
 
     def test_delete_project(self):
         """Call ``DELETE /projects/{project_id}``.
@@ -1598,14 +1597,14 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         self.delete(
             '/projects/%(project_id)s' % {
                 'project_id': projects[0]['project']['id']},
-            expected_status=http_client.FORBIDDEN)
+            expected_status=http.client.FORBIDDEN)
 
     def test_create_project_with_tags(self):
         project, tags = self._create_project_and_tags(num_of_tags=10)
         ref = self.get(
             '/projects/%(project_id)s' % {
                 'project_id': project['id']},
-            expected_status=http_client.OK)
+            expected_status=http.client.OK)
         self.assertIn('tags', ref.result['project'])
         for tag in tags:
             self.assertIn(tag, ref.result['project']['tags'])
@@ -1624,9 +1623,9 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         tag = uuid.uuid4().hex
         url = '/projects/%(project_id)s/tags/%(value)s'
         self.put(url % {'project_id': self.project_id, 'value': tag},
-                 expected_status=http_client.CREATED)
+                 expected_status=http.client.CREATED)
         self.get(url % {'project_id': self.project_id, 'value': tag},
-                 expected_status=http_client.NO_CONTENT)
+                 expected_status=http.client.NO_CONTENT)
 
     def test_create_project_tag_is_case_insensitive(self):
         case_tags = ['case', 'CASE']
@@ -1635,10 +1634,10 @@ class ResourceTestCase(test_v3.RestfulTestCase,
                 '/projects/%(project_id)s/tags/%(value)s' % {
                     'project_id': self.project_id,
                     'value': tag},
-                expected_status=http_client.CREATED)
+                expected_status=http.client.CREATED)
         resp = self.get('/projects/%(project_id)s' %
                         {'project_id': self.project_id},
-                        expected_status=http_client.OK)
+                        expected_status=http.client.OK)
         for tag in case_tags:
             self.assertIn(tag, resp.result['project']['tags'])
 
@@ -1648,12 +1647,12 @@ class ResourceTestCase(test_v3.RestfulTestCase,
             '/projects/%(project_id)s/tags/%(value)s' % {
                 'project_id': project['id'],
                 'value': tags[0]},
-            expected_status=http_client.NO_CONTENT)
+            expected_status=http.client.NO_CONTENT)
         self.head(
             '/projects/%(project_id)s/tags/%(value)s' % {
                 'project_id': project['id'],
                 'value': tags[0]},
-            expected_status=http_client.NO_CONTENT)
+            expected_status=http.client.NO_CONTENT)
 
     def test_get_project_tag_that_does_not_exist(self):
         project, _ = self._create_project_and_tags()
@@ -1661,7 +1660,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
             '/projects/%(project_id)s/tags/%(value)s' % {
                 'project_id': project['id'],
                 'value': uuid.uuid4().hex},
-            expected_status=http_client.NOT_FOUND)
+            expected_status=http.client.NOT_FOUND)
 
     def test_delete_project_tag(self):
         project, tags = self._create_project_and_tags()
@@ -1669,28 +1668,28 @@ class ResourceTestCase(test_v3.RestfulTestCase,
             '/projects/%(project_id)s/tags/%(value)s' % {
                 'project_id': project['id'],
                 'value': tags[0]},
-            expected_status=http_client.NO_CONTENT)
+            expected_status=http.client.NO_CONTENT)
         self.get(
             '/projects/%(project_id)s/tags/%(value)s' % {
                 'project_id': self.project_id,
                 'value': tags[0]},
-            expected_status=http_client.NOT_FOUND)
+            expected_status=http.client.NOT_FOUND)
 
     def test_delete_project_tags(self):
         project, tags = self._create_project_and_tags(num_of_tags=5)
         self.delete(
             '/projects/%(project_id)s/tags/' % {
                 'project_id': project['id']},
-            expected_status=http_client.NO_CONTENT)
+            expected_status=http.client.NO_CONTENT)
         self.get(
             '/projects/%(project_id)s/tags/%(value)s' % {
                 'project_id': self.project_id,
                 'value': tags[0]},
-            expected_status=http_client.NOT_FOUND)
+            expected_status=http.client.NOT_FOUND)
         resp = self.get(
             '/projects/%(project_id)s/tags/' % {
                 'project_id': self.project_id},
-            expected_status=http_client.OK)
+            expected_status=http.client.OK)
         self.assertEqual(len(resp.result['tags']), 0)
 
     def test_create_project_tag_invalid_project_id(self):
@@ -1698,7 +1697,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
             '/projects/%(project_id)s/tags/%(value)s' % {
                 'project_id': uuid.uuid4().hex,
                 'value': uuid.uuid4().hex},
-            expected_status=http_client.NOT_FOUND)
+            expected_status=http.client.NOT_FOUND)
 
     def test_create_project_tag_unsafe_name(self):
         tag = uuid.uuid4().hex + ','
@@ -1706,7 +1705,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
             '/projects/%(project_id)s/tags/%(value)s' % {
                 'project_id': self.project_id,
                 'value': tag},
-            expected_status=http_client.BAD_REQUEST)
+            expected_status=http.client.BAD_REQUEST)
 
     def test_create_project_tag_already_exists(self):
         project, tags = self._create_project_and_tags()
@@ -1714,7 +1713,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
             '/projects/%(project_id)s/tags/%(value)s' % {
                 'project_id': project['id'],
                 'value': tags[0]},
-            expected_status=http_client.BAD_REQUEST)
+            expected_status=http.client.BAD_REQUEST)
 
     def test_create_project_tag_over_tag_limit(self):
         project, _ = self._create_project_and_tags(num_of_tags=80)
@@ -1722,7 +1721,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
             '/projects/%(project_id)s/tags/%(value)s' % {
                 'project_id': project['id'],
                 'value': uuid.uuid4().hex},
-            expected_status=http_client.BAD_REQUEST)
+            expected_status=http.client.BAD_REQUEST)
 
     def test_create_project_tag_name_over_character_limit(self):
         tag = 'a' * 256
@@ -1730,28 +1729,28 @@ class ResourceTestCase(test_v3.RestfulTestCase,
             '/projects/%(project_id)s/tags/%(value)s' % {
                 'project_id': self.project_id,
                 'value': tag},
-            expected_status=http_client.BAD_REQUEST)
+            expected_status=http.client.BAD_REQUEST)
 
     def test_delete_tag_invalid_project_id(self):
         self.delete(
             '/projects/%(project_id)s/tags/%(value)s' % {
                 'project_id': uuid.uuid4().hex,
                 'value': uuid.uuid4().hex},
-            expected_status=http_client.NOT_FOUND)
+            expected_status=http.client.NOT_FOUND)
 
     def test_delete_project_tag_not_found(self):
         self.delete(
             '/projects/%(project_id)s/tags/%(value)s' % {
                 'project_id': self.project_id,
                 'value': uuid.uuid4().hex},
-            expected_status=http_client.NOT_FOUND)
+            expected_status=http.client.NOT_FOUND)
 
     def test_list_project_tags(self):
         project, tags = self._create_project_and_tags(num_of_tags=5)
         resp = self.get(
             '/projects/%(project_id)s/tags' % {
                 'project_id': project['id']},
-            expected_status=http_client.OK)
+            expected_status=http.client.OK)
         for tag in tags:
             self.assertIn(tag, resp.result['tags'])
 
@@ -1761,13 +1760,13 @@ class ResourceTestCase(test_v3.RestfulTestCase,
             '/projects/%(project_id)s/tags/%(value)s' % {
                 'project_id': project['id'],
                 'value': tags[0]},
-            expected_status=http_client.NO_CONTENT)
+            expected_status=http.client.NO_CONTENT)
 
     def test_list_project_tags_for_project_with_no_tags(self):
         resp = self.get(
             '/projects/%(project_id)s/tags' % {
                 'project_id': self.project_id},
-            expected_status=http_client.OK)
+            expected_status=http.client.OK)
         self.assertEqual([], resp.result['tags'])
 
     def test_check_project_with_no_tags(self):
@@ -1775,7 +1774,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
             '/projects/%(project_id)s/tags/%(value)s' % {
                 'project_id': self.project_id,
                 'value': uuid.uuid4().hex},
-            expected_status=http_client.NOT_FOUND)
+            expected_status=http.client.NOT_FOUND)
 
     def test_update_project_tags(self):
         project, tags = self._create_project_and_tags(num_of_tags=5)
@@ -1783,7 +1782,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
             '/projects/%(project_id)s/tags' % {
                 'project_id': project['id']},
             body={'tags': tags},
-            expected_status=http_client.OK)
+            expected_status=http.client.OK)
         self.assertIn(tags[1], resp.result['tags'])
 
     def test_update_project_tags_removes_previous_tags(self):
@@ -1793,12 +1792,12 @@ class ResourceTestCase(test_v3.RestfulTestCase,
             '/projects/%(project_id)s/tags/%(value)s' % {
                 'project_id': project['id'],
                 'value': tag},
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
         resp = self.put(
             '/projects/%(project_id)s/tags' % {
                 'project_id': project['id']},
             body={'tags': tags},
-            expected_status=http_client.OK)
+            expected_status=http.client.OK)
         self.assertNotIn(tag, resp.result['tags'])
         self.assertIn(tags[1], resp.result['tags'])
 
@@ -1811,7 +1810,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
                 '/projects/%(project_id)s/tags' % {
                     'project_id': project['id']},
                 body={'tags': tags},
-                expected_status=http_client.BAD_REQUEST)
+                expected_status=http.client.BAD_REQUEST)
 
     def test_update_project_tags_with_too_many_tags(self):
         project, _ = self._create_project_and_tags()
@@ -1820,7 +1819,7 @@ class ResourceTestCase(test_v3.RestfulTestCase,
         self.put(
             '/projects/%(project_id)s/tags' % {'project_id': project['id']},
             body={'tags': tags},
-            expected_status=http_client.BAD_REQUEST)
+            expected_status=http.client.BAD_REQUEST)
 
     def test_list_projects_by_user_with_inherited_role(self):
         """Ensure the cache is invalidated when creating/deleting a project."""
@@ -1881,4 +1880,4 @@ class StrictTwoLevelLimitsResourceTestCase(ResourceTestCase):
             parent_id=projects[1]['project']['id'])
         self.post('/projects',
                   body={'project': new_ref},
-                  expected_status=http_client.FORBIDDEN)
+                  expected_status=http.client.FORBIDDEN)

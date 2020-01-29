@@ -13,8 +13,8 @@
 import datetime
 import uuid
 
+import http.client
 from oslo_serialization import jsonutils
-from six.moves import http_client
 
 from keystone.common.policies import base as base_policy
 from keystone.common import provider_api
@@ -127,7 +127,7 @@ class _DomainAndProjectUserTests(object):
         with self.test_client() as c:
             c.get('/v3/users/%s/application_credentials' % (
                   self.app_cred_user_id),
-                  expected_status_code=http_client.FORBIDDEN,
+                  expected_status_code=http.client.FORBIDDEN,
                   headers=self.headers)
 
     def test_user_cannot_get_application_credential(self):
@@ -137,7 +137,7 @@ class _DomainAndProjectUserTests(object):
             c.get('/v3/users/%s/application_credentials/%s' % (
                   self.app_cred_user_id,
                   app_cred['id']),
-                  expected_status_code=http_client.FORBIDDEN,
+                  expected_status_code=http.client.FORBIDDEN,
                   headers=self.headers)
 
     def test_user_cannot_lookup_application_credential(self):
@@ -147,7 +147,7 @@ class _DomainAndProjectUserTests(object):
             c.get('/v3/users/%s/application_credentials?name=%s' % (
                   self.app_cred_user_id,
                   app_cred['name']),
-                  expected_status_code=http_client.FORBIDDEN,
+                  expected_status_code=http.client.FORBIDDEN,
                   headers=self.headers)
 
     def test_user_cannot_delete_application_credential(self):
@@ -158,7 +158,7 @@ class _DomainAndProjectUserTests(object):
                 '/v3/users/%s/application_credentials/%s' % (
                     self.app_cred_user_id,
                     app_cred['id']),
-                expected_status_code=http_client.FORBIDDEN,
+                expected_status_code=http.client.FORBIDDEN,
                 headers=self.headers)
 
     def test_user_cannot_lookup_non_existent_application_credential(self):
@@ -166,7 +166,7 @@ class _DomainAndProjectUserTests(object):
             c.get('/v3/users/%s/application_credentials?name=%s' % (
                   self.app_cred_user_id,
                   uuid.uuid4().hex),
-                  expected_status_code=http_client.FORBIDDEN,
+                  expected_status_code=http.client.FORBIDDEN,
                   headers=self.headers)
 
     def test_user_cannot_create_app_credential_for_another_user(self):
@@ -187,7 +187,7 @@ class _DomainAndProjectUserTests(object):
             c.post(
                 '/v3/users/%s/application_credentials' % another_user_id,
                 json=app_cred_body,
-                expected_status_code=http_client.FORBIDDEN,
+                expected_status_code=http.client.FORBIDDEN,
                 headers=self.headers)
 
 
@@ -233,7 +233,7 @@ class _SystemUserAndOwnerTests(object):
 
     def _test_delete_application_credential(
             self,
-            expected_status_code=http_client.NO_CONTENT):
+            expected_status_code=http.client.NO_CONTENT):
         app_cred = self._create_application_credential()
 
         with self.test_client() as c:
@@ -262,7 +262,7 @@ class _SystemUserAndOwnerTests(object):
             c.post(
                 '/v3/users/%s/application_credentials' % another_user_id,
                 json=app_cred_body,
-                expected_status_code=http_client.FORBIDDEN,
+                expected_status_code=http.client.FORBIDDEN,
                 headers=self.headers)
 
 
@@ -300,7 +300,7 @@ class SystemReaderTests(_TestAppCredBase,
 
     def test_system_reader_cannot_delete_application_credential_for_user(self):
         self._test_delete_application_credential(
-            expected_status_code=http_client.FORBIDDEN)
+            expected_status_code=http.client.FORBIDDEN)
 
 
 class SystemMemberTests(_TestAppCredBase,
@@ -337,7 +337,7 @@ class SystemMemberTests(_TestAppCredBase,
 
     def test_system_reader_cannot_delete_application_credential_for_user(self):
         self._test_delete_application_credential(
-            expected_status_code=http_client.FORBIDDEN)
+            expected_status_code=http.client.FORBIDDEN)
 
 
 class SystemAdminTests(_TestAppCredBase,
@@ -412,7 +412,7 @@ class OwnerTests(_TestAppCredBase,
             c.post(
                 '/v3/users/%s/application_credentials' % self.user_id,
                 json=app_cred_body,
-                expected_status_code=http_client.CREATED,
+                expected_status_code=http.client.CREATED,
                 headers=self.headers)
 
     def test_owner_can_delete_application_credential(self):

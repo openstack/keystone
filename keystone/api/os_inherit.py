@@ -14,8 +14,8 @@
 
 import flask_restful
 import functools
+import http.client
 from oslo_log import log
-from six.moves import http_client
 
 from keystone.api._shared import json_home_relations
 from keystone.common import json_home
@@ -118,7 +118,7 @@ class OSInheritDomainGroupRolesResource(flask_restful.Resource):
         PROVIDERS.assignment_api.get_grant(
             domain_id=domain_id, group_id=group_id, role_id=role_id,
             inherited_to_projects=True)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
     def put(self, domain_id, group_id, role_id):
         """Create an inherited grant for a group on a domain.
@@ -135,7 +135,7 @@ class OSInheritDomainGroupRolesResource(flask_restful.Resource):
         PROVIDERS.assignment_api.create_grant(
             domain_id=domain_id, group_id=group_id, role_id=role_id,
             inherited_to_projects=True)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
     def delete(self, domain_id, group_id, role_id):
         """Revoke an inherited grant for a group on a domain.
@@ -152,7 +152,7 @@ class OSInheritDomainGroupRolesResource(flask_restful.Resource):
         PROVIDERS.assignment_api.delete_grant(
             domain_id=domain_id, group_id=group_id, role_id=role_id,
             inherited_to_projects=True)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
 
 class OSInheritDomainGroupRolesListResource(flask_restful.Resource):
@@ -189,7 +189,7 @@ class OSInheritDomainUserRolesResource(flask_restful.Resource):
         PROVIDERS.assignment_api.get_grant(
             domain_id=domain_id, user_id=user_id, role_id=role_id,
             inherited_to_projects=True)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
     def put(self, domain_id, user_id, role_id):
         """Create an inherited grant for a user on a domain.
@@ -206,7 +206,7 @@ class OSInheritDomainUserRolesResource(flask_restful.Resource):
         PROVIDERS.assignment_api.create_grant(
             domain_id=domain_id, user_id=user_id, role_id=role_id,
             inherited_to_projects=True)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
     def delete(self, domain_id, user_id, role_id):
         """Revoke a grant from a user on a domain.
@@ -223,7 +223,7 @@ class OSInheritDomainUserRolesResource(flask_restful.Resource):
         PROVIDERS.assignment_api.delete_grant(
             domain_id=domain_id, user_id=user_id, role_id=role_id,
             inherited_to_projects=True)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
 
 class OSInheritDomainUserRolesListResource(flask_restful.Resource):
@@ -260,7 +260,7 @@ class OSInheritProjectUserResource(flask_restful.Resource):
         PROVIDERS.assignment_api.get_grant(
             project_id=project_id, user_id=user_id, role_id=role_id,
             inherited_to_projects=True)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
     def put(self, project_id, user_id, role_id):
         """Create an inherited grant for a user on a project.
@@ -277,7 +277,7 @@ class OSInheritProjectUserResource(flask_restful.Resource):
         PROVIDERS.assignment_api.create_grant(
             project_id=project_id, user_id=user_id, role_id=role_id,
             inherited_to_projects=True)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
     def delete(self, project_id, user_id, role_id):
         """Revoke an inherited grant for a user on a project.
@@ -294,7 +294,7 @@ class OSInheritProjectUserResource(flask_restful.Resource):
         PROVIDERS.assignment_api.delete_grant(
             project_id=project_id, user_id=user_id, role_id=role_id,
             inherited_to_projects=True)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
 
 class OSInheritProjectGroupResource(flask_restful.Resource):
@@ -313,7 +313,7 @@ class OSInheritProjectGroupResource(flask_restful.Resource):
         PROVIDERS.assignment_api.get_grant(
             project_id=project_id, group_id=group_id, role_id=role_id,
             inherited_to_projects=True)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
     def put(self, project_id, group_id, role_id):
         """Create an inherited grant for a group on a project.
@@ -330,7 +330,7 @@ class OSInheritProjectGroupResource(flask_restful.Resource):
         PROVIDERS.assignment_api.create_grant(
             project_id=project_id, group_id=group_id, role_id=role_id,
             inherited_to_projects=True)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
     def delete(self, project_id, group_id, role_id):
         """Revoke an inherited grant for a group on a project.
@@ -347,7 +347,7 @@ class OSInheritProjectGroupResource(flask_restful.Resource):
         PROVIDERS.assignment_api.delete_grant(
             project_id=project_id, group_id=group_id, role_id=role_id,
             inherited_to_projects=True)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
 
 class OSInheritAPI(ks_flask.APIBase):

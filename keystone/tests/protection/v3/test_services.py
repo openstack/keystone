@@ -12,7 +12,7 @@
 
 import uuid
 
-from six.moves import http_client
+import http.client
 
 from keystone.common import provider_api
 import keystone.conf
@@ -68,7 +68,7 @@ class _SystemReaderAndMemberUserServiceTests(object):
         with self.test_client() as c:
             c.post(
                 '/v3/services', json=create, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_services(self):
@@ -81,7 +81,7 @@ class _SystemReaderAndMemberUserServiceTests(object):
             c.patch(
                 '/v3/services/%s' % service['id'], json=update,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_services(self):
@@ -91,7 +91,7 @@ class _SystemReaderAndMemberUserServiceTests(object):
         with self.test_client() as c:
             c.delete(
                 '/v3/services/%s' % service['id'], headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -108,7 +108,7 @@ class _DomainAndProjectUserServiceTests(object):
         with self.test_client() as c:
             c.post(
                 '/v3/services', json=create, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_list_services(self):
@@ -118,7 +118,7 @@ class _DomainAndProjectUserServiceTests(object):
         with self.test_client() as c:
             c.get(
                 '/v3/services', headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_get_a_service(self):
@@ -128,7 +128,7 @@ class _DomainAndProjectUserServiceTests(object):
         with self.test_client() as c:
             c.get(
                 '/v3/services/%s' % service['id'], headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_services(self):
@@ -141,7 +141,7 @@ class _DomainAndProjectUserServiceTests(object):
             c.patch(
                 '/v3/services/%s' % service['id'], json=update,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_services(self):
@@ -151,7 +151,7 @@ class _DomainAndProjectUserServiceTests(object):
         with self.test_client() as c:
             c.delete(
                 '/v3/services/%s' % service['id'], headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 

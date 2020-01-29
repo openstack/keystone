@@ -17,8 +17,8 @@ import hashlib
 import uuid
 
 import fixtures
+import http.client
 import mock
-from six.moves import http_client
 import webtest
 
 from keystone.auth import core as auth_core
@@ -46,7 +46,7 @@ class MiddlewareRequestTestBase(unit.TestCase):
     def _application(self):
         """A base wsgi application that returns a simple response."""
         def app(environ, start_response):
-            # WSGI requires the body of the response to be six.binary_type
+            # WSGI requires the body of the response to be bytes
             body = uuid.uuid4().hex.encode('utf-8')
             resp_headers = [('Content-Type', 'text/html; charset=utf8'),
                             ('Content-Length', str(len(body)))]
@@ -88,7 +88,7 @@ class MiddlewareRequestTestBase(unit.TestCase):
 
         # by default the returned status when an uncaught exception is raised
         # for validation or caught errors this will likely be 400
-        kwargs.setdefault('status', http_client.INTERNAL_SERVER_ERROR)  # 500
+        kwargs.setdefault('status', http.client.INTERNAL_SERVER_ERROR)  # 500
 
         app = _Failing(self._application())
         resp = self._generate_app_response(app, *args, **kwargs)

@@ -12,10 +12,7 @@
 
 # Common base resource for EC2 and S3 Authentication
 
-import sys
-
 from oslo_serialization import jsonutils
-import six
 from werkzeug import exceptions
 
 from keystone.common import provider_api
@@ -102,10 +99,7 @@ class ResourceBase(ks_flask.ResourceBase):
             PROVIDERS.resource_api.assert_project_enabled(
                 project_id=project_ref['id'], project=project_ref)
         except AssertionError as e:
-            six.reraise(
-                ks_exceptions.Unauthorized,
-                ks_exceptions.Unauthorized(e),
-                sys.exc_info()[2])
+            raise ks_exceptions.Unauthorized from e
 
         roles = PROVIDERS.assignment_api.get_roles_for_user_and_project(
             user_ref['id'], project_ref['id'])

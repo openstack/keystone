@@ -16,7 +16,6 @@ import re
 import jsonschema
 from oslo_config import cfg
 from oslo_log import log
-import six
 
 from keystone import exception
 from keystone.i18n import _
@@ -30,7 +29,7 @@ LOG = log.getLogger(__name__)
 def validate_password(password):
     pattern = CONF.security_compliance.password_regex
     if pattern:
-        if not isinstance(password, six.string_types):
+        if not isinstance(password, str):
             detail = _("Password must be a string type")
             raise exception.PasswordValidationError(detail=detail)
         try:
@@ -81,10 +80,10 @@ class SchemaValidator(object):
                 # too long, then we should build the masking in here so that
                 # we don't expose sensitive user information in the event it
                 # fails validation.
-                path = '/'.join(map(six.text_type, ex.path))
+                path = '/'.join(map(str, ex.path))
                 detail = _("Invalid input for field '%(path)s': "
                            "%(message)s") % {'path': path,
-                                             'message': six.text_type(ex)}
+                                             'message': str(ex)}
             else:
-                detail = six.text_type(ex)
+                detail = str(ex)
             raise exception.SchemaValidationError(detail=detail)

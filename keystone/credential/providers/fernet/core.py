@@ -14,7 +14,6 @@ import hashlib
 
 from cryptography import fernet
 from oslo_log import log
-import six
 
 from keystone.common import fernet_utils
 import keystone.conf
@@ -55,7 +54,7 @@ def get_multi_fernet_keys():
 
 def primary_key_hash(keys):
     """Calculate a hash of the primary key used for encryption."""
-    if isinstance(keys[0], six.text_type):
+    if isinstance(keys[0], str):
         keys[0] = keys[0].encode('utf-8')
     # NOTE(lhinds) This is marked as #nosec since bandit will see SHA1 which
     # is marked as insecure. However, this hash function is used alongside
@@ -103,7 +102,7 @@ class Provider(core.Provider):
         crypto = fernet.MultiFernet(fernet_keys)
 
         try:
-            if isinstance(credential, six.text_type):
+            if isinstance(credential, str):
                 credential = credential.encode('utf-8')
             return crypto.decrypt(credential).decode('utf-8')
         except (fernet.InvalidToken, TypeError, ValueError):

@@ -16,12 +16,11 @@ import itertools
 import re
 import wsgiref.util
 
+import http.client
 from keystonemiddleware import auth_token
 import oslo_i18n
 from oslo_log import log
 from oslo_serialization import jsonutils
-import six
-from six.moves import http_client
 import webob.dec
 import webob.exc
 
@@ -103,16 +102,16 @@ def middleware_exceptions(method):
         try:
             return method(self, request)
         except exception.Error as e:
-            LOG.warning(six.text_type(e))
+            LOG.warning(e)
             return render_exception(e, request=request,
                                     user_locale=best_match_language(request))
         except TypeError as e:
-            LOG.exception(six.text_type(e))
+            LOG.exception(e)
             return render_exception(exception.ValidationError(e),
                                     request=request,
                                     user_locale=best_match_language(request))
         except Exception as e:
-            LOG.exception(six.text_type(e))
+            LOG.exception(e)
             return render_exception(exception.UnexpectedError(exception=e),
                                     request=request,
                                     user_locale=best_match_language(request))
@@ -130,8 +129,8 @@ def render_response(body=None, status=None, headers=None, method=None):
 
     if body is None:
         body = b''
-        status = status or (http_client.NO_CONTENT,
-                            http_client.responses[http_client.NO_CONTENT])
+        status = status or (http.client.NO_CONTENT,
+                            http.client.responses[http.client.NO_CONTENT])
     else:
         content_types = [v for h, v in headers if h == 'Content-Type']
         if content_types:
@@ -143,8 +142,8 @@ def render_response(body=None, status=None, headers=None, method=None):
             body = jsonutils.dump_as_bytes(body, cls=utils.SmarterEncoder)
             if content_type is None:
                 headers.append(('Content-Type', 'application/json'))
-        status = status or (http_client.OK,
-                            http_client.responses[http_client.OK])
+        status = status or (http.client.OK,
+                            http.client.responses[http.client.OK])
 
     # NOTE(davechen): `mod_wsgi` follows the standards from pep-3333 and
     # requires the value in response header to be binary type(str) on python2,
@@ -205,7 +204,7 @@ def render_exception(error, context=None, request=None, user_locale=None):
     if message is error_message:
         # translate() didn't do anything because it wasn't a Message,
         # convert to a string.
-        message = six.text_type(message)
+        message = str(message)
 
     body = {'error': {
         'code': error.code,

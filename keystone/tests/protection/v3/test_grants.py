@@ -12,8 +12,8 @@
 
 import uuid
 
+import http.client
 from oslo_serialization import jsonutils
-from six.moves import http_client
 
 from keystone.common.policies import grant as gp
 from keystone.common import provider_api
@@ -141,7 +141,7 @@ class _SystemUserGrantTests(object):
                     project['id'], user['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.NO_CONTENT
+                expected_status_code=http.client.NO_CONTENT
             )
 
     def test_can_check_grant_for_user_on_domain(self):
@@ -164,7 +164,7 @@ class _SystemUserGrantTests(object):
                     domain['id'], user['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.NO_CONTENT
+                expected_status_code=http.client.NO_CONTENT
             )
 
     def test_can_check_grant_for_group_on_project(self):
@@ -191,7 +191,7 @@ class _SystemUserGrantTests(object):
                     self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.NO_CONTENT
+                expected_status_code=http.client.NO_CONTENT
             )
 
     def test_can_check_grant_for_group_on_domain(self):
@@ -214,7 +214,7 @@ class _SystemUserGrantTests(object):
                     domain['id'], group['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.NO_CONTENT
+                expected_status_code=http.client.NO_CONTENT
             )
 
 
@@ -237,7 +237,7 @@ class _SystemMemberAndReaderGrantTests(object):
                     project['id'], user['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_create_grant_for_user_on_domain(self):
@@ -255,7 +255,7 @@ class _SystemMemberAndReaderGrantTests(object):
                     domain['id'], user['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_create_grant_for_group_on_project(self):
@@ -277,7 +277,7 @@ class _SystemMemberAndReaderGrantTests(object):
                     self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_create_grant_for_group_on_domain(self):
@@ -295,7 +295,7 @@ class _SystemMemberAndReaderGrantTests(object):
                     domain['id'], group['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_revoke_grant_from_user_on_project(self):
@@ -320,7 +320,7 @@ class _SystemMemberAndReaderGrantTests(object):
                     project['id'], user['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_revoke_grant_from_user_on_domain(self):
@@ -343,7 +343,7 @@ class _SystemMemberAndReaderGrantTests(object):
                     domain['id'], user['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_revoke_grant_from_group_on_project(self):
@@ -370,7 +370,7 @@ class _SystemMemberAndReaderGrantTests(object):
                     self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_revoke_grant_from_group_on_domain(self):
@@ -393,7 +393,7 @@ class _SystemMemberAndReaderGrantTests(object):
                     domain['id'], group['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -499,7 +499,7 @@ class _DomainUserTests(object):
                     project['id'], user['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.NO_CONTENT
+                expected_status_code=http.client.NO_CONTENT
             )
 
     def test_can_check_grant_for_user_on_domain(self):
@@ -519,7 +519,7 @@ class _DomainUserTests(object):
                     self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.NO_CONTENT
+                expected_status_code=http.client.NO_CONTENT
             )
 
     def test_can_check_grant_for_group_on_project(self):
@@ -544,7 +544,7 @@ class _DomainUserTests(object):
                     self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.NO_CONTENT
+                expected_status_code=http.client.NO_CONTENT
             )
 
     def test_can_check_grant_for_group_on_domain(self):
@@ -564,7 +564,7 @@ class _DomainUserTests(object):
                     self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.NO_CONTENT
+                expected_status_code=http.client.NO_CONTENT
             )
 
     def test_cannot_list_grants_for_user_other_domain_on_project_own_domain(self):  # noqa: E501
@@ -588,7 +588,7 @@ class _DomainUserTests(object):
             c.get(
                 '/v3/projects/%s/users/%s/roles' % (project['id'], user['id']),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_list_grants_for_user_own_domain_on_project_other_domain(self):  # noqa: E501
@@ -613,7 +613,7 @@ class _DomainUserTests(object):
             c.get(
                 '/v3/projects/%s/users/%s/roles' % (project['id'], user['id']),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_list_grants_for_user_own_domain_on_other_domain(self):
@@ -633,7 +633,7 @@ class _DomainUserTests(object):
             c.get(
                 '/v3/domains/%s/users/%s/roles' % (domain_id, user['id']),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_list_grants_for_user_other_domain_on_own_domain(self):
@@ -653,7 +653,7 @@ class _DomainUserTests(object):
             c.get(
                 '/v3/domains/%s/users/%s/roles' % (domain_id, user['id']),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_list_grants_for_group_other_domain_on_project_own_domain(self):  # noqa: E501
@@ -678,7 +678,7 @@ class _DomainUserTests(object):
                 '/v3/projects/%s/groups/%s/roles' % (
                     project['id'], group['id']),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_list_grants_for_group_own_domain_on_project_other_domain(self):  # noqa: E501
@@ -704,7 +704,7 @@ class _DomainUserTests(object):
                 '/v3/projects/%s/groups/%s/roles' % (
                     project['id'], group['id']),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_list_grants_for_group_own_domain_on_other_domain(self):
@@ -725,7 +725,7 @@ class _DomainUserTests(object):
                 '/v3/domains/%s/groups/%s/roles' % (
                     domain_id, group['id']),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_list_grants_for_group_other_domain_on_own_domain(self):
@@ -746,7 +746,7 @@ class _DomainUserTests(object):
                 '/v3/domains/%s/groups/%s/roles' % (
                     domain_id, group['id']),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_check_grant_for_user_other_domain_on_project_own_domain(self):  # noqa: E501
@@ -772,7 +772,7 @@ class _DomainUserTests(object):
                     project['id'], user['id'],
                     self.bootstrapper.reader_role_id),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_check_grant_for_user_own_domain_on_project_other_domain(self):  # noqa: E501
@@ -799,7 +799,7 @@ class _DomainUserTests(object):
                     project['id'], user['id'],
                     self.bootstrapper.reader_role_id),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_check_grant_for_user_own_domain_on_project_own_domain_with_role_other_domain(self):  # noqa: E501
@@ -830,7 +830,7 @@ class _DomainUserTests(object):
                     project['id'], user['id'],
                     role['id']),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_check_grant_for_user_own_domain_on_other_domain(self):
@@ -853,7 +853,7 @@ class _DomainUserTests(object):
                     self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_check_grant_for_user_other_domain_on_own_domain(self):
@@ -876,7 +876,7 @@ class _DomainUserTests(object):
                     self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_check_grant_for_user_own_domain_on_own_domain_with_role_other_domain(self):  # noqa: E501
@@ -904,7 +904,7 @@ class _DomainUserTests(object):
                     role['id']
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_check_grant_for_group_other_domain_on_project_own_domain(self):  # noqa: E501
@@ -930,7 +930,7 @@ class _DomainUserTests(object):
                     project['id'], group['id'],
                     self.bootstrapper.reader_role_id),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_check_grant_for_group_own_domain_on_project_other_domain(self):  # noqa: E501
@@ -956,7 +956,7 @@ class _DomainUserTests(object):
                     project['id'], group['id'],
                     self.bootstrapper.reader_role_id),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_check_grant_for_group_own_domain_on_project_own_domain_with_role_other_domain(self):  # noqa: E501
@@ -987,7 +987,7 @@ class _DomainUserTests(object):
                     project['id'], group['id'],
                     role['id']),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_check_grant_for_group_own_domain_on_other_domain(self):
@@ -1009,7 +1009,7 @@ class _DomainUserTests(object):
                     domain_id, group['id'],
                     self.bootstrapper.reader_role_id),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_check_grant_for_group_other_domain_on_own_domain(self):
@@ -1031,7 +1031,7 @@ class _DomainUserTests(object):
                     domain_id, group['id'],
                     self.bootstrapper.reader_role_id),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_check_grant_for_group_own_domain_on_own_domain_with_role_other_domain(self):  # noqa: E501
@@ -1057,7 +1057,7 @@ class _DomainUserTests(object):
                     domain_id, group['id'],
                     role['id']),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_create_grant_for_user_other_domain_on_project_own_domain(self):  # noqa: E501
@@ -1080,7 +1080,7 @@ class _DomainUserTests(object):
                     project['id'], user['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_create_grant_for_user_own_domain_on_project_other_domain(self):  # noqa: E501
@@ -1103,7 +1103,7 @@ class _DomainUserTests(object):
                     project['id'], user['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_create_grant_for_user_own_domain_on_project_own_domain_with_role_other_domain(self):  # noqa: E501
@@ -1129,7 +1129,7 @@ class _DomainUserTests(object):
                     project['id'], user['id'], role['id']
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_create_grant_for_user_other_domain_on_own_domain(self):
@@ -1146,7 +1146,7 @@ class _DomainUserTests(object):
                     domain_id, user['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_create_grant_for_user_own_domain_on_other_domain(self):
@@ -1163,7 +1163,7 @@ class _DomainUserTests(object):
                     domain_id, user['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_create_grant_for_user_own_domain_on_own_domain_with_role_other_domain(self):  # noqa: E501
@@ -1184,7 +1184,7 @@ class _DomainUserTests(object):
                     domain_id, user['id'], role['id']
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_create_grant_for_group_other_domain_on_project_own_domain(self):  # noqa: E501
@@ -1209,7 +1209,7 @@ class _DomainUserTests(object):
                     self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_create_grant_for_group_own_domain_on_project_other_domain(self):  # noqa: E501
@@ -1234,7 +1234,7 @@ class _DomainUserTests(object):
                     self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_create_grant_for_group_own_domain_on_project_own_domain_with_role_other_domain(self):  # noqa: E501
@@ -1263,7 +1263,7 @@ class _DomainUserTests(object):
                     role['id']
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_create_grant_for_group_other_domain_on_own_domain(self):
@@ -1280,7 +1280,7 @@ class _DomainUserTests(object):
                     domain_id, group['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_create_grant_for_group_own_domain_on_other_domain(self):
@@ -1297,7 +1297,7 @@ class _DomainUserTests(object):
                     domain_id, group['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_create_grant_for_group_own_domain_on_own_domain_with_role_other_domain(self):  # noqa: E501
@@ -1318,7 +1318,7 @@ class _DomainUserTests(object):
                     domain_id, group['id'], role['id']
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_revoke_grant_from_user_other_domain_on_project_own_domain(self):  # noqa: E501
@@ -1346,7 +1346,7 @@ class _DomainUserTests(object):
                     project['id'], user['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_revoke_grant_from_user_own_domain_on_project_other_domain(self):  # noqa: E501
@@ -1374,7 +1374,7 @@ class _DomainUserTests(object):
                     project['id'], user['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_revoke_grant_from_user_other_domain_on_own_domain(self):
@@ -1396,7 +1396,7 @@ class _DomainUserTests(object):
                     domain_id, user['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_revoke_grant_from_user_own_domain_on_other_domain(self):
@@ -1418,7 +1418,7 @@ class _DomainUserTests(object):
                     domain_id, user['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_revoke_grant_from_user_own_domain_on_own_domain_with_role_other_domain(self):  # noqa: E501
@@ -1444,7 +1444,7 @@ class _DomainUserTests(object):
                     domain_id, user['id'], role['id']
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_revoke_grant_from_group_other_domain_on_project_own_domain(self):  # noqa: E501
@@ -1474,7 +1474,7 @@ class _DomainUserTests(object):
                     self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_revoke_grant_from_group_own_domain_on_project_other_domain(self):  # noqa: E501
@@ -1504,7 +1504,7 @@ class _DomainUserTests(object):
                     self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_revoke_grant_from_group_other_domain_on_own_domain(self):
@@ -1526,7 +1526,7 @@ class _DomainUserTests(object):
                     domain_id, group['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_revoke_grant_from_group_own_domain_on_other_domain(self):
@@ -1548,7 +1548,7 @@ class _DomainUserTests(object):
                     domain_id, group['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_revoke_grant_from_group_own_domain_on_own_domain_with_role_other_domain(self):  # noqa: E501
@@ -1575,7 +1575,7 @@ class _DomainUserTests(object):
                     domain_id, group['id'], role['id']
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -1859,7 +1859,7 @@ class _DomainMemberAndReaderTests(object):
                     project['id'], user['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_create_grant_for_user_on_domain(self):
@@ -1877,7 +1877,7 @@ class _DomainMemberAndReaderTests(object):
                     domain['id'], user['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_create_grant_for_group_on_project(self):
@@ -1897,7 +1897,7 @@ class _DomainMemberAndReaderTests(object):
                     self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_create_grant_for_group_on_domain(self):
@@ -1915,7 +1915,7 @@ class _DomainMemberAndReaderTests(object):
                     domain['id'], group['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_revoke_grant_from_user_on_project(self):
@@ -1938,7 +1938,7 @@ class _DomainMemberAndReaderTests(object):
                     project['id'], user['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_revoke_grant_from_user_on_domain(self):
@@ -1961,7 +1961,7 @@ class _DomainMemberAndReaderTests(object):
                     domain['id'], user['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_revoke_grant_from_group_on_project(self):
@@ -1988,7 +1988,7 @@ class _DomainMemberAndReaderTests(object):
                     self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_revoke_grant_from_group_on_domain(self):
@@ -2011,7 +2011,7 @@ class _DomainMemberAndReaderTests(object):
                     domain['id'], group['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -2245,5 +2245,5 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
                     domain['id'], group['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )

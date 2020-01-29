@@ -12,7 +12,7 @@
 
 # This file handles all flask-restful resources for /v3/services
 
-from six.moves import http_client
+import http.client
 
 from keystone.catalog import schema
 from keystone.common import provider_api
@@ -52,7 +52,7 @@ class ServicesResource(ks_flask.ResourceBase):
         service = self._assign_unique_id(self._normalize_dict(service))
         ref = PROVIDERS.catalog_api.create_service(
             service['id'], service, initiator=self.audit_initiator)
-        return self.wrap_member(ref), http_client.CREATED
+        return self.wrap_member(ref), http.client.CREATED
 
     def patch(self, service_id):
         ENFORCER.enforce_call(action='identity:update_service')
@@ -66,7 +66,7 @@ class ServicesResource(ks_flask.ResourceBase):
     def delete(self, service_id):
         ENFORCER.enforce_call(action='identity:delete_service')
         return PROVIDERS.catalog_api.delete_service(
-            service_id, initiator=self.audit_initiator), http_client.NO_CONTENT
+            service_id, initiator=self.audit_initiator), http.client.NO_CONTENT
 
 
 class ServiceAPI(ks_flask.APIBase):

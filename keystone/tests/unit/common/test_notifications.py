@@ -17,6 +17,7 @@ import uuid
 
 import fixtures
 import freezegun
+import http.client
 import mock
 from oslo_config import fixture as config_fixture
 from oslo_log import log
@@ -25,7 +26,6 @@ from pycadf import cadftaxonomy
 from pycadf import cadftype
 from pycadf import eventfactory
 from pycadf import resource as cadfresource
-from six.moves import http_client
 
 from keystone.common import provider_api
 import keystone.conf
@@ -1227,7 +1227,7 @@ class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
         data = self.build_authentication_request(user_id=user_id,
                                                  password=password)
         self.post('/auth/tokens', body=data,
-                  expected_status=http_client.UNAUTHORIZED)
+                  expected_status=http.client.UNAUTHORIZED)
         note = self._get_last_note()
         initiator = note['initiator']
 
@@ -1246,7 +1246,7 @@ class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
                                                  user_domain_id=domain_id,
                                                  password=password)
         self.post('/auth/tokens', body=data,
-                  expected_status=http_client.UNAUTHORIZED)
+                  expected_status=http.client.UNAUTHORIZED)
         note = self._get_last_note()
         initiator = note['initiator']
 

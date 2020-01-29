@@ -29,8 +29,8 @@ from oslo_serialization import jsonutils
 from oslo_utils import reflection
 from oslo_utils import strutils
 from oslo_utils import timeutils
-import six
-from six import moves
+import urllib
+
 
 from keystone.common import password_hashing
 import keystone.conf
@@ -66,8 +66,6 @@ def resource_uuid(value):
         return value
     except ValueError:
         if len(value) <= 64:
-            if six.PY2 and isinstance(value, six.text_type):
-                value = value.encode('utf-8')
             return uuid.uuid5(RESOURCE_ID_NAMESPACE, value).hex
         raise ValueError(_('Length of transformable resource id > 64, '
                          'which is max allowed characters'))
@@ -101,7 +99,7 @@ class SmarterEncoder(jsonutils.json.JSONEncoder):
 
 def hash_access_key(access):
     hash_ = hashlib.sha256()
-    if not isinstance(access, six.binary_type):
+    if not isinstance(access, bytes):
         access = access.encode('utf-8')
     hash_.update(access)
     return hash_.hexdigest()
@@ -136,7 +134,7 @@ def auth_str_equal(provided, known):
     result = 0
     p_len = len(provided)
     k_len = len(known)
-    for i in moves.range(p_len):
+    for i in range(p_len):
         a = ord(provided[i]) if i < p_len else 0
         b = ord(known[i]) if i < k_len else 0
         result |= a ^ b
@@ -193,7 +191,7 @@ def get_unix_user(user=None):
     :returns: tuple of (uid, name)
 
     """
-    if isinstance(user, six.string_types):
+    if isinstance(user, str):
         try:
             user_info = pwd.getpwnam(user)
         except KeyError:
@@ -251,7 +249,7 @@ def get_unix_group(group=None):
     :returns: tuple of (gid, name)
 
     """
-    if isinstance(group, six.string_types):
+    if isinstance(group, str):
         try:
             group_info = grp.getgrnam(group)
         except KeyError:
@@ -374,15 +372,15 @@ def lower_case_hostname(url):
     # NOTE(gyee): according to
     # https://www.w3.org/TR/WD-html40-970708/htmlweb.html, the netloc portion
     # of the URL is case-insensitive
-    parsed = moves.urllib.parse.urlparse(url)
+    parsed = urllib.parse.urlparse(url)
     # Note: _replace method for named tuples is public and defined in docs
     replaced = parsed._replace(netloc=parsed.netloc.lower())
-    return moves.urllib.parse.urlunparse(replaced)
+    return urllib.parse.urlunparse(replaced)
 
 
 def remove_standard_port(url):
     # remove the default ports specified in RFC2616 and 2818
-    o = moves.urllib.parse.urlparse(url)
+    o = urllib.parse.urlparse(url)
     separator = ':'
     (host, separator, port) = o.netloc.partition(separator)
     if o.scheme.lower() == 'http' and port == '80':
@@ -394,7 +392,7 @@ def remove_standard_port(url):
     if o.scheme.lower() == 'https' and port == '443':
         o = o._replace(netloc=host)
 
-    return moves.urllib.parse.urlunparse(o)
+    return urllib.parse.urlunparse(o)
 
 
 def format_url(url, substitutions, silent_keyerror_failures=None):

@@ -17,7 +17,6 @@ import uuid
 import ldap.filter
 from oslo_log import log
 from oslo_log import versionutils
-import six
 
 import keystone.conf
 from keystone import exception
@@ -267,7 +266,7 @@ class UserApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
             # This could be a bool or a string.  If it's a string,
             # we need to convert it so we can invert it properly.
             enabled = obj.get('enabled', self.enabled_default)
-            if isinstance(enabled, six.string_types):
+            if isinstance(enabled, str):
                 if enabled.lower() == 'true':
                     enabled = True
                 else:

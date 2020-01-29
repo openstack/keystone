@@ -12,7 +12,7 @@
 
 import uuid
 
-from six.moves import http_client
+import http.client
 
 from keystone.common import provider_api
 import keystone.conf
@@ -122,7 +122,7 @@ class _SystemUserDomainConfigTests(object):
         with self.test_client() as c:
             c.get('/v3/domains/%s/config/ldap'
                   % invalid_domain_id, headers=self.headers,
-                  expected_status_code=http_client.NOT_FOUND)
+                  expected_status_code=http.client.NOT_FOUND)
 
     def test_user_can_get_non_existent_config(self):
         domain = PROVIDERS.resource_api.create_domain(
@@ -130,7 +130,7 @@ class _SystemUserDomainConfigTests(object):
         )
         with self.test_client() as c:
             c.get('/v3/domains/%s/config' % domain['id'], headers=self.headers,
-                  expected_status_code=http_client.NOT_FOUND)
+                  expected_status_code=http.client.NOT_FOUND)
 
     def test_user_can_get_non_existent_config_group_invalid_domain(self):
         domain = PROVIDERS.resource_api.create_domain(
@@ -142,7 +142,7 @@ class _SystemUserDomainConfigTests(object):
         with self.test_client() as c:
             c.get('/v3/domains/%s/config/ldap'
                   % invalid_domain_id, headers=self.headers,
-                  expected_status_code=http_client.NOT_FOUND)
+                  expected_status_code=http.client.NOT_FOUND)
 
     def test_user_can_get_domain_config_option(self):
         domain = PROVIDERS.resource_api.create_domain(
@@ -163,7 +163,7 @@ class _SystemUserDomainConfigTests(object):
         with self.test_client() as c:
             c.get('/v3/domains/%s/config/ldap/user_tree_dn'
                   % domain['id'], headers=self.headers,
-                  expected_status_code=http_client.NOT_FOUND)
+                  expected_status_code=http.client.NOT_FOUND)
 
     def test_user_can_get_non_existent_config_option_invalid_domain(self):
         domain = PROVIDERS.resource_api.create_domain(
@@ -175,7 +175,7 @@ class _SystemUserDomainConfigTests(object):
         with self.test_client() as c:
             c.get('/v3/domains/%s/config/ldap/user_tree_dn'
                   % invalid_domain_id, headers=self.headers,
-                  expected_status_code=http_client.NOT_FOUND)
+                  expected_status_code=http.client.NOT_FOUND)
 
     def test_user_can_get_security_compliance_domain_config(self):
         # Set the security compliance configuration options
@@ -247,7 +247,7 @@ class _SystemReaderMemberDomainAndProjectUserDomainConfigTests(object):
                   % domain['id'],
                   json={'config': unit.new_domain_config_ref()},
                   headers=self.headers,
-                  expected_status_code=http_client.FORBIDDEN)
+                  expected_status_code=http.client.FORBIDDEN)
 
     def test_user_cannot_update_domain_config(self):
         domain = PROVIDERS.resource_api.create_domain(
@@ -261,7 +261,7 @@ class _SystemReaderMemberDomainAndProjectUserDomainConfigTests(object):
             c.patch('/v3/domains/%s/config'
                     % domain['id'], json={'config': new_config},
                     headers=self.headers,
-                    expected_status_code=http_client.FORBIDDEN)
+                    expected_status_code=http.client.FORBIDDEN)
 
     def test_user_cannot_update_domain_group_config(self):
         domain = PROVIDERS.resource_api.create_domain(
@@ -275,7 +275,7 @@ class _SystemReaderMemberDomainAndProjectUserDomainConfigTests(object):
             c.patch('/v3/domains/%s/config/ldap'
                     % domain['id'], json={'config': new_config},
                     headers=self.headers,
-                    expected_status_code=http_client.FORBIDDEN)
+                    expected_status_code=http.client.FORBIDDEN)
 
     def test_user_cannot_update_domain_config_option(self):
         domain = PROVIDERS.resource_api.create_domain(
@@ -289,7 +289,7 @@ class _SystemReaderMemberDomainAndProjectUserDomainConfigTests(object):
                     % domain['id'],
                     json={'config': new_config},
                     headers=self.headers,
-                    expected_status_code=http_client.FORBIDDEN)
+                    expected_status_code=http.client.FORBIDDEN)
 
     def test_user_cannot_delete_domain_config(self):
         domain = PROVIDERS.resource_api.create_domain(
@@ -300,7 +300,7 @@ class _SystemReaderMemberDomainAndProjectUserDomainConfigTests(object):
         with self.test_client() as c:
             c.delete('/v3/domains/%s/config' % domain['id'],
                      headers=self.headers,
-                     expected_status_code=http_client.FORBIDDEN)
+                     expected_status_code=http.client.FORBIDDEN)
 
     def test_user_cannot_delete_domain_group_config(self):
         domain = PROVIDERS.resource_api.create_domain(
@@ -311,7 +311,7 @@ class _SystemReaderMemberDomainAndProjectUserDomainConfigTests(object):
         with self.test_client() as c:
             c.delete('/v3/domains/%s/config/ldap'
                      % domain['id'], headers=self.headers,
-                     expected_status_code=http_client.FORBIDDEN)
+                     expected_status_code=http.client.FORBIDDEN)
 
     def test_user_cannot_delete_domain_config_option(self):
         domain = PROVIDERS.resource_api.create_domain(
@@ -322,7 +322,7 @@ class _SystemReaderMemberDomainAndProjectUserDomainConfigTests(object):
         with self.test_client() as c:
             c.delete('/v3/domains/%s/config/ldap/url'
                      % domain['id'], headers=self.headers,
-                     expected_status_code=http_client.FORBIDDEN)
+                     expected_status_code=http.client.FORBIDDEN)
 
 
 class _DomainAndProjectUserDomainConfigTests(object):
@@ -336,7 +336,7 @@ class _DomainAndProjectUserDomainConfigTests(object):
         with self.test_client() as c:
             c.get('/v3/domains/%s/config'
                   % domain['id'], headers=self.headers,
-                  expected_status_code=http_client.FORBIDDEN)
+                  expected_status_code=http.client.FORBIDDEN)
 
     def test_user_cannot_get_domain_group_config(self):
         domain = PROVIDERS.resource_api.create_domain(
@@ -347,7 +347,7 @@ class _DomainAndProjectUserDomainConfigTests(object):
         with self.test_client() as c:
             c.get('/v3/domains/%s/config/ldap'
                   % domain['id'], headers=self.headers,
-                  expected_status_code=http_client.FORBIDDEN)
+                  expected_status_code=http.client.FORBIDDEN)
 
     def test_user_cannot_get_non_existant_config(self):
         domain = PROVIDERS.resource_api.create_domain(
@@ -355,7 +355,7 @@ class _DomainAndProjectUserDomainConfigTests(object):
         )
         with self.test_client() as c:
             c.get('/v3/domains/%s/config' % domain['id'], headers=self.headers,
-                  expected_status_code=http_client.FORBIDDEN)
+                  expected_status_code=http.client.FORBIDDEN)
 
     def test_user_cannot_get_domain_config_option(self):
         domain = PROVIDERS.resource_api.create_domain(
@@ -366,22 +366,22 @@ class _DomainAndProjectUserDomainConfigTests(object):
         with self.test_client() as c:
             c.get('/v3/domains/%s/config/ldap/url'
                   % domain['id'], headers=self.headers,
-                  expected_status_code=http_client.FORBIDDEN)
+                  expected_status_code=http.client.FORBIDDEN)
 
     def test_user_cannot_get_domain_config_default(self):
         with self.test_client() as c:
             c.get('/v3/domains/config/default', headers=self.headers,
-                  expected_status_code=http_client.FORBIDDEN)
+                  expected_status_code=http.client.FORBIDDEN)
 
     def test_user_cannot_get_domain_group_config_default(self):
         with self.test_client() as c:
             c.get('/v3/domains/config/ldap/default', headers=self.headers,
-                  expected_status_code=http_client.FORBIDDEN)
+                  expected_status_code=http.client.FORBIDDEN)
 
     def test_user_cannot_get_domain_config_option_default(self):
         with self.test_client() as c:
             c.get('/v3/domains/config/ldap/url/default', headers=self.headers,
-                  expected_status_code=http_client.FORBIDDEN)
+                  expected_status_code=http.client.FORBIDDEN)
 
 
 class SystemReaderTests(
@@ -492,7 +492,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
                   % domain['id'],
                   json={'config': unit.new_domain_config_ref()},
                   headers=self.headers,
-                  expected_status_code=http_client.CREATED)
+                  expected_status_code=http.client.CREATED)
 
     def test_user_cannot_create_invalid_domain_config(self):
         invalid_domain_id = uuid.uuid4().hex
@@ -501,7 +501,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
                   % invalid_domain_id,
                   json={'config': unit.new_domain_config_ref()},
                   headers=self.headers,
-                  expected_status_code=http_client.NOT_FOUND)
+                  expected_status_code=http.client.NOT_FOUND)
 
     def test_user_can_update_domain_config(self):
         domain = PROVIDERS.resource_api.create_domain(
@@ -581,7 +581,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.delete('/v3/domains/%s/config' % invalid_domain_id,
                      headers=self.headers,
-                     expected_status_code=http_client.NOT_FOUND)
+                     expected_status_code=http.client.NOT_FOUND)
 
 
 class DomainUserTests(

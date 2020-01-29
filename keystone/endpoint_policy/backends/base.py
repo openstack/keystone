@@ -11,13 +11,11 @@
 # under the License.
 
 import abc
-import six
 
 from keystone import exception
 
 
-@six.add_metaclass(abc.ABCMeta)
-class EndpointPolicyDriverBase(object):
+class EndpointPolicyDriverBase(object, metaclass=abc.ABCMeta):
     """Interface description for an Endpoint Policy driver."""
 
     @abc.abstractmethod

@@ -12,8 +12,8 @@
 
 import uuid
 
+import http.client
 from oslo_serialization import jsonutils
-from six.moves import http_client
 
 from keystone.common.policies import base as bp
 from keystone.common import provider_api
@@ -74,7 +74,7 @@ class _SystemUserProjectEndpointTests(object):
             c.get('/v3/OS-EP-FILTER/projects/%s/endpoints/%s'
                   % (project['id'], endpoint['id']),
                   headers=self.headers,
-                  expected_status_code=http_client.NO_CONTENT)
+                  expected_status_code=http.client.NO_CONTENT)
 
     def test_user_can_list_endpoints_for_project(self):
         project = PROVIDERS.resource_api.create_project(
@@ -118,7 +118,7 @@ class _SystemReaderAndMemberProjectEndpointTests(object):
             c.put('/v3/OS-EP-FILTER/projects/%s/endpoints/%s'
                   % (project['id'], endpoint['id']),
                   headers=self.headers,
-                  expected_status_code=http_client.FORBIDDEN)
+                  expected_status_code=http.client.FORBIDDEN)
 
     def test_user_cannot_remove_endpoint_from_project(self):
         project = PROVIDERS.resource_api.create_project(
@@ -137,7 +137,7 @@ class _SystemReaderAndMemberProjectEndpointTests(object):
             c.delete('/v3/OS-EP-FILTER/projects/%s/endpoints/%s'
                      % (project['id'], endpoint['id']),
                      headers=self.headers,
-                     expected_status_code=http_client.FORBIDDEN)
+                     expected_status_code=http.client.FORBIDDEN)
 
 
 class _DomainAndProjectUserProjectEndpointTests(object):
@@ -161,7 +161,7 @@ class _DomainAndProjectUserProjectEndpointTests(object):
         with self.test_client() as c:
             c.get('/v3/OS-EP-FILTER/endpoints/%s/projects' % endpoint['id'],
                   headers=self.headers,
-                  expected_status_code=http_client.FORBIDDEN)
+                  expected_status_code=http.client.FORBIDDEN)
 
     def test_user_cannot_check_endpoint_in_project(self):
         project = PROVIDERS.resource_api.create_project(
@@ -183,7 +183,7 @@ class _DomainAndProjectUserProjectEndpointTests(object):
             c.get('/v3/OS-EP-FILTER/projects/%s/endpoints/%s'
                   % (project['id'], endpoint['id']),
                   headers=self.headers,
-                  expected_status_code=http_client.FORBIDDEN)
+                  expected_status_code=http.client.FORBIDDEN)
 
     def test_user_cannot_list_endpoints_for_project(self):
         project = PROVIDERS.resource_api.create_project(
@@ -204,7 +204,7 @@ class _DomainAndProjectUserProjectEndpointTests(object):
         with self.test_client() as c:
             c.get('/v3/OS-EP-FILTER/projects/%s/endpoints' % project['id'],
                   headers=self.headers,
-                  expected_status_code=http_client.FORBIDDEN)
+                  expected_status_code=http.client.FORBIDDEN)
 
 
 class SystemReaderTests(base_classes.TestCaseWithBootstrap,
@@ -318,7 +318,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
             c.put('/v3/OS-EP-FILTER/projects/%s/endpoints/%s'
                   % (project['id'], endpoint['id']),
                   headers=self.headers,
-                  expected_status_code=http_client.NO_CONTENT)
+                  expected_status_code=http.client.NO_CONTENT)
 
     def test_user_can_remove_endpoint_from_project(self):
         project = PROVIDERS.resource_api.create_project(
@@ -339,7 +339,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
             c.delete('/v3/OS-EP-FILTER/projects/%s/endpoints/%s'
                      % (project['id'], endpoint['id']),
                      headers=self.headers,
-                     expected_status_code=http_client.NO_CONTENT)
+                     expected_status_code=http.client.NO_CONTENT)
 
 
 class DomainUserTests(base_classes.TestCaseWithBootstrap,

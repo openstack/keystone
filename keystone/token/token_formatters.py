@@ -19,8 +19,6 @@ from cryptography import fernet
 import msgpack
 from oslo_log import log
 from oslo_utils import timeutils
-import six
-from six.moves import map
 
 from keystone.auth import plugins as auth_plugins
 from keystone.common import fernet_utils as utils
@@ -71,8 +69,8 @@ class TokenFormatter(object):
     def pack(self, payload):
         """Pack a payload for transport as a token.
 
-        :type payload: six.binary_type
-        :rtype: six.text_type
+        :type payload: bytes
+        :rtype: str
 
         """
         # base64 padding (if any) is not URL-safe
@@ -81,8 +79,8 @@ class TokenFormatter(object):
     def unpack(self, token):
         """Unpack a token, and validate the payload.
 
-        :type token: six.text_type
-        :rtype: six.binary_type
+        :type token: str
+        :rtype: bytes
 
         """
         token = TokenFormatter.restore_padding(token)
@@ -98,7 +96,7 @@ class TokenFormatter(object):
         """Restore padding based on token size.
 
         :param token: token to restore padding on
-        :type token: six.text_type
+        :type token: str
         :returns: token with correct padding
 
         """
@@ -113,14 +111,14 @@ class TokenFormatter(object):
     def creation_time(cls, fernet_token):
         """Return the creation time of a valid Fernet token.
 
-        :type fernet_token: six.text_type
+        :type fernet_token: str
 
         """
         fernet_token = TokenFormatter.restore_padding(fernet_token)
-        # fernet_token is six.text_type
+        # fernet_token is str
 
         # Fernet tokens are base64 encoded, so we need to unpack them first
-        # urlsafe_b64decode() requires six.binary_type
+        # urlsafe_b64decode() requires bytes
         token_bytes = base64.urlsafe_b64decode(fernet_token.encode('utf-8'))
 
         # slice into the byte array to get just the timestamp
@@ -168,7 +166,7 @@ class TokenFormatter(object):
     def validate_token(self, token):
         """Validate a Fernet token and returns the payload attributes.
 
-        :type token: six.text_type
+        :type token: str
 
         """
         serialized_payload = self.unpack(token)
@@ -324,20 +322,20 @@ class BasePayload(object):
     def base64_encode(cls, s):
         """Encode a URL-safe string.
 
-        :type s: six.text_type
-        :rtype: six.text_type
+        :type s: str
+        :rtype: str
 
         """
-        # urlsafe_b64encode() returns six.binary_type so need to convert to
-        # six.text_type, might as well do it before stripping.
+        # urlsafe_b64encode() returns bytes so need to convert to
+        # str, might as well do it before stripping.
         return base64.urlsafe_b64encode(s).decode('utf-8').rstrip('=')
 
     @classmethod
     def random_urlsafe_str_to_bytes(cls, s):
-        """Convert string from :func:`random_urlsafe_str()` to six.binary_type.
+        """Convert string from :func:`random_urlsafe_str()` to bytes.
 
-        :type s: six.text_type
-        :rtype: six.binary_type
+        :type s: str
+        :rtype: bytes
 
         """
         # urlsafe_b64decode() requires str, unicode isn't accepted.
@@ -351,14 +349,14 @@ class BasePayload(object):
         """Convert a value to text type, translating uuid -> hex if required.
 
         :param is_stored_as_bytes: whether value is already bytes
-        :type is_stored_as_bytes: six.boolean
+        :type is_stored_as_bytes: boolean
         :param value: value to attempt to convert to bytes
-        :type value: six.text_type or six.binary_type
-        :rtype: six.text_type
+        :type value: str or bytes
+        :rtype: str
         """
         if is_stored_as_bytes:
             return cls.convert_uuid_bytes_to_hex(value)
-        elif isinstance(value, six.binary_type):
+        elif isinstance(value, bytes):
             return value.decode('utf-8')
         return value
 
@@ -432,7 +430,7 @@ class DomainScopedPayload(BasePayload):
             domain_id = cls.convert_uuid_bytes_to_hex(payload[2])
         except ValueError:
             # the default domain ID is configurable, and probably isn't a UUID
-            if six.PY3 and isinstance(payload[2], six.binary_type):
+            if isinstance(payload[2], bytes):
                 payload[2] = payload[2].decode('utf-8')
             if payload[2] == CONF.identity.default_domain_id:
                 domain_id = payload[2]
@@ -573,7 +571,7 @@ class FederatedUnscopedPayload(BasePayload):
         (is_stored_as_bytes, idp_id) = payload[3]
         idp_id = cls._convert_or_decode(is_stored_as_bytes, idp_id)
         protocol_id = payload[4]
-        if isinstance(protocol_id, six.binary_type):
+        if isinstance(protocol_id, bytes):
             protocol_id = protocol_id.decode('utf-8')
         expires_at_str = cls._convert_float_to_time_string(payload[5])
         audit_ids = list(map(cls.base64_encode, payload[6]))
@@ -626,7 +624,7 @@ class FederatedScopedPayload(FederatedUnscopedPayload):
         (is_stored_as_bytes, idp_id) = payload[4]
         idp_id = cls._convert_or_decode(is_stored_as_bytes, idp_id)
         protocol_id = payload[5]
-        if six.PY3 and isinstance(protocol_id, six.binary_type):
+        if isinstance(protocol_id, bytes):
             protocol_id = protocol_id.decode('utf-8')
         expires_at_str = cls._convert_float_to_time_string(payload[6])
         audit_ids = list(map(cls.base64_encode, payload[7]))

@@ -11,7 +11,6 @@
 # under the License.
 
 import abc
-import six
 
 import keystone.conf
 from keystone import exception
@@ -20,8 +19,7 @@ from keystone import exception
 CONF = keystone.conf.CONF
 
 
-@six.add_metaclass(abc.ABCMeta)
-class PolicyDriverBase(object):
+class PolicyDriverBase(object, metaclass=abc.ABCMeta):
 
     def _get_list_limit(self):
         return CONF.policy.list_limit or CONF.list_limit

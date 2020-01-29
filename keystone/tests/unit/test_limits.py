@@ -12,7 +12,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from six.moves import http_client
+import http.client
 import uuid
 
 from keystone.common import provider_api
@@ -49,7 +49,7 @@ class LimitModelTestCase(test_v3.RestfulTestCase):
         validator.validate(response.json_body)
 
     def test_head_limit_model(self):
-        self.head('/limits/model', expected_status=http_client.OK)
+        self.head('/limits/model', expected_status=http.client.OK)
 
     def test_get_limit_model_returns_default_model(self):
         response = self.get('/limits/model')
@@ -68,13 +68,13 @@ class LimitModelTestCase(test_v3.RestfulTestCase):
     def test_get_limit_model_without_token_fails(self):
         self.get(
             '/limits/model', noauth=True,
-            expected_status=http_client.UNAUTHORIZED
+            expected_status=http.client.UNAUTHORIZED
         )
 
     def test_head_limit_model_without_token_fails(self):
         self.head(
             '/limits/model', noauth=True,
-            expected_status=http_client.UNAUTHORIZED
+            expected_status=http.client.UNAUTHORIZED
         )
 
 
@@ -113,7 +113,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             '/registered_limits',
             body={'registered_limits': [ref]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
         registered_limits = r.result['registered_limits']
         for key in ['service_id', 'region_id', 'resource_name',
                     'default_limit', 'description']:
@@ -125,7 +125,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             '/registered_limits',
             body={'registered_limits': [ref]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
         registered_limits = r.result['registered_limits']
         for key in ['service_id', 'resource_name', 'default_limit']:
             self.assertEqual(registered_limits[0][key], ref[key])
@@ -139,7 +139,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             '/registered_limits',
             body={'registered_limits': [ref]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
         registered_limits = r.result['registered_limits']
         for key in ['service_id', 'region_id', 'resource_name',
                     'default_limit']:
@@ -156,7 +156,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             '/registered_limits',
             body={'registered_limits': [ref1, ref2]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
         registered_limits = r.result['registered_limits']
         for key in ['service_id', 'resource_name', 'default_limit']:
             self.assertEqual(registered_limits[0][key], ref1[key])
@@ -171,7 +171,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             '/registered_limits',
             body={'registered_limits': [ref1]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
         registered_limits = r.result['registered_limits']
         self.assertEqual(1, len(registered_limits))
 
@@ -182,7 +182,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             '/registered_limits',
             body={'registered_limits': [ref2, ref3]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
         registered_limits = r.result['registered_limits']
         self.assertEqual(2, len(registered_limits))
 
@@ -196,7 +196,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
                 '/registered_limits',
                 body={'registered_limits': [input_limit]},
                 token=self.system_admin_token,
-                expected_status=http_client.BAD_REQUEST)
+                expected_status=http.client.BAD_REQUEST)
 
     def test_create_registered_limit_duplicate(self):
         ref = unit.new_registered_limit_ref(service_id=self.service_id,
@@ -205,12 +205,12 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             '/registered_limits',
             body={'registered_limits': [ref]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
         self.post(
             '/registered_limits',
             body={'registered_limits': [ref]},
             token=self.system_admin_token,
-            expected_status=http_client.CONFLICT)
+            expected_status=http.client.CONFLICT)
 
     def test_update_registered_limit(self):
         ref = unit.new_registered_limit_ref(service_id=self.service_id,
@@ -221,7 +221,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             '/registered_limits',
             body={'registered_limits': [ref]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
         update_ref = {
             'service_id': self.service_id2,
             'region_id': self.region_id2,
@@ -233,7 +233,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             '/registered_limits/%s' % r.result['registered_limits'][0]['id'],
             body={'registered_limit': update_ref},
             token=self.system_admin_token,
-            expected_status=http_client.OK)
+            expected_status=http.client.OK)
         new_registered_limits = r.result['registered_limit']
 
         self.assertEqual(new_registered_limits['service_id'], self.service_id2)
@@ -252,7 +252,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             '/registered_limits',
             body={'registered_limits': [ref]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
         update_ref = {
             'region_id': self.region_id,
         }
@@ -261,7 +261,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             '/registered_limits/%s' % registered_limit_id,
             body={'registered_limit': update_ref},
             token=self.system_admin_token,
-            expected_status=http_client.OK)
+            expected_status=http.client.OK)
         new_registered_limits = r.result['registered_limit']
         self.assertEqual(self.region_id, new_registered_limits['region_id'])
 
@@ -270,7 +270,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             '/registered_limits/%s' % registered_limit_id,
             body={'registered_limit': update_ref},
             token=self.system_admin_token,
-            expected_status=http_client.BAD_REQUEST)
+            expected_status=http.client.BAD_REQUEST)
 
     def test_update_registered_limit_description(self):
         ref = unit.new_registered_limit_ref(service_id=self.service_id,
@@ -281,7 +281,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             '/registered_limits',
             body={'registered_limits': [ref]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
         update_ref = {
             'description': 'test description'
         }
@@ -290,7 +290,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             '/registered_limits/%s' % registered_limit_id,
             body={'registered_limit': update_ref},
             token=self.system_admin_token,
-            expected_status=http_client.OK)
+            expected_status=http.client.OK)
         new_registered_limits = r.result['registered_limit']
         self.assertEqual(new_registered_limits['description'],
                          'test description')
@@ -300,7 +300,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             '/registered_limits/%s' % registered_limit_id,
             body={'registered_limit': update_ref},
             token=self.system_admin_token,
-            expected_status=http_client.OK)
+            expected_status=http.client.OK)
         new_registered_limits = r.result['registered_limit']
         self.assertEqual(new_registered_limits['description'], '')
 
@@ -313,7 +313,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             '/registered_limits',
             body={'registered_limits': [ref]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
         update_ref = {
             'region_id': None
         }
@@ -322,7 +322,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             '/registered_limits/%s' % registered_limit_id,
             body={'registered_limit': update_ref},
             token=self.system_admin_token,
-            expected_status=http_client.OK)
+            expected_status=http.client.OK)
         self.assertIsNone(r.result['registered_limit']['region_id'])
 
     def test_update_registered_limit_region_id_to_none_conflict(self):
@@ -337,12 +337,12 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             '/registered_limits',
             body={'registered_limits': [ref1]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
         r = self.post(
             '/registered_limits',
             body={'registered_limits': [ref2]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
 
         update_ref = {
             'region_id': None
@@ -355,7 +355,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             '/registered_limits/%s' % registered_limit_id,
             body={'registered_limit': update_ref},
             token=self.system_admin_token,
-            expected_status=http_client.CONFLICT)
+            expected_status=http.client.CONFLICT)
 
     def test_update_registered_limit_not_found(self):
         update_ref = {
@@ -368,7 +368,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             '/registered_limits/%s' % uuid.uuid4().hex,
             body={'registered_limit': update_ref},
             token=self.system_admin_token,
-            expected_status=http_client.NOT_FOUND)
+            expected_status=http.client.NOT_FOUND)
 
     def test_update_registered_limit_with_invalid_input(self):
         ref = unit.new_registered_limit_ref(service_id=self.service_id,
@@ -379,7 +379,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             '/registered_limits',
             body={'registered_limits': [ref]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
         reg_id = r.result['registered_limits'][0]['id']
 
         update_ref1 = unit.new_registered_limit_ref(service_id='fake_id')
@@ -393,7 +393,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
                 '/registered_limits/%s' % reg_id,
                 body={'registered_limit': input_limit},
                 token=self.system_admin_token,
-                expected_status=http_client.BAD_REQUEST)
+                expected_status=http.client.BAD_REQUEST)
 
     def test_update_registered_limit_with_referenced_limit(self):
         ref = unit.new_registered_limit_ref(service_id=self.service_id,
@@ -404,7 +404,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             '/registered_limits',
             body={'registered_limits': [ref]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
 
         ref = unit.new_limit_ref(project_id=self.project_id,
                                  service_id=self.service_id,
@@ -414,7 +414,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             '/limits',
             body={'limits': [ref]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
 
         update_ref = {
             'service_id': self.service_id2,
@@ -426,12 +426,12 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             '/registered_limits/%s' % r.result['registered_limits'][0]['id'],
             body={'registered_limit': update_ref},
             token=self.system_admin_token,
-            expected_status=http_client.FORBIDDEN)
+            expected_status=http.client.FORBIDDEN)
 
     def test_list_registered_limit(self):
         r = self.get(
             '/registered_limits',
-            expected_status=http_client.OK)
+            expected_status=http.client.OK)
         self.assertEqual([], r.result.get('registered_limits'))
 
         ref1 = unit.new_registered_limit_ref(service_id=self.service_id,
@@ -444,11 +444,11 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             '/registered_limits',
             body={'registered_limits': [ref1, ref2]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
         id1 = r.result['registered_limits'][0]['id']
         r = self.get(
             '/registered_limits',
-            expected_status=http_client.OK)
+            expected_status=http.client.OK)
         registered_limits = r.result['registered_limits']
         self.assertEqual(len(registered_limits), 2)
         for key in ['service_id', 'region_id', 'resource_name',
@@ -462,7 +462,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
 
         r = self.get(
             '/registered_limits?service_id=%s' % self.service_id,
-            expected_status=http_client.OK)
+            expected_status=http.client.OK)
         registered_limits = r.result['registered_limits']
         self.assertEqual(len(registered_limits), 1)
         for key in ['service_id', 'region_id', 'resource_name',
@@ -471,7 +471,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
 
         r = self.get(
             '/registered_limits?region_id=%s' % self.region_id2,
-            expected_status=http_client.OK)
+            expected_status=http.client.OK)
         registered_limits = r.result['registered_limits']
         self.assertEqual(len(registered_limits), 1)
         for key in ['service_id', 'region_id', 'resource_name',
@@ -480,7 +480,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
 
         r = self.get(
             '/registered_limits?resource_name=test_resource',
-            expected_status=http_client.OK)
+            expected_status=http.client.OK)
         registered_limits = r.result['registered_limits']
         self.assertEqual(len(registered_limits), 2)
 
@@ -493,14 +493,14 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             '/registered_limits',
             body={'registered_limits': [ref1, ref2]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
         id1 = r.result['registered_limits'][0]['id']
         self.get(
             '/registered_limits/fake_id',
-            expected_status=http_client.NOT_FOUND)
+            expected_status=http.client.NOT_FOUND)
         r = self.get(
             '/registered_limits/%s' % id1,
-            expected_status=http_client.OK)
+            expected_status=http.client.OK)
         registered_limit = r.result['registered_limit']
         for key in ['service_id', 'region_id', 'resource_name',
                     'default_limit', 'description']:
@@ -515,17 +515,17 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             '/registered_limits',
             body={'registered_limits': [ref1, ref2]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
         id1 = r.result['registered_limits'][0]['id']
         self.delete('/registered_limits/%s' % id1,
                     token=self.system_admin_token,
-                    expected_status=http_client.NO_CONTENT)
+                    expected_status=http.client.NO_CONTENT)
         self.delete('/registered_limits/fake_id',
                     token=self.system_admin_token,
-                    expected_status=http_client.NOT_FOUND)
+                    expected_status=http.client.NOT_FOUND)
         r = self.get(
             '/registered_limits',
-            expected_status=http_client.OK)
+            expected_status=http.client.OK)
         registered_limits = r.result['registered_limits']
         self.assertEqual(len(registered_limits), 1)
 
@@ -538,7 +538,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             '/registered_limits',
             body={'registered_limits': [ref]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
 
         ref = unit.new_limit_ref(project_id=self.project_id,
                                  service_id=self.service_id,
@@ -548,11 +548,11 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             '/limits',
             body={'limits': [ref]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
 
         id = r.result['registered_limits'][0]['id']
         self.delete('/registered_limits/%s' % id,
-                    expected_status=http_client.FORBIDDEN)
+                    expected_status=http.client.FORBIDDEN)
 
 
 class LimitsTestCase(test_v3.RestfulTestCase):
@@ -611,7 +611,7 @@ class LimitsTestCase(test_v3.RestfulTestCase):
             '/registered_limits',
             body={'registered_limits': [ref1, ref2, ref3]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
 
         # Create more assignments, all are:
         #
@@ -651,7 +651,7 @@ class LimitsTestCase(test_v3.RestfulTestCase):
             '/limits',
             body={'limits': [ref]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
         limits = r.result['limits']
 
         self.assertIsNotNone(limits[0]['id'])
@@ -669,7 +669,7 @@ class LimitsTestCase(test_v3.RestfulTestCase):
             '/limits',
             body={'limits': [ref]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
         limits = r.result['limits']
 
         self.assertIsNotNone(limits[0]['id'])
@@ -686,7 +686,7 @@ class LimitsTestCase(test_v3.RestfulTestCase):
             '/limits',
             body={'limits': [ref]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
         limits = r.result['limits']
 
         self.assertIsNotNone(limits[0]['id'])
@@ -705,7 +705,7 @@ class LimitsTestCase(test_v3.RestfulTestCase):
             '/limits',
             body={'limits': [ref]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
         limits = r.result['limits']
 
         self.assertIsNotNone(limits[0]['id'])
@@ -738,7 +738,7 @@ class LimitsTestCase(test_v3.RestfulTestCase):
             '/limits',
             body={'limits': [ref1, ref2]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
         limits = r.result['limits']
         for key in ['service_id', 'resource_name', 'resource_limit']:
             self.assertEqual(limits[0][key], ref1[key])
@@ -755,7 +755,7 @@ class LimitsTestCase(test_v3.RestfulTestCase):
             '/limits',
             body={'limits': [ref1]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
         limits = r.result['limits']
         self.assertEqual(1, len(limits))
 
@@ -770,7 +770,7 @@ class LimitsTestCase(test_v3.RestfulTestCase):
             '/limits',
             body={'limits': [ref2, ref3]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
         limits = r.result['limits']
         self.assertEqual(2, len(limits))
 
@@ -786,7 +786,7 @@ class LimitsTestCase(test_v3.RestfulTestCase):
                 '/limits',
                 body={'limits': [input_limit]},
                 token=self.system_admin_token,
-                expected_status=http_client.BAD_REQUEST)
+                expected_status=http.client.BAD_REQUEST)
 
     def test_create_limit_duplicate(self):
         ref = unit.new_limit_ref(project_id=self.project_id,
@@ -797,12 +797,12 @@ class LimitsTestCase(test_v3.RestfulTestCase):
             '/limits',
             body={'limits': [ref]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
         self.post(
             '/limits',
             body={'limits': [ref]},
             token=self.system_admin_token,
-            expected_status=http_client.CONFLICT)
+            expected_status=http.client.CONFLICT)
 
     def test_create_limit_without_reference_registered_limit(self):
         ref = unit.new_limit_ref(project_id=self.project_id,
@@ -813,7 +813,7 @@ class LimitsTestCase(test_v3.RestfulTestCase):
             '/limits',
             body={'limits': [ref]},
             token=self.system_admin_token,
-            expected_status=http_client.FORBIDDEN)
+            expected_status=http.client.FORBIDDEN)
 
     def test_update_limit(self):
         ref = unit.new_limit_ref(project_id=self.project_id,
@@ -825,7 +825,7 @@ class LimitsTestCase(test_v3.RestfulTestCase):
             '/limits',
             body={'limits': [ref]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
         update_ref = {
             'resource_limit': 5,
             'description': 'test description'
@@ -834,7 +834,7 @@ class LimitsTestCase(test_v3.RestfulTestCase):
             '/limits/%s' % r.result['limits'][0]['id'],
             body={'limit': update_ref},
             token=self.system_admin_token,
-            expected_status=http_client.OK)
+            expected_status=http.client.OK)
         new_limits = r.result['limit']
 
         self.assertEqual(new_limits['resource_limit'], 5)
@@ -848,7 +848,7 @@ class LimitsTestCase(test_v3.RestfulTestCase):
             '/limits/%s' % uuid.uuid4().hex,
             body={'limit': update_ref},
             token=self.system_admin_token,
-            expected_status=http_client.NOT_FOUND)
+            expected_status=http.client.NOT_FOUND)
 
     def test_update_limit_with_invalid_input(self):
         ref = unit.new_limit_ref(project_id=self.project_id,
@@ -860,7 +860,7 @@ class LimitsTestCase(test_v3.RestfulTestCase):
             '/limits',
             body={'limits': [ref]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
         limit_id = r.result['limits'][0]['id']
 
         invalid_resource_limit_update = {
@@ -875,13 +875,13 @@ class LimitsTestCase(test_v3.RestfulTestCase):
                 '/limits/%s' % limit_id,
                 body={'limit': input_limit},
                 token=self.system_admin_token,
-                expected_status=http_client.BAD_REQUEST)
+                expected_status=http.client.BAD_REQUEST)
 
     def test_list_limit(self):
         r = self.get(
             '/limits',
             token=self.system_admin_token,
-            expected_status=http_client.OK)
+            expected_status=http.client.OK)
         self.assertEqual([], r.result.get('limits'))
 
         ref1 = unit.new_limit_ref(project_id=self.project_id,
@@ -895,11 +895,11 @@ class LimitsTestCase(test_v3.RestfulTestCase):
             '/limits',
             body={'limits': [ref1, ref2]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
         id1 = r.result['limits'][0]['id']
         r = self.get(
             '/limits',
-            expected_status=http_client.OK)
+            expected_status=http.client.OK)
         limits = r.result['limits']
         self.assertEqual(len(limits), 2)
         if limits[0]['id'] == id1:
@@ -917,7 +917,7 @@ class LimitsTestCase(test_v3.RestfulTestCase):
 
         r = self.get(
             '/limits?service_id=%s' % self.service_id2,
-            expected_status=http_client.OK)
+            expected_status=http.client.OK)
         limits = r.result['limits']
         self.assertEqual(len(limits), 1)
         for key in ['service_id', 'resource_name', 'resource_limit']:
@@ -925,7 +925,7 @@ class LimitsTestCase(test_v3.RestfulTestCase):
 
         r = self.get(
             '/limits?region_id=%s' % self.region_id,
-            expected_status=http_client.OK)
+            expected_status=http.client.OK)
         limits = r.result['limits']
         self.assertEqual(len(limits), 1)
         for key in ['service_id', 'region_id', 'resource_name',
@@ -934,7 +934,7 @@ class LimitsTestCase(test_v3.RestfulTestCase):
 
         r = self.get(
             '/limits?resource_name=volume',
-            expected_status=http_client.OK)
+            expected_status=http.client.OK)
         limits = r.result['limits']
         self.assertEqual(len(limits), 1)
         for key in ['service_id', 'region_id', 'resource_name',
@@ -956,16 +956,16 @@ class LimitsTestCase(test_v3.RestfulTestCase):
             '/limits',
             body={'limits': [ref1, ref2]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
 
         # non system scoped request will get the limits in its project.
-        r = self.get('/limits', expected_status=http_client.OK)
+        r = self.get('/limits', expected_status=http.client.OK)
         limits = r.result['limits']
         self.assertEqual(1, len(limits))
         self.assertEqual(self.project_id, limits[0]['project_id'])
 
         r = self.get(
-            '/limits', expected_status=http_client.OK,
+            '/limits', expected_status=http.client.OK,
             auth=self.build_authentication_request(
                 user_id=self.user['id'], password=self.user['password'],
                 project_id=self.project_2_id))
@@ -976,7 +976,7 @@ class LimitsTestCase(test_v3.RestfulTestCase):
         # any project user can filter by their own project
         r = self.get(
             '/limits?project_id=%s' % self.project_id,
-            expected_status=http_client.OK)
+            expected_status=http.client.OK)
         limits = r.result['limits']
         self.assertEqual(1, len(limits))
         self.assertEqual(self.project_id, limits[0]['project_id'])
@@ -984,7 +984,7 @@ class LimitsTestCase(test_v3.RestfulTestCase):
         # a system scoped request can specify the project_id filter
         r = self.get(
             '/limits?project_id=%s' % self.project_id,
-            expected_status=http_client.OK,
+            expected_status=http.client.OK,
             token=self.system_admin_token
         )
         limits = r.result['limits']
@@ -1004,11 +1004,11 @@ class LimitsTestCase(test_v3.RestfulTestCase):
             '/limits',
             body={'limits': [ref1, ref2]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
 
         # non system scoped request will get the limits in its domain.
         r = self.get(
-            '/limits', expected_status=http_client.OK,
+            '/limits', expected_status=http.client.OK,
             auth=self.build_authentication_request(
                 user_id=self.user['id'], password=self.user['password'],
                 domain_id=self.domain_id))
@@ -1017,7 +1017,7 @@ class LimitsTestCase(test_v3.RestfulTestCase):
         self.assertEqual(self.domain_id, limits[0]['domain_id'])
 
         r = self.get(
-            '/limits', expected_status=http_client.OK,
+            '/limits', expected_status=http.client.OK,
             auth=self.build_authentication_request(
                 user_id=self.user['id'], password=self.user['password'],
                 domain_id=self.domain_2_id))
@@ -1029,14 +1029,14 @@ class LimitsTestCase(test_v3.RestfulTestCase):
         # will return an empty list.
         r = self.get(
             '/limits?domain_id=%s' % self.domain_id,
-            expected_status=http_client.OK)
+            expected_status=http.client.OK)
         limits = r.result['limits']
         self.assertEqual(0, len(limits))
 
         # a system scoped request can specify the domain_id filter
         r = self.get(
             '/limits?domain_id=%s' % self.domain_id,
-            expected_status=http_client.OK,
+            expected_status=http.client.OK,
             auth=self.build_authentication_request(
                 user_id=self.user['id'], password=self.user['password'],
                 system=True))
@@ -1056,16 +1056,16 @@ class LimitsTestCase(test_v3.RestfulTestCase):
             '/limits',
             body={'limits': [ref1, ref2]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
         if r.result['limits'][0]['resource_name'] == 'volume':
             id1 = r.result['limits'][0]['id']
         else:
             id1 = r.result['limits'][1]['id']
         self.get('/limits/fake_id',
                  token=self.system_admin_token,
-                 expected_status=http_client.NOT_FOUND)
+                 expected_status=http.client.NOT_FOUND)
         r = self.get('/limits/%s' % id1,
-                     expected_status=http_client.OK)
+                     expected_status=http.client.OK)
         limit = r.result['limit']
         self.assertIsNone(limit['domain_id'])
         for key in ['service_id', 'region_id', 'resource_name',
@@ -1080,11 +1080,11 @@ class LimitsTestCase(test_v3.RestfulTestCase):
             '/limits',
             body={'limits': [ref1]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
         id1 = r.result['limits'][0]['id']
 
         r = self.get('/limits/%s' % id1,
-                     expected_status=http_client.OK,
+                     expected_status=http.client.OK,
                      auth=self.build_authentication_request(
                          user_id=self.user['id'],
                          password=self.user['password'],
@@ -1108,18 +1108,18 @@ class LimitsTestCase(test_v3.RestfulTestCase):
             '/limits',
             body={'limits': [ref1, ref2]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
         id1 = r.result['limits'][0]['id']
         self.delete('/limits/%s' % id1,
                     token=self.system_admin_token,
-                    expected_status=http_client.NO_CONTENT)
+                    expected_status=http.client.NO_CONTENT)
         self.delete('/limits/fake_id',
                     token=self.system_admin_token,
-                    expected_status=http_client.NOT_FOUND)
+                    expected_status=http.client.NOT_FOUND)
         r = self.get(
             '/limits',
             token=self.system_admin_token,
-            expected_status=http_client.OK)
+            expected_status=http.client.OK)
         limits = r.result['limits']
         self.assertEqual(len(limits), 1)
 
@@ -1183,7 +1183,7 @@ class StrictTwoLevelLimitsTestCase(LimitsTestCase):
             '/limits',
             body={'limits': [ref]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
 
         ref = unit.new_limit_ref(project_id=self.project_B['id'],
                                  service_id=self.service_id,
@@ -1194,7 +1194,7 @@ class StrictTwoLevelLimitsTestCase(LimitsTestCase):
             '/limits',
             body={'limits': [ref]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
 
         ref = unit.new_limit_ref(project_id=self.project_C['id'],
                                  service_id=self.service_id,
@@ -1205,7 +1205,7 @@ class StrictTwoLevelLimitsTestCase(LimitsTestCase):
             '/limits',
             body={'limits': [ref]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
 
     def test_create_child_limit_break_hierarchical_tree(self):
         # when A is 20, success to create B to 15, but fail to create C to 21.
@@ -1225,7 +1225,7 @@ class StrictTwoLevelLimitsTestCase(LimitsTestCase):
             '/limits',
             body={'limits': [ref]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
 
         ref = unit.new_limit_ref(project_id=self.project_B['id'],
                                  service_id=self.service_id,
@@ -1236,7 +1236,7 @@ class StrictTwoLevelLimitsTestCase(LimitsTestCase):
             '/limits',
             body={'limits': [ref]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
 
         ref = unit.new_limit_ref(project_id=self.project_C['id'],
                                  service_id=self.service_id,
@@ -1247,7 +1247,7 @@ class StrictTwoLevelLimitsTestCase(LimitsTestCase):
             '/limits',
             body={'limits': [ref]},
             token=self.system_admin_token,
-            expected_status=http_client.FORBIDDEN)
+            expected_status=http.client.FORBIDDEN)
 
     def test_create_child_with_default_parent(self):
         # If A is not set, the default value is 10 (from registered limit).
@@ -1268,7 +1268,7 @@ class StrictTwoLevelLimitsTestCase(LimitsTestCase):
             '/limits',
             body={'limits': [ref]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
 
         ref = unit.new_limit_ref(project_id=self.project_C['id'],
                                  service_id=self.service_id,
@@ -1279,7 +1279,7 @@ class StrictTwoLevelLimitsTestCase(LimitsTestCase):
             '/limits',
             body={'limits': [ref]},
             token=self.system_admin_token,
-            expected_status=http_client.FORBIDDEN)
+            expected_status=http.client.FORBIDDEN)
 
     def test_create_parent_limit(self):
         # When B is 9 , success to set A to 12
@@ -1295,7 +1295,7 @@ class StrictTwoLevelLimitsTestCase(LimitsTestCase):
             '/limits',
             body={'limits': [ref]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
 
         ref = unit.new_limit_ref(domain_id=self.domain_A['id'],
                                  service_id=self.service_id,
@@ -1306,7 +1306,7 @@ class StrictTwoLevelLimitsTestCase(LimitsTestCase):
             '/limits',
             body={'limits': [ref]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
 
     def test_create_parent_limit_break_hierarchical_tree(self):
         # When B is 9 , fail to set A to 8
@@ -1322,7 +1322,7 @@ class StrictTwoLevelLimitsTestCase(LimitsTestCase):
             '/limits',
             body={'limits': [ref]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
 
         ref = unit.new_limit_ref(domain_id=self.domain_A['id'],
                                  service_id=self.service_id,
@@ -1333,7 +1333,7 @@ class StrictTwoLevelLimitsTestCase(LimitsTestCase):
             '/limits',
             body={'limits': [ref]},
             token=self.system_admin_token,
-            expected_status=http_client.FORBIDDEN)
+            expected_status=http.client.FORBIDDEN)
 
     def test_create_multi_limits(self):
         # success to create a tree in one request like:
@@ -1374,7 +1374,7 @@ class StrictTwoLevelLimitsTestCase(LimitsTestCase):
             '/limits',
             body={'limits': [ref_A, ref_B, ref_C, ref_D, ref_E, ref_F]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
 
     def test_create_multi_limits_invalid_input(self):
         # fail to create a tree in one request like:
@@ -1416,7 +1416,7 @@ class StrictTwoLevelLimitsTestCase(LimitsTestCase):
             '/limits',
             body={'limits': [ref_A, ref_B, ref_C, ref_D, ref_E, ref_F]},
             token=self.system_admin_token,
-            expected_status=http_client.FORBIDDEN)
+            expected_status=http.client.FORBIDDEN)
 
     def test_create_multi_limits_break_hierarchical_tree(self):
         # when there is some hierarchical_trees already like:
@@ -1447,7 +1447,7 @@ class StrictTwoLevelLimitsTestCase(LimitsTestCase):
             '/limits',
             body={'limits': [ref_A, ref_B, ref_E]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
 
         ref_C = unit.new_limit_ref(project_id=self.project_C['id'],
                                    service_id=self.service_id,
@@ -1463,7 +1463,7 @@ class StrictTwoLevelLimitsTestCase(LimitsTestCase):
             '/limits',
             body={'limits': [ref_C, ref_D]},
             token=self.system_admin_token,
-            expected_status=http_client.FORBIDDEN)
+            expected_status=http.client.FORBIDDEN)
 
     def test_update_child_limit(self):
         # Success to update C to 9
@@ -1489,19 +1489,19 @@ class StrictTwoLevelLimitsTestCase(LimitsTestCase):
             '/limits',
             body={'limits': [ref_A, ref_B]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
         r = self.post(
             '/limits',
             body={'limits': [ref_C]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
 
         update_dict = {'resource_limit': 9}
         self.patch(
             '/limits/%s' % r.result['limits'][0]['id'],
             body={'limit': update_dict},
             token=self.system_admin_token,
-            expected_status=http_client.OK)
+            expected_status=http.client.OK)
 
     def test_update_child_limit_break_hierarchical_tree(self):
         # Fail to update C to 11
@@ -1527,19 +1527,19 @@ class StrictTwoLevelLimitsTestCase(LimitsTestCase):
             '/limits',
             body={'limits': [ref_A, ref_B]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
         r = self.post(
             '/limits',
             body={'limits': [ref_C]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
 
         update_dict = {'resource_limit': 11}
         self.patch(
             '/limits/%s' % r.result['limits'][0]['id'],
             body={'limit': update_dict},
             token=self.system_admin_token,
-            expected_status=http_client.FORBIDDEN)
+            expected_status=http.client.FORBIDDEN)
 
     def test_update_child_limit_with_default_parent(self):
         # If A is not set, the default value is 10 (from registered limit).
@@ -1560,21 +1560,21 @@ class StrictTwoLevelLimitsTestCase(LimitsTestCase):
             '/limits',
             body={'limits': [ref_C]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
 
         update_dict = {'resource_limit': 9}
         self.patch(
             '/limits/%s' % r.result['limits'][0]['id'],
             body={'limit': update_dict},
             token=self.system_admin_token,
-            expected_status=http_client.OK)
+            expected_status=http.client.OK)
 
         update_dict = {'resource_limit': 11}
         self.patch(
             '/limits/%s' % r.result['limits'][0]['id'],
             body={'limit': update_dict},
             token=self.system_admin_token,
-            expected_status=http_client.FORBIDDEN)
+            expected_status=http.client.FORBIDDEN)
 
     def test_update_parent_limit(self):
         # Success to update A to 8
@@ -1600,19 +1600,19 @@ class StrictTwoLevelLimitsTestCase(LimitsTestCase):
             '/limits',
             body={'limits': [ref_A]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
         self.post(
             '/limits',
             body={'limits': [ref_B, ref_C]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
 
         update_dict = {'resource_limit': 8}
         self.patch(
             '/limits/%s' % r.result['limits'][0]['id'],
             body={'limit': update_dict},
             token=self.system_admin_token,
-            expected_status=http_client.OK)
+            expected_status=http.client.OK)
 
     def test_update_parent_limit_break_hierarchical_tree(self):
         # Fail to update A to 6
@@ -1638,16 +1638,16 @@ class StrictTwoLevelLimitsTestCase(LimitsTestCase):
             '/limits',
             body={'limits': [ref_A]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
         self.post(
             '/limits',
             body={'limits': [ref_B, ref_C]},
             token=self.system_admin_token,
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
 
         update_dict = {'resource_limit': 6}
         self.patch(
             '/limits/%s' % r.result['limits'][0]['id'],
             body={'limit': update_dict},
             token=self.system_admin_token,
-            expected_status=http_client.FORBIDDEN)
+            expected_status=http.client.FORBIDDEN)

@@ -29,7 +29,6 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.twofactor import totp as crypto_totp
 from oslo_log import log
 from oslo_utils import timeutils
-import six
 
 from keystone.auth import plugins
 from keystone.auth.plugins import base
@@ -57,7 +56,7 @@ def _generate_totp_passcodes(secret, included_previous_windows=0):
     :param bytes secret: A base32 encoded secret for the TOTP authentication
     :returns: totp passcode as bytes
     """
-    if isinstance(secret, six.text_type):
+    if isinstance(secret, str):
         # NOTE(dstanek): since this may be coming from the JSON stored in the
         # database it may be UTF-8 encoded
         secret = secret.encode('utf-8')

@@ -10,8 +10,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import six
-
 from keystone.common import resource_options
 from keystone.common.validation import parameter_types
 from keystone.i18n import _
@@ -47,7 +45,7 @@ def _mfa_rules_validator_list_of_lists_of_strings_no_duplicates(value):
         # Add the sublist to the tracker
         sublists.append(sublist)
         for element in sublist:
-            if not isinstance(element, six.string_types):
+            if not isinstance(element, str):
                 # Element of sublist is not a string, TypeError
                 raise TypeError(msg)
             if element in string_set:

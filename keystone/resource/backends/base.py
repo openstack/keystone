@@ -14,8 +14,6 @@
 
 import abc
 
-import six
-
 import keystone.conf
 from keystone import exception
 
@@ -39,8 +37,7 @@ def get_project_from_domain(domain_ref):
 NULL_DOMAIN_ID = '<<keystone.domain.root>>'
 
 
-@six.add_metaclass(abc.ABCMeta)
-class ResourceDriverBase(object):
+class ResourceDriverBase(object, metaclass=abc.ABCMeta):
 
     def _get_list_limit(self):
         return CONF.resource.list_limit or CONF.list_limit

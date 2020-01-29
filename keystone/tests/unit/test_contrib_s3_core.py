@@ -17,7 +17,7 @@ import hashlib
 import hmac
 import uuid
 
-from six.moves import http_client
+import http.client
 
 from keystone.api import s3tokens
 from keystone.common import provider_api
@@ -50,7 +50,7 @@ class S3ContribCore(test_v3.RestfulTestCase):
                 'signature': base64.b64encode(sig).strip(),
                 'token': base64.b64encode(sts.encode('ascii')).strip(),
             }},
-            expected_status=http_client.OK)
+            expected_status=http.client.OK)
         self.assertValidProjectScopedTokenResponse(resp, self.user,
                                                    forbid_token_id=True)
 
@@ -58,16 +58,16 @@ class S3ContribCore(test_v3.RestfulTestCase):
         self.post(
             '/s3tokens',
             body={},
-            expected_status=http_client.BAD_REQUEST)
+            expected_status=http.client.BAD_REQUEST)
 
         self.post(
             '/s3tokens',
             body="not json",
-            expected_status=http_client.BAD_REQUEST)
+            expected_status=http.client.BAD_REQUEST)
 
         self.post(
             '/s3tokens',
-            expected_status=http_client.BAD_REQUEST)
+            expected_status=http.client.BAD_REQUEST)
 
     def test_bad_response(self):
         self.post(
@@ -77,7 +77,7 @@ class S3ContribCore(test_v3.RestfulTestCase):
                 'signature': base64.b64encode(b'totally not the sig').strip(),
                 'token': base64.b64encode(b'string to sign').strip(),
             }},
-            expected_status=http_client.UNAUTHORIZED)
+            expected_status=http.client.UNAUTHORIZED)
 
     def test_good_signature_v1(self):
         creds_ref = {'secret':

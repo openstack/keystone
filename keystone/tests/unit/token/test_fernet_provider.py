@@ -18,7 +18,6 @@ import os
 import uuid
 
 from oslo_utils import timeutils
-import six
 
 from keystone import auth
 from keystone.common import fernet_utils
@@ -227,11 +226,11 @@ class TestTokenFormatter(unit.TestCase):
         binary_to_test = [b'a', b'aa', b'aaa']
 
         for binary in binary_to_test:
-            # base64.urlsafe_b64encode takes six.binary_type and returns
-            # six.binary_type.
+            # base64.urlsafe_b64encode takes bytes and returns
+            # bytes.
             encoded_string = base64.urlsafe_b64encode(binary)
             encoded_string = encoded_string.decode('utf-8')
-            # encoded_string is now six.text_type.
+            # encoded_string is now str.
             encoded_str_without_padding = encoded_string.rstrip('=')
             self.assertFalse(encoded_str_without_padding.endswith('='))
             encoded_str_with_padding_restored = (
@@ -266,7 +265,7 @@ class TestTokenFormatter(unit.TestCase):
          expires_at) = token_formatter.validate_token(token)
 
         self.assertEqual(exp_user_id, user_id)
-        self.assertTrue(isinstance(user_id, six.string_types))
+        self.assertTrue(isinstance(user_id, str))
         self.assertEqual(exp_methods, methods)
         self.assertEqual(exp_audit_ids, audit_ids)
         self.assertEqual(exp_federated_group_ids, federated_group_ids)
@@ -301,7 +300,7 @@ class TestTokenFormatter(unit.TestCase):
          expires_at) = token_formatter.validate_token(token)
 
         self.assertEqual(exp_user_id, user_id)
-        self.assertTrue(isinstance(user_id, six.string_types))
+        self.assertTrue(isinstance(user_id, str))
         self.assertEqual(exp_methods, methods)
         self.assertEqual(exp_audit_ids, audit_ids)
         self.assertEqual(exp_project_id, project_id)
@@ -327,10 +326,10 @@ class TestPayloads(unit.TestCase):
 
     def test_strings_can_be_converted_to_bytes(self):
         s = provider.random_urlsafe_str()
-        self.assertIsInstance(s, six.text_type)
+        self.assertIsInstance(s, str)
 
         b = token_formatters.BasePayload.random_urlsafe_str_to_bytes(s)
-        self.assertIsInstance(b, six.binary_type)
+        self.assertIsInstance(b, bytes)
 
     def test_uuid_hex_to_byte_conversions(self):
         payload_cls = token_formatters.BasePayload
@@ -420,7 +419,7 @@ class TestPayloads(unit.TestCase):
                       exp_access_token_id=None, exp_app_cred_id=None,
                       encode_ids=False):
         def _encode_id(value):
-            if value is not None and six.text_type(value) and encode_ids:
+            if value is not None and str(value) and encode_ids:
                 return value.encode('utf-8')
             return value
         exp_user_id = exp_user_id or uuid.uuid4().hex
@@ -626,7 +625,7 @@ class TestFernetKeyRotation(unit.TestCase):
         static set of keys, and simply shuffling them, would fail such a test).
 
         """
-        # Load the keys into a list, keys is list of six.text_type.
+        # Load the keys into a list, keys is list of str.
         key_utils = fernet_utils.FernetUtils(
             CONF.fernet_tokens.key_repository,
             CONF.fernet_tokens.max_active_keys,
@@ -641,7 +640,7 @@ class TestFernetKeyRotation(unit.TestCase):
         # Create the thumbprint using all keys in the repository.
         signature = hashlib.sha1()
         for key in keys:
-            # Need to convert key to six.binary_type for update.
+            # Need to convert key to bytes for update.
             signature.update(key.encode('utf-8'))
         return signature.hexdigest()
 

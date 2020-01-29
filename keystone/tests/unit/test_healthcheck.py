@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from six.moves import http_client
+import http.client
 
 from keystone.tests.unit import rest
 
@@ -20,6 +20,6 @@ from keystone.tests.unit import rest
 class HealthCheckTestCase(rest.RestfulTestCase):
     def test_get_healthcheck(self):
         with self.test_client() as c:
-            resp = c.get('/healthcheck', expected_status_code=http_client.OK)
+            resp = c.get('/healthcheck', expected_status_code=http.client.OK)
             # healthcheck is not supposed to return any data
             self.assertEqual(0, resp.content_length)

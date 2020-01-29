@@ -15,7 +15,7 @@
 import datetime
 
 from oslo_utils import timeutils
-from six.moves import urllib
+import urllib
 
 from keystone.common import provider_api
 from keystone.common import utils

@@ -15,8 +15,6 @@
 import abc
 import string
 
-import six
-
 from keystone import exception
 
 
@@ -55,8 +53,7 @@ def filter_consumer(consumer_ref):
     return consumer_ref
 
 
-@six.add_metaclass(abc.ABCMeta)
-class Oauth1DriverBase(object):
+class Oauth1DriverBase(object, metaclass=abc.ABCMeta):
     """Interface description for an OAuth1 driver."""
 
     @abc.abstractmethod

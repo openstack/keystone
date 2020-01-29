@@ -15,7 +15,7 @@
 import flask
 import flask_restful
 import functools
-from six.moves import http_client
+import http.client
 
 from keystone.common import json_home
 from keystone.common import provider_api
@@ -107,7 +107,7 @@ class GroupsResource(ks_flask.ResourceBase):
         group = self._normalize_domain_id(group)
         ref = PROVIDERS.identity_api.create_group(
             group, initiator=self.audit_initiator)
-        return self.wrap_member(ref), http_client.CREATED
+        return self.wrap_member(ref), http.client.CREATED
 
     def patch(self, group_id):
         """Update group.
@@ -133,7 +133,7 @@ class GroupsResource(ks_flask.ResourceBase):
         ENFORCER.enforce_call(action='identity:delete_group')
         PROVIDERS.identity_api.delete_group(
             group_id, initiator=self.audit_initiator)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
 
 class GroupUsersResource(ks_flask.ResourceBase):
@@ -194,7 +194,7 @@ class UserGroupCRUDResource(flask_restful.Resource):
             build_target=functools.partial(self._build_enforcement_target_attr,
                                            user_id, group_id))
         PROVIDERS.identity_api.check_user_in_group(user_id, group_id)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
     def put(self, group_id, user_id):
         """Add user to group.
@@ -207,7 +207,7 @@ class UserGroupCRUDResource(flask_restful.Resource):
                                            user_id, group_id))
         PROVIDERS.identity_api.add_user_to_group(
             user_id, group_id, initiator=notifications.build_audit_initiator())
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
     def delete(self, group_id, user_id):
         """Remove user from group.
@@ -220,7 +220,7 @@ class UserGroupCRUDResource(flask_restful.Resource):
                                            user_id, group_id))
         PROVIDERS.identity_api.remove_user_from_group(
             user_id, group_id, initiator=notifications.build_audit_initiator())
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
 
 class GroupAPI(ks_flask.APIBase):

@@ -15,7 +15,7 @@
 import flask
 import flask_restful
 import functools
-from six.moves import http_client
+import http.client
 
 from keystone.common import json_home
 from keystone.common import provider_api
@@ -127,7 +127,7 @@ class DomainResource(ks_flask.ResourceBase):
         domain = self._normalize_dict(domain)
         ref = PROVIDERS.resource_api.create_domain(
             domain['id'], domain, initiator=self.audit_initiator)
-        return self.wrap_member(ref), http_client.CREATED
+        return self.wrap_member(ref), http.client.CREATED
 
     def patch(self, domain_id):
         """Update domain.
@@ -150,7 +150,7 @@ class DomainResource(ks_flask.ResourceBase):
         ENFORCER.enforce_call(action='identity:delete_domain')
         PROVIDERS.resource_api.delete_domain(
             domain_id, initiator=self.audit_initiator)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
 
 class DomainConfigBase(ks_flask.ResourceBase):
@@ -217,7 +217,7 @@ class DomainConfigBase(ks_flask.ResourceBase):
         PROVIDERS.resource_api.get_domain(domain_id)
         PROVIDERS.domain_config_api.delete_config(
             domain_id, group, option=option)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
 
 class DomainConfigResource(DomainConfigBase):
@@ -247,7 +247,7 @@ class DomainConfigResource(DomainConfigBase):
         if original_config:
             return {self.member_key: ref}
         else:
-            return {self.member_key: ref}, http_client.CREATED
+            return {self.member_key: ref}, http.client.CREATED
 
 
 class DomainConfigGroupResource(DomainConfigBase):
@@ -337,7 +337,7 @@ class DomainUserResource(ks_flask.ResourceBase):
         PROVIDERS.assignment_api.get_grant(
             role_id, domain_id=domain_id, user_id=user_id,
             inherited_to_projects=False)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
     def put(self, domain_id=None, user_id=None, role_id=None):
         """Create a role to a user on a domain.
@@ -350,7 +350,7 @@ class DomainUserResource(ks_flask.ResourceBase):
         PROVIDERS.assignment_api.create_grant(
             role_id, domain_id=domain_id, user_id=user_id,
             inherited_to_projects=False, initiator=self.audit_initiator)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
     def delete(self, domain_id=None, user_id=None, role_id=None):
         """Revoke a role from user on a domain.
@@ -364,7 +364,7 @@ class DomainUserResource(ks_flask.ResourceBase):
         PROVIDERS.assignment_api.delete_grant(
             role_id, domain_id=domain_id, user_id=user_id,
             inherited_to_projects=False, initiator=self.audit_initiator)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
 
 class DomainGroupListResource(flask_restful.Resource):
@@ -398,7 +398,7 @@ class DomainGroupResource(ks_flask.ResourceBase):
         PROVIDERS.assignment_api.get_grant(
             role_id, domain_id=domain_id, group_id=group_id,
             inherited_to_projects=False)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
     def put(self, domain_id=None, group_id=None, role_id=None):
         """Grant a role to a group on a domain.
@@ -411,7 +411,7 @@ class DomainGroupResource(ks_flask.ResourceBase):
         PROVIDERS.assignment_api.create_grant(
             role_id, domain_id=domain_id, group_id=group_id,
             inherited_to_projects=False, initiator=self.audit_initiator)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
     def delete(self, domain_id=None, group_id=None, role_id=None):
         """Revoke a role from a group on a domain.
@@ -425,7 +425,7 @@ class DomainGroupResource(ks_flask.ResourceBase):
         PROVIDERS.assignment_api.delete_grant(
             role_id, domain_id=domain_id, group_id=group_id,
             inherited_to_projects=False, initiator=self.audit_initiator)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
 
 class DomainAPI(ks_flask.APIBase):

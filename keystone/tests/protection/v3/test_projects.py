@@ -12,8 +12,8 @@
 
 import uuid
 
+import http.client
 from oslo_serialization import jsonutils
-from six.moves import http_client
 
 from keystone.common.policies import project as pp
 from keystone.common import provider_api
@@ -80,7 +80,7 @@ class _SystemUserTests(object):
         with self.test_client() as c:
             c.get(
                 '/v3/projects/%s' % uuid.uuid4().hex, headers=self.headers,
-                expected_status_code=http_client.NOT_FOUND
+                expected_status_code=http.client.NOT_FOUND
             )
 
 
@@ -97,7 +97,7 @@ class _SystemMemberAndReaderProjectTests(object):
         with self.test_client() as c:
             c.post(
                 '/v3/projects', json=create, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_projects(self):
@@ -112,7 +112,7 @@ class _SystemMemberAndReaderProjectTests(object):
             c.patch(
                 '/v3/projects/%s' % project['id'], json=update,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_non_existent_project_forbidden(self):
@@ -122,7 +122,7 @@ class _SystemMemberAndReaderProjectTests(object):
             c.patch(
                 '/v3/projects/%s' % uuid.uuid4().hex, json=update,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_projects(self):
@@ -134,14 +134,14 @@ class _SystemMemberAndReaderProjectTests(object):
         with self.test_client() as c:
             c.delete(
                 '/v3/projects/%s' % project['id'], headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_non_existent_project_forbidden(self):
         with self.test_client() as c:
             c.delete(
                 '/v3/projects/%s' % uuid.uuid4().hex, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -188,7 +188,7 @@ class _DomainUsersTests(object):
         with self.test_client() as c:
             c.get(
                 '/v3/projects/%s' % project['id'], headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_can_list_projects_for_user_in_domain(self):
@@ -237,7 +237,7 @@ class _DomainUsersTests(object):
         with self.test_client() as c:
             c.get(
                 '/v3/users/%s/projects' % user['id'], headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -250,7 +250,7 @@ class _DomainMemberAndReaderProjectTests(object):
         with self.test_client() as c:
             c.post(
                 '/v3/projects', json=create, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_create_projects_in_other_domains(self):
@@ -263,7 +263,7 @@ class _DomainMemberAndReaderProjectTests(object):
         with self.test_client() as c:
             c.post(
                 '/v3/projects', json=create, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_projects_within_domain(self):
@@ -278,7 +278,7 @@ class _DomainMemberAndReaderProjectTests(object):
             c.patch(
                 '/v3/projects/%s' % project['id'], json=update,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_projects_in_other_domain(self):
@@ -293,7 +293,7 @@ class _DomainMemberAndReaderProjectTests(object):
             c.patch(
                 '/v3/projects/%s' % project['id'], json=update,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_non_existent_project_forbidden(self):
@@ -303,7 +303,7 @@ class _DomainMemberAndReaderProjectTests(object):
             c.patch(
                 '/v3/projects/%s' % uuid.uuid4().hex, json=update,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_projects_within_domain(self):
@@ -315,7 +315,7 @@ class _DomainMemberAndReaderProjectTests(object):
         with self.test_client() as c:
             c.delete(
                 '/v3/projects/%s' % project['id'], headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_projects_in_other_domain(self):
@@ -327,14 +327,14 @@ class _DomainMemberAndReaderProjectTests(object):
         with self.test_client() as c:
             c.delete(
                 '/v3/projects/%s' % project['id'], headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_non_existent_projects_forbidden(self):
         with self.test_client() as c:
             c.delete(
                 '/v3/projects/%s' % uuid.uuid4().hex, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -461,7 +461,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
             c.patch(
                 '/v3/projects/%s' % uuid.uuid4().hex, json=update,
                 headers=self.headers,
-                expected_status_code=http_client.NOT_FOUND
+                expected_status_code=http.client.NOT_FOUND
             )
 
     def test_user_can_delete_projects(self):
@@ -477,7 +477,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.delete(
                 '/v3/projects/%s' % uuid.uuid4().hex, headers=self.headers,
-                expected_status_code=http_client.NOT_FOUND
+                expected_status_code=http.client.NOT_FOUND
             )
 
     def test_user_can_list_their_projects(self):
@@ -661,7 +661,7 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.post(
                 '/v3/projects', json=create, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_can_update_projects_within_domain(self):
@@ -690,7 +690,7 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
             c.patch(
                 '/v3/projects/%s' % project['id'], json=update,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_non_existent_project_forbidden(self):
@@ -706,7 +706,7 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
             c.patch(
                 '/v3/projects/%s' % uuid.uuid4().hex, json=update,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_can_delete_projects_within_domain(self):
@@ -727,7 +727,7 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.delete(
                 '/v3/projects/%s' % project['id'], headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_non_existent_projects_forbidden(self):
@@ -740,7 +740,7 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.delete(
                 '/v3/projects/%s' % uuid.uuid4().hex, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -809,7 +809,7 @@ class ProjectUserTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.get(
                 '/v3/projects', headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_list_projects_for_others(self):
@@ -833,7 +833,7 @@ class ProjectUserTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.get(
                 '/v3/users/%s/projects' % user['id'], headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_can_list_their_projects(self):
@@ -860,7 +860,7 @@ class ProjectUserTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.get(
                 '/v3/projects/%s' % project['id'], headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_create_projects(self):
@@ -873,7 +873,7 @@ class ProjectUserTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.post(
                 '/v3/projects', json=create, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_projects(self):
@@ -888,7 +888,7 @@ class ProjectUserTests(base_classes.TestCaseWithBootstrap,
             c.patch(
                 '/v3/projects/%s' % project['id'], json=update,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_non_existent_project_forbidden(self):
@@ -898,7 +898,7 @@ class ProjectUserTests(base_classes.TestCaseWithBootstrap,
             c.patch(
                 '/v3/projects/%s' % uuid.uuid4().hex, json=update,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_projects(self):
@@ -910,12 +910,12 @@ class ProjectUserTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.delete(
                 '/v3/projects/%s' % project['id'], headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_non_existent_project_forbidden(self):
         with self.test_client() as c:
             c.delete(
                 '/v3/projects/%s' % uuid.uuid4().hex, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )

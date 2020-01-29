@@ -14,7 +14,6 @@ import datetime
 import uuid
 
 from oslo_utils import timeutils
-from six.moves import range
 
 from keystone.common import provider_api
 from keystone import exception

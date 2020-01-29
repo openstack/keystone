@@ -15,11 +15,11 @@ import string
 
 import flask
 import flask_restful
+import http.client
 from oslo_log import log
 from oslo_serialization import jsonutils
 from oslo_utils import strutils
-from six.moves import http_client
-from six.moves import urllib
+import urllib
 import werkzeug.exceptions
 
 from keystone.api._shared import authentication
@@ -107,7 +107,7 @@ class _AuthFederationWebSSOBase(ks_flask.ResourceBase):
             src = string.Template(template.read())
         subs = {'host': host, 'token': token_id}
         body = src.substitute(subs)
-        resp = flask.make_response(body, http_client.OK)
+        resp = flask.make_response(body, http.client.OK)
         resp.charset = 'utf-8'
         resp.headers['Content-Type'] = 'text/html'
         return resp
@@ -298,7 +298,7 @@ class AuthTokenResource(_AuthFederationWebSSOBase):
         token_resp = render_token.render_token_response_from_model(
             token, include_catalog=include_catalog)
         resp_body = jsonutils.dumps(token_resp)
-        response = flask.make_response(resp_body, http_client.OK)
+        response = flask.make_response(resp_body, http.client.OK)
         response.headers['X-Subject-Token'] = token_id
         response.headers['Content-Type'] = 'application/json'
         return response
@@ -317,7 +317,7 @@ class AuthTokenResource(_AuthFederationWebSSOBase):
             token, include_catalog=include_catalog
         )
         resp_body = jsonutils.dumps(resp_data)
-        response = flask.make_response(resp_body, http_client.CREATED)
+        response = flask.make_response(resp_body, http.client.CREATED)
         response.headers['X-Subject-Token'] = token.id
         response.headers['Content-Type'] = 'application/json'
         return response
@@ -331,7 +331,7 @@ class AuthTokenResource(_AuthFederationWebSSOBase):
         token_id = flask.request.headers.get(
             authorization.SUBJECT_TOKEN_HEADER)
         PROVIDERS.token_provider_api.revoke_token(token_id)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
 
 class AuthFederationWebSSOResource(_AuthFederationWebSSOBase):
@@ -404,7 +404,7 @@ class AuthFederationSaml2Resource(_AuthFederationWebSSOBase):
         validation.lazy_validate(federation_schema.saml_create, auth)
         response, service_provider = saml.create_base_saml_assertion(auth)
         headers = _build_response_headers(service_provider)
-        response = flask.make_response(response.to_string(), http_client.OK)
+        response = flask.make_response(response.to_string(), http.client.OK)
         for header, value in headers:
             response.headers[header] = value
         return response
@@ -431,7 +431,7 @@ class AuthFederationSaml2ECPResource(_AuthFederationWebSSOBase):
             saml_assertion, relay_state_prefix)
         headers = _build_response_headers(service_provider)
         response = flask.make_response(
-            ecp_assertion.to_string(), http_client.OK)
+            ecp_assertion.to_string(), http.client.OK)
         for header, value in headers:
             response.headers[header] = value
         return response

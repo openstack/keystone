@@ -12,10 +12,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import http.client
 from oslo_log import log
 from oslo_utils import encodeutils
-import six
-from six.moves import http_client
 
 import keystone.conf
 from keystone.i18n import _
@@ -60,8 +59,7 @@ class _KeystoneExceptionMeta(type):
         return cls
 
 
-@six.add_metaclass(_KeystoneExceptionMeta)
-class Error(Exception):
+class Error(Exception, metaclass=_KeystoneExceptionMeta):
     """Base error class.
 
     Child classes should define an HTTP status code, title, and a
@@ -102,8 +100,8 @@ class ValidationError(Error):
                        " The server could not comply with the request"
                        " since it is either malformed or otherwise"
                        " incorrect. The client is assumed to be in error.")
-    code = int(http_client.BAD_REQUEST)
-    title = http_client.responses[http_client.BAD_REQUEST]
+    code = int(http.client.BAD_REQUEST)
+    title = http.client.responses[http.client.BAD_REQUEST]
 
 
 class URLValidationError(ValidationError):
@@ -154,8 +152,8 @@ class ValidationTimeStampError(Error):
                        " The server could not comply with the request"
                        " since it is either malformed or otherwise"
                        " incorrect. The client is assumed to be in error.")
-    code = int(http_client.BAD_REQUEST)
-    title = http_client.responses[http_client.BAD_REQUEST]
+    code = int(http.client.BAD_REQUEST)
+    title = http.client.responses[http.client.BAD_REQUEST]
 
 
 class InvalidOperatorError(ValidationError):
@@ -169,8 +167,8 @@ class ValidationExpirationError(Error):
                        " The server could not comply with the request"
                        " since it is either malformed or otherwise"
                        " incorrect. The client is assumed to be in error.")
-    code = int(http_client.BAD_REQUEST)
-    title = http_client.responses[http_client.BAD_REQUEST]
+    code = int(http.client.BAD_REQUEST)
+    title = http.client.responses[http.client.BAD_REQUEST]
 
 
 class StringLengthExceeded(ValidationError):
@@ -192,8 +190,8 @@ class ApplicationCredentialValidationError(ValidationError):
 class CircularRegionHierarchyError(Error):
     message_format = _("The specified parent region %(parent_region_id)s "
                        "would create a circular region hierarchy.")
-    code = int(http_client.BAD_REQUEST)
-    title = http_client.responses[http_client.BAD_REQUEST]
+    code = int(http.client.BAD_REQUEST)
+    title = http.client.responses[http.client.BAD_REQUEST]
 
 
 class ForbiddenNotSecurity(Error):
@@ -204,8 +202,8 @@ class ForbiddenNotSecurity(Error):
 
     """
 
-    code = int(http_client.FORBIDDEN)
-    title = http_client.responses[http_client.FORBIDDEN]
+    code = int(http.client.FORBIDDEN)
+    title = http.client.responses[http.client.FORBIDDEN]
 
 
 class PasswordVerificationError(ForbiddenNotSecurity):
@@ -265,7 +263,7 @@ class SecurityError(Error):
     def _build_message(self, message, **kwargs):
         """Only returns detailed messages in insecure_debug mode."""
         if message and CONF.insecure_debug:
-            if isinstance(message, six.string_types):
+            if isinstance(message, str):
                 # Only do replacement if message is string. The message is
                 # sometimes a different exception or bytes, which would raise
                 # TypeError.
@@ -279,8 +277,8 @@ class SecurityError(Error):
 
 class Unauthorized(SecurityError):
     message_format = _("The request you have made requires authentication.")
-    code = int(http_client.UNAUTHORIZED)
-    title = http_client.responses[http_client.UNAUTHORIZED]
+    code = int(http.client.UNAUTHORIZED)
+    title = http.client.responses[http.client.UNAUTHORIZED]
 
 
 class InsufficientAuthMethods(Error):
@@ -349,8 +347,8 @@ class AdditionalAuthRequired(AuthPluginException):
 class Forbidden(SecurityError):
     message_format = _("You are not authorized to perform the"
                        " requested action.")
-    code = int(http_client.FORBIDDEN)
-    title = http_client.responses[http_client.FORBIDDEN]
+    code = int(http.client.FORBIDDEN)
+    title = http.client.responses[http.client.FORBIDDEN]
 
 
 class ForbiddenAction(Forbidden):
@@ -391,8 +389,8 @@ class LimitTreeExceedError(Exception):
 
 class NotFound(Error):
     message_format = _("Could not find: %(target)s.")
-    code = int(http_client.NOT_FOUND)
-    title = http_client.responses[http_client.NOT_FOUND]
+    code = int(http.client.NOT_FOUND)
+    title = http.client.responses[http.client.NOT_FOUND]
 
 
 class EndpointNotFound(NotFound):
@@ -556,8 +554,8 @@ class AccessRuleNotFound(NotFound):
 class Conflict(Error):
     message_format = _("Conflict occurred attempting to store %(type)s -"
                        " %(details)s.")
-    code = int(http_client.CONFLICT)
-    title = http_client.responses[http_client.CONFLICT]
+    code = int(http.client.CONFLICT)
+    title = http.client.responses[http.client.CONFLICT]
 
 
 class UnexpectedError(SecurityError):
@@ -579,8 +577,8 @@ class UnexpectedError(SecurityError):
         return super(UnexpectedError, self)._build_message(
             message or self.debug_message_format, **kwargs)
 
-    code = int(http_client.INTERNAL_SERVER_ERROR)
-    title = http_client.responses[http_client.INTERNAL_SERVER_ERROR]
+    code = int(http.client.INTERNAL_SERVER_ERROR)
+    title = http.client.responses[http.client.INTERNAL_SERVER_ERROR]
 
 
 class TrustConsumeMaximumAttempt(UnexpectedError):
@@ -618,15 +616,15 @@ class AssignmentTypeCalculationError(UnexpectedError):
 class NotImplemented(Error):
     message_format = _("The action you have requested has not"
                        " been implemented.")
-    code = int(http_client.NOT_IMPLEMENTED)
-    title = http_client.responses[http_client.NOT_IMPLEMENTED]
+    code = int(http.client.NOT_IMPLEMENTED)
+    title = http.client.responses[http.client.NOT_IMPLEMENTED]
 
 
 class Gone(Error):
     message_format = _("The service you have requested is no"
                        " longer available on this server.")
-    code = int(http_client.GONE)
-    title = http_client.responses[http_client.GONE]
+    code = int(http.client.GONE)
+    title = http.client.responses[http.client.GONE]
 
 
 class ConfigFileNotFound(UnexpectedError):

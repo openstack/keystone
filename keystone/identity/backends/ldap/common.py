@@ -25,9 +25,6 @@ import ldap.filter
 import ldappool
 from oslo_log import log
 from oslo_utils import reflection
-import six
-from six.moves import zip
-from six import PY2
 
 from keystone.common import driver_hints
 from keystone import exception
@@ -70,9 +67,9 @@ def utf8_encode(value):
     :returns: UTF-8 encoded version of value
     :raises TypeError: If value is not basestring
     """
-    if isinstance(value, six.text_type):
+    if isinstance(value, str):
         return _utf8_encoder(value)[0]
-    elif isinstance(value, six.binary_type):
+    elif isinstance(value, bytes):
         return value
     else:
         value_cls_name = reflection.get_class_name(
@@ -94,9 +91,9 @@ def utf8_decode(value):
     :returns: value as unicode
     :raises UnicodeDecodeError: for invalid UTF-8 encoding
     """
-    if isinstance(value, six.binary_type):
+    if isinstance(value, bytes):
         return _utf8_decoder(value)[0]
-    return six.text_type(value)
+    return str(value)
 
 
 def py2ldap(val):
@@ -113,7 +110,7 @@ def py2ldap(val):
     if isinstance(val, bool):
         return u'TRUE' if val else u'FALSE'
     else:
-        return six.text_type(val)
+        return str(val)
 
 
 def enabled2py(val):
@@ -332,8 +329,7 @@ def dn_startswith(descendant_dn, dn):
     return is_dn_equal(descendant_dn[-len(dn):], dn)
 
 
-@six.add_metaclass(abc.ABCMeta)
-class LDAPHandler(object):
+class LDAPHandler(object, metaclass=abc.ABCMeta):
     """Abstract class which defines methods for a LDAP API provider.
 
     Native Keystone values cannot be passed directly into and from the
@@ -516,14 +512,7 @@ class PythonLDAPHandler(LDAPHandler):
                                     debug_level=debug_level,
                                     timeout=conn_timeout)
 
-        if PY2:
-            # NOTE: Once https://github.com/python-ldap/python-ldap/issues/249
-            # is released, we can pass bytes_strictness='warn' as a parameter
-            # to ldap.initialize instead of setting it after ldap.initialize.
-            self.conn = ldap.initialize(url, bytes_mode=False)
-            self.conn.bytes_strictness = 'warn'
-        else:
-            self.conn = ldap.initialize(url)
+        self.conn = ldap.initialize(url)
         self.conn.protocol_version = ldap.VERSION3
 
         if alias_dereferencing is not None:
@@ -1272,7 +1261,7 @@ class BaseLdap(object):
     def _id_to_dn_string(self, object_id):
         return u'%s=%s,%s' % (self.id_attr,
                               ldap.dn.escape_dn_chars(
-                                  six.text_type(object_id)),
+                                  str(object_id)),
                               self.tree_dn)
 
     def _id_to_dn(self, object_id):
@@ -1284,7 +1273,7 @@ class BaseLdap(object):
                 u'(&(%(id_attr)s=%(id)s)(objectclass=%(objclass)s))' %
                 {'id_attr': self.id_attr,
                  'id': ldap.filter.escape_filter_chars(
-                     six.text_type(object_id)),
+                     str(object_id)),
                  'objclass': self.object_class},
                 attrlist=DN_ONLY)
         if search_result:
@@ -1478,7 +1467,7 @@ class BaseLdap(object):
                  u'(objectClass=%(object_class)s))'
                  % {'id_attr': self.id_attr,
                     'id': ldap.filter.escape_filter_chars(
-                        six.text_type(object_id)),
+                        str(object_id)),
                     'filter': (ldap_filter or self.ldap_filter or ''),
                     'object_class': self.object_class})
         with self.get_connection() as conn:
@@ -1579,7 +1568,7 @@ class BaseLdap(object):
     def get_by_name(self, name, ldap_filter=None):
         query = (u'(%s=%s)' % (self.attribute_mapping['name'],
                                ldap.filter.escape_filter_chars(
-                                   six.text_type(name))))
+                                   str(name))))
         res = self.get_all(query)
         try:
             return res[0]

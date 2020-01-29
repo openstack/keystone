@@ -12,7 +12,7 @@
 
 import uuid
 
-from six.moves import http_client
+import http.client
 
 from keystone.common import provider_api
 import keystone.conf
@@ -55,7 +55,7 @@ class _SystemReaderAndMemberUserRegionTests(object):
         with self.test_client() as c:
             c.post(
                 '/v3/regions', json=create, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_regions(self):
@@ -66,7 +66,7 @@ class _SystemReaderAndMemberUserRegionTests(object):
             c.patch(
                 '/v3/regions/%s' % region['id'], json=update,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_regions(self):
@@ -76,7 +76,7 @@ class _SystemReaderAndMemberUserRegionTests(object):
             c.delete(
                 '/v3/regions/%s' % region['id'],
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -89,7 +89,7 @@ class _DomainAndProjectUserRegionTests(object):
         with self.test_client() as c:
             c.post(
                 '/v3/regions', json=create, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_regions(self):
@@ -100,7 +100,7 @@ class _DomainAndProjectUserRegionTests(object):
             c.patch(
                 '/v3/regions/%s' % region['id'], json=update,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_regions(self):
@@ -110,7 +110,7 @@ class _DomainAndProjectUserRegionTests(object):
             c.delete(
                 '/v3/regions/%s' % region['id'],
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 

@@ -14,7 +14,7 @@
 
 import flask
 import flask_restful
-from six.moves import http_client
+import http.client
 
 from keystone.api._shared import implied_roles as shared
 from keystone.assignment import schema
@@ -114,7 +114,7 @@ class RoleResource(ks_flask.ResourceBase):
         role = self._normalize_dict(role)
         ref = PROVIDERS.role_api.create_role(
             role['id'], role, initiator=self.audit_initiator)
-        return self.wrap_member(ref), http_client.CREATED
+        return self.wrap_member(ref), http.client.CREATED
 
     def patch(self, role_id):
         """Update role.
@@ -170,7 +170,7 @@ class RoleResource(ks_flask.ResourceBase):
                                       member_target_type='role',
                                       member_target=role)
         PROVIDERS.role_api.delete_role(role_id, initiator=self.audit_initiator)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
 
 def _build_enforcement_target_ref():
@@ -222,7 +222,7 @@ class RoleImplicationResource(flask_restful.Resource):
         # for a future fix. This should just return the above "get" however,
         # we document and implment this as a NO_CONTENT response. NO_CONTENT
         # here is incorrect. It is maintained as is for API contract reasons.
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
     def get(self, prior_role_id, implied_role_id):
         """Get implied role.
@@ -258,7 +258,7 @@ class RoleImplicationResource(flask_restful.Resource):
                               build_target=_build_enforcement_target_ref)
         PROVIDERS.role_api.create_implied_role(prior_role_id, implied_role_id)
         response_json = self._get_implied_role(prior_role_id, implied_role_id)
-        return response_json, http_client.CREATED
+        return response_json, http.client.CREATED
 
     def delete(self, prior_role_id, implied_role_id):
         """Delete implied role.
@@ -268,7 +268,7 @@ class RoleImplicationResource(flask_restful.Resource):
         ENFORCER.enforce_call(action='identity:delete_implied_role',
                               build_target=_build_enforcement_target_ref)
         PROVIDERS.role_api.delete_implied_role(prior_role_id, implied_role_id)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
 
 class RoleAPI(ks_flask.APIBase):

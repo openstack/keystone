@@ -13,7 +13,7 @@
 import json
 import uuid
 
-from six.moves import http_client
+import http.client
 
 from keystone.common import provider_api
 import keystone.conf
@@ -66,7 +66,7 @@ class _SystemReaderAndMemberPoliciesTests(object):
         with self.test_client() as c:
             c.post(
                 '/v3/policies', json=create, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_policy(self):
@@ -79,7 +79,7 @@ class _SystemReaderAndMemberPoliciesTests(object):
             c.patch(
                 '/v3/policies/%s' % policy['id'], json=update,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_policy(self):
@@ -89,7 +89,7 @@ class _SystemReaderAndMemberPoliciesTests(object):
         with self.test_client() as c:
             c.delete(
                 '/v3/policies/%s' % policy['id'], headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -101,7 +101,7 @@ class _DomainAndProjectUserPolicyTests(object):
 
         with self.test_client() as c:
             c.get('/v3/policies', headers=self.headers,
-                  expected_status_code=http_client.FORBIDDEN)
+                  expected_status_code=http.client.FORBIDDEN)
 
     def test_user_cannot_get_policy(self):
         policy = unit.new_policy_ref()
@@ -109,7 +109,7 @@ class _DomainAndProjectUserPolicyTests(object):
 
         with self.test_client() as c:
             c.get('/v3/policies/%s' % policy['id'], headers=self.headers,
-                  expected_status_code=http_client.FORBIDDEN)
+                  expected_status_code=http.client.FORBIDDEN)
 
     def test_user_cannot_create_policy(self):
         create = {
@@ -124,7 +124,7 @@ class _DomainAndProjectUserPolicyTests(object):
         with self.test_client() as c:
             c.post(
                 '/v3/policies', json=create, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_policy(self):
@@ -137,7 +137,7 @@ class _DomainAndProjectUserPolicyTests(object):
             c.patch(
                 '/v3/policies/%s' % policy['id'], json=update,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_policy(self):
@@ -147,7 +147,7 @@ class _DomainAndProjectUserPolicyTests(object):
         with self.test_client() as c:
             c.delete(
                 '/v3/policies/%s' % policy['id'], headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
