@@ -12,7 +12,6 @@
 
 import migrate
 import sqlalchemy as sql
-from sqlalchemy.engine import reflection
 
 from keystone.common.sql import upgrades
 
@@ -20,7 +19,7 @@ from keystone.common.sql import upgrades
 def upgrade(migrate_engine):
     meta = sql.MetaData()
     meta.bind = migrate_engine
-    inspector = reflection.Inspector.from_engine(migrate_engine)
+    inspector = sql.inspect(migrate_engine)
 
     user = sql.Table('user', meta, autoload=True)
     local_user = sql.Table('local_user', meta, autoload=True)

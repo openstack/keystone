@@ -56,8 +56,8 @@ from oslo_log import log
 from oslo_serialization import jsonutils
 from oslotest import base as test_base
 import pytz
-from sqlalchemy.engine import reflection
 import sqlalchemy.exc
+from sqlalchemy import inspect
 from testtools import matchers
 
 from keystone.cmd import cli
@@ -312,13 +312,13 @@ class SqlMigrateBase(db_fixtures.OpportunisticDBTestMixin,
 
     def does_pk_exist(self, table, pk_column):
         """Check whether a column is primary key on a table."""
-        inspector = reflection.Inspector.from_engine(self.engine)
+        inspector = inspect(self.engine)
         pk_columns = inspector.get_pk_constraint(table)['constrained_columns']
 
         return pk_column in pk_columns
 
     def does_fk_exist(self, table, fk_column):
-        inspector = reflection.Inspector.from_engine(self.engine)
+        inspector = inspect(self.engine)
         for fk in inspector.get_foreign_keys(table):
             if fk_column in fk['constrained_columns']:
                 return True
@@ -333,7 +333,7 @@ class SqlMigrateBase(db_fixtures.OpportunisticDBTestMixin,
         return index_name in [idx.name for idx in table.indexes]
 
     def does_unique_constraint_exist(self, table_name, column_names):
-        inspector = reflection.Inspector.from_engine(self.engine)
+        inspector = inspect(self.engine)
         constraints = inspector.get_unique_constraints(table_name)
         for c in constraints:
             if (len(c['column_names']) == 1 and
@@ -668,7 +668,7 @@ class SqlLegacyRepoUpgradeTests(SqlMigrateBase):
 
     def test_add_trust_unique_constraint_upgrade(self):
         self.upgrade(86)
-        inspector = reflection.Inspector.from_engine(self.engine)
+        inspector = inspect(self.engine)
         constraints = inspector.get_unique_constraints('trust')
         constraint_names = [constraint['name'] for constraint in constraints]
         self.assertIn('duplicate_trust_constraint', constraint_names)
@@ -701,7 +701,7 @@ class SqlLegacyRepoUpgradeTests(SqlMigrateBase):
         session = self.sessionmaker()
         self.assertTableColumns('role', ['id', 'name', 'domain_id', 'extra'])
         # Check the domain_id has been added to the uniqueness constraint
-        inspector = reflection.Inspector.from_engine(self.engine)
+        inspector = inspect(self.engine)
         constraints = inspector.get_unique_constraints('role')
         constraint_columns = [
             constraint['column_names'] for constraint in constraints
