@@ -1,0 +1,10 @@
+---
+upgrade:
+  - |
+    [`bug 1823258 <https://bugs.launchpad.net/keystone/+bug/1823258>`_]
+    The ``keystone-manage bootstrap`` command now defaults to making the
+    default roles (`admin`, `member`, and `reader`) immutable. This has the
+    consequence that if the bootstrap command is re-run on an existing
+    deployment, those roles will become immutable if they were not before. To
+    opt out of this behavior, add the ``--no-immutable-roles`` flag to the
+    bootstrap command.
