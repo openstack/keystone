@@ -2160,6 +2160,20 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
                 headers=self.headers
             )
 
+    def test_can_create_grant_for_user_own_domain_on_own_domain(self):
+        user = PROVIDERS.identity_api.create_user(
+            unit.new_user_ref(domain_id=self.domain_id)
+        )
+
+        with self.test_client() as c:
+            c.put(
+                '/v3/domains/%s/users/%s/roles/%s' % (
+                    self.domain_id, user['id'],
+                    self.bootstrapper.reader_role_id
+                ),
+                headers=self.headers
+            )
+
     def test_can_create_grant_for_group_on_project(self):
         group = PROVIDERS.identity_api.create_group(
             unit.new_group_ref(domain_id=self.domain_id)
@@ -2174,6 +2188,20 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
                 '/v3/projects/%s/groups/%s/roles/%s' % (
                     project['id'],
                     group['id'],
+                    self.bootstrapper.reader_role_id
+                ),
+                headers=self.headers
+            )
+
+    def test_can_create_grant_for_group_own_domain_on_own_domain(self):
+        group = PROVIDERS.identity_api.create_group(
+            unit.new_group_ref(domain_id=self.domain_id)
+        )
+
+        with self.test_client() as c:
+            c.put(
+                '/v3/domains/%s/groups/%s/roles/%s' % (
+                    self.domain_id, group['id'],
                     self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers
