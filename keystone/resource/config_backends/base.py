@@ -14,13 +14,10 @@
 
 import abc
 
-import six
-
 from keystone import exception
 
 
-@six.add_metaclass(abc.ABCMeta)
-class DomainConfigDriverBase(object):
+class DomainConfigDriverBase(object, metaclass=abc.ABCMeta):
     """Interface description for a Domain Config driver."""
 
     @abc.abstractmethod

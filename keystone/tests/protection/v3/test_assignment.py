@@ -11,7 +11,7 @@
 #    under the License.
 
 import copy
-from six.moves import http_client
+import http.client
 import uuid
 
 from oslo_serialization import jsonutils
@@ -1021,7 +1021,7 @@ class _DomainUserTests(object):
                 ('/v3/role_assignments?scope.project.id=%s&include_subtree' %
                  assignments['project_id']),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -1031,7 +1031,7 @@ class _ProjectUserTests(object):
         with self.test_client() as c:
             c.get(
                 '/v3/role_assignments', headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_filter_role_assignments_by_user_of_project(self):
@@ -1042,7 +1042,7 @@ class _ProjectUserTests(object):
             c.get(
                 '/v3/role_assignments?user.id=%s' % user_id,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_filter_role_assignments_by_group_of_project(self):
@@ -1053,7 +1053,7 @@ class _ProjectUserTests(object):
             c.get(
                 '/v3/role_assignments?group.id=%s' % group_id,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_filter_role_assignments_by_system(self):
@@ -1061,7 +1061,7 @@ class _ProjectUserTests(object):
             c.get(
                 '/v3/role_assignments?scope.system=all',
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_filter_role_assignments_by_domain(self):
@@ -1070,7 +1070,7 @@ class _ProjectUserTests(object):
                 '/v3/role_assignments?scope.domain.id=%s'
                 % self.domain_id,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_filter_role_assignments_by_other_project(self):
@@ -1084,7 +1084,7 @@ class _ProjectUserTests(object):
                 '/v3/role_assignments?scope.project.id=%s'
                 % project1,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_filter_role_assignments_by_other_project_user(self):
@@ -1099,7 +1099,7 @@ class _ProjectUserTests(object):
             c.get(
                 '/v3/role_assignments?user.id=%s' % user_id,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_filter_role_assignments_by_other_project_group(self):
@@ -1114,7 +1114,7 @@ class _ProjectUserTests(object):
             c.get(
                 '/v3/role_assignments?group.id=%s' % group_id,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -1138,7 +1138,7 @@ class _ProjectReaderMemberTests(object):
                 ('/v3/role_assignments?scope.project.id=%s&include_subtree' %
                  self.project_id),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -1628,5 +1628,5 @@ class ProjectAdminTests(base_classes.TestCaseWithBootstrap,
                 ('/v3/role_assignments?scope.project.id=%s&include_subtree' %
                  project['id']),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )

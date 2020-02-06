@@ -13,7 +13,7 @@
 # This file handles all flask-restful resources for /v3/registered_limits
 
 import flask
-from six.moves import http_client
+import http.client
 
 from keystone.common import json_home
 from keystone.common import provider_api
@@ -62,7 +62,7 @@ class RegisteredLimitResource(ks_flask.ResourceBase):
             registered_limits)
         refs = self.wrap_collection(refs)
         refs.pop('links')
-        return refs, http_client.CREATED
+        return refs, http.client.CREATED
 
     def patch(self, registered_limit_id):
         ENFORCER.enforce_call(action='identity:update_registered_limit')
@@ -78,7 +78,7 @@ class RegisteredLimitResource(ks_flask.ResourceBase):
     def delete(self, registered_limit_id):
         ENFORCER.enforce_call(action='identity:delete_registered_limit')
         return (PROVIDERS.unified_limit_api.delete_registered_limit(
-            registered_limit_id), http_client.NO_CONTENT)
+            registered_limit_id), http.client.NO_CONTENT)
 
 
 class RegisteredLimitsAPI(ks_flask.APIBase):

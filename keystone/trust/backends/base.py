@@ -14,13 +14,10 @@
 
 import abc
 
-import six
-
 from keystone import exception
 
 
-@six.add_metaclass(abc.ABCMeta)
-class TrustDriverBase(object):
+class TrustDriverBase(object, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def create_trust(self, trust_id, trust, roles):

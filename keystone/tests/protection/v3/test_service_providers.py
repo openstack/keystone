@@ -12,7 +12,7 @@
 
 import uuid
 
-from six.moves import http_client
+import http.client
 
 from keystone.common import provider_api
 import keystone.conf
@@ -74,7 +74,7 @@ class _SystemReaderAndMemberUserServiceProviderTests(object):
                 '/v3/OS-FEDERATION/service_providers/%s' % uuid.uuid4().hex,
                 headers=self.headers,
                 json=create,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_service_providers(self):
@@ -90,7 +90,7 @@ class _SystemReaderAndMemberUserServiceProviderTests(object):
                 service_provider['id'],
                 headers=self.headers,
                 json=update,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_service_providers(self):
@@ -103,7 +103,7 @@ class _SystemReaderAndMemberUserServiceProviderTests(object):
                 '/v3/OS-FEDERATION/service_providers/%s' %
                 service_provider['id'],
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -123,7 +123,7 @@ class _DomainAndProjectUserServiceProviderTests(object):
                 '/v3/OS-FEDERATION/service_providers/%s' % uuid.uuid4().hex,
                 headers=self.headers,
                 json=create,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_service_providers(self):
@@ -139,7 +139,7 @@ class _DomainAndProjectUserServiceProviderTests(object):
                 service_provider['id'],
                 headers=self.headers,
                 json=update,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_list_service_providers(self):
@@ -150,7 +150,7 @@ class _DomainAndProjectUserServiceProviderTests(object):
         with self.test_client() as c:
             c.get(
                 '/v3/OS-FEDERATION/service_providers', headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_get_a_service_provider(self):
@@ -163,7 +163,7 @@ class _DomainAndProjectUserServiceProviderTests(object):
                 '/v3/OS-FEDERATION/service_providers/%s' %
                 service_provider['id'],
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_service_providers(self):
@@ -176,7 +176,7 @@ class _DomainAndProjectUserServiceProviderTests(object):
                 '/v3/OS-FEDERATION/service_providers/%s' %
                 service_provider['id'],
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -287,7 +287,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
                 '/v3/OS-FEDERATION/service_providers/%s' % uuid.uuid4().hex,
                 headers=self.headers,
                 json=create,
-                expected_status_code=http_client.CREATED
+                expected_status_code=http.client.CREATED
             )
 
     def test_user_can_update_service_providers(self):

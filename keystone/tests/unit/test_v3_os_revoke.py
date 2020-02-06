@@ -15,10 +15,9 @@ import mock
 import uuid
 
 import freezegun
+import http.client
 from oslo_db import exception as oslo_db_exception
 from oslo_utils import timeutils
-import six
-from six.moves import http_client
 from testtools import matchers
 
 from keystone.common import provider_api
@@ -80,7 +79,7 @@ class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
     def test_revoked_token_in_list(self):
         audit_id = uuid.uuid4().hex
         sample = self._blank_event()
-        sample['audit_id'] = six.text_type(audit_id)
+        sample['audit_id'] = str(audit_id)
         before_time = timeutils.utcnow().replace(microsecond=0)
         PROVIDERS.revoke_api.revoke_by_audit_id(audit_id)
         resp = self.get('/OS-REVOKE/events')
@@ -91,7 +90,7 @@ class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
     def test_disabled_project_in_list(self):
         project_id = uuid.uuid4().hex
         sample = dict()
-        sample['project_id'] = six.text_type(project_id)
+        sample['project_id'] = str(project_id)
         before_time = timeutils.utcnow().replace(microsecond=0)
         PROVIDERS.revoke_api.revoke(
             revoke_model.RevokeEvent(project_id=project_id))
@@ -104,7 +103,7 @@ class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
     def test_disabled_domain_in_list(self):
         domain_id = uuid.uuid4().hex
         sample = dict()
-        sample['domain_id'] = six.text_type(domain_id)
+        sample['domain_id'] = str(domain_id)
         before_time = timeutils.utcnow().replace(microsecond=0)
         PROVIDERS.revoke_api.revoke(
             revoke_model.RevokeEvent(domain_id=domain_id))
@@ -116,7 +115,7 @@ class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
 
     def test_list_since_invalid(self):
         self.get('/OS-REVOKE/events?since=blah',
-                 expected_status=http_client.BAD_REQUEST)
+                 expected_status=http.client.BAD_REQUEST)
 
     def test_list_since_valid(self):
         resp = self.get('/OS-REVOKE/events?since=2013-02-27T18:30:59.999999Z')
@@ -126,7 +125,7 @@ class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
     def test_since_future_time_no_events(self):
         domain_id = uuid.uuid4().hex
         sample = dict()
-        sample['domain_id'] = six.text_type(domain_id)
+        sample['domain_id'] = str(domain_id)
 
         PROVIDERS.revoke_api.revoke(
             revoke_model.RevokeEvent(domain_id=domain_id))

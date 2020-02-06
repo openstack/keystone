@@ -17,8 +17,8 @@ import copy
 import functools
 import random
 
+import http.client
 from oslo_serialization import jsonutils
-from six.moves import http_client
 from testtools import matchers as tt_matchers
 import webob
 
@@ -755,7 +755,7 @@ class VersionTestCase(unit.TestCase):
     def test_public_version_v3(self):
         client = TestClient(self.public_app)
         resp = client.get('/v3/')
-        self.assertEqual(http_client.OK, resp.status_int)
+        self.assertEqual(http.client.OK, resp.status_int)
         data = jsonutils.loads(resp.body)
         expected = v3_VERSION_RESPONSE
         self._paste_in_port(expected['version'],
@@ -767,7 +767,7 @@ class VersionTestCase(unit.TestCase):
         for app in (self.public_app,):
             client = TestClient(app)
             resp = client.get('/v3/')
-            self.assertEqual(http_client.OK, resp.status_int)
+            self.assertEqual(http.client.OK, resp.status_int)
             data = jsonutils.loads(resp.body)
             expected = v3_VERSION_RESPONSE
             self._paste_in_port(expected['version'], 'http://localhost/v3/')
@@ -786,7 +786,7 @@ class VersionTestCase(unit.TestCase):
 
         # request to /v3 should pass
         resp = client.get('/v3/')
-        self.assertEqual(http_client.OK, resp.status_int)
+        self.assertEqual(http.client.OK, resp.status_int)
         data = jsonutils.loads(resp.body)
         expected = v3_VERSION_RESPONSE
         self._paste_in_port(expected['version'],

@@ -14,7 +14,6 @@
 
 import uuid
 
-from six.moves import range
 from testtools import matchers
 
 from keystone.common import provider_api

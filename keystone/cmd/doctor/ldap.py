@@ -15,7 +15,7 @@ from __future__ import print_function
 import os
 import re
 
-from six.moves import configparser
+import configparser
 
 import keystone.conf
 

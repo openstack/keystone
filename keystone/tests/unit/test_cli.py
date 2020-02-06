@@ -19,17 +19,16 @@ import os
 import uuid
 
 import argparse
+import configparser
 import fixtures
 import freezegun
+import http.client
 import mock
 import oslo_config.fixture
 from oslo_db.sqlalchemy import migration
 from oslo_log import log
 from oslo_serialization import jsonutils
 from oslo_upgradecheck import upgradecheck
-from six.moves import configparser
-from six.moves import http_client
-from six.moves import range
 from testtools import matchers
 
 from keystone.cmd import cli
@@ -277,7 +276,7 @@ class CliBootStrapTestCase(unit.SQLDriverOverrides, unit.TestCase):
                 c.get('/v3/auth/tokens',
                       headers={'X-Auth-Token': r.headers['X-Subject-Token'],
                                'X-Subject-Token': token},
-                      expected_status_code=http_client.NOT_FOUND)
+                      expected_status_code=http.client.NOT_FOUND)
 
     def test_bootstrap_recovers_user(self):
         self._do_test_bootstrap(self.bootstrap)
@@ -616,7 +615,7 @@ class CliDomainConfigSingleDomainTestCase(CliDomainConfigAllTestCase):
         # Now try and upload the settings in the configuration file for the
         # default domain
         provider_api.ProviderAPIs._clear_registry_instances()
-        with mock.patch('six.moves.builtins.print') as mock_print:
+        with mock.patch('builtins.print') as mock_print:
             self.assertRaises(unit.UnexpectedExit, cli.DomainConfigUpload.main)
             file_name = ('keystone.%s.conf' % self.default_domain['name'])
             error_msg = _(
@@ -641,7 +640,7 @@ class CliDomainConfigNoOptionsTestCase(CliDomainConfigAllTestCase):
 
     def test_config_upload(self):
         provider_api.ProviderAPIs._clear_registry_instances()
-        with mock.patch('six.moves.builtins.print') as mock_print:
+        with mock.patch('builtins.print') as mock_print:
             self.assertRaises(unit.UnexpectedExit, cli.DomainConfigUpload.main)
             mock_print.assert_has_calls(
                 [mock.call(
@@ -658,7 +657,7 @@ class CliDomainConfigTooManyOptionsTestCase(CliDomainConfigAllTestCase):
 
     def test_config_upload(self):
         provider_api.ProviderAPIs._clear_registry_instances()
-        with mock.patch('six.moves.builtins.print') as mock_print:
+        with mock.patch('builtins.print') as mock_print:
             self.assertRaises(unit.UnexpectedExit, cli.DomainConfigUpload.main)
             mock_print.assert_has_calls(
                 [mock.call(_('The --all option cannot be used with '
@@ -675,7 +674,7 @@ class CliDomainConfigInvalidDomainTestCase(CliDomainConfigAllTestCase):
 
     def test_config_upload(self):
         provider_api.ProviderAPIs._clear_registry_instances()
-        with mock.patch('six.moves.builtins.print') as mock_print:
+        with mock.patch('builtins.print') as mock_print:
             self.assertRaises(unit.UnexpectedExit, cli.DomainConfigUpload.main)
             file_name = 'keystone.%s.conf' % self.invalid_domain_name
             error_msg = (_(
@@ -1848,7 +1847,7 @@ class TestMappingEngineTester(unit.BaseTestCase):
         self.useFixture(fixtures.MockPatchObject(
             CONF, 'command', self.FakeConfCommand(self)))
         mapping_engine = cli.MappingEngineTester()
-        with mock.patch('six.moves.builtins.print') as mock_print:
+        with mock.patch('builtins.print') as mock_print:
             mapping_engine.main()
             self.assertEqual(mock_print.call_count, 3)
             call = mock_print.call_args_list[0]

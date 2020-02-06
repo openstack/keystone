@@ -18,7 +18,6 @@ import os
 import uuid
 
 from oslo_utils import timeutils
-import six
 
 from keystone.common import fernet_utils
 from keystone.common import provider_api
@@ -123,11 +122,11 @@ class TestReceiptFormatter(unit.TestCase):
         binary_to_test = [b'a', b'aa', b'aaa']
 
         for binary in binary_to_test:
-            # base64.urlsafe_b64encode takes six.binary_type and returns
-            # six.binary_type.
+            # base64.urlsafe_b64encode takes bytes and returns
+            # bytes.
             encoded_string = base64.urlsafe_b64encode(binary)
             encoded_string = encoded_string.decode('utf-8')
-            # encoded_string is now six.text_type.
+            # encoded_string is now str.
             encoded_str_without_padding = encoded_string.rstrip('=')
             self.assertFalse(encoded_str_without_padding.endswith('='))
             encoded_str_with_padding_restored = (
@@ -161,10 +160,10 @@ class TestPayloads(unit.TestCase):
 
     def test_strings_can_be_converted_to_bytes(self):
         s = token_provider.random_urlsafe_str()
-        self.assertIsInstance(s, six.text_type)
+        self.assertIsInstance(s, str)
 
         b = receipt_formatters.ReceiptPayload.random_urlsafe_str_to_bytes(s)
-        self.assertIsInstance(b, six.binary_type)
+        self.assertIsInstance(b, bytes)
 
     def test_uuid_hex_to_byte_conversions(self):
         payload_cls = receipt_formatters.ReceiptPayload
@@ -263,7 +262,7 @@ class TestFernetKeyRotation(unit.TestCase):
         static set of keys, and simply shuffling them, would fail such a test).
 
         """
-        # Load the keys into a list, keys is list of six.text_type.
+        # Load the keys into a list, keys is list of str.
         key_utils = fernet_utils.FernetUtils(
             CONF.fernet_receipts.key_repository,
             CONF.fernet_receipts.max_active_keys,
@@ -278,7 +277,7 @@ class TestFernetKeyRotation(unit.TestCase):
         # Create the thumbprint using all keys in the repository.
         signature = hashlib.sha1()
         for key in keys:
-            # Need to convert key to six.binary_type for update.
+            # Need to convert key to bytes for update.
             signature.update(key.encode('utf-8'))
         return signature.hexdigest()
 

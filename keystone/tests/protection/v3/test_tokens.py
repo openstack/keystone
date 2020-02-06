@@ -12,7 +12,7 @@
 
 import uuid
 
-from six.moves import http_client
+import http.client
 
 from keystone.common import provider_api
 import keystone.conf
@@ -125,7 +125,7 @@ class _SystemMemberAndReaderTokenTests(object):
             self.headers['X-Subject-Token'] = system_token
             c.delete(
                 '/v3/auth/tokens', headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_revoke_a_domain_scoped_token(self):
@@ -154,7 +154,7 @@ class _SystemMemberAndReaderTokenTests(object):
             self.headers['X-Subject-Token'] = domain_token
             c.delete(
                 '/v3/auth/tokens', headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_revoke_a_project_scoped_token(self):
@@ -184,7 +184,7 @@ class _SystemMemberAndReaderTokenTests(object):
             self.headers['X-Subject-Token'] = project_token
             c.delete(
                 '/v3/auth/tokens', headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -388,7 +388,7 @@ class _DomainAndProjectUserTests(object):
             self.headers['X-Subject-Token'] = system_token
             c.get(
                 '/v3/auth/tokens', headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_revoke_system_scoped_token(self):
@@ -412,7 +412,7 @@ class _DomainAndProjectUserTests(object):
             self.headers['X-Subject-Token'] = system_token
             c.delete(
                 '/v3/auth/tokens', headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_validate_domain_scoped_token(self):
@@ -441,7 +441,7 @@ class _DomainAndProjectUserTests(object):
             self.headers['X-Subject-Token'] = domain_token
             c.get(
                 '/v3/auth/tokens', headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_revoke_domain_scoped_token(self):
@@ -470,7 +470,7 @@ class _DomainAndProjectUserTests(object):
             self.headers['X-Subject-Token'] = domain_token
             c.delete(
                 '/v3/auth/tokens', headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_validate_project_scoped_token(self):
@@ -500,7 +500,7 @@ class _DomainAndProjectUserTests(object):
             self.headers['X-Subject-Token'] = project_token
             c.get(
                 '/v3/auth/tokens', headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_revoke_project_scoped_token(self):
@@ -530,7 +530,7 @@ class _DomainAndProjectUserTests(object):
             self.headers['X-Subject-Token'] = project_token
             c.delete(
                 '/v3/auth/tokens', headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 

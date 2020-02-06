@@ -10,7 +10,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-from six.moves import http_client
+import http.client
 
 from keystone.common import provider_api
 import keystone.conf
@@ -58,7 +58,7 @@ class _SystemUserImpliedRoleTests(object):
                 '/v3/roles/%s/implies/%s' % (
                     self.prior_role_id, self.implied_role_id),
                 headers=self.headers,
-                expected_status_code=http_client.NO_CONTENT)
+                expected_status_code=http.client.NO_CONTENT)
 
     def test_user_can_list_role_inference_rules(self):
         PROVIDERS.role_api.create_implied_role(self.prior_role_id,
@@ -81,7 +81,7 @@ class _SystemReaderAndMemberImpliedRoleTests(object):
                 '/v3/roles/%s/implies/%s' % (
                     self.prior_role_id, self.implied_role_id),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_implied_roles(self):
@@ -93,7 +93,7 @@ class _SystemReaderAndMemberImpliedRoleTests(object):
                 '/v3/roles/%s/implies/%s' % (
                     self.prior_role_id, self.implied_role_id),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -206,7 +206,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
                 '/v3/roles/%s/implies/%s' % (
                     self.prior_role_id, self.implied_role_id),
                 headers=self.headers,
-                expected_status_code=http_client.CREATED
+                expected_status_code=http.client.CREATED
             )
 
     def test_user_can_delete_implied_roles(self):

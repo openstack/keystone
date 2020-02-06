@@ -16,8 +16,6 @@
 
 import abc
 
-import six
-
 from keystone.common import manager
 import keystone.conf
 from keystone import exception
@@ -36,8 +34,7 @@ class Manager(manager.Manager):
         super(Manager, self).__init__(CONF.identity_mapping.generator)
 
 
-@six.add_metaclass(abc.ABCMeta)
-class IDGenerator(object):
+class IDGenerator(object, metaclass=abc.ABCMeta):
     """Interface description for an ID Generator provider."""
 
     @abc.abstractmethod

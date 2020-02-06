@@ -14,13 +14,10 @@
 
 import abc
 
-import six
-
 from keystone import exception
 
 
-@six.add_metaclass(abc.ABCMeta)
-class FederationDriverBase(object):
+class FederationDriverBase(object, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def create_idp(self, idp_id, idp):

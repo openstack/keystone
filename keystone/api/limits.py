@@ -14,7 +14,7 @@
 
 import flask
 import flask_restful
-from six.moves import http_client
+import http.client
 
 from keystone.common import json_home
 from keystone.common import provider_api
@@ -110,7 +110,7 @@ class LimitsResource(ks_flask.ResourceBase):
         refs = PROVIDERS.unified_limit_api.create_limits(limits)
         refs = self.wrap_collection(refs)
         refs.pop('links')
-        return refs, http_client.CREATED
+        return refs, http.client.CREATED
 
     def patch(self, limit_id):
         ENFORCER.enforce_call(action='identity:update_limit')
@@ -124,7 +124,7 @@ class LimitsResource(ks_flask.ResourceBase):
     def delete(self, limit_id):
         ENFORCER.enforce_call(action='identity:delete_limit')
         return (PROVIDERS.unified_limit_api.delete_limit(limit_id),
-                http_client.NO_CONTENT)
+                http.client.NO_CONTENT)
 
 
 class LimitModelResource(flask_restful.Resource):

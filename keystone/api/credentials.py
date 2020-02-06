@@ -15,8 +15,8 @@
 import hashlib
 
 import flask
+import http.client
 from oslo_serialization import jsonutils
-from six.moves import http_client
 
 from keystone.common import provider_api
 from keystone.common import rbac_enforcer
@@ -150,7 +150,7 @@ class CredentialResource(ks_flask.ResourceBase):
             self._normalize_dict(credential), trust_id=trust_id)
         ref = PROVIDERS.credential_api.create_credential(
             ref['id'], ref, initiator=self.audit_initiator)
-        return self.wrap_member(ref), http_client.CREATED
+        return self.wrap_member(ref), http.client.CREATED
 
     def patch(self, credential_id):
         # Update Credential
@@ -176,7 +176,7 @@ class CredentialResource(ks_flask.ResourceBase):
 
         return (PROVIDERS.credential_api.delete_credential(
             credential_id, initiator=self.audit_initiator),
-            http_client.NO_CONTENT)
+            http.client.NO_CONTENT)
 
 
 class CredentialAPI(ks_flask.APIBase):

@@ -14,13 +14,10 @@
 
 import abc
 
-import six
-
 from keystone import exception
 
 
-@six.add_metaclass(abc.ABCMeta)
-class ShadowUsersDriverBase(object):
+class ShadowUsersDriverBase(object, metaclass=abc.ABCMeta):
     """Interface description for an Shadow Users driver."""
 
     @abc.abstractmethod

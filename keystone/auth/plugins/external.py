@@ -17,7 +17,6 @@
 import abc
 
 import flask
-import six
 
 from keystone.auth.plugins import base
 from keystone.common import provider_api
@@ -30,8 +29,7 @@ CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
 
 
-@six.add_metaclass(abc.ABCMeta)
-class Base(base.AuthMethodHandler):
+class Base(base.AuthMethodHandler, metaclass=abc.ABCMeta):
     def authenticate(self, auth_payload):
         """Use REMOTE_USER to look up the user in the identity backend.
 

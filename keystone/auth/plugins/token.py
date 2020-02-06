@@ -14,7 +14,6 @@
 
 import flask
 from oslo_log import log
-import six
 
 from keystone.auth.plugins import base
 from keystone.auth.plugins import mapped
@@ -124,5 +123,5 @@ def token_authenticate(token):
         return response_data
 
     except AssertionError as e:
-        LOG.error(six.text_type(e))
+        LOG.error(e)
         raise exception.Unauthorized(e)

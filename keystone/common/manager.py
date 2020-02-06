@@ -18,7 +18,6 @@ import time
 import types
 
 from oslo_log import log
-import six
 import stevedore
 
 from keystone.common import provider_api
@@ -155,8 +154,7 @@ class _TraceMeta(type):
         return type.__new__(meta, classname, bases, final_cls_dict)
 
 
-@six.add_metaclass(_TraceMeta)
-class Manager(object):
+class Manager(object, metaclass=_TraceMeta):
     """Base class for intermediary request layer.
 
     The Manager layer exists to support additional logic that applies to all

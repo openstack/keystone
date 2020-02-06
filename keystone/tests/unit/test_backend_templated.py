@@ -15,7 +15,6 @@
 import uuid
 
 import mock
-from six.moves import zip
 
 from keystone.catalog.backends import base as catalog_base
 from keystone.common import provider_api

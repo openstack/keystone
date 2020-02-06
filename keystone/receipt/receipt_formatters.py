@@ -71,8 +71,8 @@ class ReceiptFormatter(object):
     def pack(self, payload):
         """Pack a payload for transport as a receipt.
 
-        :type payload: six.binary_type
-        :rtype: six.text_type
+        :type payload: bytes
+        :rtype: str
 
         """
         # base64 padding (if any) is not URL-safe
@@ -81,8 +81,8 @@ class ReceiptFormatter(object):
     def unpack(self, receipt):
         """Unpack a receipt, and validate the payload.
 
-        :type receipt: six.text_type
-        :rtype: six.binary_type
+        :type receipt: str
+        :rtype: bytes
 
         """
         receipt = ReceiptFormatter.restore_padding(receipt)
@@ -98,7 +98,7 @@ class ReceiptFormatter(object):
         """Restore padding based on receipt size.
 
         :param receipt: receipt to restore padding on
-        :type receipt: six.text_type
+        :type receipt: str
         :returns: receipt with correct padding
 
         """
@@ -113,14 +113,14 @@ class ReceiptFormatter(object):
     def creation_time(cls, fernet_receipt):
         """Return the creation time of a valid Fernet receipt.
 
-        :type fernet_receipt: six.text_type
+        :type fernet_receipt: str
 
         """
         fernet_receipt = ReceiptFormatter.restore_padding(fernet_receipt)
-        # fernet_receipt is six.text_type
+        # fernet_receipt is str
 
         # Fernet receipts are base64 encoded, so we need to unpack them first
-        # urlsafe_b64decode() requires six.binary_type
+        # urlsafe_b64decode() requires bytes
         receipt_bytes = base64.urlsafe_b64decode(
             fernet_receipt.encode('utf-8'))
 
@@ -159,7 +159,7 @@ class ReceiptFormatter(object):
     def validate_receipt(self, receipt):
         """Validate a Fernet receipt and returns the payload attributes.
 
-        :type receipt: six.text_type
+        :type receipt: str
 
         """
         serialized_payload = self.unpack(receipt)
@@ -280,20 +280,20 @@ class ReceiptPayload(object):
     def base64_encode(cls, s):
         """Encode a URL-safe string.
 
-        :type s: six.text_type
-        :rtype: six.text_type
+        :type s: str
+        :rtype: str
 
         """
-        # urlsafe_b64encode() returns six.binary_type so need to convert to
-        # six.text_type, might as well do it before stripping.
+        # urlsafe_b64encode() returns bytes so need to convert to
+        # str, might as well do it before stripping.
         return base64.urlsafe_b64encode(s).decode('utf-8').rstrip('=')
 
     @classmethod
     def random_urlsafe_str_to_bytes(cls, s):
-        """Convert string from :func:`random_urlsafe_str()` to six.binary_type.
+        """Convert string from :func:`random_urlsafe_str()` to bytes.
 
-        :type s: six.text_type
-        :rtype: six.binary_type
+        :type s: str
+        :rtype: bytes
 
         """
         # urlsafe_b64decode() requires str, unicode isn't accepted.

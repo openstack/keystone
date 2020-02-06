@@ -14,8 +14,6 @@
 
 import uuid
 
-from six.moves import range
-
 from keystone.common import provider_api
 import keystone.conf
 from keystone import exception

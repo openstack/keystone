@@ -13,7 +13,6 @@
 # under the License.
 
 from oslo_db import api as oslo_db_api
-import six
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from keystone.common import driver_hints
@@ -45,7 +44,7 @@ class CredentialModel(sql.ModelBase, sql.ModelDictMixinWithExtras):
         # Make sure to hand over the encrypted credential as a string value
         # to the backend driver to avoid the sql drivers (esp. psycopg2)
         # treating this as binary data and e.g. hex-escape it.
-        if six.PY3 and isinstance(encrypted_blob, six.binary_type):
+        if isinstance(encrypted_blob, bytes):
             encrypted_blob = encrypted_blob.decode('utf-8')
         self._encrypted_blob = encrypted_blob
 

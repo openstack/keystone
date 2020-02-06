@@ -12,13 +12,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import sys
-
 from oslo_log import log
 from pycadf import cadftaxonomy as taxonomy
 from pycadf import reason
 from pycadf import resource
-import six
 
 from keystone.common import driver_hints
 from keystone.common import provider_api
@@ -121,9 +118,8 @@ class BaseUserInfo(provider_api.ProviderAPIMixin, object):
                 domain_id=domain_ref['id'],
                 domain=domain_ref)
         except AssertionError as e:
-            LOG.warning(six.text_type(e))
-            six.reraise(exception.Unauthorized, exception.Unauthorized(e),
-                        sys.exc_info()[2])
+            LOG.warning(e)
+            raise exception.Unauthorized from e
 
     def _assert_user_is_enabled(self, user_ref):
         try:
@@ -131,9 +127,8 @@ class BaseUserInfo(provider_api.ProviderAPIMixin, object):
                 user_id=user_ref['id'],
                 user=user_ref)
         except AssertionError as e:
-            LOG.warning(six.text_type(e))
-            six.reraise(exception.Unauthorized, exception.Unauthorized(e),
-                        sys.exc_info()[2])
+            LOG.warning(e)
+            raise exception.Unauthorized from e
 
     def _lookup_domain(self, domain_info):
         domain_id = domain_info.get('id')
@@ -148,7 +143,7 @@ class BaseUserInfo(provider_api.ProviderAPIMixin, object):
             else:
                 domain_ref = PROVIDERS.resource_api.get_domain(domain_id)
         except exception.DomainNotFound as e:
-            LOG.warning(six.text_type(e))
+            LOG.warning(e)
             raise exception.Unauthorized(e)
         self._assert_domain_is_enabled(domain_ref)
         return domain_ref
@@ -178,7 +173,7 @@ class BaseUserInfo(provider_api.ProviderAPIMixin, object):
                     user_ref['domain_id'])
                 self._assert_domain_is_enabled(domain_ref)
         except exception.UserNotFound as e:
-            LOG.warning(six.text_type(e))
+            LOG.warning(e)
 
             # We need to special case USER NOT FOUND here for CADF
             # notifications as the normal path for notification(s) come from

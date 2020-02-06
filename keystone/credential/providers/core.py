@@ -12,11 +12,8 @@
 
 import abc
 
-import six
 
-
-@six.add_metaclass(abc.ABCMeta)
-class Provider(object):
+class Provider(object, metaclass=abc.ABCMeta):
     """Interface for credential providers that support encryption."""
 
     @abc.abstractmethod

@@ -17,7 +17,6 @@ import os
 import time
 import uuid
 
-import six
 from testtools import testcase
 
 
@@ -81,7 +80,7 @@ def wip(message, expected_exception=Exception, bug=None):
         bugstr = ""
 
     def _wip(f):
-        @six.wraps(f)
+        @functools.wraps(f)
         def run_test(*args, **kwargs):
             __e = None
             try:

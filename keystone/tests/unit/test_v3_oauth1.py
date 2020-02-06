@@ -18,12 +18,12 @@ import random
 import uuid
 
 import freezegun
+import http.client
 import mock
 from oslo_serialization import jsonutils
 from pycadf import cadftaxonomy
-from six.moves import http_client
-from six.moves import urllib
-from six.moves.urllib import parse as urlparse
+import urllib
+from urllib import parse as urlparse
 
 from keystone.common import provider_api
 import keystone.conf
@@ -154,7 +154,7 @@ class ConsumerCRUDTests(OAuth1Tests):
         consumer = self._create_single_consumer()
         consumer_id = consumer['id']
         resp = self.delete(self.CONSUMER_URL + '/%s' % consumer_id)
-        self.assertResponseStatus(resp, http_client.NO_CONTENT)
+        self.assertResponseStatus(resp, http.client.NO_CONTENT)
 
     def test_consumer_get_head(self):
         consumer = self._create_single_consumer()
@@ -167,7 +167,7 @@ class ConsumerCRUDTests(OAuth1Tests):
         self.assertEqual(self_url, resp.result['consumer']['links']['self'])
         self.assertEqual(consumer_id, resp.result['consumer']['id'])
 
-        self.head(url, expected_status=http_client.OK)
+        self.head(url, expected_status=http.client.OK)
 
     def test_consumer_list(self):
         self._consumer_create()
@@ -179,7 +179,7 @@ class ConsumerCRUDTests(OAuth1Tests):
         self.assertEqual(self_url, resp.result['links']['self'])
         self.assertValidListLinks(resp.result['links'])
 
-        self.head(self.CONSUMER_URL, expected_status=http_client.OK)
+        self.head(self.CONSUMER_URL, expected_status=http.client.OK)
 
     def test_consumer_update(self):
         consumer = self._create_single_consumer()
@@ -202,7 +202,7 @@ class ConsumerCRUDTests(OAuth1Tests):
         update_ref['secret'] = uuid.uuid4().hex
         self.patch(self.CONSUMER_URL + '/%s' % original_id,
                    body={'consumer': update_ref},
-                   expected_status=http_client.BAD_REQUEST)
+                   expected_status=http.client.BAD_REQUEST)
 
     def test_consumer_update_bad_id(self):
         consumer = self._create_single_consumer()
@@ -215,7 +215,7 @@ class ConsumerCRUDTests(OAuth1Tests):
         update_ref['id'] = update_description
         self.patch(self.CONSUMER_URL + '/%s' % original_id,
                    body={'consumer': update_ref},
-                   expected_status=http_client.BAD_REQUEST)
+                   expected_status=http.client.BAD_REQUEST)
 
     def test_consumer_update_normalize_field(self):
         # If update a consumer with a field with : or - in the name,
@@ -258,8 +258,8 @@ class ConsumerCRUDTests(OAuth1Tests):
             self.CONSUMER_URL + '/%(consumer_id)s' %
             {'consumer_id': uuid.uuid4().hex}
         )
-        self.get(url, expected_status=http_client.NOT_FOUND)
-        self.head(url, expected_status=http_client.NOT_FOUND)
+        self.get(url, expected_status=http.client.NOT_FOUND)
+        self.head(url, expected_status=http.client.NOT_FOUND)
 
 
 class OAuthFlowTests(OAuth1Tests):
@@ -284,7 +284,7 @@ class OAuthFlowTests(OAuth1Tests):
 
         url = self._authorize_request_token(request_key)
         body = {'roles': [{'id': self.role_id}]}
-        resp = self.put(url, body=body, expected_status=http_client.OK)
+        resp = self.put(url, body=body, expected_status=http.client.OK)
         self.verifier = resp.result['token']['oauth_verifier']
         self.assertTrue(all(i in base.VERIFIER_CHARS for i in self.verifier))
         self.assertEqual(8, len(self.verifier))
@@ -314,7 +314,7 @@ class AccessTokenCRUDTests(OAuthFlowTests):
         self.delete('/users/%(user)s/OS-OAUTH1/access_tokens/%(auth)s'
                     % {'user': self.user_id,
                        'auth': uuid.uuid4().hex},
-                    expected_status=http_client.NOT_FOUND)
+                    expected_status=http.client.NOT_FOUND)
 
     def test_list_no_access_tokens(self):
         url = (
@@ -326,7 +326,7 @@ class AccessTokenCRUDTests(OAuthFlowTests):
         self.assertEqual([], entities)
         self.assertValidListLinks(resp.result['links'])
 
-        self.head(url, expected_status=http_client.OK)
+        self.head(url, expected_status=http.client.OK)
 
     def test_get_single_access_token(self):
         self.test_oauth_flow()
@@ -342,7 +342,7 @@ class AccessTokenCRUDTests(OAuthFlowTests):
         self.assertEqual(self.consumer['key'], entity['consumer_id'])
         self.assertEqual('http://localhost/v3' + url, entity['links']['self'])
 
-        self.head(url, expected_status=http_client.OK)
+        self.head(url, expected_status=http.client.OK)
 
     def test_get_access_token_dne(self):
         url = (
@@ -350,8 +350,8 @@ class AccessTokenCRUDTests(OAuthFlowTests):
             % {'user_id': self.user_id,
                'key': uuid.uuid4().hex}
         )
-        self.get(url, expected_status=http_client.NOT_FOUND)
-        self.head(url, expected_status=http_client.NOT_FOUND)
+        self.get(url, expected_status=http.client.NOT_FOUND)
+        self.head(url, expected_status=http.client.NOT_FOUND)
 
     def test_list_all_roles_in_access_token(self):
         self.test_oauth_flow()
@@ -365,7 +365,7 @@ class AccessTokenCRUDTests(OAuthFlowTests):
         self.assertTrue(entities)
         self.assertValidListLinks(resp.result['links'])
 
-        self.head(url, expected_status=http_client.OK)
+        self.head(url, expected_status=http.client.OK)
 
     def test_get_role_in_access_token(self):
         self.test_oauth_flow()
@@ -378,7 +378,7 @@ class AccessTokenCRUDTests(OAuthFlowTests):
         entity = resp.result['role']
         self.assertEqual(self.role_id, entity['id'])
 
-        self.head(url, expected_status=http_client.OK)
+        self.head(url, expected_status=http.client.OK)
 
     def test_get_role_in_access_token_dne(self):
         self.test_oauth_flow()
@@ -387,8 +387,8 @@ class AccessTokenCRUDTests(OAuthFlowTests):
         url = ('/users/%(id)s/OS-OAUTH1/access_tokens/%(key)s/roles/%(role)s'
                % {'id': self.user_id, 'key': access_token_key,
                   'role': uuid.uuid4().hex})
-        self.get(url, expected_status=http_client.NOT_FOUND)
-        self.head(url, expected_status=http_client.NOT_FOUND)
+        self.get(url, expected_status=http.client.NOT_FOUND)
+        self.head(url, expected_status=http.client.NOT_FOUND)
 
     def test_list_and_delete_access_tokens(self):
         self.test_oauth_flow()
@@ -398,7 +398,7 @@ class AccessTokenCRUDTests(OAuthFlowTests):
             % {'user_id': self.user_id}
         )
         resp = self.get(url)
-        self.head(url, expected_status=http_client.OK)
+        self.head(url, expected_status=http.client.OK)
         entities = resp.result['access_tokens']
         self.assertTrue(entities)
         self.assertValidListLinks(resp.result['links'])
@@ -408,11 +408,11 @@ class AccessTokenCRUDTests(OAuthFlowTests):
         resp = self.delete('/users/%(user)s/OS-OAUTH1/access_tokens/%(auth)s'
                            % {'user': self.user_id,
                               'auth': access_token_key})
-        self.assertResponseStatus(resp, http_client.NO_CONTENT)
+        self.assertResponseStatus(resp, http.client.NO_CONTENT)
 
         # List access_token should be 0
         resp = self.get(url)
-        self.head(url, expected_status=http_client.OK)
+        self.head(url, expected_status=http.client.OK)
         entities = resp.result['access_tokens']
         self.assertEqual([], entities)
         self.assertValidListLinks(resp.result['links'])
@@ -452,13 +452,13 @@ class AuthTokenTests(object):
         resp = self.delete('/users/%(user)s/OS-OAUTH1/access_tokens/%(auth)s'
                            % {'user': self.user_id,
                               'auth': access_token_key})
-        self.assertResponseStatus(resp, http_client.NO_CONTENT)
+        self.assertResponseStatus(resp, http.client.NO_CONTENT)
 
         # Check Keystone Token no longer exists
         headers = {'X-Subject-Token': self.keystone_token_id,
                    'X-Auth-Token': self.keystone_token_id}
         self.get('/auth/tokens', headers=headers,
-                 expected_status=http_client.NOT_FOUND)
+                 expected_status=http.client.NOT_FOUND)
 
     def test_deleting_consumer_also_deletes_tokens(self):
         self.test_oauth_flow()
@@ -467,7 +467,7 @@ class AuthTokenTests(object):
         consumer_id = self.consumer['key']
         resp = self.delete('/OS-OAUTH1/consumers/%(consumer_id)s'
                            % {'consumer_id': consumer_id})
-        self.assertResponseStatus(resp, http_client.NO_CONTENT)
+        self.assertResponseStatus(resp, http.client.NO_CONTENT)
 
         # List access_token should be 0
         resp = self.get('/users/%(user_id)s/OS-OAUTH1/access_tokens'
@@ -479,7 +479,7 @@ class AuthTokenTests(object):
         headers = {'X-Subject-Token': self.keystone_token_id,
                    'X-Auth-Token': self.keystone_token_id}
         self.head('/auth/tokens', headers=headers,
-                  expected_status=http_client.NOT_FOUND)
+                  expected_status=http.client.NOT_FOUND)
 
     def test_change_user_password_also_deletes_tokens(self):
         self.test_oauth_flow()
@@ -496,7 +496,7 @@ class AuthTokenTests(object):
             body={'user': user})
         headers = {'X-Subject-Token': self.keystone_token_id}
         self.get(path='/auth/tokens', token=self.get_admin_token(),
-                 headers=headers, expected_status=http_client.NOT_FOUND)
+                 headers=headers, expected_status=http.client.NOT_FOUND)
 
     def test_deleting_project_also_invalidates_tokens(self):
         self.test_oauth_flow()
@@ -512,7 +512,7 @@ class AuthTokenTests(object):
 
         headers = {'X-Subject-Token': self.keystone_token_id}
         self.get(path='/auth/tokens', token=self.get_admin_token(),
-                 headers=headers, expected_status=http_client.NOT_FOUND)
+                 headers=headers, expected_status=http.client.NOT_FOUND)
 
     def test_token_chaining_is_not_allowed(self):
         self.test_oauth_flow()
@@ -527,7 +527,7 @@ class AuthTokenTests(object):
             body=auth_data,
             token=self.keystone_token_id,
             method='POST',
-            expected_status=http_client.FORBIDDEN)
+            expected_status=http.client.FORBIDDEN)
 
     def test_delete_keystone_tokens_by_consumer_id(self):
         self.test_oauth_flow()
@@ -597,14 +597,14 @@ class AuthTokenTests(object):
         self.post('/OS-TRUST/trusts',
                   body={'trust': ref},
                   token=self.keystone_token_id,
-                  expected_status=http_client.FORBIDDEN)
+                  expected_status=http.client.FORBIDDEN)
 
     def test_oauth_token_cannot_authorize_request_token(self):
         self.test_oauth_flow()
         url = self._approve_request_token_url()
         body = {'roles': [{'id': self.role_id}]}
         self.put(url, body=body, token=self.keystone_token_id,
-                 expected_status=http_client.FORBIDDEN)
+                 expected_status=http.client.FORBIDDEN)
 
     def test_oauth_token_cannot_list_request_tokens(self):
         self._set_policy({"identity:list_access_tokens": [],
@@ -613,7 +613,7 @@ class AuthTokenTests(object):
         self.test_oauth_flow()
         url = '/users/%s/OS-OAUTH1/access_tokens' % self.user_id
         self.get(url, token=self.keystone_token_id,
-                 expected_status=http_client.FORBIDDEN)
+                 expected_status=http.client.FORBIDDEN)
 
     def _set_policy(self, new_policy):
         self.tempfile = self.useFixture(temporaryfile.SecureTempFile())
@@ -628,7 +628,7 @@ class AuthTokenTests(object):
         url = self._approve_request_token_url()
         body = {'roles': [{'id': self.role_id}]}
         self.put(url, body=body, token=trust_token,
-                 expected_status=http_client.FORBIDDEN)
+                 expected_status=http.client.FORBIDDEN)
 
     def test_trust_token_cannot_list_request_tokens(self):
         self._set_policy({"identity:list_access_tokens": [],
@@ -636,7 +636,7 @@ class AuthTokenTests(object):
         trust_token = self._create_trust_get_token()
         url = '/users/%s/OS-OAUTH1/access_tokens' % self.user_id
         self.get(url, token=trust_token,
-                 expected_status=http_client.FORBIDDEN)
+                 expected_status=http.client.FORBIDDEN)
 
 
 class FernetAuthTokenTests(AuthTokenTests, OAuthFlowTests):
@@ -671,7 +671,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         consumer = {'key': consumer_id, 'secret': uuid.uuid4().hex}
         url, headers = self._create_request_token(consumer, self.project_id)
         self.post(url, headers=headers,
-                  expected_status=http_client.UNAUTHORIZED)
+                  expected_status=http.client.UNAUTHORIZED)
 
     def test_bad_request_url(self):
         consumer = self._create_single_consumer()
@@ -682,7 +682,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         url, headers = self._create_request_token(consumer, self.project_id,
                                                   base_url=bad_base_url)
         self.post(url, headers=headers,
-                  expected_status=http_client.UNAUTHORIZED)
+                  expected_status=http.client.UNAUTHORIZED)
 
     def test_bad_request_url_scheme(self):
         consumer = self._create_single_consumer()
@@ -693,7 +693,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         url, headers = self._create_request_token(consumer, self.project_id,
                                                   base_url=bad_url_scheme)
         self.post(url, headers=headers,
-                  expected_status=http_client.UNAUTHORIZED)
+                  expected_status=http.client.UNAUTHORIZED)
 
     def test_bad_request_token_key(self):
         consumer = self._create_single_consumer()
@@ -706,7 +706,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
             response_content_type='application/x-www-form-urlencoded')
         url = self._authorize_request_token(uuid.uuid4().hex)
         body = {'roles': [{'id': self.role_id}]}
-        self.put(url, body=body, expected_status=http_client.NOT_FOUND)
+        self.put(url, body=body, expected_status=http.client.NOT_FOUND)
 
     def test_bad_request_body_when_authorize(self):
         consumer = self._create_single_consumer()
@@ -721,7 +721,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         request_key = credentials['oauth_token'][0]
         url = self._authorize_request_token(request_key)
         bad_body = {'roles': [{'fake_key': 'fake_value'}]}
-        self.put(url, body=bad_body, expected_status=http_client.BAD_REQUEST)
+        self.put(url, body=bad_body, expected_status=http.client.BAD_REQUEST)
 
     def test_bad_consumer_id(self):
         consumer = self._create_single_consumer()
@@ -729,7 +729,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         consumer_secret = consumer['secret']
         consumer = {'key': consumer_id, 'secret': consumer_secret}
         url, headers = self._create_request_token(consumer, self.project_id)
-        self.post(url, headers=headers, expected_status=http_client.NOT_FOUND)
+        self.post(url, headers=headers, expected_status=http.client.NOT_FOUND)
 
     def test_bad_requested_project_id(self):
         consumer = self._create_single_consumer()
@@ -738,7 +738,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         consumer = {'key': consumer_id, 'secret': consumer_secret}
         project_id = uuid.uuid4().hex
         url, headers = self._create_request_token(consumer, project_id)
-        self.post(url, headers=headers, expected_status=http_client.NOT_FOUND)
+        self.post(url, headers=headers, expected_status=http.client.NOT_FOUND)
 
     def test_bad_verifier(self):
         self.config_fixture.config(debug=True, insecure_debug=True)
@@ -758,14 +758,14 @@ class MaliciousOAuth1Tests(OAuth1Tests):
 
         url = self._authorize_request_token(request_key)
         body = {'roles': [{'id': self.role_id}]}
-        resp = self.put(url, body=body, expected_status=http_client.OK)
+        resp = self.put(url, body=body, expected_status=http.client.OK)
         verifier = resp.result['token']['oauth_verifier']
         self.assertIsNotNone(verifier)
 
         request_token.set_verifier(uuid.uuid4().hex)
         url, headers = self._create_access_token(consumer, request_token)
         resp = self.post(url, headers=headers,
-                         expected_status=http_client.BAD_REQUEST)
+                         expected_status=http.client.BAD_REQUEST)
         resp_data = jsonutils.loads(resp.body)
         self.assertIn('Validation failed with errors',
                       resp_data.get('error', {}).get('message'))
@@ -788,7 +788,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
 
         url = self._authorize_request_token(request_key)
         body = {'roles': [{'id': self.role_id}]}
-        resp = self.put(url, body=body, expected_status=http_client.OK)
+        resp = self.put(url, body=body, expected_status=http.client.OK)
         verifier = resp.result['token']['oauth_verifier']
         request_token.set_verifier(verifier)
 
@@ -798,7 +798,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         url, headers = self._create_access_token(consumer, request_token,
                                                  base_url=base_url)
         resp = self.post(url, headers=headers,
-                         expected_status=http_client.UNAUTHORIZED)
+                         expected_status=http.client.UNAUTHORIZED)
         resp_data = jsonutils.loads(resp.body)
         self.assertIn('Invalid signature',
                       resp_data.get('error', {}).get('message'))
@@ -809,7 +809,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         url, headers = self._create_access_token(consumer, request_token,
                                                  base_url=bad_url_scheme)
         resp = self.post(url, headers=headers,
-                         expected_status=http_client.UNAUTHORIZED)
+                         expected_status=http.client.UNAUTHORIZED)
         resp_data = jsonutils.loads(resp.body)
         self.assertIn('Invalid signature',
                       resp_data.get('error', {}).get('message'))
@@ -819,7 +819,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         consumer.update({'secret': uuid.uuid4().hex})
         url, headers = self._create_access_token(consumer, request_token)
         resp = self.post(url, headers=headers,
-                         expected_status=http_client.UNAUTHORIZED)
+                         expected_status=http.client.UNAUTHORIZED)
         resp_data = jsonutils.loads(resp.body)
         self.assertIn('Invalid signature',
                       resp_data.get('error', {}).get('message'))
@@ -834,7 +834,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         request_token.set_verifier(verifier)
         url, headers = self._create_access_token(consumer, request_token)
         resp = self.post(url, headers=headers,
-                         expected_status=http_client.UNAUTHORIZED)
+                         expected_status=http.client.UNAUTHORIZED)
         resp_data = jsonutils.loads(resp.body)
         self.assertIn('Provided verifier',
                       resp_data.get('error', {}).get('message'))
@@ -843,7 +843,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         consumer.update({'key': uuid.uuid4().hex})
         url, headers = self._create_access_token(consumer, request_token)
         resp = self.post(url, headers=headers,
-                         expected_status=http_client.UNAUTHORIZED)
+                         expected_status=http.client.UNAUTHORIZED)
         resp_data = jsonutils.loads(resp.body)
         self.assertIn('Provided consumer does not exist',
                       resp_data.get('error', {}).get('message'))
@@ -853,7 +853,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         consumer.update({'key': consumer2['id']})
         url, headers = self._create_access_token(consumer, request_token)
         resp = self.post(url, headers=headers,
-                         expected_status=http_client.UNAUTHORIZED)
+                         expected_status=http.client.UNAUTHORIZED)
         resp_data = jsonutils.loads(resp.body)
         self.assertIn('Provided consumer key',
                       resp_data.get('error', {}).get('message'))
@@ -889,7 +889,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         # 404 because an unrouted URI was being hit. It is correct to get a 401
         # error back as the role is not in the superset of roles the user
         # has at the time of the Authorization.
-        self.put(path=url, body=body, expected_status=http_client.UNAUTHORIZED)
+        self.put(path=url, body=body, expected_status=http.client.UNAUTHORIZED)
 
     def test_bad_authorizing_roles_name(self):
         consumer = self._create_single_consumer()
@@ -906,7 +906,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
 
         url = self._authorize_request_token(request_key)
         body = {'roles': [{'name': 'fake_name'}]}
-        self.put(path=url, body=body, expected_status=http_client.NOT_FOUND)
+        self.put(path=url, body=body, expected_status=http.client.NOT_FOUND)
 
     def test_no_authorizing_user_id(self):
         consumer = self._create_single_consumer()
@@ -925,7 +925,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
 
         url = self._authorize_request_token(request_key)
         body = {'roles': [{'id': self.role_id}]}
-        resp = self.put(url, body=body, expected_status=http_client.OK)
+        resp = self.put(url, body=body, expected_status=http.client.OK)
         verifier = resp.result['token']['oauth_verifier']
         request_token.set_verifier(verifier)
         request_token_created = PROVIDERS.oauth_api.get_request_token(
@@ -940,7 +940,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
             mock_token.return_value = request_token_created
             url, headers = self._create_access_token(consumer, request_token)
             self.post(url, headers=headers,
-                      expected_status=http_client.UNAUTHORIZED)
+                      expected_status=http.client.UNAUTHORIZED)
 
     def test_validate_requet_token_request_failed(self):
         self.config_fixture.config(debug=True, insecure_debug=True)
@@ -957,7 +957,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
 
         resp = self.post(
             url, headers=faked_header,
-            expected_status=http_client.BAD_REQUEST)
+            expected_status=http.client.BAD_REQUEST)
         resp_data = jsonutils.loads(resp.body)
         self.assertIn('Validation failed with errors',
                       resp_data['error']['message'])
@@ -988,7 +988,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
             body = {'roles': [{'id': self.role_id}]}
             frozen_time.tick(delta=datetime.timedelta(
                 seconds=CONF.oauth1.request_token_duration + 1))
-            self.put(url, body=body, expected_status=http_client.UNAUTHORIZED)
+            self.put(url, body=body, expected_status=http.client.UNAUTHORIZED)
 
     def test_expired_creating_keystone_token(self):
         with freezegun.freeze_time(datetime.datetime.utcnow()) as frozen_time:
@@ -1014,7 +1014,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
 
             url = self._authorize_request_token(request_key)
             body = {'roles': [{'id': self.role_id}]}
-            resp = self.put(url, body=body, expected_status=http_client.OK)
+            resp = self.put(url, body=body, expected_status=http.client.OK)
             self.verifier = resp.result['token']['oauth_verifier']
 
             self.request_token.set_verifier(self.verifier)
@@ -1034,7 +1034,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
             frozen_time.tick(delta=datetime.timedelta(
                 seconds=CONF.oauth1.access_token_duration + 1))
             self.post(url, headers=headers, body=body,
-                      expected_status=http_client.UNAUTHORIZED)
+                      expected_status=http.client.UNAUTHORIZED)
 
     def test_missing_oauth_headers(self):
         endpoint = '/OS-OAUTH1/request_token'
@@ -1051,7 +1051,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         # header from the post request.
         del headers['Authorization']
         self.post(endpoint, headers=headers,
-                  expected_status=http_client.INTERNAL_SERVER_ERROR)
+                  expected_status=http.client.INTERNAL_SERVER_ERROR)
 
 
 class OAuthNotificationTests(OAuth1Tests,
@@ -1127,7 +1127,7 @@ class OAuthNotificationTests(OAuth1Tests,
 
         url = self._authorize_request_token(request_key)
         body = {'roles': [{'id': self.role_id}]}
-        resp = self.put(url, body=body, expected_status=http_client.OK)
+        resp = self.put(url, body=body, expected_status=http.client.OK)
         self.verifier = resp.result['token']['oauth_verifier']
         self.assertTrue(all(i in base.VERIFIER_CHARS for i in self.verifier))
         self.assertEqual(8, len(self.verifier))
@@ -1157,7 +1157,7 @@ class OAuthNotificationTests(OAuth1Tests,
         resp = self.delete('/users/%(user)s/OS-OAUTH1/access_tokens/%(auth)s'
                            % {'user': self.user_id,
                               'auth': self.access_token.key.decode()})
-        self.assertResponseStatus(resp, http_client.NO_CONTENT)
+        self.assertResponseStatus(resp, http.client.NO_CONTENT)
 
         # Test to ensure the delete access token notification is sent
         self._assert_notify_sent(access_key_string,

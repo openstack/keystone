@@ -21,7 +21,6 @@ import fixtures
 from oslo_config import fixture as config_fixture
 from oslo_log import log
 from oslo_serialization import jsonutils
-import six
 
 import keystone.conf
 from keystone import exception
@@ -66,14 +65,14 @@ class ExceptionTestCase(unit.BaseTestCase):
         attribute = uuid.uuid4().hex
         e = exception.ValidationError(target=target, attribute=attribute)
         self.assertValidJsonRendering(e)
-        self.assertIn(target, six.text_type(e))
-        self.assertIn(attribute, six.text_type(e))
+        self.assertIn(target, str(e))
+        self.assertIn(attribute, str(e))
 
     def test_not_found(self):
         target = uuid.uuid4().hex
         e = exception.NotFound(target=target)
         self.assertValidJsonRendering(e)
-        self.assertIn(target, six.text_type(e))
+        self.assertIn(target, str(e))
 
     def test_forbidden_title(self):
         e = exception.Forbidden()
@@ -87,18 +86,14 @@ class ExceptionTestCase(unit.BaseTestCase):
         e = exception.Error(message)
 
         try:
-            self.assertEqual(message, six.text_type(e))
+            self.assertEqual(message, str(e))
         except UnicodeEncodeError:
             self.fail("unicode error message not supported")
 
     def test_unicode_string(self):
         e = exception.ValidationError(attribute='xx',
                                       target='Long \xe2\x80\x93 Dash')
-
-        if six.PY2:
-            self.assertIn(u'\u2013', six.text_type(e))
-        else:
-            self.assertIn('Long \xe2\x80\x93 Dash', six.text_type(e))
+        self.assertIn('Long \xe2\x80\x93 Dash', str(e))
 
     def test_invalid_unicode_string(self):
         # NOTE(jamielennox): This is a complete failure case so what is
@@ -106,12 +101,7 @@ class ExceptionTestCase(unit.BaseTestCase):
         # as there is an error with a message
         e = exception.ValidationError(attribute='xx',
                                       target='\xe7a va')
-
-        if six.PY2:
-            self.assertIn('%(attribute)', six.text_type(e))
-        else:
-            # There's no UnicodeDecodeError on python 3.
-            self.assertIn('\xe7a va', six.text_type(e))
+        self.assertIn('\xe7a va', str(e))
 
 
 class UnexpectedExceptionTestCase(ExceptionTestCase):
@@ -128,19 +118,19 @@ class UnexpectedExceptionTestCase(ExceptionTestCase):
     def test_unexpected_error_no_debug(self):
         self.config_fixture.config(debug=False)
         e = exception.UnexpectedError(exception=self.exc_str)
-        self.assertNotIn(self.exc_str, six.text_type(e))
+        self.assertNotIn(self.exc_str, str(e))
 
     def test_unexpected_error_debug(self):
         self.config_fixture.config(debug=True, insecure_debug=True)
         e = exception.UnexpectedError(exception=self.exc_str)
-        self.assertIn(self.exc_str, six.text_type(e))
+        self.assertIn(self.exc_str, str(e))
 
     def test_unexpected_error_subclass_no_debug(self):
         self.config_fixture.config(debug=False)
         e = UnexpectedExceptionTestCase.SubClassExc(
             debug_info=self.exc_str)
         self.assertEqual(exception.UnexpectedError.message_format,
-                         six.text_type(e))
+                         str(e))
 
     def test_unexpected_error_subclass_debug(self):
         self.config_fixture.config(debug=True, insecure_debug=True)
@@ -150,38 +140,38 @@ class UnexpectedExceptionTestCase(ExceptionTestCase):
         expected = subclass.debug_message_format % {'debug_info': self.exc_str}
         self.assertEqual(
             '%s %s' % (expected, exception.SecurityError.amendment),
-            six.text_type(e))
+            str(e))
 
     def test_unexpected_error_custom_message_no_debug(self):
         self.config_fixture.config(debug=False)
         e = exception.UnexpectedError(self.exc_str)
         self.assertEqual(exception.UnexpectedError.message_format,
-                         six.text_type(e))
+                         str(e))
 
     def test_unexpected_error_custom_message_debug(self):
         self.config_fixture.config(debug=True, insecure_debug=True)
         e = exception.UnexpectedError(self.exc_str)
         self.assertEqual(
             '%s %s' % (self.exc_str, exception.SecurityError.amendment),
-            six.text_type(e))
+            str(e))
 
     def test_unexpected_error_custom_message_exception_debug(self):
         self.config_fixture.config(debug=True, insecure_debug=True)
         orig_e = exception.NotFound(target=uuid.uuid4().hex)
         e = exception.UnexpectedError(orig_e)
         self.assertEqual(
-            '%s %s' % (six.text_type(orig_e),
+            '%s %s' % (str(orig_e),
                        exception.SecurityError.amendment),
-            six.text_type(e))
+            str(e))
 
     def test_unexpected_error_custom_message_binary_debug(self):
         self.config_fixture.config(debug=True, insecure_debug=True)
         binary_msg = b'something'
         e = exception.UnexpectedError(binary_msg)
         self.assertEqual(
-            '%s %s' % (six.text_type(binary_msg),
+            '%s %s' % (str(binary_msg),
                        exception.SecurityError.amendment),
-            six.text_type(e))
+            str(e))
 
 
 class SecurityErrorTestCase(ExceptionTestCase):
@@ -197,7 +187,7 @@ class SecurityErrorTestCase(ExceptionTestCase):
         risky_info = uuid.uuid4().hex
         e = exception.Unauthorized(message=risky_info)
         self.assertValidJsonRendering(e)
-        self.assertNotIn(risky_info, six.text_type(e))
+        self.assertNotIn(risky_info, str(e))
 
     def test_unauthorized_exposure_in_debug(self):
         self.config_fixture.config(debug=True, insecure_debug=True)
@@ -205,7 +195,7 @@ class SecurityErrorTestCase(ExceptionTestCase):
         risky_info = uuid.uuid4().hex
         e = exception.Unauthorized(message=risky_info)
         self.assertValidJsonRendering(e)
-        self.assertIn(risky_info, six.text_type(e))
+        self.assertIn(risky_info, str(e))
 
     def test_forbidden_exposure(self):
         self.config_fixture.config(debug=False)
@@ -213,7 +203,7 @@ class SecurityErrorTestCase(ExceptionTestCase):
         risky_info = uuid.uuid4().hex
         e = exception.Forbidden(message=risky_info)
         self.assertValidJsonRendering(e)
-        self.assertNotIn(risky_info, six.text_type(e))
+        self.assertNotIn(risky_info, str(e))
 
     def test_forbidden_exposure_in_debug(self):
         self.config_fixture.config(debug=True, insecure_debug=True)
@@ -221,7 +211,7 @@ class SecurityErrorTestCase(ExceptionTestCase):
         risky_info = uuid.uuid4().hex
         e = exception.Forbidden(message=risky_info)
         self.assertValidJsonRendering(e)
-        self.assertIn(risky_info, six.text_type(e))
+        self.assertIn(risky_info, str(e))
 
     def test_forbidden_action_exposure(self):
         self.config_fixture.config(debug=False)
@@ -230,14 +220,14 @@ class SecurityErrorTestCase(ExceptionTestCase):
         action = uuid.uuid4().hex
         e = exception.ForbiddenAction(message=risky_info, action=action)
         self.assertValidJsonRendering(e)
-        self.assertNotIn(risky_info, six.text_type(e))
-        self.assertIn(action, six.text_type(e))
-        self.assertNotIn(exception.SecurityError.amendment, six.text_type(e))
+        self.assertNotIn(risky_info, str(e))
+        self.assertIn(action, str(e))
+        self.assertNotIn(exception.SecurityError.amendment, str(e))
 
         e = exception.ForbiddenAction(action=action)
         self.assertValidJsonRendering(e)
-        self.assertIn(action, six.text_type(e))
-        self.assertNotIn(exception.SecurityError.amendment, six.text_type(e))
+        self.assertIn(action, str(e))
+        self.assertNotIn(exception.SecurityError.amendment, str(e))
 
     def test_forbidden_action_exposure_in_debug(self):
         self.config_fixture.config(debug=True, insecure_debug=True)
@@ -247,13 +237,13 @@ class SecurityErrorTestCase(ExceptionTestCase):
 
         e = exception.ForbiddenAction(message=risky_info, action=action)
         self.assertValidJsonRendering(e)
-        self.assertIn(risky_info, six.text_type(e))
-        self.assertIn(exception.SecurityError.amendment, six.text_type(e))
+        self.assertIn(risky_info, str(e))
+        self.assertIn(exception.SecurityError.amendment, str(e))
 
         e = exception.ForbiddenAction(action=action)
         self.assertValidJsonRendering(e)
-        self.assertIn(action, six.text_type(e))
-        self.assertNotIn(exception.SecurityError.amendment, six.text_type(e))
+        self.assertIn(action, str(e))
+        self.assertNotIn(exception.SecurityError.amendment, str(e))
 
     def test_forbidden_action_no_message(self):
         # When no custom message is given when the ForbiddenAction (or other
@@ -264,13 +254,13 @@ class SecurityErrorTestCase(ExceptionTestCase):
 
         self.config_fixture.config(debug=False)
         e = exception.ForbiddenAction(action=action)
-        exposed_message = six.text_type(e)
+        exposed_message = str(e)
         self.assertIn(action, exposed_message)
-        self.assertNotIn(exception.SecurityError.amendment, six.text_type(e))
+        self.assertNotIn(exception.SecurityError.amendment, str(e))
 
         self.config_fixture.config(debug=True)
         e = exception.ForbiddenAction(action=action)
-        self.assertEqual(exposed_message, six.text_type(e))
+        self.assertEqual(exposed_message, str(e))
 
     def test_unicode_argument_message(self):
         self.config_fixture.config(debug=False)
@@ -278,7 +268,7 @@ class SecurityErrorTestCase(ExceptionTestCase):
         risky_info = u'\u7ee7\u7eed\u884c\u7f29\u8fdb\u6216'
         e = exception.Forbidden(message=risky_info)
         self.assertValidJsonRendering(e)
-        self.assertNotIn(risky_info, six.text_type(e))
+        self.assertNotIn(risky_info, str(e))
 
 
 class TestSecurityErrorTranslation(unit.BaseTestCase):

@@ -13,7 +13,6 @@
 # under the License.
 
 from oslo_utils import timeutils
-from six.moves import range
 
 import sqlalchemy
 from sqlalchemy.ext.hybrid import hybrid_property

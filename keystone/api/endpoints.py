@@ -13,7 +13,7 @@
 # This file handles all flask-restful resources for /v3/services
 
 import flask_restful
-from six.moves import http_client
+import http.client
 
 from keystone.api._shared import json_home_relations
 from keystone.catalog import schema
@@ -97,7 +97,7 @@ class EndpointResource(ks_flask.ResourceBase):
         endpoint = self._validate_endpoint_region(endpoint)
         ref = PROVIDERS.catalog_api.create_endpoint(
             endpoint['id'], endpoint, initiator=self.audit_initiator)
-        return self.wrap_member(_filter_endpoint(ref)), http_client.CREATED
+        return self.wrap_member(_filter_endpoint(ref)), http.client.CREATED
 
     def patch(self, endpoint_id):
         ENFORCER.enforce_call(action='identity:update_endpoint')
@@ -113,7 +113,7 @@ class EndpointResource(ks_flask.ResourceBase):
         ENFORCER.enforce_call(action='identity:delete_endpoint')
         PROVIDERS.catalog_api.delete_endpoint(endpoint_id,
                                               initiator=self.audit_initiator)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
 
 class EndpointPolicyEndpointResource(flask_restful.Resource):

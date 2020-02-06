@@ -12,7 +12,7 @@
 
 import uuid
 
-from six.moves import http_client
+import http.client
 
 from keystone.common import provider_api
 import keystone.conf
@@ -47,7 +47,7 @@ class _SystemUserPoliciesAssociationTests(object):
             c.get('/v3/policies/%s/OS-ENDPOINT-POLICY/endpoints/%s'
                   % (policy['id'], endpoint['id']),
                   headers=self.headers,
-                  expected_status_code=http_client.NO_CONTENT)
+                  expected_status_code=http.client.NO_CONTENT)
 
     def test_user_can_check_policy_association_for_service(self):
         policy = unit.new_policy_ref()
@@ -64,7 +64,7 @@ class _SystemUserPoliciesAssociationTests(object):
             c.get('/v3/policies/%s/OS-ENDPOINT-POLICY/services/%s'
                   % (policy['id'], service['id']),
                   headers=self.headers,
-                  expected_status_code=http_client.NO_CONTENT)
+                  expected_status_code=http.client.NO_CONTENT)
 
     def test_user_can_check_policy_association_for_region_and_service(self):
         policy = unit.new_policy_ref()
@@ -84,7 +84,7 @@ class _SystemUserPoliciesAssociationTests(object):
             c.get('/v3/policies/%s/OS-ENDPOINT-POLICY/services/%s/regions/%s'
                   % (policy['id'], service['id'], region['id']),
                   headers=self.headers,
-                  expected_status_code=http_client.NO_CONTENT)
+                  expected_status_code=http.client.NO_CONTENT)
 
     def test_user_can_get_policy_for_endpoint(self):
         policy = unit.new_policy_ref()
@@ -143,7 +143,7 @@ class _SystemReaderAndMemberPoliciesAssociationTests(object):
                 '/v3/policies/%s/OS-ENDPOINT-POLICY/endpoints/%s'
                 % (policy['id'], endpoint['id']),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_policy_association_for_endpoint(self):
@@ -162,7 +162,7 @@ class _SystemReaderAndMemberPoliciesAssociationTests(object):
                 '/v3/policies/%s/OS-ENDPOINT-POLICY/endpoints/%s'
                 % (policy['id'], endpoint['id']),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_create_policy_association_for_service(self):
@@ -176,7 +176,7 @@ class _SystemReaderAndMemberPoliciesAssociationTests(object):
                 '/v3/policies/%s/OS-ENDPOINT-POLICY/services/%s'
                 % (policy['id'], service['id']),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_policy_association_for_service(self):
@@ -191,7 +191,7 @@ class _SystemReaderAndMemberPoliciesAssociationTests(object):
                 '/v3/policies/%s/OS-ENDPOINT-POLICY/services/%s'
                 % (policy['id'], service['id']),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_create_policy_assoc_for_region_and_service(self):
@@ -207,7 +207,7 @@ class _SystemReaderAndMemberPoliciesAssociationTests(object):
                 '/v3/policies/%s/OS-ENDPOINT-POLICY/services/%s/regions/%s'
                 % (policy['id'], service['id'], region['id']),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_policy_assoc_for_region_and_service(self):
@@ -223,7 +223,7 @@ class _SystemReaderAndMemberPoliciesAssociationTests(object):
                 '/v3/policies/%s/OS-ENDPOINT-POLICY/services/%s/regions/%s'
                 % (policy['id'], service['id'], region['id']),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -248,7 +248,7 @@ class _DomainAndProjectUserPolicyAssociationsTests(object):
             c.get('/v3/policies/%s/OS-ENDPOINT-POLICY/endpoints/%s'
                   % (policy['id'], endpoint['id']),
                   headers=self.headers,
-                  expected_status_code=http_client.FORBIDDEN)
+                  expected_status_code=http.client.FORBIDDEN)
 
     def test_user_cannot_check_policy_association_for_service(self):
         policy = unit.new_policy_ref()
@@ -265,7 +265,7 @@ class _DomainAndProjectUserPolicyAssociationsTests(object):
             c.get('/v3/policies/%s/OS-ENDPOINT-POLICY/services/%s'
                   % (policy['id'], service['id']),
                   headers=self.headers,
-                  expected_status_code=http_client.FORBIDDEN)
+                  expected_status_code=http.client.FORBIDDEN)
 
     def test_user_cannot_check_policy_association_for_region_and_service(self):
         policy = unit.new_policy_ref()
@@ -285,7 +285,7 @@ class _DomainAndProjectUserPolicyAssociationsTests(object):
             c.get('/v3/policies/%s/OS-ENDPOINT-POLICY/services/%s/regions/%s'
                   % (policy['id'], service['id'], region['id']),
                   headers=self.headers,
-                  expected_status_code=http_client.FORBIDDEN)
+                  expected_status_code=http.client.FORBIDDEN)
 
     def test_user_cannot_get_policy_for_endpoint(self):
         policy = unit.new_policy_ref()
@@ -304,7 +304,7 @@ class _DomainAndProjectUserPolicyAssociationsTests(object):
             c.get('/v3/endpoints/%s/OS-ENDPOINT-POLICY/policy'
                   % (endpoint['id']),
                   headers=self.headers,
-                  expected_status_code=http_client.FORBIDDEN)
+                  expected_status_code=http.client.FORBIDDEN)
 
     def test_user_cannot_list_endpoints_for_policy(self):
         policy = unit.new_policy_ref()
@@ -322,7 +322,7 @@ class _DomainAndProjectUserPolicyAssociationsTests(object):
         with self.test_client() as c:
             c.get('/v3/policies/%s/OS-ENDPOINT-POLICY/endpoints'
                   % (policy['id']), headers=self.headers,
-                  expected_status_code=http_client.FORBIDDEN
+                  expected_status_code=http.client.FORBIDDEN
                   )
 
     def test_user_cannot_create_policy_association_for_endpoint(self):
@@ -341,7 +341,7 @@ class _DomainAndProjectUserPolicyAssociationsTests(object):
                 '/v3/policies/%s/OS-ENDPOINT-POLICY/endpoints/%s'
                 % (policy['id'], endpoint['id']),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_policy_association_for_endpoint(self):
@@ -360,7 +360,7 @@ class _DomainAndProjectUserPolicyAssociationsTests(object):
                 '/v3/policies/%s/OS-ENDPOINT-POLICY/endpoints/%s'
                 % (policy['id'], endpoint['id']),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_create_policy_association_for_service(self):
@@ -374,7 +374,7 @@ class _DomainAndProjectUserPolicyAssociationsTests(object):
                 '/v3/policies/%s/OS-ENDPOINT-POLICY/services/%s'
                 % (policy['id'], service['id']),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_policy_association_for_service(self):
@@ -389,7 +389,7 @@ class _DomainAndProjectUserPolicyAssociationsTests(object):
                 '/v3/policies/%s/OS-ENDPOINT-POLICY/services/%s'
                 % (policy['id'], service['id']),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_create_policy_assoc_for_region_and_service(self):
@@ -405,7 +405,7 @@ class _DomainAndProjectUserPolicyAssociationsTests(object):
                 '/v3/policies/%s/OS-ENDPOINT-POLICY/services/%s/regions/%s'
                 % (policy['id'], service['id'], region['id']),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_policy_assoc_for_region_and_service(self):
@@ -421,7 +421,7 @@ class _DomainAndProjectUserPolicyAssociationsTests(object):
                 '/v3/policies/%s/OS-ENDPOINT-POLICY/services/%s/regions/%s'
                 % (policy['id'], service['id'], region['id']),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -535,7 +535,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
                 '/v3/policies/%s/OS-ENDPOINT-POLICY/endpoints/%s'
                 % (policy['id'], endpoint['id']),
                 headers=self.headers,
-                expected_status_code=http_client.NO_CONTENT
+                expected_status_code=http.client.NO_CONTENT
             )
 
     def test_user_can_delete_policy_association_for_endpoint(self):
@@ -554,7 +554,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
                 '/v3/policies/%s/OS-ENDPOINT-POLICY/endpoints/%s'
                 % (policy['id'], endpoint['id']),
                 headers=self.headers,
-                expected_status_code=http_client.NO_CONTENT
+                expected_status_code=http.client.NO_CONTENT
             )
 
     def test_user_can_create_policy_association_for_service(self):
@@ -568,7 +568,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
                 '/v3/policies/%s/OS-ENDPOINT-POLICY/services/%s'
                 % (policy['id'], service['id']),
                 headers=self.headers,
-                expected_status_code=http_client.NO_CONTENT
+                expected_status_code=http.client.NO_CONTENT
             )
 
     def test_user_can_delete_policy_association_for_service(self):
@@ -583,7 +583,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
                 '/v3/policies/%s/OS-ENDPOINT-POLICY/services/%s'
                 % (policy['id'], service['id']),
                 headers=self.headers,
-                expected_status_code=http_client.NO_CONTENT
+                expected_status_code=http.client.NO_CONTENT
             )
 
     def test_user_can_create_policy_association_for_region_and_service(self):
@@ -599,7 +599,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
                 '/v3/policies/%s/OS-ENDPOINT-POLICY/services/%s/regions/%s'
                 % (policy['id'], service['id'], region['id']),
                 headers=self.headers,
-                expected_status_code=http_client.NO_CONTENT
+                expected_status_code=http.client.NO_CONTENT
             )
 
     def test_user_can_delete_policy_association_for_region_and_service(self):
@@ -615,7 +615,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
                 '/v3/policies/%s/OS-ENDPOINT-POLICY/services/%s/regions/%s'
                 % (policy['id'], service['id'], region['id']),
                 headers=self.headers,
-                expected_status_code=http_client.NO_CONTENT
+                expected_status_code=http.client.NO_CONTENT
             )
 
 

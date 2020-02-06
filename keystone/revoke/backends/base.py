@@ -16,7 +16,6 @@ import abc
 import datetime
 
 from oslo_utils import timeutils
-import six
 
 import keystone.conf
 from keystone import exception
@@ -32,8 +31,7 @@ def revoked_before_cutoff_time():
     return oldest
 
 
-@six.add_metaclass(abc.ABCMeta)
-class RevokeDriverBase(object):
+class RevokeDriverBase(object, metaclass=abc.ABCMeta):
     """Interface for recording and reporting revocation events."""
 
     @abc.abstractmethod

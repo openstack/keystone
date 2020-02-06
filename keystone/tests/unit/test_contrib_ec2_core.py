@@ -12,8 +12,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import http.client
 from keystoneclient.contrib.ec2 import utils as ec2_utils
-from six.moves import http_client
 
 from keystone.common import provider_api
 from keystone.tests import unit
@@ -50,25 +50,25 @@ class EC2ContribCoreV3(test_v3.RestfulTestCase):
         resp = self.post(
             '/ec2tokens',
             body={'credentials': credentials},
-            expected_status=http_client.OK)
+            expected_status=http.client.OK)
         self.assertValidProjectScopedTokenResponse(resp, self.user)
 
     def test_authenticate_with_empty_body_returns_bad_request(self):
         self.post(
             '/ec2tokens',
             body={},
-            expected_status=http_client.BAD_REQUEST)
+            expected_status=http.client.BAD_REQUEST)
 
     def test_authenticate_without_json_request_returns_bad_request(self):
         self.post(
             '/ec2tokens',
             body='not json',
-            expected_status=http_client.BAD_REQUEST)
+            expected_status=http.client.BAD_REQUEST)
 
     def test_authenticate_without_request_body_returns_bad_request(self):
         self.post(
             '/ec2tokens',
-            expected_status=http_client.BAD_REQUEST)
+            expected_status=http.client.BAD_REQUEST)
 
     def test_authenticate_without_proper_secret_returns_unauthorized(self):
         signer = ec2_utils.Ec2Signer('totally not the secret')
@@ -88,4 +88,4 @@ class EC2ContribCoreV3(test_v3.RestfulTestCase):
         self.post(
             '/ec2tokens',
             body={'credentials': credentials},
-            expected_status=http_client.UNAUTHORIZED)
+            expected_status=http.client.UNAUTHORIZED)

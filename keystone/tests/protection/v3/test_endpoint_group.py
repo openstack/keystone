@@ -12,7 +12,7 @@
 
 import uuid
 
-from six.moves import http_client
+import http.client
 
 from keystone.common import provider_api
 import keystone.conf
@@ -153,7 +153,7 @@ class _SystemReaderAndMemberUserEndpointGroupsTests(object):
             c.post(
                 '/v3/OS-EP-FILTER/endpoint_groups', json=create,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_endpoint_groups(self):
@@ -170,7 +170,7 @@ class _SystemReaderAndMemberUserEndpointGroupsTests(object):
                 '/v3/OS-EP-FILTER/endpoint_groups/%s' % endpoint_group['id'],
                 json=update,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_endpoint_groups(self):
@@ -184,7 +184,7 @@ class _SystemReaderAndMemberUserEndpointGroupsTests(object):
             c.delete(
                 '/v3/OS-EP-FILTER/endpoint_groups/%s' % endpoint_group['id'],
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_add_endpoint_group_to_project(self):
@@ -202,7 +202,7 @@ class _SystemReaderAndMemberUserEndpointGroupsTests(object):
             c.put('/v3/OS-EP-FILTER/endpoint_groups/%s/projects/%s'
                   % (endpoint_group['id'], project['id']),
                   headers=self.headers,
-                  expected_status_code=http_client.FORBIDDEN
+                  expected_status_code=http.client.FORBIDDEN
                   )
 
     def test_cannot_remove_endpoint_group_from_project(self):
@@ -220,7 +220,7 @@ class _SystemReaderAndMemberUserEndpointGroupsTests(object):
             c.delete('/v3/OS-EP-FILTER/endpoint_groups/%s/projects/%s'
                      % (endpoint_group['id'], project['id']),
                      headers=self.headers,
-                     expected_status_code=http_client.FORBIDDEN
+                     expected_status_code=http.client.FORBIDDEN
                      )
 
 
@@ -235,7 +235,7 @@ class _DomainAndProjectUserEndpointGroupTests(object):
 
         with self.test_client() as c:
             c.get('/v3/OS-EP-FILTER/endpoint_groups', headers=self.headers,
-                  expected_status_code=http_client.FORBIDDEN)
+                  expected_status_code=http.client.FORBIDDEN)
 
     def test_user_cannot_get_an_endpoint_group(self):
         endpoint_group = unit.new_endpoint_group_ref(
@@ -246,7 +246,7 @@ class _DomainAndProjectUserEndpointGroupTests(object):
         with self.test_client() as c:
             c.get('/v3/OS-EP-FILTER/endpoint_groups/%s' % endpoint_group['id'],
                   headers=self.headers,
-                  expected_status_code=http_client.FORBIDDEN)
+                  expected_status_code=http.client.FORBIDDEN)
 
     def test_user_cannot_list_projects_associated_with_endpoint_groups(self):
         project = PROVIDERS.resource_api.create_project(
@@ -265,7 +265,7 @@ class _DomainAndProjectUserEndpointGroupTests(object):
             c.get('/v3/OS-EP-FILTER/endpoint_groups/%s/projects'
                   % endpoint_group['id'],
                   headers=self.headers,
-                  expected_status_code=http_client.FORBIDDEN)
+                  expected_status_code=http.client.FORBIDDEN)
 
     def test_user_cannot_list_endpoints_associated_with_endpoint_groups(self):
         service = PROVIDERS.catalog_api.create_service(
@@ -284,7 +284,7 @@ class _DomainAndProjectUserEndpointGroupTests(object):
             c.get('/v3/OS-EP-FILTER/endpoint_groups/%s/endpoints'
                   % endpoint_group['id'],
                   headers=self.headers,
-                  expected_status_code=http_client.FORBIDDEN)
+                  expected_status_code=http.client.FORBIDDEN)
 
     def test_user_cannot_get_endpoints_associated_with_endpoint_groups(self):
         project = PROVIDERS.resource_api.create_project(
@@ -303,7 +303,7 @@ class _DomainAndProjectUserEndpointGroupTests(object):
             c.get('/v3/OS-EP-FILTER/endpoint_groups/%s/projects/%s'
                   % (endpoint_group['id'], project['id']),
                   headers=self.headers,
-                  expected_status_code=http_client.FORBIDDEN)
+                  expected_status_code=http.client.FORBIDDEN)
 
     def test_user_cannot_list_endpoint_groups_with_their_projects(self):
         project = PROVIDERS.resource_api.create_project(
@@ -322,7 +322,7 @@ class _DomainAndProjectUserEndpointGroupTests(object):
             c.get('/v3/OS-EP-FILTER/projects/%s/endpoint_groups'
                   % project['id'],
                   headers=self.headers,
-                  expected_status_code=http_client.FORBIDDEN)
+                  expected_status_code=http.client.FORBIDDEN)
 
     def test_user_cannot_create_endpoint_groups(self):
         create = {
@@ -338,7 +338,7 @@ class _DomainAndProjectUserEndpointGroupTests(object):
             c.post(
                 '/v3/OS-EP-FILTER/endpoint_groups', json=create,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_endpoint_groups(self):
@@ -355,7 +355,7 @@ class _DomainAndProjectUserEndpointGroupTests(object):
                 '/v3/OS-EP-FILTER/endpoint_groups/%s' % endpoint_group['id'],
                 json=update,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_endpoint_groups(self):
@@ -369,7 +369,7 @@ class _DomainAndProjectUserEndpointGroupTests(object):
             c.delete(
                 '/v3/OS-EP-FILTER/endpoint_groups/%s' % endpoint_group['id'],
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_add_endpoint_group_to_project(self):
@@ -387,7 +387,7 @@ class _DomainAndProjectUserEndpointGroupTests(object):
             c.put('/v3/OS-EP-FILTER/endpoint_groups/%s/projects/%s'
                   % (endpoint_group['id'], project['id']),
                   headers=self.headers,
-                  expected_status_code=http_client.FORBIDDEN
+                  expected_status_code=http.client.FORBIDDEN
                   )
 
     def test_cannot_remove_endpoint_group_from_project(self):
@@ -405,7 +405,7 @@ class _DomainAndProjectUserEndpointGroupTests(object):
             c.delete('/v3/OS-EP-FILTER/endpoint_groups/%s/projects/%s'
                      % (endpoint_group['id'], project['id']),
                      headers=self.headers,
-                     expected_status_code=http_client.FORBIDDEN
+                     expected_status_code=http.client.FORBIDDEN
                      )
 
 

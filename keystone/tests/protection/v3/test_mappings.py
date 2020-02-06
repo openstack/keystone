@@ -12,7 +12,7 @@
 
 import uuid
 
-from six.moves import http_client
+import http.client
 
 from keystone.common import provider_api
 import keystone.conf
@@ -71,7 +71,7 @@ class _SystemReaderAndMemberUserMappingTests(object):
             c.put(
                 '/v3/OS-FEDERATION/mappings/%s' % mapping_id, json=create,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_mappings(self):
@@ -93,7 +93,7 @@ class _SystemReaderAndMemberUserMappingTests(object):
             c.patch(
                 '/v3/OS-FEDERATION/mappings/%s' % mapping['id'],
                 json=update, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_mappings(self):
@@ -106,7 +106,7 @@ class _SystemReaderAndMemberUserMappingTests(object):
             c.delete(
                 '/v3/OS-FEDERATION/mappings/%s' % mapping['id'],
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -128,7 +128,7 @@ class _DomainAndProjectUserMappingTests(object):
             c.put(
                 '/v3/OS-FEDERATION/mappings/%s' % mapping_id, json=create,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_list_mappings(self):
@@ -140,7 +140,7 @@ class _DomainAndProjectUserMappingTests(object):
         with self.test_client() as c:
             c.get(
                 '/v3/OS-FEDERATION/mappings', headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_get_a_mapping(self):
@@ -153,7 +153,7 @@ class _DomainAndProjectUserMappingTests(object):
             c.get(
                 '/v3/OS-FEDERATION/mappings/%s' % mapping['id'],
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_mappings(self):
@@ -175,7 +175,7 @@ class _DomainAndProjectUserMappingTests(object):
             c.patch(
                 '/v3/OS-FEDERATION/mappings/%s' % mapping['id'],
                 json=update, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_mappings(self):
@@ -188,7 +188,7 @@ class _DomainAndProjectUserMappingTests(object):
             c.delete(
                 '/v3/OS-FEDERATION/mappings/%s' % mapping['id'],
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -241,7 +241,7 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
             c.put(
                 '/v3/OS-FEDERATION/mappings/%s' % mapping_id, json=create,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_mappings(self):
@@ -263,7 +263,7 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
             c.patch(
                 '/v3/OS-FEDERATION/mappings/%s' % mapping['id'],
                 json=update, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_mappings(self):
@@ -276,7 +276,7 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
             c.delete(
                 '/v3/OS-FEDERATION/mappings/%s' % mapping['id'],
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -355,7 +355,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.put(
                 '/v3/OS-FEDERATION/mappings/%s' % mapping_id, json=create,
-                headers=self.headers, expected_status_code=http_client.CREATED
+                headers=self.headers, expected_status_code=http.client.CREATED
             )
 
     def test_user_can_update_mappings(self):

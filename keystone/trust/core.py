@@ -14,8 +14,6 @@
 
 """Main entry point into the Trust service."""
 
-from six.moves import zip
-
 from keystone.common import manager
 from keystone.common import provider_api
 import keystone.conf

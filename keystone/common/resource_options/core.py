@@ -12,8 +12,6 @@
 
 """Options specific to resources managed by Keystone (Domain, User, etc)."""
 
-import six
-
 from keystone.common import validation
 from keystone.i18n import _
 
@@ -202,14 +200,14 @@ class ResourceOption(object):
                                        validator(s) used at the API layer
         :type json_schema_validation: dict
         """
-        if not isinstance(option_id, six.string_types) and len(option_id) == 4:
+        if not isinstance(option_id, str) and len(option_id) == 4:
             raise TypeError(_('`option_id` must be a string, got %r')
                             % option_id)
         elif len(option_id) != 4:
             raise ValueError(_('`option_id` must be 4 characters in '
 
                                'length. Got %r') % option_id)
-        if not isinstance(option_name, six.string_types):
+        if not isinstance(option_name, str):
             raise TypeError(_('`option_name` must be a string. '
                               'Got %r') % option_name)
 

@@ -14,8 +14,8 @@
 
 import flask
 import flask_restful
+import http.client
 from oslo_serialization import jsonutils
-from six.moves import http_client
 
 from keystone.api._shared import authentication
 from keystone.api._shared import json_home_relations
@@ -137,7 +137,7 @@ class IdentityProvidersResource(_ResourceBase):
         idp.setdefault('enabled', False)
         idp_ref = PROVIDERS.federation_api.create_idp(
             idp_id, idp)
-        return self.wrap_member(idp_ref), http_client.CREATED
+        return self.wrap_member(idp_ref), http.client.CREATED
 
     def patch(self, idp_id):
         ENFORCER.enforce_call(action='identity:update_identity_provider')
@@ -151,7 +151,7 @@ class IdentityProvidersResource(_ResourceBase):
     def delete(self, idp_id):
         ENFORCER.enforce_call(action='identity:delete_identity_provider')
         PROVIDERS.federation_api.delete_idp(idp_id)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
 
 class _IdentityProvidersProtocolsResourceBase(_ResourceBase):
@@ -218,7 +218,7 @@ class IDPProtocolsCRUDResource(_IdentityProvidersProtocolsResourceBase):
         protocol = self._normalize_dict(protocol)
         ref = PROVIDERS.federation_api.create_protocol(idp_id, protocol_id,
                                                        protocol)
-        return self.wrap_member(ref), http_client.CREATED
+        return self.wrap_member(ref), http.client.CREATED
 
     def patch(self, idp_id, protocol_id):
         """Update protocol for an IDP.
@@ -241,7 +241,7 @@ class IDPProtocolsCRUDResource(_IdentityProvidersProtocolsResourceBase):
         """
         ENFORCER.enforce_call(action='identity:delete_protocol')
         PROVIDERS.federation_api.delete_protocol(idp_id, protocol_id)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
 
 class MappingResource(_ResourceBase):
@@ -282,7 +282,7 @@ class MappingResource(_ResourceBase):
         utils.validate_mapping_structure(mapping)
         mapping_ref = PROVIDERS.federation_api.create_mapping(
             mapping_id, mapping)
-        return self.wrap_member(mapping_ref), http_client.CREATED
+        return self.wrap_member(mapping_ref), http.client.CREATED
 
     def patch(self, mapping_id):
         """Update a mapping.
@@ -304,7 +304,7 @@ class MappingResource(_ResourceBase):
         """
         ENFORCER.enforce_call(action='identity:delete_mapping')
         PROVIDERS.federation_api.delete_mapping(mapping_id)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
 
 class ServiceProvidersResource(_ResourceBase):
@@ -355,7 +355,7 @@ class ServiceProvidersResource(_ResourceBase):
         sp.setdefault('relay_state_prefix',
                       CONF.saml.relay_state_prefix)
         sp_ref = PROVIDERS.federation_api.create_sp(sp_id, sp)
-        return self.wrap_member(sp_ref), http_client.CREATED
+        return self.wrap_member(sp_ref), http.client.CREATED
 
     def patch(self, sp_id):
         """Update a service provider.
@@ -376,7 +376,7 @@ class ServiceProvidersResource(_ResourceBase):
         """
         ENFORCER.enforce_call(action='identity:delete_service_provider')
         PROVIDERS.federation_api.delete_sp(sp_id)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
 
 class SAML2MetadataResource(flask_restful.Resource):
@@ -393,7 +393,7 @@ class SAML2MetadataResource(flask_restful.Resource):
         except IOError as e:
             # Raise HTTP 500 in case Metadata file cannot be read.
             raise exception.MetadataFileError(reason=e)
-        resp = flask.make_response(metadata, http_client.OK)
+        resp = flask.make_response(metadata, http.client.OK)
         resp.headers['Content-Type'] = 'text/xml'
         return resp
 
@@ -436,7 +436,7 @@ class OSFederationAuthResource(flask_restful.Resource):
         token = authentication.authenticate_for_token(auth)
         token_data = render_token.render_token_response_from_model(token)
         resp_data = jsonutils.dumps(token_data)
-        flask_resp = flask.make_response(resp_data, http_client.CREATED)
+        flask_resp = flask.make_response(resp_data, http.client.CREATED)
         flask_resp.headers['X-Subject-Token'] = token.id
         flask_resp.headers['Content-Type'] = 'application/json'
         return flask_resp

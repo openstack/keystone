@@ -21,7 +21,6 @@ from migrate import exceptions
 from migrate.versioning import api as versioning_api
 from oslo_db import exception as db_exception
 from oslo_db.sqlalchemy import migration
-import six
 import sqlalchemy
 
 from keystone.common import sql
@@ -189,7 +188,7 @@ def get_init_version(abs_path=None):
 def _assert_not_schema_downgrade(version=None):
     if version is not None:
         try:
-            current_ver = int(six.text_type(get_db_version()))
+            current_ver = int(str(get_db_version()))
             if int(version) < current_ver:
                 raise migration.exception.DBMigrationError(
                     _("Unable to downgrade schema"))

@@ -20,7 +20,6 @@ import jsonschema
 from oslo_config import cfg
 from oslo_log import log
 from oslo_utils import timeutils
-import six
 
 from keystone.common import provider_api
 import keystone.conf
@@ -437,7 +436,7 @@ def get_assertion_params_from_env():
         # These bytes may be decodable as ISO-8859-1 according to Section
         # 3.2.4 of RFC 7230. Let's assume that our web server plugins are
         # correctly encoding the data.
-        if not isinstance(v, six.text_type) and getattr(v, 'decode', False):
+        if not isinstance(v, str) and getattr(v, 'decode', False):
             v = v.decode('ISO-8859-1')
         yield (k, v)
 
@@ -526,7 +525,7 @@ class RuleProcessor(object):
         # any multiple values are stored in the arrays.
         LOG.debug('assertion data: %s', assertion_data)
         assertion = {n: v.split(';') for n, v in assertion_data.items()
-                     if isinstance(v, six.string_types)}
+                     if isinstance(v, str)}
         LOG.debug('assertion: %s', assertion)
         identity_values = []
 

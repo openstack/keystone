@@ -12,8 +12,8 @@
 
 import uuid
 
+import http.client
 from oslo_serialization import jsonutils
-from six.moves import http_client
 
 from keystone.common.policies import user as up
 from keystone.common import provider_api
@@ -53,7 +53,7 @@ class _SystemUserTests(object):
         with self.test_client() as c:
             c.get(
                 '/v3/users/%s' % uuid.uuid4().hex, headers=self.headers,
-                expected_status_code=http_client.NOT_FOUND
+                expected_status_code=http.client.NOT_FOUND
             )
 
     def test_user_can_list_users(self):
@@ -88,7 +88,7 @@ class _SystemMemberAndReaderUserTests(object):
         with self.test_client() as c:
             c.post(
                 '/v3/users', json=create, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_users(self):
@@ -101,7 +101,7 @@ class _SystemMemberAndReaderUserTests(object):
 
             c.patch(
                 '/v3/users/%s' % user['id'], json=update, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_non_existent_user_forbidden(self):
@@ -113,7 +113,7 @@ class _SystemMemberAndReaderUserTests(object):
         with self.test_client() as c:
             c.patch(
                 '/v3/users/%s' % user['id'], json=update, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_users(self):
@@ -124,14 +124,14 @@ class _SystemMemberAndReaderUserTests(object):
         with self.test_client() as c:
             c.delete(
                 '/v3/users/%s' % user['id'], headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_non_existent_user_forbidden(self):
         with self.test_client() as c:
             c.delete(
                 '/v3/users/%s' % uuid.uuid4().hex, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -159,7 +159,7 @@ class _DomainUserTests(object):
         with self.test_client() as c:
             c.get(
                 '/v3/users/%s' % user['id'], headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_can_list_users_within_domain(self):
@@ -207,7 +207,7 @@ class _DomainMemberAndReaderUserTests(object):
         with self.test_client() as c:
             c.post(
                 '/v3/users', json=create, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_create_users_in_other_domain(self):
@@ -225,7 +225,7 @@ class _DomainMemberAndReaderUserTests(object):
         with self.test_client() as c:
             c.post(
                 '/v3/users', json=create, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_users_within_domain(self):
@@ -237,7 +237,7 @@ class _DomainMemberAndReaderUserTests(object):
         with self.test_client() as c:
             c.patch(
                 '/v3/users/%s' % user['id'], json=update, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_users_in_other_domain(self):
@@ -252,7 +252,7 @@ class _DomainMemberAndReaderUserTests(object):
         with self.test_client() as c:
             c.patch(
                 '/v3/users/%s' % user['id'], json=update, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_non_existent_user_forbidden(self):
@@ -264,7 +264,7 @@ class _DomainMemberAndReaderUserTests(object):
         with self.test_client() as c:
             c.patch(
                 '/v3/users/%s' % user['id'], json=update, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_users_within_domain(self):
@@ -275,7 +275,7 @@ class _DomainMemberAndReaderUserTests(object):
         with self.test_client() as c:
             c.delete(
                 '/v3/users/%s' % user['id'], headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_users_in_other_domain(self):
@@ -289,14 +289,14 @@ class _DomainMemberAndReaderUserTests(object):
         with self.test_client() as c:
             c.delete(
                 '/v3/users/%s' % user['id'], headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_non_existent_user_forbidden(self):
         with self.test_client() as c:
             c.delete(
                 '/v3/users/%s' % uuid.uuid4().hex, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -311,7 +311,7 @@ class _ProjectUserTests(object):
         with self.test_client() as c:
             c.get(
                 '/v3/users/%s' % user['id'], headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_get_users_in_other_domains(self):
@@ -325,14 +325,14 @@ class _ProjectUserTests(object):
         with self.test_client() as c:
             c.get(
                 '/v3/users/%s' % user['id'], headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_get_non_existent_user_forbidden(self):
         with self.test_client() as c:
             c.get(
                 '/v3/users/%s' % uuid.uuid4().hex, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_list_users_within_domain(self):
@@ -340,7 +340,7 @@ class _ProjectUserTests(object):
             c.get(
                 '/v3/users?domain_id=%s' % self.domain_id,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_list_users_in_other_domains(self):
@@ -355,7 +355,7 @@ class _ProjectUserTests(object):
             c.get(
                 '/v3/users?domain_id=%s' % domain['id'],
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_create_users_within_domain(self):
@@ -369,7 +369,7 @@ class _ProjectUserTests(object):
         with self.test_client() as c:
             c.post(
                 '/v3/users', json=create, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_create_users_in_other_domains(self):
@@ -387,7 +387,7 @@ class _ProjectUserTests(object):
         with self.test_client() as c:
             c.post(
                 '/v3/users', json=create, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_users_within_domain(self):
@@ -399,7 +399,7 @@ class _ProjectUserTests(object):
         with self.test_client() as c:
             c.patch(
                 '/v3/users/%s' % user['id'], json=update, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_users_in_other_domain(self):
@@ -414,7 +414,7 @@ class _ProjectUserTests(object):
         with self.test_client() as c:
             c.patch(
                 '/v3/users/%s' % user['id'], json=update, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_non_existent_user_forbidden(self):
@@ -423,7 +423,7 @@ class _ProjectUserTests(object):
             c.patch(
                 '/v3/users/%s' % uuid.uuid4().hex, json=update,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_users_within_domain(self):
@@ -434,7 +434,7 @@ class _ProjectUserTests(object):
         with self.test_client() as c:
             c.delete(
                 '/v3/users/%s' % user['id'], headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_users_in_other_domains(self):
@@ -448,14 +448,14 @@ class _ProjectUserTests(object):
         with self.test_client() as c:
             c.delete(
                 '/v3/users/%s' % user['id'], headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_non_existent_user_forbidden(self):
         with self.test_client() as c:
             c.delete(
                 '/v3/users/%s' % uuid.uuid4().hex, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -582,7 +582,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
             c.patch(
                 '/v3/users/%s' % uuid.uuid4().hex, json=update,
                 headers=self.headers,
-                expected_status_code=http_client.NOT_FOUND
+                expected_status_code=http.client.NOT_FOUND
             )
 
     def test_user_can_delete_users(self):
@@ -597,7 +597,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.delete(
                 '/v3/users/%s' % uuid.uuid4().hex, headers=self.headers,
-                expected_status_code=http_client.NOT_FOUND
+                expected_status_code=http.client.NOT_FOUND
             )
 
 
@@ -765,7 +765,7 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.post(
                 '/v3/users', json=create, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_create_users_in_other_domain(self):
@@ -783,7 +783,7 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.post(
                 '/v3/users', json=create, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_can_update_users_within_domain(self):
@@ -829,7 +829,7 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.patch(
                 '/v3/users/%s' % user['id'], json=update, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_non_existent_user_forbidden(self):
@@ -838,7 +838,7 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
             c.patch(
                 '/v3/users/%s' % uuid.uuid4().hex, json=update,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_can_delete_users_within_domain(self):
@@ -862,14 +862,14 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.delete(
                 '/v3/users/%s' % user['id'], headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_non_existent_user_forbidden(self):
         with self.test_client() as c:
             c.delete(
                 '/v3/users/%s' % uuid.uuid4().hex, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 

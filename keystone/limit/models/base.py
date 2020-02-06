@@ -11,7 +11,6 @@
 # under the License.
 import abc
 
-import six
 import stevedore
 
 import keystone.conf
@@ -33,8 +32,7 @@ def load_driver(driver_name, *args):
         raise ImportError(msg % {'name': driver_name, 'namespace': namespace})
 
 
-@six.add_metaclass(abc.ABCMeta)
-class ModelBase(object):
+class ModelBase(object, metaclass=abc.ABCMeta):
     """Interface for a limit model driver."""
 
     NAME = None

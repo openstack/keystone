@@ -15,7 +15,7 @@
 import functools
 
 import flask
-from six.moves import http_client
+import http.client
 
 from keystone.common import json_home
 from keystone.common import provider_api
@@ -179,7 +179,7 @@ class ProjectResource(ks_flask.ResourceBase):
                 initiator=self.audit_initiator)
         except (exception.DomainNotFound, exception.ProjectNotFound) as e:
             raise exception.ValidationError(e)
-        return self.wrap_member(ref), http_client.CREATED
+        return self.wrap_member(ref), http.client.CREATED
 
     def patch(self, project_id):
         """Update project.
@@ -211,7 +211,7 @@ class ProjectResource(ks_flask.ResourceBase):
         PROVIDERS.resource_api.delete_project(
             project_id,
             initiator=self.audit_initiator)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
 
 class _ProjectTagResourceBase(ks_flask.ResourceBase):
@@ -268,7 +268,7 @@ class ProjectTagsResource(_ProjectTagResourceBase):
             build_target=_build_project_target_enforcement
         )
         PROVIDERS.resource_api.update_project_tags(project_id, [])
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
 
 class ProjectTagResource(_ProjectTagResourceBase):
@@ -282,7 +282,7 @@ class ProjectTagResource(_ProjectTagResourceBase):
             build_target=_build_project_target_enforcement,
         )
         PROVIDERS.resource_api.get_project_tag(project_id, value)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
     def put(self, project_id, value):
         """Add a single tag to a project.
@@ -304,7 +304,7 @@ class ProjectTagResource(_ProjectTagResourceBase):
             initiator=self.audit_initiator
         )
         url = '/'.join((ks_flask.base_url(), project_id, 'tags', value))
-        response = flask.make_response('', http_client.CREATED)
+        response = flask.make_response('', http.client.CREATED)
         response.headers['Location'] = url
         return response
 
@@ -318,7 +318,7 @@ class ProjectTagResource(_ProjectTagResourceBase):
             build_target=_build_project_target_enforcement
         )
         PROVIDERS.resource_api.delete_project_tag(project_id, value)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
 
 class _ProjectGrantResourceBase(ks_flask.ResourceBase):
@@ -375,7 +375,7 @@ class ProjectUserGrantResource(_ProjectGrantResourceBase):
         PROVIDERS.assignment_api.get_grant(
             role_id=role_id, user_id=user_id, project_id=project_id,
             inherited_to_projects=inherited)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
     def put(self, project_id, user_id, role_id):
         """Grant role for user on project.
@@ -392,7 +392,7 @@ class ProjectUserGrantResource(_ProjectGrantResourceBase):
         PROVIDERS.assignment_api.create_grant(
             role_id=role_id, user_id=user_id, project_id=project_id,
             inherited_to_projects=inherited, initiator=self.audit_initiator)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
     def delete(self, project_id, user_id, role_id):
         """Delete grant of role for user on project.
@@ -410,7 +410,7 @@ class ProjectUserGrantResource(_ProjectGrantResourceBase):
         PROVIDERS.assignment_api.delete_grant(
             role_id=role_id, user_id=user_id, project_id=project_id,
             inherited_to_projects=inherited, initiator=self.audit_initiator)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
 
 class ProjectUserListGrantResource(_ProjectGrantResourceBase):
@@ -448,7 +448,7 @@ class ProjectGroupGrantResource(_ProjectGrantResourceBase):
         PROVIDERS.assignment_api.get_grant(
             role_id=role_id, group_id=group_id, project_id=project_id,
             inherited_to_projects=inherited)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
     def put(self, project_id, group_id, role_id):
         """Grant role for group on project.
@@ -465,7 +465,7 @@ class ProjectGroupGrantResource(_ProjectGrantResourceBase):
         PROVIDERS.assignment_api.create_grant(
             role_id=role_id, group_id=group_id, project_id=project_id,
             inherited_to_projects=inherited, initiator=self.audit_initiator)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
     def delete(self, project_id, group_id, role_id):
         """Delete grant of role for group on project.
@@ -483,7 +483,7 @@ class ProjectGroupGrantResource(_ProjectGrantResourceBase):
         PROVIDERS.assignment_api.delete_grant(
             role_id=role_id, group_id=group_id, project_id=project_id,
             inherited_to_projects=inherited, initiator=self.audit_initiator)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
 
 class ProjectGroupListGrantResource(_ProjectGrantResourceBase):

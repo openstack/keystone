@@ -21,13 +21,11 @@ import re
 import uuid
 
 import freezegun
+import http.client
 import mock
 from oslo_serialization import jsonutils as json
 from oslo_utils import fixture
 from oslo_utils import timeutils
-import six
-from six.moves import http_client
-from six.moves import range
 from testtools import matchers
 from testtools import testcase
 
@@ -162,7 +160,7 @@ class TestMFARules(test_v3.RestfulTestCase):
                     password=self.user['password'],
                     user_domain_id=self.domain_id,
                     project_id=self.project_id),
-                expected_status=http_client.UNAUTHORIZED)
+                expected_status=http.client.UNAUTHORIZED)
 
     def test_MFA_multi_method_rules_requirements_not_met_fails(self):
         # if multiple rules are specified and only one is passed,
@@ -181,7 +179,7 @@ class TestMFARules(test_v3.RestfulTestCase):
                     password=self.user['password'],
                     user_domain_id=self.domain_id,
                     project_id=self.project_id),
-                expected_status=http_client.UNAUTHORIZED)
+                expected_status=http.client.UNAUTHORIZED)
 
     def test_MFA_rules_bogus_non_existing_auth_method_succeeds(self):
         # Bogus auth methods are thrown out from rules.
@@ -279,7 +277,7 @@ class TestMFARules(test_v3.RestfulTestCase):
                     password=self.user['password'],
                     user_domain_id=self.domain_id,
                     project_id=self.project_id),
-                expected_status=http_client.UNAUTHORIZED)
+                expected_status=http.client.UNAUTHORIZED)
 
         self.assertIsNotNone(
             response.headers.get(authorization.AUTH_RECEIPT_HEADER))
@@ -313,7 +311,7 @@ class TestMFARules(test_v3.RestfulTestCase):
                     project_id=self.project_id,
                     passcode=totp._generate_totp_passcodes(
                         totp_cred['blob'])[0]),
-                expected_status=http_client.UNAUTHORIZED)
+                expected_status=http.client.UNAUTHORIZED)
 
         self.assertIsNotNone(
             response.headers.get(authorization.AUTH_RECEIPT_HEADER))
@@ -348,7 +346,7 @@ class TestMFARules(test_v3.RestfulTestCase):
                     project_id=self.project_id,
                     passcode=totp._generate_totp_passcodes(
                         totp_cred['blob'])[0]),
-                expected_status=http_client.UNAUTHORIZED)
+                expected_status=http.client.UNAUTHORIZED)
 
         self.assertIsNotNone(
             response.headers.get(authorization.AUTH_RECEIPT_HEADER))
@@ -389,7 +387,7 @@ class TestMFARules(test_v3.RestfulTestCase):
                     password=self.user['password'],
                     user_domain_id=self.domain_id,
                     project_id=self.project_id),
-                expected_status=http_client.UNAUTHORIZED)
+                expected_status=http.client.UNAUTHORIZED)
 
         self.assertIsNotNone(
             response.headers.get(authorization.AUTH_RECEIPT_HEADER))
@@ -422,7 +420,7 @@ class TestMFARules(test_v3.RestfulTestCase):
                     password=self.user['password'],
                     user_domain_id=self.domain_id,
                     project_id=self.project_id),
-                expected_status=http_client.UNAUTHORIZED)
+                expected_status=http.client.UNAUTHORIZED)
 
         self.assertIsNotNone(
             response.headers.get(authorization.AUTH_RECEIPT_HEADER))
@@ -460,7 +458,7 @@ class TestMFARules(test_v3.RestfulTestCase):
                     user_id=self.user_id,
                     user_domain_id=self.domain_id,
                     project_id=self.project_id),
-                expected_status=http_client.UNAUTHORIZED)
+                expected_status=http.client.UNAUTHORIZED)
         self.assertEqual(401, response.result['error']['code'])
 
 
@@ -593,7 +591,7 @@ class TokenAPITests(object):
         return (trustee_user, trust)
 
     def _validate_token(self, token,
-                        expected_status=http_client.OK, allow_expired=False):
+                        expected_status=http.client.OK, allow_expired=False):
         path = '/v3/auth/tokens'
 
         if allow_expired:
@@ -607,7 +605,7 @@ class TokenAPITests(object):
             expected_status=expected_status
         )
 
-    def _revoke_token(self, token, expected_status=http_client.NO_CONTENT):
+    def _revoke_token(self, token, expected_status=http.client.NO_CONTENT):
         return self.delete(
             '/auth/tokens',
             headers={'x-subject-token': token},
@@ -650,7 +648,7 @@ class TokenAPITests(object):
             user_id=self.default_domain_user['id'],
             password=self.default_domain_user['password'])
         self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
     def test_create_token_for_user_without_password_fails(self):
         user = unit.new_user_ref(domain_id=self.domain['id'])
@@ -662,7 +660,7 @@ class TokenAPITests(object):
             password='password')
 
         self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
     def test_create_unscoped_token_by_authenticating_with_unscoped_token(self):
         auth_data = self.build_authentication_request(
@@ -715,7 +713,7 @@ class TokenAPITests(object):
             frozen_datetime.tick(delta=datetime.timedelta(seconds=15))
             self._validate_token(
                 unscoped_token,
-                expected_status=http_client.NOT_FOUND
+                expected_status=http.client.NOT_FOUND
             )
 
     def test_revoke_unscoped_token(self):
@@ -724,7 +722,7 @@ class TokenAPITests(object):
         self.assertValidUnscopedTokenResponse(r)
         self._revoke_token(unscoped_token)
         self._validate_token(unscoped_token,
-                             expected_status=http_client.NOT_FOUND)
+                             expected_status=http.client.NOT_FOUND)
 
     def test_create_explicit_unscoped_token(self):
         self._create_project_and_set_as_default_project()
@@ -790,7 +788,7 @@ class TokenAPITests(object):
         # Ensure validating a token for a disabled user fails
         self._validate_token(
             unscoped_token,
-            expected_status=http_client.NOT_FOUND
+            expected_status=http.client.NOT_FOUND
         )
 
     def test_unscoped_token_is_invalid_after_enabling_disabled_user(self):
@@ -803,14 +801,14 @@ class TokenAPITests(object):
         # Ensure validating a token for a disabled user fails
         self._validate_token(
             unscoped_token,
-            expected_status=http_client.NOT_FOUND
+            expected_status=http.client.NOT_FOUND
         )
         # Enable the user
         self._set_user_enabled(self.user)
         # Ensure validating a token for a re-enabled user fails
         self._validate_token(
             unscoped_token,
-            expected_status=http_client.NOT_FOUND
+            expected_status=http.client.NOT_FOUND
         )
 
     def test_unscoped_token_is_invalid_after_disabling_user_domain(self):
@@ -824,7 +822,7 @@ class TokenAPITests(object):
         # Ensure validating a token for a disabled user fails
         self._validate_token(
             unscoped_token,
-            expected_status=http_client.NOT_FOUND
+            expected_status=http.client.NOT_FOUND
         )
 
     def test_unscoped_token_is_invalid_after_changing_user_password(self):
@@ -838,7 +836,7 @@ class TokenAPITests(object):
         # Ensure updating user's password revokes existing user's tokens
         self._validate_token(
             unscoped_token,
-            expected_status=http_client.NOT_FOUND
+            expected_status=http.client.NOT_FOUND
         )
 
     def test_create_system_token_with_user_id(self):
@@ -882,7 +880,7 @@ class TokenAPITests(object):
         )
         self.v3_create_token(
             auth_request_body,
-            expected_status=http_client.UNAUTHORIZED
+            expected_status=http.client.UNAUTHORIZED
         )
 
     def test_system_token_is_invalid_after_disabling_user(self):
@@ -921,14 +919,14 @@ class TokenAPITests(object):
             headers={'X-Auth-Token': token,
                      'X-Subject-Token': token},
             method='GET',
-            expected_status=http_client.UNAUTHORIZED
+            expected_status=http.client.UNAUTHORIZED
         )
         self.admin_request(
             path='/v3/auth/tokens',
             headers={'X-Auth-Token': token,
                      'X-Subject-Token': token},
             method='HEAD',
-            expected_status=http_client.UNAUTHORIZED
+            expected_status=http.client.UNAUTHORIZED
         )
 
     def test_create_system_token_via_system_group_assignment(self):
@@ -980,7 +978,7 @@ class TokenAPITests(object):
         token = response.headers.get('X-Subject-Token')
         self._validate_token(token)
         self._revoke_token(token)
-        self._validate_token(token, expected_status=http_client.NOT_FOUND)
+        self._validate_token(token, expected_status=http.client.NOT_FOUND)
 
     def test_system_token_is_invalid_after_deleting_system_role(self):
         ref = {'role': unit.new_role_ref()}
@@ -1005,7 +1003,7 @@ class TokenAPITests(object):
         self._validate_token(token)
 
         self.delete('/roles/%(role_id)s' % {'role_id': system_role['id']})
-        self._validate_token(token, expected_status=http_client.NOT_FOUND)
+        self._validate_token(token, expected_status=http.client.NOT_FOUND)
 
     def test_rescoping_a_system_token_for_a_project_token_fails(self):
         ref = {'role': unit.new_role_ref()}
@@ -1031,7 +1029,7 @@ class TokenAPITests(object):
             token=system_token, project_id=self.project_id
         )
         self.v3_create_token(
-            auth_request_body, expected_status=http_client.FORBIDDEN
+            auth_request_body, expected_status=http.client.FORBIDDEN
         )
 
     def test_rescoping_a_system_token_for_a_domain_token_fails(self):
@@ -1058,7 +1056,7 @@ class TokenAPITests(object):
             token=system_token, domain_id=CONF.identity.default_domain_id
         )
         self.v3_create_token(
-            auth_request_body, expected_status=http_client.FORBIDDEN
+            auth_request_body, expected_status=http.client.FORBIDDEN
         )
 
     def test_create_domain_token_scoped_with_domain_id_and_user_id(self):
@@ -1198,7 +1196,7 @@ class TokenAPITests(object):
         self.config_fixture.config(group='resource',
                                    domain_name_url_safe='strict')
         self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
     def test_create_domain_token_without_grant_returns_unauthorized(self):
         auth_data = self.build_authentication_request(
@@ -1207,7 +1205,7 @@ class TokenAPITests(object):
             domain_id=self.domain['id'])
         # this fails because the user does not have a role on self.domain
         self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
     def test_validate_domain_scoped_token(self):
         # Grant user access to domain
@@ -1239,7 +1237,7 @@ class TokenAPITests(object):
             frozen_datetime.tick(delta=datetime.timedelta(seconds=15))
             self._validate_token(
                 domain_scoped_token,
-                expected_status=http_client.NOT_FOUND
+                expected_status=http.client.NOT_FOUND
             )
 
     def test_domain_scoped_token_is_invalid_after_disabling_user(self):
@@ -1257,7 +1255,7 @@ class TokenAPITests(object):
         # Ensure validating a token for a disabled user fails
         self._validate_token(
             domain_scoped_token,
-            expected_status=http_client.NOT_FOUND
+            expected_status=http.client.NOT_FOUND
         )
 
     def test_domain_scoped_token_is_invalid_after_deleting_grant(self):
@@ -1278,7 +1276,7 @@ class TokenAPITests(object):
         # Ensure validating a token for a disabled user fails
         self._validate_token(
             domain_scoped_token,
-            expected_status=http_client.NOT_FOUND
+            expected_status=http.client.NOT_FOUND
         )
 
     def test_domain_scoped_token_invalid_after_disabling_domain(self):
@@ -1297,7 +1295,7 @@ class TokenAPITests(object):
         # Ensure validating a token for a disabled domain fails
         self._validate_token(
             domain_scoped_token,
-            expected_status=http_client.NOT_FOUND
+            expected_status=http.client.NOT_FOUND
         )
 
     def test_create_project_scoped_token_with_project_id_and_user_id(self):
@@ -1324,7 +1322,7 @@ class TokenAPITests(object):
             frozen_datetime.tick(delta=datetime.timedelta(seconds=15))
             self._validate_token(
                 project_scoped_token,
-                expected_status=http_client.NOT_FOUND
+                expected_status=http.client.NOT_FOUND
             )
 
     def test_revoke_project_scoped_token(self):
@@ -1333,7 +1331,7 @@ class TokenAPITests(object):
         self.assertValidProjectScopedTokenResponse(r)
         self._revoke_token(project_scoped_token)
         self._validate_token(project_scoped_token,
-                             expected_status=http_client.NOT_FOUND)
+                             expected_status=http.client.NOT_FOUND)
 
     def test_project_scoped_token_is_scoped_to_default_project(self):
         project = self._create_project_and_set_as_default_project()
@@ -1455,7 +1453,7 @@ class TokenAPITests(object):
             password=self.user['password'],
             project_id=project['id'])
         self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
     def test_create_project_scoped_token_with_username_and_domain_id(self):
         auth_data = self.build_authentication_request(
@@ -1510,7 +1508,7 @@ class TokenAPITests(object):
         self.config_fixture.config(group='resource',
                                    project_name_url_safe='strict')
         self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
     def test_create_project_scoped_token_fails_if_domain_name_unsafe(self):
         """Verify authenticate to a project using unsafe domain name fails."""
@@ -1552,7 +1550,7 @@ class TokenAPITests(object):
         self.config_fixture.config(group='resource',
                                    domain_name_url_safe='strict')
         self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
     def test_create_project_token_with_same_domain_and_project_name(self):
         """Authenticate to a project with the same name as its domain."""
@@ -1592,7 +1590,7 @@ class TokenAPITests(object):
             project_name=domain['name'],
             project_domain_name=domain['name'])
         self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
     def test_create_project_token_with_disabled_project_domain_fails(self):
         # create a disabled domain
@@ -1619,7 +1617,7 @@ class TokenAPITests(object):
             password=self.user['password'],
             project_id=project['id'])
         self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
         # user should not be able to auth with project_name & domain
         auth_data = self.build_authentication_request(
@@ -1628,7 +1626,7 @@ class TokenAPITests(object):
             project_name=project['name'],
             project_domain_id=domain['id'])
         self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
     def test_create_project_token_with_default_domain_as_project(self):
         # Authenticate to a project with the default domain as project
@@ -1637,7 +1635,7 @@ class TokenAPITests(object):
             password=self.user['password'],
             project_id=test_v3.DEFAULT_DOMAIN_ID)
         self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
     def test_project_scoped_token_is_invalid_after_disabling_user(self):
         project_scoped_token = self._get_project_scoped_token()
@@ -1649,7 +1647,7 @@ class TokenAPITests(object):
         # Ensure validating a token for a disabled user fails
         self._validate_token(
             project_scoped_token,
-            expected_status=http_client.NOT_FOUND
+            expected_status=http.client.NOT_FOUND
         )
 
     def test_project_scoped_token_invalid_after_changing_user_password(self):
@@ -1663,7 +1661,7 @@ class TokenAPITests(object):
         # Ensure updating user's password revokes existing tokens
         self._validate_token(
             project_scoped_token,
-            expected_status=http_client.NOT_FOUND
+            expected_status=http.client.NOT_FOUND
         )
 
     def test_project_scoped_token_invalid_after_disabling_project(self):
@@ -1677,7 +1675,7 @@ class TokenAPITests(object):
         # Ensure validating a token for a disabled project fails
         self._validate_token(
             project_scoped_token,
-            expected_status=http_client.NOT_FOUND
+            expected_status=http.client.NOT_FOUND
         )
 
     def test_project_scoped_token_is_invalid_after_deleting_grant(self):
@@ -1703,7 +1701,7 @@ class TokenAPITests(object):
         # Ensure the token has been revoked
         self._validate_token(
             project_scoped_token,
-            expected_status=http_client.NOT_FOUND
+            expected_status=http.client.NOT_FOUND
         )
 
     def test_no_access_to_default_project_result_in_unscoped_token(self):
@@ -1743,7 +1741,7 @@ class TokenAPITests(object):
             frozen_datetime.tick(delta=datetime.timedelta(seconds=15))
             self._validate_token(
                 trust_scoped_token,
-                expected_status=http_client.NOT_FOUND
+                expected_status=http.client.NOT_FOUND
             )
 
     def test_validate_a_trust_scoped_token_impersonated(self):
@@ -1761,7 +1759,7 @@ class TokenAPITests(object):
         self.assertValidProjectScopedTokenResponse(r)
         self._revoke_token(trust_scoped_token)
         self._validate_token(trust_scoped_token,
-                             expected_status=http_client.NOT_FOUND)
+                             expected_status=http.client.NOT_FOUND)
 
     def test_trust_scoped_token_is_invalid_after_disabling_trustee(self):
         trustee_user, trust = self._create_trust()
@@ -1778,7 +1776,7 @@ class TokenAPITests(object):
         # Ensure validating a token for a disabled user fails
         self._validate_token(
             trust_scoped_token,
-            expected_status=http_client.NOT_FOUND
+            expected_status=http.client.NOT_FOUND
         )
 
     def test_trust_token_is_invalid_when_trustee_domain_disabled(self):
@@ -1830,7 +1828,7 @@ class TokenAPITests(object):
 
         # ensure the project-scoped token from the trust is invalid
         self._validate_token(trust_scoped_token,
-                             expected_status=http_client.NOT_FOUND)
+                             expected_status=http.client.NOT_FOUND)
 
     def test_trust_scoped_token_invalid_after_changing_trustee_password(self):
         trustee_user, trust = self._create_trust()
@@ -1846,7 +1844,7 @@ class TokenAPITests(object):
         # Ensure updating trustee's password revokes existing tokens
         self._validate_token(
             trust_scoped_token,
-            expected_status=http_client.NOT_FOUND
+            expected_status=http.client.NOT_FOUND
         )
 
     def test_trust_scoped_token_is_invalid_after_disabling_trustor(self):
@@ -1862,7 +1860,7 @@ class TokenAPITests(object):
         # Ensure validating a token for a disabled user fails
         self._validate_token(
             trust_scoped_token,
-            expected_status=http_client.NOT_FOUND
+            expected_status=http.client.NOT_FOUND
         )
 
     def test_trust_scoped_token_invalid_after_changing_trustor_password(self):
@@ -1878,7 +1876,7 @@ class TokenAPITests(object):
         # Ensure updating trustor's password revokes existing user's tokens
         self._validate_token(
             trust_scoped_token,
-            expected_status=http_client.NOT_FOUND
+            expected_status=http.client.NOT_FOUND
         )
 
     def test_trust_scoped_token_invalid_after_disabled_trustor_domain(self):
@@ -1897,7 +1895,7 @@ class TokenAPITests(object):
         # Ensure updating trustor's password revokes existing user's tokens
         self._validate_token(
             trust_scoped_token,
-            expected_status=http_client.NOT_FOUND
+            expected_status=http.client.NOT_FOUND
         )
 
     def test_default_fixture_scope_token(self):
@@ -1917,7 +1915,7 @@ class TokenAPITests(object):
 
     def test_check_token(self):
         self.head('/auth/tokens', headers=self.headers,
-                  expected_status=http_client.OK)
+                  expected_status=http.client.OK)
 
     def test_validate_token(self):
         r = self.get('/auth/tokens', headers=self.headers)
@@ -1925,14 +1923,14 @@ class TokenAPITests(object):
 
     def test_validate_missing_subject_token(self):
         self.get('/auth/tokens',
-                 expected_status=http_client.NOT_FOUND)
+                 expected_status=http.client.NOT_FOUND)
 
     def test_validate_missing_auth_token(self):
         self.admin_request(
             method='GET',
             path='/v3/projects',
             token=None,
-            expected_status=http_client.UNAUTHORIZED)
+            expected_status=http.client.UNAUTHORIZED)
 
     def test_validate_token_nocatalog(self):
         v3_token = self.get_requested_token(self.build_authentication_request(
@@ -2023,7 +2021,7 @@ class TokenAPITests(object):
     def _create_implied_role(self, prior_id):
         implied = self._create_role()
         url = '/roles/%s/implies/%s' % (prior_id, implied['id'])
-        self.put(url, expected_status=http_client.CREATED)
+        self.put(url, expected_status=http.client.CREATED)
         return implied
 
     def _delete_implied_role(self, prior_role_id, implied_role_id):
@@ -2209,7 +2207,7 @@ class TokenAPITests(object):
 
         unrelated = self._create_role()
         url = '/roles/%s/implies/%s' % (unrelated['id'], implied['id'])
-        self.put(url, expected_status=http_client.CREATED)
+        self.put(url, expected_status=http.client.CREATED)
 
         token_roles = self._get_scoped_token_roles()
         self.assertEqual(2, len(token_roles))
@@ -2268,14 +2266,14 @@ class TokenAPITests(object):
 
         # token validation should now result in 404
         self.get('/auth/tokens', headers=headers,
-                 expected_status=http_client.NOT_FOUND)
+                 expected_status=http.client.NOT_FOUND)
 
     def test_create_token_with_nonexistant_user_id_fails(self):
         auth_data = self.build_authentication_request(
             user_id=uuid.uuid4().hex,
             password=self.user['password'])
         self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
     def test_create_token_with_nonexistant_username_fails(self):
         auth_data = self.build_authentication_request(
@@ -2283,7 +2281,7 @@ class TokenAPITests(object):
             user_domain_id=self.domain['id'],
             password=self.user['password'])
         self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
     def test_create_token_with_nonexistant_domain_id_fails(self):
         auth_data = self.build_authentication_request(
@@ -2291,7 +2289,7 @@ class TokenAPITests(object):
             user_domain_id=uuid.uuid4().hex,
             password=self.user['password'])
         self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
     def test_create_token_with_nonexistant_domain_name_fails(self):
         auth_data = self.build_authentication_request(
@@ -2299,14 +2297,14 @@ class TokenAPITests(object):
             user_domain_name=uuid.uuid4().hex,
             password=self.user['password'])
         self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
     def test_create_token_with_wrong_password_fails(self):
         auth_data = self.build_authentication_request(
             user_id=self.user['id'],
             password=uuid.uuid4().hex)
         self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
     def test_user_and_group_roles_scoped_token(self):
         """Test correct roles are returned in scoped token.
@@ -2550,7 +2548,7 @@ class TokenAPITests(object):
                 self.user['name']))
             auth_request = self.build_authentication_request()
             c.post('/v3/auth/tokens', json=auth_request,
-                   expected_status_code=http_client.UNAUTHORIZED)
+                   expected_status_code=http.client.UNAUTHORIZED)
 
     def test_remote_user_and_password(self):
         # both REMOTE_USER and password methods must pass.
@@ -2575,7 +2573,7 @@ class TokenAPITests(object):
         app = self.loadapp()
         with app.test_client() as c:
             c.post('/v3/auth/tokens', json=auth_data,
-                   expected_status_code=http_client.UNAUTHORIZED)
+                   expected_status_code=http.client.UNAUTHORIZED)
 
     def test_remote_user_bad_password(self):
         # both REMOTE_USER and password methods must pass.
@@ -2586,7 +2584,7 @@ class TokenAPITests(object):
             password='badpassword')
         with app.test_client() as c:
             c.post('/v3/auth/tokens', json=auth_data,
-                   expected_status_code=http_client.UNAUTHORIZED)
+                   expected_status_code=http.client.UNAUTHORIZED)
 
     def test_fetch_expired_allow_expired(self):
         self.config_fixture.config(group='token',
@@ -2602,7 +2600,7 @@ class TokenAPITests(object):
 
             # after passing expiry time validation fails
             frozen_datetime.tick(delta=datetime.timedelta(seconds=12))
-            self._validate_token(token, expected_status=http_client.NOT_FOUND)
+            self._validate_token(token, expected_status=http.client.NOT_FOUND)
 
             # but if we pass allow_expired it validates
             self._validate_token(token, allow_expired=True)
@@ -2612,7 +2610,7 @@ class TokenAPITests(object):
             frozen_datetime.tick(delta=datetime.timedelta(seconds=22))
             self._validate_token(token,
                                  allow_expired=True,
-                                 expected_status=http_client.NOT_FOUND)
+                                 expected_status=http.client.NOT_FOUND)
 
     def test_system_scoped_token_works_with_domain_specific_drivers(self):
         self.config_fixture.config(
@@ -2673,7 +2671,7 @@ class TokenDataTests(object):
         r = self.get('/auth/tokens', headers=self.headers)
 
         # populate the response result with some extra data
-        r.result['token'][u'extra'] = six.text_type(uuid.uuid4().hex)
+        r.result['token'][u'extra'] = str(uuid.uuid4().hex)
         self.assertRaises(exception.SchemaValidationError,
                           self.assertValidUnscopedTokenResponse,
                           r)
@@ -2695,7 +2693,7 @@ class TokenDataTests(object):
         r = self.get('/auth/tokens', headers=self.headers)
 
         # populate the response result with some extra data
-        r.result['token'][u'extra'] = six.text_type(uuid.uuid4().hex)
+        r.result['token'][u'extra'] = str(uuid.uuid4().hex)
         self.assertRaises(exception.SchemaValidationError,
                           self.assertValidDomainScopedTokenResponse,
                           r)
@@ -2712,7 +2710,7 @@ class TokenDataTests(object):
         resp = self.get('/auth/tokens', headers=self.headers)
 
         # populate the response result with some extra data
-        resp.result['token'][u'extra'] = six.text_type(uuid.uuid4().hex)
+        resp.result['token'][u'extra'] = str(uuid.uuid4().hex)
         self.assertRaises(exception.SchemaValidationError,
                           self.assertValidProjectScopedTokenResponse,
                           resp)
@@ -2730,7 +2728,7 @@ class AllowRescopeScopedTokenDisabledTests(test_v3.RestfulTestCase):
             self.build_authentication_request(
                 token=self.get_scoped_token(),
                 project_id=self.project_id),
-            expected_status=http_client.FORBIDDEN)
+            expected_status=http.client.FORBIDDEN)
 
     def test_rescoped_domain_token_disabled(self):
 
@@ -2753,7 +2751,7 @@ class AllowRescopeScopedTokenDisabledTests(test_v3.RestfulTestCase):
             self.build_authentication_request(
                 token=domain_scoped_token,
                 project_id=self.project_id),
-            expected_status=http_client.FORBIDDEN)
+            expected_status=http.client.FORBIDDEN)
 
 
 class TestFernetTokenAPIs(test_v3.RestfulTestCase, TokenAPITests,
@@ -2784,14 +2782,14 @@ class TestFernetTokenAPIs(test_v3.RestfulTestCase, TokenAPITests,
         tampered_token = (unscoped_token[:50] + uuid.uuid4().hex +
                           unscoped_token[50 + 32:])
         self._validate_token(tampered_token,
-                             expected_status=http_client.NOT_FOUND)
+                             expected_status=http.client.NOT_FOUND)
 
     def test_validate_tampered_project_scoped_token_fails(self):
         project_scoped_token = self._get_project_scoped_token()
         tampered_token = (project_scoped_token[:50] + uuid.uuid4().hex +
                           project_scoped_token[50 + 32:])
         self._validate_token(tampered_token,
-                             expected_status=http_client.NOT_FOUND)
+                             expected_status=http.client.NOT_FOUND)
 
     def test_validate_tampered_trust_scoped_token_fails(self):
         trustee_user, trust = self._create_trust()
@@ -2800,7 +2798,7 @@ class TestFernetTokenAPIs(test_v3.RestfulTestCase, TokenAPITests,
         tampered_token = (trust_scoped_token[:50] + uuid.uuid4().hex +
                           trust_scoped_token[50 + 32:])
         self._validate_token(tampered_token,
-                             expected_status=http_client.NOT_FOUND)
+                             expected_status=http.client.NOT_FOUND)
 
     def test_trust_scoped_token_is_invalid_after_disabling_trustor(self):
         # NOTE(amakarov): have to override this test for non-persistent tokens
@@ -2817,7 +2815,7 @@ class TestFernetTokenAPIs(test_v3.RestfulTestCase, TokenAPITests,
         # Ensure validating a token for a disabled user fails
         self._validate_token(
             trust_scoped_token,
-            expected_status=http_client.FORBIDDEN
+            expected_status=http.client.FORBIDDEN
         )
 
 
@@ -2842,14 +2840,14 @@ class TestJWSTokenAPIs(test_v3.RestfulTestCase, TokenAPITests, TokenDataTests):
         tampered_token = (unscoped_token[:50] + uuid.uuid4().hex +
                           unscoped_token[50 + 32:])
         self._validate_token(tampered_token,
-                             expected_status=http_client.NOT_FOUND)
+                             expected_status=http.client.NOT_FOUND)
 
     def test_validate_tampered_project_scoped_token_fails(self):
         project_scoped_token = self._get_project_scoped_token()
         tampered_token = (project_scoped_token[:50] + uuid.uuid4().hex +
                           project_scoped_token[50 + 32:])
         self._validate_token(tampered_token,
-                             expected_status=http_client.NOT_FOUND)
+                             expected_status=http.client.NOT_FOUND)
 
     def test_validate_tampered_trust_scoped_token_fails(self):
         trustee_user, trust = self._create_trust()
@@ -2858,7 +2856,7 @@ class TestJWSTokenAPIs(test_v3.RestfulTestCase, TokenAPITests, TokenDataTests):
         tampered_token = (trust_scoped_token[:50] + uuid.uuid4().hex +
                           trust_scoped_token[50 + 32:])
         self._validate_token(tampered_token,
-                             expected_status=http_client.NOT_FOUND)
+                             expected_status=http.client.NOT_FOUND)
 
     def test_trust_scoped_token_is_invalid_after_disabling_trustor(self):
         # NOTE(amakarov): have to override this test for non-persistent tokens
@@ -2875,7 +2873,7 @@ class TestJWSTokenAPIs(test_v3.RestfulTestCase, TokenAPITests, TokenDataTests):
         # Ensure validating a token for a disabled user fails
         self._validate_token(
             trust_scoped_token,
-            expected_status=http_client.FORBIDDEN
+            expected_status=http.client.FORBIDDEN
         )
 
 
@@ -3004,10 +3002,10 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         # confirm both tokens are valid
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': unscoped_token},
-                  expected_status=http_client.OK)
+                  expected_status=http.client.OK)
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': scoped_token},
-                  expected_status=http_client.OK)
+                  expected_status=http.client.OK)
 
         # create a new role
         role = unit.new_role_ref()
@@ -3023,10 +3021,10 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         # both tokens should remain valid
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': unscoped_token},
-                  expected_status=http_client.OK)
+                  expected_status=http.client.OK)
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': scoped_token},
-                  expected_status=http_client.OK)
+                  expected_status=http.client.OK)
 
     def test_deleting_user_grant_revokes_token(self):
         """Test deleting a user grant revokes token.
@@ -3046,7 +3044,7 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         # Confirm token is valid
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token},
-                  expected_status=http_client.OK)
+                  expected_status=http.client.OK)
         # Delete the grant, which should invalidate the token
         grant_url = (
             '/projects/%(project_id)s/users/%(user_id)s/'
@@ -3056,7 +3054,7 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
                 'role_id': self.role['id']})
         self.delete(grant_url)
         self.head('/auth/tokens', token=token,
-                  expected_status=http_client.UNAUTHORIZED)
+                  expected_status=http.client.UNAUTHORIZED)
 
     def role_data_fixtures(self):
         self.projectC = unit.new_project_ref(domain_id=self.domainA['id'])
@@ -3146,19 +3144,19 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         # Confirm tokens are valid
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': tokenA},
-                  expected_status=http_client.OK)
+                  expected_status=http.client.OK)
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': tokenB},
-                  expected_status=http_client.OK)
+                  expected_status=http.client.OK)
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': tokenC},
-                  expected_status=http_client.OK)
+                  expected_status=http.client.OK)
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': tokenD},
-                  expected_status=http_client.OK)
+                  expected_status=http.client.OK)
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': tokenE},
-                  expected_status=http_client.OK)
+                  expected_status=http.client.OK)
 
         # Delete the role, which should invalidate the tokens
         role_url = '/roles/%s' % self.role1['id']
@@ -3167,21 +3165,21 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         # Check the tokens that used role1 is invalid
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': tokenA},
-                  expected_status=http_client.NOT_FOUND)
+                  expected_status=http.client.NOT_FOUND)
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': tokenB},
-                  expected_status=http_client.NOT_FOUND)
+                  expected_status=http.client.NOT_FOUND)
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': tokenD},
-                  expected_status=http_client.NOT_FOUND)
+                  expected_status=http.client.NOT_FOUND)
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': tokenE},
-                  expected_status=http_client.NOT_FOUND)
+                  expected_status=http.client.NOT_FOUND)
 
         # ...but the one using role2 is still valid
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': tokenC},
-                  expected_status=http_client.OK)
+                  expected_status=http.client.OK)
 
     def test_domain_user_role_assignment_maintains_token(self):
         """Test user-domain role assignment maintains existing token.
@@ -3201,7 +3199,7 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         # Confirm token is valid
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token},
-                  expected_status=http_client.OK)
+                  expected_status=http.client.OK)
         # Assign a role, which should not affect the token
         grant_url = (
             '/domains/%(domain_id)s/users/%(user_id)s/'
@@ -3212,7 +3210,7 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         self.put(grant_url)
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token},
-                  expected_status=http_client.OK)
+                  expected_status=http.client.OK)
 
     def test_disabling_project_revokes_token(self):
         token = self.get_requested_token(
@@ -3224,7 +3222,7 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         # confirm token is valid
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token},
-                  expected_status=http_client.OK)
+                  expected_status=http.client.OK)
 
         # disable the project, which should invalidate the token
         self.patch(
@@ -3234,13 +3232,13 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         # user should no longer have access to the project
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token},
-                  expected_status=http_client.NOT_FOUND)
+                  expected_status=http.client.NOT_FOUND)
         self.v3_create_token(
             self.build_authentication_request(
                 user_id=self.user3['id'],
                 password=self.user3['password'],
                 project_id=self.projectA['id']),
-            expected_status=http_client.UNAUTHORIZED)
+            expected_status=http.client.UNAUTHORIZED)
 
     def test_deleting_project_revokes_token(self):
         token = self.get_requested_token(
@@ -3252,7 +3250,7 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         # confirm token is valid
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token},
-                  expected_status=http_client.OK)
+                  expected_status=http.client.OK)
 
         # delete the project, which should invalidate the token
         self.delete(
@@ -3261,13 +3259,13 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         # user should no longer have access to the project
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token},
-                  expected_status=http_client.NOT_FOUND)
+                  expected_status=http.client.NOT_FOUND)
         self.v3_create_token(
             self.build_authentication_request(
                 user_id=self.user3['id'],
                 password=self.user3['password'],
                 project_id=self.projectA['id']),
-            expected_status=http_client.UNAUTHORIZED)
+            expected_status=http.client.UNAUTHORIZED)
 
     def test_deleting_group_grant_revokes_tokens(self):
         """Test deleting a group grant revokes tokens.
@@ -3301,13 +3299,13 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         # Confirm tokens are valid
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token1},
-                  expected_status=http_client.OK)
+                  expected_status=http.client.OK)
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token2},
-                  expected_status=http_client.OK)
+                  expected_status=http.client.OK)
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token3},
-                  expected_status=http_client.OK)
+                  expected_status=http.client.OK)
         # Delete the group grant, which should invalidate the
         # tokens for user1 and user2
         grant_url = (
@@ -3326,14 +3324,14 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
             user_id=self.user2['id']
         )
         self.head('/auth/tokens', token=token1,
-                  expected_status=http_client.UNAUTHORIZED)
+                  expected_status=http.client.UNAUTHORIZED)
         self.head('/auth/tokens', token=token2,
-                  expected_status=http_client.UNAUTHORIZED)
+                  expected_status=http.client.UNAUTHORIZED)
         # But user3's token should be invalid too as revocation is done for
         # scope role & project
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token3},
-                  expected_status=http_client.OK)
+                  expected_status=http.client.OK)
 
     def test_domain_group_role_assignment_maintains_token(self):
         """Test domain-group role assignment maintains existing token.
@@ -3353,7 +3351,7 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         # Confirm token is valid
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token},
-                  expected_status=http_client.OK)
+                  expected_status=http.client.OK)
         # Delete the grant, which should invalidate the token
         grant_url = (
             '/domains/%(domain_id)s/groups/%(group_id)s/'
@@ -3364,7 +3362,7 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         self.put(grant_url)
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token},
-                  expected_status=http_client.OK)
+                  expected_status=http.client.OK)
 
     def test_group_membership_changes_revokes_token(self):
         """Test add/removal to/from group revokes token.
@@ -3394,10 +3392,10 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         # Confirm tokens are valid
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token1},
-                  expected_status=http_client.OK)
+                  expected_status=http.client.OK)
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token2},
-                  expected_status=http_client.OK)
+                  expected_status=http.client.OK)
         # Remove user1 from group1, which should invalidate
         # the token
         self.delete('/groups/%(group_id)s/users/%(user_id)s' % {
@@ -3405,18 +3403,18 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
             'user_id': self.user1['id']})
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token1},
-                  expected_status=http_client.NOT_FOUND)
+                  expected_status=http.client.NOT_FOUND)
         # But user2's token should still be valid
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token2},
-                  expected_status=http_client.OK)
+                  expected_status=http.client.OK)
         # Adding user2 to a group should not invalidate token
         self.put('/groups/%(group_id)s/users/%(user_id)s' % {
             'group_id': self.group2['id'],
             'user_id': self.user2['id']})
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': token2},
-                  expected_status=http_client.OK)
+                  expected_status=http.client.OK)
 
     def test_removing_role_assignment_does_not_affect_other_users(self):
         """Revoking a role from one user should not affect other users."""
@@ -3459,18 +3457,18 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
             # authorization for the first user should now fail
             self.head('/auth/tokens',
                       headers={'X-Subject-Token': user1_token},
-                      expected_status=http_client.NOT_FOUND)
+                      expected_status=http.client.NOT_FOUND)
             self.v3_create_token(
                 self.build_authentication_request(
                     user_id=self.user1['id'],
                     password=self.user1['password'],
                     project_id=self.projectA['id']),
-                expected_status=http_client.UNAUTHORIZED)
+                expected_status=http.client.UNAUTHORIZED)
 
             # authorization for the second user should still succeed
             self.head('/auth/tokens',
                       headers={'X-Subject-Token': user3_token},
-                      expected_status=http_client.OK)
+                      expected_status=http.client.OK)
             self.v3_create_token(
                 self.build_authentication_request(
                     user_id=self.user3['id'],
@@ -3493,7 +3491,7 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
             '/projects/%(project_id)s' % {'project_id': self.projectA['id']})
 
         # Make sure that we get a 404 Not Found when heading that role.
-        self.head(role_path, expected_status=http_client.NOT_FOUND)
+        self.head(role_path, expected_status=http.client.NOT_FOUND)
 
     def test_revoke_token_from_token(self):
         # Test that a scoped token can be requested from an unscoped token,
@@ -3524,17 +3522,17 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         # The project-scoped token is invalidated.
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': project_scoped_token},
-                  expected_status=http_client.NOT_FOUND)
+                  expected_status=http.client.NOT_FOUND)
 
         # The unscoped token should still be valid.
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': unscoped_token},
-                  expected_status=http_client.OK)
+                  expected_status=http.client.OK)
 
         # The domain-scoped token should still be valid.
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': domain_scoped_token},
-                  expected_status=http_client.OK)
+                  expected_status=http.client.OK)
 
         # revoke the domain-scoped token.
         self.delete('/auth/tokens',
@@ -3543,12 +3541,12 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         # The domain-scoped token is invalid.
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': domain_scoped_token},
-                  expected_status=http_client.NOT_FOUND)
+                  expected_status=http.client.NOT_FOUND)
 
         # The unscoped token should still be valid.
         self.head('/auth/tokens',
                   headers={'X-Subject-Token': unscoped_token},
-                  expected_status=http_client.OK)
+                  expected_status=http.client.OK)
 
 
 class TestTokenRevokeApi(TestTokenRevokeById):
@@ -3601,18 +3599,18 @@ class TestTokenRevokeApi(TestTokenRevokeById):
 
         self.delete('/auth/tokens', headers=headers)
         self.head('/auth/tokens', headers=headers,
-                  expected_status=http_client.NOT_FOUND)
+                  expected_status=http.client.NOT_FOUND)
         events_response = self.get('/OS-REVOKE/events').json_body
         self.assertValidRevokedTokenResponse(events_response,
                                              audit_id=response['audit_ids'][0])
 
     def test_get_revoke_by_id_false_returns_gone(self):
         self.get('/auth/tokens/OS-PKI/revoked',
-                 expected_status=http_client.GONE)
+                 expected_status=http.client.GONE)
 
     def test_head_revoke_by_id_false_returns_gone(self):
         self.head('/auth/tokens/OS-PKI/revoked',
-                  expected_status=http_client.GONE)
+                  expected_status=http.client.GONE)
 
     def test_revoke_by_id_true_returns_forbidden(self):
         self.config_fixture.config(
@@ -3620,11 +3618,11 @@ class TestTokenRevokeApi(TestTokenRevokeById):
             revoke_by_id=True)
         self.get(
             '/auth/tokens/OS-PKI/revoked',
-            expected_status=http_client.FORBIDDEN
+            expected_status=http.client.FORBIDDEN
         )
         self.head(
             '/auth/tokens/OS-PKI/revoked',
-            expected_status=http_client.FORBIDDEN
+            expected_status=http.client.FORBIDDEN
         )
 
     def test_list_delete_project_shows_in_event_list(self):
@@ -3679,11 +3677,11 @@ class TestTokenRevokeApi(TestTokenRevokeById):
         headers3 = {'X-Subject-Token': response.headers['X-Subject-Token']}
 
         self.head('/auth/tokens', headers=headers,
-                  expected_status=http_client.OK)
+                  expected_status=http.client.OK)
         self.head('/auth/tokens', headers=headers2,
-                  expected_status=http_client.OK)
+                  expected_status=http.client.OK)
         self.head('/auth/tokens', headers=headers3,
-                  expected_status=http_client.OK)
+                  expected_status=http.client.OK)
 
         self.delete('/auth/tokens', headers=headers)
         # NOTE(ayoung): not deleting token3, as it should be deleted
@@ -3695,11 +3693,11 @@ class TestTokenRevokeApi(TestTokenRevokeById):
             events,
             audit_id=token2['audit_ids'][1])
         self.head('/auth/tokens', headers=headers,
-                  expected_status=http_client.NOT_FOUND)
+                  expected_status=http.client.NOT_FOUND)
         self.head('/auth/tokens', headers=headers2,
-                  expected_status=http_client.OK)
+                  expected_status=http.client.OK)
         self.head('/auth/tokens', headers=headers3,
-                  expected_status=http_client.OK)
+                  expected_status=http.client.OK)
 
     def test_list_with_filter(self):
 
@@ -3740,7 +3738,7 @@ class TestAuthExternalDisabled(test_v3.RestfulTestCase):
                 remote_user))
             auth_data = self.build_authentication_request()
             c.post('/v3/auth/tokens', json=auth_data,
-                   expected_status_code=http_client.UNAUTHORIZED)
+                   expected_status_code=http.client.UNAUTHORIZED)
 
 # FIXME(morgan): This test case must be re-worked to function under flask. It
 # has been commented out until it is re-worked ensuring no issues when webob
@@ -3822,7 +3820,7 @@ class TestAuthJSONExternal(test_v3.RestfulTestCase):
                 self.default_domain_user['name']))
             auth_data = self.build_authentication_request()
             c.post('/v3/auth/tokens', json=auth_data,
-                   expected_status_code=http_client.UNAUTHORIZED)
+                   expected_status_code=http.client.UNAUTHORIZED)
 
 
 class TrustAPIBehavior(test_v3.RestfulTestCase):
@@ -3904,7 +3902,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
         self.post('/OS-TRUST/trusts',
                   body={'trust': self.chained_trust_ref},
                   token=trust_token,
-                  expected_status=http_client.FORBIDDEN)
+                  expected_status=http.client.FORBIDDEN)
 
     def test_modified_redelegation_count_error(self):
         r = self.post('/OS-TRUST/trusts',
@@ -3920,14 +3918,14 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
         self.post('/OS-TRUST/trusts',
                   body={'trust': self.chained_trust_ref},
                   token=trust_token,
-                  expected_status=http_client.FORBIDDEN)
+                  expected_status=http.client.FORBIDDEN)
 
     def test_max_redelegation_count_constraint(self):
         incorrect = CONF.trust.max_redelegation_count + 1
         self.redelegated_trust_ref['redelegation_count'] = incorrect
         self.post('/OS-TRUST/trusts',
                   body={'trust': self.redelegated_trust_ref},
-                  expected_status=http_client.FORBIDDEN)
+                  expected_status=http.client.FORBIDDEN)
 
     def test_redelegation_expiry(self):
         r = self.post('/OS-TRUST/trusts',
@@ -3947,7 +3945,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
         self.post('/OS-TRUST/trusts',
                   body={'trust': too_long_live_chained_trust_ref},
                   token=trust_token,
-                  expected_status=http_client.FORBIDDEN)
+                  expected_status=http.client.FORBIDDEN)
 
     def test_redelegation_remaining_uses(self):
         r = self.post('/OS-TRUST/trusts',
@@ -3962,7 +3960,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
         self.post('/OS-TRUST/trusts',
                   body={'trust': self.chained_trust_ref},
                   token=trust_token,
-                  expected_status=http_client.BAD_REQUEST)
+                  expected_status=http.client.BAD_REQUEST)
 
     def test_roles_subset(self):
         # Build second role
@@ -4100,7 +4098,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
             self.post('/OS-TRUST/trusts',
                       body={'trust': self.chained_trust_ref},
                       token=trust_token,
-                      expected_status=http_client.FORBIDDEN)
+                      expected_status=http.client.FORBIDDEN)
 
     def test_redelegation_terminator(self):
         self.redelegated_trust_ref['expires_at'] = (
@@ -4134,7 +4132,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
         self.post('/OS-TRUST/trusts',
                   body={'trust': ref},
                   token=trust_token,
-                  expected_status=http_client.FORBIDDEN)
+                  expected_status=http.client.FORBIDDEN)
 
     def test_redelegation_without_impersonation(self):
         # Update trust to not allow impersonation
@@ -4143,7 +4141,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
         # Create trust
         resp = self.post('/OS-TRUST/trusts',
                          body={'trust': self.redelegated_trust_ref},
-                         expected_status=http_client.CREATED)
+                         expected_status=http.client.CREATED)
         trust = self.assertValidTrustResponse(resp)
 
         # Get trusted token without impersonation
@@ -4172,7 +4170,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
         resp = self.post('/OS-TRUST/trusts',
                          body={'trust': trust_ref_2},
                          token=trust_token,
-                         expected_status=http_client.NOT_FOUND)
+                         expected_status=http.client.NOT_FOUND)
 
     def test_create_unscoped_trust(self):
         ref = unit.new_trust_ref(
@@ -4187,7 +4185,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
             trustee_user_id=self.trustee_user['id'],
             project_id=self.project_id)
         self.post('/OS-TRUST/trusts', body={'trust': ref},
-                  expected_status=http_client.FORBIDDEN)
+                  expected_status=http.client.FORBIDDEN)
 
     def _initialize_test_consume_trust(self, count):
         # Make sure remaining_uses is decremented as we consume the trust
@@ -4239,7 +4237,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
         }
         self.admin_request(
             method='POST', path='/v3/auth/tokens', body=auth_data,
-            expected_status=http_client.BAD_REQUEST
+            expected_status=http.client.BAD_REQUEST
         )
 
     def test_consume_trust_once(self):
@@ -4258,14 +4256,14 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
         # No more uses, the trust is made unavailable
         self.get(
             '/OS-TRUST/trusts/%(trust_id)s' % {'trust_id': trust['id']},
-            expected_status=http_client.NOT_FOUND)
+            expected_status=http.client.NOT_FOUND)
         # this time we can't get a trust token
         auth_data = self.build_authentication_request(
             user_id=self.trustee_user['id'],
             password=self.trustee_user['password'],
             trust_id=trust['id'])
         self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
     def test_create_unlimited_use_trust(self):
         # by default trusts are unlimited in terms of tokens that can be
@@ -4326,7 +4324,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
         self.post('/OS-TRUST/trusts',
                   body={'trust': ref},
                   token=trust_token,
-                  expected_status=http_client.FORBIDDEN)
+                  expected_status=http.client.FORBIDDEN)
 
     def test_trust_deleted_grant(self):
         # create a new role
@@ -4365,7 +4363,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
             password=self.trustee_user['password'],
             trust_id=trust['id'])
         r = self.v3_create_token(auth_data,
-                                 expected_status=http_client.FORBIDDEN)
+                                 expected_status=http.client.FORBIDDEN)
 
     def test_trust_chained(self):
         """Test that a trust token can't be used to execute another trust.
@@ -4432,7 +4430,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
             token=trust_token,
             trust_id=trust1['id'])
         r = self.v3_create_token(auth_data,
-                                 expected_status=http_client.FORBIDDEN)
+                                 expected_status=http.client.FORBIDDEN)
 
     def assertTrustTokensRevoked(self, trust_id):
         revocation_response = self.get('/OS-REVOKE/events')
@@ -4467,7 +4465,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
             'trust_id': trust_id})
         headers = {'X-Subject-Token': trust_token}
         self.head('/auth/tokens', headers=headers,
-                  expected_status=http_client.NOT_FOUND)
+                  expected_status=http.client.NOT_FOUND)
         self.assertTrustTokensRevoked(trust_id)
 
     def disable_user(self, user):
@@ -4500,7 +4498,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
             password=self.trustee_user['password'],
             trust_id=trust['id'])
         self.v3_create_token(auth_data,
-                             expected_status=http_client.FORBIDDEN)
+                             expected_status=http.client.FORBIDDEN)
 
     def test_trust_get_token_fails_if_trustee_disabled(self):
         ref = unit.new_trust_ref(
@@ -4528,7 +4526,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
             password=self.trustee_user['password'],
             trust_id=trust['id'])
         self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
     def test_delete_trust(self):
         ref = unit.new_trust_ref(
@@ -4551,7 +4549,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
             password=self.trustee_user['password'],
             trust_id=trust['id'])
         self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
     def test_change_password_invalidates_trust_tokens(self):
         ref = unit.new_trust_ref(
@@ -4582,7 +4580,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
                        body={'user': {'password': uuid.uuid4().hex}}))
 
         self.get('/OS-TRUST/trusts?trustor_user_id=%s' %
-                 self.user_id, expected_status=http_client.UNAUTHORIZED,
+                 self.user_id, expected_status=http.client.UNAUTHORIZED,
                  token=trust_token)
 
     def test_trustee_can_do_role_ops(self):
@@ -4602,7 +4600,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
                 'trust_id': trust['id'],
                 'role_id': self.role['id']},
             token=trust_token,
-            expected_status=http_client.OK)
+            expected_status=http.client.OK)
 
         resp = self.get(
             '/OS-TRUST/trusts/%(trust_id)s/roles/%(role_id)s' % {
@@ -4632,7 +4630,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
             password=self.default_domain_user['password'],
             trust_id=trust_id)
         self.v3_create_token(auth_data,
-                             expected_status=http_client.FORBIDDEN)
+                             expected_status=http.client.FORBIDDEN)
 
         r = self.get('/OS-TRUST/trusts/%s' % trust_id)
         self.assertEqual(3, r.result.get('trust').get('remaining_uses'))
@@ -4762,7 +4760,7 @@ class TestTrustChain(test_v3.RestfulTestCase):
 
         headers = {'X-Subject-Token': self.last_token}
         self.head('/auth/tokens', headers=headers,
-                  expected_status=http_client.NOT_FOUND)
+                  expected_status=http.client.NOT_FOUND)
         self.assert_trust_tokens_revoked(self.trust_chain[0]['id'])
 
     def test_delete_broken_chain(self):
@@ -4782,7 +4780,7 @@ class TestTrustChain(test_v3.RestfulTestCase):
             self.get('/OS-TRUST/trusts/%(trust_id)s' % {
                 'trust_id': self.trust_chain[i + 1]['id']},
                 token=auth_token,
-                expected_status=http_client.NOT_FOUND)
+                expected_status=http.client.NOT_FOUND)
 
     def test_trustor_roles_revoked(self):
         self.assert_user_authenticate(self.user_list[0])
@@ -4806,7 +4804,7 @@ class TestTrustChain(test_v3.RestfulTestCase):
 
             # Trustee has no delegated roles
             self.v3_create_token(auth_data,
-                                 expected_status=http_client.FORBIDDEN)
+                                 expected_status=http.client.FORBIDDEN)
 
     def test_intermediate_user_disabled(self):
         self.assert_user_authenticate(self.user_list[0])
@@ -4819,7 +4817,7 @@ class TestTrustChain(test_v3.RestfulTestCase):
         with mock.patch.object(policy, 'enforce', return_value=True):
             headers = {'X-Subject-Token': self.last_token}
             self.head('/auth/tokens', headers=headers,
-                      expected_status=http_client.FORBIDDEN)
+                      expected_status=http.client.FORBIDDEN)
 
     def test_intermediate_user_deleted(self):
         self.assert_user_authenticate(self.user_list[0])
@@ -4831,7 +4829,7 @@ class TestTrustChain(test_v3.RestfulTestCase):
         with mock.patch.object(policy, 'enforce', return_value=True):
             headers = {'X-Subject-Token': self.last_token}
             self.head('/auth/tokens', headers=headers,
-                      expected_status=http_client.NOT_FOUND)
+                      expected_status=http.client.NOT_FOUND)
 
 
 class TestAuthContext(unit.TestCase):
@@ -4891,12 +4889,12 @@ class TestAuthSpecificData(test_v3.RestfulTestCase):
 
     def test_get_catalog_with_project_scoped_token(self):
         """Call ``GET /auth/catalog`` with a project-scoped token."""
-        r = self.get('/auth/catalog', expected_status=http_client.OK)
+        r = self.get('/auth/catalog', expected_status=http.client.OK)
         self.assertValidCatalogResponse(r)
 
     def test_head_catalog_with_project_scoped_token(self):
         """Call ``HEAD /auth/catalog`` with a project-scoped token."""
-        self.head('/auth/catalog', expected_status=http_client.OK)
+        self.head('/auth/catalog', expected_status=http.client.OK)
 
     def test_get_catalog_with_domain_scoped_token(self):
         """Call ``GET /auth/catalog`` with a domain-scoped token."""
@@ -4910,7 +4908,7 @@ class TestAuthSpecificData(test_v3.RestfulTestCase):
                 user_id=self.user['id'],
                 password=self.user['password'],
                 domain_id=self.domain['id']),
-            expected_status=http_client.FORBIDDEN)
+            expected_status=http.client.FORBIDDEN)
 
     def test_head_catalog_with_domain_scoped_token(self):
         """Call ``HEAD /auth/catalog`` with a domain-scoped token."""
@@ -4924,7 +4922,7 @@ class TestAuthSpecificData(test_v3.RestfulTestCase):
                 user_id=self.user['id'],
                 password=self.user['password'],
                 domain_id=self.domain['id']),
-            expected_status=http_client.FORBIDDEN)
+            expected_status=http.client.FORBIDDEN)
 
     def test_get_catalog_with_unscoped_token(self):
         """Call ``GET /auth/catalog`` with an unscoped token."""
@@ -4933,7 +4931,7 @@ class TestAuthSpecificData(test_v3.RestfulTestCase):
             auth=self.build_authentication_request(
                 user_id=self.default_domain_user['id'],
                 password=self.default_domain_user['password']),
-            expected_status=http_client.FORBIDDEN)
+            expected_status=http.client.FORBIDDEN)
 
     def test_head_catalog_with_unscoped_token(self):
         """Call ``HEAD /auth/catalog`` with an unscoped token."""
@@ -4942,14 +4940,14 @@ class TestAuthSpecificData(test_v3.RestfulTestCase):
             auth=self.build_authentication_request(
                 user_id=self.default_domain_user['id'],
                 password=self.default_domain_user['password']),
-            expected_status=http_client.FORBIDDEN)
+            expected_status=http.client.FORBIDDEN)
 
     def test_get_catalog_no_token(self):
         """Call ``GET /auth/catalog`` without a token."""
         self.get(
             '/auth/catalog',
             noauth=True,
-            expected_status=http_client.UNAUTHORIZED
+            expected_status=http.client.UNAUTHORIZED
         )
 
     def test_head_catalog_no_token(self):
@@ -4957,16 +4955,16 @@ class TestAuthSpecificData(test_v3.RestfulTestCase):
         self.head(
             '/auth/catalog',
             noauth=True,
-            expected_status=http_client.UNAUTHORIZED
+            expected_status=http.client.UNAUTHORIZED
         )
 
     def test_get_projects_with_project_scoped_token(self):
-        r = self.get('/auth/projects', expected_status=http_client.OK)
+        r = self.get('/auth/projects', expected_status=http.client.OK)
         self.assertThat(r.json['projects'], matchers.HasLength(1))
         self.assertValidProjectListResponse(r)
 
     def test_head_projects_with_project_scoped_token(self):
-        self.head('/auth/projects', expected_status=http_client.OK)
+        self.head('/auth/projects', expected_status=http.client.OK)
 
     def test_get_projects_matches_federated_get_projects(self):
         # create at least one addition project to make sure it doesn't end up
@@ -4975,7 +4973,7 @@ class TestAuthSpecificData(test_v3.RestfulTestCase):
         r = self.post('/projects', body={'project': ref})
         unauthorized_project_id = r.json['project']['id']
 
-        r = self.get('/auth/projects', expected_status=http_client.OK)
+        r = self.get('/auth/projects', expected_status=http.client.OK)
         self.assertThat(r.json['projects'], matchers.HasLength(1))
         for project in r.json['projects']:
             self.assertNotEqual(unauthorized_project_id, project['id'])
@@ -4983,7 +4981,7 @@ class TestAuthSpecificData(test_v3.RestfulTestCase):
         expected_project_id = r.json['projects'][0]['id']
 
         # call GET /v3/OS-FEDERATION/projects
-        r = self.get('/OS-FEDERATION/projects', expected_status=http_client.OK)
+        r = self.get('/OS-FEDERATION/projects', expected_status=http.client.OK)
 
         # make sure the response is the same
         self.assertThat(r.json['projects'], matchers.HasLength(1))
@@ -5006,15 +5004,15 @@ class TestAuthSpecificData(test_v3.RestfulTestCase):
             'user_id': self.user_id,
             'role_id': self.role_id
         }
-        self.put(path, expected_status=http_client.NO_CONTENT)
+        self.put(path, expected_status=http.client.NO_CONTENT)
 
-        r = self.get('/auth/domains', expected_status=http_client.OK)
+        r = self.get('/auth/domains', expected_status=http.client.OK)
         self.assertThat(r.json['domains'], matchers.HasLength(1))
         self.assertEqual(authorized_domain_id, r.json['domains'][0]['id'])
         self.assertNotEqual(unauthorized_domain_id, r.json['domains'][0]['id'])
 
         # call GET /v3/OS-FEDERATION/domains
-        r = self.get('/OS-FEDERATION/domains', expected_status=http_client.OK)
+        r = self.get('/OS-FEDERATION/domains', expected_status=http.client.OK)
 
         # make sure the response is the same
         self.assertThat(r.json['domains'], matchers.HasLength(1))
@@ -5025,7 +5023,7 @@ class TestAuthSpecificData(test_v3.RestfulTestCase):
         self.put(path='/domains/%s/users/%s/roles/%s' % (
             self.domain['id'], self.user['id'], self.role['id']))
 
-        r = self.get('/auth/domains', expected_status=http_client.OK)
+        r = self.get('/auth/domains', expected_status=http.client.OK)
         self.assertThat(r.json['domains'], matchers.HasLength(1))
         self.assertValidDomainListResponse(r)
 
@@ -5033,7 +5031,7 @@ class TestAuthSpecificData(test_v3.RestfulTestCase):
         self.put(path='/domains/%s/users/%s/roles/%s' % (
             self.domain['id'], self.user['id'], self.role['id']))
 
-        self.head('/auth/domains', expected_status=http_client.OK)
+        self.head('/auth/domains', expected_status=http.client.OK)
 
     def test_get_system_roles_with_unscoped_token(self):
         path = '/system/users/%(user_id)s/roles/%(role_id)s' % {
@@ -5052,7 +5050,7 @@ class TestAuthSpecificData(test_v3.RestfulTestCase):
         self.assertTrue(response.json_body['system'][0]['all'])
         self.head(
             '/auth/system', token=unscoped_token,
-            expected_status=http_client.OK
+            expected_status=http.client.OK
         )
 
     def test_get_system_roles_returns_empty_list_without_system_roles(self):
@@ -5069,7 +5067,7 @@ class TestAuthSpecificData(test_v3.RestfulTestCase):
         self.assertEqual(response.json_body['system'], [])
         self.head(
             '/auth/system', token=unscoped_token,
-            expected_status=http_client.OK
+            expected_status=http.client.OK
         )
 
         project_scoped_request = self.build_authentication_request(
@@ -5083,7 +5081,7 @@ class TestAuthSpecificData(test_v3.RestfulTestCase):
         self.assertEqual(response.json_body['system'], [])
         self.head(
             '/auth/system', token=project_scoped_token,
-            expected_status=http_client.OK
+            expected_status=http.client.OK
         )
 
     def test_get_system_roles_with_project_scoped_token(self):
@@ -5107,7 +5105,7 @@ class TestAuthSpecificData(test_v3.RestfulTestCase):
         self.assertTrue(response.json_body['system'][0]['all'])
         self.head(
             '/auth/system', token=domain_scoped_token,
-            expected_status=http_client.OK
+            expected_status=http.client.OK
         )
 
     def test_get_system_roles_with_domain_scoped_token(self):
@@ -5128,7 +5126,7 @@ class TestAuthSpecificData(test_v3.RestfulTestCase):
         self.assertTrue(response.json_body['system'][0]['all'])
         self.head(
             '/auth/system', token=project_scoped_token,
-            expected_status=http_client.OK
+            expected_status=http.client.OK
         )
 
 
@@ -5214,7 +5212,7 @@ class TestAuthTOTP(test_v3.RestfulTestCase):
 
         for cred in itertools.chain(other_creds, totp_creds):
             self.delete('/credentials/%s' % cred['id'],
-                        expected_status=http_client.NO_CONTENT)
+                        expected_status=http.client.NO_CONTENT)
 
     def test_with_a_valid_passcode(self):
         creds = self._make_credentials('totp')
@@ -5228,7 +5226,7 @@ class TestAuthTOTP(test_v3.RestfulTestCase):
         auth_data = self._make_auth_data_by_id(
             totp._generate_totp_passcodes(secret)[0])
 
-        self.v3_create_token(auth_data, expected_status=http_client.CREATED)
+        self.v3_create_token(auth_data, expected_status=http.client.CREATED)
 
     def test_with_an_expired_passcode(self):
         creds = self._make_credentials('totp')
@@ -5245,7 +5243,7 @@ class TestAuthTOTP(test_v3.RestfulTestCase):
         self.useFixture(fixture.TimeFixture())
 
         self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
     def test_with_an_expired_passcode_no_previous_windows(self):
         self.config_fixture.config(group='totp',
@@ -5264,7 +5262,7 @@ class TestAuthTOTP(test_v3.RestfulTestCase):
         self.useFixture(fixture.TimeFixture())
 
         self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
     def test_with_passcode_no_previous_windows(self):
         self.config_fixture.config(group='totp',
@@ -5280,7 +5278,7 @@ class TestAuthTOTP(test_v3.RestfulTestCase):
         # auth plugin.
         self.useFixture(fixture.TimeFixture())
 
-        self.v3_create_token(auth_data, expected_status=http_client.CREATED)
+        self.v3_create_token(auth_data, expected_status=http.client.CREATED)
 
     def test_with_passcode_in_previous_windows_default(self):
         """Confirm previous window default of 1 works."""
@@ -5297,7 +5295,7 @@ class TestAuthTOTP(test_v3.RestfulTestCase):
         # auth plugin.
         self.useFixture(fixture.TimeFixture())
 
-        self.v3_create_token(auth_data, expected_status=http_client.CREATED)
+        self.v3_create_token(auth_data, expected_status=http.client.CREATED)
 
     def test_with_passcode_in_previous_windows_extended(self):
         self.config_fixture.config(group='totp',
@@ -5315,24 +5313,24 @@ class TestAuthTOTP(test_v3.RestfulTestCase):
         # auth plugin.
         self.useFixture(fixture.TimeFixture())
 
-        self.v3_create_token(auth_data, expected_status=http_client.CREATED)
+        self.v3_create_token(auth_data, expected_status=http.client.CREATED)
 
     def test_with_an_invalid_passcode_and_user_credentials(self):
         self._make_credentials('totp')
         auth_data = self._make_auth_data_by_id('000000')
         self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
     def test_with_an_invalid_passcode_with_no_user_credentials(self):
         auth_data = self._make_auth_data_by_id('000000')
         self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
     def test_with_a_corrupt_totp_credential(self):
         self._make_credentials('totp', count=1, blob='0')
         auth_data = self._make_auth_data_by_id('000000')
         self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
     def test_with_multiple_credentials(self):
         self._make_credentials('other', 3)
@@ -5346,7 +5344,7 @@ class TestAuthTOTP(test_v3.RestfulTestCase):
 
         auth_data = self._make_auth_data_by_id(
             totp._generate_totp_passcodes(secret)[0])
-        self.v3_create_token(auth_data, expected_status=http_client.CREATED)
+        self.v3_create_token(auth_data, expected_status=http.client.CREATED)
 
     def test_with_multiple_users(self):
         # make some credentials for the existing user
@@ -5369,7 +5367,7 @@ class TestAuthTOTP(test_v3.RestfulTestCase):
 
         auth_data = self._make_auth_data_by_id(
             totp._generate_totp_passcodes(secret)[0], user_id=user['id'])
-        self.v3_create_token(auth_data, expected_status=http_client.CREATED)
+        self.v3_create_token(auth_data, expected_status=http.client.CREATED)
 
     def test_with_multiple_users_and_invalid_credentials(self):
         """Prevent logging in with someone else's credentials.
@@ -5396,7 +5394,7 @@ class TestAuthTOTP(test_v3.RestfulTestCase):
         auth_data = self._make_auth_data_by_id(
             totp._generate_totp_passcodes(secret)[0], user_id=user_id)
         self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
     def test_with_username_and_domain_id(self):
         creds = self._make_credentials('totp')
@@ -5412,7 +5410,7 @@ class TestAuthTOTP(test_v3.RestfulTestCase):
             username=self.default_domain_user['name'],
             user_domain_id=self.default_domain_user['domain_id'])
 
-        self.v3_create_token(auth_data, expected_status=http_client.CREATED)
+        self.v3_create_token(auth_data, expected_status=http.client.CREATED)
 
     def test_generated_passcode_is_correct_format(self):
         secret = self._make_credentials('totp')[-1]['blob']
@@ -5434,7 +5432,7 @@ class TestFetchRevocationList(test_v3.RestfulTestCase):
         # can be returned.
         self.get(
             '/auth/tokens/OS-PKI/revoked',
-            expected_status=http_client.FORBIDDEN
+            expected_status=http.client.FORBIDDEN
         )
 
     def test_head_ids_no_tokens_returns_forbidden(self):
@@ -5443,7 +5441,7 @@ class TestFetchRevocationList(test_v3.RestfulTestCase):
         # can be returned.
         self.head(
             '/auth/tokens/OS-PKI/revoked',
-            expected_status=http_client.FORBIDDEN
+            expected_status=http.client.FORBIDDEN
         )
 
 
@@ -5476,7 +5474,7 @@ class ApplicationCredentialAuth(test_v3.RestfulTestCase):
         return data
 
     def _validate_token(self, token, headers=None,
-                        expected_status=http_client.OK):
+                        expected_status=http.client.OK):
         path = '/v3/auth/tokens'
         headers = headers or {}
         headers.update({'X-Auth-Token': token, 'X-Subject-Token': token})
@@ -5491,7 +5489,7 @@ class ApplicationCredentialAuth(test_v3.RestfulTestCase):
             app_cred)
         auth_data = self.build_authentication_request(
             app_cred_id=app_cred_ref['id'], secret=app_cred_ref['secret'])
-        self.v3_create_token(auth_data, expected_status=http_client.CREATED)
+        self.v3_create_token(auth_data, expected_status=http.client.CREATED)
 
     def test_validate_application_credential_token_populates_restricted(self):
         self.config_fixture.config(group='token', cache_on_issue=False)
@@ -5501,7 +5499,7 @@ class ApplicationCredentialAuth(test_v3.RestfulTestCase):
         auth_data = self.build_authentication_request(
             app_cred_id=app_cred_ref['id'], secret=app_cred_ref['secret'])
         auth_response = self.v3_create_token(
-            auth_data, expected_status=http_client.CREATED)
+            auth_data, expected_status=http.client.CREATED)
         self.assertTrue(
             auth_response.json['token']['application_credential']['restricted']
         )
@@ -5521,7 +5519,7 @@ class ApplicationCredentialAuth(test_v3.RestfulTestCase):
         auth_data = self.build_authentication_request(
             app_cred_name=app_cred_ref['name'], secret=app_cred_ref['secret'],
             user_id=self.user['id'])
-        self.v3_create_token(auth_data, expected_status=http_client.CREATED)
+        self.v3_create_token(auth_data, expected_status=http.client.CREATED)
 
     def test_valid_application_credential_name_and_username_succeeds(self):
         app_cred = self._make_app_cred()
@@ -5530,7 +5528,7 @@ class ApplicationCredentialAuth(test_v3.RestfulTestCase):
         auth_data = self.build_authentication_request(
             app_cred_name=app_cred_ref['name'], secret=app_cred_ref['secret'],
             username=self.user['name'], user_domain_id=self.user['domain_id'])
-        self.v3_create_token(auth_data, expected_status=http_client.CREATED)
+        self.v3_create_token(auth_data, expected_status=http.client.CREATED)
 
     def test_application_credential_with_invalid_secret_fails(self):
         app_cred = self._make_app_cred()
@@ -5539,7 +5537,7 @@ class ApplicationCredentialAuth(test_v3.RestfulTestCase):
         auth_data = self.build_authentication_request(
             app_cred_id=app_cred_ref['id'], secret='badsecret')
         self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
     def test_unexpired_application_credential_succeeds(self):
         expires_at = datetime.datetime.utcnow() + datetime.timedelta(minutes=1)
@@ -5548,7 +5546,7 @@ class ApplicationCredentialAuth(test_v3.RestfulTestCase):
             app_cred)
         auth_data = self.build_authentication_request(
             app_cred_id=app_cred_ref['id'], secret=app_cred_ref['secret'])
-        self.v3_create_token(auth_data, expected_status=http_client.CREATED)
+        self.v3_create_token(auth_data, expected_status=http.client.CREATED)
 
     def test_expired_application_credential_fails(self):
         expires_at = datetime.datetime.utcnow() + datetime.timedelta(minutes=1)
@@ -5560,7 +5558,7 @@ class ApplicationCredentialAuth(test_v3.RestfulTestCase):
         future = datetime.datetime.utcnow() + datetime.timedelta(minutes=2)
         with freezegun.freeze_time(future):
             self.v3_create_token(auth_data,
-                                 expected_status=http_client.UNAUTHORIZED)
+                                 expected_status=http.client.UNAUTHORIZED)
 
     def test_application_credential_fails_when_user_deleted(self):
         app_cred = self._make_app_cred()
@@ -5569,7 +5567,7 @@ class ApplicationCredentialAuth(test_v3.RestfulTestCase):
         PROVIDERS.identity_api.delete_user(self.user['id'])
         auth_data = self.build_authentication_request(
             app_cred_id=app_cred_ref['id'], secret=app_cred_ref['secret'])
-        self.v3_create_token(auth_data, expected_status=http_client.NOT_FOUND)
+        self.v3_create_token(auth_data, expected_status=http.client.NOT_FOUND)
 
     def test_application_credential_fails_when_user_disabled(self):
         app_cred = self._make_app_cred()
@@ -5580,7 +5578,7 @@ class ApplicationCredentialAuth(test_v3.RestfulTestCase):
         auth_data = self.build_authentication_request(
             app_cred_id=app_cred_ref['id'], secret=app_cred_ref['secret'])
         self.v3_create_token(auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
     def test_application_credential_fails_when_project_deleted(self):
         app_cred = self._make_app_cred()
@@ -5589,7 +5587,7 @@ class ApplicationCredentialAuth(test_v3.RestfulTestCase):
         PROVIDERS.resource_api.delete_project(self.project['id'])
         auth_data = self.build_authentication_request(
             app_cred_id=app_cred_ref['id'], secret=app_cred_ref['secret'])
-        self.v3_create_token(auth_data, expected_status=http_client.NOT_FOUND)
+        self.v3_create_token(auth_data, expected_status=http.client.NOT_FOUND)
 
     def test_application_credential_fails_when_role_deleted(self):
         app_cred = self._make_app_cred()
@@ -5598,7 +5596,7 @@ class ApplicationCredentialAuth(test_v3.RestfulTestCase):
         PROVIDERS.role_api.delete_role(self.role_id)
         auth_data = self.build_authentication_request(
             app_cred_id=app_cred_ref['id'], secret=app_cred_ref['secret'])
-        self.v3_create_token(auth_data, expected_status=http_client.NOT_FOUND)
+        self.v3_create_token(auth_data, expected_status=http.client.NOT_FOUND)
 
     def test_application_credential_fails_when_role_unassigned(self):
         app_cred = self._make_app_cred()
@@ -5609,7 +5607,7 @@ class ApplicationCredentialAuth(test_v3.RestfulTestCase):
             self.role_id)
         auth_data = self.build_authentication_request(
             app_cred_id=app_cred_ref['id'], secret=app_cred_ref['secret'])
-        self.v3_create_token(auth_data, expected_status=http_client.NOT_FOUND)
+        self.v3_create_token(auth_data, expected_status=http.client.NOT_FOUND)
 
     def test_application_credential_through_group_membership(self):
         user1 = unit.create_user(
@@ -5641,7 +5639,7 @@ class ApplicationCredentialAuth(test_v3.RestfulTestCase):
 
         auth_data = self.build_authentication_request(
             app_cred_id=app_cred_ref['id'], secret=app_cred_ref['secret'])
-        self.v3_create_token(auth_data, expected_status=http_client.CREATED)
+        self.v3_create_token(auth_data, expected_status=http.client.CREATED)
 
     def test_application_credential_cannot_scope(self):
         app_cred = self._make_app_cred()
@@ -5666,7 +5664,7 @@ class ApplicationCredentialAuth(test_v3.RestfulTestCase):
             app_cred_id=app_cred_ref['id'], secret=app_cred_ref['secret'],
             project_id=new_project['id'])
         self.v3_create_token(app_cred_auth,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
     def test_application_credential_with_access_rules(self):
         access_rules = [
@@ -5683,7 +5681,7 @@ class ApplicationCredentialAuth(test_v3.RestfulTestCase):
         auth_data = self.build_authentication_request(
             app_cred_id=app_cred_ref['id'], secret=app_cred_ref['secret'])
         resp = self.v3_create_token(auth_data,
-                                    expected_status=http_client.CREATED)
+                                    expected_status=http.client.CREATED)
         token = resp.headers.get('X-Subject-Token')
         headers = {'OpenStack-Identity-Access-Rules': '1.0'}
         self._validate_token(token, headers=headers)
@@ -5703,6 +5701,6 @@ class ApplicationCredentialAuth(test_v3.RestfulTestCase):
         auth_data = self.build_authentication_request(
             app_cred_id=app_cred_ref['id'], secret=app_cred_ref['secret'])
         resp = self.v3_create_token(auth_data,
-                                    expected_status=http_client.CREATED)
+                                    expected_status=http.client.CREATED)
         token = resp.headers.get('X-Subject-Token')
-        self._validate_token(token, expected_status=http_client.NOT_FOUND)
+        self._validate_token(token, expected_status=http.client.NOT_FOUND)

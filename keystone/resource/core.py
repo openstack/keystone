@@ -13,7 +13,6 @@
 """Main entry point into the Resource service."""
 
 from oslo_log import log
-import six
 
 from keystone import assignment
 from keystone.common import cache
@@ -1476,7 +1475,7 @@ class DomainConfigManager(manager.Manager):
         sensitive_dict = {s['option']: s['value'] for s in sensitive}
 
         for each_whitelisted in whitelisted:
-            if not isinstance(each_whitelisted['value'], six.string_types):
+            if not isinstance(each_whitelisted['value'], str):
                 # We only support substitutions into string types, if its an
                 # integer, list etc. then just continue onto the next one
                 continue

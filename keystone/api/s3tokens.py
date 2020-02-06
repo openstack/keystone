@@ -17,9 +17,8 @@ import hashlib
 import hmac
 
 import flask
+import http.client
 from oslo_serialization import jsonutils
-import six
-from six.moves import http_client
 
 from keystone.api._shared import EC2_S3_Resource
 from keystone.api._shared import json_home_relations
@@ -39,10 +38,7 @@ def _calculate_signature_v1(string_to_sign, secret_key):
                             sign requests
     """
     key = str(secret_key).encode('utf-8')
-    if six.PY2:
-        b64_encode = base64.encodestring
-    else:
-        b64_encode = base64.encodebytes
+    b64_encode = base64.encodebytes
     signed = b64_encode(hmac.new(key, string_to_sign, hashlib.sha1)
                         .digest()).decode('utf-8').strip()
     return signed
@@ -100,7 +96,7 @@ class S3Resource(EC2_S3_Resource.ResourceBase):
         token = self.handle_authenticate()
         token_reference = render_token.render_token_response_from_model(token)
         resp_body = jsonutils.dumps(token_reference)
-        response = flask.make_response(resp_body, http_client.OK)
+        response = flask.make_response(resp_body, http.client.OK)
         response.headers['Content-Type'] = 'application/json'
         return response
 

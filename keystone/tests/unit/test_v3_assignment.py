@@ -15,8 +15,7 @@ import random
 import uuid
 
 import freezegun
-from six.moves import http_client
-from six.moves import range
+import http.client
 from testtools import matchers
 
 from keystone.common import provider_api
@@ -88,7 +87,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
     def test_create_role_bad_request(self):
         """Call ``POST /roles``."""
         self.post('/roles', body={'role': {}},
-                  expected_status=http_client.BAD_REQUEST)
+                  expected_status=http.client.BAD_REQUEST)
 
     def test_list_head_roles(self):
         """Call ``GET & HEAD /roles``."""
@@ -96,7 +95,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         r = self.get(resource_url)
         self.assertValidRoleListResponse(r, ref=self.role,
                                          resource_url=resource_url)
-        self.head(resource_url, expected_status=http_client.OK)
+        self.head(resource_url, expected_status=http.client.OK)
 
     def test_get_head_role(self):
         """Call ``GET & HEAD /roles/{role_id}``."""
@@ -104,7 +103,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
             'role_id': self.role_id}
         r = self.get(resource_url)
         self.assertValidRoleResponse(r, self.role)
-        self.head(resource_url, expected_status=http_client.OK)
+        self.head(resource_url, expected_status=http.client.OK)
 
     def test_update_role(self):
         """Call ``PATCH /roles/{role_id}``."""
@@ -141,18 +140,18 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
         self.put(member_url)
         self.head(member_url)
-        self.get(member_url, expected_status=http_client.NO_CONTENT)
+        self.get(member_url, expected_status=http.client.NO_CONTENT)
         r = self.get(collection_url)
         self.assertValidRoleListResponse(r, ref=role,
                                          resource_url=collection_url,
                                          expected_length=2)
-        self.head(collection_url, expected_status=http_client.OK)
+        self.head(collection_url, expected_status=http.client.OK)
 
         self.delete(member_url)
         r = self.get(collection_url)
         self.assertValidRoleListResponse(r, ref=self.role, expected_length=1)
         self.assertIn(collection_url, r.result['links']['self'])
-        self.head(collection_url, expected_status=http_client.OK)
+        self.head(collection_url, expected_status=http.client.OK)
 
     def test_crud_user_project_role_grants_no_user(self):
         """Grant role on a project to a user that doesn't exist.
@@ -170,9 +169,9 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
             'collection_url': collection_url,
             'role_id': self.role_id}
 
-        self.put(member_url, expected_status=http_client.NOT_FOUND)
-        self.head(member_url, expected_status=http_client.NOT_FOUND)
-        self.get(member_url, expected_status=http_client.NOT_FOUND)
+        self.put(member_url, expected_status=http.client.NOT_FOUND)
+        self.head(member_url, expected_status=http.client.NOT_FOUND)
+        self.get(member_url, expected_status=http.client.NOT_FOUND)
 
     def test_crud_user_domain_role_grants(self):
         time = datetime.datetime.utcnow()
@@ -187,11 +186,11 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
             self.put(member_url)
             self.head(member_url)
-            self.get(member_url, expected_status=http_client.NO_CONTENT)
+            self.get(member_url, expected_status=http.client.NO_CONTENT)
             r = self.get(collection_url)
             self.assertValidRoleListResponse(r, ref=self.role,
                                              resource_url=collection_url)
-            self.head(collection_url, expected_status=http_client.OK)
+            self.head(collection_url, expected_status=http.client.OK)
 
             self.delete(member_url)
             # NOTE(lbragstad): Make sure we wait a second before we ask for the
@@ -202,7 +201,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
             r = self.get(collection_url)
             self.assertValidRoleListResponse(r, expected_length=0,
                                              resource_url=collection_url)
-            self.head(collection_url, expected_status=http_client.OK)
+            self.head(collection_url, expected_status=http.client.OK)
 
     def test_crud_user_domain_role_grants_no_user(self):
         """Grant role on a domain to a user that doesn't exist.
@@ -220,9 +219,9 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
             'collection_url': collection_url,
             'role_id': self.role_id}
 
-        self.put(member_url, expected_status=http_client.NOT_FOUND)
-        self.head(member_url, expected_status=http_client.NOT_FOUND)
-        self.get(member_url, expected_status=http_client.NOT_FOUND)
+        self.put(member_url, expected_status=http.client.NOT_FOUND)
+        self.head(member_url, expected_status=http.client.NOT_FOUND)
+        self.get(member_url, expected_status=http.client.NOT_FOUND)
 
     def test_crud_group_project_role_grants(self):
         time = datetime.datetime.utcnow()
@@ -237,11 +236,11 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
             self.put(member_url)
             self.head(member_url)
-            self.get(member_url, expected_status=http_client.NO_CONTENT)
+            self.get(member_url, expected_status=http.client.NO_CONTENT)
             r = self.get(collection_url)
             self.assertValidRoleListResponse(r, ref=self.role,
                                              resource_url=collection_url)
-            self.head(collection_url, expected_status=http_client.OK)
+            self.head(collection_url, expected_status=http.client.OK)
 
             self.delete(member_url)
             # NOTE(lbragstad): Make sure we wait a second before we ask for the
@@ -252,7 +251,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
             r = self.get(collection_url)
             self.assertValidRoleListResponse(r, expected_length=0,
                                              resource_url=collection_url)
-            self.head(collection_url, expected_status=http_client.OK)
+            self.head(collection_url, expected_status=http.client.OK)
 
     def test_crud_group_project_role_grants_no_group(self):
         """Grant role on a project to a group that doesn't exist.
@@ -271,9 +270,9 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
             'collection_url': collection_url,
             'role_id': self.role_id}
 
-        self.put(member_url, expected_status=http_client.NOT_FOUND)
-        self.head(member_url, expected_status=http_client.NOT_FOUND)
-        self.get(member_url, expected_status=http_client.NOT_FOUND)
+        self.put(member_url, expected_status=http.client.NOT_FOUND)
+        self.head(member_url, expected_status=http.client.NOT_FOUND)
+        self.get(member_url, expected_status=http.client.NOT_FOUND)
 
     def test_crud_group_domain_role_grants(self):
         time = datetime.datetime.utcnow()
@@ -288,11 +287,11 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
             self.put(member_url)
             self.head(member_url)
-            self.get(member_url, expected_status=http_client.NO_CONTENT)
+            self.get(member_url, expected_status=http.client.NO_CONTENT)
             r = self.get(collection_url)
             self.assertValidRoleListResponse(r, ref=self.role,
                                              resource_url=collection_url)
-            self.head(collection_url, expected_status=http_client.OK)
+            self.head(collection_url, expected_status=http.client.OK)
 
             self.delete(member_url)
             # NOTE(lbragstad): Make sure we wait a second before we ask for the
@@ -303,7 +302,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
             r = self.get(collection_url)
             self.assertValidRoleListResponse(r, expected_length=0,
                                              resource_url=collection_url)
-            self.head(collection_url, expected_status=http_client.OK)
+            self.head(collection_url, expected_status=http.client.OK)
 
     def test_crud_group_domain_role_grants_no_group(self):
         """Grant role on a domain to a group that doesn't exist.
@@ -322,9 +321,9 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
             'collection_url': collection_url,
             'role_id': self.role_id}
 
-        self.put(member_url, expected_status=http_client.NOT_FOUND)
-        self.head(member_url, expected_status=http_client.NOT_FOUND)
-        self.get(member_url, expected_status=http_client.NOT_FOUND)
+        self.put(member_url, expected_status=http.client.NOT_FOUND)
+        self.head(member_url, expected_status=http.client.NOT_FOUND)
+        self.get(member_url, expected_status=http.client.NOT_FOUND)
 
     def _create_new_user_and_assign_role_on_project(self):
         """Create a new user and assign user a role on a project."""
@@ -342,7 +341,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         self.put(member_url)
         # Check the user has the role assigned
         self.head(member_url)
-        self.get(member_url, expected_status=http_client.NO_CONTENT)
+        self.get(member_url, expected_status=http.client.NO_CONTENT)
         return member_url, user_ref
 
     def test_delete_user_before_removing_role_assignment_succeeds(self):
@@ -353,7 +352,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         # Clean up the role assignment
         self.delete(member_url)
         # Make sure the role is gone
-        self.head(member_url, expected_status=http_client.NOT_FOUND)
+        self.head(member_url, expected_status=http.client.NOT_FOUND)
 
     def test_delete_group_before_removing_role_assignment_succeeds(self):
         # Disable the cache so that we perform a fresh check of the identity
@@ -376,7 +375,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
         # Check the user has the role assigned
         self.head(member_url)
-        self.get(member_url, expected_status=http_client.NO_CONTENT)
+        self.get(member_url, expected_status=http.client.NO_CONTENT)
 
         # Simulate removing the group via LDAP by directly removing it from the
         # identity backend.
@@ -417,7 +416,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         # We should get a 404 Not Found when looking for the user in the
         # identity backend because we're not performing a delete operation on
         # the role.
-        self.head(member_url, expected_status=http_client.NOT_FOUND)
+        self.head(member_url, expected_status=http.client.NOT_FOUND)
 
     def test_token_revoked_once_group_role_grant_revoked(self):
         """Test token invalid when direct & indirect role on user is revoked.
@@ -451,7 +450,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
             # validates the returned token; it should be valid.
             self.head('/auth/tokens',
                       headers={'x-subject-token': token},
-                      expected_status=http_client.OK)
+                      expected_status=http.client.OK)
 
             frozen_datetime.tick(delta=datetime.timedelta(seconds=1))
             # revokes the grant from group on project.
@@ -467,7 +466,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
             frozen_datetime.tick(delta=datetime.timedelta(seconds=1))
             # validates the same token again; it should not longer be valid.
             self.head('/auth/tokens', token=token,
-                      expected_status=http_client.UNAUTHORIZED)
+                      expected_status=http.client.UNAUTHORIZED)
 
     def test_delete_group_before_removing_system_assignments_succeeds(self):
         system_role = self._create_new_role()
@@ -511,7 +510,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
         # check the grant that was just created
         self.head(member_url)
-        self.get(member_url, expected_status=http_client.NO_CONTENT)
+        self.get(member_url, expected_status=http.client.NO_CONTENT)
         resp = self.get(collection_url)
         self.assertValidRoleListResponse(resp, ref=self.role,
                                          resource_url=collection_url)
@@ -542,7 +541,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
         # check the grant that was just created
         self.head(member_url)
-        self.get(member_url, expected_status=http_client.NO_CONTENT)
+        self.get(member_url, expected_status=http.client.NO_CONTENT)
         resp = self.get(collection_url)
         self.assertValidRoleListResponse(resp, ref=self.role,
                                          resource_url=collection_url)
@@ -573,7 +572,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
         # check the grant that was just created
         self.head(member_url)
-        self.get(member_url, expected_status=http_client.NO_CONTENT)
+        self.get(member_url, expected_status=http.client.NO_CONTENT)
         resp = self.get(collection_url)
         self.assertValidRoleListResponse(resp, ref=self.role,
                                          resource_url=collection_url)
@@ -604,7 +603,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
         # check the grant that was just created
         self.head(member_url)
-        self.get(member_url, expected_status=http_client.NO_CONTENT)
+        self.get(member_url, expected_status=http.client.NO_CONTENT)
         resp = self.get(collection_url)
         self.assertValidRoleListResponse(resp, ref=self.role,
                                          resource_url=collection_url)
@@ -659,7 +658,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
             r = self.get(collection_url)
             self.assertValidRoleAssignmentListResponse(
                 r, resource_url=collection_url)
-            self.head(collection_url, expected_status=http_client.OK)
+            self.head(collection_url, expected_status=http.client.OK)
             existing_assignments = len(r.result.get('role_assignments'))
 
             # Now add one of each of the four types of assignment, making sure
@@ -675,7 +674,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
                 expected_length=existing_assignments + 1,
                 resource_url=collection_url)
             self.assertRoleAssignmentInListResponse(r, gd_entity)
-            self.head(collection_url, expected_status=http_client.OK)
+            self.head(collection_url, expected_status=http.client.OK)
 
             ud_entity = self.build_role_assignment_entity(
                 domain_id=self.domain_id,
@@ -688,7 +687,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
                 expected_length=existing_assignments + 2,
                 resource_url=collection_url)
             self.assertRoleAssignmentInListResponse(r, ud_entity)
-            self.head(collection_url, expected_status=http_client.OK)
+            self.head(collection_url, expected_status=http.client.OK)
 
             gp_entity = self.build_role_assignment_entity(
                 project_id=self.project_id, group_id=self.group_id,
@@ -700,7 +699,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
                 expected_length=existing_assignments + 3,
                 resource_url=collection_url)
             self.assertRoleAssignmentInListResponse(r, gp_entity)
-            self.head(collection_url, expected_status=http_client.OK)
+            self.head(collection_url, expected_status=http.client.OK)
 
             up_entity = self.build_role_assignment_entity(
                 project_id=self.project_id, user_id=user1['id'],
@@ -712,7 +711,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
                 expected_length=existing_assignments + 4,
                 resource_url=collection_url)
             self.assertRoleAssignmentInListResponse(r, up_entity)
-            self.head(collection_url, expected_status=http_client.OK)
+            self.head(collection_url, expected_status=http.client.OK)
 
             # Now delete the four we added and make sure they are removed
             # from the collection.
@@ -731,7 +730,7 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
             self.assertRoleAssignmentNotInListResponse(r, ud_entity)
             self.assertRoleAssignmentNotInListResponse(r, gp_entity)
             self.assertRoleAssignmentNotInListResponse(r, up_entity)
-            self.head(collection_url, expected_status=http_client.OK)
+            self.head(collection_url, expected_status=http.client.OK)
 
     def test_get_effective_role_assignments(self):
         """Call ``GET /role_assignments?effective``.
@@ -825,8 +824,8 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         PROVIDERS.identity_api.add_user_to_group(user2['id'], self.group['id'])
 
         collection_url = '/role_assignments'
-        r = self.get(collection_url, expected_status=http_client.OK)
-        self.head(collection_url, expected_status=http_client.OK)
+        r = self.get(collection_url, expected_status=http.client.OK)
+        self.head(collection_url, expected_status=http.client.OK)
         self.assertValidRoleAssignmentListResponse(r,
                                                    resource_url=collection_url)
         existing_assignments = len(r.result.get('role_assignments'))
@@ -835,8 +834,8 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
                                                       group_id=self.group_id,
                                                       role_id=self.role_id)
         self.put(gd_entity['links']['assignment'])
-        r = self.get(collection_url, expected_status=http_client.OK)
-        self.head(collection_url, expected_status=http_client.OK)
+        r = self.get(collection_url, expected_status=http.client.OK)
+        self.head(collection_url, expected_status=http.client.OK)
         self.assertValidRoleAssignmentListResponse(
             r,
             expected_length=existing_assignments + 1,
@@ -848,8 +847,8 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         # should mean the group assignment is translated into the two
         # member user assignments
         collection_url = '/role_assignments?effective'
-        r = self.get(collection_url, expected_status=http_client.OK)
-        self.head(collection_url, expected_status=http_client.OK)
+        r = self.get(collection_url, expected_status=http.client.OK)
+        self.head(collection_url, expected_status=http.client.OK)
         self.assertValidRoleAssignmentListResponse(
             r,
             expected_length=existing_assignments + 2,
@@ -857,8 +856,8 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         # Now set 'effective' to false explicitly - should get
         # back the regular roles
         collection_url = '/role_assignments?effective=0'
-        r = self.get(collection_url, expected_status=http_client.OK)
-        self.head(collection_url, expected_status=http_client.OK)
+        r = self.get(collection_url, expected_status=http.client.OK)
+        self.head(collection_url, expected_status=http.client.OK)
         self.assertValidRoleAssignmentListResponse(
             r,
             expected_length=existing_assignments + 1,
@@ -868,16 +867,16 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         # parameter to false by design. Hence we should get back
         # effective roles.
         collection_url = '/role_assignments?effective=False'
-        r = self.get(collection_url, expected_status=http_client.OK)
-        self.head(collection_url, expected_status=http_client.OK)
+        r = self.get(collection_url, expected_status=http.client.OK)
+        self.head(collection_url, expected_status=http.client.OK)
         self.assertValidRoleAssignmentListResponse(
             r,
             expected_length=existing_assignments + 2,
             resource_url=collection_url)
         # Now set 'effective' to True explicitly
         collection_url = '/role_assignments?effective=True'
-        r = self.get(collection_url, expected_status=http_client.OK)
-        self.head(collection_url, expected_status=http_client.OK)
+        r = self.get(collection_url, expected_status=http.client.OK)
+        self.head(collection_url, expected_status=http.client.OK)
         self.assertValidRoleAssignmentListResponse(
             r,
             expected_length=existing_assignments + 2,
@@ -964,8 +963,8 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
         collection_url = ('/role_assignments?scope.project.id=%s' %
                           project1['id'])
-        r = self.get(collection_url, expected_status=http_client.OK)
-        self.head(collection_url, expected_status=http_client.OK)
+        r = self.get(collection_url, expected_status=http.client.OK)
+        self.head(collection_url, expected_status=http.client.OK)
         self.assertValidRoleAssignmentListResponse(r,
                                                    expected_length=2,
                                                    resource_url=collection_url)
@@ -974,8 +973,8 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
         collection_url = ('/role_assignments?scope.domain.id=%s' %
                           self.domain['id'])
-        r = self.get(collection_url, expected_status=http_client.OK)
-        self.head(collection_url, expected_status=http_client.OK)
+        r = self.get(collection_url, expected_status=http.client.OK)
+        self.head(collection_url, expected_status=http.client.OK)
         self.assertValidRoleAssignmentListResponse(r,
                                                    expected_length=2,
                                                    resource_url=collection_url)
@@ -983,8 +982,8 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         self.assertRoleAssignmentInListResponse(r, gd_entity)
 
         collection_url = '/role_assignments?user.id=%s' % user1['id']
-        r = self.get(collection_url, expected_status=http_client.OK)
-        self.head(collection_url, expected_status=http_client.OK)
+        r = self.get(collection_url, expected_status=http.client.OK)
+        self.head(collection_url, expected_status=http.client.OK)
         self.assertValidRoleAssignmentListResponse(r,
                                                    expected_length=3,
                                                    resource_url=collection_url)
@@ -992,8 +991,8 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         self.assertRoleAssignmentInListResponse(r, ud_entity)
 
         collection_url = '/role_assignments?group.id=%s' % group1['id']
-        r = self.get(collection_url, expected_status=http_client.OK)
-        self.head(collection_url, expected_status=http_client.OK)
+        r = self.get(collection_url, expected_status=http.client.OK)
+        self.head(collection_url, expected_status=http.client.OK)
         self.assertValidRoleAssignmentListResponse(r,
                                                    expected_length=3,
                                                    resource_url=collection_url)
@@ -1001,8 +1000,8 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         self.assertRoleAssignmentInListResponse(r, gp_entity)
 
         collection_url = '/role_assignments?role.id=%s' % self.role1['id']
-        r = self.get(collection_url, expected_status=http_client.OK)
-        self.head(collection_url, expected_status=http_client.OK)
+        r = self.get(collection_url, expected_status=http.client.OK)
+        self.head(collection_url, expected_status=http.client.OK)
         self.assertValidRoleAssignmentListResponse(r,
                                                    expected_length=3,
                                                    resource_url=collection_url)
@@ -1011,8 +1010,8 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
         self.assertRoleAssignmentInListResponse(r, gs_entity)
 
         collection_url = '/role_assignments?role.id=%s' % self.role2['id']
-        r = self.get(collection_url, expected_status=http_client.OK)
-        self.head(collection_url, expected_status=http_client.OK)
+        r = self.get(collection_url, expected_status=http.client.OK)
+        self.head(collection_url, expected_status=http.client.OK)
         self.assertValidRoleAssignmentListResponse(r,
                                                    expected_length=4,
                                                    resource_url=collection_url)
@@ -1027,8 +1026,8 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
             '&scope.project.id=%(project_id)s' % {
                 'user_id': user1['id'],
                 'project_id': project1['id']})
-        r = self.get(collection_url, expected_status=http_client.OK)
-        self.head(collection_url, expected_status=http_client.OK)
+        r = self.get(collection_url, expected_status=http.client.OK)
+        self.head(collection_url, expected_status=http.client.OK)
         self.assertValidRoleAssignmentListResponse(r,
                                                    expected_length=1,
                                                    resource_url=collection_url)
@@ -1040,8 +1039,8 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
 
         collection_url = ('/role_assignments?effective&user.id=%s' %
                           user1['id'])
-        r = self.get(collection_url, expected_status=http_client.OK)
-        self.head(collection_url, expected_status=http_client.OK)
+        r = self.get(collection_url, expected_status=http.client.OK)
+        self.head(collection_url, expected_status=http.client.OK)
         self.assertValidRoleAssignmentListResponse(r,
                                                    expected_length=4,
                                                    resource_url=collection_url)
@@ -1075,8 +1074,8 @@ class AssignmentTestCase(test_v3.RestfulTestCase,
             '&scope.project.id=%(project_id)s' % {
                 'user_id': user1['id'],
                 'project_id': project1['id']})
-        r = self.get(collection_url, expected_status=http_client.OK)
-        self.head(collection_url, expected_status=http_client.OK)
+        r = self.get(collection_url, expected_status=http.client.OK)
+        self.head(collection_url, expected_status=http.client.OK)
         self.assertValidRoleAssignmentListResponse(r,
                                                    expected_length=2,
                                                    resource_url=collection_url)
@@ -1279,7 +1278,7 @@ class RoleAssignmentBaseTestCase(test_v3.RestfulTestCase,
         self.default_user_id = self.user_ids[0]
         self.default_group_id = self.group_ids[0]
 
-    def get_role_assignments(self, expected_status=http_client.OK, **filters):
+    def get_role_assignments(self, expected_status=http.client.OK, **filters):
         """Return the result from querying role assignment API + queried URL.
 
         Calls GET /v3/role_assignments?<params> and returns its result, where
@@ -1323,22 +1322,22 @@ class RoleAssignmentFailureTestCase(RoleAssignmentBaseTestCase):
     def test_get_role_assignments_by_domain_and_project(self):
         self.get_role_assignments(domain_id=self.domain_id,
                                   project_id=self.project_id,
-                                  expected_status=http_client.BAD_REQUEST)
+                                  expected_status=http.client.BAD_REQUEST)
 
     def test_get_role_assignments_by_user_and_group(self):
         self.get_role_assignments(user_id=self.default_user_id,
                                   group_id=self.default_group_id,
-                                  expected_status=http_client.BAD_REQUEST)
+                                  expected_status=http.client.BAD_REQUEST)
 
     def test_get_role_assignments_by_effective_and_inherited(self):
         self.get_role_assignments(domain_id=self.domain_id, effective=True,
                                   inherited_to_projects=True,
-                                  expected_status=http_client.BAD_REQUEST)
+                                  expected_status=http.client.BAD_REQUEST)
 
     def test_get_role_assignments_by_effective_and_group(self):
         self.get_role_assignments(effective=True,
                                   group_id=self.default_group_id,
-                                  expected_status=http_client.BAD_REQUEST)
+                                  expected_status=http.client.BAD_REQUEST)
 
 
 class RoleAssignmentDirectTestCase(RoleAssignmentBaseTestCase):
@@ -1602,9 +1601,9 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
 
         # Check the user cannot get a domain nor a project token
         self.v3_create_token(domain_auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
         self.v3_create_token(project_auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
         # Grant non-inherited role for user on domain
         non_inher_ud_link = self.build_role_assignment_link(
@@ -1614,7 +1613,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
         # Check the user can get only a domain token
         self.v3_create_token(domain_auth_data)
         self.v3_create_token(project_auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
         # Create inherited role
         inherited_role = unit.new_role_ref(name='inherited')
@@ -1636,14 +1635,14 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
         # Check the user can only get a domain token
         self.v3_create_token(domain_auth_data)
         self.v3_create_token(project_auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
         # Delete non-inherited grant
         self.delete(non_inher_ud_link)
 
         # Check the user cannot get a domain token anymore
         self.v3_create_token(domain_auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
     def test_get_token_from_inherited_group_domain_role_grants(self):
         # Create a new group and put a new user in it to
@@ -1668,9 +1667,9 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
 
         # Check the user cannot get a domain nor a project token
         self.v3_create_token(domain_auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
         self.v3_create_token(project_auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
         # Grant non-inherited role for user on domain
         non_inher_gd_link = self.build_role_assignment_link(
@@ -1680,7 +1679,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
         # Check the user can get only a domain token
         self.v3_create_token(domain_auth_data)
         self.v3_create_token(project_auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
         # Create inherited role
         inherited_role = unit.new_role_ref(name='inherited')
@@ -1702,14 +1701,14 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
         # Check the user can only get a domain token
         self.v3_create_token(domain_auth_data)
         self.v3_create_token(project_auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
         # Delete non-inherited grant
         self.delete(non_inher_gd_link)
 
         # Check the user cannot get a domain token anymore
         self.v3_create_token(domain_auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
     def _test_crud_inherited_and_direct_assignment_on_target(self, target_url):
         time = datetime.datetime.utcnow()
@@ -1729,7 +1728,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
             # Check the direct assignment exists, but the inherited one does
             # not
             self.head(direct_url)
-            self.head(inherited_url, expected_status=http_client.NOT_FOUND)
+            self.head(inherited_url, expected_status=http.client.NOT_FOUND)
 
             # Now add the inherited assignment
             self.put(inherited_url)
@@ -1743,13 +1742,13 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
             # Check the direct assignment exists, but the inherited one does
             # not
             self.head(direct_url)
-            self.head(inherited_url, expected_status=http_client.NOT_FOUND)
+            self.head(inherited_url, expected_status=http.client.NOT_FOUND)
 
             # Now delete the inherited assignment
             self.delete(direct_url)
             # Check that none of them exist
-            self.head(direct_url, expected_status=http_client.NOT_FOUND)
-            self.head(inherited_url, expected_status=http_client.NOT_FOUND)
+            self.head(direct_url, expected_status=http.client.NOT_FOUND)
+            self.head(inherited_url, expected_status=http.client.NOT_FOUND)
 
     def test_crud_inherited_and_direct_assignment_on_domains(self):
         self._test_crud_inherited_and_direct_assignment_on_target(
@@ -1784,7 +1783,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
 
         # Check we can read it back
         self.head(member_url)
-        self.get(member_url, expected_status=http_client.NO_CONTENT)
+        self.get(member_url, expected_status=http.client.NO_CONTENT)
         r = self.get(collection_url)
         self.assertValidRoleListResponse(r, ref=role_list[0],
                                          resource_url=collection_url)
@@ -1846,7 +1845,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
 
         self.put(member_url)
         self.head(member_url)
-        self.get(member_url, expected_status=http_client.NO_CONTENT)
+        self.get(member_url, expected_status=http.client.NO_CONTENT)
         r = self.get(collection_url)
         self.assertValidRoleListResponse(r, ref=role_list[3],
                                          resource_url=collection_url)
@@ -1952,10 +1951,10 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
                 'role_id': role1['id']})
         rs_role = self.get(collection_url_role)
         # Make sure all entities were created successfully
-        self.assertEqual(http_client.OK, rs_domain.status_int)
-        self.assertEqual(http_client.OK, rs_project.status_int)
-        self.assertEqual(http_client.OK, rs_group.status_int)
-        self.assertEqual(http_client.OK, rs_user.status_int)
+        self.assertEqual(http.client.OK, rs_domain.status_int)
+        self.assertEqual(http.client.OK, rs_project.status_int)
+        self.assertEqual(http.client.OK, rs_group.status_int)
+        self.assertEqual(http.client.OK, rs_user.status_int)
         # Make sure we can get back the correct number of entities
         self.assertValidRoleAssignmentListResponse(
             rs_domain,
@@ -2151,7 +2150,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
 
         self.put(member_url)
         self.head(member_url)
-        self.get(member_url, expected_status=http_client.NO_CONTENT)
+        self.get(member_url, expected_status=http.client.NO_CONTENT)
         r = self.get(collection_url)
         self.assertValidRoleListResponse(r, ref=role_list[3],
                                          resource_url=collection_url)
@@ -2241,7 +2240,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
 
         self.put(member_url)
         self.head(member_url)
-        self.get(member_url, expected_status=http_client.NO_CONTENT)
+        self.get(member_url, expected_status=http.client.NO_CONTENT)
         r = self.get(collection_url)
         self.assertValidRoleListResponse(r, ref=role_list[3],
                                          resource_url=collection_url)
@@ -2335,7 +2334,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
 
         self.put(member_url)
         self.head(member_url)
-        self.get(member_url, expected_status=http_client.NO_CONTENT)
+        self.get(member_url, expected_status=http.client.NO_CONTENT)
         r = self.get(collection_url)
         self.assertValidRoleListResponse(r, ref=role_list[3],
                                          resource_url=collection_url)
@@ -2351,7 +2350,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
 
         self.put(member_url)
         self.head(member_url)
-        self.get(member_url, expected_status=http_client.NO_CONTENT)
+        self.get(member_url, expected_status=http.client.NO_CONTENT)
         r = self.get(collection_url)
         self.assertValidRoleListResponse(r, ref=role_list[4],
                                          resource_url=collection_url)
@@ -2416,9 +2415,9 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
 
         # Check the user cannot get a token on root nor leaf project
         self.v3_create_token(root_project_auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
         self.v3_create_token(leaf_project_auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
         # Grant non-inherited role for user on leaf project
         non_inher_up_link = self.build_role_assignment_link(
@@ -2428,7 +2427,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
 
         # Check the user can only get a token on leaf project
         self.v3_create_token(root_project_auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
         self.v3_create_token(leaf_project_auth_data)
 
         # Grant inherited role for user on root project
@@ -2439,7 +2438,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
 
         # Check the user still can get a token only on leaf project
         self.v3_create_token(root_project_auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
         self.v3_create_token(leaf_project_auth_data)
 
         # Delete non-inherited grant
@@ -2447,7 +2446,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
 
         # Check the inherited role still applies for leaf project
         self.v3_create_token(root_project_auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
         self.v3_create_token(leaf_project_auth_data)
 
         # Delete inherited grant
@@ -2455,7 +2454,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
 
         # Check the user cannot get a token on leaf project anymore
         self.v3_create_token(leaf_project_auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
     def test_get_token_from_inherited_group_project_role_grants(self):
         # Create default scenario
@@ -2479,9 +2478,9 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
 
         # Check the user cannot get a token on root nor leaf project
         self.v3_create_token(root_project_auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
         self.v3_create_token(leaf_project_auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
         # Grant non-inherited role for group on leaf project
         non_inher_gp_link = self.build_role_assignment_link(
@@ -2491,7 +2490,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
 
         # Check the user can only get a token on leaf project
         self.v3_create_token(root_project_auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
         self.v3_create_token(leaf_project_auth_data)
 
         # Grant inherited role for group on root project
@@ -2502,7 +2501,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
 
         # Check the user still can get a token only on leaf project
         self.v3_create_token(root_project_auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
         self.v3_create_token(leaf_project_auth_data)
 
         # Delete no-inherited grant
@@ -2516,7 +2515,7 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
 
         # Check the user cannot get a token on leaf project anymore
         self.v3_create_token(leaf_project_auth_data,
-                             expected_status=http_client.UNAUTHORIZED)
+                             expected_status=http.client.UNAUTHORIZED)
 
     def test_get_role_assignments_for_project_hierarchy(self):
         """Call ``GET /role_assignments``.
@@ -2624,13 +2623,13 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
     def test_project_id_specified_if_include_subtree_specified(self):
         """When using include_subtree, you must specify a project ID."""
         r = self.get('/role_assignments?include_subtree=True',
-                     expected_status=http_client.BAD_REQUEST)
+                     expected_status=http.client.BAD_REQUEST)
         error_msg = ("scope.project.id must be specified if include_subtree "
                      "is also specified")
         self.assertEqual(error_msg, r.result['error']['message'])
         r = self.get('/role_assignments?scope.project.id&'
                      'include_subtree=True',
-                     expected_status=http_client.BAD_REQUEST)
+                     expected_status=http.client.BAD_REQUEST)
         self.assertEqual(error_msg, r.result['error']['message'])
 
     def test_get_role_assignments_for_project_tree(self):
@@ -2838,13 +2837,13 @@ class ImpliedRolesTests(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin,
         self.prior = self._create_role()
         url = '/roles/%s/implies' % (self.prior['id'])
         response = self.get(url).json["role_inference"]
-        self.head(url, expected_status=http_client.OK)
+        self.head(url, expected_status=http.client.OK)
         self.assertEqual(self.prior['id'], response['prior_role']['id'])
         self.assertEqual(0, len(response['implies']))
 
     def _create_implied_role(self, prior, implied):
         self.put('/roles/%s/implies/%s' % (prior['id'], implied['id']),
-                 expected_status=http_client.CREATED)
+                 expected_status=http.client.CREATED)
 
     def _delete_implied_role(self, prior, implied):
         self.delete('/roles/%s/implies/%s' % (prior['id'], implied['id']))
@@ -2907,7 +2906,7 @@ class ImpliedRolesTests(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin,
 
         self.get('/roles/%s/implies/%s' %
                  (self.prior['id'], self.implied2['id']),
-                 expected_status=http_client.NOT_FOUND)
+                 expected_status=http.client.NOT_FOUND)
 
     def _assert_two_rules_defined(self):
         r = self.get('/role_inferences/')
@@ -3063,19 +3062,19 @@ class ImpliedRolesTests(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin,
         url = '/roles/{prior_role_id}/implies/{implied_role_id}'.format(
             prior_role_id=prior_role['id'],
             implied_role_id=prohibited_role1['id'])
-        self.put(url, expected_status=http_client.FORBIDDEN)
+        self.put(url, expected_status=http.client.FORBIDDEN)
 
         prohibited_role2 = self._create_named_role(prohibited_name2)
         url = '/roles/{prior_role_id}/implies/{implied_role_id}'.format(
             prior_role_id=prior_role['id'],
             implied_role_id=prohibited_role2['id'])
-        self.put(url, expected_status=http_client.FORBIDDEN)
+        self.put(url, expected_status=http.client.FORBIDDEN)
 
         accepted_role1 = self._create_named_role(accepted_name1)
         url = '/roles/{prior_role_id}/implies/{implied_role_id}'.format(
             prior_role_id=prior_role['id'],
             implied_role_id=accepted_role1['id'])
-        self.put(url, expected_status=http_client.CREATED)
+        self.put(url, expected_status=http.client.CREATED)
 
     def test_trusts_from_implied_role(self):
         self._create_three_roles()
@@ -3171,7 +3170,7 @@ class ImpliedRolesTests(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin,
 
         self.put('/roles/%s/implies/%s' % (global_role['id'],
                                            domain_role['id']),
-                 expected_status=http_client.FORBIDDEN)
+                 expected_status=http.client.FORBIDDEN)
 
 
 class DomainSpecificRoleTests(test_v3.RestfulTestCase, unit.TestCase):
@@ -3239,7 +3238,7 @@ class DomainSpecificRoleTests(test_v3.RestfulTestCase, unit.TestCase):
             'role_id': self.domainA_role1['id']})
 
         self.get('/roles/%s' % self.domainA_role1['id'],
-                 expected_status=http_client.NOT_FOUND)
+                 expected_status=http.client.NOT_FOUND)
         # Now re-list those in domainA, making sure there's only one left
         r = self.get('/roles?domain_id=%s' % self.domainA['id'])
         self.assertValidRoleListResponse(r, expected_length=1)
@@ -3299,7 +3298,7 @@ class DomainSpecificRoleTests(test_v3.RestfulTestCase, unit.TestCase):
         # role in domainB
         self.put('/roles/%s/implies/%s' %
                  (self.domainA_role1['id'], self.domainB_role['id']),
-                 expected_status=http_client.CREATED)
+                 expected_status=http.client.CREATED)
 
         # A role in domainA can be assigned to a user from domainB
         # only for a project from domainA
@@ -3320,7 +3319,7 @@ class DomainSpecificRoleTests(test_v3.RestfulTestCase, unit.TestCase):
             password=user['password'],
             project_id=projectA['id'])
         self.post('/auth/tokens', body=auth_body,
-                  expected_status=http_client.UNAUTHORIZED)
+                  expected_status=http.client.UNAUTHORIZED)
 
 
 class ListUserProjectsTestCase(test_v3.RestfulTestCase):
@@ -3389,7 +3388,7 @@ class ListUserProjectsTestCase(test_v3.RestfulTestCase):
             projects_result = result.json['projects']
             self.assertEqual(1, len(projects_result))
             self.assertEqual(self.projects[i]['id'], projects_result[0]['id'])
-            self.head(url, auth=auth, expected_status=http_client.OK)
+            self.head(url, auth=auth, expected_status=http.client.OK)
 
     def test_list_enabled(self):
         for i in range(len(self.users)):
@@ -3473,7 +3472,7 @@ class UserSystemRoleAssignmentTestCase(test_v3.RestfulTestCase,
         roles = self.get(collection_url).json_body['roles']
         self.assertEqual(len(roles), 1)
         self.assertEqual(roles[0]['id'], system_role_id)
-        self.head(collection_url, expected_status=http_client.OK)
+        self.head(collection_url, expected_status=http.client.OK)
 
         response = self.get(
             '/role_assignments?scope.system=all&user.id=%(user_id)s' % {
@@ -3662,7 +3661,7 @@ class UserSystemRoleAssignmentTestCase(test_v3.RestfulTestCase,
             'user_id': self.user['id'],
             'role_id': system_role_id
         }
-        self.head(member_url, expected_status=http_client.NOT_FOUND)
+        self.head(member_url, expected_status=http.client.NOT_FOUND)
 
         response = self.get(
             '/role_assignments?scope.system=all&user.id=%(user_id)s' % {
@@ -3717,7 +3716,7 @@ class UserSystemRoleAssignmentTestCase(test_v3.RestfulTestCase,
             '/role_assignments?scope.system=all'
             '&scope.domain.id=%(domain_id)s'
         ) % {'domain_id': self.domain_id}
-        self.get(path, expected_status=http_client.BAD_REQUEST)
+        self.get(path, expected_status=http.client.BAD_REQUEST)
 
     def test_query_for_system_scope_and_project_scope_fails(self):
         # When asking for assignments and providing query parameters, we
@@ -3727,7 +3726,7 @@ class UserSystemRoleAssignmentTestCase(test_v3.RestfulTestCase,
             '/role_assignments?scope.system=all'
             '&scope.project.id=%(project_id)s'
         ) % {'project_id': self.project_id}
-        self.get(path, expected_status=http_client.BAD_REQUEST)
+        self.get(path, expected_status=http.client.BAD_REQUEST)
 
     def test_query_for_role_id_does_not_return_system_user_roles(self):
         system_role_id = self._create_new_role()
@@ -3777,7 +3776,7 @@ class GroupSystemRoleAssignmentTestCase(test_v3.RestfulTestCase,
         roles = self.get(collection_url).json_body['roles']
         self.assertEqual(len(roles), 1)
         self.assertEqual(roles[0]['id'], system_role_id)
-        self.head(collection_url, expected_status=http_client.OK)
+        self.head(collection_url, expected_status=http.client.OK)
 
         response = self.get(
             '/role_assignments?scope.system=all&group.id=%(group_id)s' % {
@@ -3799,7 +3798,7 @@ class GroupSystemRoleAssignmentTestCase(test_v3.RestfulTestCase,
             'group_id': group_id,
             'role_id': system_role_id
         }
-        self.put(member_url, expected_status=http_client.NOT_FOUND)
+        self.put(member_url, expected_status=http.client.NOT_FOUND)
 
     def test_list_role_assignments_for_group_returns_all_assignments(self):
         system_role_id = self._create_new_role()
@@ -3970,7 +3969,7 @@ class GroupSystemRoleAssignmentTestCase(test_v3.RestfulTestCase,
             'group_id': group['id'],
             'role_id': system_role_id
         }
-        self.head(member_url, expected_status=http_client.NOT_FOUND)
+        self.head(member_url, expected_status=http.client.NOT_FOUND)
 
         response = self.get(
             '/role_assignments?scope.system=all&group.id=%(group_id)s' % {

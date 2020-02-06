@@ -14,7 +14,6 @@
 
 from oslo_log import log
 from oslo_serialization import jsonutils
-import six
 from sqlalchemy import orm
 
 from keystone.common import sql
@@ -169,7 +168,7 @@ class Federation(base.FederationDriverBase):
 
     def _handle_idp_conflict(self, e):
         conflict_type = 'identity_provider'
-        details = six.text_type(e)
+        details = str(e)
         LOG.debug(self._CONFLICT_LOG_MSG, {'conflict_type': conflict_type,
                                            'details': details})
         if 'remote_id' in details:

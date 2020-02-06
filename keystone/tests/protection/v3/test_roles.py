@@ -12,7 +12,7 @@
 
 import uuid
 
-from six.moves import http_client
+import http.client
 
 from keystone.common import provider_api
 import keystone.conf
@@ -57,7 +57,7 @@ class _SystemReaderAndMemberRoleTests(object):
         with self.test_client() as c:
             c.post(
                 '/v3/roles', json=create, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_roles(self):
@@ -70,7 +70,7 @@ class _SystemReaderAndMemberRoleTests(object):
         with self.test_client() as c:
             c.patch(
                 '/v3/roles/%s' % role['id'], json=update, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_roles(self):
@@ -81,7 +81,7 @@ class _SystemReaderAndMemberRoleTests(object):
         with self.test_client() as c:
             c.delete(
                 '/v3/roles/%s' % role['id'], headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -94,7 +94,7 @@ class _DomainAndProjectUserRoleTests(object):
         with self.test_client() as c:
             c.get(
                 '/v3/roles', headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_get_a_role(self):
@@ -105,7 +105,7 @@ class _DomainAndProjectUserRoleTests(object):
         with self.test_client() as c:
             c.get(
                 '/v3/roles/%s' % role['id'], headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_create_roles(self):
@@ -114,7 +114,7 @@ class _DomainAndProjectUserRoleTests(object):
         with self.test_client() as c:
             c.post(
                 '/v3/roles', json=create, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_roles(self):
@@ -127,7 +127,7 @@ class _DomainAndProjectUserRoleTests(object):
         with self.test_client() as c:
             c.patch(
                 '/v3/roles/%s' % role['id'], json=update, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_roles(self):
@@ -138,7 +138,7 @@ class _DomainAndProjectUserRoleTests(object):
         with self.test_client() as c:
             c.delete(
                 '/v3/roles/%s' % role['id'], headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 

@@ -13,7 +13,7 @@
 import copy
 import uuid
 
-from six.moves import http_client
+import http.client
 
 from keystone.common import provider_api
 import keystone.conf
@@ -43,7 +43,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         url = '/domains/%(domain_id)s/config' % {
             'domain_id': self.domain['id']}
         r = self.put(url, body={'config': self.config},
-                     expected_status=http_client.CREATED)
+                     expected_status=http.client.CREATED)
         res = PROVIDERS.domain_config_api.get_config(self.domain['id'])
         self.assertEqual(self.config, r.result['config'])
         self.assertEqual(self.config, res)
@@ -66,11 +66,11 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         self.put('/domains/%(domain_id)s/config' % {
             'domain_id': self.domain['id']},
             body={'config': self.config},
-            expected_status=http_client.CREATED)
+            expected_status=http.client.CREATED)
         self.put('/domains/%(domain_id)s/config' % {
             'domain_id': self.domain['id']},
             body={'config': self.config},
-            expected_status=http_client.OK)
+            expected_status=http.client.OK)
 
     def test_delete_config(self):
         """Call ``DELETE /domains{domain_id}/config``."""
@@ -132,7 +132,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
             'domain_id': self.domain['id']}
         r = self.get(url)
         self.assertEqual(self.config, r.result['config'])
-        self.head(url, expected_status=http_client.OK)
+        self.head(url, expected_status=http.client.OK)
 
     def test_get_head_config_by_group(self):
         """Call ``GET & HEAD /domains{domain_id}/config/{group}``."""
@@ -143,7 +143,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
             'domain_id': self.domain['id']}
         r = self.get(url)
         self.assertEqual({'ldap': self.config['ldap']}, r.result['config'])
-        self.head(url, expected_status=http_client.OK)
+        self.head(url, expected_status=http.client.OK)
 
     def test_get_head_config_by_group_invalid_domain(self):
         """Call ``GET & HEAD /domains{domain_id}/config/{group}``.
@@ -172,7 +172,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         r = self.get(url)
         self.assertEqual({'url': self.config['ldap']['url']},
                          r.result['config'])
-        self.head(url, expected_status=http_client.OK)
+        self.head(url, expected_status=http.client.OK)
 
     def test_get_head_config_by_option_invalid_domain(self):
         """Call ``GET & HEAD /domains{domain_id}/config/{group}/{option}``.
@@ -196,8 +196,8 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         url = ('/domains/%(domain_id)s/config' % {
             'domain_id': self.domain['id']}
         )
-        self.get(url, expected_status=http_client.NOT_FOUND)
-        self.head(url, expected_status=http_client.NOT_FOUND)
+        self.get(url, expected_status=http.client.NOT_FOUND)
+        self.head(url, expected_status=http.client.NOT_FOUND)
 
     def test_get_head_non_existant_config_invalid_domain(self):
         """Call ``GET & HEAD /domains/{domain_id}/config with invalid domain``.
@@ -220,8 +220,8 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         url = ('/domains/%(domain_id)s/config/identity' % {
             'domain_id': self.domain['id']}
         )
-        self.get(url, expected_status=http_client.NOT_FOUND)
-        self.head(url, expected_status=http_client.NOT_FOUND)
+        self.get(url, expected_status=http.client.NOT_FOUND)
+        self.head(url, expected_status=http.client.NOT_FOUND)
 
     def test_get_head_non_existant_config_group_invalid_domain(self):
         """Call ``GET & HEAD /domains/{domain_id}/config/{group}``.
@@ -251,8 +251,8 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         url = ('/domains/%(domain_id)s/config/ldap/user_tree_dn' % {
             'domain_id': self.domain['id']}
         )
-        self.get(url, expected_status=http_client.NOT_FOUND)
-        self.head(url, expected_status=http_client.NOT_FOUND)
+        self.get(url, expected_status=http.client.NOT_FOUND)
+        self.head(url, expected_status=http.client.NOT_FOUND)
 
     def test_get_head_non_existant_config_option_with_invalid_domain(self):
         """Test that Domain Not Found is returned with invalid domain.
@@ -358,7 +358,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         self.patch('/domains/%(domain_id)s/config/%(invalid_group)s' % {
             'domain_id': self.domain['id'], 'invalid_group': invalid_group},
             body={'config': new_config},
-            expected_status=http_client.FORBIDDEN)
+            expected_status=http.client.FORBIDDEN)
         # Trying to update a valid group, but one that is not in the current
         # config should result in NotFound
         config = {'ldap': {'suffix': uuid.uuid4().hex}}
@@ -367,7 +367,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         self.patch('/domains/%(domain_id)s/config/identity' % {
             'domain_id': self.domain['id']},
             body={'config': new_config},
-            expected_status=http_client.NOT_FOUND)
+            expected_status=http.client.NOT_FOUND)
 
     def test_update_config_invalid_group_invalid_domain(self):
         """Call ``PATCH /domains/{domain_id}/config/{invalid_group}``.
@@ -435,7 +435,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
                 'domain_id': self.domain['id'],
                 'invalid_option': invalid_option},
             body={'config': new_config},
-            expected_status=http_client.FORBIDDEN)
+            expected_status=http.client.FORBIDDEN)
         # Trying to update a valid option, but one that is not in the current
         # config should result in NotFound
         new_config = {'suffix': uuid.uuid4().hex}
@@ -443,7 +443,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
             '/domains/%(domain_id)s/config/ldap/suffix' % {
                 'domain_id': self.domain['id']},
             body={'config': new_config},
-            expected_status=http_client.NOT_FOUND)
+            expected_status=http.client.NOT_FOUND)
 
     def test_update_config_invalid_option_invalid_domain(self):
         """Call ``PATCH /domains/{domain_id}/config/{group}/{invalid}``.
@@ -479,7 +479,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
             for option in default_config[group]:
                 self.assertEqual(getattr(getattr(CONF, group), option),
                                  default_config[group][option])
-        self.head(url, expected_status=http_client.OK)
+        self.head(url, expected_status=http.client.OK)
 
     def test_get_head_config_default_by_group(self):
         """Call ``GET & HEAD /domains/config/{group}/default``."""
@@ -494,7 +494,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         for option in default_config['ldap']:
             self.assertEqual(getattr(CONF.ldap, option),
                              default_config['ldap'][option])
-        self.head(url, expected_status=http_client.OK)
+        self.head(url, expected_status=http.client.OK)
 
     def test_get_head_config_default_by_option(self):
         """Call ``GET & HEAD /domains/config/{group}/{option}/default``."""
@@ -507,20 +507,20 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         r = self.get(url)
         default_config = r.result['config']
         self.assertEqual(CONF.ldap.url, default_config['url'])
-        self.head(url, expected_status=http_client.OK)
+        self.head(url, expected_status=http.client.OK)
 
     def test_get_head_config_default_by_invalid_group(self):
         """Call ``GET & HEAD for /domains/config/{bad-group}/default``."""
         # First try a valid group, but one we don't support for domain config
         self.get('/domains/config/resource/default',
-                 expected_status=http_client.FORBIDDEN)
+                 expected_status=http.client.FORBIDDEN)
         self.head('/domains/config/resource/default',
-                  expected_status=http_client.FORBIDDEN)
+                  expected_status=http.client.FORBIDDEN)
 
         # Now try a totally invalid group
         url = '/domains/config/%s/default' % uuid.uuid4().hex
-        self.get(url, expected_status=http_client.FORBIDDEN)
-        self.head(url, expected_status=http_client.FORBIDDEN)
+        self.get(url, expected_status=http.client.FORBIDDEN)
+        self.head(url, expected_status=http.client.FORBIDDEN)
 
     def test_get_head_config_default_for_unsupported_group(self):
         # It should not be possible to expose configuration information for
@@ -528,15 +528,15 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         # so would be a security vulnerability because it would leak sensitive
         # information over the API.
         self.get('/domains/config/ldap/password/default',
-                 expected_status=http_client.FORBIDDEN)
+                 expected_status=http.client.FORBIDDEN)
         self.head('/domains/config/ldap/password/default',
-                  expected_status=http_client.FORBIDDEN)
+                  expected_status=http.client.FORBIDDEN)
 
     def test_get_head_config_default_for_invalid_option(self):
         """Returning invalid configuration options is invalid."""
         url = '/domains/config/ldap/%s/default' % uuid.uuid4().hex
-        self.get(url, expected_status=http_client.FORBIDDEN)
-        self.head(url, expected_status=http_client.FORBIDDEN)
+        self.get(url, expected_status=http.client.FORBIDDEN)
+        self.head(url, expected_status=http.client.FORBIDDEN)
 
 
 class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
@@ -641,12 +641,12 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
         self.head(
             url,
             token=self._get_non_admin_token(),
-            expected_status=http_client.OK
+            expected_status=http.client.OK
         )
         self.head(
             url,
             token=self._get_admin_token(),
-            expected_status=http_client.OK
+            expected_status=http.client.OK
         )
 
     def test_get_security_compliance_config_for_non_default_domain_fails(self):
@@ -683,24 +683,24 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
         # this.
         self.get(
             url,
-            expected_status=http_client.FORBIDDEN,
+            expected_status=http.client.FORBIDDEN,
             token=self._get_non_admin_token()
         )
         self.get(
             url,
-            expected_status=http_client.FORBIDDEN,
+            expected_status=http.client.FORBIDDEN,
             token=self._get_admin_token()
         )
 
         # Ensure HEAD requests behave the same way
         self.head(
             url,
-            expected_status=http_client.FORBIDDEN,
+            expected_status=http.client.FORBIDDEN,
             token=self._get_non_admin_token()
         )
         self.head(
             url,
-            expected_status=http_client.FORBIDDEN,
+            expected_status=http.client.FORBIDDEN,
             token=self._get_admin_token()
         )
 
@@ -729,24 +729,24 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
         # sensitive information.
         self.get(
             url,
-            expected_status=http_client.FORBIDDEN,
+            expected_status=http.client.FORBIDDEN,
             token=self._get_non_admin_token()
         )
         self.get(
             url,
-            expected_status=http_client.FORBIDDEN,
+            expected_status=http.client.FORBIDDEN,
             token=self._get_admin_token()
         )
 
         # Ensure HEAD requests behave the same way
         self.head(
             url,
-            expected_status=http_client.FORBIDDEN,
+            expected_status=http.client.FORBIDDEN,
             token=self._get_non_admin_token()
         )
         self.head(
             url,
-            expected_status=http_client.FORBIDDEN,
+            expected_status=http.client.FORBIDDEN,
             token=self._get_admin_token()
         )
 
@@ -785,12 +785,12 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
         self.head(
             url,
             token=self._get_non_admin_token(),
-            expected_status=http_client.OK
+            expected_status=http.client.OK
         )
         self.head(
             url,
             token=self._get_admin_token(),
-            expected_status=http_client.OK
+            expected_status=http.client.OK
         )
 
     def test_get_security_compliance_password_regex_description(self):
@@ -828,12 +828,12 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
         self.head(
             url,
             token=self._get_non_admin_token(),
-            expected_status=http_client.OK
+            expected_status=http.client.OK
         )
         self.head(
             url,
             token=self._get_admin_token(),
-            expected_status=http_client.OK
+            expected_status=http.client.OK
         )
 
     def test_get_security_compliance_password_regex_returns_none(self):
@@ -861,12 +861,12 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
         self.head(
             url,
             token=self._get_non_admin_token(),
-            expected_status=http_client.OK
+            expected_status=http.client.OK
         )
         self.head(
             url,
             token=self._get_admin_token(),
-            expected_status=http_client.OK
+            expected_status=http.client.OK
         )
 
     def test_get_security_compliance_password_regex_desc_returns_none(self):
@@ -894,12 +894,12 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
         self.head(
             url,
             token=self._get_non_admin_token(),
-            expected_status=http_client.OK
+            expected_status=http.client.OK
         )
         self.head(
             url,
             token=self._get_admin_token(),
-            expected_status=http_client.OK
+            expected_status=http.client.OK
         )
 
     def test_get_security_compliance_config_with_user_from_other_domain(self):
@@ -975,7 +975,7 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
         self.head(
             url,
             token=user_token,
-            expected_status=http_client.OK
+            expected_status=http.client.OK
         )
 
     def test_update_security_compliance_config_group_fails(self):
@@ -1004,13 +1004,13 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
         self.patch(
             url,
             body={'config': new_config},
-            expected_status=http_client.FORBIDDEN,
+            expected_status=http.client.FORBIDDEN,
             token=self._get_non_admin_token()
         )
         self.patch(
             url,
             body={'config': new_config},
-            expected_status=http_client.FORBIDDEN,
+            expected_status=http.client.FORBIDDEN,
             token=self._get_admin_token()
         )
 
@@ -1037,13 +1037,13 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
         self.patch(
             url,
             body={'config': new_config},
-            expected_status=http_client.FORBIDDEN,
+            expected_status=http.client.FORBIDDEN,
             token=self._get_non_admin_token()
         )
         self.patch(
             url,
             body={'config': new_config},
-            expected_status=http_client.FORBIDDEN,
+            expected_status=http.client.FORBIDDEN,
             token=self._get_admin_token()
         )
 
@@ -1070,13 +1070,13 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
         self.patch(
             url,
             body={'config': new_config},
-            expected_status=http_client.FORBIDDEN,
+            expected_status=http.client.FORBIDDEN,
             token=self._get_non_admin_token()
         )
         self.patch(
             url,
             body={'config': new_config},
-            expected_status=http_client.FORBIDDEN,
+            expected_status=http.client.FORBIDDEN,
             token=self._get_admin_token()
         )
 
@@ -1108,13 +1108,13 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
         self.patch(
             url,
             body={'config': new_config},
-            expected_status=http_client.FORBIDDEN,
+            expected_status=http.client.FORBIDDEN,
             token=self._get_non_admin_token()
         )
         self.patch(
             url,
             body={'config': new_config},
-            expected_status=http_client.FORBIDDEN,
+            expected_status=http.client.FORBIDDEN,
             token=self._get_admin_token()
         )
 
@@ -1132,12 +1132,12 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
         # compliance configuration group.
         self.delete(
             url,
-            expected_status=http_client.FORBIDDEN,
+            expected_status=http.client.FORBIDDEN,
             token=self._get_non_admin_token()
         )
         self.delete(
             url,
-            expected_status=http_client.FORBIDDEN,
+            expected_status=http.client.FORBIDDEN,
             token=self._get_admin_token()
         )
 
@@ -1156,12 +1156,12 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
         # compliance configuration group.
         self.delete(
             url,
-            expected_status=http_client.FORBIDDEN,
+            expected_status=http.client.FORBIDDEN,
             token=self._get_non_admin_token()
         )
         self.delete(
             url,
-            expected_status=http_client.FORBIDDEN,
+            expected_status=http.client.FORBIDDEN,
             token=self._get_admin_token()
         )
 
@@ -1180,12 +1180,12 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
         # compliance configuration group.
         self.delete(
             url,
-            expected_status=http_client.FORBIDDEN,
+            expected_status=http.client.FORBIDDEN,
             token=self._get_non_admin_token()
         )
         self.delete(
             url,
-            expected_status=http_client.FORBIDDEN,
+            expected_status=http.client.FORBIDDEN,
             token=self._get_admin_token()
         )
 
@@ -1204,11 +1204,11 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
         # compliance configuration group.
         self.delete(
             url,
-            expected_status=http_client.FORBIDDEN,
+            expected_status=http.client.FORBIDDEN,
             token=self._get_non_admin_token()
         )
         self.delete(
             url,
-            expected_status=http_client.FORBIDDEN,
+            expected_status=http.client.FORBIDDEN,
             token=self._get_admin_token()
         )

@@ -14,13 +14,10 @@
 
 import abc
 
-import six
-
 from keystone import exception
 
 
-@six.add_metaclass(abc.ABCMeta)
-class ApplicationCredentialDriverBase(object):
+class ApplicationCredentialDriverBase(object, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def authenticate(self, application_credential_id, secret):

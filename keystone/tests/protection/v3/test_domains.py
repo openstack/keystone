@@ -12,8 +12,8 @@
 
 import uuid
 
+import http.client
 from oslo_serialization import jsonutils
-from six.moves import http_client
 
 from keystone.common.policies import domain as dp
 from keystone.common import provider_api
@@ -100,7 +100,7 @@ class _SystemMemberAndReaderDomainTests(object):
         with self.test_client() as c:
             c.post(
                 '/v3/domains', json=create, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_a_domain(self):
@@ -113,7 +113,7 @@ class _SystemMemberAndReaderDomainTests(object):
             c.patch(
                 '/v3/domains/%s' % domain['id'], json=update,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_a_domain(self):
@@ -124,7 +124,7 @@ class _SystemMemberAndReaderDomainTests(object):
         with self.test_client() as c:
             c.delete(
                 '/v3/domains/%s' % domain['id'], headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -143,14 +143,14 @@ class _DomainAndProjectUserDomainTests(object):
         with self.test_client() as c:
             c.get(
                 '/v3/domains/%s' % domain['id'], headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_list_domains(self):
         with self.test_client() as c:
             c.get(
                 '/v3/domains', headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_filter_domains_by_name(self):
@@ -166,18 +166,18 @@ class _DomainAndProjectUserDomainTests(object):
             c.get(
                 '/v3/domains?name=%s' % domain_name,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_filter_domains_by_enabled(self):
         with self.test_client() as c:
             c.get(
                 '/v3/domains?enabled=true', headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
             c.get(
                 '/v3/domains?enabled=false', headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_a_domain(self):
@@ -190,7 +190,7 @@ class _DomainAndProjectUserDomainTests(object):
             c.patch(
                 '/v3/domains/%s' % domain['id'], json=update,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_create_a_domain(self):
@@ -199,7 +199,7 @@ class _DomainAndProjectUserDomainTests(object):
         with self.test_client() as c:
             c.post(
                 '/v3/domains', json=create, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_a_domain(self):
@@ -212,11 +212,11 @@ class _DomainAndProjectUserDomainTests(object):
             path = '/v3/domains/%s' % domain['id']
             c.patch(
                 path, json=update, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
             c.delete(
                 path, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_get_non_existant_domain_forbidden(self):
@@ -225,7 +225,7 @@ class _DomainAndProjectUserDomainTests(object):
             c.get(
                 '/v3/domains/%s' % uuid.uuid4().hex,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 

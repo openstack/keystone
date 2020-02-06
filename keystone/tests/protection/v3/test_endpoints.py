@@ -12,7 +12,7 @@
 
 import uuid
 
-from six.moves import http_client
+import http.client
 
 from keystone.common import provider_api
 import keystone.conf
@@ -74,7 +74,7 @@ class _SystemReaderAndMemberUserEndpointTests(object):
         with self.test_client() as c:
             c.post(
                 '/v3/endpoints', json=create, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_endpoints(self):
@@ -92,7 +92,7 @@ class _SystemReaderAndMemberUserEndpointTests(object):
             c.patch(
                 '/v3/endpoints/%s' % endpoint['id'], json=update,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_endpoints(self):
@@ -107,7 +107,7 @@ class _SystemReaderAndMemberUserEndpointTests(object):
         with self.test_client() as c:
             c.delete(
                 '/v3/endpoints/%s' % endpoint['id'], headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -125,7 +125,7 @@ class _DomainAndProjectUserEndpointTests(object):
         with self.test_client() as c:
             c.post(
                 '/v3/endpoints', json=create, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_list_endpoints(self):
@@ -143,7 +143,7 @@ class _DomainAndProjectUserEndpointTests(object):
         with self.test_client() as c:
             c.get(
                 '/v3/endpoints', headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_get_an_endpoint(self):
@@ -158,7 +158,7 @@ class _DomainAndProjectUserEndpointTests(object):
         with self.test_client() as c:
             c.get(
                 '/v3/endpoints/%s' % endpoint['id'], headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_endpoints(self):
@@ -176,7 +176,7 @@ class _DomainAndProjectUserEndpointTests(object):
             c.patch(
                 '/v3/endpoints/%s' % endpoint['id'], json=update,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_endpoints(self):
@@ -191,7 +191,7 @@ class _DomainAndProjectUserEndpointTests(object):
         with self.test_client() as c:
             c.delete(
                 '/v3/endpoints/%s' % endpoint['id'], headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 

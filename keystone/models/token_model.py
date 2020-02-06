@@ -15,7 +15,6 @@
 from oslo_log import log
 from oslo_serialization import msgpackutils
 from oslo_utils import reflection
-import six
 
 from keystone.common import cache
 from keystone.common import provider_api
@@ -101,7 +100,7 @@ class TokenModel(object):
 
     @expires_at.setter
     def expires_at(self, value):
-        if not isinstance(value, six.string_types):
+        if not isinstance(value, str):
             raise ValueError('expires_at must be a string.')
         self.__expires_at = value
 
@@ -111,7 +110,7 @@ class TokenModel(object):
 
     @issued_at.setter
     def issued_at(self, value):
-        if not isinstance(value, six.string_types):
+        if not isinstance(value, str):
             raise ValueError('issued_at must be a string.')
         self.__issued_at = value
 

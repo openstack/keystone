@@ -16,10 +16,9 @@
 import datetime
 
 import freezegun
+import http.client
 from oslo_config import fixture as config_fixture
 from oslo_serialization import jsonutils
-from six.moves import http_client
-from six.moves import range
 
 from keystone.common import provider_api
 import keystone.conf
@@ -544,12 +543,12 @@ class IdentityPasswordExpiryFilteredTestCase(filtering.FilterTests,
         """
         bad_op_url = self._list_users_by_password_expires_at(
             self._format_timestamp(self.starttime), 'x')
-        self.get(bad_op_url, expected_status=http_client.BAD_REQUEST)
+        self.get(bad_op_url, expected_status=http.client.BAD_REQUEST)
 
         bad_op_url = self._list_users_by_multiple_password_expires_at(
             self._format_timestamp(self.starttime), 'lt',
             self._format_timestamp(self.starttime), 'x')
-        self.get(bad_op_url, expected_status=http_client.BAD_REQUEST)
+        self.get(bad_op_url, expected_status=http.client.BAD_REQUEST)
 
     def test_list_users_by_password_expires_with_bad_timestamp_fails(self):
         """Ensure an invalid timestamp returns a Bad Request.
@@ -561,15 +560,15 @@ class IdentityPasswordExpiryFilteredTestCase(filtering.FilterTests,
         """
         bad_ts_url = self._list_users_by_password_expires_at(
             self.starttime.strftime('%S:%M:%ST%Y-%m-%d'))
-        self.get(bad_ts_url, expected_status=http_client.BAD_REQUEST)
+        self.get(bad_ts_url, expected_status=http.client.BAD_REQUEST)
 
         bad_ts_url = self._list_users_by_multiple_password_expires_at(
             self._format_timestamp(self.starttime), 'lt',
             self.starttime.strftime('%S:%M:%ST%Y-%m-%d'), 'gt')
-        self.get(bad_ts_url, expected_status=http_client.BAD_REQUEST)
+        self.get(bad_ts_url, expected_status=http.client.BAD_REQUEST)
 
     def _list_users_in_group_by_password_expires_at(
-            self, time, operator=None, expected_status=http_client.OK):
+            self, time, operator=None, expected_status=http.client.OK):
         """Call `list_users_in_group` with `password_expires_at` filter.
 
         GET /groups/{group_id}/users?password_expires_at=
@@ -584,7 +583,7 @@ class IdentityPasswordExpiryFilteredTestCase(filtering.FilterTests,
 
     def _list_users_in_group_by_multiple_password_expires_at(
             self, first_time, first_operator, second_time, second_operator,
-            expected_status=http_client.OK):
+            expected_status=http.client.OK):
         """Call `list_users_in_group` with two `password_expires_at` filters.
 
         GET /groups/{group_id}/users?password_expires_at=
@@ -703,12 +702,12 @@ class IdentityPasswordExpiryFilteredTestCase(filtering.FilterTests,
         """
         bad_op_url = self._list_users_in_group_by_password_expires_at(
             self._format_timestamp(self.starttime), 'bad')
-        self.get(bad_op_url, expected_status=http_client.BAD_REQUEST)
+        self.get(bad_op_url, expected_status=http.client.BAD_REQUEST)
 
         bad_op_url = self._list_users_in_group_by_multiple_password_expires_at(
             self._format_timestamp(self.starttime), 'lt',
             self._format_timestamp(self.starttime), 'x')
-        self.get(bad_op_url, expected_status=http_client.BAD_REQUEST)
+        self.get(bad_op_url, expected_status=http.client.BAD_REQUEST)
 
     def test_list_users_in_group_by_password_expires_bad_timestamp_fails(self):
         """Ensure and invalid timestamp returns a Bad Request.
@@ -720,12 +719,12 @@ class IdentityPasswordExpiryFilteredTestCase(filtering.FilterTests,
         """
         bad_ts_url = self._list_users_in_group_by_password_expires_at(
             self.starttime.strftime('%S:%M:%ST%Y-%m-%d'))
-        self.get(bad_ts_url, expected_status=http_client.BAD_REQUEST)
+        self.get(bad_ts_url, expected_status=http.client.BAD_REQUEST)
 
         bad_ts_url = self._list_users_in_group_by_multiple_password_expires_at(
             self._format_timestamp(self.starttime), 'lt',
             self.starttime.strftime('%S:%M:%ST%Y-%m-%d'), 'gt')
-        self.get(bad_ts_url, expected_status=http_client.BAD_REQUEST)
+        self.get(bad_ts_url, expected_status=http.client.BAD_REQUEST)
 
 
 class IdentityTestListLimitCase(IdentityTestFilteredCase):

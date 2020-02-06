@@ -14,8 +14,6 @@
 
 import abc
 
-import six
-
 import keystone.conf
 from keystone import exception
 
@@ -23,8 +21,7 @@ from keystone import exception
 CONF = keystone.conf.CONF
 
 
-@six.add_metaclass(abc.ABCMeta)
-class AssignmentDriverBase(object):
+class AssignmentDriverBase(object, metaclass=abc.ABCMeta):
 
     def _get_list_limit(self):
         return CONF.assignment.list_limit or CONF.list_limit

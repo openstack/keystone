@@ -20,7 +20,6 @@ import uuid
 
 from oslo_log import log
 from oslo_utils import timeutils
-import six
 
 from keystone.common import cache
 from keystone.common import manager
@@ -71,8 +70,7 @@ def default_expire_time():
 def random_urlsafe_str():
     """Generate a random URL-safe string.
 
-    :rtype: six.text_type
-
+    :rtype: str
     """
     # chop the padding (==) off the end of the encoding to save space
     return base64.urlsafe_b64encode(uuid.uuid4().bytes)[:-2].decode('utf-8')
@@ -262,7 +260,7 @@ class Manager(manager.Manager):
 
         if isinstance(expires_at, datetime.datetime):
             token.expires_at = utils.isotime(expires_at, subsecond=True)
-        if isinstance(expires_at, six.string_types):
+        if isinstance(expires_at, str):
             token.expires_at = expires_at
         elif not expires_at:
             token.expires_at = utils.isotime(

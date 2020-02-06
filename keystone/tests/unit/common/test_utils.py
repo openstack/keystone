@@ -18,7 +18,6 @@ import uuid
 import freezegun
 from oslo_config import fixture as config_fixture
 from oslo_log import log
-import six
 
 from keystone.common import fernet_utils
 from keystone.common import utils as common_utils
@@ -52,16 +51,12 @@ class UtilsTestCase(unit.BaseTestCase):
         # Exact 64 length string, like ones used by mapping_id backend, are not
         # valid UUIDs, so they will be UUID5 namespaced
         value = u'f13de678ac714bb1b7d1e9a007c10db5' * 2
-        if six.PY2:
-            value = value.encode('utf-8')
         expected_id = uuid.uuid5(common_utils.RESOURCE_ID_NAMESPACE, value).hex
         self.assertEqual(expected_id, common_utils.resource_uuid(value))
 
     def test_resource_non_ascii_chars(self):
         # IDs with non-ASCII characters will be UUID5 namespaced
         value = u'ß' * 32
-        if six.PY2:
-            value = value.encode('utf-8')
         expected_id = uuid.uuid5(common_utils.RESOURCE_ID_NAMESPACE, value).hex
         self.assertEqual(expected_id, common_utils.resource_uuid(value))
 

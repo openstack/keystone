@@ -12,8 +12,8 @@
 
 import uuid
 
+import http.client
 from oslo_serialization import jsonutils
-from six.moves import http_client
 
 from keystone.common.policies import project as pp
 from keystone.common import provider_api
@@ -75,7 +75,7 @@ class _SystemUserTests(object):
             c.get(
                 '/v3/projects/%s/tags/%s' % (project['id'], tag),
                 headers=self.headers,
-                expected_status_code=http_client.NO_CONTENT
+                expected_status_code=http.client.NO_CONTENT
             )
 
     def test_user_can_list_project_tags(self):
@@ -109,7 +109,7 @@ class _SystemMemberAndReaderTagTests(object):
             c.put(
                 '/v3/projects/%s/tags/%s' % (project['id'], tag),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_project_tag(self):
@@ -126,7 +126,7 @@ class _SystemMemberAndReaderTagTests(object):
         with self.test_client() as c:
             c.put(
                 '/v3/projects/%s/tags' % project['id'], headers=self.headers,
-                json=update, expected_status_code=http_client.FORBIDDEN
+                json=update, expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_project_tag(self):
@@ -142,7 +142,7 @@ class _SystemMemberAndReaderTagTests(object):
             c.delete(
                 '/v3/projects/%s/tags/%s' % (project['id'], tag),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -160,7 +160,7 @@ class _DomainAndProjectUserTagTests(object):
             c.put(
                 '/v3/projects/%s/tags/%s' % (project['id'], tag),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_project_tag(self):
@@ -177,7 +177,7 @@ class _DomainAndProjectUserTagTests(object):
         with self.test_client() as c:
             c.put(
                 '/v3/projects/%s/tags' % project['id'], headers=self.headers,
-                json=update, expected_status_code=http_client.FORBIDDEN
+                json=update, expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_project_tag(self):
@@ -193,7 +193,7 @@ class _DomainAndProjectUserTagTests(object):
             c.delete(
                 '/v3/projects/%s/tags/%s' % (project['id'], tag),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -301,7 +301,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
             c.put(
                 '/v3/projects/%s/tags/%s' % (project['id'], tag),
                 headers=self.headers,
-                expected_status_code=http_client.CREATED
+                expected_status_code=http.client.CREATED
             )
 
     def test_user_can_update_project_tag(self):
@@ -319,7 +319,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
             c.put(
                 '/v3/projects/%s/tags' % project['id'], headers=self.headers,
                 json=update,
-                expected_status_code=http_client.OK
+                expected_status_code=http.client.OK
             )
 
     def test_user_can_delete_project_tag(self):
@@ -352,7 +352,7 @@ class _DomainUserTagTests(object):
             c.get(
                 '/v3/projects/%s/tags/%s' % (project['id'], tag),
                 headers=self.headers,
-                expected_status_code=http_client.NO_CONTENT
+                expected_status_code=http.client.NO_CONTENT
             )
 
     def test_user_can_list_tags_for_project_in_domain(self):
@@ -382,7 +382,7 @@ class _DomainUserTagTests(object):
             c.put(
                 '/v3/projects/%s/tags/%s' % (project['id'], tag),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_project_tag_outside_domain(self):
@@ -400,7 +400,7 @@ class _DomainUserTagTests(object):
         with self.test_client() as c:
             c.put(
                 '/v3/projects/%s/tags' % project['id'], headers=self.headers,
-                json=update, expected_status_code=http_client.FORBIDDEN
+                json=update, expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_project_tag_outside_domain(self):
@@ -416,7 +416,7 @@ class _DomainUserTagTests(object):
             c.delete(
                 '/v3/projects/%s/tags/%s' % (project['id'], tag),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_get_tag_for_project_outside_domain(self):
@@ -432,7 +432,7 @@ class _DomainUserTagTests(object):
             c.get(
                 '/v3/projects/%s/tags/%s' % (project['id'], tag),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_list_tags_for_project_outside_domain(self):
@@ -448,7 +448,7 @@ class _DomainUserTagTests(object):
             c.get(
                 '/v3/projects/%s/tags' % project['id'],
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -465,7 +465,7 @@ class _DomainMemberAndReaderTagTests(object):
             c.put(
                 '/v3/projects/%s/tags/%s' % (project['id'], tag),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_project_tag_in_domain(self):
@@ -482,7 +482,7 @@ class _DomainMemberAndReaderTagTests(object):
         with self.test_client() as c:
             c.put(
                 '/v3/projects/%s/tags' % project['id'], headers=self.headers,
-                json=update, expected_status_code=http_client.FORBIDDEN
+                json=update, expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_project_tag_in_domain(self):
@@ -497,7 +497,7 @@ class _DomainMemberAndReaderTagTests(object):
             c.delete(
                 '/v3/projects/%s/tags/%s' % (project['id'], tag),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -553,7 +553,7 @@ class DomainAdminUserTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.put(
                 '/v3/projects/%s/tags/%s' % (project['id'], tag),
-                headers=self.headers, expected_status_code=http_client.CREATED
+                headers=self.headers, expected_status_code=http.client.CREATED
             )
 
     def test_user_can_update_project_tag_in_domain(self):
@@ -570,7 +570,7 @@ class DomainAdminUserTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             r = c.put(
                 '/v3/projects/%s/tags' % project['id'], headers=self.headers,
-                json=update, expected_status_code=http_client.OK
+                json=update, expected_status_code=http.client.OK
             )
             self.assertTrue(len(r.json['tags']) == 1)
             self.assertEqual(new_tag, r.json['tags'][0])
@@ -688,7 +688,7 @@ class _ProjectUserTagTests(object):
             c.get(
                 '/v3/projects/%s/tags/%s' % (self.project_id, tag),
                 headers=self.headers,
-                expected_status_code=http_client.NO_CONTENT
+                expected_status_code=http.client.NO_CONTENT
             )
 
     def test_user_can_list_tags_for_project(self):
@@ -714,7 +714,7 @@ class _ProjectUserTagTests(object):
             c.put(
                 '/v3/projects/%s/tags/%s' % (project['id'], tag),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_tag_for_other_project(self):
@@ -731,7 +731,7 @@ class _ProjectUserTagTests(object):
         with self.test_client() as c:
             c.put(
                 '/v3/projects/%s/tags' % project['id'], headers=self.headers,
-                json=update, expected_status_code=http_client.FORBIDDEN
+                json=update, expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_tag_for_other_project(self):
@@ -747,7 +747,7 @@ class _ProjectUserTagTests(object):
             c.delete(
                 '/v3/projects/%s/tags/%s' % (project['id'], tag),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_get_tag_for_other_project(self):
@@ -763,7 +763,7 @@ class _ProjectUserTagTests(object):
             c.get(
                 '/v3/projects/%s/tags/%s' % (project['id'], tag),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_list_tags_for_other_project(self):
@@ -779,7 +779,7 @@ class _ProjectUserTagTests(object):
             c.get(
                 '/v3/projects/%s/tags' % project['id'],
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -791,7 +791,7 @@ class _ProjectMemberAndReaderTagTests(object):
             c.put(
                 '/v3/projects/%s/tags/%s' % (self.project_id, tag),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_project_tag(self):
@@ -803,7 +803,7 @@ class _ProjectMemberAndReaderTagTests(object):
         with self.test_client() as c:
             c.put(
                 '/v3/projects/%s/tags' % self.project_id, headers=self.headers,
-                json=update, expected_status_code=http_client.FORBIDDEN
+                json=update, expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_project_tag(self):
@@ -814,7 +814,7 @@ class _ProjectMemberAndReaderTagTests(object):
             c.delete(
                 '/v3/projects/%s/tags/%s' % (self.project_id, tag),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -860,7 +860,7 @@ class ProjectAdminTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.put(
                 '/v3/projects/%s/tags/%s' % (self.project_id, tag),
-                headers=self.headers, expected_status_code=http_client.CREATED
+                headers=self.headers, expected_status_code=http.client.CREATED
             )
 
     def test_user_can_update_project_tag(self):
@@ -872,7 +872,7 @@ class ProjectAdminTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.put(
                 '/v3/projects/%s/tags' % self.project_id, headers=self.headers,
-                json=update, expected_status_code=http_client.OK
+                json=update, expected_status_code=http.client.OK
             )
 
     def test_user_can_delete_project_tag(self):

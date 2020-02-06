@@ -12,7 +12,7 @@
 
 # This file handles all flask-restful resources for /v3/regions
 
-from six.moves import http_client
+import http.client
 
 from keystone.catalog import schema
 from keystone.common import provider_api
@@ -59,7 +59,7 @@ class RegionResource(ks_flask.ResourceBase):
             region = self._assign_unique_id(region)
         ref = PROVIDERS.catalog_api.create_region(
             region, initiator=self.audit_initiator)
-        return self.wrap_member(ref), http_client.CREATED
+        return self.wrap_member(ref), http.client.CREATED
 
     def put(self, region_id):
         ENFORCER.enforce_call(action='identity:create_region')
@@ -77,7 +77,7 @@ class RegionResource(ks_flask.ResourceBase):
 
         ref = PROVIDERS.catalog_api.create_region(
             region, initiator=self.audit_initiator)
-        return self.wrap_member(ref), http_client.CREATED
+        return self.wrap_member(ref), http.client.CREATED
 
     def patch(self, region_id):
         ENFORCER.enforce_call(action='identity:update_region')
@@ -90,7 +90,7 @@ class RegionResource(ks_flask.ResourceBase):
     def delete(self, region_id):
         ENFORCER.enforce_call(action='identity:delete_region')
         return PROVIDERS.catalog_api.delete_region(
-            region_id, initiator=self.audit_initiator), http_client.NO_CONTENT
+            region_id, initiator=self.audit_initiator), http.client.NO_CONTENT
 
 
 class RegionAPI(ks_flask.APIBase):

@@ -19,7 +19,6 @@ import flask
 import oslo_i18n
 from oslo_log import log
 from oslo_middleware import healthcheck
-import six
 
 try:
     # werkzeug 0.15.x
@@ -85,9 +84,9 @@ def _handle_keystone_exception(error):
             "Authorization failed. %(exception)s from %(remote_addr)s",
             {'exception': error, 'remote_addr': flask.request.remote_addr})
     elif isinstance(error, exception.UnexpectedError):
-        LOG.exception(six.text_type(error))
+        LOG.exception(str(error))
     else:
-        LOG.warning(six.text_type(error))
+        LOG.warning(str(error))
 
     # Render the exception to something user "friendly"
     error_message = error.args[0]
@@ -95,7 +94,7 @@ def _handle_keystone_exception(error):
     if message is error_message:
         # translate() didn't do anything because it wasn't a Message,
         # convert to a string.
-        message = six.text_type(message)
+        message = str(message)
 
     body = dict(
         error={

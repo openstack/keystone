@@ -13,7 +13,7 @@
 # This file handles all flask-restful resources for /OS-EP-FILTER
 
 import flask_restful
-from six.moves import http_client
+import http.client
 
 from keystone.api._shared import json_home_relations
 from keystone.api import endpoints as _endpoints_api
@@ -90,7 +90,7 @@ class EndpointGroupsResource(ks_flask.ResourceBase):
         self._require_valid_filter(ep_group)
         ep_group = self._assign_unique_id(ep_group)
         return self.wrap_member(PROVIDERS.catalog_api.create_endpoint_group(
-            ep_group['id'], ep_group)), http_client.CREATED
+            ep_group['id'], ep_group)), http.client.CREATED
 
     def patch(self, endpoint_group_id):
         ENFORCER.enforce_call(action='identity:update_endpoint_group')
@@ -105,7 +105,7 @@ class EndpointGroupsResource(ks_flask.ResourceBase):
     def delete(self, endpoint_group_id):
         ENFORCER.enforce_call(action='identity:delete_endpoint_group')
         return (PROVIDERS.catalog_api.delete_endpoint_group(endpoint_group_id),
-                http_client.NO_CONTENT)
+                http.client.NO_CONTENT)
 
 
 class EPFilterEndpointProjectsResource(flask_restful.Resource):
@@ -127,19 +127,19 @@ class EPFilterProjectsEndpointsResource(flask_restful.Resource):
         PROVIDERS.resource_api.get_project(project_id)
         PROVIDERS.catalog_api.check_endpoint_in_project(
             endpoint_id, project_id)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
     def put(self, project_id, endpoint_id):
         ENFORCER.enforce_call(action='identity:add_endpoint_to_project')
         PROVIDERS.catalog_api.get_endpoint(endpoint_id)
         PROVIDERS.resource_api.get_project(project_id)
         PROVIDERS.catalog_api.add_endpoint_to_project(endpoint_id, project_id)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
     def delete(self, project_id, endpoint_id):
         ENFORCER.enforce_call(action='identity:remove_endpoint_from_project')
         return (PROVIDERS.catalog_api.remove_endpoint_from_project(
-            endpoint_id, project_id), http_client.NO_CONTENT)
+            endpoint_id, project_id), http.client.NO_CONTENT)
 
 
 class EPFilterProjectEndpointsListResource(flask_restful.Resource):
@@ -219,7 +219,7 @@ class EPFilterGroupsProjectsResource(ks_flask.ResourceBase):
         PROVIDERS.catalog_api.get_endpoint_group(endpoint_group_id)
         PROVIDERS.catalog_api.add_endpoint_group_to_project(
             endpoint_group_id, project_id)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
     def delete(self, endpoint_group_id, project_id):
         ENFORCER.enforce_call(
@@ -228,7 +228,7 @@ class EPFilterGroupsProjectsResource(ks_flask.ResourceBase):
         PROVIDERS.catalog_api.get_endpoint_group(endpoint_group_id)
         PROVIDERS.catalog_api.remove_endpoint_group_from_project(
             endpoint_group_id, project_id)
-        return None, http_client.NO_CONTENT
+        return None, http.client.NO_CONTENT
 
 
 class EPFilterAPI(ks_flask.APIBase):

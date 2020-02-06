@@ -12,7 +12,7 @@
 
 import uuid
 
-from six.moves import http_client
+import http.client
 
 from keystone.common import provider_api
 import keystone.conf
@@ -49,7 +49,7 @@ class _SystemReaderAndMemberOauth1ConsumerTests(object):
         with self.test_client() as c:
             c.post('/v3/OS-OAUTH1/consumers',
                    json={'consumer': {}},
-                   expected_status_code=http_client.FORBIDDEN,
+                   expected_status_code=http.client.FORBIDDEN,
                    headers=self.headers)
 
     def test_user_cannot_update_consumer(self):
@@ -58,7 +58,7 @@ class _SystemReaderAndMemberOauth1ConsumerTests(object):
         with self.test_client() as c:
             c.patch('/v3/OS-OAUTH1/consumers/%s' % ref['id'],
                     json={'consumer': {'description': uuid.uuid4().hex}},
-                    expected_status_code=http_client.FORBIDDEN,
+                    expected_status_code=http.client.FORBIDDEN,
                     headers=self.headers)
 
     def test_user_cannot_delete_consumer(self):
@@ -66,7 +66,7 @@ class _SystemReaderAndMemberOauth1ConsumerTests(object):
             {'id': uuid.uuid4().hex})
         with self.test_client() as c:
             c.delete('/v3/OS-OAUTH1/consumers/%s' % ref['id'],
-                     expected_status_code=http_client.FORBIDDEN,
+                     expected_status_code=http.client.FORBIDDEN,
                      headers=self.headers)
 
 

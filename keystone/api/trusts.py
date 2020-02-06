@@ -17,9 +17,9 @@
 
 import flask
 import flask_restful
+import http.client
 from oslo_log import log
 from oslo_policy import _checks as op_checks
-from six.moves import http_client
 
 from keystone.api._shared import json_home_relations
 from keystone.common import context
@@ -305,7 +305,7 @@ class TrustResource(ks_flask.ResourceBase):
             initiator=self.audit_initiator)
         _normalize_trust_expires_at(return_trust)
         _normalize_trust_roles(return_trust)
-        return self.wrap_member(return_trust), http_client.CREATED
+        return self.wrap_member(return_trust), http.client.CREATED
 
     def delete(self, trust_id):
         ENFORCER.enforce_call(action='identity:delete_trust',
@@ -336,7 +336,7 @@ class TrustResource(ks_flask.ResourceBase):
                 raise exception.ForbiddenAction(action=action)
         PROVIDERS.trust_api.delete_trust(trust_id,
                                          initiator=self.audit_initiator)
-        return '', http_client.NO_CONTENT
+        return '', http.client.NO_CONTENT
 
 
 # NOTE(morgan): Since this Resource is not being used with the automatic

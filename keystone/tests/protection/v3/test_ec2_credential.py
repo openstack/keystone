@@ -10,8 +10,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import http.client
 from oslo_serialization import jsonutils
-from six.moves import http_client
 
 from keystone.common.policies import base as bp
 from keystone.common import provider_api
@@ -85,7 +85,7 @@ class _UserEC2CredentialTests(object):
         with self.test_client() as c:
             c.post('/v3/users/%s/credentials/OS-EC2' % self.user_id,
                    json={'tenant_id': project['id']}, headers=self.headers,
-                   expected_status_code=http_client.CREATED)
+                   expected_status_code=http.client.CREATED)
 
     def test_user_delete_their_ec2_credentials(self):
         project = unit.new_project_ref(
@@ -122,7 +122,7 @@ class _UserEC2CredentialTests(object):
         with self.test_client() as c:
             c.post('/v3/users/%s/credentials/OS-EC2' % user['id'],
                    json={'tenant_id': project['id']}, headers=self.headers,
-                   expected_status_code=http_client.FORBIDDEN)
+                   expected_status_code=http.client.FORBIDDEN)
 
     def test_user_cannot_delete_ec2_credentials_for_others(self):
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
@@ -152,7 +152,7 @@ class _UserEC2CredentialTests(object):
             c.delete('/v3/users/%s/credentials/OS-EC2/%s' % (
                      self.user_id, credential_id),
                      headers=self.headers,
-                     expected_status_code=http_client.FORBIDDEN)
+                     expected_status_code=http.client.FORBIDDEN)
 
 
 class _SystemUserTests(object):
@@ -185,7 +185,7 @@ class _SystemUserTests(object):
             path = '/v3/users/%s/credentials/OS-EC2/%s' % (
                 self.user_id, credential_id)
             c.get(path, headers=self.headers,
-                  expected_status_code=http_client.OK)
+                  expected_status_code=http.client.OK)
 
 
 class _SystemReaderAndMemberTests(object):

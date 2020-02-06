@@ -19,7 +19,6 @@ import uuid
 
 import mock
 from oslo_policy import policy as common_policy
-import six
 
 from keystone.common import policies
 from keystone.common.rbac_enforcer import policy
@@ -226,7 +225,7 @@ class PolicyJsonTestCase(unit.TestCase):
                     if line.startswith('=='):
                         break
                     target, dummy, dummy = line.partition(' ')
-                    yield six.text_type(target)
+                    yield str(target)
 
         doc_targets = list(read_doc_targets())
         self.assertItemsEqual(policy_keys, doc_targets + policy_rule_keys)

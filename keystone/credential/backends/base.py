@@ -15,7 +15,6 @@
 import abc
 
 from oslo_log import log
-import six
 
 from keystone import exception
 
@@ -23,8 +22,7 @@ from keystone import exception
 LOG = log.getLogger(__name__)
 
 
-@six.add_metaclass(abc.ABCMeta)
-class CredentialDriverBase(object):
+class CredentialDriverBase(object, metaclass=abc.ABCMeta):
     # credential crud
 
     @abc.abstractmethod

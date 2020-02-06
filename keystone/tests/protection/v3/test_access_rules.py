@@ -12,7 +12,7 @@
 
 import uuid
 
-from six.moves import http_client
+import http.client
 
 from keystone.common import provider_api
 import keystone.conf
@@ -133,7 +133,7 @@ class _ProjectUsersTests(object):
                 user['id'], access_rule_id)
             c.get(
                 path, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_get_own_non_existent_access_rule_not_found(self):
@@ -142,7 +142,7 @@ class _ProjectUsersTests(object):
                 '/v3/users/%s/access_rules/%s' % (
                     self.user_id, uuid.uuid4().hex),
                 headers=self.headers,
-                expected_status_code=http_client.NOT_FOUND
+                expected_status_code=http.client.NOT_FOUND
             )
 
     def test_cannot_get_non_existent_access_rule_other_user_forbidden(self):
@@ -153,7 +153,7 @@ class _ProjectUsersTests(object):
                 '/v3/users/%s/access_rules/%s' % (
                     user['id'], uuid.uuid4().hex),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_list_access_rules_for_other_users(self):
@@ -186,7 +186,7 @@ class _ProjectUsersTests(object):
         with self.test_client() as c:
             path = '/v3/users/%s/access_rules' % user['id']
             c.get(path, headers=self.headers,
-                  expected_status_code=http_client.FORBIDDEN)
+                  expected_status_code=http.client.FORBIDDEN)
 
     def test_user_cannot_delete_access_rules_for_others(self):
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
@@ -222,7 +222,7 @@ class _ProjectUsersTests(object):
                 user['id'], access_rule_id)
             c.delete(
                 path, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_cannot_delete_non_existent_access_rule_other_user_forbidden(self):
@@ -233,7 +233,7 @@ class _ProjectUsersTests(object):
                 '/v3/users/%s/access_rules/%s' % (
                     user['id'], uuid.uuid4().hex),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -281,7 +281,7 @@ class _SystemUserAccessRuleTests(object):
                 '/v3/users/%s/access_rules/%s' % (
                     user['id'], uuid.uuid4().hex),
                 headers=self.headers,
-                expected_status_code=http_client.NOT_FOUND
+                expected_status_code=http.client.NOT_FOUND
             )
 
 
@@ -352,7 +352,7 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
                 user['id'], access_rule_id)
             c.delete(
                 path, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_non_existent_access_rule_forbidden(self):
@@ -363,7 +363,7 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
                 '/v3/users/%s/access_rules/%s' % (
                     user['id'], uuid.uuid4().hex),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -434,7 +434,7 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
                 user['id'], access_rule_id)
             c.delete(
                 path, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
         with self.test_client() as c:
@@ -442,7 +442,7 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
                 user['id'], access_rule_id)
             c.delete(
                 path, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_non_existent_access_rule_forbidden(self):
@@ -453,7 +453,7 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
                 '/v3/users/%s/access_rules/%s' % (
                     user['id'], uuid.uuid4().hex),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -526,7 +526,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
                 '/v3/users/%s/access_rules/%s' % (
                     user['id'], uuid.uuid4().hex),
                 headers=self.headers,
-                expected_status_code=http_client.NOT_FOUND
+                expected_status_code=http.client.NOT_FOUND
             )
 
 

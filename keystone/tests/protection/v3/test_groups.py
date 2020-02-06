@@ -12,8 +12,8 @@
 
 import uuid
 
+import http.client
 from oslo_serialization import jsonutils
-from six.moves import http_client
 
 from keystone.common.policies import group as gp
 from keystone.common import provider_api
@@ -113,14 +113,14 @@ class _SystemUserGroupTests(object):
             c.get(
                 '/v3/groups/%s/users/%s' % (group['id'], user['id']),
                 headers=self.headers,
-                expected_status_code=http_client.NO_CONTENT
+                expected_status_code=http.client.NO_CONTENT
             )
 
     def test_user_cannot_get_non_existent_group_not_found(self):
         with self.test_client() as c:
             c.get(
                 '/v3/groups/%s' % uuid.uuid4().hex, headers=self.headers,
-                expected_status_code=http_client.NOT_FOUND
+                expected_status_code=http.client.NOT_FOUND
             )
 
 
@@ -142,7 +142,7 @@ class _SystemAndDomainMemberAndReaderGroupTests(object):
         with self.test_client() as c:
             c.post(
                 '/v3/groups', json=create, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_update_group(self):
@@ -159,7 +159,7 @@ class _SystemAndDomainMemberAndReaderGroupTests(object):
             c.patch(
                 '/v3/groups/%s' % group['id'], json=update,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_delete_group(self):
@@ -173,7 +173,7 @@ class _SystemAndDomainMemberAndReaderGroupTests(object):
         with self.test_client() as c:
             c.delete(
                 '/v3/groups/%s' % group['id'], headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_add_users_to_group(self):
@@ -191,7 +191,7 @@ class _SystemAndDomainMemberAndReaderGroupTests(object):
             c.put(
                 '/v3/groups/%s/users/%s' % (group['id'], user['id']),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_remove_users_from_group(self):
@@ -211,7 +211,7 @@ class _SystemAndDomainMemberAndReaderGroupTests(object):
             c.delete(
                 '/v3/groups/%s/users/%s' % (group['id'], user['id']),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
 
@@ -442,13 +442,13 @@ class _DomainUserGroupTests(object):
         with self.test_client() as c:
             c.get('/v3/groups/%s' % group['id'],
                   headers=self.headers,
-                  expected_status_code=http_client.FORBIDDEN)
+                  expected_status_code=http.client.FORBIDDEN)
 
     def test_user_cannot_get_non_existent_group_forbidden(self):
         with self.test_client() as c:
             c.get(
                 '/v3/groups/%s' % uuid.uuid4().hex, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_can_list_groups_in_domain_for_user_in_domain(self):
@@ -479,13 +479,13 @@ class _DomainUserGroupTests(object):
         with self.test_client() as c:
             c.get('/v3/users/%s/groups' % user['id'],
                   headers=self.headers,
-                  expected_status_code=http_client.FORBIDDEN)
+                  expected_status_code=http.client.FORBIDDEN)
 
     def test_user_cannot_list_groups_for_non_existent_user_forbidden(self):
         with self.test_client() as c:
             c.get('/v3/users/%s/groups' % uuid.uuid4().hex,
                   headers=self.headers,
-                  expected_status_code=http_client.FORBIDDEN)
+                  expected_status_code=http.client.FORBIDDEN)
 
     def test_user_cannot_list_groups_in_other_domain_user_in_own_domain(self):
         domain = PROVIDERS.resource_api.create_domain(
@@ -563,13 +563,13 @@ class _DomainUserGroupTests(object):
         with self.test_client() as c:
             c.get('/v3/groups/%s/users' % group['id'],
                   headers=self.headers,
-                  expected_status_code=http_client.FORBIDDEN)
+                  expected_status_code=http.client.FORBIDDEN)
 
     def test_user_cannot_list_users_in_non_existent_group_forbidden(self):
         with self.test_client() as c:
             c.get('/v3/groups/%s/users' % uuid.uuid4().hex,
                   headers=self.headers,
-                  expected_status_code=http_client.FORBIDDEN)
+                  expected_status_code=http.client.FORBIDDEN)
 
     def test_user_can_check_user_in_own_domain_group_in_own_domain(self):
         user = PROVIDERS.identity_api.create_user(
@@ -583,11 +583,11 @@ class _DomainUserGroupTests(object):
             c.head('/v3/groups/%(group)s/users/%(user)s' % {
                    'group': group['id'], 'user': user['id']},
                    headers=self.headers,
-                   expected_status_code=http_client.NO_CONTENT)
+                   expected_status_code=http.client.NO_CONTENT)
             c.get('/v3/groups/%(group)s/users/%(user)s' % {
                   'group': group['id'], 'user': user['id']},
                   headers=self.headers,
-                  expected_status_code=http_client.NO_CONTENT)
+                  expected_status_code=http.client.NO_CONTENT)
 
     def test_user_cannot_check_user_in_other_domain_group_in_own_domain(self):
         domain = PROVIDERS.resource_api.create_domain(
@@ -604,11 +604,11 @@ class _DomainUserGroupTests(object):
             c.head('/v3/groups/%(group)s/users/%(user)s' % {
                    'group': group['id'], 'user': user['id']},
                    headers=self.headers,
-                   expected_status_code=http_client.FORBIDDEN)
+                   expected_status_code=http.client.FORBIDDEN)
             c.get('/v3/groups/%(group)s/users/%(user)s' % {
                   'group': group['id'], 'user': user['id']},
                   headers=self.headers,
-                  expected_status_code=http_client.FORBIDDEN)
+                  expected_status_code=http.client.FORBIDDEN)
 
 
 class DomainReaderTests(base_classes.TestCaseWithBootstrap,
@@ -836,7 +836,7 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
 
         with self.test_client() as c:
             c.post('/v3/groups', json=create, headers=self.headers,
-                   expected_status_code=http_client.FORBIDDEN)
+                   expected_status_code=http.client.FORBIDDEN)
 
     def test_user_can_update_group_in_own_domain(self):
         group = PROVIDERS.identity_api.create_group(
@@ -862,7 +862,7 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
             c.patch(
                 '/v3/groups/%s' % group['id'], json=update,
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_can_delete_group_in_own_domain(self):
@@ -886,7 +886,7 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
             c.delete(
                 '/v3/groups/%s' % group['id'],
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_can_remove_user_in_own_domain_from_group_in_own_domain(self):
@@ -917,7 +917,7 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
             c.delete('/v3/groups/%(group)s/users/%(user)s' % {
                      'group': group['id'], 'user': user['id']},
                      headers=self.headers,
-                     expected_status_code=http_client.FORBIDDEN)
+                     expected_status_code=http.client.FORBIDDEN)
 
     def test_user_cannot_remove_user_own_domain_from_group_other_domain(self):
         domain = PROVIDERS.resource_api.create_domain(
@@ -934,7 +934,7 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
             c.delete('/v3/groups/%(group)s/users/%(user)s' % {
                      'group': group['id'], 'user': user['id']},
                      headers=self.headers,
-                     expected_status_code=http_client.FORBIDDEN)
+                     expected_status_code=http.client.FORBIDDEN)
 
     def test_user_cannot_remove_non_existent_user_from_group_forbidden(self):
         group = PROVIDERS.identity_api.create_group(
@@ -944,7 +944,7 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
             c.delete('/v3/groups/%(group)s/users/%(user)s' % {
                      'group': group['id'], 'user': uuid.uuid4().hex},
                      headers=self.headers,
-                     expected_status_code=http_client.FORBIDDEN)
+                     expected_status_code=http.client.FORBIDDEN)
 
     def test_user_cannot_remove_user_from_non_existent_group_forbidden(self):
         user = PROVIDERS.identity_api.create_user(
@@ -954,7 +954,7 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
             c.delete('/v3/groups/%(group)s/users/%(user)s' % {
                      'group': uuid.uuid4().hex, 'user': user['id']},
                      headers=self.headers,
-                     expected_status_code=http_client.FORBIDDEN)
+                     expected_status_code=http.client.FORBIDDEN)
 
     def test_user_can_add_user_in_own_domain_to_group_in_own_domain(self):
         group = PROVIDERS.identity_api.create_group(
@@ -982,7 +982,7 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
             c.put('/v3/groups/%(group)s/users/%(user)s' % {
                   'group': group['id'], 'user': user['id']},
                   headers=self.headers,
-                  expected_status_code=http_client.FORBIDDEN)
+                  expected_status_code=http.client.FORBIDDEN)
 
     def test_user_cannot_add_user_own_domain_to_group_other_domain(self):
         domain = PROVIDERS.resource_api.create_domain(
@@ -998,7 +998,7 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
             c.put('/v3/groups/%(group)s/users/%(user)s' % {
                   'group': group['id'], 'user': user['id']},
                   headers=self.headers,
-                  expected_status_code=http_client.FORBIDDEN)
+                  expected_status_code=http.client.FORBIDDEN)
 
     def test_user_cannot_add_non_existent_user_to_group_forbidden(self):
         group = PROVIDERS.identity_api.create_group(
@@ -1008,7 +1008,7 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
             c.put('/v3/groups/%(group)s/users/%(user)s' % {
                   'group': group['id'], 'user': uuid.uuid4().hex},
                   headers=self.headers,
-                  expected_status_code=http_client.FORBIDDEN)
+                  expected_status_code=http.client.FORBIDDEN)
 
     def test_user_cannot_add_user_from_non_existent_group_forbidden(self):
         user = PROVIDERS.identity_api.create_user(
@@ -1018,7 +1018,7 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
             c.put('/v3/groups/%(group)s/users/%(user)s' % {
                   'group': uuid.uuid4().hex, 'user': user['id']},
                   headers=self.headers,
-                  expected_status_code=http_client.FORBIDDEN)
+                  expected_status_code=http.client.FORBIDDEN)
 
 
 class ProjectUserTests(base_classes.TestCaseWithBootstrap,
@@ -1089,7 +1089,7 @@ class ProjectUserTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.get(
                 '/v3/users/%s/groups' % user['id'], headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_list_groups(self):
@@ -1103,7 +1103,7 @@ class ProjectUserTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.get(
                 '/v3/groups', headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_get_a_group(self):
@@ -1117,7 +1117,7 @@ class ProjectUserTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.get(
                 '/v3/groups/%s' % group['id'], headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_list_group_members(self):
@@ -1136,7 +1136,7 @@ class ProjectUserTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.get(
                 '/v3/groups/%s/users' % group['id'], headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_check_if_user_in_group(self):
@@ -1156,12 +1156,12 @@ class ProjectUserTests(base_classes.TestCaseWithBootstrap,
             c.get(
                 '/v3/groups/%s/users/%s' % (group['id'], user['id']),
                 headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )
 
     def test_user_cannot_get_non_existent_group_forbidden(self):
         with self.test_client() as c:
             c.get(
                 '/v3/groups/%s' % uuid.uuid4().hex, headers=self.headers,
-                expected_status_code=http_client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN
             )

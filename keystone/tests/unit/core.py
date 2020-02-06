@@ -31,14 +31,13 @@ import warnings
 import fixtures
 import flask
 from flask import testing as flask_testing
+import http.client
 from oslo_config import fixture as config_fixture
 from oslo_context import context as oslo_context
 from oslo_context import fixture as oslo_ctx_fixture
 from oslo_log import fixture as log_fixture
 from oslo_log import log
 from oslo_utils import timeutils
-import six
-from six.moves import http_client
 from sqlalchemy import exc
 import testtools
 from testtools import testcase
@@ -61,7 +60,7 @@ from keystone.tests.unit import ksfixtures
 keystone.conf.configure()
 keystone.conf.set_config_defaults()
 
-PID = six.text_type(os.getpid())
+PID = str(os.getpid())
 TESTSDIR = os.path.dirname(os.path.abspath(__file__))
 TESTCONF = os.path.join(TESTSDIR, 'config_files')
 ROOTDIR = os.path.normpath(os.path.join(TESTSDIR, '..', '..', '..'))
@@ -449,7 +448,7 @@ def new_application_credential_ref(roles=None,
     if secret:
         ref['secret'] = secret
 
-    if isinstance(expires, six.string_types):
+    if isinstance(expires, str):
         ref['expires_at'] = expires
     elif isinstance(expires, dict):
         ref['expires_at'] = (
@@ -521,7 +520,7 @@ def new_trust_ref(trustor_user_id, trustee_user_id, project_id=None,
     if isinstance(redelegation_count, int):
         ref.update(redelegation_count=redelegation_count)
 
-    if isinstance(expires, six.string_types):
+    if isinstance(expires, str):
         ref['expires_at'] = expires
     elif isinstance(expires, dict):
         ref['expires_at'] = (
@@ -591,12 +590,12 @@ def _assert_expected_status(f):
     TEAPOT_HTTP_STATUS = 418
 
     _default_expected_responses = {
-        'get': http_client.OK,
-        'head': http_client.OK,
-        'post': http_client.CREATED,
-        'put': http_client.NO_CONTENT,
-        'patch': http_client.OK,
-        'delete': http_client.NO_CONTENT,
+        'get': http.client.OK,
+        'head': http.client.OK,
+        'post': http.client.CREATED,
+        'put': http.client.NO_CONTENT,
+        'patch': http.client.OK,
+        'delete': http.client.NO_CONTENT,
     }
 
     @functools.wraps(f)
@@ -607,7 +606,7 @@ def _assert_expected_status(f):
         expected_status_code = kwargs.pop(
             'expected_status_code',
             _default_expected_responses.get(
-                f.__name__.lower(), http_client.OK))
+                f.__name__.lower(), http.client.OK))
         response = f(*args, **kwargs)
 
         # Logic to verify the response object is sane. Expand as needed

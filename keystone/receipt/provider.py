@@ -18,7 +18,6 @@ import datetime
 
 from oslo_log import log
 from oslo_utils import timeutils
-import six
 
 from keystone.common import cache
 from keystone.common import manager
@@ -159,7 +158,7 @@ class Manager(manager.Manager):
 
         if isinstance(expires_at, datetime.datetime):
             receipt.expires_at = utils.isotime(expires_at, subsecond=True)
-        if isinstance(expires_at, six.string_types):
+        if isinstance(expires_at, str):
             receipt.expires_at = expires_at
         elif not expires_at:
             receipt.expires_at = utils.isotime(
