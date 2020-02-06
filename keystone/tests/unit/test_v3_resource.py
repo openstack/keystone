@@ -27,6 +27,9 @@ from keystone.tests.unit import utils as test_utils
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
 
+_DEFAULT_TAG = ['single_tag']
+_DEFAULT_TAGS = [None, [], ['vc-a-0', 'tag_1', 'tag_2'], _DEFAULT_TAG]
+
 
 class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
     """Test domains and projects."""
@@ -843,7 +846,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
 
         return projects
 
-    def _create_project_and_tags(self, num_of_tags=1):
+    def _create_project_and_tags(self, num_of_tags=1, with_default_tag=False):
         """Create a project and a number of tags attached to that project.
 
         :param num_of_tags: the desired number of tags created with a specified
@@ -853,7 +856,19 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
                   random tags
         """
         tags = [uuid.uuid4().hex for i in range(num_of_tags)]
-        ref = unit.new_project_ref(domain_id=self.domain_id, tags=tags)
+
+        if num_of_tags > 0:
+            if with_default_tag:
+                # remove the last tag
+                tags.pop()
+                # add default tag instead
+                tags += _DEFAULT_TAG
+            ref = unit.new_project_ref(
+                domain_id=self.domain_id,
+                tags=tags)
+        else:
+            ref = unit.new_project_without_tags_ref(
+                domain_id=self.domain_id)
         resp = self.post('/projects', body={'project': ref})
         return resp.result['project'], tags
 
@@ -1760,14 +1775,22 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         )
 
     def test_create_project_with_tags(self):
-        project, tags = self._create_project_and_tags(num_of_tags=10)
-        ref = self.get(
-            '/projects/{project_id}'.format(project_id=project['id']),
-            expected_status=http.client.OK,
-        )
-        self.assertIn('tags', ref.result['project'])
-        for tag in tags:
-            self.assertIn(tag, ref.result['project']['tags'])
+        for config_setting in _DEFAULT_TAGS:
+            if config_setting is not None:
+                self.config_fixture.config(default_tag=config_setting)
+            for tag_number in [0, 10]:
+                project, tags = self._create_project_and_tags(
+                    num_of_tags=tag_number, with_default_tag=True)
+                ref = self.get(
+                    '/projects/%(project_id)s' % {
+                        'project_id': project['id']},
+                    expected_status=http.client.OK)
+                self.assertIn('tags', ref.result['project'])
+                for tag in tags:
+                    self.assertIn(tag, ref.result['project']['tags'])
+                if config_setting is not None:
+                    for tag in config_setting:
+                        self.assertIn(tag, ref.result['project']['tags'])
 
     def test_update_project_with_tags(self):
         project, tags = self._create_project_and_tags(num_of_tags=9)

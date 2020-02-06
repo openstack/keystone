@@ -230,6 +230,16 @@ class Manager(manager.Manager):
         project['name'] = project['name'].strip()
         project.setdefault('description', '')
 
+        # ccloud add default tag(s)
+        if CONF.default_tag:
+            default_tags = [x.strip() for x in CONF.default_tag]
+            if 'tags' in project:
+                # a user may have provided a tag, which is a default tag, again
+                # make unique by converting to a set
+                project['tags'] = list(set(project['tags'] + default_tags))
+            else:
+                project['tags'] = default_tags
+
         # For regular projects, the controller will ensure we have a valid
         # domain_id. For projects acting as a domain, the project_id
         # is, effectively, the domain_id - and for such projects we don't
