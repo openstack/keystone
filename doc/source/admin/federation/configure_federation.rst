@@ -143,6 +143,17 @@ associating them with a local keystone group and inheriting its role
 assignments, or dynamically provisioning projects within keystone based on these
 rules.
 
+.. note::
+
+   By default, group memberships that a user gets from a mapping are only valid
+   for the duration of the token. It is possible to persist these groups
+   memberships for a limited period of time. To enable this, either
+   set the ``authorization_ttl` attribute of the identity provider, or the
+   ``[federation] default_authorization_ttl`` in the keystone.conf file. This
+   value is in minutes, and will result in a lag from when a user is removed
+   from a group in the identity provider, and when that will happen in keystone.
+   Please consider your security requirements carefully.
+
 An Identity Provider has exactly one mapping specified per protocol.
 Mapping objects can be used multiple times by different combinations of Identity
 Provider and Protocol.

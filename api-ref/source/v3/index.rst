@@ -26,6 +26,14 @@ For information about Identity API protection, see
 <https://docs.openstack.org/keystone/latest/admin/service-api-protection.html>`_
 in the OpenStack Cloud Administrator Guide.
 
+===================================
+What's New in Version 3.14 (Ussuri)
+===================================
+
+- New attribute ``authorization_ttl`` for identity providers
+- New attribute ``membership_expires_at`` when listing groups for a user
+- Ability to persist group memberships carried through mapping for a federated user
+
 ==================================
 What's New in Version 3.13 (Train)
 ==================================

@@ -1135,7 +1135,7 @@ class Manager(manager.Manager):
         self.get_user_by_name.invalidate(self, user_old['name'],
                                          user_old['domain_id'])
         for fed_user in fed_users:
-            self.shadow_federated_user.invalidate(
+            self._shadow_federated_user.invalidate(
                 self, fed_user['idp_id'], fed_user['protocol_id'],
                 fed_user['unique_id'], fed_user['display_name'],
                 user_old.get('extra', {}).get('email'))
@@ -1402,18 +1402,8 @@ class Manager(manager.Manager):
             return PROVIDERS.shadow_users_api.create_nonlocal_user(user)
 
     @MEMOIZE
-    def shadow_federated_user(self, idp_id, protocol_id, unique_id,
-                              display_name, email=None):
-        """Map a federated user to a user.
-
-        :param idp_id: identity provider id
-        :param protocol_id: protocol id
-        :param unique_id: unique id for the user within the IdP
-        :param display_name: user's display name
-        :param email: user's email
-
-        :returns: dictionary of the mapped User entity
-        """
+    def _shadow_federated_user(self, idp_id, protocol_id, unique_id,
+                               display_name, email=None):
         user_dict = {}
         try:
             PROVIDERS.shadow_users_api.update_federated_user_display_name(
@@ -1439,6 +1429,29 @@ class Manager(manager.Manager):
             )
         PROVIDERS.shadow_users_api.set_last_active_at(user_dict['id'])
         return user_dict
+
+    def shadow_federated_user(self, idp_id, protocol_id, unique_id,
+                              display_name, email=None, group_ids=None):
+            """Map a federated user to a user.
+
+            :param idp_id: identity provider id
+            :param protocol_id: protocol id
+            :param unique_id: unique id for the user within the IdP
+            :param display_name: user's display name
+            :param email: user's email
+            :param group_ids: list of group ids to add the user to
+
+            :returns: dictionary of the mapped User entity
+            """
+            user_dict = self._shadow_federated_user(
+                idp_id, protocol_id, unique_id, display_name, email)
+            # Note(knikolla): The shadowing operation can be cached,
+            # however we need to update the expiring group memberships.
+            if group_ids:
+                for group_id in group_ids:
+                    PROVIDERS.shadow_users_api.add_user_to_group_expires(
+                        user_dict['id'], group_id)
+            return user_dict
 
 
 class MappingManager(manager.Manager):

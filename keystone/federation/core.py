@@ -182,7 +182,7 @@ class Manager(manager.Manager):
         self.driver.delete_protocol(idp_id, protocol_id)
 
         for shadow_user in shadow_users:
-            PROVIDERS.identity_api.shadow_federated_user.invalidate(
+            PROVIDERS.identity_api._shadow_federated_user.invalidate(
                 PROVIDERS.identity_api, shadow_user['idp_id'],
                 shadow_user['protocol_id'], shadow_user['unique_id'],
                 shadow_user['display_name'],

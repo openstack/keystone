@@ -1,0 +1,19 @@
+---
+features:
+  - |
+    [`bug 1809116 <https://bugs.launchpad.net/keystone/+bug/1809116>`_]
+    It is now possible to have group memberships carried over through mapping
+    persist for a limited time after a user authenticates using federation.
+    The "time to live" of these memberships is specified via the configuration
+    option `[federation] default_authorization_ttl` or for each identity
+    provider by setting `authorization_ttl` on the identity provider. Every
+    time a user authenticates carrying over that membership, it will be
+    renewed.
+security:
+  - |
+    If expiring user group memberships are enabled via the `[federation]
+    default_authorization_ttl` configuration option, or on an idp by idp
+    basis by setting `authorization_ttl`, there will be a lag between when
+    a user is removed from a group in an identity provider, and when that
+    will be reflected in keystone. That amount of time will be equal to
+    the last time the user logged in + idp ttl.

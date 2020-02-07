@@ -672,6 +672,41 @@ class SqlIdentity(SqlTests,
                 negative_user['id'])
             self.assertEqual(0, len(group_refs))
 
+    def test_add_user_to_group_expiring_mapped(self):
+        self._build_fed_resource()
+        domain = self._get_domain_fixture()
+        self.config_fixture.config(group='federation',
+                                   default_authorization_ttl=5)
+        time = datetime.datetime.utcnow()
+        tick = datetime.timedelta(minutes=5)
+
+        new_group = unit.new_group_ref(domain_id=domain['id'])
+        new_group = PROVIDERS.identity_api.create_group(new_group)
+
+        fed_dict = unit.new_federated_user_ref()
+        fed_dict['idp_id'] = 'myidp'
+        fed_dict['protocol_id'] = 'mapped'
+
+        with freezegun.freeze_time(time - tick) as frozen_time:
+            user = PROVIDERS.identity_api.shadow_federated_user(
+                **fed_dict, group_ids=[new_group['id']])
+
+            PROVIDERS.identity_api.check_user_in_group(user['id'],
+                                                       new_group['id'])
+
+            # Expiration
+            frozen_time.tick(tick)
+            self.assertRaises(exception.NotFound,
+                              PROVIDERS.identity_api.check_user_in_group,
+                              user['id'],
+                              new_group['id'])
+
+            # Renewal
+            PROVIDERS.identity_api.shadow_federated_user(
+                **fed_dict, group_ids=[new_group['id']])
+            PROVIDERS.identity_api.check_user_in_group(user['id'],
+                                                       new_group['id'])
+
     def test_add_user_to_group_expiring(self):
         self._build_fed_resource()
         domain = self._get_domain_fixture()
