@@ -1,0 +1,9 @@
+---
+fixes:
+  - |
+    [`Bug 1856904 <https://bugs.launchpad.net/keystone/+bug/1856904>`_]
+    The initiator object for CADF notifications now will always contain the
+    username for the user who initated the action. Previously, the initator
+    object only contained the user_id, which lead to issues mapping to users
+    when using LDAP-backed identity providers. This also helps the initiator
+    object better conform to the OpenStack standard for CADF.
