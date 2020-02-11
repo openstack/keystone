@@ -80,7 +80,10 @@ overrides to perform additional identity operations.
 
 This command will also create ``member`` and ``reader`` roles. The ``admin``
 role implies the ``member`` role and ``member`` role implies the ``reader``
-role.
+role. By default, these three roles are immutable, meaning they are created with
+the ``immutable`` resource option and cannot be modified or deleted unless the
+option is removed. To disable this behavior, add the ``--no-immutable-roles``
+flag.
 
 By creating an ``admin`` user and an identity endpoint you may
 authenticate to keystone and perform identity operations like creating
