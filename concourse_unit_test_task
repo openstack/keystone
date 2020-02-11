@@ -4,7 +4,7 @@ export WATCHER_DISABLED=true && \
 export UPPER_CONSTRAINTS_FILE=https://raw.githubusercontent.com/sapcc/requirements/stable/train-m3/upper-constraints.txt && \
 apt-get update && \
 apt-get install -y build-essential python-pip libpq-dev postgresql-client python3.7 python3.7-dev python3-distutils python3-psycopg2  git libpcre++-dev gettext libsqlite3-dev libsasl2-dev libldap2-dev libssl-dev libldap-2.4-2 memcached && \
-pip install tox && \
+pip install tox "six>=1.14.0" && \
 /etc/init.d/memcached start && \
 git clone -b stable/victoria-m3 --single-branch https://github.com/sapcc/keystone.git --depth=1 && \
 cd keystone && \
