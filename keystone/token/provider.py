@@ -172,7 +172,7 @@ class Manager(manager.Manager):
         token.access_token_id = access_token_id
         token.application_credential_id = app_cred_id
         token.expires_at = expires_at
-        if federated_group_ids:
+        if federated_group_ids is not None:
             token.is_federated = True
             token.identity_provider_id = identity_provider_id
             token.protocol_id = protocol_id

@@ -93,7 +93,7 @@ class TestValidate(unit.TestCase):
             user_ref['password_expires_at'], token.user['password_expires_at']
         )
 
-    def test_validate_v3_token_federated_info(self):
+    def _test_validate_v3_token_federted_info(self, group_ids):
         # Check the user fields in the token result when use validate_v3_token
         # when the token has federated info.
 
@@ -107,7 +107,6 @@ class TestValidate(unit.TestCase):
 
         method_names = ['mapped']
 
-        group_ids = [uuid.uuid4().hex, ]
         idp_id = uuid.uuid4().hex
         idp_ref = {
             'id': idp_id,
@@ -136,6 +135,18 @@ class TestValidate(unit.TestCase):
         self.assertEqual(exp_group_ids, token.federated_groups)
         self.assertEqual(idp_id, token.identity_provider_id)
         self.assertEqual(protocol, token.protocol_id)
+
+    def test_validate_v3_token_federated_info(self):
+        # Check the user fields in the token result when use validate_v3_token
+        # when the token has federated info.
+
+        group_ids = [uuid.uuid4().hex, ]
+        self._test_validate_v3_token_federted_info(group_ids)
+
+    def test_validate_v3_token_federated_info_empty_group(self):
+        # check when federated users got empty group ids
+
+        self._test_validate_v3_token_federted_info([])
 
     def test_validate_v3_token_trust(self):
         # Check the trust fields in the token result when use validate_v3_token
@@ -199,6 +210,14 @@ class TestValidate(unit.TestCase):
             PROVIDERS.token_provider_api.validate_token,
             token_id
         )
+
+
+class TestValidateWithoutCache(TestValidate):
+
+    def config_overrides(self):
+        super(TestValidateWithoutCache, self).config_overrides()
+        self.config_fixture.config(group='token', caching=False)
+        self.config_fixture.config(group='token', cache_on_issue=False)
 
 
 class TestTokenFormatter(unit.TestCase):
