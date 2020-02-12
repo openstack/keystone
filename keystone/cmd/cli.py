@@ -113,13 +113,19 @@ class BootStrap(BaseApp):
                                   'placed in during the keystone bootstrap '
                                   'process.'))
         parser.add_argument('--immutable-roles',
+                            default=True,
+                            action='store_true',
+                            help=('Whether default roles (admin, member, and '
+                                  'reader) should be immutable. This is the '
+                                  'default.'))
+        parser.add_argument('--no-immutable-roles',
                             default=False,
                             action='store_true',
                             help=('Whether default roles (admin, member, and '
                                   'reader) should be immutable. Immutable '
-                                  'default roles is currently an opt-in '
-                                  'behavior, but will become the default in '
-                                  'future releases.'))
+                                  'default roles is the default, use this '
+                                  'flag to opt out of immutable default '
+                                  'roles.'))
         return parser
 
     def do_bootstrap(self):
@@ -175,7 +181,10 @@ class BootStrap(BaseApp):
         self.bootstrapper.public_url = self.public_url
         self.bootstrapper.internal_url = self.internal_url
         self.bootstrapper.region_id = self.region_id
-        self.bootstrapper.immutable_roles = CONF.command.immutable_roles
+        if CONF.command.no_immutable_roles:
+            self.bootstrapper.immutable_roles = False
+        else:
+            self.bootstrapper.immutable_roles = True
 
         self.bootstrapper.bootstrap()
         self.reader_role_id = self.bootstrapper.reader_role_id

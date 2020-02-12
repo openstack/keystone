@@ -122,13 +122,10 @@ class Bootstrapper(object):
             LOG.info('Created role %s', role_name)
             if not self.immutable_roles:
                 LOG.warning("Role %(role)s was created as a mutable role. It "
-                            "is recommended to make this role immutable, "
-                            "which will become the default behavior of the "
-                            "bootstrap command in the future.You can opt into "
-                            "this behavior by using the --immutable-role "
-                            "flag, or update role %(role)s with the "
-                            "'immutable' resource option.",
-                            {'role': role_name})
+                            "is recommended to make this role immutable by "
+                            "adding the 'immutable' resource option to this "
+                            "role, or re-running this command without "
+                            "--no-immutable-role.", {'role': role_name})
             return role
         except exception.Conflict:
             LOG.info('Role %s exists, skipping creation.', role_name)
