@@ -775,6 +775,6 @@ class TestKeystoneFlaskUnrouted404(rest.RestfulTestCase):
             path = '/{unrouted_path}'.format(unrouted_path=uuid.uuid4())
             resp = c.get(path, expected_status_code=404)
             # Make sure we're emitting a html error
-            self.assertEqual('text/html', resp.headers['Content-Type'])
+            self.assertIn('text/html', resp.headers['Content-Type'])
             # Ensure the more generic flask/werkzeug 404 response is emitted
             self.assertTrue(b'404 Not Found' in resp.data)
