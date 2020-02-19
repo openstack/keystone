@@ -221,14 +221,10 @@
         - keystone-tox-protection
     gate:
       jobs:
-        - keystone-dsvm-functional:
-            irrelevant-files: *irrelevant-files
         - keystone-dsvm-py3-functional:
             irrelevant-files: *irrelevant-files
         - keystone-dsvm-py3-functional-federation-opensuse15-k2k:
             irrelevant-files: *irrelevant-files
-        - tempest-full:
-            irrelevant-files: *tempest-irrelevant-files
         - tempest-full-py3:
             irrelevant-files: *tempest-irrelevant-files
         - grenade-py3:
