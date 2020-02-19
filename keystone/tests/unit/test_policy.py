@@ -242,5 +242,5 @@ class GeneratePolicyFileTestCase(unit.TestCase):
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
-        ret_val.communicate()
-        self.assertEqual(ret_val.returncode, 0)
+        output = ret_val.communicate()
+        self.assertEqual(ret_val.returncode, 0, output)
