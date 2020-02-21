@@ -1,0 +1,8 @@
+---
+fixes:
+  - >
+    Replaced the usage of SQLAlchemy Inspector.from_engine() with the
+    sqlalchemy.inspect() call, within several Alembic migration files as well
+    as a test suite.   SQLAlchemy will be deprecating the former syntax,
+    so this change allows forwads compatibility with the next series of
+    SQLAlchemy.

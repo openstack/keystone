@@ -22,7 +22,7 @@ def upgrade(migrate_engine):
     service_table = sql.Table('service', meta, autoload=True)
     region_table = sql.Table('region', meta, autoload=True)
 
-    inspector = sql.engine.reflection.Inspector.from_engine(migrate_engine)
+    inspector = sql.inspect(migrate_engine)
     for fk in inspector.get_foreign_keys('registered_limit'):
         if fk['referred_table'] == 'service':
             fkey = ForeignKeyConstraint([registered_limit_table.c.service_id],

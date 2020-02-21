@@ -26,7 +26,7 @@ def upgrade(migrate_engine):
 
     if migrate_engine.name != 'sqlite':
         project_table = sql.Table('project', meta, autoload=True)
-        inspector = sql.engine.reflection.Inspector.from_engine(migrate_engine)
+        inspector = sql.inspect(migrate_engine)
         for fk in inspector.get_foreign_keys('limit'):
             fkey = migrate.ForeignKeyConstraint(
                 [limit_table.c.project_id],
