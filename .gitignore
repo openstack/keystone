@@ -34,6 +34,8 @@ keystone/locale/*/LC_MESSAGES/*.mo
 *.db
 # Files created by releasenotes build
 releasenotes/build
+RELEASENOTES.rst
+releasenotes/notes/reno.cache
 # sample config included in docs
 doc/source/_static/keystone.conf.sample
 etc/keystone.conf.sample
