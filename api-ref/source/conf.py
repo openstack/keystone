@@ -147,11 +147,6 @@ pygments_style = 'sphinx'
 # directly to the root of the documentation.
 # html_extra_path = []
 
-# If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
-# using the given strftime format.
-git_cmd = ["git", "log", "--pretty=format:'%ad, commit %h'", "--date=local",
-           "-n1"]
-
 # If true, SmartyPants will be used to convert quotes and dashes to
 # typographically correct entities.
 # html_use_smartypants = True
