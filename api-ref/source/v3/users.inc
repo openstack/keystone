@@ -128,7 +128,7 @@ Parameters
    - links: links_user
    - name: user_name_response_body
    - password_expires_at: password_expires_at
-   - options: user_options_response_body
+   - options: response_user_options_body_required
 
 Status Codes
 ~~~~~~~~~~~~
@@ -259,7 +259,7 @@ Parameters
    - links: links_user
    - name: user_name_response_body
    - password_expires_at: password_expires_at
-   - options: user_options_response_body
+   - options: response_user_options_body_required
 
 Status Codes
 ~~~~~~~~~~~~
