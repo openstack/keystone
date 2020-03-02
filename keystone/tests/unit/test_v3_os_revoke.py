@@ -11,7 +11,7 @@
 # under the License.
 
 import datetime
-import mock
+from unittest import mock
 import uuid
 
 import freezegun

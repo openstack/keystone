@@ -10,13 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from unittest import mock
 import uuid
 
 import fixtures
 import flask
 from flask import blueprints
 import flask_restful
-import mock
 from oslo_policy import policy
 
 from keystone.common import authorization

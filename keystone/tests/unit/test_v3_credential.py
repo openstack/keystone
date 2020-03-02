@@ -14,11 +14,11 @@
 
 import hashlib
 import json
+from unittest import mock
 import uuid
 
 import http.client
 from keystoneclient.contrib.ec2 import utils as ec2_utils
-import mock
 from oslo_db import exception as oslo_db_exception
 from testtools import matchers
 

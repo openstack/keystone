@@ -16,13 +16,13 @@ import random
 import re
 import subprocess
 from testtools import matchers
+from unittest import mock
 import uuid
 
 import fixtures
 import flask
 import http.client
 from lxml import etree
-import mock
 from oslo_serialization import jsonutils
 from oslo_utils import importutils
 import saml2

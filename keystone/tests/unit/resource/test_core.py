@@ -11,9 +11,9 @@
 # under the License.
 
 import copy
+from unittest import mock
 import uuid
 
-import mock
 from oslo_config import cfg
 from testtools import matchers
 

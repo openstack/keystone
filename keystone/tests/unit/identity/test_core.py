@@ -14,9 +14,9 @@
 
 import itertools
 import os
+from unittest import mock
 import uuid
 
-import mock
 from oslo_config import fixture as config_fixture
 
 from keystone.common import provider_api

@@ -13,9 +13,9 @@
 # under the License.
 
 import datetime
+from unittest import mock
 import uuid
 
-import mock
 from oslo_db import exception as db_exception
 from oslo_db import options
 import sqlalchemy

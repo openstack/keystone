@@ -12,9 +12,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from unittest import mock
 import uuid
 
-import mock
 import stevedore
 
 from keystone.api._shared import authentication

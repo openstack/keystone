@@ -42,13 +42,13 @@ import datetime
 import glob
 import json
 import os
+from unittest import mock
 import uuid
 
 import fixtures
 import migrate
 from migrate.versioning import repository
 from migrate.versioning import script
-import mock
 from oslo_db import exception as db_exception
 from oslo_db.sqlalchemy import enginefacade
 from oslo_db.sqlalchemy import test_fixtures as db_fixtures

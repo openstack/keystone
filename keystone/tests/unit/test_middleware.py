@@ -14,11 +14,11 @@
 
 import copy
 import hashlib
+from unittest import mock
 import uuid
 
 import fixtures
 import http.client
-import mock
 import webtest
 
 from keystone.auth import core as auth_core

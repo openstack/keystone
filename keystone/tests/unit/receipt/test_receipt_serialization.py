@@ -11,9 +11,8 @@
 # under the License.
 
 import datetime
+from unittest import mock
 import uuid
-
-import mock
 
 from keystone.common.cache import _context_cache
 from keystone.common import utils as ks_utils

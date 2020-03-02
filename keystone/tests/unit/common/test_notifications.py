@@ -13,12 +13,12 @@
 #   under the License.
 
 import datetime
+from unittest import mock
 import uuid
 
 import fixtures
 import freezegun
 import http.client
-import mock
 from oslo_config import fixture as config_fixture
 from oslo_log import log
 import oslo_messaging

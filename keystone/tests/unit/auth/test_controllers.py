@@ -12,10 +12,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from unittest import mock
 import uuid
 
 import fixtures
-import mock
 from oslo_config import cfg
 from oslo_config import fixture as config_fixture
 import stevedore

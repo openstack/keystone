@@ -16,6 +16,7 @@ import copy
 import datetime
 import logging
 import os
+from unittest import mock
 import uuid
 
 import argparse
@@ -23,7 +24,6 @@ import configparser
 import fixtures
 import freezegun
 import http.client
-import mock
 import oslo_config.fixture
 from oslo_db.sqlalchemy import migration
 from oslo_log import log

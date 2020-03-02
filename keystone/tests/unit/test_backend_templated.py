@@ -12,9 +12,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from unittest import mock
 import uuid
-
-import mock
 
 from keystone.catalog.backends import base as catalog_base
 from keystone.common import provider_api

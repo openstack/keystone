@@ -13,12 +13,12 @@
 # under the License.
 
 import datetime
+from unittest import mock
 import uuid
 
 import fixtures
 import freezegun
 import http.client
-import mock
 from oslo_db import exception as oslo_db_exception
 from oslo_log import log
 from testtools import matchers

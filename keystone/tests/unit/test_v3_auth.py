@@ -18,11 +18,11 @@ import fixtures
 import itertools
 import operator
 import re
+from unittest import mock
 import uuid
 
 import freezegun
 import http.client
-import mock
 from oslo_serialization import jsonutils as json
 from oslo_utils import fixture
 from oslo_utils import timeutils

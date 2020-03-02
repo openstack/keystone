@@ -12,9 +12,9 @@
 
 
 import datetime
+from unittest import mock
 import uuid
 
-import mock
 from oslo_utils import timeutils
 from testtools import matchers
 

@@ -15,9 +15,9 @@
 
 import os
 import subprocess
+from unittest import mock
 import uuid
 
-import mock
 from oslo_policy import policy as common_policy
 
 from keystone.common import policies

@@ -13,8 +13,8 @@
 import base64
 import datetime
 import hashlib
-import mock
 import os
+from unittest import mock
 import uuid
 
 from oslo_utils import timeutils

@@ -11,9 +11,9 @@
 # under the License.
 
 import copy
+from unittest import mock
 import uuid
 
-import mock
 from testtools import matchers
 
 from keystone.catalog.backends import base

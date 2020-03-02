@@ -15,11 +15,11 @@
 import copy
 import datetime
 import random
+from unittest import mock
 import uuid
 
 import freezegun
 import http.client
-import mock
 from oslo_serialization import jsonutils
 from pycadf import cadftaxonomy
 import urllib

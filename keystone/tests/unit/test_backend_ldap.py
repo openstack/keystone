@@ -15,12 +15,12 @@
 # under the License.
 
 import copy
+from unittest import mock
 import uuid
 
 import fixtures
 import http.client
 import ldap
-import mock
 from oslo_log import versionutils
 import pkg_resources
 from testtools import matchers
