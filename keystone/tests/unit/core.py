@@ -684,6 +684,9 @@ class BaseTestCase(testtools.TestCase):
         warnings.filterwarnings('error', category=DeprecationWarning,
                                 module='^keystone\\.')
         warnings.simplefilter('error', exc.SAWarning)
+        if hasattr(exc, "RemovedIn20Warning"):
+            warnings.simplefilter('ignore', exc.RemovedIn20Warning)
+
         self.addCleanup(warnings.resetwarnings)
         # Ensure we have an empty threadlocal context at the start of each
         # test.
