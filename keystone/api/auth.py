@@ -276,7 +276,7 @@ class AuthTokenResource(_AuthFederationWebSSOBase):
         """
         # TODO(morgan): eliminate the check_token action only use validate
         # NOTE(morgan): Well lookie here, we have different enforcements
-        # for no good reason (historical), because the methods previouslly
+        # for no good reason (historical), because the methods previously
         # had to be named different names. Check which method and do the
         # correct enforcement.
         if flask.request.method == 'HEAD':
