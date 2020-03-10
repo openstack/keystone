@@ -10,6 +10,7 @@
         "is_domain": true,
         "name": "myUpdatedProject",
         "parent_id": null,
-        "tags": []
+        "tags": [],
+        "options": {}
     }
 }

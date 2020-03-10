@@ -102,6 +102,7 @@ Parameters
    - enabled: domain_enabled_request_body
    - description: domain_description_request_body
    - name: domain_name_request_body
+   - options: request_domain_options_body_not_required
 
 Example
 ~~~~~~~
@@ -123,6 +124,7 @@ Parameters
    - id: domain_id_response_body
    - links: domain_link_response_body
    - name: domain_name_response_body
+   - options: response_role_options_body_required
 
 Status Codes
 ~~~~~~~~~~~~
@@ -177,6 +179,7 @@ Parameters
    - id: domain_id_response_body
    - links: domain_link_response_body
    - name: domain_name_response_body
+   - options: response_role_options_body_required
 
 Status Codes
 ~~~~~~~~~~~~
@@ -224,6 +227,7 @@ Parameters
    - enabled: domain_enabled_update_request_body
    - description: domain_description_update_request_body
    - name: domain_name_update_request_body
+   - options: request_domain_options_body_not_required
 
 Example
 ~~~~~~~
@@ -245,6 +249,7 @@ Parameters
    - id: domain_id_response_body
    - links: domain_link_response_body
    - name: domain_name_response_body
+   - options: response_role_options_body_required
 
 Status Codes
 ~~~~~~~~~~~~
