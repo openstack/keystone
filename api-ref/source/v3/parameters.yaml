@@ -1848,6 +1848,15 @@ response_limit_domain_id_body:
   in: body
   required: true
   type: string
+response_user_options_body_required:
+  description: |
+    The resource options for the user. Available resource options are
+    ``ignore_change_password_upon_first_use``, ``ignore_password_expiry``,
+    ``ignore_lockout_failure_attempts``, ``lock_password``,
+    ``multi_factor_auth_enabled``, and ``multi_factor_auth_rules``.
+  in: body
+  required: true
+  type: object
 role:
   description: |
     A ``role`` object
@@ -2137,16 +2146,6 @@ user_object:
 user_options_request_body:
   description: |
     The resource options for the user. Available resource options are
-    ``ignore_change_password_upon_first_use``, ``ignore_password_expiry``,
-    ``ignore_lockout_failure_attempts``, ``lock_password``,
-    ``multi_factor_auth_enabled``, and ``multi_factor_auth_rules``.
-  in: body
-  required: false
-  type: object
-user_options_response_body:
-  description: |
-    The resource options for the user. Only present in the response if set on
-    the user entity. Available resource options are
     ``ignore_change_password_upon_first_use``, ``ignore_password_expiry``,
     ``ignore_lockout_failure_attempts``, ``lock_password``,
     ``multi_factor_auth_enabled``, and ``multi_factor_auth_rules``.
