@@ -48,7 +48,8 @@ class SAMLGenerator(object):
         self.assertion_id = uuid.uuid4().hex
 
     def samlize_token(self, issuer, recipient, user, user_domain_name, roles,
-                      project, project_domain_name, expires_in=None):
+                      project, project_domain_name, groups,
+                      expires_in=None):
         """Convert Keystone attributes to a SAML assertion.
 
         :param issuer: URL of the issuing party
@@ -65,6 +66,9 @@ class SAMLGenerator(object):
         :type project: string
         :param project_domain_name: Project Domain name
         :type project_domain_name: string
+        :param groups: List of strings of user groups and domain name, where
+                       strings are serialized dictionaries.
+        :type groups: list
         :param expires_in: Sets how long the assertion is valid for, in seconds
         :type expires_in: int
 
@@ -76,7 +80,8 @@ class SAMLGenerator(object):
         saml_issuer = self._create_issuer(issuer)
         subject = self._create_subject(user, expiration_time, recipient)
         attribute_statement = self._create_attribute_statement(
-            user, user_domain_name, roles, project, project_domain_name)
+            user, user_domain_name, roles, project, project_domain_name,
+            groups)
         authn_statement = self._create_authn_statement(issuer, expiration_time)
         signature = self._create_signature()
 
@@ -162,7 +167,8 @@ class SAMLGenerator(object):
         return subject
 
     def _create_attribute_statement(self, user, user_domain_name, roles,
-                                    project, project_domain_name):
+                                    project, project_domain_name,
+                                    groups):
         """Create an object that represents a SAML AttributeStatement.
 
         <ns0:AttributeStatement>
@@ -188,6 +194,15 @@ class SAMLGenerator(object):
                 <ns0:AttributeValue
                   xsi:type="xs:string">Default</ns0:AttributeValue>
             </ns0:Attribute>
+            <ns0:Attribute Name="openstack_groups">
+                <ns0:AttributeValue
+                   xsi:type="xs:string">JSON:{"name":"group1","domain":{"name":"Default"}}
+                </ns0:AttributeValue>
+                <ns0:AttributeValue
+                   xsi:type="xs:string">JSON:{"name":"group2","domain":{"name":"Default"}}
+                </ns0:AttributeValue>
+            </ns0:Attribute>
+
         </ns0:AttributeStatement>
 
         :returns: XML <AttributeStatement> object
@@ -218,6 +233,11 @@ class SAMLGenerator(object):
         attribute_statement.attribute.append(project_attribute)
         attribute_statement.attribute.append(project_domain_attribute)
         attribute_statement.attribute.append(user_domain_attribute)
+
+        if groups:
+            groups_attribute = _build_attribute(
+                'openstack_groups', groups)
+            attribute_statement.attribute.append(groups_attribute)
         return attribute_statement
 
     def _create_authn_statement(self, issuer, expiration_time):

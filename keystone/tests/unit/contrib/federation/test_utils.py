@@ -801,6 +801,31 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         ]
         self.assertEqual(expected_projects, values['projects'])
 
+    def test_rule_engine_for_groups_and_domain(self):
+        """Should return user's groups and group domain.
+
+        The GROUP_DOMAIN_ASSERTION should successfully have a match in
+        MAPPING_GROUPS_DOMAIN_OF_USER. This will test the case where a groups
+        with its domain will exist`, and return user's groups and group domain.
+
+        """
+        mapping = mapping_fixtures.MAPPING_GROUPS_DOMAIN_OF_USER
+        assertion = mapping_fixtures.GROUPS_DOMAIN_ASSERTION
+        rp = mapping_utils.RuleProcessor(FAKE_MAPPING_ID, mapping['rules'])
+        values = rp.process(assertion)
+
+        self.assertValidMappedUserObject(values)
+        user_name = assertion.get('openstack_user')
+        user_groups = ['group1', 'group2']  # since we know the input assertion
+        groups = values.get('group_names', {})
+        group_list = [g.get('name') for g in groups]
+        group_ids = values.get('group_ids')
+        name = values.get('user', {}).get('name')
+
+        self.assertEqual(user_name, name)
+        self.assertEqual(user_groups, group_list)
+        self.assertEqual([], group_ids, )
+
 
 class TestUnicodeAssertionData(unit.BaseTestCase):
     """Ensure that unicode data in the assertion headers works.
