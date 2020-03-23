@@ -74,7 +74,8 @@ class IdentityProvidersResource(_ResourceBase):
     member_key = 'identity_provider'
     api_prefix = '/OS-FEDERATION'
     _public_parameters = frozenset(['id', 'enabled', 'description',
-                                    'remote_ids', 'links', 'domain_id'
+                                    'remote_ids', 'links', 'domain_id',
+                                    'authorization_ttl'
                                     ])
     _id_path_param_name_override = 'idp_id'
 

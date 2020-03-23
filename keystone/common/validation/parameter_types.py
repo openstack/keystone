@@ -69,3 +69,8 @@ email = {
     'type': 'string',
     'format': 'email'
 }
+
+integer_min0 = {
+    'type': 'integer',
+    'minimum': 0
+}

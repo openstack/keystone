@@ -1132,6 +1132,18 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
                                  keys_to_check=keys_to_check,
                                  ref=expected)
 
+    def test_create_idp_authorization_ttl(self):
+        keys_to_check = list(self.idp_keys)
+        keys_to_check.append('authorization_ttl')
+        body = self.default_body.copy()
+        body['description'] = uuid.uuid4().hex
+        body['authorization_ttl'] = 10080
+        resp = self._create_default_idp(body)
+        expected = body.copy()
+        self.assertValidResponse(resp, 'identity_provider', dummy_validator,
+                                 keys_to_check=keys_to_check,
+                                 ref=expected)
+
     def test_update_idp_remote_ids(self):
         """Update IdP's remote_ids parameter."""
         body = self.default_body.copy()
@@ -1215,6 +1227,32 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
         resp_data = jsonutils.loads(resp.body)
         self.assertIn('Duplicate remote ID',
                       resp_data['error']['message'])
+
+    def test_update_idp_authorization_ttl(self):
+        body = self.default_body.copy()
+        body['authorization_ttl'] = 10080
+        default_resp = self._create_default_idp(body=body)
+        default_idp = self._fetch_attribute_from_response(default_resp,
+                                                          'identity_provider')
+        idp_id = default_idp.get('id')
+        url = self.base_url(suffix=idp_id)
+        self.assertIsNotNone(idp_id)
+
+        body['authorization_ttl'] = None
+
+        body = {'identity_provider': body}
+        resp = self.patch(url, body=body)
+        updated_idp = self._fetch_attribute_from_response(resp,
+                                                          'identity_provider')
+        body = body['identity_provider']
+        self.assertEqual(body['authorization_ttl'],
+                         updated_idp.get('authorization_ttl'))
+
+        resp = self.get(url)
+        returned_idp = self._fetch_attribute_from_response(resp,
+                                                           'identity_provider')
+        self.assertEqual(body['authorization_ttl'],
+                         returned_idp.get('authorization_ttl'))
 
     def test_list_head_idps(self, iterations=5):
         """List all available IdentityProviders.

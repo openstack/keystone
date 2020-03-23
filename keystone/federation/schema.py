@@ -82,6 +82,7 @@ _identity_provider_properties_create = {
     'enabled': parameter_types.boolean,
     'description': validation.nullable(parameter_types.description),
     'domain_id': validation.nullable(parameter_types.id_string),
+    'authorization_ttl': validation.nullable(parameter_types.integer_min0),
     'remote_ids': {
         'type': ['array', 'null'],
         'items': {
@@ -94,6 +95,7 @@ _identity_provider_properties_create = {
 _identity_provider_properties_update = {
     'enabled': parameter_types.boolean,
     'description': validation.nullable(parameter_types.description),
+    'authorization_ttl': validation.nullable(parameter_types.integer_min0),
     'remote_ids': {
         'type': ['array', 'null'],
         'items': {

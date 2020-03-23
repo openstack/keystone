@@ -33,6 +33,15 @@ id_query:
 
 # variables in body
 
+authorization_ttl:
+  description: |
+    The length of validity in minutes for group memberships carried over
+    through mapping and persisted in the database. If left unset, the
+    default value configured in keystone will be used, if enabled.
+  in: body
+  required: false
+  type: integer
+
 description:
   description: |
     The Identity Provider description
