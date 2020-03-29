@@ -2515,7 +2515,7 @@ class PasswordValidationTestCase(unit.TestCase):
         # passwords requires: 1 letter, 1 digit, 7 chars
         self.config_fixture.config(group='security_compliance',
                                    password_regex=(
-                                       '^(?=.*\d)(?=.*[a-zA-Z]).{7,}$'))
+                                       r'^(?=.*\d)(?=.*[a-zA-Z]).{7,}$'))
 
     def test_password_validate_with_valid_strong_password(self):
         password = 'mypassword2'
@@ -2541,14 +2541,14 @@ class PasswordValidationTestCase(unit.TestCase):
     def test_password_validate_with_invalid_password_regex(self):
         # invalid regular expression, missing beginning '['
         self.config_fixture.config(group='security_compliance',
-                                   password_regex='\S]+')
+                                   password_regex=r'\S]+')
         password = 'mypassword2'
         self.assertRaises(exception.PasswordValidationError,
                           validators.validate_password,
                           password)
         # fix regular expression and validate
         self.config_fixture.config(group='security_compliance',
-                                   password_regex='[\S]+')
+                                   password_regex=r'[\S]+')
         validators.validate_password(password)
 
 

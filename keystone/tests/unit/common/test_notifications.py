@@ -759,7 +759,7 @@ class CADFNotificationsForPCIDSSEvents(BaseNotificationTest):
         conf.config(group='security_compliance',
                     minimum_password_age=2)
         conf.config(group='security_compliance',
-                    password_regex='^(?=.*\d)(?=.*[a-zA-Z]).{7,}$')
+                    password_regex=r'^(?=.*\d)(?=.*[a-zA-Z]).{7,}$')
         conf.config(group='security_compliance',
                     password_regex_description='1 letter, 1 digit, 7 chars')
 

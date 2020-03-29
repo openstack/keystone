@@ -4347,8 +4347,8 @@ class SAMLGenerationTests(test_v3.RestfulTestCase):
             # The function __str__ in subprocess.CalledProcessError is
             # different between py3.6 and lower python version.
             expected_log = (
-                "Error when signing assertion, reason: Command '%s' returned "
-                "non-zero exit status %s\.? %s\n" %
+                r"Error when signing assertion, reason: Command '%s' returned "
+                r"non-zero exit status %s\.? %s\n" %
                 (CONF.saml.xmlsec1_binary, sample_returncode, sample_output))
             self.assertRegex(logger_fixture.output,
                              re.compile(r'%s' % expected_log))

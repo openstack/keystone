@@ -77,6 +77,7 @@ def utf8_encode(value):
         raise TypeError("value must be basestring, "
                         "not %s" % value_cls_name)
 
+
 _utf8_decoder = codecs.getdecoder('utf-8')
 
 

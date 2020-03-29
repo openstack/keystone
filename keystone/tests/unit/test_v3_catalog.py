@@ -683,7 +683,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
 
     def test_deleting_endpoint_with_space_in_url(self):
         # add a space to all urls (intentional "i d" to test bug)
-        url_with_space = "http://127.0.0.1:8774 /v1.1/\$(tenant_i d)s"
+        url_with_space = "http://127.0.0.1:8774 /v1.1/\\$(tenant_i d)s"
 
         # create a v3 endpoint ref
         ref = unit.new_endpoint_ref(service_id=self.service['id'],

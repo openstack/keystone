@@ -86,7 +86,7 @@ IN_MEM_DB_CONN_STRING = 'sqlite://'
 # Strictly matches ISO 8601 timestamps with subsecond precision like:
 # 2016-06-28T20:48:56.000000Z
 TIME_FORMAT = '%Y-%m-%dT%H:%M:%S.%fZ'
-TIME_FORMAT_REGEX = '^\d{4}-[0-1]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d{6}Z$'
+TIME_FORMAT_REGEX = r'^\d{4}-[0-1]\d-[0-3]\dT[0-2]\d:[0-5]\d:[0-5]\d\.\d{6}Z$'
 
 exception._FATAL_EXCEPTION_FORMAT_ERRORS = True
 os.makedirs(TMPDIR)

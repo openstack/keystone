@@ -67,4 +67,5 @@ class RoleInferencesAPI(ks_flask.APIBase):
             rel='role_inferences')
     ]
 
+
 APIs = (RoleInferencesAPI,)

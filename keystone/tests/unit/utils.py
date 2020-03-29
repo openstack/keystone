@@ -85,7 +85,7 @@ def wip(message, expected_exception=Exception, bug=None):
             __e = None
             try:
                 f(*args, **kwargs)
-            except Exception as __e:
+            except Exception as __e:  # noqa F841
                 if (expected_exception != Exception and
                         not isinstance(__e, expected_exception)):
                     raise AssertionError(

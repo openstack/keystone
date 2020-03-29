@@ -23,7 +23,7 @@ _identity_name = {
     'type': 'string',
     'minLength': 1,
     'maxLength': 255,
-    'pattern': '[\S]+'
+    'pattern': r'[\S]+'
 }
 
 # Schema for Identity v3 API
