@@ -1664,6 +1664,13 @@ request_default_limit_body_not_required:
   in: body
   required: false
   type: integer
+request_domain_options_body_not_required:
+  description: |
+    The resource options for the domain. Available resource options are
+    ``immutable``.
+  in: body
+  required: false
+  type: object
 request_limit_domain_id_not_required:
   description: |
     The name of the domain.
@@ -1676,6 +1683,13 @@ request_limit_project_id_not_required:
   in: body
   required: false
   type: string
+request_project_options_body_not_required:
+  description: |
+    The resource options for the project. Available resource options are
+    ``immutable``.
+  in: body
+  required: false
+  type: object
 request_region_id_registered_limit_body_not_required:
   description: |
     The ID of the region that contains the service endpoint.
@@ -1698,6 +1712,13 @@ request_resource_name_body_not_required:
   in: body
   required: false
   type: string
+request_role_options_body_not_required:
+  description: |
+    The resource options for the role. Available resource options are
+    ``immutable``.
+  in: body
+  required: false
+  type: object
 request_service_id_registered_limit_body_not_required:
   description: |
     The UUID of the service to update to which the registered
@@ -1842,12 +1863,33 @@ response_body_system_required:
   in: body
   required: true
   type: array
+response_domain_options_body_required:
+  description: |
+    The resource options for the domain. Available resource options are
+    ``immutable``.
+  in: body
+  required: true
+  type: object
 response_limit_domain_id_body:
   description: |
     The ID of the domain.
   in: body
   required: true
   type: string
+response_project_options_body_required:
+  description: |
+    The resource options for the project. Available resource options are
+    ``immutable``.
+  in: body
+  required: true
+  type: object
+response_role_options_body_required:
+  description: |
+    The resource options for the role. Available resource options are
+    ``immutable``.
+  in: body
+  required: true
+  type: object
 response_user_options_body_required:
   description: |
     The resource options for the user. Available resource options are

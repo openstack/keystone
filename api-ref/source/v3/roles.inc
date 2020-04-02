@@ -176,6 +176,7 @@ Parameters
    - name: role_name_create_body
    - domain_id: role_domain_id_request_body
    - description: role_description_create_body
+   - options: request_role_options_body_not_required
 
 Example
 ~~~~~~~
@@ -203,6 +204,7 @@ Parameters
    - links: link_response_body
    - name: role_name_response_body
    - description: role_description_response_body_required
+   - options: response_role_options_body_required
 
 Status Codes
 ~~~~~~~~~~~~
@@ -252,6 +254,7 @@ Parameters
    - links: link_response_body
    - name: role_name_response_body
    - description: role_description_response_body_required
+   - options: response_role_options_body_required
 
 Status Codes
 ~~~~~~~~~~~~
@@ -295,6 +298,7 @@ Parameters
    - role: role
    - name: role_name_update_body
    - description: role_description_update_body
+   - options: request_role_options_body_not_required
 
 Example
 ~~~~~~~
@@ -316,6 +320,7 @@ Parameters
    - links: link_response_body
    - name: role_name_response_body
    - description: role_description_response_body_required
+   - options: response_role_options_body_required
 
 Status Codes
 ~~~~~~~~~~~~

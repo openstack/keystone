@@ -188,3 +188,75 @@ authenticate.
 
 
 See :ref:`multi_factor_authentication` for further details.
+
+Role Options
+============
+
+The following options are available on role resources. If left undefined, they
+are assumed to be false or disabled.
+
+immutable
+---------
+
+Type: ``Boolean``
+
+Specify whether a role is immutable. An immutable role may not be deleted or
+modified except to remove the ``immutable`` option.
+
+.. code-block:: json
+
+   {
+       "role": {
+           "options": {
+               "immutable": true
+           }
+       }
+   }
+
+Project Options
+===============
+
+The following options are available on project resources. If left undefined, they
+are assumed to be false or disabled.
+
+immutable
+---------
+
+Type: ``Boolean``
+
+Specify whether a project is immutable. An immutable project may not be deleted
+or modified except to remove the ``immutable`` option.
+
+.. code-block:: json
+
+   {
+       "project": {
+           "options": {
+               "immutable": true
+           }
+       }
+   }
+
+Domain Options
+==============
+
+The following options are available on domain resources. If left undefined, they
+are assumed to be false or disabled.
+
+immutable
+---------
+
+Type: ``Boolean``
+
+Specify whether a domain is immutable. An immutable domain may not be deleted
+or modified except to remove the ``immutable`` option.
+
+.. code-block:: json
+
+   {
+       "domain": {
+           "options": {
+               "immutable": true
+           }
+       }
+   }

@@ -6,6 +6,7 @@
         "enabled": true,
         "description": "Owns users and projects on Identity API v2.",
         "name": "Default",
-        "id": "default"
+        "id": "default",
+        "options": {}
     }
 }

@@ -4,6 +4,7 @@
         "domain_id": "default",
         "enabled": true,
         "is_domain": false,
-        "name": "myNewProject"
+        "name": "myNewProject",
+        "options": {}
     }
 }

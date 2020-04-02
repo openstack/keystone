@@ -126,6 +126,7 @@ Parameters
    - enabled: project_enabled_request_body
    - parent_id: project_parent_id_request_body
    - tags: project_tags_request_body
+   - options: request_project_options_body_not_required
 
 Examples
 ~~~~~~~~
@@ -157,6 +158,7 @@ Parameters
    - links: link_response_body
    - name: project_name_response_body
    - parent_id: project_parent_id_response_body
+   - options: response_project_options_body_required
 
 Status Codes
 ~~~~~~~~~~~~
@@ -213,6 +215,7 @@ Parameters
    - links: link_response_body
    - name: project_name_response_body
    - parent_id: project_parent_id_response_body
+   - options: response_project_options_body_required
 
 Status Codes
 ~~~~~~~~~~~~
@@ -272,6 +275,7 @@ Parameters
    - domain_id: project_domain_id_update_request_body
    - enabled: project_enabled_update_request_body
    - tags: project_tags_request_body
+   - options: request_project_options_body_not_required
 
 Example
 ~~~~~~~
@@ -296,6 +300,7 @@ Parameters
    - name: project_name_response_body
    - links: link_response_body
    - parent_id: project_parent_id_response_body
+   - options: response_project_options_body_required
 
 
 Status Codes

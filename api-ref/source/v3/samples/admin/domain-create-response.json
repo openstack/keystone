@@ -6,6 +6,7 @@
         "links": {
             "self": "http://example.com/identity/v3/domains/161718"
         },
-        "name": "myDomain"
+        "name": "myDomain",
+        "options": {}
     }
 }

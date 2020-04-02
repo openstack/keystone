@@ -7,6 +7,7 @@
             "self": "http://example.com/identity/v3/projects/263fd9"
         },
         "name": "Dev Group A",
+        "options": {},
         "parent_id": "183ab2",
         "parents": [
             {
