@@ -33,6 +33,7 @@ What's New in Version 3.14 (Ussuri)
 - New attribute ``authorization_ttl`` for identity providers
 - New attribute ``membership_expires_at`` when listing groups for a user
 - Ability to persist group memberships carried through mapping for a federated user
+- Added the ability to create, update and delete federated attributes for a user
 
 ==================================
 What's New in Version 3.13 (Train)

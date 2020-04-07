@@ -5,6 +5,17 @@
         "domain_id": "1789d1",
         "email": "jdoe@example.com",
         "enabled": true,
+        "federated": [
+            {
+                "idp_id": "efbab5a6acad4d108fec6c63d9609d83",
+                "protocols": [
+                    {
+                        "protocol_id": "mapped",
+                        "unique_id": "test@example.com"
+                    }
+                ]
+            }
+        ],
         "id": "ff4e51",
         "links": {
             "self": "https://example.com/identity/v3/users/ff4e51"

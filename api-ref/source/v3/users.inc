@@ -100,6 +100,7 @@ Parameters
    - user: user_object
    - default_project_id: default_project_id_request_body
    - domain_id: user_domain_id_request_body
+   - federated: federated_in_request_body
    - enabled: enabled_user_request_body
    - name: user_name_create_request_body
    - password: password_request_body
@@ -124,6 +125,7 @@ Parameters
    - default_project_id: default_project_id_response_body
    - domain_id: domain_id_response_body
    - enabled: enabled_user_response_body
+   - federated: federated_in_response_body
    - id: id_user_body
    - links: links_user
    - name: user_name_response_body
@@ -182,6 +184,7 @@ Parameters
    - default_project_id: default_project_id_response_body
    - domain_id: domain_id_response_body
    - enabled: enabled_user_response_body
+   - federated: federated_in_response_body
    - id: id_user_body
    - links: links_user
    - name: user_name_response_body
@@ -233,6 +236,7 @@ Parameters
    - default_project_id: default_project_id_update_body
    - domain_id: user_domain_id_update_body
    - enabled: enabled_user_update_body
+   - federated: federated_in_request_body
    - name: user_name_update_body
    - password: user_update_password_body
    - options: user_options_request_body
@@ -255,6 +259,7 @@ Parameters
    - default_project_id: default_project_id_response_body
    - domain_id: domain_id_response_body
    - enabled: enabled_user_response_body
+   - federated: federated_in_response_body
    - id: id_user_body
    - links: links_user
    - name: user_name_response_body

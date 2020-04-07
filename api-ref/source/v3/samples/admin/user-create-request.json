@@ -3,6 +3,17 @@
         "default_project_id": "263fd9",
         "domain_id": "1789d1",
         "enabled": true,
+        "federated": [
+            {
+                "idp_id": "efbab5a6acad4d108fec6c63d9609d83",
+                "protocols": [
+                    {
+                        "protocol_id": "mapped",
+                        "unique_id": "test@example.com"
+                    }
+                ]
+            }
+        ],
         "name": "James Doe",
         "password": "secretsecret",
         "description": "James Doe user",

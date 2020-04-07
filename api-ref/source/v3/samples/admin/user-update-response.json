@@ -3,6 +3,7 @@
         "default_project_id": "263fd9",
         "domain_id": "1789d1",
         "enabled": true,
+        "federated": [],
         "id": "ff4e51",
         "links": {
             "self": "https://example.com/identity/v3/users/ff4e51"
