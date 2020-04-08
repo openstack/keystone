@@ -23,7 +23,8 @@ class SqlFederation(test_backend_sql.SqlModels):
         cols = (('id', sql.String, 64),
                 ('domain_id', sql.String, 64),
                 ('enabled', sql.Boolean, None),
-                ('description', sql.Text, None))
+                ('description', sql.Text, None),
+                ('authorization_ttl', sql.Integer, None))
         self.assertExpectedSchema('identity_provider', cols)
 
     def test_idp_remote_ids(self):

@@ -61,6 +61,11 @@ class User(sql.ModelBase, sql.ModelDictMixinWithExtras):
                                      lazy='joined',
                                      cascade='all,delete-orphan',
                                      backref='user')
+    expiring_user_group_memberships = orm.relationship(
+        'ExpiringUserGroupMembership',
+        cascade='all, delete-orphan',
+        backref="user"
+    )
     created_at = sql.Column(sql.DateTime, nullable=True)
     last_active_at = sql.Column(sql.Date, nullable=True)
     # unique constraint needed here to support composite fk constraints
@@ -370,6 +375,11 @@ class Group(sql.ModelBase, sql.ModelDictMixinWithExtras):
     domain_id = sql.Column(sql.String(64), nullable=False)
     description = sql.Column(sql.Text())
     extra = sql.Column(sql.JsonBlob())
+    expiring_user_group_memberships = orm.relationship(
+        'ExpiringUserGroupMembership',
+        cascade='all, delete-orphan',
+        backref="group"
+    )
     # Unique constraint across two columns to create the separation
     # rather than just only 'name' being unique
     __table_args__ = (sql.UniqueConstraint('domain_id', 'name'),)
@@ -385,6 +395,34 @@ class UserGroupMembership(sql.ModelBase, sql.ModelDictMixin):
     group_id = sql.Column(sql.String(64),
                           sql.ForeignKey('group.id'),
                           primary_key=True)
+
+
+class ExpiringUserGroupMembership(sql.ModelBase, sql.ModelDictMixin):
+    """Expiring group membership through federation mapping rules."""
+
+    __tablename__ = 'expiring_user_group_membership'
+    user_id = sql.Column(sql.String(64),
+                         sql.ForeignKey('user.id'),
+                         primary_key=True)
+    group_id = sql.Column(sql.String(64),
+                          sql.ForeignKey('group.id'),
+                          primary_key=True)
+    idp_id = sql.Column(sql.String(64),
+                        sql.ForeignKey('identity_provider.id',
+                                       ondelete='CASCADE'),
+                        primary_key=True)
+    last_verified = sql.Column(sql.DateTime, nullable=False)
+
+    @hybrid_property
+    def expires(self):
+        ttl = self.idp.authorization_ttl
+        if not ttl:
+            ttl = CONF.federation.default_authorization_ttl
+        return self.last_verified + datetime.timedelta(minutes=ttl)
+
+    @hybrid_property
+    def expired(self):
+        return self.expires <= datetime.datetime.utcnow()
 
 
 class UserOption(sql.ModelBase):
