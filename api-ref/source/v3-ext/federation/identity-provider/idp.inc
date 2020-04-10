@@ -16,6 +16,7 @@ Parameters
 ~~~~~~~~~~
 .. rest_parameters:: federation/identity-provider/parameters.yaml
 
+    - authorization_ttl: authorization_ttl
     - domain_id: domain_id
     - description: description
     - enabled: enabled
@@ -39,6 +40,7 @@ Parameters
 
 .. rest_parameters:: federation/identity-provider/parameters.yaml
 
+    - authorization_ttl: authorization_ttl
     - domain_id: domain_id
     - description: description
     - enabled: enabled
@@ -131,6 +133,7 @@ Parameters
 
 .. rest_parameters:: federation/identity-provider/parameters.yaml
 
+    - authorization_ttl: authorization_ttl
     - domain_id: domain_id
     - description: description
     - enabled: enabled
@@ -221,6 +224,7 @@ Parameters
 
 .. rest_parameters:: federation/identity-provider/parameters.yaml
 
+    - authorization_ttl: authorization_ttl
     - domain_id: domain_id
     - description: description
     - enabled: enabled
