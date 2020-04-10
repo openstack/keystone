@@ -924,6 +924,57 @@ class Manager(manager.Manager):
                 # backward compatible
                 pass
 
+    def _validate_federated_objects(self, fed_obj_list):
+        # Validate that the ipd and protocols exist
+        for fed_obj in fed_obj_list:
+            try:
+                self.federation_api.get_idp(fed_obj['idp_id'])
+            except exception.IdentityProviderNotFound:
+                msg = (_("Could not find Identity Provider: %s")
+                       % fed_obj['idp_id'])
+                raise exception.ValidationError(msg)
+            for protocol in fed_obj['protocols']:
+                try:
+                    self.federation_api.get_protocol(fed_obj['idp_id'],
+                                                     protocol['protocol_id'])
+                except exception.FederatedProtocolNotFound:
+                    msg = (_("Could not find federated protocol "
+                             "%(protocol)s for Identity Provider: %(idp)s.")
+                           % {'protocol': protocol['protocol_id'],
+                              'idp': fed_obj['idp_id']})
+                    raise exception.ValidationError(msg)
+
+    def _create_federated_objects(self, user_ref, fed_obj_list):
+        for fed_obj in fed_obj_list:
+            for protocols in fed_obj['protocols']:
+                federated_dict = {
+                    'user_id': user_ref['id'],
+                    'idp_id': fed_obj['idp_id'],
+                    'protocol_id': protocols['protocol_id'],
+                    'unique_id': protocols['unique_id'],
+                    'display_name': user_ref['name']
+                }
+                self.shadow_users_api.create_federated_object(
+                    federated_dict)
+
+    def _create_user_with_federated_objects(self, user, driver):
+        # If the user did not pass a federated object along inside the user
+        # object then we simply create the user as normal.
+        if not user.get('federated'):
+            if 'federated' in user:
+                del user['federated']
+            user = driver.create_user(user['id'], user)
+            return user
+        # Otherwise, validate the federated object and create the user.
+        else:
+            user_ref = user.copy()
+            del user['federated']
+            self._validate_federated_objects(user_ref['federated'])
+            user = driver.create_user(user['id'], user)
+            self._create_federated_objects(user_ref, user_ref['federated'])
+            user['federated'] = user_ref['federated']
+            return user
+
     @domains_configured
     @exception_translated('user')
     def create_user(self, user_ref, initiator=None):
@@ -946,7 +997,7 @@ class Manager(manager.Manager):
         # the underlying driver so that it could conform to rules set down by
         # that particular driver type.
         user['id'] = uuid.uuid4().hex
-        ref = driver.create_user(user['id'], user)
+        ref = self._create_user_with_federated_objects(user, driver)
         notifications.Audit.created(self._USER, user['id'], initiator)
         return self._set_domain_id_and_mapping(
             ref, domain_id, driver, mapping.EntityType.USER)
