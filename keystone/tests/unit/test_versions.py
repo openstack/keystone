@@ -36,9 +36,9 @@ v3_MEDIA_TYPES = [
 ]
 
 v3_EXPECTED_RESPONSE = {
-    "id": "v3.13",
+    "id": "v3.14",
     "status": "stable",
-    "updated": "2019-07-19T00:00:00Z",
+    "updated": "2020-04-07T00:00:00Z",
     "links": [
         {
             "rel": "self",
