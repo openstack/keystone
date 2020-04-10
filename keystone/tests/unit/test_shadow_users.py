@@ -59,3 +59,32 @@ class ShadowUsersTests(unit.TestCase,
             self.idp['id'], self.protocol['id'], self.protocol)
         self.domain_id = (
             PROVIDERS.federation_api.get_idp(self.idp['id'])['domain_id'])
+
+
+class TestUserWithFederatedUser(ShadowUsersTests):
+
+    def setUp(self):
+        super(TestUserWithFederatedUser, self).setUp()
+        self.useFixture(database.Database())
+        self.load_backends()
+
+    def assertFederatedDictsEqual(self, fed_dict, fed_object):
+        self.assertEqual(fed_dict['idp_id'], fed_object['idp_id'])
+        self.assertEqual(fed_dict['protocol_id'],
+                         fed_object['protocols'][0]['protocol_id'])
+        self.assertEqual(fed_dict['unique_id'],
+                         fed_object['protocols'][0]['unique_id'])
+
+    def test_get_user_when_user_has_federated_object(self):
+        fed_dict = unit.new_federated_user_ref(idp_id=self.idp['id'],
+                                               protocol_id=self.protocol['id'])
+        user = self.shadow_users_api.create_federated_user(
+            self.domain_id, fed_dict)
+
+        # test that the user returns a federated object and that there is only
+        # one returned
+        user_ref = self.identity_api.get_user(user['id'])
+        self.assertIn('federated', user_ref)
+        self.assertEqual(1, len(user_ref['federated']))
+
+        self.assertFederatedDictsEqual(fed_dict, user_ref['federated'][0])
