@@ -984,6 +984,8 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
 
         # List groups for user.
         ref_list = PROVIDERS.identity_api.list_groups_for_user(public_user_id)
+        for ref in ref_list:
+            del(ref['membership_expires_at'])
 
         group['id'] = public_group_id
         self.assertThat(ref_list, matchers.Equals([group]))
