@@ -149,3 +149,57 @@ class TestUserWithFederatedUser(ShadowUsersTests):
             self.protocol['id'],
             unique_id)
         self.assertIsNotNone(fed_user)
+
+    def test_update_user_with_invalid_idp_and_protocol_fails(self):
+        baduser = unit.new_user_ref(domain_id=self.domain_id)
+        baduser['federated'] = [
+            {
+                'idp_id': 'fakeidp',
+                'protocols': [
+                    {
+                        'protocol_id': 'nonexistent',
+                        'unique_id': 'unknown'
+                    }
+                ]
+            }
+        ]
+        # Check validation works by throwing a federated object with
+        # invalid idp_id, protocol_id inside the user passed to create_user.
+        self.assertRaises(exception.ValidationError,
+                          self.identity_api.create_user,
+                          baduser)
+
+        baduser['federated'][0]['idp_id'] = self.idp['id']
+        self.assertRaises(exception.ValidationError,
+                          self.identity_api.create_user,
+                          baduser)
+
+    def test_update_user_with_federated_attributes(self):
+        user = self.shadow_users_api.create_federated_user(
+            self.domain_id, self.federated_user)
+        user = self.identity_api.get_user(user['id'])
+
+        # Test that update user can return a federated object with the user as
+        # a response if the user has any
+        user = self.identity_api.update_user(user['id'], user)
+        self.assertFederatedDictsEqual(self.federated_user,
+                                       user['federated'][0])
+
+        # Test that update user can replace a users federated objects if added
+        # in the request and that its response is that new federated objects
+        new_fed = [
+            {
+                'idp_id': self.idp['id'],
+                'protocols': [
+                    {
+                        'protocol_id': self.protocol['id'],
+                        'unique_id': uuid.uuid4().hex
+                    }
+                ]
+            }
+        ]
+        user['federated'] = new_fed
+        user = self.identity_api.update_user(user['id'], user)
+        self.assertTrue('federated' in user)
+        self.assertTrue(len(user['federated']), 1)
+        self.assertEqual(user['federated'][0], new_fed[0])

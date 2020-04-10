@@ -60,6 +60,12 @@ class ShadowUsers(base.ShadowUsersDriverBase):
             fed_ref = model.FederatedUser.from_dict(fed_dict)
             session.add(fed_ref)
 
+    def delete_federated_object(self, user_id):
+        with sql.session_for_write() as session:
+            q = session.query(model.FederatedUser)
+            q = q.filter(model.FederatedUser.user_id == user_id)
+            q.delete(False)
+
     def get_federated_objects(self, user_id):
         with sql.session_for_read() as session:
             query = session.query(model.FederatedUser)
