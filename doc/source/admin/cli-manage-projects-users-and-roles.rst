@@ -83,6 +83,10 @@ Create a project named ``new-project``:
    | tags        | []                               |
    +-------------+----------------------------------+
 
+-  Creating a project without using a domain scoped token, i.e. using a project
+   scoped token or a system scoped token, and also without specifying a domain
+   or domain_id, the project will automatically be created on the default domain.
+
 Update a project
 ----------------
 

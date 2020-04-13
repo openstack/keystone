@@ -36,6 +36,9 @@ relevant resource creation allows this.
   is constrained to the characters in the Basic Multilingual Plane (BMP).
   Supplementary characters are not permitted. Note that this last restriction is
   generally true for all ``names`` within resources of the Identity API.
+  Creating a project without using a domain scoped token, i.e. using a project
+  scoped token or a system scoped token, and also without specifying a domain or
+  domain_id, the project will automatically be created on the default domain.
 
 
 List projects
