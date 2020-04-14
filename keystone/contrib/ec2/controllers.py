@@ -311,7 +311,8 @@ class Ec2ControllerCommon(provider_api.ProviderAPIMixin, object):
     def _authenticate(self, credentials=None, ec2credentials=None):
         """Common code shared between the V2 and V3 authenticate methods.
 
-        :returns: user_ref, tenant_ref, roles_ref, catalog_ref
+        :returns: user_ref, tenant_ref, roles_ref, trust_ref, app_cred_ref,
+                  auth_context
         """
         # FIXME(ja): validate that a service token was used!
 
@@ -344,18 +345,44 @@ class Ec2ControllerCommon(provider_api.ProviderAPIMixin, object):
                         sys.exc_info()[2])
 
         self._check_timestamp(credentials)
-        roles = self.assignment_api.get_roles_for_user_and_project(
-            user_ref['id'], tenant_ref['id']
-        )
+
+        trustee_user_id = None
+        auth_context = None
+        trust_ref = {}
+        app_cred_ref = {}
+        if creds_ref['trust_id']:
+            trust_ref = PROVIDERS.trust_api.get_trust(creds_ref['trust_id'])
+            roles = [r['id'] for r in trust_ref['roles']]
+            # NOTE(cmurphy): if this credential was created using a
+            # trust-scoped token with impersonation, the user_id will be for
+            # the trustor, not the trustee. In this case, issuing a
+            # trust-scoped token to the trustor will fail. In order to get a
+            # trust-scoped token, use the user ID of the trustee. With
+            # impersonation, the resulting token will still be for the trustor.
+            # Without impersonation, the token will be for the trustee.
+            if trust_ref['impersonation'] is True:
+                trustee_user_id = trust_ref['trustee_user_id']
+                user_ref = self.identity_api.get_user(trustee_user_id)
+        elif creds_ref['app_cred_id']:
+            ac_client = PROVIDERS.application_credential_api
+            app_cred_ref = ac_client.get_application_credential(
+                creds_ref['app_cred_id'])
+            roles = [r['id'] for r in app_cred_ref['roles']]
+        elif creds_ref['access_token_id']:
+            access_token = PROVIDERS.oauth_api.get_access_token(
+                creds_ref['access_token_id'])
+            roles = jsonutils.loads(access_token['role_ids'])
+            auth_context = {'access_token_id': creds_ref['access_token_id']}
+        else:
+            roles = PROVIDERS.assignment_api.get_roles_for_user_and_project(
+                user_ref['id'], tenant_ref['id'])
         if not roles:
             raise exception.Unauthorized(
                 message=_('User not valid for tenant.'))
         roles_ref = [self.role_api.get_role(role_id) for role_id in roles]
 
-        catalog_ref = self.catalog_api.get_catalog(
-            user_ref['id'], tenant_ref['id'])
-
-        return user_ref, tenant_ref, roles_ref, catalog_ref
+        return (user_ref, tenant_ref, roles_ref, trust_ref, app_cred_ref,
+                auth_context)
 
     def create_credential(self, request, user_id, tenant_id):
         """Create a secret/access pair for use with ec2 style auth.
@@ -435,7 +462,9 @@ class Ec2ControllerCommon(provider_api.ProviderAPIMixin, object):
                 'tenant_id': credential.get('project_id'),
                 'access': blob.get('access'),
                 'secret': blob.get('secret'),
-                'trust_id': blob.get('trust_id')}
+                'trust_id': blob.get('trust_id'),
+                'app_cred_id': blob.get('app_cred_id'),
+                'access_token_id': blob.get('access_token_id')}
 
     def _get_credentials(self, credential_id):
         """Return credentials from an ID.
@@ -471,7 +500,8 @@ class Ec2Controller(Ec2ControllerCommon, controller.V2Controller):
 
     @controller.v2_ec2_deprecated
     def authenticate(self, request, credentials=None, ec2Credentials=None):
-        (user_ref, project_ref, roles_ref, catalog_ref) = self._authenticate(
+        (user_ref, project_ref, roles_ref, trust_ref, app_cred_ref,
+         auth_context) = self._authenticate(
             credentials=credentials, ec2credentials=ec2Credentials
         )
 
@@ -576,14 +606,17 @@ class Ec2ControllerV3(Ec2ControllerCommon, controller.V3Controller):
         self.check_protection(request, prep_info, ref)
 
     def authenticate(self, context, credentials=None, ec2Credentials=None):
-        (user_ref, project_ref, roles_ref, catalog_ref) = self._authenticate(
-            credentials=credentials, ec2credentials=ec2Credentials
-        )
+        (user_ref, project_ref, roles_ref, trust_ref, app_cred_ref,
+            auth_context) = (self._authenticate(
+                credentials=credentials, ec2credentials=ec2Credentials))
 
         method_names = ['ec2credential']
 
         token_id, token_data = self.token_provider_api.issue_token(
-            user_ref['id'], method_names, project_id=project_ref['id'])
+            user_ref['id'], method_names, project_id=project_ref['id'],
+            trust=trust_ref, app_cred_id=app_cred_ref.get('id'),
+            auth_context=auth_context
+        )
         return self.render_token_data_response(token_id, token_data)
 
     @controller.protected(callback=_check_credential_owner_and_user_id_match)
