@@ -63,8 +63,7 @@ max_token_size = cfg.IntOpt(
     default=255,
     help=utils.fmt("""
 Similar to `[DEFAULT] max_param_size`, but provides an exception for token
-values. With Fernet tokens, this can be set as low as 255. With UUID tokens,
-this should be set to 32).
+values. With Fernet tokens, this can be set as low as 255.
 """))
 
 list_limit = cfg.IntOpt(
