@@ -60,6 +60,25 @@ class ApplicationCredentialV3(controller.V3Controller):
                     role['name']))
         return roles
 
+    def _get_roles(self, app_cred_data, token):
+        if app_cred_data.get('roles'):
+            roles = self._normalize_role_list(app_cred_data['roles'])
+            # NOTE(cmurphy): The user is not allowed to add a role that is not
+            # in their token. This is to prevent trustees or application
+            # credential users from escallating their privileges to include
+            # additional roles that the trustor or application credential
+            # creator has assigned on the project.
+            token_roles = [r['id'] for r in token.roles]
+            for role in roles:
+                if role['id'] not in token_roles:
+                    detail = _('Cannot create an application credential with '
+                               'unassigned role')
+                    raise exception.ApplicationCredentialValidationError(
+                        detail=detail)
+        else:
+            roles = token.roles
+        return roles
+
     def _generate_secret(self):
         length = 64
         secret = os.urandom(length)
@@ -109,8 +128,7 @@ class ApplicationCredentialV3(controller.V3Controller):
             app_cred['secret'] = self._generate_secret()
         app_cred['user_id'] = user_id
         app_cred['project_id'] = project_id
-        app_cred['roles'] = self._normalize_role_list(
-            app_cred.get('roles', token.roles))
+        app_cred['roles'] = self._get_roles(app_cred, token)
         if app_cred.get('expires_at'):
             app_cred['expires_at'] = utils.parse_expiration_date(
                 app_cred['expires_at'])
