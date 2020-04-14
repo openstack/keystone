@@ -130,95 +130,128 @@ The Catalog service provides an endpoint registry used for endpoint discovery.
 Application Construction
 ========================
 
-Keystone is an HTTP front-end to several services. Like other OpenStack
-applications, this is done using python WSGI interfaces and applications are
-configured together using Paste_. The application's HTTP endpoints are made up
-of pipelines of WSGI middleware, such as:
+Keystone is an HTTP front-end to several services. Since the Rocky release Keystone
+uses the `Flask-RESTful`_ library to provide a REST API interface to these services.
 
-.. code-block:: ini
+.. _`Flask-RESTful`: https://flask-restful.readthedocs.io/en/latest/
 
-    [pipeline:api_v3]
-    pipeline = healthcheck cors sizelimit http_proxy_to_wsgi osprofiler url_normalize request_id build_auth_context json_body ec2_extension_v3 s3_extension service_v3
+Keystone defines functions related to `Flask-RESTful`_ in
+:mod:`keystone.server.flask.common`. Keystone creates API resources which
+inherit from class :mod:`keystone.server.flask.common.ResourceBase` and exposes methods
+for each supported HTTP methods GET, PUT , POST, PATCH and DELETE. For example, the User
+resource will look like:
 
+.. code-block:: python
 
-These in turn use a subclass of :mod:`keystone.common.wsgi.ComposingRouter` to
-link URLs to controllers (a subclass of
-:mod:`keystone.common.wsgi.Application`). Within each controller, one or more
-managers are loaded (for example, see :mod:`keystone.catalog.core.Manager`),
-which are thin wrapper classes which load the appropriate service driver based
-on the keystone configuration.
+    class UserResource(ks_flask.ResourceBase):
+        collection_key = 'users'
+        member_key = 'user'
+        get_member_from_driver = PROVIDERS.deferred_provider_lookup(
+            api='identity_api', method='get_user')
+
+        def get(self, user_id=None):
+            """Get a user resource or list users.
+            GET/HEAD /v3/users
+            GET/HEAD /v3/users/{user_id}
+            """
+            ...
+
+        def post(self):
+            """Create a user.
+            POST /v3/users
+            """
+            ...
+
+    class UserChangePasswordResource(ks_flask.ResourceBase):
+        @ks_flask.unenforced_api
+         def post(self, user_id):
+             ...
+
+Routes for each API resource are defined by classes which inherit from
+:mod:`keystone.server.flask.common.APIBase`. For example, the UserAPI will
+look like:
+
+.. code-block:: python
+
+    class UserAPI(ks_flask.APIBase):
+        _name = 'users'
+        _import_name = __name__
+        resources = [UserResource]
+        resource_mapping = [
+            ks_flask.construct_resource_map(
+                resource=UserChangePasswordResource,
+                url='/users/<string:user_id>/password',
+                resource_kwargs={},
+                rel='user_change_password',
+                path_vars={'user_id': json_home.Parameters.USER_ID}
+            ),
+         ...
+
+The methods ``_add_resources()`` or ``_add_mapped_resources()`` in
+:mod:`keystone.server.flask.common.APIBase` bind the resources with the APIs.
+Within each API, one or more managers are loaded (for example, see
+:mod:`keystone.catalog.core.Manager`), which are thin wrapper classes which load
+the appropriate service driver based on the keystone configuration.
 
 * Assignment
 
-  * :mod:`keystone.assignment.controllers.GrantAssignmentV3`
-  * :mod:`keystone.assignment.controllers.ImpliedRolesV3`
-  * :mod:`keystone.assignment.controllers.ProjectAssignmentV3`
-  * :mod:`keystone.assignment.controllers.TenantAssignment`
-  * :mod:`keystone.assignment.controllers.RoleAssignmentV3`
-  * :mod:`keystone.assignment.controllers.RoleV3`
+  * :mod:`keystone.api.role_assignments`
+  * :mod:`keystone.api.role_inferences`
+  * :mod:`keystone.api.roles`
+  * :mod:`keystone.api.os_inherit`
+  * :mod:`keystone.api.system`
 
 * Authentication
 
-  * :mod:`keystone.auth.controllers.Auth`
+  * :mod:`keystone.api.auth`
+  * :mod:`keystone.api.ec2tokens`
+  * :mod:`keystone.api.s3tokens`
 
 * Catalog
 
-  * :mod:`keystone.catalog.controllers.EndpointFilterV3Controller`
-  * :mod:`keystone.catalog.controllers.EndpointGroupV3Controller`
-  * :mod:`keystone.catalog.controllers.EndpointV3`
-  * :mod:`keystone.catalog.controllers.ProjectEndpointGroupV3Controller`
-  * :mod:`keystone.catalog.controllers.RegionV3`
-  * :mod:`keystone.catalog.controllers.ServiceV3`
+  * :mod:`keystone.api.endpoints`
+  * :mod:`keystone.api.os_ep_filter`
+  * :mod:`keystone.api.regions`
+  * :mod:`keystone.api.services`
 
 * Credentials
 
-  * :mod:`keystone.contrib.ec2.controllers.Ec2ControllerV3`
-  * :mod:`keystone.credential.controllers.CredentialV3`
+  * :mod:`keystone.api.credentials`
 
 * Federation
 
-  * :mod:`keystone.federation.controllers.IdentityProvider`
-  * :mod:`keystone.federation.controllers.FederationProtocol`
-  * :mod:`keystone.federation.controllers.MappingController`
-  * :mod:`keystone.federation.controllers.Auth`
-  * :mod:`keystone.federation.controllers.DomainV3`
-  * :mod:`keystone.federation.controllers.ProjectAssignmentV3`
-  * :mod:`keystone.federation.controllers.ServiceProvider`
-  * :mod:`keystone.federation.controllers.SAMLMetadataV3`
+  * :mod:`keystone.api.os_federation`
 
 * Identity
 
-  * :mod:`keystone.identity.controllers.GroupV3`
-  * :mod:`keystone.identity.controllers.UserV3`
+  * :mod:`keystone.api.groups`
+  * :mod:`keystone.api.users`
+
+* Limits
+
+  * :mod:`keystone.api.registered_limits`
+  * :mod:`keystone.api.limits`
 
 * Oauth1
 
-  * :mod:`keystone.oauth1.controllers.ConsumerCrudV3`
-  * :mod:`keystone.oauth1.controllers.AccessTokenCrudV3`
-  * :mod:`keystone.oauth1.controllers.AccessTokenRolesV3`
-  * :mod:`keystone.oauth1.controllers.OAuthControllerV3`
+  * :mod:`keystone.api.os_oauth1`
 
 * Policy
 
-  * :mod:`keystone.policy.controllers.PolicyV3`
+  * :mod:`keystone.api.policy`
 
 * Resource
 
-  * :mod:`keystone.resource.controllers.DomainV3`
-  * :mod:`keystone.resource.controllers.DomainConfigV3`
-  * :mod:`keystone.resource.controllers.ProjectV3`
-  * :mod:`keystone.resource.controllers.ProjectTagV3`
+  * :mod:`keystone.api.domains`
+  * :mod:`keystone.api.projects`
 
 * Revoke
 
-  * :mod:`keystone.revoke.controllers.RevokeController`
+  * :mod:`keystone.api.os_revoke`
 
 * Trust
 
-  * :mod:`keystone.trust.controllers.TrustV3`
-
-.. _Paste: http://pythonpaste.org/
-
+  * :mod:`keystone.api.trusts`
 
 Service Backends
 ================
