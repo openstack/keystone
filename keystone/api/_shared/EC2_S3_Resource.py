@@ -115,7 +115,9 @@ class ResourceBase(ks_flask.ResourceBase):
             project_id=cred.get('project_id'),
             access=loaded.get('access'),
             secret=loaded.get('secret'),
-            trust_id=loaded.get('trust_id')
+            trust_id=loaded.get('trust_id'),
+            app_cred_id=loaded.get('app_cred_id'),
+            access_token_id=loaded.get('access_token_id')
         )
 
         # validate the signature
@@ -137,8 +139,34 @@ class ResourceBase(ks_flask.ResourceBase):
                 sys.exc_info()[2])
 
         self._check_timestamp(credentials)
-        roles = PROVIDERS.assignment_api.get_roles_for_user_and_project(
-            user_ref['id'], project_ref['id'])
+
+        trustee_user_id = None
+        auth_context = None
+        if cred_data['trust_id']:
+            trust = PROVIDERS.trust_api.get_trust(cred_data['trust_id'])
+            roles = [r['id'] for r in trust['roles']]
+            # NOTE(cmurphy): if this credential was created using a
+            # trust-scoped token with impersonation, the user_id will be for
+            # the trustor, not the trustee. In this case, issuing a
+            # trust-scoped token to the trustor will fail. In order to get a
+            # trust-scoped token, use the user ID of the trustee. With
+            # impersonation, the resulting token will still be for the trustor.
+            # Without impersonation, the token will be for the trustee.
+            if trust['impersonation'] is True:
+                trustee_user_id = trust['trustee_user_id']
+        elif cred_data['app_cred_id']:
+            ac_client = PROVIDERS.application_credential_api
+            app_cred = ac_client.get_application_credential(
+                cred_data['app_cred_id'])
+            roles = [r['id'] for r in app_cred['roles']]
+        elif cred_data['access_token_id']:
+            access_token = PROVIDERS.oauth_api.get_access_token(
+                cred_data['access_token_id'])
+            roles = jsonutils.loads(access_token['role_ids'])
+            auth_context = {'access_token_id': cred_data['access_token_id']}
+        else:
+            roles = PROVIDERS.assignment_api.get_roles_for_user_and_project(
+                user_ref['id'], project_ref['id'])
 
         if not roles:
             raise ks_exceptions.Unauthorized(_('User not valid for project.'))
@@ -149,7 +177,14 @@ class ResourceBase(ks_flask.ResourceBase):
 
         method_names = ['ec2credential']
 
+        if trustee_user_id:
+            user_id = trustee_user_id
+        else:
+            user_id = user_ref['id']
         token = PROVIDERS.token_provider_api.issue_token(
-            user_id=user_ref['id'], method_names=method_names,
-            project_id=project_ref['id'])
+            user_id=user_id, method_names=method_names,
+            project_id=project_ref['id'],
+            trust_id=cred_data['trust_id'],
+            app_cred_id=cred_data['app_cred_id'],
+            auth_context=auth_context)
         return token
