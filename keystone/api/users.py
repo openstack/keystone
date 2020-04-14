@@ -568,6 +568,25 @@ class UserAppCredListCreateResource(ks_flask.ResourceBase):
                     role['name']))
         return roles
 
+    def _get_roles(self, app_cred_data, token):
+        if app_cred_data.get('roles'):
+            roles = self._normalize_role_list(app_cred_data['roles'])
+            # NOTE(cmurphy): The user is not allowed to add a role that is not
+            # in their token. This is to prevent trustees or application
+            # credential users from escallating their privileges to include
+            # additional roles that the trustor or application credential
+            # creator has assigned on the project.
+            token_roles = [r['id'] for r in token.roles]
+            for role in roles:
+                if role['id'] not in token_roles:
+                    detail = _('Cannot create an application credential with '
+                               'unassigned role')
+                    raise ks_exception.ApplicationCredentialValidationError(
+                        detail=detail)
+        else:
+            roles = token.roles
+        return roles
+
     def get(self, user_id):
         """List application credentials for user.
 
@@ -603,8 +622,7 @@ class UserAppCredListCreateResource(ks_flask.ResourceBase):
             app_cred_data['secret'] = self._generate_secret()
         app_cred_data['user_id'] = user_id
         app_cred_data['project_id'] = project_id
-        app_cred_data['roles'] = self._normalize_role_list(
-            app_cred_data.get('roles', token.roles))
+        app_cred_data['roles'] = self._get_roles(app_cred_data, token)
         if app_cred_data.get('expires_at'):
             app_cred_data['expires_at'] = utils.parse_expiration_date(
                 app_cred_data['expires_at'])
