@@ -477,7 +477,8 @@ class BaseProvider(base.Provider):
                 auth_context, project_id, domain_id)
 
         access_token = None
-        if 'oauth1' in method_names:
+        if 'oauth1' in method_names or (
+                auth_context and auth_context.get('access_token_id')):
             access_token_id = auth_context['access_token_id']
             access_token = self.oauth_api.get_access_token(access_token_id)
 

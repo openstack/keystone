@@ -13,6 +13,7 @@
 # under the License.
 
 import hashlib
+import six
 
 from oslo_serialization import jsonutils
 
@@ -33,29 +34,37 @@ class CredentialV3(controller.V3Controller):
         super(CredentialV3, self).__init__()
         self.get_member_from_driver = self.credential_api.get_credential
 
-    def _assign_unique_id(self, ref, trust_id=None):
-        # Generates and assigns a unique identifier to
-        # a credential reference.
+    def _validate_blob_json(self, ref):
+        try:
+            blob = jsonutils.loads(ref.get('blob'))
+        except (ValueError, TabError):
+            raise exception.ValidationError(
+                message=_('Invalid blob in credential'))
+        if not blob or not isinstance(blob, dict):
+            raise exception.ValidationError(attribute='blob',
+                                            target='credential')
+        if blob.get('access') is None:
+            raise exception.ValidationError(attribute='access',
+                                            target='credential')
+        return blob
+
+    def _assign_unique_id(
+            self, ref, trust_id=None, access_token_id=None):
+        # Generates and assigns a unique identifier to a credential reference.
         if ref.get('type', '').lower() == 'ec2':
-            try:
-                blob = jsonutils.loads(ref.get('blob'))
-            except (ValueError, TypeError):
-                raise exception.ValidationError(
-                    message=_('Invalid blob in credential'))
-            if not blob or not isinstance(blob, dict):
-                raise exception.ValidationError(attribute='blob',
-                                                target='credential')
-            if blob.get('access') is None:
-                raise exception.ValidationError(attribute='access',
-                                                target='blob')
+            blob = self._validate_blob_json(ref)
             ret_ref = ref.copy()
             ret_ref['id'] = hashlib.sha256(
                 blob['access'].encode('utf8')).hexdigest()
-            # Update the blob with the trust_id, so credentials created
-            # with a trust scoped token will result in trust scoped
-            # tokens when authentication via ec2tokens happens
+            # update the blob with the trust_id,  so credentials
+            # created with a trust- token will result in
+            # trust- cred-scoped tokens when authentication via
+            # ec2tokens happens
             if trust_id is not None:
                 blob['trust_id'] = trust_id
+                ret_ref['blob'] = jsonutils.dumps(blob)
+            if access_token_id is not None:
+                blob['access_token_id'] = access_token_id
                 ret_ref['blob'] = jsonutils.dumps(blob)
             return ret_ref
         else:
@@ -64,8 +73,11 @@ class CredentialV3(controller.V3Controller):
     @controller.protected()
     def create_credential(self, request, credential):
         validation.lazy_validate(schema.credential_create, credential)
+        trust_id = request.context.trust_id
+        access_token_id = request.context.oauth_acess_token_id
         ref = self._assign_unique_id(self._normalize_dict(credential),
-                                     request.context.trust_id)
+                                     trust_id=trust_id,
+                                     access_token_id=access_token_id)
         ref = self.credential_api.create_credential(ref['id'], ref)
         return CredentialV3.wrap_member(request.context_dict, ref)
 
@@ -95,11 +107,31 @@ class CredentialV3(controller.V3Controller):
         ret_ref = self._blob_to_json(ref)
         return CredentialV3.wrap_member(request.context_dict, ret_ref)
 
+    def _validate_blob_update_keys(self, credential, ref):
+        if credential.get('type', '').lower() == 'ec2':
+            new_blob = self._validate_blob_json(ref)
+            old_blob = credential.get('blob')
+            if isinstance(old_blob, six.string_types):
+                old_blob = jsonutils.loads(old_blob)
+            # if there was a scope set, prevent changing it or unsetting it
+            for key in ['trust_id', 'app_cred_id', 'access_token_id']:
+                if old_blob.get(key) != new_blob.get(key):
+                    message = _('%s can not be updated for credential') % key
+                    raise exception.ValidationError(message=message)
+
     @controller.protected()
     def update_credential(self, request, credential_id, credential):
+        current = self.credential_api.get_credential(credential_id)
         validation.lazy_validate(schema.credential_update, credential)
+        self._validate_blob_update_keys(current.copy(), credential.copy())
         self._require_matching_id(credential_id, credential)
-
+        # Check that the user hasn't illegally modified the owner or scope
+        target = {'credential': dict(current, **credential)}
+        prep_info = {'f_name': 'update_credential',
+                     'input_attr': {}}
+        self.check_protection(
+            request, prep_info, target_attr=target
+        )
         ref = self.credential_api.update_credential(credential_id, credential)
         return CredentialV3.wrap_member(request.context_dict, ref)
 
