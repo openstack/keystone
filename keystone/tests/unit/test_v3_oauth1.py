@@ -308,6 +308,19 @@ class OAuthFlowTests(OAuth1Tests):
         self.keystone_token = content.result['token']
         self.assertIsNotNone(self.keystone_token_id)
 
+        # add a new role assignment to ensure it is ignored in the access token
+        new_role = {'id': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
+        PROVIDERS.role_api.create_role(new_role['id'], new_role)
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
+            user_id=self.user_id,
+            project_id=self.project_id,
+            role_id=new_role['id'])
+        content = self.post(url, headers=headers, body=body)
+        token = content.result['token']
+        token_roles = [r['id'] for r in token['roles']]
+        self.assertIn(self.role_id, token_roles)
+        self.assertNotIn(new_role['id'], token_roles)
+
 
 class AccessTokenCRUDTests(OAuthFlowTests):
     def test_delete_access_token_dne(self):
