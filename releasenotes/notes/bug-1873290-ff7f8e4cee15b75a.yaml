@@ -1,0 +1,19 @@
+---
+security:
+  - |
+    [`bug 1873290 <https://bugs.launchpad.net/keystone/+bug/1873290>`_]
+    [`bug 1872735 <https://bugs.launchpad.net/keystone/+bug/1872735>`_]
+    Fixed the token model to respect the roles authorized OAuth1 access tokens.
+    Previously, the list of roles authorized for an OAuth1 access token were
+    ignored, so when an access token was used to request a keystone token, the
+    keystone token would contain every role assignment the creator had for the
+    project. This also fixed EC2 credentials to respect those roles as well.
+fixes:
+  - |
+    [`bug 1873290 <https://bugs.launchpad.net/keystone/+bug/1873290>`_]
+    [`bug 1872735 <https://bugs.launchpad.net/keystone/+bug/1872735>`_]
+    Fixed the token model to respect the roles authorized OAuth1 access tokens.
+    Previously, the list of roles authorized for an OAuth1 access token were
+    ignored, so when an access token was used to request a keystone token, the
+    keystone token would contain every role assignment the creator had for the
+    project. This also fixed EC2 credentials to respect those roles as well.
