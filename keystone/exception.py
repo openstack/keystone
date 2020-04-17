@@ -222,6 +222,11 @@ class ApplicationCredentialLimitExceeded(ForbiddenNotSecurity):
                        "maximum of %(limit)d already exceeded for user.")
 
 
+class CredentialLimitExceeded(ForbiddenNotSecurity):
+    message_format = _("Unable to create additional credentials, maximum "
+                       "of %(limit)d already exceeded for user.")
+
+
 class SecurityError(Error):
     """Security error exception.
 
