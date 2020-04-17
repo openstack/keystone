@@ -33,11 +33,13 @@ Glance to list images needed to perform the requested task.
 """
 
 import abc
+import datetime
 import sys
 import uuid
 
 from keystoneclient.contrib.ec2 import utils as ec2_utils
 from oslo_serialization import jsonutils
+from oslo_utils import timeutils
 import six
 from six.moves import http_client
 
@@ -46,11 +48,13 @@ from keystone.common import controller
 from keystone.common import dependency
 from keystone.common import utils
 from keystone.common import wsgi
+import keystone.conf
 from keystone import exception
 from keystone.i18n import _
 from keystone.token import controllers as token_controllers
 
 CRED_TYPE_EC2 = 'ec2'
+CONF = keystone.conf.CONF
 
 
 @dependency.requires('assignment_api', 'catalog_api', 'credential_api',
@@ -88,6 +92,30 @@ class Ec2ControllerCommon(object):
         else:
             raise exception.Unauthorized(
                 message=_('EC2 signature not supplied.'))
+
+    def _check_timestamp(self, credentials):
+        timestamp = (
+            # AWS Signature v1/v2
+            credentials.get('params', {}).get('Timestamp') or
+            # AWS Signature v4
+            credentials.get('headers', {}).get('X-Amz-Date') or
+            credentials.get('params', {}).get('X-Amz-Date')
+        )
+        if not timestamp:
+            # If the signed payload doesn't include a timestamp then the signer
+            # must have intentionally left it off
+            return
+        try:
+            timestamp = timeutils.parse_isotime(timestamp)
+            timestamp = timeutils.normalize_time(timestamp)
+        except Exception as e:
+            raise exception.Unauthorized(
+                _('Credential timestamp is invalid: %s') % e)
+        auth_ttl = datetime.timedelta(minutes=CONF.credential.auth_ttl)
+        current_time = timeutils.normalize_time(timeutils.utcnow())
+        if current_time > timestamp + auth_ttl:
+            raise exception.Unauthorized(
+                _('Credential is expired'))
 
     @abc.abstractmethod
     def authenticate(self, context, credentials=None, ec2Credentials=None):
@@ -147,6 +175,7 @@ class Ec2ControllerCommon(object):
             six.reraise(exception.Unauthorized, exception.Unauthorized(e),
                         sys.exc_info()[2])
 
+        self._check_timestamp(credentials)
         roles = self.assignment_api.get_roles_for_user_and_project(
             user_ref['id'], tenant_ref['id']
         )
