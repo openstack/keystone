@@ -12,10 +12,15 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import datetime
+import hashlib
+
 from keystoneclient.contrib.ec2 import utils as ec2_utils
+from oslo_utils import timeutils
 from six.moves import http_client
 
 from keystone.common import provider_api
+from keystone.common import utils
 from keystone.tests import unit
 from keystone.tests.unit import test_v3
 
@@ -34,6 +39,7 @@ class EC2ContribCoreV3(test_v3.RestfulTestCase):
 
     def test_valid_authentication_response_with_proper_secret(self):
         signer = ec2_utils.Ec2Signer(self.cred_blob['secret'])
+        timestamp = utils.isotime(timeutils.utcnow())
         credentials = {
             'access': self.cred_blob['access'],
             'secret': self.cred_blob['secret'],
@@ -43,8 +49,50 @@ class EC2ContribCoreV3(test_v3.RestfulTestCase):
             'params': {
                 'SignatureVersion': '2',
                 'Action': 'Test',
-                'Timestamp': '2007-01-31T23:59:59Z'
+                'Timestamp': timestamp
             },
+        }
+        credentials['signature'] = signer.generate(credentials)
+        resp = self.post(
+            '/ec2tokens',
+            body={'credentials': credentials},
+            expected_status=http_client.OK)
+        self.assertValidProjectScopedTokenResponse(resp, self.user)
+
+    def test_valid_authentication_response_with_signature_v4(self):
+        signer = ec2_utils.Ec2Signer(self.cred_blob['secret'])
+        timestamp = utils.isotime(timeutils.utcnow())
+        hashed_payload = (
+            'GET\n'
+            '/\n'
+            'Action=Test\n'
+            'host:localhost\n'
+            'x-amz-date:' + timestamp + '\n'
+            '\n'
+            'host;x-amz-date\n'
+            'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+        )
+        body_hash = hashlib.sha256(hashed_payload.encode()).hexdigest()
+        amz_credential = (
+            'AKIAIOSFODNN7EXAMPLE/%s/us-east-1/iam/aws4_request,' %
+            timestamp[:8])
+
+        credentials = {
+            'access': self.cred_blob['access'],
+            'secret': self.cred_blob['secret'],
+            'host': 'localhost',
+            'verb': 'GET',
+            'path': '/',
+            'params': {
+                'Action': 'Test',
+                'X-Amz-Algorithm': 'AWS4-HMAC-SHA256',
+                'X-Amz-SignedHeaders': 'host,x-amz-date,',
+                'X-Amz-Credential': amz_credential
+            },
+            'headers': {
+                'X-Amz-Date': timestamp
+            },
+            'body_hash': body_hash
         }
         credentials['signature'] = signer.generate(credentials)
         resp = self.post(
@@ -72,6 +120,7 @@ class EC2ContribCoreV3(test_v3.RestfulTestCase):
 
     def test_authenticate_without_proper_secret_returns_unauthorized(self):
         signer = ec2_utils.Ec2Signer('totally not the secret')
+        timestamp = utils.isotime(timeutils.utcnow())
         credentials = {
             'access': self.cred_blob['access'],
             'secret': 'totally not the secret',
@@ -81,8 +130,80 @@ class EC2ContribCoreV3(test_v3.RestfulTestCase):
             'params': {
                 'SignatureVersion': '2',
                 'Action': 'Test',
-                'Timestamp': '2007-01-31T23:59:59Z'
+                'Timestamp': timestamp
             },
+        }
+        credentials['signature'] = signer.generate(credentials)
+        self.post(
+            '/ec2tokens',
+            body={'credentials': credentials},
+            expected_status=http_client.UNAUTHORIZED)
+
+    def test_authenticate_expired_request(self):
+        self.config_fixture.config(
+            group='credential',
+            auth_ttl=5
+        )
+        signer = ec2_utils.Ec2Signer(self.cred_blob['secret'])
+        past = timeutils.utcnow() - datetime.timedelta(minutes=10)
+        timestamp = utils.isotime(past)
+        credentials = {
+            'access': self.cred_blob['access'],
+            'secret': self.cred_blob['secret'],
+            'host': 'localhost',
+            'verb': 'GET',
+            'path': '/',
+            'params': {
+                'SignatureVersion': '2',
+                'Action': 'Test',
+                'Timestamp': timestamp
+            },
+        }
+        credentials['signature'] = signer.generate(credentials)
+        self.post(
+            '/ec2tokens',
+            body={'credentials': credentials},
+            expected_status=http_client.UNAUTHORIZED)
+
+    def test_authenticate_expired_request_v4(self):
+        self.config_fixture.config(
+            group='credential',
+            auth_ttl=5
+        )
+        signer = ec2_utils.Ec2Signer(self.cred_blob['secret'])
+        past = timeutils.utcnow() - datetime.timedelta(minutes=10)
+        timestamp = utils.isotime(past)
+        hashed_payload = (
+            'GET\n'
+            '/\n'
+            'Action=Test\n'
+            'host:localhost\n'
+            'x-amz-date:' + timestamp + '\n'
+            '\n'
+            'host;x-amz-date\n'
+            'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855'
+        )
+        body_hash = hashlib.sha256(hashed_payload.encode()).hexdigest()
+        amz_credential = (
+            'AKIAIOSFODNN7EXAMPLE/%s/us-east-1/iam/aws4_request,' %
+            timestamp[:8])
+
+        credentials = {
+            'access': self.cred_blob['access'],
+            'secret': self.cred_blob['secret'],
+            'host': 'localhost',
+            'verb': 'GET',
+            'path': '/',
+            'params': {
+                'Action': 'Test',
+                'X-Amz-Algorithm': 'AWS4-HMAC-SHA256',
+                'X-Amz-SignedHeaders': 'host,x-amz-date,',
+                'X-Amz-Credential': amz_credential
+            },
+            'headers': {
+                'X-Amz-Date': timestamp
+            },
+            'body_hash': body_hash
         }
         credentials['signature'] = signer.generate(credentials)
         self.post(
