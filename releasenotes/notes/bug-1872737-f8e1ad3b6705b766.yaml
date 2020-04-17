@@ -1,0 +1,28 @@
+---
+feature:
+  - |
+    [`bug 1872737 <https://bugs.launchpad.net/keystone/+bug/1872737>`_]
+    Added a new config option ``auth_ttl`` in the ``[credential]`` config
+    section to allow configuring the period for which a signed token request
+    from AWS is valid. The default is 15 minutes in accordance with the AWS
+    Signature V4 API reference.
+upgrade:
+  - |
+    [`bug 1872737 <https://bugs.launchpad.net/keystone/+bug/1872737>`_]
+    Added a default TTL of 15 minutes for signed EC2 credential requests,
+    where previously an EC2 signed token request was valid indefinitely. This
+    change in behavior is needed to protect against replay attacks.
+security:
+  - |
+    [`bug 1872737 <https://bugs.launchpad.net/keystone/+bug/1872737>`_]
+    Fixed an incorrect EC2 token validation implementation in which the
+    timestamp of the signed request was ignored, which made EC2 and S3 token
+    requests vulnerable to replay attacks. The default TTL is 15 minutes but
+    is configurable.
+fixes:
+  - |
+    [`bug 1872737 <https://bugs.launchpad.net/keystone/+bug/1872737>`_]
+    Fixed an incorrect EC2 token validation implementation in which the
+    timestamp of the signed request was ignored, which made EC2 and S3 token
+    requests vulnerable to replay attacks. The default TTL is 15 minutes but
+    is configurable.
