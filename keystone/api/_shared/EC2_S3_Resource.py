@@ -12,18 +12,22 @@
 
 # Common base resource for EC2 and S3 Authentication
 
+import datetime
 import sys
 
 from oslo_serialization import jsonutils
+from oslo_utils import timeutils
 import six
 from werkzeug import exceptions
 
 from keystone.common import provider_api
 from keystone.common import utils
+import keystone.conf
 from keystone import exception as ks_exceptions
 from keystone.i18n import _
 from keystone.server import flask as ks_flask
 
+CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
 CRED_TYPE_EC2 = 'ec2'
 
@@ -38,6 +42,31 @@ class ResourceBase(ks_flask.ResourceBase):
         # NOTE(morgan): @staticmethod doesn't always play nice with
         # the ABC module.
         raise NotImplementedError()
+
+    @staticmethod
+    def _check_timestamp(credentials):
+        timestamp = (
+            # AWS Signature v1/v2
+            credentials.get('params', {}).get('Timestamp') or
+            # AWS Signature v4
+            credentials.get('headers', {}).get('X-Amz-Date') or
+            credentials.get('params', {}).get('X-Amz-Date')
+        )
+        if not timestamp:
+            # If the signed payload doesn't include a timestamp then the signer
+            # must have intentionally left it off
+            return
+        try:
+            timestamp = timeutils.parse_isotime(timestamp)
+            timestamp = timeutils.normalize_time(timestamp)
+        except Exception as e:
+            raise ks_exceptions.Unauthorized(
+                _('Credential timestamp is invalid: %s') % e)
+        auth_ttl = datetime.timedelta(minutes=CONF.credential.auth_ttl)
+        current_time = timeutils.normalize_time(timeutils.utcnow())
+        if current_time > timestamp + auth_ttl:
+            raise ks_exceptions.Unauthorized(
+                _('Credential is expired'))
 
     def handle_authenticate(self):
         # TODO(morgan): convert this dirty check to JSON Schema validation
@@ -107,6 +136,7 @@ class ResourceBase(ks_flask.ResourceBase):
                 ks_exceptions.Unauthorized(e),
                 sys.exc_info()[2])
 
+        self._check_timestamp(credentials)
         roles = PROVIDERS.assignment_api.get_roles_for_user_and_project(
             user_ref['id'], project_ref['id'])
 
