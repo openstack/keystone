@@ -26,8 +26,12 @@ Prerequisites
 This document assumes you are using an Ubuntu, Fedora, or openSUSE platform and
 that you have the following tools pre-installed on your system:
 
-- python_ 2.7 and 3.5, as the programming language;
+- python_ 3.6, as the programming language;
 - git_, as the version control tool;
+
+.. NOTE::
+
+    Keystone dropped the support of python_ 2.7 in the Ussuri release of Openstack.
 
 **Reminder**: If you are successfully using a different platform, or a
 different version of the above, please document your configuration here!
@@ -136,7 +140,7 @@ Once set up, you should be able to invoke Python and import the libraries:
 
 .. code-block:: bash
 
-    $ .tox/py27/bin/python -c "import keystone"
+    $ .tox/py36/bin/python -c "import keystone"
 
 If you can import keystone without a traceback, you should be ready to move on
 to the next sections.

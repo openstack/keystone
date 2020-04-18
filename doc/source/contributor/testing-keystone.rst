@@ -52,15 +52,21 @@ other projects.
     your virtualenv in a similar manner.
 
 To run tests for one or more specific test environments (for example, the most
-common configuration of Python 2.7 and PEP-8), list the environments with the
+common configuration of Python 3.6 and PEP-8), list the environments with the
 ``-e`` option, separated by spaces:
 
 .. code-block:: bash
 
-    $ tox -e py27,pep8
+    $ tox -e py36,pep8
+
+.. NOTE::
+
+    Keystone dropped the support of python_ 2.7 in the Ussuri release of Openstack.
 
 Use ``tox --listenvs`` to list all testing environments specified in keystone's
 ``tox.ini`` file.
+
+.. _python: http://www.python.org
 
 Interactive debugging
 ~~~~~~~~~~~~~~~~~~~~~
