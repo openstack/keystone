@@ -204,6 +204,7 @@ function configure_tests_settings {
     iniset $TEMPEST_CONFIG fed_scenario mapping_user_name $MAPPING_USER_NAME
     iniset $TEMPEST_CONFIG fed_scenario mapping_group_name $GROUP_NAME
     iniset $TEMPEST_CONFIG fed_scenario mapping_group_domain_name $DOMAIN_NAME
+    iniset $TEMPEST_CONFIG fed_scenario enable_k2k_groups_mapping True
 
     # Protocol settings
     iniset $TEMPEST_CONFIG fed_scenario protocol_id $PROTOCOL_ID
