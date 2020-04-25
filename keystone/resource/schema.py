@@ -18,7 +18,7 @@ _name_properties = {
     'type': 'string',
     'minLength': 1,
     'maxLength': 64,
-    'pattern': '[\S]+'
+    'pattern': r'[\S]+'
 }
 
 _project_tag_name_properties = {

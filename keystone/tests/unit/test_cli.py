@@ -1313,7 +1313,7 @@ class SecurityComplianceDoctorTests(unit.TestCase):
         # Symptom Detected: Regular expression is invalid
         self.config_fixture.config(
             group='security_compliance',
-            password_regex='^^(??=.*\d)$')
+            password_regex=r'^^(??=.*\d)$')
         self.assertTrue(
             security_compliance.symptom_invalid_password_regular_expression())
 
@@ -1321,7 +1321,7 @@ class SecurityComplianceDoctorTests(unit.TestCase):
         # No Symptom Detected: Regular expression is valid
         self.config_fixture.config(
             group='security_compliance',
-            password_regex='^(?=.*\d)(?=.*[a-zA-Z]).{7,}$')
+            password_regex=r'^(?=.*\d)(?=.*[a-zA-Z]).{7,}$')
         self.assertFalse(
             security_compliance.symptom_invalid_password_regular_expression())
 
@@ -1337,7 +1337,7 @@ class SecurityComplianceDoctorTests(unit.TestCase):
         # Symptom Detected: Regular expression is set but description is not
         self.config_fixture.config(
             group='security_compliance',
-            password_regex='^(?=.*\d)(?=.*[a-zA-Z]).{7,}$')
+            password_regex=r'^(?=.*\d)(?=.*[a-zA-Z]).{7,}$')
         self.config_fixture.config(
             group='security_compliance',
             password_regex_description=None)
@@ -1350,7 +1350,7 @@ class SecurityComplianceDoctorTests(unit.TestCase):
         desc = '1 letter, 1 digit, and a minimum length of 7 is required'
         self.config_fixture.config(
             group='security_compliance',
-            password_regex='^(?=.*\d)(?=.*[a-zA-Z]).{7,}$')
+            password_regex=r'^(?=.*\d)(?=.*[a-zA-Z]).{7,}$')
         self.config_fixture.config(
             group='security_compliance',
             password_regex_description=desc)

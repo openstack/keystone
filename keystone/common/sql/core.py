@@ -111,6 +111,7 @@ def initialize_decorator(init):
         init(self, *args, **kwargs)
     return initialize
 
+
 ModelBase.__init__ = initialize_decorator(ModelBase.__init__)
 
 

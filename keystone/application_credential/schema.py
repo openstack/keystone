@@ -38,11 +38,11 @@ _access_rules_properties = {
                 'type': 'string',
                 'minLength': 0,
                 'maxLength': 225,
-                'pattern': '^\/.*'
+                'pattern': r'^\/.*'
             },
             'method': {
                 'type': 'string',
-                'pattern': '^(POST|GET|HEAD|PATCH|PUT|DELETE)$'
+                'pattern': r'^(POST|GET|HEAD|PATCH|PUT|DELETE)$'
             },
             'service': parameter_types.id_string,
             'id': parameter_types.id_string,

@@ -39,6 +39,7 @@ class UserType(object):
     EPHEMERAL = 'ephemeral'
     LOCAL = 'local'
 
+
 ROLE_PROPERTIES = {
     "type": "array",
     "items": {

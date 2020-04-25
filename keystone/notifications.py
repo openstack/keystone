@@ -838,6 +838,7 @@ def _add_username_to_initiator(initiator):
 
     return initiator
 
+
 emit_event = CadfNotificationWrapper
 
 

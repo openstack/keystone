@@ -21,7 +21,7 @@ import keystone.conf
 
 
 CONF = keystone.conf.CONF
-CONFIG_REGEX = '^keystone\..*?\.conf$'
+CONFIG_REGEX = r'^keystone\..*?\.conf$'
 
 
 def symptom_LDAP_user_enabled_emulation_dn_ignored():

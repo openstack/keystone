@@ -1020,7 +1020,7 @@ class PasswordValidationTestCase(ChangePasswordTestCase):
         # passwords requires: 1 letter, 1 digit, 7 chars
         self.config_fixture.config(group='security_compliance',
                                    password_regex=(
-                                       '^(?=.*\d)(?=.*[a-zA-Z]).{7,}$'))
+                                       r'^(?=.*\d)(?=.*[a-zA-Z]).{7,}$'))
 
     def test_create_user_with_invalid_password(self):
         user = unit.new_user_ref(domain_id=self.domain_id)
@@ -1040,7 +1040,7 @@ class PasswordValidationTestCase(ChangePasswordTestCase):
     def test_changing_password_with_simple_password_strength(self):
         # password requires: any non-whitespace character
         self.config_fixture.config(group='security_compliance',
-                                   password_regex='[\S]+')
+                                   password_regex=r'[\S]+')
         self.change_password(password='simple',
                              original_password=self.user_ref['password'],
                              expected_status=http.client.NO_CONTENT)

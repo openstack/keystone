@@ -24,6 +24,7 @@ please see pycodestyle.py.
 """
 
 import ast
+from hacking import core
 import re
 
 
@@ -73,6 +74,9 @@ class CheckForMutableDefaultArgs(BaseASTChecker):
 
     """
 
+    name = "check_for_mutable_default_args"
+    version = "1.0"
+
     CHECK_DESC = 'K001 Using mutable as a function/method default'
     MUTABLES = (
         ast.List, ast.ListComp,
@@ -88,6 +92,7 @@ class CheckForMutableDefaultArgs(BaseASTChecker):
         super(CheckForMutableDefaultArgs, self).generic_visit(node)
 
 
+@core.flake8ext
 def block_comments_begin_with_a_space(physical_line, line_number):
     """There should be a space after the # of block comments.
 
@@ -114,6 +119,8 @@ def block_comments_begin_with_a_space(physical_line, line_number):
 
 class CheckForTranslationIssues(BaseASTChecker):
 
+    name = "check_for_translation_issues"
+    version = "1.0"
     LOGGING_CHECK_DESC = 'K005 Using translated string in logging'
     USING_DEPRECATED_WARN = 'K009 Using the deprecated Logger.warn'
     LOG_MODULES = ('logging', 'oslo_log.log')
@@ -297,6 +304,7 @@ class CheckForTranslationIssues(BaseASTChecker):
             self.add_error(msg, message=self.LOGGING_CHECK_DESC)
 
 
+@core.flake8ext
 def dict_constructor_with_sequence_copy(logical_line):
     """Should use a dict comprehension instead of a dict constructor.
 
@@ -318,10 +326,3 @@ def dict_constructor_with_sequence_copy(logical_line):
 
     if dict_constructor_with_sequence_re.match(logical_line):
         yield (0, MESSAGE)
-
-
-def factory(register):
-    register(CheckForMutableDefaultArgs)
-    register(block_comments_begin_with_a_space)
-    register(CheckForTranslationIssues)
-    register(dict_constructor_with_sequence_copy)
