@@ -7,15 +7,16 @@
 # Robert Simai, 2014
 # Reik Keutterling <spielkind@gmail.com>, 2015
 # Andreas Jaeger <jaegerandi@gmail.com>, 2016. #zanata
+# Andreas Jaeger <jaegerandi@gmail.com>, 2020. #zanata
 msgid ""
 msgstr ""
 "Project-Id-Version: keystone VERSION\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2019-09-30 20:17+0000\n"
+"POT-Creation-Date: 2020-04-23 21:31+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2016-06-01 09:22+0000\n"
+"PO-Revision-Date: 2020-04-25 10:12+0000\n"
 "Last-Translator: Andreas Jaeger <jaegerandi@gmail.com>\n"
 "Language: de\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -130,6 +131,11 @@ msgstr "Benutzer-ID kann nicht geändert werden"
 
 msgid "Cannot change user name"
 msgstr "Benutzername kann nicht geändert werden"
+
+#, python-format
+msgid "Cannot create an endpoint with an invalid URL: %(url)s."
+msgstr ""
+"Es kann kein Endpunkt mit einer ungültigen URL erstellt werden: %(url)s."
 
 msgid "Cannot delete a domain that is enabled, please disable it first."
 msgstr ""
@@ -362,6 +368,16 @@ msgstr ""
 msgid "Expected dict or list: %s"
 msgstr "Verzeichnis oder Liste erwartet: %s"
 
+#, python-format
+msgid ""
+"Expecting to find %(attribute)s in %(target)s. The server could not comply "
+"with the request since it is either malformed or otherwise incorrect. The "
+"client is assumed to be in error."
+msgstr ""
+"Es wurde erwartet, %(attribute)s in %(target)s zu finden. Der Server konnte "
+"die Anforderung nicht erfüllen, da ein fehlerhaftes Format oder ein anderer "
+"Fehler vorliegt. Es wird angenommen, dass der Fehler beim Client liegt."
+
 msgid "Failed to validate token"
 msgstr "Token konnte nicht geprüft werden"
 
@@ -389,6 +405,14 @@ msgid ""
 msgstr ""
 "Die von der Zuordnung %(mapping_id)s zurückgegebene Gruppe %(group_id)s "
 "konnte im Back-End nicht gefunden werden."
+
+#, python-format
+msgid ""
+"Group membership across backend boundaries is not allowed. Group in question "
+"is %(group_id)s, user is %(user_id)s."
+msgstr ""
+"Back-End-übergreifende Gruppenmitgliedschaft ist nicht zulässig. Die "
+"betroffene Gruppe ist %(group_id)s, Benutzer ist %(user_id)s."
 
 #, python-format
 msgid "ID attribute %(id_attr)s not found in LDAP object %(dn)s"
@@ -438,6 +462,20 @@ msgid ""
 msgstr ""
 "Ungültiger Domänenname: %(domain)s im Konfigurationsdateinamen gefunden: "
 "%(file)s - diese Datei wird ignoriert."
+
+#, python-format
+msgid "Invalid domain specific configuration: %(reason)s."
+msgstr "Ungültige domänenspezifische Konfiguration: %(reason)s."
+
+#, python-format
+msgid ""
+"Invalid mix of entities for policy association: only Endpoint, Service, or "
+"Region+Service allowed. Request was - Endpoint: %(endpoint_id)s, Service: "
+"%(service_id)s, Region: %(region_id)s."
+msgstr ""
+"Ungültige Mischung von Entitäten für Richtlinienzuordnung: nur Endpunkt, "
+"Service oder Region+Service sind zulässig. Anforderung war - Endpunkt: "
+"%(endpoint_id)s, Service: %(service_id)s, Region: %(region_id)s."
 
 #, python-format
 msgid ""
@@ -622,6 +660,14 @@ msgstr "Geben Sie eine Domäne oder ein Projekt an, nicht beides"
 msgid "Specify a user or group, not both"
 msgstr "Geben Sie einen Benutzer oder eine Gruppe an, nicht beides"
 
+#, python-format
+msgid ""
+"String length exceeded. The length of string '%(string)s' exceeds the limit "
+"of column %(type)s(CHAR(%(length)d))."
+msgstr ""
+"Zeichenfolgelänge überschritten. Die Länge der Zeichenfolge '%(string)s' hat "
+"den Grenzwert von Spalte %(type)s(CHAR(%(length)d)) überschritten."
+
 msgid ""
 "The 'expires_at' must not be before now. The server could not comply with "
 "the request since it is either malformed or otherwise incorrect. The client "
@@ -653,6 +699,10 @@ msgstr ""
 
 msgid "The action you have requested has not been implemented."
 msgstr "Die von Ihnen angeforderte Aktion wurde nicht implementiert."
+
+#, python-format
+msgid "The password does not match the requirements: %(detail)s."
+msgstr "Das Passwort entspricht nicht den Anforderungen: %(detail)s."
 
 #, python-format
 msgid ""
@@ -836,6 +886,11 @@ msgstr "Benutzertyp %s nicht unterstützt"
 msgid "You are not authorized to perform the requested action."
 msgstr ""
 "Sie sind nicht dazu authorisiert, die angeforderte Aktion durchzuführen."
+
+#, python-format
+msgid "You are not authorized to perform the requested action: %(action)s."
+msgstr ""
+"Sie sind nicht berechtigt, die angeforderte Aktion %(action)s auszuführen."
 
 msgid ""
 "You have tried to create a resource using the admin token. As this token is "
