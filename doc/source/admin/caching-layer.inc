@@ -1,5 +1,7 @@
 .. -*- rst -*-
 
+.. _caching_layer:
+
 Caching layer
 =============
 
@@ -161,6 +163,8 @@ options), see:
 - `dogpile.cache.redis <https://dogpilecache.sqlalchemy.org/en/latest/api.html#redis-backends>`__
 
 - `dogpile.cache.dbm <https://dogpilecache.sqlalchemy.org/en/latest/api.html#file-backends>`__
+
+.. _cache_invalidation:
 
 Cache invalidation
 ------------------
