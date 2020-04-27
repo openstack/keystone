@@ -19,6 +19,8 @@ database using API REST calls.
    experimental in Kilo, and added to the Identity service in the
    Liberty release.
 
+.. _enable_drivers_for_domain:
+
 Enable drivers for domain-specific configuration files
 ------------------------------------------------------
 
