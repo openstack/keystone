@@ -143,8 +143,8 @@ def skip_if_cache_disabled(*sections):
     arguments to only check global caching.
 
     If a specified configuration section does not define the `caching` option,
-    this decorator makes the same assumption as the `should_cache_fn` in
-    keystone.common.cache that caching should be enabled.
+    this decorator makes the caching enabled if `enabled` option in the `cache`
+    section of the configuration is true.
 
     """
     def wrapper(f):
