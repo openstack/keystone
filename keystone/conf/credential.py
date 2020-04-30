@@ -61,6 +61,14 @@ Time to cache credential data in seconds. This has no effect unless global
 caching is enabled.
 """))
 
+auth_ttl = cfg.IntOpt(
+    'auth_ttl',
+    default=15,
+    help=utils.fmt("""
+The length of time in minutes for which a signed EC2 or S3 token request is
+valid from the timestamp contained in the token request.
+"""))
+
 
 GROUP_NAME = __name__.split('.')[-1]
 ALL_OPTS = [
@@ -68,7 +76,8 @@ ALL_OPTS = [
     provider,
     key_repository,
     caching,
-    cache_time
+    cache_time,
+    auth_ttl
 ]
 
 
