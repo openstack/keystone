@@ -42,9 +42,9 @@ global caching and `[unified_limit] caching` are enabled.
 list_limit = cfg.IntOpt(
     'list_limit',
     help=utils.fmt("""
-Maximum number of entities that will be returned in a role collection. This may
-be useful to tune if you have a large number of unified limits in your
-deployment.
+Maximum number of entities that will be returned in a unified limit
+collection. This may be useful to tune if you have a large number of
+unified limits in your deployment.
 """))
 
 enforcement_model = cfg.StrOpt(
