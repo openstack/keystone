@@ -1,0 +1,31 @@
+---
+critical:
+  - |
+    [`bug 1872735 <https://bugs.launchpad.net/keystone/+bug/1872735>`_]
+    Fixed a security issue in which a trustee or an application credential user
+    could create an EC2 credential or an application credential that would
+    permit them to get a token that elevated their role assignments beyond the
+    subset delegated to them in the trust or application credential. A new
+    attribute ``app_cred_id`` is now automatically added to the access blob of
+    an EC2 credential and the role list in the trust or application credential
+    is respected.
+security:
+  - |
+    [`bug 1872735 <https://bugs.launchpad.net/keystone/+bug/1872735>`_]
+    Fixed a security issue in which a trustee or an application credential user
+    could create an EC2 credential or an application credential that would
+    permit them to get a token that elevated their role assignments beyond the
+    subset delegated to them in the trust or application credential. A new
+    attribute ``app_cred_id`` is now automatically added to the access blob of
+    an EC2 credential and the role list in the trust or application credential
+    is respected.
+fixes:
+  - |
+    [`bug 1872735 <https://bugs.launchpad.net/keystone/+bug/1872735>`_]
+    Fixed a security issue in which a trustee or an application credential user
+    could create an EC2 credential or an application credential that would
+    permit them to get a token that elevated their role assignments beyond the
+    subset delegated to them in the trust or application credential. A new
+    attribute ``app_cred_id`` is now automatically added to the access blob of
+    an EC2 credential and the role list in the trust or application credential
+    is respected.
