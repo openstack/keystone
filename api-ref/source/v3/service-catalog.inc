@@ -35,6 +35,7 @@ Parameters
 
 .. rest_parameters:: parameters.yaml
 
+   - name: request_service_name_query_not_required
    - type: service_type_query
 
 Response
