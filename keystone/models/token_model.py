@@ -13,6 +13,7 @@
 """Unified in-memory token model."""
 
 from oslo_log import log
+from oslo_serialization import jsonutils
 from oslo_serialization import msgpackutils
 from oslo_utils import reflection
 import six
@@ -328,6 +329,21 @@ class TokenModel(object):
 
         return roles
 
+    def _get_oauth_roles(self):
+        roles = []
+        access_token_roles = self.access_token['role_ids']
+        access_token_roles = [
+            {'role_id': r} for r in jsonutils.loads(access_token_roles)]
+        effective_access_token_roles = (
+            PROVIDERS.assignment_api.add_implied_roles(access_token_roles)
+        )
+        user_roles = [r['id'] for r in self._get_project_roles()]
+        for role in effective_access_token_roles:
+            if role['role_id'] in user_roles:
+                role = PROVIDERS.role_api.get_role(role['role_id'])
+                roles.append({'id': role['id'], 'name': role['name']})
+        return roles
+
     def _get_federated_roles(self):
         roles = []
         group_ids = [group['id'] for group in self.federated_groups]
@@ -431,6 +447,8 @@ class TokenModel(object):
             roles = self._get_system_roles()
         elif self.trust_scoped:
             roles = self._get_trust_roles()
+        elif self.oauth_scoped:
+            roles = self._get_oauth_roles()
         elif self.is_federated and not self.unscoped:
             roles = self._get_federated_roles()
         elif self.domain_scoped:
