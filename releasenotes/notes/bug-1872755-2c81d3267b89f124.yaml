@@ -1,0 +1,19 @@
+---
+security:
+  - |
+    [`bug 1872755 <https://bugs.launchpad.net/keystone/+bug/1872755>`_]
+    Added validation to the EC2 credentials update API to ensure the metadata
+    labels 'trust_id' and 'app_cred_id' are not altered by the user. These
+    labels are used by keystone to determine the scope allowed by the
+    credential, and altering these automatic labels could enable an EC2
+    credential holder to elevate their access beyond what is permitted by the
+    application credential or trust that was used to create the EC2 credential.
+fixes:
+  - |
+    [`bug 1872755 <https://bugs.launchpad.net/keystone/+bug/1872755>`_]
+    Added validation to the EC2 credentials update API to ensure the metadata
+    labels 'trust_id' and 'app_cred_id' are not altered by the user. These
+    labels are used by keystone to determine the scope allowed by the
+    credential, and altering these automatic labels could enable an EC2
+    credential holder to elevate their access beyond what is permitted by the
+    application credential or trust that was used to create the EC2 credential.
