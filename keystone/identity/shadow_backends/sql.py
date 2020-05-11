@@ -230,7 +230,7 @@ class ShadowUsers(base.ShadowUsersDriverBase):
                 if not user:
                     # Note(knikolla): This shouldn't really ever happen, since
                     # this requires the user to already be logged in.
-                    raise exception.UserNotFound()
+                    raise exception.UserNotFound(user_id=user_id)
                 return user
 
         with sql.session_for_write() as session:
