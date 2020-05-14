@@ -15,7 +15,6 @@
       - publish-openstack-sphinx-docs
       - periodic-stable-jobs
       - check-requirements
-      - integrated-gate
       - integrated-gate-py35
       - release-notes-jobs
     check:
@@ -51,29 +50,9 @@
               - ^keystone/tests/unit/.*$
               - ^releasenotes/.*$
               - ^setup.cfg$
-        - neutron-grenade:
-            irrelevant-files:
-              - ^(test-|)requirements.txt$
-              - ^.*\.rst$
-              - ^api-ref/.*$
-              - ^doc/.*$
-              - ^etc/.*$
-              - ^keystone/tests/unit/.*$
-              - ^releasenotes/.*$
-              - ^setup.cfg$
     gate:
       jobs:
         - tempest-full:
-            irrelevant-files:
-              - ^(test-|)requirements.txt$
-              - ^.*\.rst$
-              - ^api-ref/.*$
-              - ^doc/.*$
-              - ^etc/.*$
-              - ^keystone/tests/unit/.*$
-              - ^releasenotes/.*$
-              - ^setup.cfg$
-        - neutron-grenade:
             irrelevant-files:
               - ^(test-|)requirements.txt$
               - ^.*\.rst$
