@@ -114,7 +114,7 @@ exclude_patterns = ['old']
 show_authors = True
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = 'native'
 
 # A list of ignored prefixes for module index sorting.
 modindex_common_prefix = ['keystone.']
@@ -276,7 +276,8 @@ texinfo_documents = [
 # intersphinx_mapping = {'http://docs.python.org/': None}
 
 # -- Options for openstackdocstheme -------------------------------------------
-repository_name = 'openstack/keystone'
-bug_project = 'keystone'
-bug_tag = 'documentation'
-openstack_projects = ['python-openstackclient']
+openstackdocs_repo_name = 'openstack/keystone'
+openstackdocs_bug_project = 'keystone'
+openstackdocs_bug_tag = 'documentation'
+openstackdocs_projects = ['python-openstackclient']
+openstackdocs_pdf_link = True
