@@ -407,6 +407,34 @@ class CredentialTestCase(CredentialBaseTestCase):
             body={'credential': update_ref},
             expected_status=http.client.BAD_REQUEST)
 
+    def test_update_ec2_credential_change_access_id(self):
+        """Call ``PATCH /credentials/{credential_id}``."""
+        blob, ref = unit.new_ec2_credential(user_id=self.user['id'],
+                                            project_id=self.project_id)
+        blob['access_id'] = uuid.uuid4().hex
+        ref['blob'] = json.dumps(blob)
+        r = self.post(
+            '/credentials',
+            body={'credential': ref})
+        self.assertValidCredentialResponse(r, ref)
+        credential_id = r.result.get('credential')['id']
+        # Try changing to a different access_id
+        blob['access_id'] = uuid.uuid4().hex
+        update_ref = {'blob': json.dumps(blob)}
+        self.patch(
+            '/credentials/%(credential_id)s' % {
+                'credential_id': credential_id},
+            body={'credential': update_ref},
+            expected_status=http.client.BAD_REQUEST)
+        # Try removing the access_id
+        del blob['access_id']
+        update_ref = {'blob': json.dumps(blob)}
+        self.patch(
+            '/credentials/%(credential_id)s' % {
+                'credential_id': credential_id},
+            body={'credential': update_ref},
+            expected_status=http.client.BAD_REQUEST)
+
     def test_delete_credential(self):
         """Call ``DELETE /credentials/{credential_id}``."""
         self.delete(

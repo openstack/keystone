@@ -1,0 +1,8 @@
+---
+fixes:
+  - >
+    [`bug 1872753 <https://bugs.launchpad.net/keystone/+bug/1872753>`_]
+    Added validation to the EC2 credential API to prevent altering the ``access_id``
+    field in the blob attribute. This prevents accidentally orphaning an EC2 credential
+    resource when an altered ``access_id`` no longer resolves to the credential's
+    resource ID.
