@@ -383,6 +383,12 @@ request_nocatalog_unscoped_path_not_required:
   in: query
   required: false
   type: string
+request_service_name_query_not_required:
+  description: |
+    Filters the response by a service name.
+  in: query
+  required: false
+  type: string
 resource_name_query:
   description: |
     Filters the response by a specified resource name.
