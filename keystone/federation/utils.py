@@ -190,6 +190,9 @@ MAPPING_SCHEMA = {
                 },
                 "blacklist": {
                     "type": "array"
+                },
+                "regex": {
+                    "type": "boolean"
                 }
             }
         },
@@ -203,6 +206,9 @@ MAPPING_SCHEMA = {
                 },
                 "whitelist": {
                     "type": "array"
+                },
+                "regex": {
+                    "type": "boolean"
                 }
             }
         },
@@ -844,11 +850,17 @@ class RuleProcessor(object):
             # If a blacklist or whitelist is used, we want to map to the
             # whole list instead of just its values separately.
             if blacklisted_values is not None:
-                direct_map_values = [v for v in direct_map_values
-                                     if v not in blacklisted_values]
+                direct_map_values = (
+                    self._evaluate_requirement(blacklisted_values,
+                                               direct_map_values,
+                                               self._EvalType.BLACKLIST,
+                                               regex))
             elif whitelisted_values is not None:
-                direct_map_values = [v for v in direct_map_values
-                                     if v in whitelisted_values]
+                direct_map_values = (
+                    self._evaluate_requirement(whitelisted_values,
+                                               direct_map_values,
+                                               self._EvalType.WHITELIST,
+                                               regex))
 
             direct_maps.add(direct_map_values)
 
@@ -857,20 +869,26 @@ class RuleProcessor(object):
         return direct_maps
 
     def _evaluate_values_by_regex(self, values, assertion_values):
-        for value in values:
-            for assertion_value in assertion_values:
-                if re.search(value, assertion_value):
-                    return True
-        return False
+        return [
+            assertion for assertion in assertion_values
+            if any([re.search(regex, assertion) for regex in values])
+        ]
 
     def _evaluate_requirement(self, values, assertion_values,
                               eval_type, regex):
         """Evaluate the incoming requirement and assertion.
 
-        If the requirement type does not exist in the assertion data, then
-        return False. If regex is specified, then compare the values and
-        assertion values. Otherwise, grab the intersection of the values
-        and use that to compare against the evaluation type.
+        Filter the incoming assertions against the requirement values. If regex
+        is specified, the assertion list is filtered by checking if any of the
+        requirement regexes matches. Otherwise, the list is filtered by string
+        equality with any of the allowed values.
+
+        Once the assertion values are filtered, the output is determined by the
+        evaluation type:
+            any_one_of: return True if there are any matches, False otherwise
+            not_any_of: return True if there are no matches, False otherwise
+            blacklist: return the incoming values minus any matches
+            whitelist: return only the matched values
 
         :param values: list of allowed values, defined in the requirement
         :type values: list
@@ -881,20 +899,29 @@ class RuleProcessor(object):
         :param regex: perform evaluation with regex
         :type regex: boolean
 
-        :returns: boolean, whether requirement is valid or not.
+        :returns: list of filtered assertion values (if evaluation type is
+                  'blacklist' or 'whitelist'), or boolean indicating if the
+                  assertion values fulfill the requirement (if evaluation type
+                  is 'any_one_of' or 'not_any_of')
 
         """
         if regex:
-            any_match = self._evaluate_values_by_regex(values,
-                                                       assertion_values)
+            matches = self._evaluate_values_by_regex(values, assertion_values)
         else:
-            any_match = bool(set(values).intersection(set(assertion_values)))
-        if any_match and eval_type == self._EvalType.ANY_ONE_OF:
-            return True
-        if not any_match and eval_type == self._EvalType.NOT_ANY_OF:
-            return True
+            matches = set(values).intersection(set(assertion_values))
 
-        return False
+        if eval_type == self._EvalType.ANY_ONE_OF:
+            return bool(matches)
+        elif eval_type == self._EvalType.NOT_ANY_OF:
+            return not bool(matches)
+        elif eval_type == self._EvalType.BLACKLIST:
+            return list(set(assertion_values).difference(set(matches)))
+        elif eval_type == self._EvalType.WHITELIST:
+            return list(matches)
+        else:
+            raise exception.UnexpectedError(
+                _('Unexpected evaluation type "%(eval_type)s"') % {
+                    'eval_type': eval_type})
 
 
 def assert_enabled_identity_provider(federation_api, idp_id):

@@ -276,7 +276,11 @@ empty condition
         - Mapping to user with the email matching value in remote attribute Email
         - Mapping to a group(s) with the name matching the value(s) in remote attribute OIDC_GROUPS
 
+.. NOTE::
 
+    If the user id and name are not specified in the mapping, the server tries to
+    directly map ``REMOTE_USER`` environment variable. If this variable is also
+    unavailable the server returns an HTTP 401 Unauthorized error.
 
 Groups can have multiple values. Each value must be separated by a `;`
 Example: OIDC_GROUPS=developers;testers
@@ -354,13 +358,42 @@ In ``<other_condition>`` shown below, please supply one of the following:
        ]
    }
 
-.. NOTE::
+In the above example, a whitelist can be used to only map the user into a few of
+the groups in their ``HTTP_OIDC_GROUPIDS`` remote attribute:
 
-    If the user id and name are not specified in the mapping, the server tries to
-    directly map ``REMOTE_USER`` environment variable. If this variable is also
-    unavailable the server returns an HTTP 401 Unauthorized error.
+.. code-block:: json
 
-Group ids and names can be provided in the local section:
+    {
+        "type": "HTTP_OIDC_GROUPIDS",
+        "whitelist": [
+            "Developers",
+            "OpsTeam"
+        ]
+    }
+
+A blacklist can map the user into all groups except those matched:
+
+.. code-block:: json
+
+    {
+        "type": "HTTP_OIDC_GROUPIDS",
+        "blacklist": [
+            "Finance"
+        ]
+    }
+
+Regular expressions can be used in any condition for more flexible matches:
+
+.. code-block:: json
+
+    {
+        "type": "HTTP_OIDC_GROUPIDS",
+        "whitelist": [
+            ".*Team$"
+        ]
+    }
+
+When mapping into groups, either ids or names can be provided in the local section:
 
 .. code-block:: json
 
@@ -504,7 +537,10 @@ setting it to ``true``.
                            "name": "{0}"
                        },
                        "group": {
-                           "id": "0cd5e9"
+                           "name": "{1}",
+                           "domain": {
+                               "id": "abc1234"
+                           }
                        }
                    },
                ],
@@ -518,14 +554,23 @@ setting it to ``true``.
                            ".*@yeah.com$"
                        ]
                        "regex": true
-                   }
+                   },
+                   {
+                       "type": "HTTP_OIDC_GROUPIDS",
+                       "whitelist": [
+                           "Project.*$"
+                       ],
+                       "regex": true
+                    }
                ]
            }
        ]
    }
 
 This allows any user with a claim containing a key with any value in
-``HTTP_OIDC_GROUPIDS`` to be mapped to group with id ``0cd5e9``.
+``HTTP_OIDC_GROUPIDS`` to be mapped to group with id ``0cd5e9``. Additionally,
+for every value in the ``HTTP_OIDC_GROUPIDS`` claim matching the string
+``Project.*``, the user will be assigned to the project with that name.
 
 Condition Combinations
 ----------------------

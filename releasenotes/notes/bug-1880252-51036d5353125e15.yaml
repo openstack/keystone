@@ -1,0 +1,10 @@
+---
+features:
+  - |
+    Mappings can now specify "whitelist" and "blacklist" conditionals as
+    regular expressions. Prior, only "not_any_of" and "any_one_of" conditionals
+    supported regular expression matching.
+fixes:
+  - |
+    [`bug 1880252 <https://bugs.launchpad.net/keystone/+bug/1880252>`_]
+    Regexes are not allowed in "whitelist" and "blacklist" conditionals

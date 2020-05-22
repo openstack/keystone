@@ -262,6 +262,44 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         self._rule_engine_regex_match_and_many_groups(
             mapping_fixtures.MALFORMED_TESTER_ASSERTION)
 
+    def test_rule_engine_regex_blacklist(self):
+        mapping = mapping_fixtures.MAPPING_GROUPS_BLACKLIST_REGEX
+        assertion = mapping_fixtures.EMPLOYEE_PARTTIME_ASSERTION
+        rp = mapping_utils.RuleProcessor(FAKE_MAPPING_ID, mapping['rules'])
+        mapped = rp.process(assertion)
+
+        expected = {
+            'user': {'type': 'ephemeral'},
+            'projects': [],
+            'group_ids': [],
+            'group_names': [
+                {'name': 'Manager', 'domain': {
+                    'id': mapping_fixtures.FEDERATED_DOMAIN}}
+            ]
+        }
+
+        self.assertEqual(expected, mapped)
+
+    def test_rule_engine_regex_whitelist(self):
+        mapping = mapping_fixtures.MAPPING_GROUPS_WHITELIST_REGEX
+        assertion = mapping_fixtures.EMPLOYEE_PARTTIME_ASSERTION
+        rp = mapping_utils.RuleProcessor(FAKE_MAPPING_ID, mapping['rules'])
+        mapped = rp.process(assertion)
+
+        expected = {
+            'user': {'type': 'ephemeral'},
+            'projects': [],
+            'group_ids': [],
+            'group_names': [
+                {'name': 'Employee', 'domain': {
+                    'id': mapping_fixtures.FEDERATED_DOMAIN}},
+                {'name': 'PartTimeEmployee', 'domain': {
+                    'id': mapping_fixtures.FEDERATED_DOMAIN}}
+            ]
+        }
+
+        self.assertEqual(expected, mapped)
+
     def test_rule_engine_fails_after_discarding_nonstring(self):
         """Check whether RuleProcessor discards non string objects.
 
