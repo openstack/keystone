@@ -22,7 +22,6 @@ lxml==3.4.1
 mock==2.0.0
 msgpack==0.5.0
 oauthlib==0.6.2
-openstackdocstheme==1.20.0
 os-api-ref==1.4.0
 os-testr==1.0.0
 oslo.cache==1.26.0
@@ -56,7 +55,6 @@ pytz==2013.6
 requests==2.14.2
 scrypt==0.8.0
 six==1.10.0
-Sphinx==1.6.5
 sqlalchemy-migrate==0.11.0
 SQLAlchemy==1.1.0
 stestr==1.0.0
