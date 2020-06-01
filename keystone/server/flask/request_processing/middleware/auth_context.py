@@ -371,7 +371,7 @@ class AuthContextMiddleware(provider_api.ProviderAPIMixin,
         if token.domain_scoped:
             # Domain scoped tokens should never have is_admin_project set
             # Even if KSA defaults it otherwise.  The two mechanisms are
-            # parallel; only ione or the other should be used for access.
+            # parallel; only one or the other should be used for access.
             request_context.is_admin_project = False
             request_context.domain_id = token.domain_id
             request_context.domain_name = token.domain['name']
