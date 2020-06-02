@@ -46,12 +46,21 @@ share this repository with the repository used to manage keys for Fernet
 tokens.
 """))
 
+auth_ttl = cfg.IntOpt(
+    'auth_ttl',
+    default=15,
+    help=utils.fmt("""
+The length of time in minutes for which a signed EC2 or S3 token request is
+valid from the timestamp contained in the token request.
+"""))
+
 
 GROUP_NAME = __name__.split('.')[-1]
 ALL_OPTS = [
     driver,
     provider,
-    key_repository
+    key_repository,
+    auth_ttl
 ]
 
 
