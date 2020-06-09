@@ -19,13 +19,14 @@ Entity list truncation by drivers
 =================================
 
 Keystone supports the ability for a deployment to restrict the number of
-entries returned from ``list_{entity}`` methods, typically to prevent poorly
+entries returned from list operations, typically to prevent poorly
 formed searches (e.g. without sufficient filters) from becoming a performance
 issue.
 
 These limits are set in the configuration file, either for a specific driver or
-across all drivers.  These limits are read at the Manager level and passed into
-individual drivers as part of the Hints list object. A driver should try and
-honor any such limit if possible, but if it is unable to do so then it may
-ignore it (and the truncation of the returned list of entities will happen at
-the controller level).
+across all drivers. A global ``list_limit`` set in ``[DEFAULT]`` section of
+keystone is considered in case no limit is set for specific driver. These
+limits are read at the Manager level and passed into individual drivers as part
+of the Hints list object. A driver should try and honor any such limit if possible,
+but if it is unable to do so then it may ignore it (and the truncation of the
+returned list of entities will happen at the API level by ``wrap_collection`` method).

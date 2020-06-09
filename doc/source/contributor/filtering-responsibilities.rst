@@ -14,23 +14,22 @@
       License for the specific language governing permissions and limitations
       under the License.
 
-==========================================================
-Filtering responsibilities between controllers and drivers
-==========================================================
+============================================================
+Filtering responsibilities between API resources and drivers
+============================================================
 
 Keystone supports the specification of filtering on list queries as part of the
-v3 identity API. By default these queries are satisfied in the controller
-class when a controller calls the ``wrap_collection`` method at the end of a
-``list_{entity}`` method.  However, to enable optimum performance, any driver
-can implement some or all of the specified filters (for example, by adding
-filtering to the generated SQL statements to generate the list).
+v3 identity API. By default these queries are satisfied in the API resource when
+it calls the ``wrap_collection`` method at the end of a ``get`` method.  However,
+to enable optimum performance, any driver can implement some or all of the specified
+filters (for example, by adding filtering to the generated SQL statements to generate
+the list).
 
-The communication of the filter details between the controller level and its
-drivers is handled by the passing of a reference to a Hints object,
-which is a list of dicts describing the filters. A driver that satisfies a
-filter must delete the filter from the Hints object so that when it is returned
-to the controller level, it knows to only execute any unsatisfied
-filters.
+The communication of the filter details between the API resource and its drivers is
+handled by the passing of a reference to a Hints object, which is a list of dicts
+describing the filters. A driver that satisfies a filter must delete the filter from
+the Hints object so that when it is returned to the API, it knows to only execute any
+unsatisfied filters.
 
 The contract for a driver for ``list_{entity}`` methods is therefore:
 
