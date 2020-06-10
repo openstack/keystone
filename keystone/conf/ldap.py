@@ -102,7 +102,8 @@ unset, the system's default behavior will be used.
 user_tree_dn = cfg.StrOpt(
     'user_tree_dn',
     help=utils.fmt("""
-The search base to use for users. Defaults to the `[ldap] suffix` value.
+The search base to use for users. Defaults to `ou=Users` with the `[ldap]
+suffix` appended to it.
 """))
 
 user_filter = cfg.StrOpt(
@@ -257,7 +258,8 @@ API.
 group_tree_dn = cfg.StrOpt(
     'group_tree_dn',
     help=utils.fmt("""
-The search base to use for groups. Defaults to the `[ldap] suffix` value.
+The search base to use for groups. Defaults to `ou=UserGroups` with the `[ldap]
+suffix` appended to it.
 """))
 
 group_filter = cfg.StrOpt(
