@@ -2205,7 +2205,7 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity, unit.TestCase):
         # Override the tree_dn, it's used to build the enabled member filter
         mixin_impl.tree_dn = sample_dn
 
-        # The filter that _get_enabled is going to build contains the
+        # The filter, which _is_id_enabled is going to build, contains the
         # tree_dn, which better be escaped in this case.
         exp_filter = '(%s=%s=%s,%s)' % (
             mixin_impl.member_attribute, mixin_impl.id_attr, object_id,
@@ -2214,7 +2214,7 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity, unit.TestCase):
         with mixin_impl.get_connection() as conn:
             m = self.useFixture(
                 fixtures.MockPatchObject(conn, 'search_s')).mock
-            mixin_impl._get_enabled(object_id, conn)
+            mixin_impl._is_id_enabled(object_id, conn)
             # The 3rd argument is the DN.
             self.assertEqual(exp_filter, m.call_args[0][2])
 
