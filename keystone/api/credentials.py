@@ -176,7 +176,8 @@ class CredentialResource(ks_flask.ResourceBase):
             if isinstance(old_blob, str):
                 old_blob = jsonutils.loads(old_blob)
             # if there was a scope set, prevent changing it or unsetting it
-            for key in ['trust_id', 'app_cred_id', 'access_token_id']:
+            for key in ['trust_id', 'app_cred_id', 'access_token_id',
+                        'access_id']:
                 if old_blob.get(key) != new_blob.get(key):
                     message = _('%s can not be updated for credential') % key
                     raise exception.ValidationError(message=message)
