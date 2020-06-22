@@ -1721,6 +1721,15 @@ request_domain_options_body_not_required:
   in: body
   required: false
   type: object
+request_explicit_domain_id_body_not_required:
+  description: |
+    The ID of the domain. A domain created this way will not use an
+    auto-generated ID, but will use the ID passed in instead. Identifiers passed
+    in this way must conform to the existing ID generation scheme: UUID4 without
+    dashes.
+  in: body
+  required: false
+  type: string
 request_limit_domain_id_not_required:
   description: |
     The name of the domain.
