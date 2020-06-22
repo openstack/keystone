@@ -24,7 +24,6 @@ from keystone import exception
 from keystone.resource.backends import base as resource_base
 from keystone.tests import unit
 from keystone.tests.unit import test_v3
-from keystone.tests.unit import utils as test_utils
 
 
 CONF = keystone.conf.CONF
@@ -1995,7 +1994,6 @@ class AssignmentInheritanceTestCase(test_v3.RestfulTestCase,
 
         self._test_list_role_assignments_include_names(role)
 
-    @test_utils.wip("Skipped until Bug 1754677 is resolved")
     def test_remove_assignment_for_project_acting_as_domain(self):
         """Test goal: remove assignment for project acting as domain.
 
