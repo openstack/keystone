@@ -86,6 +86,14 @@ class Manager(manager.Manager):
         credential_copy.pop('blob', None)
         return credential_copy
 
+    def _assert_limit_not_exceeded(self, user_id):
+        user_limit = CONF.credential.user_limit
+        if user_limit >= 0:
+            cred_count = len(self.list_credentials_for_user(user_id))
+            if cred_count >= user_limit:
+                raise exception.CredentialLimitExceeded(
+                    limit=user_limit)
+
     @manager.response_truncated
     def list_credentials(self, hints=None):
         credentials = self.driver.list_credentials(
@@ -119,6 +127,8 @@ class Manager(manager.Manager):
                           initiator=None):
         """Create a credential."""
         credential_copy = self._encrypt_credential(credential)
+        user_id = credential_copy['user_id']
+        self._assert_limit_not_exceeded(user_id)
         ref = self.driver.create_credential(credential_id, credential_copy)
         if MEMOIZE.should_cache(ref):
             self._get_credential.set(ref,

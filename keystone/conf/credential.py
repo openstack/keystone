@@ -69,6 +69,15 @@ The length of time in minutes for which a signed EC2 or S3 token request is
 valid from the timestamp contained in the token request.
 """))
 
+user_limit = cfg.IntOpt(
+    'user_limit',
+    default=-1,
+    help=utils.fmt("""
+Maximum number of credentials a user is permitted to create. A value of
+-1 means unlimited. If a limit is not set, users are permitted to create
+credentials at will, which could lead to bloat in the keystone database
+or open keystone to a DoS attack.
+"""))
 
 GROUP_NAME = __name__.split('.')[-1]
 ALL_OPTS = [
@@ -77,7 +86,8 @@ ALL_OPTS = [
     key_repository,
     caching,
     cache_time,
-    auth_ttl
+    auth_ttl,
+    user_limit,
 ]
 
 

@@ -1,0 +1,6 @@
+---
+features:
+  - >
+    [`bug 1872732 <https://bugs.launchpad.net/keystone/+bug/1872732>`_]
+    'user_limit' is added to config file of credentials that allows user to set
+     maximum number of credentials a user is permitted to create.
