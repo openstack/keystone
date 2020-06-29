@@ -201,3 +201,23 @@ The following example shows how to configure the memcached back end:
 
 You need to specify the URL to reach the ``memcached`` instance with the
 ``backend_argument`` parameter.
+
+Verbose cache logging
+---------------------
+
+We do not recommend using verbose cache logging by default in production
+systems since it's extremely noisy. However, you may need to debug cache
+issues. One way to see how keystone is interacting with a cache backend is to
+enhance logging. The following configuration will aggregate oslo and dogpile
+logs into keystone's log file with increased verbosity:
+
+.. code-block:: ini
+
+   [DEFAULT]
+   default_log_levels = oslo.cache=DEBUG,dogpile.core.dogpile=DEBUG
+
+   [cache]
+   debug_cache_backend = True
+
+These logs will include cache hits and misses, making it easier to diagnose
+cache configuration and connectivity issues.
