@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    [`bug 1885753 <https://bugs.launchpad.net/keystone/+bug/1885753>`_]
+    Keystone's SQL identity backend now retries update user requests to safely
+    handle stale data when two clients update a user at the same time.
