@@ -82,7 +82,7 @@ function install_federation {
         sudo shib-keygen -f
 
         # Enable the Shibboleth module for Apache
-        sudo a2enmod shib2
+        sudo a2enmod shib
     elif is_fedora; then
         # NOTE(knikolla): For CentOS/RHEL, installing shibboleth is tricky
         # It requires adding a separate repo not officially supported
