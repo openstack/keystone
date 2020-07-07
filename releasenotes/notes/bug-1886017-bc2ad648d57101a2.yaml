@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    [`bug 1886017 <https://bugs.launchpad.net/keystone/+bug/1886017>`_]
+    JWT validation now supports `allow_expired` query parameters.
