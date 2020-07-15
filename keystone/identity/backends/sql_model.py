@@ -199,13 +199,18 @@ class User(sql.ModelBase, sql.ModelDictMixinWithExtras):
         if self._enabled:
             max_days = (
                 CONF.security_compliance.disable_user_account_days_inactive)
+            inactivity_exempt = getattr(
+                self.get_resource_option(
+                    iro.IGNORE_USER_INACTIVITY_OPT.option_id),
+                'option_value',
+                False)
             last_active = self.last_active_at
             if not last_active and self.created_at:
                 last_active = self.created_at.date()
             if max_days and last_active:
                 now = datetime.datetime.utcnow().date()
                 days_inactive = (now - last_active).days
-                if days_inactive >= max_days:
+                if days_inactive >= max_days and not inactivity_exempt:
                     self._enabled = False
         return self._enabled
 

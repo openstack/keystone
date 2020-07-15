@@ -80,6 +80,12 @@ LOCK_PASSWORD_OPT = (
         option_name='lock_password',
         validator=resource_options.boolean_validator,
         json_schema_validation=parameter_types.boolean))
+IGNORE_USER_INACTIVITY_OPT = (
+    resource_options.ResourceOption(
+        option_id='1004',
+        option_name='ignore_user_inactivity',
+        validator=resource_options.boolean_validator,
+        json_schema_validation=parameter_types.boolean))
 MFA_RULES_OPT = (
     resource_options.ResourceOption(
         option_id='MFAR',
@@ -117,6 +123,7 @@ def register_user_options():
         IGNORE_PASSWORD_EXPIRY_OPT,
         IGNORE_LOCKOUT_ATTEMPT_OPT,
         LOCK_PASSWORD_OPT,
+        IGNORE_USER_INACTIVITY_OPT,
         MFA_RULES_OPT,
         MFA_ENABLED_OPT,
     ]:

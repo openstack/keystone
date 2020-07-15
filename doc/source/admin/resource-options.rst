@@ -42,6 +42,36 @@ or by updating an existing user to include new options
     ``None``; if the option is set to ``None``, it is removed from the user's
     data structure.
 
+.. _ignore_user_inactivity:
+
+ignore_user_inactivity
+----------------------
+
+Type: ``Boolean``
+
+Opt into ignoring global inactivity lock settings defined in
+``keystone.conf [security_compliance]`` on a per-user basis. Setting this
+option to ``True`` will make users not set as disabled even after the
+globally configured inactivity period is reached.
+
+.. code-block:: json
+
+   {
+       "user": {
+           "options": {
+               "ignore_user_inactivity": true
+           }
+       }
+   }
+
+.. note::
+    Setting this option for users which are already disabled will not
+    make them automatically enabled. Such users must be enabled manually
+    after setting this option to True for them.
+
+See the `security compliance documentation
+<security-compliance.html>`_ for more details.
+
 .. _ignore_change_password_upon_first_use:
 
 ignore_change_password_upon_first_use
