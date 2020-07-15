@@ -66,6 +66,10 @@ Install and configure components
 
    .. end
 
+   .. note::
+
+        For RHEL8/Centos8 and above install package python3-mod_wsgi.
+
 2. Edit the ``/etc/keystone/keystone.conf`` file and complete the following
    actions:
 
