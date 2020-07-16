@@ -887,6 +887,54 @@ MAPPING_GROUPS_BLACKLIST = {
     ]
 }
 
+MAPPING_GROUPS_BLACKLIST_REGEX = {
+    "rules": [
+        {
+            "remote": [
+                {
+                    "type": "orgPersonType",
+                    "blacklist": [
+                        ".*Employee$"
+                    ],
+                    "regex": True
+                },
+            ],
+            "local": [
+                {
+                    "groups": "{0}",
+                    "domain": {
+                        "id": FEDERATED_DOMAIN
+                    }
+                },
+            ]
+        }
+    ]
+}
+
+MAPPING_GROUPS_WHITELIST_REGEX = {
+    "rules": [
+        {
+            "remote": [
+                {
+                    "type": "orgPersonType",
+                    "whitelist": [
+                        ".*Employee$"
+                    ],
+                    "regex": True
+                },
+            ],
+            "local": [
+                {
+                    "groups": "{0}",
+                    "domain": {
+                        "id": FEDERATED_DOMAIN
+                    }
+                },
+            ]
+        }
+    ]
+}
+
 # Exercise all possibilities of user identification. Values are hardcoded on
 # purpose.
 MAPPING_USER_IDS = {
@@ -1527,6 +1575,14 @@ EMPLOYEE_ASSERTION = {
     'FirstName': 'Tim',
     'LastName': 'Bo',
     'orgPersonType': 'Employee;BuildingX'
+}
+
+EMPLOYEE_PARTTIME_ASSERTION = {
+    'Email': 'tim@example.com',
+    'UserName': 'tbo',
+    'FirstName': 'Tim',
+    'LastName': 'Bo',
+    'orgPersonType': 'Employee;PartTimeEmployee;Manager'
 }
 
 EMPLOYEE_ASSERTION_MULTIPLE_GROUPS = {
