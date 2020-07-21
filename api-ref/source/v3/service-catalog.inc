@@ -318,6 +318,7 @@ Parameters
 
    - interface: interface_query
    - service_id: service_id_query
+   - region_id: region_id_query
 
 Response
 --------
