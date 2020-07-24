@@ -50,6 +50,7 @@ python-ldap===3.0.0
 pymongo===3.0.2
 pysaml2==4.5.0
 PyJWT==1.6.1
+PyMySQL==0.7.6
 python-keystoneclient==3.8.0
 python-memcached===1.56
 pytz==2013.6
