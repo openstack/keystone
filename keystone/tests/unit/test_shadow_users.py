@@ -201,5 +201,5 @@ class TestUserWithFederatedUser(ShadowUsersTests):
         user['federated'] = new_fed
         user = self.identity_api.update_user(user['id'], user)
         self.assertTrue('federated' in user)
-        self.assertTrue(len(user['federated']), 1)
+        self.assertEqual(len(user['federated']), 1)
         self.assertEqual(user['federated'][0], new_fed[0])
