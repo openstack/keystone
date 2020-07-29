@@ -2628,6 +2628,23 @@ class TokenAPITests(object):
         with app.test_client() as c:
             c.get('/v3/users', headers=headers)
 
+    def test_fetch_expired_allow_expired_in_expired_window(self):
+        self.config_fixture.config(group='token',
+                                   expiration=10,
+                                   allow_expired_window=20)
+        time = datetime.datetime.utcnow()
+        with freezegun.freeze_time(time):
+            token = self._get_project_scoped_token()
+
+        tick = datetime.timedelta(seconds=15)
+        with freezegun.freeze_time(time + tick):
+            # after passing expiry time validation fails
+            self._validate_token(token, expected_status=http.client.NOT_FOUND)
+
+            # but if we pass allow_expired it validates
+            r = self._validate_token(token, allow_expired=True)
+            self.assertValidProjectScopedTokenResponse(r)
+
 
 class TokenDataTests(object):
     """Test the data in specific token types."""
