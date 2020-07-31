@@ -520,6 +520,20 @@ class CommonLdapTestCase(unit.BaseTestCase):
             # The user name should still be a string value.
             self.assertEqual(user_name, py_result[0][1]['user_name'][0])
 
+    def test_user_id_attribute_is_uuid_in_byte_form(self):
+        results = [(
+            'cn=alice,dc=example,dc=com',
+            {
+                'cn': [b'cn=alice'],
+                'objectGUID': [b'\xdd\xd8Rt\xee]bA\x8e(\xe39\x0b\xe1\xf8\xe8'],
+                'email': [uuid.uuid4().hex],
+                'sn': [uuid.uuid4().hex]
+            }
+        )]
+        py_result = common_ldap.convert_ldap_result(results)
+        exp_object_guid = '7452d8dd-5dee-4162-8e28-e3390be1f8e8'
+        self.assertEqual(exp_object_guid, py_result[0][1]['objectGUID'][0])
+
 
 class LDAPFilterQueryCompositionTest(unit.BaseTestCase):
     """These test cases test LDAP filter generation."""
