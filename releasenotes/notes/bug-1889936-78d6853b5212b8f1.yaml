@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    [`bug 1889936 <https://bugs.launchpad.net/keystone/+bug/1889936>`_]
+    Properly decode octet strings, or byte arrays, returned from LDAP.
