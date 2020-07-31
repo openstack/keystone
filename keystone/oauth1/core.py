@@ -14,8 +14,6 @@
 
 """Main entry point into the OAuth1 service."""
 
-from __future__ import absolute_import
-
 import uuid
 
 import oauthlib.common
