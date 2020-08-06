@@ -3437,7 +3437,7 @@ class FullMigration(SqlMigrateBase, unit.TestCase):
         self.assertTrue(self.does_unique_constraint_exist(
             'access_rule', ['user_id', 'service', 'path', 'method']))
 
-    def test_migration_066_add_role_and_prject_options_tables(self):
+    def test_migration_066_add_role_and_project_options_tables(self):
         self.expand(65)
         self.migrate(65)
         self.contract(65)
