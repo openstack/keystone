@@ -15,7 +15,7 @@ from oslo_config import cfg
 from keystone.conf import utils
 
 
-debug_middlware = cfg.BoolOpt(
+debug_middleware = cfg.BoolOpt(
     'debug_middleware',
     default=False,
     help=utils.fmt("""
@@ -38,7 +38,7 @@ SENSITIVE/PRIVILEGED DATA.
 
 GROUP_NAME = __name__.split('.')[-1]
 ALL_OPTS = [
-    debug_middlware,
+    debug_middleware,
 ]
 
 
