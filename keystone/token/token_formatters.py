@@ -170,7 +170,15 @@ class TokenFormatter(object):
 
         """
         serialized_payload = self.unpack(token)
-        versioned_payload = msgpack.unpackb(serialized_payload)
+        # TODO(melwitt): msgpack changed their data format in version 1.0, so
+        # in order to support a rolling upgrade, we must pass raw=True to
+        # to support the old format. The try-except may be removed in the once
+        # the N-1 release no longer supports msgpack < 1.0.
+        try:
+            versioned_payload = msgpack.unpackb(serialized_payload)
+        except UnicodeDecodeError:
+            versioned_payload = msgpack.unpackb(serialized_payload, raw=True)
+
         version, payload = versioned_payload[0], versioned_payload[1:]
 
         for payload_class in _PAYLOAD_CLASSES:
