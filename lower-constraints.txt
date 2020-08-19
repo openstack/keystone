@@ -46,7 +46,7 @@ pycadf==1.1.0
 pycodestyle==2.0.0
 python-ldap===3.0.0
 pymongo===3.0.2
-pysaml2==4.5.0
+pysaml2==5.0.0
 PyJWT==1.6.1
 PyMySQL==0.7.6
 python-keystoneclient==3.8.0
