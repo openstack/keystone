@@ -143,7 +143,7 @@ Examples
    :language: javascript
 
 
-Update Registered Limits
+Update Registered Limit
 ========================
 
 .. rest_method::  PATCH /v3/registered_limits/{registered_limit_id}
@@ -485,7 +485,7 @@ Examples
    :language: javascript
 
 
-Update Limits
+Update Limit
 =============
 
 .. rest_method::  PATCH /v3/limits/{limit_id}
