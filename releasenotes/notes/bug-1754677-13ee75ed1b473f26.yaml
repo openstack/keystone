@@ -1,0 +1,8 @@
+---
+fixes:
+  - >
+    [`bug 1754677 <https://bugs.launchpad.net/keystone/+bug/1754677>`_]
+    When you setup a user with a role assignment on a domain and then a role
+    assignment on a project "acting as a domain", you can't actually remove them.
+    This fixes it by filtering the query by "type" i.e either a USER_DOMAIN or
+    a USER_PROJECT in role assignment table.
