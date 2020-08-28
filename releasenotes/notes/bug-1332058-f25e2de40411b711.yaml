@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    [`bug 1332058 <https://bugs.launchpad.net/keystone/+bug/1332058>`_]
+    ``keystone-manage doctor`` now checks that keystone can establish
+    connections to Memcached, if configured.
