@@ -65,7 +65,7 @@ class HackingCode(fixtures.Fixture):
         'expected_errors': [
             (7, 10, 'K001'),
             (10, 15, 'K001'),
-            (10, 29, 'K001'),
+            (10, 28, 'K001'),
             (13, 15, 'K001'),
             (16, 15, 'K001'),
             (16, 31, 'K001'),
@@ -86,6 +86,12 @@ class HackingCode(fixtures.Fixture):
     if sys.version_info < (3, 5):
         mutable_default_args['expected_errors'][12] = (28, 27, 'K001')
         mutable_default_args['expected_errors'][14] = (32, 11, 'K001')
+
+    # NOTE(gmann): Python version < 3.8.2 (before Ubuntu Focal) returns
+    # the incorrect col_offset for below function defined in above code sample
+    # def f(foo, bad=[], more_bad=[x for x in range(3)]):
+    if sys.version_info < (3, 8, 2):
+        mutable_default_args['expected_errors'][2] = (10, 29, 'K001')
 
     comments_begin_with_space = {
         'code': """
