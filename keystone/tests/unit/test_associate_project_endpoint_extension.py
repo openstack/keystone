@@ -352,7 +352,7 @@ class EndpointFilterCRUDTestCase(EndpointFilterTestCase):
 
         ep_id_list = [catalog[0]['endpoints'][0]['id'],
                       catalog[0]['endpoints'][1]['id']]
-        self.assertItemsEqual([self.endpoint_id, endpoint_id2], ep_id_list)
+        self.assertCountEqual([self.endpoint_id, endpoint_id2], ep_id_list)
 
     @unit.skip_if_cache_disabled('catalog')
     def test_remove_endpoint_from_project_invalidates_cache(self):
@@ -381,7 +381,7 @@ class EndpointFilterCRUDTestCase(EndpointFilterTestCase):
         ep_id_list = [catalog[0]['endpoints'][0]['id'],
                       catalog[0]['endpoints'][1]['id']]
         self.assertEqual(2, len(catalog[0]['endpoints']))
-        self.assertItemsEqual([self.endpoint_id, endpoint_id2], ep_id_list)
+        self.assertCountEqual([self.endpoint_id, endpoint_id2], ep_id_list)
 
         # remove the endpoint2 from the default project, bypassing
         # catalog_api API manager.
@@ -1340,7 +1340,7 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
 
         ep_id_list = [catalog[0]['endpoints'][0]['id'],
                       catalog[0]['endpoints'][1]['id']]
-        self.assertItemsEqual([self.endpoint_id, endpoint_id2], ep_id_list)
+        self.assertCountEqual([self.endpoint_id, endpoint_id2], ep_id_list)
 
     @unit.skip_if_cache_disabled('catalog')
     def test_remove_endpoint_group_from_project_invalidates_cache(self):
@@ -1382,7 +1382,7 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
 
         ep_id_list = [catalog[0]['endpoints'][0]['id'],
                       catalog[0]['endpoints'][1]['id']]
-        self.assertItemsEqual([self.endpoint_id, endpoint_id2], ep_id_list)
+        self.assertCountEqual([self.endpoint_id, endpoint_id2], ep_id_list)
 
         # remove endpoint_group project association, bypassing
         # catalog_api API manager.

@@ -777,7 +777,7 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         self.assertIsNotNone(mapped_properties)
         self.assertEqual('opilotte', mapped_properties['user']['name'])
         self.assertListEqual([], mapped_properties['group_names'])
-        self.assertItemsEqual(['abc123', 'ghi789', 'klm012'],
+        self.assertCountEqual(['abc123', 'ghi789', 'klm012'],
                               mapped_properties['group_ids'])
 
     def test_rule_engine_group_ids_mapping_blacklist(self):
@@ -793,7 +793,7 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         self.assertIsNotNone(mapped_properties)
         self.assertEqual('opilotte', mapped_properties['user']['name'])
         self.assertListEqual([], mapped_properties['group_names'])
-        self.assertItemsEqual(['abc123', 'ghi789', 'klm012'],
+        self.assertCountEqual(['abc123', 'ghi789', 'klm012'],
                               mapped_properties['group_ids'])
 
     def test_rule_engine_group_ids_mapping_only_one_group(self):
@@ -810,7 +810,7 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         self.assertIsNotNone(mapped_properties)
         self.assertEqual('opilotte', mapped_properties['user']['name'])
         self.assertListEqual([], mapped_properties['group_names'])
-        self.assertItemsEqual(['210mlk', '321cba'],
+        self.assertCountEqual(['210mlk', '321cba'],
                               mapped_properties['group_ids'])
 
     def test_mapping_projects(self):

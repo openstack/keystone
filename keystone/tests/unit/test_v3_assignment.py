@@ -2866,7 +2866,7 @@ class ImpliedRolesTests(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin,
         actual_implied_ids = [implied['id']
                               for implied in role_inference['implies']]
 
-        self.assertItemsEqual(expected_implied_ids, actual_implied_ids)
+        self.assertCountEqual(expected_implied_ids, actual_implied_ids)
 
         self.assertIsNotNone(role_inference['prior_role']['links']['self'])
         for implied in role_inference['implies']:

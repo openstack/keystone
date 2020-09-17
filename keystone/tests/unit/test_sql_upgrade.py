@@ -297,7 +297,7 @@ class SqlMigrateBase(db_fixtures.OpportunisticDBTestMixin,
         actual_cols = [col.name for col in table.columns]
         # Check if the columns are equal, but allow for a different order,
         # which might occur after an upgrade followed by a downgrade
-        self.assertItemsEqual(expected_cols, actual_cols,
+        self.assertCountEqual(expected_cols, actual_cols,
                               '%s table' % table_name)
 
     def insert_dict(self, session, table_name, d, table=None):
@@ -831,7 +831,7 @@ class SqlLegacyRepoUpgradeTests(SqlMigrateBase):
             password_table_name, self.metadata, autoload=True)
         actual_users = get_users_from_db(user_table, local_user_table,
                                          password_table)
-        self.assertItemsEqual(expected_users, actual_users)
+        self.assertCountEqual(expected_users, actual_users)
 
     def test_migrate_user_with_null_password_to_password_tables(self):
         USER_TABLE_NAME = 'user'

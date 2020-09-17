@@ -95,7 +95,7 @@ class DriverTestCase(object):
                                          policy_id=policy_id)
 
         associations = self.driver.list_associations_for_policy(policy_id)
-        self.assertItemsEqual([first, second], associations)
+        self.assertCountEqual([first, second], associations)
 
     def test_delete_association_by_endpoint(self):
         endpoint_id = uuid.uuid4().hex

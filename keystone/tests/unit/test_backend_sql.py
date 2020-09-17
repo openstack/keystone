@@ -242,7 +242,7 @@ class SqlModels(SqlTests):
             else:
                 actual_schema.append((column.name, type(column.type), None))
 
-        self.assertItemsEqual(expected_schema, actual_schema)
+        self.assertCountEqual(expected_schema, actual_schema)
 
     def test_user_model(self):
         cols = (('id', sql.String, 64),
@@ -1156,7 +1156,7 @@ class SqlCatalog(SqlTests, catalog_tests.CatalogTests):
         )
         self.assertThat(catalog_ref, matchers.HasLength(2))
         srv_id_list = [catalog_ref[0]['id'], catalog_ref[1]['id']]
-        self.assertItemsEqual([srv_1['id'], srv_2['id']], srv_id_list)
+        self.assertCountEqual([srv_1['id'], srv_2['id']], srv_id_list)
 
 
 class SqlPolicy(SqlTests, policy_tests.PolicyTests):
