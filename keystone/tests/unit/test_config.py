@@ -39,9 +39,7 @@ class ConfigTestCase(unit.TestCase):
     def test_config_default(self):
         self.assertIsNone(CONF.auth.password)
         self.assertIsNone(CONF.auth.token)
-
-    def test_profiler_config_default(self):
-        """Check config.set_config_defaults() has set [profiler]enabled."""
+        # Check config.set_config_defaults() has set [profiler]enabled.
         self.assertEqual(False, CONF.profiler.enabled)
 
 
