@@ -121,15 +121,97 @@ class S3ContribCore(test_v3.RestfulTestCase):
         self.assertIsNone(s3tokens.S3Resource._check_signature(
             creds_ref, credentials))
 
+    def test_good_iam_signature_v4(self):
+        creds_ref = {'secret':
+                     u'e7a7a2240136494986991a6598d9fb9f'}
+        credentials = {'token':
+                       'QVdTNC1ITUFDLVNIQTI1NgoyMDE1MDgyNFQxMTIwNDFaCjIw'
+                       'MTUwODI0L1JlZ2lvbk9uZS9pYW0vYXdzNF9yZXF1ZXN0CmYy'
+                       'MjE1NTgwZWViOWExNjczNTFiZDkzZTg2YzNiNmYwNGE5Mjhm'
+                       'NWM1NTIwYTM5MzVhNDUzNTQwYTA5NTY0YjU=',
+                       'signature':
+                       'db4e15b3040f6afaa9d9d16002de2fc3425b'
+                       'eea0c6ea8c1b2bb674f052030b7d'}
+
+        self.assertIsNone(s3tokens.S3Resource._check_signature(
+            creds_ref, credentials))
+
+    def test_good_sts_signature_v4(self):
+        creds_ref = {'secret':
+                     u'e7a7a2240136494986991a6598d9fb9f'}
+        credentials = {'token':
+                       'QVdTNC1ITUFDLVNIQTI1NgoyMDE1MDgyNFQxMTIwNDFaCjIw'
+                       'MTUwODI0L1JlZ2lvbk9uZS9zdHMvYXdzNF9yZXF1ZXN0CmYy'
+                       'MjE1NTgwZWViOWExNjczNTFiZDkzZTg2YzNiNmYwNGE5Mjhm'
+                       'NWM1NTIwYTM5MzVhNDUzNTQwYTA5NTY0YjU=',
+                       'signature':
+                       '3aa0b6f1414b92b2a32584068f83c6d09b7f'
+                       'daa11d4ea58912bbf1d8616ef56d'}
+
+        self.assertIsNone(s3tokens.S3Resource._check_signature(
+            creds_ref, credentials))
+
     def test_bad_signature_v4(self):
         creds_ref = {'secret':
                      u'e7a7a2240136494986991a6598d9fb9f'}
+        # the signature is wrong on an otherwise correctly formed token
         credentials = {'token':
                        'QVdTNC1ITUFDLVNIQTI1NgoyMDE1MDgyNFQxMTIwNDFaCjIw'
                        'MTUwODI0L1JlZ2lvbk9uZS9zMy9hd3M0X3JlcXVlc3QKZjIy'
                        'MTU1ODBlZWI5YTE2NzM1MWJkOTNlODZjM2I2ZjA0YTkyOGY1'
                        'YzU1MjBhMzkzNWE0NTM1NDBhMDk1NjRiNQ==',
                        'signature': uuid.uuid4().hex}
+
+        self.assertRaises(exception.Unauthorized,
+                          s3tokens.S3Resource._check_signature,
+                          creds_ref, credentials)
+
+    def test_bad_service_v4(self):
+        creds_ref = {'secret':
+                     u'e7a7a2240136494986991a6598d9fb9f'}
+        # use 'bad' as the service scope instead of a recognised service
+        credentials = {'token':
+                       'QVdTNC1ITUFDLVNIQTI1NgoyMDE1MDgyNFQxMTIwNDFaCjIw'
+                       'MTUwODI0L1JlZ2lvbk9uZS9iYWQvYXdzNF9yZXF1ZXN0CmYy'
+                       'MjE1NTgwZWViOWExNjczNTFiZDkzZTg2YzNiNmYwNGE5Mjhm'
+                       'NWM1NTIwYTM5MzVhNDUzNTQwYTA5NTY0YjU=',
+                       'signature':
+                       '1a2dec50eb1bba97887d1103c2ead6a39911'
+                       '98c4be2537cf14d40b64cceb888b'}
+
+        self.assertRaises(exception.Unauthorized,
+                          s3tokens.S3Resource._check_signature,
+                          creds_ref, credentials)
+
+    def test_bad_signing_key_v4(self):
+        creds_ref = {'secret':
+                     u'e7a7a2240136494986991a6598d9fb9f'}
+        # signed with aws4_badrequest instead of aws4_request
+        credentials = {'token':
+                       'QVdTNC1ITUFDLVNIQTI1NgoyMDE1MDgyNFQxMTIwNDFaCjIw'
+                       'MTUwODI0L1JlZ2lvbk9uZS9zMy9hd3M0X3JlcXVlc3QKZjIy'
+                       'MTU1ODBlZWI5YTE2NzM1MWJkOTNlODZjM2I2ZjA0YTkyOGY1'
+                       'YzU1MjBhMzkzNWE0NTM1NDBhMDk1NjRiNQ==',
+                       'signature':
+                       '52d02211a3767d00b2104ab28c9859003b0e'
+                       '9c8735cd10de7975f3b1212cca41'}
+
+        self.assertRaises(exception.Unauthorized,
+                          s3tokens.S3Resource._check_signature,
+                          creds_ref, credentials)
+
+    def test_bad_short_scope_v4(self):
+        creds_ref = {'secret':
+                     u'e7a7a2240136494986991a6598d9fb9f'}
+        # credential scope has too few parts, missing final /aws4_request
+        credentials = {'token':
+                       'QVdTNC1ITUFDLVNIQTI1NgoyMDE1MDgyNFQxMTIwNDFaCjIw'
+                       'MTUwODI0L1JlZ2lvbk9uZS9zMwpmMjIxNTU4MGVlYjlhMTY3'
+                       'MzUxYmQ5M2U4NmMzYjZmMDRhOTI4ZjVjNTUyMGEzOTM1YTQ1'
+                       'MzU0MGEwOTU2NGI1',
+                       'signature':
+                       '28a075f1ee41e96c431153914998443ff0f5'
+                       '5fe93d31b37181f13ff4865942a2'}
 
         self.assertRaises(exception.Unauthorized,
                           s3tokens.S3Resource._check_signature,

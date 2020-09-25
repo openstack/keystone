@@ -56,7 +56,10 @@ def _calculate_signature_v4(string_to_sign, secret_key):
     if len(parts) != 4 or parts[0] != b'AWS4-HMAC-SHA256':
         raise exception.Unauthorized(message=_('Invalid EC2 signature.'))
     scope = parts[2].split(b'/')
-    if len(scope) != 4 or scope[2] != b's3' or scope[3] != b'aws4_request':
+    if len(scope) != 4 or scope[3] != b'aws4_request':
+        raise exception.Unauthorized(message=_('Invalid EC2 signature.'))
+    allowed_services = [b's3', b'iam', b'sts']
+    if scope[2] not in allowed_services:
         raise exception.Unauthorized(message=_('Invalid EC2 signature.'))
 
     def _sign(key, msg):
