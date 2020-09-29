@@ -14,7 +14,6 @@
 
 import abc
 import codecs
-import functools
 import os.path
 import re
 import sys
@@ -635,10 +634,36 @@ def _common_ldap_initialization(url, use_tls=False, tls_cacertfile=None,
                       tls_req_cert)
 
 
-class MsgId(list):
-    """Wrapper class to hold connection and msgid."""
+class AsynchronousMessage(object):
+    """A container for handling asynchronous LDAP responses.
 
-    pass
+    Some LDAP APIs, like `search_ext`, are asynchronous and return a message ID
+    when the server successfully initiates the operation. Clients can use this
+    message ID and the original connection to make the request to fetch the
+    results using `result3`.
+
+    This object holds the message ID, the original connection, and a callable
+    weak reference Finalizer that cleans up context managers specific to the
+    connection associated to the message ID.
+
+    :param message_id: The message identifier (str).
+    :param connection: The connection associated with the message identifier
+                       (ldappool.StateConnector).
+
+    The `clean` attribute is a callable that cleans up the context manager used
+    to create or return the connection object (weakref.finalize).
+
+    """
+
+    def __init__(self, message_id, connection, context_manager):
+        self.id = message_id
+        self.connection = connection
+        self.clean = weakref.finalize(
+            self, self._cleanup_connection_context_manager, context_manager
+        )
+
+    def _cleanup_connection_context_manager(self, context_manager):
+        context_manager.__exit__(None, None, None)
 
 
 def use_conn_pool(func):
@@ -792,15 +817,17 @@ class PooledLDAPHandler(LDAPHandler):
                    filterstr='(objectClass=*)', attrlist=None, attrsonly=0,
                    serverctrls=None, clientctrls=None,
                    timeout=-1, sizelimit=0):
-        """Return a ``MsgId`` instance, it asynchronous API.
+        """Return an AsynchronousMessage instance, it asynchronous API.
 
-        The ``MsgId`` instance can be safely used in a call to ``result3()``.
+        The AsynchronousMessage instance can be safely used in a call to
+        `result3()`.
 
-        To work with ``result3()`` API in predictable manner, the same LDAP
-        connection is needed which originally provided the ``msgid``. So, this
-        method wraps the existing connection and ``msgid`` in a new ``MsgId``
-        instance. The connection associated with ``search_ext`` is released
-        once last hard reference to the ``MsgId`` instance is freed.
+        To work with `result3()` API in predictable manner, the same LDAP
+        connection is needed which originally provided the `msgid`. So, this
+        method wraps the existing connection and `msgid` in a new
+        `AsynchronousMessage` instance. The connection associated with
+        `search_ext()` is released after `result3()` fetches the data
+        associated with `msgid`.
 
         """
         conn_ctxt = self._get_pool_connection()
@@ -813,30 +840,33 @@ class PooledLDAPHandler(LDAPHandler):
         except Exception:
             conn_ctxt.__exit__(*sys.exc_info())
             raise
-        res = MsgId((conn, msgid))
-        weakref.ref(res, functools.partial(conn_ctxt.__exit__,
-                                           None, None, None))
-        return res
+        return AsynchronousMessage(msgid, conn, conn_ctxt)
 
-    def result3(self, msgid, all=1, timeout=None,
+    def result3(self, message, all=1, timeout=None,
                 resp_ctrl_classes=None):
-        """Wait for and return the result.
+        """Wait for and return the result to an asynchronous message.
 
         This method returns the result of an operation previously initiated by
-        one of the LDAP asynchronous operation routines (eg search_ext()). It
-        returned an invocation identifier (a message id) upon successful
-        initiation of their operation.
+        one of the LDAP asynchronous operation routines (e.g., `search_ext()`).
+        The `search_ext()` method in python-ldap returns an invocation
+        identifier, or a message ID, upon successful initiation of the
+        operation by the LDAP server.
 
-        Input msgid is expected to be instance of class MsgId which has LDAP
-        session/connection used to execute search_ext and message idenfier.
+        The `message` is expected to be instance of class
+        `AsynchronousMessage`, which contains the message ID and the connection
+        used to make the original request.
 
-        The connection associated with search_ext is released once last hard
-        reference to MsgId object is freed. This will happen when function
-        which requested msgId and used it in result3 exits.
+        The connection and context manager associated with `search_ext()` are
+        cleaned up when message.clean() is called.
 
         """
-        conn, msg_id = msgid
-        return conn.result3(msg_id, all, timeout)
+        results = message.connection.result3(message.id, all, timeout)
+
+        # Now that we have the results from the LDAP server for the message, we
+        # don't need the the context manager used to create the connection.
+        message.clean()
+
+        return results
 
     @use_conn_pool
     def modify_s(self, conn, dn, modlist):
@@ -997,15 +1027,15 @@ class KeystoneLDAPHandler(LDAPHandler):
                 cookie='')
             page_ctrl_oid = ldap.controls.SimplePagedResultsControl.controlType
 
-        msgid = self.conn.search_ext(base,
-                                     scope,
-                                     filterstr,
-                                     attrlist,
-                                     serverctrls=[lc])
+        message = self.conn.search_ext(base,
+                                       scope,
+                                       filterstr,
+                                       attrlist,
+                                       serverctrls=[lc])
         # Endless loop request pages on ldap server until it has no data
         while True:
             # Request to the ldap server a page with 'page_size' entries
-            rtype, rdata, rmsgid, serverctrls = self.conn.result3(msgid)
+            rtype, rdata, rmsgid, serverctrls = self.conn.result3(message)
             # Receive the data
             res.extend(rdata)
             pctrls = [c for c in serverctrls
@@ -1021,11 +1051,11 @@ class KeystoneLDAPHandler(LDAPHandler):
                 if cookie:
                     # There is more data still on the server
                     # so we request another page
-                    msgid = self.conn.search_ext(base,
-                                                 scope,
-                                                 filterstr,
-                                                 attrlist,
-                                                 serverctrls=[lc])
+                    message = self.conn.search_ext(base,
+                                                   scope,
+                                                   filterstr,
+                                                   attrlist,
+                                                   serverctrls=[lc])
                 else:
                     # Exit condition no more data on server
                     break
