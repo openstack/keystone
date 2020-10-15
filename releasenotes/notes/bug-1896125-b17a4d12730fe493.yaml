@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    [`bug 1896125 <https://bugs.launchpad.net/keystone/+bug/1896125>`_]
+    Introduced more robust connection handling for asynchronous LDAP requests
+    to address memory leaks fetching data from LDAP backends with low page
+    sizes.
