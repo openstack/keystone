@@ -1,4 +1,4 @@
-amqp==2.2.2
+amqp==5.0.0
 Babel==2.3.4
 bashate==0.5.1
 bcrypt==3.1.3

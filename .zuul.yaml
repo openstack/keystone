@@ -204,6 +204,7 @@
             voting: false
             irrelevant-files: *irrelevant-files
         - keystone-dsvm-py3-functional-federation-opensuse15-k2k:
+            voting: false
             irrelevant-files: *irrelevant-files
         - keystoneclient-devstack-functional:
             voting: false
@@ -235,8 +236,6 @@
         - keystone-dsvm-functional:
             irrelevant-files: *irrelevant-files
         - keystone-dsvm-py3-functional:
-            irrelevant-files: *irrelevant-files
-        - keystone-dsvm-py3-functional-federation-opensuse15-k2k:
             irrelevant-files: *irrelevant-files
         - tempest-full:
             irrelevant-files: *tempest-irrelevant-files
