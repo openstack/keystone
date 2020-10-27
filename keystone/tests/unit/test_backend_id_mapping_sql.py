@@ -152,6 +152,23 @@ class SqlIDMapping(test_backend_sql.SqlTests):
         self.assertEqual(
             public_id, PROVIDERS.id_mapping_api.get_public_id(local_entity))
 
+    def test_id_mapping_handles_bytes(self):
+        initial_mappings = len(mapping_sql.list_id_mappings())
+        local_id = b'FaKeID'
+        local_entity = {'domain_id': self.domainA['id'],
+                        'local_id': local_id,
+                        'entity_type': mapping.EntityType.USER}
+
+        # Check no mappings for the new local entity
+        self.assertIsNone(PROVIDERS.id_mapping_api.get_public_id(local_entity))
+
+        # Create the new mapping and then read it back
+        public_id = PROVIDERS.id_mapping_api.create_id_mapping(local_entity)
+        self.assertThat(mapping_sql.list_id_mappings(),
+                        matchers.HasLength(initial_mappings + 1))
+        self.assertEqual(
+            public_id, PROVIDERS.id_mapping_api.get_public_id(local_entity))
+
     def test_delete_public_id_is_silent(self):
         # Test that deleting an invalid public key is silent
         PROVIDERS.id_mapping_api.delete_id_mapping(uuid.uuid4().hex)
