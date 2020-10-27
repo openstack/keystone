@@ -580,6 +580,8 @@ class CadfNotificationWrapper(object):
                                          taxonomy.OUTCOME_FAILURE,
                                          target, self.event_type,
                                          reason=audit_reason)
+                if isinstance(ex, exception.AccountLocked):
+                    raise exception.Unauthorized
                 raise
             except Exception:
                 # For authentication failure send a CADF event as well
