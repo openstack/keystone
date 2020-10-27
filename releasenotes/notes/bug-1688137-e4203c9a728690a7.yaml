@@ -1,0 +1,8 @@
+---
+fixes:
+  - |
+    [`bug 1688137 <https://bugs.launchpad.net/keystone/+bug/1688137>`_]
+    Fixed the AccountLocked exception being shown to the end user since
+    it provides some information that could be exploited by a
+    malicious user. The end user will now see Unauthorized instead of
+    AccountLocked, preventing user info oracle exploitation.
