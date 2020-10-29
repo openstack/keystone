@@ -15,6 +15,7 @@
 
 KEYSTONE_PLUGIN=$DEST/keystone/devstack
 source $KEYSTONE_PLUGIN/lib/federation.sh
+source $KEYSTONE_PLUGIN/lib/scope.sh
 
 # For more information on Devstack plugins, including a more detailed
 # explanation on when the different steps are executed please see:
@@ -46,6 +47,12 @@ elif [[ "$1" == "stack" && "$2" == "test-config" ]]; then
     echo "Keystone plugin - Test-config phase"
     if is_service_enabled keystone-saml2-federation; then
         configure_tests_settings
+    fi
+    if [[ "$(trueorfalse False KEYSTONE_ENFORCE_SCOPE)" == "True" ]] ; then
+        # devstack and tempest assume enforce_scope is false, so need to wait
+        # until the final phase to turn it on
+        configure_enforce_scope
+        configure_protection_tests
     fi
 fi
 
