@@ -121,6 +121,41 @@ def _build_enforcer_target_data_owner_and_user_id_match():
     return ref
 
 
+def _update_request_user_id_attribute():
+    # This method handles a special case in policy enforcement. The application
+    # credential API is underneath the user path (e.g.,
+    # /v3/users/{user_id}/application_credentials/{application_credential_id}).
+    # The RBAC enforcer thinks the user to evaluate for application credential
+    # ownership comes from the path, but it should come from the actual
+    # application credential reference. By ensuring we pull the user ID from
+    # the application credential, we close a loop hole where users could
+    # effectively bypass authorization to view or delete any application
+    # credential in the system, assuming the attacker knows the application
+    # credential ID of another user. So long as the attacker matches the user
+    # ID in the request path to the user in the token of the request, they can
+    # pass the `rule:owner` policy check. This method protects against that by
+    # ensuring we use the application credential user ID and not something
+    # determined from the client.
+    try:
+        app_cred = (
+            PROVIDERS.application_credential_api.get_application_credential(
+                flask.request.view_args.get('application_credential_id')
+            )
+        )
+        flask.request.view_args['user_id'] = app_cred['user_id']
+
+        # This target isn't really used in the default policy for application
+        # credentials, but we return it since we're using this method as a hook
+        # to update the flask request variables, which are used later in the
+        # keystone RBAC enforcer to populate the policy_dict, which ultimately
+        # turns into target attributes.
+        return {'user_id': app_cred['user_id']}
+    except ks_exception.NotFound:  # nosec
+        # Defer existance in the event the application credential doesn't
+        # exist, we'll check this later anyway.
+        pass
+
+
 def _format_role_entity(role_id):
     role = PROVIDERS.role_api.get_role(role_id)
     formatted_entity = role.copy()
@@ -652,7 +687,11 @@ class UserAppCredGetDeleteResource(ks_flask.ResourceBase):
         GET/HEAD /v3/users/{user_id}/application_credentials/
                  {application_credential_id}
         """
-        ENFORCER.enforce_call(action='identity:get_application_credential')
+        target = _update_request_user_id_attribute()
+        ENFORCER.enforce_call(
+            action='identity:get_application_credential',
+            target_attr=target,
+        )
         ref = PROVIDERS.application_credential_api.get_application_credential(
             application_credential_id)
         return self.wrap_member(ref)
@@ -663,7 +702,11 @@ class UserAppCredGetDeleteResource(ks_flask.ResourceBase):
         DELETE /v3/users/{user_id}/application_credentials/
                {application_credential_id}
         """
-        ENFORCER.enforce_call(action='identity:delete_application_credential')
+        target = _update_request_user_id_attribute()
+        ENFORCER.enforce_call(
+            action='identity:delete_application_credential',
+            target_attr=target
+        )
         token = self.auth_context['token']
         _check_unrestricted_application_credential(token)
         PROVIDERS.application_credential_api.delete_application_credential(
