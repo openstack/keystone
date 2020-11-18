@@ -17,6 +17,7 @@ import codecs
 import os.path
 import re
 import sys
+import uuid
 import weakref
 
 import ldap.controls
@@ -94,7 +95,16 @@ def utf8_decode(value):
     :raises UnicodeDecodeError: for invalid UTF-8 encoding
     """
     if isinstance(value, six.binary_type):
-        return _utf8_decoder(value)[0]
+        try:
+            return _utf8_decoder(value)[0]
+        except UnicodeDecodeError:
+            # NOTE(lbragstad): We could be dealing with a UUID in byte form,
+            # which some LDAP implementations use.
+            uuid_byte_string_length = 16
+            if len(value) == uuid_byte_string_length:
+                return six.text_type(uuid.UUID(bytes_le=value))
+            else:
+                raise
     return six.text_type(value)
 
 
