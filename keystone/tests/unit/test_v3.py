@@ -247,7 +247,7 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
             domain_id=DEFAULT_DOMAIN_ID)
         self.default_domain_user_id = self.default_domain_user['id']
 
-        # create & grant policy.json's default role for admin_required
+        # create & grant policy.yaml's default role for admin_required
         self.role = unit.new_role_ref(name='admin')
         self.role_id = self.role['id']
         PROVIDERS.role_api.create_role(self.role_id, self.role)

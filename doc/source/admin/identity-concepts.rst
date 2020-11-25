@@ -122,9 +122,9 @@ Identity user management examples:
      Individual services assign meaning to roles, typically through
      limiting or granting access to users with the role to the
      operations that the service supports. Role access is typically
-     configured in the service's ``policy.json`` file. For example,
+     configured in the service's ``policy.yaml`` file. For example,
      to limit Compute access to the ``compute-user`` role, edit the
-     Compute service's ``policy.json`` file to require this role for
+     Compute service's ``policy.yaml`` file to require this role for
      Compute operations.
 
 The Identity service assigns a project and a role to a user. You might
@@ -139,25 +139,25 @@ A user can have different roles in different projects. For example, Alice
 might also have the ``admin`` role in the ``Cyberdyne`` project. A user
 can also have multiple roles in the same project.
 
-The ``/etc/[SERVICE_CODENAME]/policy.json`` file controls the
+The ``/etc/[SERVICE_CODENAME]/policy.yaml`` file controls the
 tasks that users can perform for a given service. For example, the
-``/etc/nova/policy.json`` file specifies the access policy for the
-Compute service, the ``/etc/glance/policy.json`` file specifies
+``/etc/nova/policy.yaml`` file specifies the access policy for the
+Compute service, the ``/etc/glance/policy.yaml`` file specifies
 the access policy for the Image service, and the
-``/etc/keystone/policy.json`` file specifies the access policy for
+``/etc/keystone/policy.yaml`` file specifies the access policy for
 the Identity service.
 
-The default ``policy.json`` files in the Compute, Identity, and
+The default ``policy.yaml`` files in the Compute, Identity, and
 Image services recognize only the ``admin`` role. Any user with
 any role in a project can access all operations that do not require the
 ``admin`` role.
 
 To restrict users from performing operations in, for example, the
 Compute service, you must create a role in the Identity service and
-then modify the ``/etc/nova/policy.json`` file so that this role
+then modify the ``/etc/nova/policy.yaml`` file so that this role
 is required for Compute operations.
 
-For example, the following line in the ``/etc/cinder/policy.json``
+For example, the following line in the ``/etc/cinder/policy.yaml``
 file does not restrict which users can create volumes:
 
 .. code-block:: none

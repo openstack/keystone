@@ -42,7 +42,7 @@ Plan your upgrade:
   to re-read the release notes for the previous release (or two!).
 
 * Prepare your new configuration files, including ``keystone.conf``,
-  ``logging.conf``, ``policy.json``, ``keystone-paste.ini``, and anything else
+  ``logging.conf``, ``policy.yaml``, ``keystone-paste.ini``, and anything else
   in ``/etc/keystone/``, by customizing the corresponding files from the next
   release.
 

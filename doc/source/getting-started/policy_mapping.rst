@@ -2,7 +2,7 @@
 Mapping of policy target to API
 ===============================
 
-The following table shows the target in the policy.json file for each API.
+The following table shows the target in the policy.yaml file for each API.
 
 =========================================================  ===
 Target                                                     API
