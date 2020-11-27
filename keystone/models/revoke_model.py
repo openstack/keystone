@@ -170,7 +170,7 @@ def matches(event, token_values):
     # rest of the logic.
 
     # The token has two attributes that can match the domain_id.
-    if event.domain_id is not None and event.domain_id not in(
+    if event.domain_id is not None and event.domain_id not in (
             token_values['identity_domain_id'],
             token_values['assignment_domain_id'],):
         return False
