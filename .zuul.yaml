@@ -178,7 +178,6 @@
 - project:
     templates:
       - openstack-cover-jobs
-      - openstack-lower-constraints-jobs
       - openstack-python3-ussuri-jobs
       - publish-openstack-docs-pti
       - periodic-stable-jobs
@@ -199,6 +198,7 @@
             voting: false
             irrelevant-files: *irrelevant-files
         - keystone-dsvm-py3-functional-federation-opensuse15-k2k:
+            voting: false
             irrelevant-files: *irrelevant-files
         - keystoneclient-devstack-functional:
             voting: false
@@ -226,6 +226,7 @@
         - keystone-dsvm-py3-functional:
             irrelevant-files: *irrelevant-files
         - keystone-dsvm-py3-functional-federation-opensuse15-k2k:
+            voting: false
             irrelevant-files: *irrelevant-files
         - tempest-full-py3:
             irrelevant-files: *tempest-irrelevant-files
