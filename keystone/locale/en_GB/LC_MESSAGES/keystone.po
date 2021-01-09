@@ -12,11 +12,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: keystone VERSION\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2020-06-18 11:23+0000\n"
+"POT-Creation-Date: 2021-01-08 19:57+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2020-06-15 05:35+0000\n"
+"PO-Revision-Date: 2020-10-28 02:12+0000\n"
 "Last-Translator: Andi Chandler <andi@gowling.com>\n"
 "Language: en_GB\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -1384,6 +1384,14 @@ msgstr ""
 
 #, python-format
 msgid ""
+"Unable to create additional credentials, maximum of %(limit)d already "
+"exceeded for user."
+msgstr ""
+"Unable to create additional credentials, maximum of %(limit)d already "
+"exceeded for user."
+
+#, python-format
+msgid ""
 "Unable to delete immutable %(type)s resource: `%(resource_id)s. Set resource "
 "option \"immutable\" to false first."
 msgstr ""
@@ -1490,6 +1498,10 @@ msgid ""
 msgstr ""
 "Unexpected combination of grant attributes - User: %(user_id)s, Group: "
 "%(group_id)s, Project: %(project_id)s, Domain: %(domain_id)s."
+
+#, python-format
+msgid "Unexpected evaluation type \"%(eval_type)s\""
+msgstr "Unexpected evaluation type \"%(eval_type)s\""
 
 #, python-format
 msgid "Unexpected status requested for JSON Home response, %s"
