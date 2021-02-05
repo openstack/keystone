@@ -14,9 +14,9 @@
 
 function configure_enforce_scope {
     iniset $KEYSTONE_CONF oslo_policy enforce_scope true
+    iniset $KEYSTONE_CONF oslo_policy enforce_new_defaults true
     iniset $KEYSTONE_CONF oslo_policy policy_file policy.yaml
     sudo systemctl restart devstack@keystone
-    oslopolicy-policy-generator --namespace keystone > /etc/keystone/policy.yaml
 }
 
 function configure_protection_tests {
