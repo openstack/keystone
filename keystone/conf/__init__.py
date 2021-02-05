@@ -18,6 +18,7 @@ from oslo_log import log
 from oslo_log import versionutils
 import oslo_messaging
 from oslo_middleware import cors
+from oslo_policy import opts as policy_opts
 from osprofiler import opts as profiler
 
 from keystone.conf import application_credential
@@ -184,6 +185,12 @@ def set_external_opts_defaults():
 
     # configure OSprofiler options
     profiler.set_defaults(CONF, enabled=False, trace_sqlalchemy=False)
+
+    # TODO(gmann): Remove setting the default value of config policy_file
+    # once oslo_policy change the default value to 'policy.yaml'.
+    # https://github.com/openstack/oslo.policy/blob/a626ad12fe5a3abd49d70e3e5b95589d279ab578/oslo_policy/opts.py#L49
+    DEFAULT_POLICY_FILE = 'policy.yaml'
+    policy_opts.set_defaults(cfg.CONF, DEFAULT_POLICY_FILE)
 
     # Oslo.cache is always enabled by default for request-local caching
     # TODO(morganfainberg): Fix this to not use internal interface when

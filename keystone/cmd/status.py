@@ -12,6 +12,7 @@
 
 from oslo_policy import _checks
 from oslo_policy import policy
+from oslo_upgradecheck import common_checks
 from oslo_upgradecheck import upgradecheck
 
 from keystone.common import driver_hints
@@ -86,6 +87,8 @@ class Checks(upgradecheck.UpgradeCommands):
          check_trust_policies_are_not_empty),
         ("Check default roles are immutable",
          check_default_roles_are_immutable),
+        ("Policy File JSON to YAML Migration",
+         (common_checks.check_policy_json, {'conf': CONF})),
     )
 
 

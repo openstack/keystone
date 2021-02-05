@@ -197,7 +197,7 @@ class PolicyJsonTestCase(unit.TestCase):
     def test_all_targets_documented(self):
         policy_keys = self._get_default_policy_rules()
 
-        # These keys are in the policy.json but aren't targets.
+        # These keys are in the policy.yaml but aren't targets.
         policy_rule_keys = [
             'admin_or_owner', 'admin_or_token_subject', 'admin_required',
             'owner', 'service_admin_or_token_subject', 'service_or_admin',
