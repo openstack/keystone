@@ -681,6 +681,9 @@ class BaseTestCase(testtools.TestCase):
 
         warnings.filterwarnings('error', category=DeprecationWarning,
                                 module='^keystone\\.')
+        warnings.filterwarnings(
+            'ignore', category=DeprecationWarning,
+            message=r"Using function/method 'db_version\(\)' is deprecated")
         warnings.simplefilter('error', exc.SAWarning)
         if hasattr(exc, "RemovedIn20Warning"):
             warnings.simplefilter('ignore', exc.RemovedIn20Warning)
