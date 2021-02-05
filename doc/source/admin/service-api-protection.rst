@@ -303,8 +303,8 @@ with role assignments on a specific project using the following query:
 Project Administrators
 ======================
 
-*Project administrators* can only view and modify data within the project in
-their role assignment. They're able to view information about their projects
+*Project administrators* can only view and modify data within the project they
+have authorization on. They're able to view information about their projects
 and set tags on their projects. They're not allowed to view system or domain
 resources, as that would violate the tenancy of their role assignment. Since
 the majority of the resources in keystone's API are system and domain-specific,
