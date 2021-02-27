@@ -132,9 +132,30 @@ services are addressing this individually at their own pace).
    As of the Train release, keystone applies the following personas
    consistently across its API.
 
----------------------
+---------------
+System Personas
+---------------
+
+This section describes authorization personas typically used for operators and
+deployers. You can find all users with system role assignments using the
+following query:
+
+.. code-block:: console
+
+    $ openstack role assignment list --names --system all
+    +--------+------------------------+------------------------+---------+--------+--------+-----------+
+    | Role   | User                   | Group                  | Project | Domain | System | Inherited |
+    +--------+------------------------+------------------------+---------+--------+--------+-----------+
+    | admin  |                        | system-admins@Default  |         |        | all    | False     |
+    | admin  | admin@Default          |                        |         |        | all    | False     |
+    | admin  | operator@Default       |                        |         |        | all    | False     |
+    | reader |                        | system-support@Default |         |        | all    | False     |
+    | admin  | operator@Default       |                        |         |        | all    | False     |
+    | member | system-support@Default |                        |         |        | all    | False     |
+    +--------+------------------------+------------------------+---------+--------+--------+-----------+
+
 System Administrators
----------------------
+=====================
 
 *System administrators* are allowed to manage every resource in keystone.
 System administrators are typically operators and cloud administrators. They
@@ -148,7 +169,7 @@ assignments:
 
 .. code-block:: console
 
-    $ openstack role assignment list --names --system all
+    $ openstack role assignment list --names --system all --role admin
     +-------+------------------+-----------------------+---------+--------+--------+-----------+
     | Role  | User             | Group                 | Project | Domain | System | Inherited |
     +-------+------------------+-----------------------+---------+--------+--------+-----------+
@@ -157,9 +178,8 @@ assignments:
     | admin | operator@Default |                       |         |        | all    | False     |
     +-------+------------------+-----------------------+---------+--------+--------+-----------+
 
--------------------------------
 System Members & System Readers
--------------------------------
+===============================
 
 In keystone, *system members* and *system readers* are very similar and have
 the same authorization. Users with these roles on the system can view all
@@ -187,9 +207,28 @@ assignments:
    Filtering system role assignments is currently broken and is being tracked
    as a `bug <https://bugs.launchpad.net/keystone/+bug/1846817>`_.
 
----------------------
+---------------
+Domain Personas
+---------------
+
+This section describes authorization personas for people who manage their own
+domains, which contain projects, users, and groups. You can find all users with
+role assignments on a specific domain using the following query:
+
+.. code-block:: console
+
+    $ openstack role assignment list --names --domain foobar
+    +--------+-----------------+----------------------+---------+--------+--------+-----------+
+    | Role   | User            | Group                | Project | Domain | System | Inherited |
+    +--------+-----------------+----------------------+---------+--------+--------+-----------+
+    | reader | support@Default |                      |         | foobar |        | False     |
+    | admin  | jsmith@Default  |                      |         | foobar |        | False     |
+    | admin  |                 | foobar-admins@foobar |         | foobar |        | False     |
+    | member | jdoe@foobar     |                      |         | foobar |        | False     |
+    +--------+-----------------+----------------------+---------+--------+--------+-----------+
+
 Domain Administrators
----------------------
+=====================
 
 *Domain administrators* can manage most aspects of the domain or its contents.
 These users can create new projects and users within their domain. They can
@@ -212,9 +251,8 @@ assignment:
     | admin |                | foobar-admins@foobar |         | foobar |        | False     |
     +-------+----------------+----------------------+---------+--------+--------+-----------+
 
--------------------------------
 Domain Members & Domain Readers
--------------------------------
+===============================
 
 Domain members and domain readers have the same relationship as system members
 and system readers. They're allowed to view resources and information about
@@ -241,10 +279,29 @@ members and domain readers with the following role assignments:
     | reader | support@Default |       |         | foobar |        | False     |
     +--------+-----------------+-------+---------+--------+--------+-----------+
 
+----------------
+Project Personas
+----------------
 
-----------------------
+This section describes authorization personas for users operating within a
+project. These personas are commonly used by end users. You can find all users
+with role assignments on a specific project using the following query:
+
+.. code-block:: console
+
+    $ openstack role assignment list --names --project production
+    +--------+----------------+----------------------------+-------------------+--------+--------+-----------+
+    | Role   | User           | Group                      | Project           | Domain | System | Inherited |
+    +--------+----------------+----------------------------+-------------------+--------+--------+-----------+
+    | admin  | jsmith@Default |                            | production@foobar |        |        | False     |
+    | admin  |                | production-admins@foobar   | production@foobar |        |        | False     |
+    | member |                | foobar-operators@Default   | production@foobar |        |        | False     |
+    | reader | alice@Default  |                            | production@foobar |        |        | False     |
+    | reader |                | production-support@Default | production@foobar |        |        | False     |
+    +--------+----------------+----------------------------+-------------------+--------+--------+-----------+
+
 Project Administrators
-----------------------
+======================
 
 *Project administrators* can only view and modify data within the project in
 their role assignment. They're able to view information about their projects
@@ -266,9 +323,8 @@ role assignment:
     | admin |                | production-admins@foobar | production@foobar |        |        | False     |
     +-------+----------------+--------------------------+-------------------+--------+--------+-----------+
 
----------------------------------
 Project Members & Project Readers
----------------------------------
+=================================
 
 *Project members* and *project readers* can discover information about their
 projects. They can access important information like resource limits for their
