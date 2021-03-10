@@ -110,15 +110,17 @@
 
 # Experimental
 - job:
-    name: keystone-dsvm-grenade-multinode
-    parent: legacy-dsvm-base-multinode
-    run: playbooks/legacy/keystone-dsvm-grenade-multinode/run.yaml
-    post-run: playbooks/legacy/keystone-dsvm-grenade-multinode/post.yaml
-    timeout: 10800
+    name: keystone-grenade-multinode
+    parent: grenade-multinode
     required-projects:
       - openstack/grenade
-      - openstack/devstack-gate
       - openstack/keystone
+    vars:
+      devstack_plugins:
+        keystone: https://opendev.org/openstack/keystone
+      grenade_devstack_localrc:
+        shared:
+          MULTI_KEYSTONE: True
 
 # Experimental
 - job:
@@ -238,7 +240,7 @@
     experimental:
       jobs:
         - keystone-tox-patch_cover
-        - keystone-dsvm-grenade-multinode:
+        - keystone-grenade-multinode:
             irrelevant-files: *irrelevant-files
         - openstack-ansible-keystone-rolling-upgrade:
             irrelevant-files: *irrelevant-files
