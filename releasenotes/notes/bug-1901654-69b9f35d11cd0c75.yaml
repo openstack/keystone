@@ -1,0 +1,10 @@
+---
+fixes:
+  - |
+    [`bug 1901654 <https://bugs.launchpad.net/keystone/+bug/1901654>`_]
+    Previously, generate_public_ID() in sha256.py assumed the passed arguments is str data type.
+    However, python-ldap 3.0 or later returns bytes data type for attribute values except fields
+    of distinguished names, relative distinguished names, attribute names, queries.
+    If keystone running on Python3 is integrated with LDAP and the LDAP server has local_id variable
+    in its attribute, user login operations will fail due to the assumption and modifiation of python-ldap.
+    By this fix, generate_public_ID() properly handles bytes data type in the parameter.
