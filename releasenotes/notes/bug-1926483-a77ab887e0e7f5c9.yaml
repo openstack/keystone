@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    [`bug 1926483 <https://bugs.launchpad.net/keystone/+bug/1926483>`_]
+    Keystone will only log warnings about token length for Fernet tokens when
+    the token length exceeds the value of `keystone.conf [DEFAULT]
+    max_token_size`.
