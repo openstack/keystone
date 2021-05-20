@@ -33,7 +33,7 @@ class SqlIDMappingTable(test_backend_sql.SqlModels):
     def test_id_mapping(self):
         cols = (('public_id', sql.String, 64),
                 ('domain_id', sql.String, 64),
-                ('local_id', sql.String, 64),
+                ('local_id', sql.String, 255),
                 ('entity_type', sql.Enum, None))
         self.assertExpectedSchema('id_mapping', cols)
 
@@ -168,6 +168,26 @@ class SqlIDMapping(test_backend_sql.SqlTests):
                         matchers.HasLength(initial_mappings + 1))
         self.assertEqual(
             public_id, PROVIDERS.id_mapping_api.get_public_id(local_entity))
+
+    def test_id_mapping_handles_ids_greater_than_64_characters(self):
+        initial_mappings = len(mapping_sql.list_id_mappings())
+        local_id = 'Aa' * 100
+        local_entity = {'domain_id': self.domainA['id'],
+                        'local_id': local_id,
+                        'entity_type': mapping.EntityType.GROUP}
+
+        # Check no mappings for the new local entity
+        self.assertIsNone(PROVIDERS.id_mapping_api.get_public_id(local_entity))
+
+        # Create the new mapping and then read it back
+        public_id = PROVIDERS.id_mapping_api.create_id_mapping(local_entity)
+        self.assertThat(mapping_sql.list_id_mappings(),
+                        matchers.HasLength(initial_mappings + 1))
+        self.assertEqual(
+            public_id, PROVIDERS.id_mapping_api.get_public_id(local_entity))
+        self.assertEqual(
+            local_id,
+            PROVIDERS.id_mapping_api.get_id_mapping(public_id)['local_id'])
 
     def test_delete_public_id_is_silent(self):
         # Test that deleting an invalid public key is silent
