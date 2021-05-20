@@ -3499,6 +3499,25 @@ class FullMigration(SqlMigrateBase, unit.TestCase):
             ['id', 'domain_id', 'enabled', 'description',
              'authorization_ttl'])
 
+    def test_migration_079_expand_update_local_id_limit(self):
+        self.expand(78)
+        self.migrate(78)
+        self.contract(78)
+
+        id_mapping_table = sqlalchemy.Table('id_mapping',
+                                            self.metadata, autoload=True)
+        # assert local_id column is a string of 64 characters (before)
+        self.assertEqual('VARCHAR(64)', str(id_mapping_table.c.local_id.type))
+
+        self.expand(79)
+        self.migrate(79)
+        self.contract(79)
+
+        id_mapping_table = sqlalchemy.Table('id_mapping',
+                                            self.metadata, autoload=True)
+        # assert local_id column is a string of 255 characters (after)
+        self.assertEqual('VARCHAR(255)', str(id_mapping_table.c.local_id.type))
+
 
 class MySQLOpportunisticFullMigration(FullMigration):
     FIXTURE = db_fixtures.MySQLOpportunisticFixture
