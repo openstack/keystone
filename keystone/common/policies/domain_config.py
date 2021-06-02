@@ -124,12 +124,12 @@ domain_config_policies = [
                 'method': 'HEAD'
             },
             {
-                'path': ('v3/domains/{domain_id}/config/'
+                'path': ('/v3/domains/{domain_id}/config/'
                          'security_compliance/{option}'),
                 'method': 'GET'
             },
             {
-                'path': ('v3/domains/{domain_id}/config/'
+                'path': ('/v3/domains/{domain_id}/config/'
                          'security_compliance/{option}'),
                 'method': 'HEAD'
             }
