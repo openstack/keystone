@@ -1,0 +1,7 @@
+---
+security:
+  - |
+    [`bug 1901207 <https://bugs.launchpad.net/keystone/+bug/1901207>`_]
+    Policy enforcement for application credentials has been updated to protect
+    against invalid ownership checks resulting in unauthorized users being able
+    to get and delete application credentials for other users.

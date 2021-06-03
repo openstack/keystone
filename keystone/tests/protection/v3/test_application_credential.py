@@ -418,6 +418,72 @@ class OwnerTests(_TestAppCredBase,
     def test_owner_can_delete_application_credential(self):
         self._test_delete_application_credential()
 
+    def test_user_cannot_lookup_application_credential_for_another_user(self):
+        # create another user
+        another_user = unit.new_user_ref(
+            domain_id=CONF.identity.default_domain_id
+        )
+        another_user_id = PROVIDERS.identity_api.create_user(
+            another_user
+        )['id']
+
+        auth = self.build_authentication_request(
+            user_id=another_user_id,
+            password=another_user['password']
+        )
+
+        # authenticate for a token as a completely different user with
+        # completely different authorization
+        with self.test_client() as c:
+            r = c.post('/v3/auth/tokens', json=auth)
+            another_user_token = r.headers['X-Subject-Token']
+
+        # create an application credential as the self.user_id user on a
+        # project that the user above doesn't have any authorization on
+        app_cred = self._create_application_credential()
+
+        # attempt to lookup the application credential as another user
+        with self.test_client() as c:
+            c.get(
+                '/v3/users/%s/application_credentials/%s' % (
+                    another_user_id,
+                    app_cred['id']),
+                expected_status_code=http_client.FORBIDDEN,
+                headers={'X-Auth-Token': another_user_token})
+
+    def test_user_cannot_delete_application_credential_for_another_user(self):
+        # create another user
+        another_user = unit.new_user_ref(
+            domain_id=CONF.identity.default_domain_id
+        )
+        another_user_id = PROVIDERS.identity_api.create_user(
+            another_user
+        )['id']
+
+        auth = self.build_authentication_request(
+            user_id=another_user_id,
+            password=another_user['password']
+        )
+
+        # authenticate for a token as a completely different user with
+        # completely different authorization
+        with self.test_client() as c:
+            r = c.post('/v3/auth/tokens', json=auth)
+            another_user_token = r.headers['X-Subject-Token']
+
+        # create an application credential as the self.user_id user on a
+        # project that the user above doesn't have any authorization on
+        app_cred = self._create_application_credential()
+
+        # attempt to delete the application credential as another user
+        with self.test_client() as c:
+            c.delete(
+                '/v3/users/%s/application_credentials/%s' % (
+                    another_user_id,
+                    app_cred['id']),
+                expected_status_code=http_client.FORBIDDEN,
+                headers={'X-Auth-Token': another_user_token})
+
 
 class DomainAdminTests(_TestAppCredBase,
                        common_auth.AuthTestMixin,
