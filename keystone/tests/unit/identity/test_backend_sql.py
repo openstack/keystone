@@ -576,7 +576,7 @@ class LockingOutUserTests(test_backend_sql.SqlTests):
             )
             # test locking out user after max failed attempts
             self._fail_auth_repeatedly(self.user['id'])
-            self.assertRaises(exception.AccountLocked,
+            self.assertRaises(exception.Unauthorized,
                               PROVIDERS.identity_api.authenticate,
                               user_id=self.user['id'],
                               password=uuid.uuid4().hex)
@@ -605,7 +605,7 @@ class LockingOutUserTests(test_backend_sql.SqlTests):
         with self.make_request():
             # lockout user
             self._fail_auth_repeatedly(self.user['id'])
-            self.assertRaises(exception.AccountLocked,
+            self.assertRaises(exception.Unauthorized,
                               PROVIDERS.identity_api.authenticate,
                               user_id=self.user['id'],
                               password=uuid.uuid4().hex)
@@ -624,7 +624,7 @@ class LockingOutUserTests(test_backend_sql.SqlTests):
             with self.make_request():
                 # lockout user
                 self._fail_auth_repeatedly(self.user['id'])
-                self.assertRaises(exception.AccountLocked,
+                self.assertRaises(exception.Unauthorized,
                                   PROVIDERS.identity_api.authenticate,
                                   user_id=self.user['id'],
                                   password=uuid.uuid4().hex)
@@ -650,7 +650,7 @@ class LockingOutUserTests(test_backend_sql.SqlTests):
             with self.make_request():
                 # lockout user
                 self._fail_auth_repeatedly(self.user['id'])
-                self.assertRaises(exception.AccountLocked,
+                self.assertRaises(exception.Unauthorized,
                                   PROVIDERS.identity_api.authenticate,
                                   user_id=self.user['id'],
                                   password=uuid.uuid4().hex)
@@ -660,7 +660,7 @@ class LockingOutUserTests(test_backend_sql.SqlTests):
                 # repeat failed auth the max times
                 self._fail_auth_repeatedly(self.user['id'])
                 # test user account is locked
-                self.assertRaises(exception.AccountLocked,
+                self.assertRaises(exception.Unauthorized,
                                   PROVIDERS.identity_api.authenticate,
                                   user_id=self.user['id'],
                                   password=uuid.uuid4().hex)
