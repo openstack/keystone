@@ -802,7 +802,7 @@ class CADFNotificationsForPCIDSSEvents(BaseNotificationTest):
         password = uuid.uuid4().hex
         new_password = uuid.uuid4().hex
         expected_responses = [AssertionError, AssertionError, AssertionError,
-                              exception.AccountLocked]
+                              exception.Unauthorized]
         user_ref = unit.new_user_ref(domain_id=self.domain_id,
                                      password=password)
         user_ref = PROVIDERS.identity_api.create_user(user_ref)
