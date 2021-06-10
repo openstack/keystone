@@ -98,7 +98,8 @@ class ShadowUsers(base.ShadowUsersDriverBase):
             x for x in hints.filters if x['name'] not in ('idp_id',
                                                           'protocol_id',
                                                           'unique_id')]
-        query = query.filter(sqlalchemy.and_(*statements))
+        if statements:
+            query = query.filter(sqlalchemy.and_(*statements))
         return query
 
     def get_federated_users(self, hints):
