@@ -36,23 +36,33 @@ DEPRECATED_REASON = (
 
 deprecated_get_user = policy.DeprecatedRule(
     name=base.IDENTITY % 'get_user',
-    check_str=base.RULE_ADMIN_OR_OWNER
+    check_str=base.RULE_ADMIN_OR_OWNER,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
 )
 deprecated_list_users = policy.DeprecatedRule(
     name=base.IDENTITY % 'list_users',
-    check_str=base.RULE_ADMIN_REQUIRED
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
 )
 deprecated_create_user = policy.DeprecatedRule(
     name=base.IDENTITY % 'create_user',
-    check_str=base.RULE_ADMIN_REQUIRED
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
 )
 deprecated_update_user = policy.DeprecatedRule(
     name=base.IDENTITY % 'update_user',
-    check_str=base.RULE_ADMIN_REQUIRED
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
 )
 deprecated_delete_user = policy.DeprecatedRule(
     name=base.IDENTITY % 'delete_user',
-    check_str=base.RULE_ADMIN_REQUIRED
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
 )
 
 user_policies = [
@@ -65,9 +75,7 @@ user_policies = [
                      'method': 'GET'},
                     {'path': '/v3/users/{user_id}',
                      'method': 'HEAD'}],
-        deprecated_rule=deprecated_get_user,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN),
+        deprecated_rule=deprecated_get_user),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_users',
         check_str=SYSTEM_READER_OR_DOMAIN_READER,
@@ -77,9 +85,7 @@ user_policies = [
                      'method': 'GET'},
                     {'path': '/v3/users',
                      'method': 'HEAD'}],
-        deprecated_rule=deprecated_list_users,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN),
+        deprecated_rule=deprecated_list_users),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_projects_for_user',
         check_str='',
@@ -111,9 +117,7 @@ user_policies = [
         description='Create a user.',
         operations=[{'path': '/v3/users',
                      'method': 'POST'}],
-        deprecated_rule=deprecated_create_user,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN),
+        deprecated_rule=deprecated_create_user),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_user',
         check_str=SYSTEM_ADMIN_OR_DOMAIN_ADMIN,
@@ -121,9 +125,7 @@ user_policies = [
         description='Update a user, including administrative password resets.',
         operations=[{'path': '/v3/users/{user_id}',
                      'method': 'PATCH'}],
-        deprecated_rule=deprecated_update_user,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN),
+        deprecated_rule=deprecated_update_user),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_user',
         check_str=SYSTEM_ADMIN_OR_DOMAIN_ADMIN,
@@ -131,9 +133,7 @@ user_policies = [
         description='Delete a user.',
         operations=[{'path': '/v3/users/{user_id}',
                      'method': 'DELETE'}],
-        deprecated_rule=deprecated_delete_user,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN)
+        deprecated_rule=deprecated_delete_user)
 ]
 
 

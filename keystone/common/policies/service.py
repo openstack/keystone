@@ -15,30 +15,41 @@ from oslo_policy import policy
 
 from keystone.common.policies import base
 
-deprecated_get_service = policy.DeprecatedRule(
-    name=base.IDENTITY % 'get_service',
-    check_str=base.RULE_ADMIN_REQUIRED
-)
-deprecated_list_service = policy.DeprecatedRule(
-    name=base.IDENTITY % 'list_services',
-    check_str=base.RULE_ADMIN_REQUIRED
-)
-deprecated_update_service = policy.DeprecatedRule(
-    name=base.IDENTITY % 'update_service',
-    check_str=base.RULE_ADMIN_REQUIRED
-)
-deprecated_create_service = policy.DeprecatedRule(
-    name=base.IDENTITY % 'create_service',
-    check_str=base.RULE_ADMIN_REQUIRED
-)
-deprecated_delete_service = policy.DeprecatedRule(
-    name=base.IDENTITY % 'delete_service',
-    check_str=base.RULE_ADMIN_REQUIRED
-)
-
 DEPRECATED_REASON = (
     "The service API is now aware of system scope and default roles."
 )
+
+deprecated_get_service = policy.DeprecatedRule(
+    name=base.IDENTITY % 'get_service',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
+)
+deprecated_list_service = policy.DeprecatedRule(
+    name=base.IDENTITY % 'list_services',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
+)
+deprecated_update_service = policy.DeprecatedRule(
+    name=base.IDENTITY % 'update_service',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
+)
+deprecated_create_service = policy.DeprecatedRule(
+    name=base.IDENTITY % 'create_service',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
+)
+deprecated_delete_service = policy.DeprecatedRule(
+    name=base.IDENTITY % 'delete_service',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
+)
+
 
 service_policies = [
     policy.DocumentedRuleDefault(
@@ -48,9 +59,7 @@ service_policies = [
         description='Show service details.',
         operations=[{'path': '/v3/services/{service_id}',
                      'method': 'GET'}],
-        deprecated_rule=deprecated_get_service,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN),
+        deprecated_rule=deprecated_get_service),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_services',
         check_str=base.SYSTEM_READER,
@@ -58,9 +67,7 @@ service_policies = [
         description='List services.',
         operations=[{'path': '/v3/services',
                      'method': 'GET'}],
-        deprecated_rule=deprecated_list_service,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN),
+        deprecated_rule=deprecated_list_service),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_service',
         check_str=base.SYSTEM_ADMIN,
@@ -68,9 +75,7 @@ service_policies = [
         description='Create service.',
         operations=[{'path': '/v3/services',
                      'method': 'POST'}],
-        deprecated_rule=deprecated_create_service,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN),
+        deprecated_rule=deprecated_create_service),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_service',
         check_str=base.SYSTEM_ADMIN,
@@ -78,9 +83,7 @@ service_policies = [
         description='Update service.',
         operations=[{'path': '/v3/services/{service_id}',
                      'method': 'PATCH'}],
-        deprecated_rule=deprecated_update_service,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN),
+        deprecated_rule=deprecated_update_service),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_service',
         check_str=base.SYSTEM_ADMIN,
@@ -88,9 +91,7 @@ service_policies = [
         description='Delete service.',
         operations=[{'path': '/v3/services/{service_id}',
                      'method': 'DELETE'}],
-        deprecated_rule=deprecated_delete_service,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN)
+        deprecated_rule=deprecated_delete_service)
 ]
 
 

@@ -15,24 +15,34 @@ from oslo_policy import policy
 
 from keystone.common.policies import base
 
+DEPRECATED_REASON = (
+    "The endpoint API is now aware of system scope and default roles."
+)
+
 deprecated_get_endpoint = policy.DeprecatedRule(
     name=base.IDENTITY % 'get_endpoint', check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
 )
 deprecated_list_endpoints = policy.DeprecatedRule(
     name=base.IDENTITY % 'list_endpoints', check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
 )
 deprecated_update_endpoint = policy.DeprecatedRule(
     name=base.IDENTITY % 'update_endpoint', check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
 )
 deprecated_create_endpoint = policy.DeprecatedRule(
     name=base.IDENTITY % 'create_endpoint', check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
 )
 deprecated_delete_endpoint = policy.DeprecatedRule(
     name=base.IDENTITY % 'delete_endpoint', check_str=base.RULE_ADMIN_REQUIRED,
-)
-
-DEPRECATED_REASON = (
-    "The endpoint API is now aware of system scope and default roles."
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
 )
 
 
@@ -44,9 +54,7 @@ endpoint_policies = [
         description='Show endpoint details.',
         operations=[{'path': '/v3/endpoints/{endpoint_id}',
                      'method': 'GET'}],
-        deprecated_rule=deprecated_get_endpoint,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN),
+        deprecated_rule=deprecated_get_endpoint),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_endpoints',
         check_str=base.SYSTEM_READER,
@@ -54,9 +62,7 @@ endpoint_policies = [
         description='List endpoints.',
         operations=[{'path': '/v3/endpoints',
                      'method': 'GET'}],
-        deprecated_rule=deprecated_list_endpoints,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN),
+        deprecated_rule=deprecated_list_endpoints),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_endpoint',
         check_str=base.SYSTEM_ADMIN,
@@ -64,9 +70,7 @@ endpoint_policies = [
         description='Create endpoint.',
         operations=[{'path': '/v3/endpoints',
                      'method': 'POST'}],
-        deprecated_rule=deprecated_create_endpoint,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN),
+        deprecated_rule=deprecated_create_endpoint),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_endpoint',
         check_str=base.SYSTEM_ADMIN,
@@ -74,9 +78,7 @@ endpoint_policies = [
         description='Update endpoint.',
         operations=[{'path': '/v3/endpoints/{endpoint_id}',
                      'method': 'PATCH'}],
-        deprecated_rule=deprecated_update_endpoint,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN),
+        deprecated_rule=deprecated_update_endpoint),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_endpoint',
         check_str=base.SYSTEM_ADMIN,
@@ -84,9 +86,7 @@ endpoint_policies = [
         description='Delete endpoint.',
         operations=[{'path': '/v3/endpoints/{endpoint_id}',
                      'method': 'DELETE'}],
-        deprecated_rule=deprecated_delete_endpoint,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN)
+        deprecated_rule=deprecated_delete_endpoint)
 ]
 
 

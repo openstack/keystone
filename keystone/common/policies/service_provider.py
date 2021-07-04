@@ -15,30 +15,41 @@ from oslo_policy import policy
 
 from keystone.common.policies import base
 
-deprecated_get_sp = policy.DeprecatedRule(
-    name=base.IDENTITY % 'get_service_provider',
-    check_str=base.RULE_ADMIN_REQUIRED
-)
-deprecated_list_sp = policy.DeprecatedRule(
-    name=base.IDENTITY % 'list_service_providers',
-    check_str=base.RULE_ADMIN_REQUIRED
-)
-deprecated_update_sp = policy.DeprecatedRule(
-    name=base.IDENTITY % 'update_service_provider',
-    check_str=base.RULE_ADMIN_REQUIRED
-)
-deprecated_create_sp = policy.DeprecatedRule(
-    name=base.IDENTITY % 'create_service_provider',
-    check_str=base.RULE_ADMIN_REQUIRED
-)
-deprecated_delete_sp = policy.DeprecatedRule(
-    name=base.IDENTITY % 'delete_service_provider',
-    check_str=base.RULE_ADMIN_REQUIRED
-)
-
 DEPRECATED_REASON = (
     "The service provider API is now aware of system scope and default roles."
 )
+
+deprecated_get_sp = policy.DeprecatedRule(
+    name=base.IDENTITY % 'get_service_provider',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
+)
+deprecated_list_sp = policy.DeprecatedRule(
+    name=base.IDENTITY % 'list_service_providers',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
+)
+deprecated_update_sp = policy.DeprecatedRule(
+    name=base.IDENTITY % 'update_service_provider',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
+)
+deprecated_create_sp = policy.DeprecatedRule(
+    name=base.IDENTITY % 'create_service_provider',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
+)
+deprecated_delete_sp = policy.DeprecatedRule(
+    name=base.IDENTITY % 'delete_service_provider',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
+)
+
 
 service_provider_policies = [
     policy.DocumentedRuleDefault(
@@ -55,9 +66,7 @@ service_provider_policies = [
         operations=[{'path': ('/v3/OS-FEDERATION/service_providers/'
                               '{service_provider_id}'),
                      'method': 'PUT'}],
-        deprecated_rule=deprecated_create_sp,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN),
+        deprecated_rule=deprecated_create_sp),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_service_providers',
         check_str=base.SYSTEM_READER,
@@ -73,9 +82,7 @@ service_provider_policies = [
                 'method': 'HEAD'
             }
         ],
-        deprecated_rule=deprecated_list_sp,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN
+        deprecated_rule=deprecated_list_sp
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_service_provider',
@@ -94,9 +101,7 @@ service_provider_policies = [
                 'method': 'HEAD'
             }
         ],
-        deprecated_rule=deprecated_get_sp,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN
+        deprecated_rule=deprecated_get_sp
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_service_provider',
@@ -106,9 +111,7 @@ service_provider_policies = [
         operations=[{'path': ('/v3/OS-FEDERATION/service_providers/'
                               '{service_provider_id}'),
                      'method': 'PATCH'}],
-        deprecated_rule=deprecated_update_sp,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN),
+        deprecated_rule=deprecated_update_sp),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_service_provider',
         check_str=base.SYSTEM_ADMIN,
@@ -117,9 +120,7 @@ service_provider_policies = [
         operations=[{'path': ('/v3/OS-FEDERATION/service_providers/'
                               '{service_provider_id}'),
                      'method': 'DELETE'}],
-        deprecated_rule=deprecated_delete_sp,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN)
+        deprecated_rule=deprecated_delete_sp)
 ]
 
 

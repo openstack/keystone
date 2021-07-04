@@ -15,31 +15,6 @@ from oslo_policy import policy
 
 from keystone.common.policies import base
 
-deprecated_list_projects_for_endpoint = policy.DeprecatedRule(
-    name=base.IDENTITY % 'list_projects_for_endpoint',
-    check_str=base.RULE_ADMIN_REQUIRED,
-)
-
-deprecated_add_endpoint_to_project = policy.DeprecatedRule(
-    name=base.IDENTITY % 'add_endpoint_to_project',
-    check_str=base.RULE_ADMIN_REQUIRED,
-)
-
-deprecated_check_endpoint_in_project = policy.DeprecatedRule(
-    name=base.IDENTITY % 'check_endpoint_in_project',
-    check_str=base.RULE_ADMIN_REQUIRED,
-)
-
-deprecated_list_endpoints_for_project = policy.DeprecatedRule(
-    name=base.IDENTITY % 'list_endpoints_for_project',
-    check_str=base.RULE_ADMIN_REQUIRED,
-)
-
-deprecated_remove_endpoint_from_project = policy.DeprecatedRule(
-    name=base.IDENTITY % 'remove_endpoint_from_project',
-    check_str=base.RULE_ADMIN_REQUIRED,
-)
-
 DEPRECATED_REASON = """
 As of the Train release, the project endpoint API now understands default
 roles and system-scoped tokens, making the API more granular by default without
@@ -47,6 +22,41 @@ compromising security. The new policy defaults account for these changes
 automatically. Be sure to take these new defaults into consideration if you are
 relying on overrides in your deployment for the project endpoint API.
 """
+
+deprecated_list_projects_for_endpoint = policy.DeprecatedRule(
+    name=base.IDENTITY % 'list_projects_for_endpoint',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
+)
+
+deprecated_add_endpoint_to_project = policy.DeprecatedRule(
+    name=base.IDENTITY % 'add_endpoint_to_project',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
+)
+
+deprecated_check_endpoint_in_project = policy.DeprecatedRule(
+    name=base.IDENTITY % 'check_endpoint_in_project',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
+)
+
+deprecated_list_endpoints_for_project = policy.DeprecatedRule(
+    name=base.IDENTITY % 'list_endpoints_for_project',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
+)
+
+deprecated_remove_endpoint_from_project = policy.DeprecatedRule(
+    name=base.IDENTITY % 'remove_endpoint_from_project',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
+)
 
 
 project_endpoint_policies = [
@@ -63,9 +73,7 @@ project_endpoint_policies = [
         operations=[{'path': ('/v3/OS-EP-FILTER/endpoints/{endpoint_id}/'
                               'projects'),
                      'method': 'GET'}],
-        deprecated_rule=deprecated_list_projects_for_endpoint,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN),
+        deprecated_rule=deprecated_list_projects_for_endpoint),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'add_endpoint_to_project',
         check_str=base.SYSTEM_ADMIN,
@@ -74,9 +82,7 @@ project_endpoint_policies = [
         operations=[{'path': ('/v3/OS-EP-FILTER/projects/{project_id}/'
                               'endpoints/{endpoint_id}'),
                      'method': 'PUT'}],
-        deprecated_rule=deprecated_add_endpoint_to_project,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN),
+        deprecated_rule=deprecated_add_endpoint_to_project),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'check_endpoint_in_project',
         check_str=base.SYSTEM_READER,
@@ -88,9 +94,7 @@ project_endpoint_policies = [
                     {'path': ('/v3/OS-EP-FILTER/projects/{project_id}/'
                               'endpoints/{endpoint_id}'),
                      'method': 'HEAD'}],
-        deprecated_rule=deprecated_check_endpoint_in_project,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN),
+        deprecated_rule=deprecated_check_endpoint_in_project),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_endpoints_for_project',
         check_str=base.SYSTEM_READER,
@@ -99,9 +103,7 @@ project_endpoint_policies = [
         operations=[{'path': ('/v3/OS-EP-FILTER/projects/{project_id}/'
                               'endpoints'),
                      'method': 'GET'}],
-        deprecated_rule=deprecated_list_endpoints_for_project,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN),
+        deprecated_rule=deprecated_list_endpoints_for_project),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'remove_endpoint_from_project',
         check_str=base.SYSTEM_ADMIN,
@@ -111,9 +113,7 @@ project_endpoint_policies = [
         operations=[{'path': ('/v3/OS-EP-FILTER/projects/{project_id}/'
                               'endpoints/{endpoint_id}'),
                      'method': 'DELETE'}],
-        deprecated_rule=deprecated_remove_endpoint_from_project,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN),
+        deprecated_rule=deprecated_remove_endpoint_from_project),
 ]
 
 

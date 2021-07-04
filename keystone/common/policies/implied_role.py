@@ -15,33 +15,45 @@ from oslo_policy import policy
 
 from keystone.common.policies import base
 
+DEPRECATED_REASON = (
+    "The implied role API is now aware of system scope and default roles."
+)
+
 deprecated_get_implied_role = policy.DeprecatedRule(
     name=base.IDENTITY % 'get_implied_role',
-    check_str=base.RULE_ADMIN_REQUIRED
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
 )
 deprecated_list_implied_roles = policy.DeprecatedRule(
     name=base.IDENTITY % 'list_implied_roles',
     check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
 )
 deprecated_list_role_inference_rules = policy.DeprecatedRule(
     name=base.IDENTITY % 'list_role_inference_rules',
     check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
 )
 deprecated_check_implied_role = policy.DeprecatedRule(
     name=base.IDENTITY % 'check_implied_role',
     check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
 )
 deprecated_create_implied_role = policy.DeprecatedRule(
     name=base.IDENTITY % 'create_implied_role',
     check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
 )
 deprecated_delete_implied_role = policy.DeprecatedRule(
     name=base.IDENTITY % 'delete_implied_role',
     check_str=base.RULE_ADMIN_REQUIRED,
-)
-
-DEPRECATED_REASON = (
-    "The implied role API is now aware of system scope and default roles."
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
 )
 
 
@@ -61,9 +73,7 @@ implied_role_policies = [
         operations=[
             {'path': '/v3/roles/{prior_role_id}/implies/{implied_role_id}',
              'method': 'GET'}],
-        deprecated_rule=deprecated_get_implied_role,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN),
+        deprecated_rule=deprecated_get_implied_role),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_implied_roles',
         check_str=base.SYSTEM_READER,
@@ -77,9 +87,7 @@ implied_role_policies = [
         operations=[
             {'path': '/v3/roles/{prior_role_id}/implies', 'method': 'GET'},
             {'path': '/v3/roles/{prior_role_id}/implies', 'method': 'HEAD'}],
-        deprecated_rule=deprecated_list_implied_roles,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN),
+        deprecated_rule=deprecated_list_implied_roles),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_implied_role',
         check_str=base.SYSTEM_ADMIN,
@@ -91,9 +99,7 @@ implied_role_policies = [
         operations=[
             {'path': '/v3/roles/{prior_role_id}/implies/{implied_role_id}',
              'method': 'PUT'}],
-        deprecated_rule=deprecated_create_implied_role,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN),
+        deprecated_rule=deprecated_create_implied_role),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_implied_role',
         check_str=base.SYSTEM_ADMIN,
@@ -106,9 +112,7 @@ implied_role_policies = [
         operations=[
             {'path': '/v3/roles/{prior_role_id}/implies/{implied_role_id}',
              'method': 'DELETE'}],
-        deprecated_rule=deprecated_delete_implied_role,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN),
+        deprecated_rule=deprecated_delete_implied_role),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_role_inference_rules',
         check_str=base.SYSTEM_READER,
@@ -120,9 +124,7 @@ implied_role_policies = [
         operations=[
             {'path': '/v3/role_inferences', 'method': 'GET'},
             {'path': '/v3/role_inferences', 'method': 'HEAD'}],
-        deprecated_rule=deprecated_list_role_inference_rules,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN),
+        deprecated_rule=deprecated_list_role_inference_rules),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'check_implied_role',
         check_str=base.SYSTEM_READER,
@@ -134,9 +136,7 @@ implied_role_policies = [
         operations=[
             {'path': '/v3/roles/{prior_role_id}/implies/{implied_role_id}',
              'method': 'HEAD'}],
-        deprecated_rule=deprecated_check_implied_role,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN),
+        deprecated_rule=deprecated_check_implied_role),
 ]
 
 

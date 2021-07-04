@@ -19,65 +19,88 @@ from keystone.common.policies import base
 # System-scoped tokens should be required to manage policy associations to
 # existing system-level resources.
 
+DEPRECATED_REASON = (
+    "The policy association API is now aware of system scope and default "
+    "roles."
+)
+
 deprecated_check_policy_assoc_for_endpoint = policy.DeprecatedRule(
     name=base.IDENTITY % 'check_policy_association_for_endpoint',
     check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
 )
 
 deprecated_check_policy_assoc_for_service = policy.DeprecatedRule(
     name=base.IDENTITY % 'check_policy_association_for_service',
     check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
 )
 
 deprecated_check_policy_assoc_for_region_and_service = policy.DeprecatedRule(
     name=base.IDENTITY % 'check_policy_association_for_region_and_service',
     check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
 )
 
 deprecated_get_policy_for_endpoint = policy.DeprecatedRule(
     name=base.IDENTITY % 'get_policy_for_endpoint',
     check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
 )
 
 deprecated_list_endpoints_for_policy = policy.DeprecatedRule(
     name=base.IDENTITY % 'list_endpoints_for_policy',
     check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
 )
 
 deprecated_create_policy_assoc_for_endpoint = policy.DeprecatedRule(
     name=base.IDENTITY % 'create_policy_association_for_endpoint',
     check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
 )
 
 deprecated_delete_policy_assoc_for_endpoint = policy.DeprecatedRule(
     name=base.IDENTITY % 'delete_policy_association_for_endpoint',
     check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
 )
 
 deprecated_create_policy_assoc_for_service = policy.DeprecatedRule(
     name=base.IDENTITY % 'create_policy_association_for_service',
     check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
 )
 
 deprecated_delete_policy_assoc_for_service = policy.DeprecatedRule(
     name=base.IDENTITY % 'delete_policy_association_for_service',
     check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
 )
 
 deprecated_create_policy_assoc_for_region_and_service = policy.DeprecatedRule(
     name=base.IDENTITY % 'create_policy_association_for_region_and_service',
     check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
 )
 
 deprecated_delete_policy_assoc_for_region_and_service = policy.DeprecatedRule(
     name=base.IDENTITY % 'delete_policy_association_for_region_and_service',
     check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
 )
 
-DEPRECATED_REASON = (
-    "The policy association API is now aware of system scope and default "
-    "roles."
-)
 
 policy_association_policies = [
     policy.DocumentedRuleDefault(
@@ -88,9 +111,7 @@ policy_association_policies = [
         operations=[{'path': ('/v3/policies/{policy_id}/OS-ENDPOINT-POLICY/'
                               'endpoints/{endpoint_id}'),
                      'method': 'PUT'}],
-        deprecated_rule=deprecated_create_policy_assoc_for_endpoint,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN),
+        deprecated_rule=deprecated_create_policy_assoc_for_endpoint),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'check_policy_association_for_endpoint',
         check_str=base.SYSTEM_READER,
@@ -102,9 +123,7 @@ policy_association_policies = [
                     {'path': ('/v3/policies/{policy_id}/OS-ENDPOINT-POLICY/'
                               'endpoints/{endpoint_id}'),
                      'method': 'HEAD'}],
-        deprecated_rule=deprecated_check_policy_assoc_for_endpoint,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN),
+        deprecated_rule=deprecated_check_policy_assoc_for_endpoint),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_policy_association_for_endpoint',
         check_str=base.SYSTEM_ADMIN,
@@ -113,9 +132,7 @@ policy_association_policies = [
         operations=[{'path': ('/v3/policies/{policy_id}/OS-ENDPOINT-POLICY/'
                               'endpoints/{endpoint_id}'),
                      'method': 'DELETE'}],
-        deprecated_rule=deprecated_delete_policy_assoc_for_endpoint,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN),
+        deprecated_rule=deprecated_delete_policy_assoc_for_endpoint),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_policy_association_for_service',
         check_str=base.SYSTEM_ADMIN,
@@ -124,9 +141,7 @@ policy_association_policies = [
         operations=[{'path': ('/v3/policies/{policy_id}/OS-ENDPOINT-POLICY/'
                               'services/{service_id}'),
                      'method': 'PUT'}],
-        deprecated_rule=deprecated_create_policy_assoc_for_service,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN),
+        deprecated_rule=deprecated_create_policy_assoc_for_service),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'check_policy_association_for_service',
         check_str=base.SYSTEM_READER,
@@ -138,9 +153,7 @@ policy_association_policies = [
                     {'path': ('/v3/policies/{policy_id}/OS-ENDPOINT-POLICY/'
                               'services/{service_id}'),
                      'method': 'HEAD'}],
-        deprecated_rule=deprecated_check_policy_assoc_for_service,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN),
+        deprecated_rule=deprecated_check_policy_assoc_for_service),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_policy_association_for_service',
         check_str=base.SYSTEM_ADMIN,
@@ -149,9 +162,7 @@ policy_association_policies = [
         operations=[{'path': ('/v3/policies/{policy_id}/OS-ENDPOINT-POLICY/'
                               'services/{service_id}'),
                      'method': 'DELETE'}],
-        deprecated_rule=deprecated_delete_policy_assoc_for_service,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN),
+        deprecated_rule=deprecated_delete_policy_assoc_for_service),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % (
             'create_policy_association_for_region_and_service'),
@@ -162,9 +173,7 @@ policy_association_policies = [
         operations=[{'path': ('/v3/policies/{policy_id}/OS-ENDPOINT-POLICY/'
                               'services/{service_id}/regions/{region_id}'),
                      'method': 'PUT'}],
-        deprecated_rule=deprecated_create_policy_assoc_for_region_and_service,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN),
+        deprecated_rule=deprecated_create_policy_assoc_for_region_and_service),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'check_policy_association_for_region_and_service',
         check_str=base.SYSTEM_READER,
@@ -176,9 +185,7 @@ policy_association_policies = [
                     {'path': ('/v3/policies/{policy_id}/OS-ENDPOINT-POLICY/'
                               'services/{service_id}/regions/{region_id}'),
                      'method': 'HEAD'}],
-        deprecated_rule=deprecated_check_policy_assoc_for_region_and_service,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN),
+        deprecated_rule=deprecated_check_policy_assoc_for_region_and_service),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % (
             'delete_policy_association_for_region_and_service'),
@@ -188,9 +195,7 @@ policy_association_policies = [
         operations=[{'path': ('/v3/policies/{policy_id}/OS-ENDPOINT-POLICY/'
                               'services/{service_id}/regions/{region_id}'),
                      'method': 'DELETE'}],
-        deprecated_rule=deprecated_delete_policy_assoc_for_region_and_service,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN),
+        deprecated_rule=deprecated_delete_policy_assoc_for_region_and_service),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_policy_for_endpoint',
         check_str=base.SYSTEM_READER,
@@ -202,9 +207,7 @@ policy_association_policies = [
                     {'path': ('/v3/endpoints/{endpoint_id}/OS-ENDPOINT-POLICY/'
                               'policy'),
                      'method': 'HEAD'}],
-        deprecated_rule=deprecated_get_policy_for_endpoint,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN),
+        deprecated_rule=deprecated_get_policy_for_endpoint),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_endpoints_for_policy',
         check_str=base.SYSTEM_READER,
@@ -213,9 +216,7 @@ policy_association_policies = [
         operations=[{'path': ('/v3/policies/{policy_id}/OS-ENDPOINT-POLICY/'
                               'endpoints'),
                      'method': 'GET'}],
-        deprecated_rule=deprecated_list_endpoints_for_policy,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN)
+        deprecated_rule=deprecated_list_endpoints_for_policy)
 ]
 
 

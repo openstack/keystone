@@ -18,23 +18,30 @@ from keystone.common.policies import base
 collection_path = '/v3/users/{user_id}/application_credentials'
 resource_path = collection_path + '/{application_credential_id}'
 
-deprecated_list_application_credentials_for_user = policy.DeprecatedRule(
-    name=base.IDENTITY % 'list_application_credentials',
-    check_str=base.RULE_ADMIN_OR_OWNER
-)
-deprecated_get_application_credentials_for_user = policy.DeprecatedRule(
-    name=base.IDENTITY % 'get_application_credentials',
-    check_str=base.RULE_ADMIN_OR_OWNER
-)
-deprecated_delete_application_credentials_for_user = policy.DeprecatedRule(
-    name=base.IDENTITY % 'delete_application_credentials',
-    check_str=base.RULE_ADMIN_OR_OWNER
-)
-
 DEPRECATED_REASON = (
     "The application credential API is now aware of system scope and default "
     "roles."
 )
+
+deprecated_list_application_credentials_for_user = policy.DeprecatedRule(
+    name=base.IDENTITY % 'list_application_credentials',
+    check_str=base.RULE_ADMIN_OR_OWNER,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
+)
+deprecated_get_application_credentials_for_user = policy.DeprecatedRule(
+    name=base.IDENTITY % 'get_application_credentials',
+    check_str=base.RULE_ADMIN_OR_OWNER,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
+)
+deprecated_delete_application_credentials_for_user = policy.DeprecatedRule(
+    name=base.IDENTITY % 'delete_application_credentials',
+    check_str=base.RULE_ADMIN_OR_OWNER,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
+)
+
 
 application_credential_policies = [
     policy.DocumentedRuleDefault(
@@ -46,9 +53,7 @@ application_credential_policies = [
                      'method': 'GET'},
                     {'path': resource_path,
                      'method': 'HEAD'}],
-        deprecated_rule=deprecated_get_application_credentials_for_user,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN),
+        deprecated_rule=deprecated_get_application_credentials_for_user),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_application_credentials',
         check_str=base.RULE_SYSTEM_READER_OR_OWNER,
@@ -58,9 +63,7 @@ application_credential_policies = [
                      'method': 'GET'},
                     {'path': collection_path,
                      'method': 'HEAD'}],
-        deprecated_rule=deprecated_list_application_credentials_for_user,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN),
+        deprecated_rule=deprecated_list_application_credentials_for_user),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_application_credential',
         check_str=base.RULE_OWNER,
@@ -75,9 +78,7 @@ application_credential_policies = [
         description='Delete an application credential.',
         operations=[{'path': resource_path,
                      'method': 'DELETE'}],
-        deprecated_rule=deprecated_delete_application_credentials_for_user,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN)
+        deprecated_rule=deprecated_delete_application_credentials_for_user)
 ]
 
 

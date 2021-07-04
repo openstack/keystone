@@ -25,18 +25,23 @@ SYSTEM_READER_OR_PROJECT_DOMAIN_READER_OR_PROJECT_ADMIN = (
     '(role:admin and project_id:%(target.project.id)s)'
 )
 
-deprecated_list_role_assignments = policy.DeprecatedRule(
-    name=base.IDENTITY % 'list_role_assignments',
-    check_str=base.RULE_ADMIN_REQUIRED
-)
-deprecated_list_role_assignments_for_tree = policy.DeprecatedRule(
-    name=base.IDENTITY % 'list_role_assignments_for_tree',
-    check_str=base.RULE_ADMIN_REQUIRED
-)
-
 DEPRECATED_REASON = (
     "The assignment API is now aware of system scope and default roles."
 )
+
+deprecated_list_role_assignments = policy.DeprecatedRule(
+    name=base.IDENTITY % 'list_role_assignments',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
+)
+deprecated_list_role_assignments_for_tree = policy.DeprecatedRule(
+    name=base.IDENTITY % 'list_role_assignments_for_tree',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
+)
+
 
 role_assignment_policies = [
     policy.DocumentedRuleDefault(
@@ -48,9 +53,7 @@ role_assignment_policies = [
                      'method': 'GET'},
                     {'path': '/v3/role_assignments',
                      'method': 'HEAD'}],
-        deprecated_rule=deprecated_list_role_assignments,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN),
+        deprecated_rule=deprecated_list_role_assignments),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_role_assignments_for_tree',
         check_str=SYSTEM_READER_OR_PROJECT_DOMAIN_READER_OR_PROJECT_ADMIN,
@@ -61,9 +64,7 @@ role_assignment_policies = [
                      'method': 'GET'},
                     {'path': '/v3/role_assignments?include_subtree',
                      'method': 'HEAD'}],
-        deprecated_rule=deprecated_list_role_assignments_for_tree,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN),
+        deprecated_rule=deprecated_list_role_assignments_for_tree),
 
 ]
 

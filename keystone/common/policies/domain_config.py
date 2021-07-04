@@ -15,35 +15,45 @@ from oslo_policy import policy
 
 from keystone.common.policies import base
 
+DEPRECATED_REASON = (
+    "The domain config API is now aware of system scope and default roles."
+)
+
 deprecated_get_domain_config = policy.DeprecatedRule(
     name=base.IDENTITY % 'get_domain_config',
     check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
 )
 
 deprecated_get_domain_config_default = policy.DeprecatedRule(
     name=base.IDENTITY % 'get_domain_config_default',
     check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
 )
 
 deprecated_create_domain_config = policy.DeprecatedRule(
     name=base.IDENTITY % 'create_domain_config',
     check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
 )
 
 deprecated_update_domain_config = policy.DeprecatedRule(
     name=base.IDENTITY % 'update_domain_config',
     check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
 )
 
 deprecated_delete_domain_config = policy.DeprecatedRule(
     name=base.IDENTITY % 'delete_domain_config',
     check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
 )
 
-
-DEPRECATED_REASON = (
-    "The domain config API is now aware of system scope and default roles."
-)
 
 domain_config_policies = [
     policy.DocumentedRuleDefault(
@@ -65,9 +75,7 @@ domain_config_policies = [
                 'method': 'PUT'
             }
         ],
-        deprecated_rule=deprecated_create_domain_config,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN
+        deprecated_rule=deprecated_create_domain_config
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_domain_config',
@@ -103,8 +111,6 @@ domain_config_policies = [
             }
         ],
         deprecated_rule=deprecated_get_domain_config,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_security_compliance_domain_config',
@@ -156,8 +162,6 @@ domain_config_policies = [
             }
         ],
         deprecated_rule=deprecated_update_domain_config,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_domain_config',
@@ -180,8 +184,6 @@ domain_config_policies = [
             }
         ],
         deprecated_rule=deprecated_delete_domain_config,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_domain_config_default',
@@ -216,8 +218,6 @@ domain_config_policies = [
             }
         ],
         deprecated_rule=deprecated_get_domain_config_default,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN
     )
 ]
 

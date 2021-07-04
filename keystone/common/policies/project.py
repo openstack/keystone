@@ -52,59 +52,83 @@ SYSTEM_ADMIN_OR_DOMAIN_ADMIN = (
     '(role:admin and domain_id:%(target.project.domain_id)s)'
 )
 
-deprecated_list_projects = policy.DeprecatedRule(
-    name=base.IDENTITY % 'list_projects',
-    check_str=base.RULE_ADMIN_REQUIRED
-)
-deprecated_get_project = policy.DeprecatedRule(
-    name=base.IDENTITY % 'get_project',
-    check_str=base.RULE_ADMIN_OR_TARGET_PROJECT
-)
-deprecated_list_user_projects = policy.DeprecatedRule(
-    name=base.IDENTITY % 'list_user_projects',
-    check_str=base.RULE_ADMIN_OR_OWNER
-)
-deprecated_create_project = policy.DeprecatedRule(
-    name=base.IDENTITY % 'create_project',
-    check_str=base.RULE_ADMIN_REQUIRED
-)
-deprecated_update_project = policy.DeprecatedRule(
-    name=base.IDENTITY % 'update_project',
-    check_str=base.RULE_ADMIN_REQUIRED
-)
-deprecated_delete_project = policy.DeprecatedRule(
-    name=base.IDENTITY % 'delete_project',
-    check_str=base.RULE_ADMIN_REQUIRED
-)
-deprecated_list_project_tags = policy.DeprecatedRule(
-    name=base.IDENTITY % 'list_project_tags',
-    check_str=base.RULE_ADMIN_OR_TARGET_PROJECT
-)
-deprecated_get_project_tag = policy.DeprecatedRule(
-    name=base.IDENTITY % 'get_project_tag',
-    check_str=base.RULE_ADMIN_OR_TARGET_PROJECT
-)
-deprecated_update_project_tag = policy.DeprecatedRule(
-    name=base.IDENTITY % 'update_project_tags',
-    check_str=base.RULE_ADMIN_REQUIRED
-)
-deprecated_create_project_tag = policy.DeprecatedRule(
-    name=base.IDENTITY % 'create_project_tag',
-    check_str=base.RULE_ADMIN_REQUIRED
-)
-deprecated_delete_project_tag = policy.DeprecatedRule(
-    name=base.IDENTITY % 'delete_project_tag',
-    check_str=base.RULE_ADMIN_REQUIRED
-)
-deprecated_delete_project_tags = policy.DeprecatedRule(
-    name=base.IDENTITY % 'delete_project_tags',
-    check_str=base.RULE_ADMIN_REQUIRED
-)
-
-
 DEPRECATED_REASON = (
     "The project API is now aware of system scope and default roles."
 )
+
+deprecated_list_projects = policy.DeprecatedRule(
+    name=base.IDENTITY % 'list_projects',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
+)
+deprecated_get_project = policy.DeprecatedRule(
+    name=base.IDENTITY % 'get_project',
+    check_str=base.RULE_ADMIN_OR_TARGET_PROJECT,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
+)
+deprecated_list_user_projects = policy.DeprecatedRule(
+    name=base.IDENTITY % 'list_user_projects',
+    check_str=base.RULE_ADMIN_OR_OWNER,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
+)
+deprecated_create_project = policy.DeprecatedRule(
+    name=base.IDENTITY % 'create_project',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
+)
+deprecated_update_project = policy.DeprecatedRule(
+    name=base.IDENTITY % 'update_project',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
+)
+deprecated_delete_project = policy.DeprecatedRule(
+    name=base.IDENTITY % 'delete_project',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
+)
+deprecated_list_project_tags = policy.DeprecatedRule(
+    name=base.IDENTITY % 'list_project_tags',
+    check_str=base.RULE_ADMIN_OR_TARGET_PROJECT,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
+)
+deprecated_get_project_tag = policy.DeprecatedRule(
+    name=base.IDENTITY % 'get_project_tag',
+    check_str=base.RULE_ADMIN_OR_TARGET_PROJECT,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
+)
+deprecated_update_project_tag = policy.DeprecatedRule(
+    name=base.IDENTITY % 'update_project_tags',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
+)
+deprecated_create_project_tag = policy.DeprecatedRule(
+    name=base.IDENTITY % 'create_project_tag',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
+)
+deprecated_delete_project_tag = policy.DeprecatedRule(
+    name=base.IDENTITY % 'delete_project_tag',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
+)
+deprecated_delete_project_tags = policy.DeprecatedRule(
+    name=base.IDENTITY % 'delete_project_tags',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
+)
+
 
 TAGS_DEPRECATED_REASON = """
 As of the Train release, the project tags API understands how to handle
@@ -122,9 +146,7 @@ project_policies = [
         description='Show project details.',
         operations=[{'path': '/v3/projects/{project_id}',
                      'method': 'GET'}],
-        deprecated_rule=deprecated_get_project,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN),
+        deprecated_rule=deprecated_get_project),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_projects',
         check_str=SYSTEM_READER_OR_DOMAIN_READER,
@@ -136,9 +158,7 @@ project_policies = [
         description='List projects.',
         operations=[{'path': '/v3/projects',
                      'method': 'GET'}],
-        deprecated_rule=deprecated_list_projects,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN),
+        deprecated_rule=deprecated_list_projects),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_user_projects',
         check_str=SYSTEM_READER_OR_DOMAIN_READER_OR_OWNER,
@@ -146,9 +166,7 @@ project_policies = [
         description='List projects for user.',
         operations=[{'path': '/v3/users/{user_id}/projects',
                      'method': 'GET'}],
-        deprecated_rule=deprecated_list_user_projects,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN),
+        deprecated_rule=deprecated_list_user_projects),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_project',
         check_str=SYSTEM_ADMIN_OR_DOMAIN_ADMIN,
@@ -156,9 +174,7 @@ project_policies = [
         description='Create project.',
         operations=[{'path': '/v3/projects',
                      'method': 'POST'}],
-        deprecated_rule=deprecated_create_project,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN),
+        deprecated_rule=deprecated_create_project),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_project',
         check_str=SYSTEM_ADMIN_OR_DOMAIN_ADMIN,
@@ -166,9 +182,7 @@ project_policies = [
         description='Update project.',
         operations=[{'path': '/v3/projects/{project_id}',
                      'method': 'PATCH'}],
-        deprecated_rule=deprecated_update_project,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN),
+        deprecated_rule=deprecated_update_project),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_project',
         check_str=SYSTEM_ADMIN_OR_DOMAIN_ADMIN,
@@ -176,9 +190,7 @@ project_policies = [
         description='Delete project.',
         operations=[{'path': '/v3/projects/{project_id}',
                      'method': 'DELETE'}],
-        deprecated_rule=deprecated_delete_project,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN),
+        deprecated_rule=deprecated_delete_project),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_project_tags',
         check_str=SYSTEM_READER_OR_DOMAIN_READER_OR_PROJECT_USER,
@@ -188,9 +200,7 @@ project_policies = [
                      'method': 'GET'},
                     {'path': '/v3/projects/{project_id}/tags',
                      'method': 'HEAD'}],
-        deprecated_rule=deprecated_list_project_tags,
-        deprecated_reason=TAGS_DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN),
+        deprecated_rule=deprecated_list_project_tags),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_project_tag',
         check_str=SYSTEM_READER_OR_DOMAIN_READER_OR_PROJECT_USER,
@@ -200,9 +210,7 @@ project_policies = [
                      'method': 'GET'},
                     {'path': '/v3/projects/{project_id}/tags/{value}',
                      'method': 'HEAD'}],
-        deprecated_rule=deprecated_get_project_tag,
-        deprecated_reason=TAGS_DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN),
+        deprecated_rule=deprecated_get_project_tag),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_project_tags',
         check_str=SYSTEM_ADMIN_OR_DOMAIN_ADMIN_OR_PROJECT_ADMIN,
@@ -210,9 +218,7 @@ project_policies = [
         description='Replace all tags on a project with the new set of tags.',
         operations=[{'path': '/v3/projects/{project_id}/tags',
                      'method': 'PUT'}],
-        deprecated_rule=deprecated_update_project_tag,
-        deprecated_reason=TAGS_DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN),
+        deprecated_rule=deprecated_update_project_tag),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_project_tag',
         check_str=SYSTEM_ADMIN_OR_DOMAIN_ADMIN_OR_PROJECT_ADMIN,
@@ -220,9 +226,7 @@ project_policies = [
         description='Add a single tag to a project.',
         operations=[{'path': '/v3/projects/{project_id}/tags/{value}',
                      'method': 'PUT'}],
-        deprecated_rule=deprecated_create_project_tag,
-        deprecated_reason=TAGS_DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN),
+        deprecated_rule=deprecated_create_project_tag),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_project_tags',
         check_str=SYSTEM_ADMIN_OR_DOMAIN_ADMIN_OR_PROJECT_ADMIN,
@@ -230,9 +234,7 @@ project_policies = [
         description='Remove all tags from a project.',
         operations=[{'path': '/v3/projects/{project_id}/tags',
                      'method': 'DELETE'}],
-        deprecated_rule=deprecated_delete_project_tags,
-        deprecated_reason=TAGS_DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN),
+        deprecated_rule=deprecated_delete_project_tags),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_project_tag',
         check_str=SYSTEM_ADMIN_OR_DOMAIN_ADMIN_OR_PROJECT_ADMIN,
@@ -240,9 +242,7 @@ project_policies = [
         description='Delete a specified tag from project.',
         operations=[{'path': '/v3/projects/{project_id}/tags/{value}',
                      'method': 'DELETE'}],
-        deprecated_rule=deprecated_delete_project_tag,
-        deprecated_reason=TAGS_DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN)
+        deprecated_rule=deprecated_delete_project_tag)
 ]
 
 

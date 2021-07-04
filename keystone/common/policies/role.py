@@ -15,50 +15,71 @@ from oslo_policy import policy
 
 from keystone.common.policies import base
 
-deprecated_get_role = policy.DeprecatedRule(
-    name=base.IDENTITY % 'get_role',
-    check_str=base.RULE_ADMIN_REQUIRED
-)
-deprecated_list_role = policy.DeprecatedRule(
-    name=base.IDENTITY % 'list_roles',
-    check_str=base.RULE_ADMIN_REQUIRED
-)
-deprecated_update_role = policy.DeprecatedRule(
-    name=base.IDENTITY % 'update_role',
-    check_str=base.RULE_ADMIN_REQUIRED
-)
-deprecated_create_role = policy.DeprecatedRule(
-    name=base.IDENTITY % 'create_role',
-    check_str=base.RULE_ADMIN_REQUIRED
-)
-deprecated_delete_role = policy.DeprecatedRule(
-    name=base.IDENTITY % 'delete_role',
-    check_str=base.RULE_ADMIN_REQUIRED
-)
-deprecated_get_domain_role = policy.DeprecatedRule(
-    name=base.IDENTITY % 'get_domain_role',
-    check_str=base.RULE_ADMIN_REQUIRED
-)
-deprecated_list_domain_roles = policy.DeprecatedRule(
-    name=base.IDENTITY % 'list_domain_roles',
-    check_str=base.RULE_ADMIN_REQUIRED
-)
-deprecated_update_domain_role = policy.DeprecatedRule(
-    name=base.IDENTITY % 'update_domain_role',
-    check_str=base.RULE_ADMIN_REQUIRED
-)
-deprecated_create_domain_role = policy.DeprecatedRule(
-    name=base.IDENTITY % 'create_domain_role',
-    check_str=base.RULE_ADMIN_REQUIRED
-)
-deprecated_delete_domain_role = policy.DeprecatedRule(
-    name=base.IDENTITY % 'delete_domain_role',
-    check_str=base.RULE_ADMIN_REQUIRED
-)
-
 DEPRECATED_REASON = (
     "The role API is now aware of system scope and default roles."
 )
+
+deprecated_get_role = policy.DeprecatedRule(
+    name=base.IDENTITY % 'get_role',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
+)
+deprecated_list_role = policy.DeprecatedRule(
+    name=base.IDENTITY % 'list_roles',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
+)
+deprecated_update_role = policy.DeprecatedRule(
+    name=base.IDENTITY % 'update_role',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
+)
+deprecated_create_role = policy.DeprecatedRule(
+    name=base.IDENTITY % 'create_role',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
+)
+deprecated_delete_role = policy.DeprecatedRule(
+    name=base.IDENTITY % 'delete_role',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
+)
+deprecated_get_domain_role = policy.DeprecatedRule(
+    name=base.IDENTITY % 'get_domain_role',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
+)
+deprecated_list_domain_roles = policy.DeprecatedRule(
+    name=base.IDENTITY % 'list_domain_roles',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
+)
+deprecated_update_domain_role = policy.DeprecatedRule(
+    name=base.IDENTITY % 'update_domain_role',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
+)
+deprecated_create_domain_role = policy.DeprecatedRule(
+    name=base.IDENTITY % 'create_domain_role',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
+)
+deprecated_delete_domain_role = policy.DeprecatedRule(
+    name=base.IDENTITY % 'delete_domain_role',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
+)
+
 
 role_policies = [
     policy.DocumentedRuleDefault(
@@ -75,9 +96,7 @@ role_policies = [
                      'method': 'GET'},
                     {'path': '/v3/roles/{role_id}',
                      'method': 'HEAD'}],
-        deprecated_rule=deprecated_get_role,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN),
+        deprecated_rule=deprecated_get_role),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_roles',
         check_str=base.SYSTEM_READER,
@@ -87,9 +106,7 @@ role_policies = [
                      'method': 'GET'},
                     {'path': '/v3/roles',
                      'method': 'HEAD'}],
-        deprecated_rule=deprecated_list_role,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN),
+        deprecated_rule=deprecated_list_role),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_role',
         check_str=base.SYSTEM_ADMIN,
@@ -97,9 +114,7 @@ role_policies = [
         description='Create role.',
         operations=[{'path': '/v3/roles',
                      'method': 'POST'}],
-        deprecated_rule=deprecated_create_role,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN),
+        deprecated_rule=deprecated_create_role),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_role',
         check_str=base.SYSTEM_ADMIN,
@@ -107,9 +122,7 @@ role_policies = [
         description='Update role.',
         operations=[{'path': '/v3/roles/{role_id}',
                      'method': 'PATCH'}],
-        deprecated_rule=deprecated_update_role,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN),
+        deprecated_rule=deprecated_update_role),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_role',
         check_str=base.SYSTEM_ADMIN,
@@ -117,9 +130,7 @@ role_policies = [
         description='Delete role.',
         operations=[{'path': '/v3/roles/{role_id}',
                      'method': 'DELETE'}],
-        deprecated_rule=deprecated_delete_role,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN),
+        deprecated_rule=deprecated_delete_role),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_domain_role',
         check_str=base.SYSTEM_READER,
@@ -134,9 +145,7 @@ role_policies = [
                      'method': 'GET'},
                     {'path': '/v3/roles/{role_id}',
                      'method': 'HEAD'}],
-        deprecated_rule=deprecated_get_domain_role,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN),
+        deprecated_rule=deprecated_get_domain_role),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_domain_roles',
         check_str=base.SYSTEM_READER,
@@ -146,9 +155,7 @@ role_policies = [
                      'method': 'GET'},
                     {'path': '/v3/roles?domain_id={domain_id}',
                      'method': 'HEAD'}],
-        deprecated_rule=deprecated_list_domain_roles,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN),
+        deprecated_rule=deprecated_list_domain_roles),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_domain_role',
         check_str=base.SYSTEM_ADMIN,
@@ -156,9 +163,7 @@ role_policies = [
         scope_types=['system'],
         operations=[{'path': '/v3/roles',
                      'method': 'POST'}],
-        deprecated_rule=deprecated_create_domain_role,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN),
+        deprecated_rule=deprecated_create_domain_role),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_domain_role',
         check_str=base.SYSTEM_ADMIN,
@@ -166,9 +171,7 @@ role_policies = [
         scope_types=['system'],
         operations=[{'path': '/v3/roles/{role_id}',
                      'method': 'PATCH'}],
-        deprecated_rule=deprecated_update_domain_role,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN),
+        deprecated_rule=deprecated_update_domain_role),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_domain_role',
         check_str=base.SYSTEM_ADMIN,
@@ -176,9 +179,7 @@ role_policies = [
         scope_types=['system'],
         operations=[{'path': '/v3/roles/{role_id}',
                      'method': 'DELETE'}],
-        deprecated_rule=deprecated_delete_domain_role,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN)
+        deprecated_rule=deprecated_delete_domain_role)
 ]
 
 

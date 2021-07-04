@@ -21,23 +21,33 @@ DEPRECATED_REASON = (
 
 deprecated_list_domains = policy.DeprecatedRule(
     name=base.IDENTITY % 'list_domains',
-    check_str=base.RULE_ADMIN_REQUIRED
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
 )
 deprecated_get_domain = policy.DeprecatedRule(
     name=base.IDENTITY % 'get_domain',
-    check_str=base.RULE_ADMIN_OR_TARGET_DOMAIN
+    check_str=base.RULE_ADMIN_OR_TARGET_DOMAIN,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
 )
 deprecated_update_domain = policy.DeprecatedRule(
     name=base.IDENTITY % 'update_domain',
-    check_str=base.RULE_ADMIN_REQUIRED
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
 )
 deprecated_create_domain = policy.DeprecatedRule(
     name=base.IDENTITY % 'create_domain',
-    check_str=base.RULE_ADMIN_REQUIRED
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
 )
 deprecated_delete_domain = policy.DeprecatedRule(
     name=base.IDENTITY % 'delete_domain',
-    check_str=base.RULE_ADMIN_REQUIRED
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
 )
 SYSTEM_USER_OR_DOMAIN_USER_OR_PROJECT_USER = (
     '(role:reader and system_scope:all) or '
@@ -56,9 +66,7 @@ domain_policies = [
         description='Show domain details.',
         operations=[{'path': '/v3/domains/{domain_id}',
                      'method': 'GET'}],
-        deprecated_rule=deprecated_get_domain,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN),
+        deprecated_rule=deprecated_get_domain),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_domains',
         check_str=base.SYSTEM_READER,
@@ -66,9 +74,7 @@ domain_policies = [
         description='List domains.',
         operations=[{'path': '/v3/domains',
                      'method': 'GET'}],
-        deprecated_rule=deprecated_list_domains,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN),
+        deprecated_rule=deprecated_list_domains),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_domain',
         check_str=base.SYSTEM_ADMIN,
@@ -76,9 +82,7 @@ domain_policies = [
         description='Create domain.',
         operations=[{'path': '/v3/domains',
                      'method': 'POST'}],
-        deprecated_rule=deprecated_create_domain,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN),
+        deprecated_rule=deprecated_create_domain),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_domain',
         check_str=base.SYSTEM_ADMIN,
@@ -86,9 +90,7 @@ domain_policies = [
         description='Update domain.',
         operations=[{'path': '/v3/domains/{domain_id}',
                      'method': 'PATCH'}],
-        deprecated_rule=deprecated_update_domain,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN),
+        deprecated_rule=deprecated_update_domain),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_domain',
         check_str=base.SYSTEM_ADMIN,
@@ -96,9 +98,7 @@ domain_policies = [
         description='Delete domain.',
         operations=[{'path': '/v3/domains/{domain_id}',
                      'method': 'DELETE'}],
-        deprecated_rule=deprecated_delete_domain,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN),
+        deprecated_rule=deprecated_delete_domain),
 ]
 
 

@@ -66,54 +66,79 @@ SYSTEM_ADMIN_OR_DOMAIN_ADMIN = (
     '(' + DOMAIN_MATCHES_ROLE + ')'
 )
 
-deprecated_check_system_grant_for_user = policy.DeprecatedRule(
-    name=base.IDENTITY % 'check_system_grant_for_user',
-    check_str=base.RULE_ADMIN_REQUIRED
-)
-deprecated_list_system_grants_for_user = policy.DeprecatedRule(
-    name=base.IDENTITY % 'list_system_grants_for_user',
-    check_str=base.RULE_ADMIN_REQUIRED
-)
-deprecated_create_system_grant_for_user = policy.DeprecatedRule(
-    name=base.IDENTITY % 'create_system_grant_for_user',
-    check_str=base.RULE_ADMIN_REQUIRED
-)
-deprecated_revoke_system_grant_for_user = policy.DeprecatedRule(
-    name=base.IDENTITY % 'revoke_system_grant_for_user',
-    check_str=base.RULE_ADMIN_REQUIRED
-)
-deprecated_check_system_grant_for_group = policy.DeprecatedRule(
-    name=base.IDENTITY % 'check_system_grant_for_group',
-    check_str=base.RULE_ADMIN_REQUIRED
-)
-deprecated_list_system_grants_for_group = policy.DeprecatedRule(
-    name=base.IDENTITY % 'list_system_grants_for_group',
-    check_str=base.RULE_ADMIN_REQUIRED
-)
-deprecated_create_system_grant_for_group = policy.DeprecatedRule(
-    name=base.IDENTITY % 'create_system_grant_for_group',
-    check_str=base.RULE_ADMIN_REQUIRED
-)
-deprecated_revoke_system_grant_for_group = policy.DeprecatedRule(
-    name=base.IDENTITY % 'revoke_system_grant_for_group',
-    check_str=base.RULE_ADMIN_REQUIRED
-)
-deprecated_list_grants = policy.DeprecatedRule(
-    name=base.IDENTITY % 'list_grants', check_str=base.RULE_ADMIN_REQUIRED
-)
-deprecated_check_grant = policy.DeprecatedRule(
-    name=base.IDENTITY % 'check_grant', check_str=base.RULE_ADMIN_REQUIRED
-)
-deprecated_create_grant = policy.DeprecatedRule(
-    name=base.IDENTITY % 'create_grant', check_str=base.RULE_ADMIN_REQUIRED
-)
-deprecated_revoke_grant = policy.DeprecatedRule(
-    name=base.IDENTITY % 'revoke_grant', check_str=base.RULE_ADMIN_REQUIRED
-)
-
 DEPRECATED_REASON = (
     "The assignment API is now aware of system scope and default roles."
 )
+
+deprecated_check_system_grant_for_user = policy.DeprecatedRule(
+    name=base.IDENTITY % 'check_system_grant_for_user',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
+)
+deprecated_list_system_grants_for_user = policy.DeprecatedRule(
+    name=base.IDENTITY % 'list_system_grants_for_user',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
+)
+deprecated_create_system_grant_for_user = policy.DeprecatedRule(
+    name=base.IDENTITY % 'create_system_grant_for_user',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
+)
+deprecated_revoke_system_grant_for_user = policy.DeprecatedRule(
+    name=base.IDENTITY % 'revoke_system_grant_for_user',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
+)
+deprecated_check_system_grant_for_group = policy.DeprecatedRule(
+    name=base.IDENTITY % 'check_system_grant_for_group',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
+)
+deprecated_list_system_grants_for_group = policy.DeprecatedRule(
+    name=base.IDENTITY % 'list_system_grants_for_group',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
+)
+deprecated_create_system_grant_for_group = policy.DeprecatedRule(
+    name=base.IDENTITY % 'create_system_grant_for_group',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
+)
+deprecated_revoke_system_grant_for_group = policy.DeprecatedRule(
+    name=base.IDENTITY % 'revoke_system_grant_for_group',
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
+)
+deprecated_list_grants = policy.DeprecatedRule(
+    name=base.IDENTITY % 'list_grants', check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
+)
+deprecated_check_grant = policy.DeprecatedRule(
+    name=base.IDENTITY % 'check_grant', check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
+)
+deprecated_create_grant = policy.DeprecatedRule(
+    name=base.IDENTITY % 'create_grant', check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
+)
+deprecated_revoke_grant = policy.DeprecatedRule(
+    name=base.IDENTITY % 'revoke_grant', check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.STEIN
+)
+
 
 resource_paths = [
     '/projects/{project_id}/users/{user_id}/roles/{role_id}',
@@ -167,9 +192,7 @@ grant_policies = [
                      'are inherited to all projects in the subtree, if '
                      'applicable.'),
         operations=list_operations(resource_paths, ['HEAD', 'GET']),
-        deprecated_rule=deprecated_check_grant,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN),
+        deprecated_rule=deprecated_check_grant),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_grants',
         check_str=SYSTEM_READER_OR_DOMAIN_READER_LIST,
@@ -181,9 +204,7 @@ grant_policies = [
                      'domains, where grants are inherited to all projects '
                      'in the specified domain.'),
         operations=list_grants_operations,
-        deprecated_rule=deprecated_list_grants,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN),
+        deprecated_rule=deprecated_list_grants),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_grant',
         check_str=SYSTEM_ADMIN_OR_DOMAIN_ADMIN,
@@ -195,9 +216,7 @@ grant_policies = [
                      'are inherited to all projects in the subtree, if '
                      'applicable.'),
         operations=list_operations(resource_paths, ['PUT']),
-        deprecated_rule=deprecated_create_grant,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN),
+        deprecated_rule=deprecated_create_grant),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'revoke_grant',
         check_str=SYSTEM_ADMIN_OR_DOMAIN_ADMIN,
@@ -211,9 +230,7 @@ grant_policies = [
                      'the target would remove the logical effect of '
                      'inheriting it to the target\'s projects subtree.'),
         operations=list_operations(resource_paths, ['DELETE']),
-        deprecated_rule=deprecated_revoke_grant,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN),
+        deprecated_rule=deprecated_revoke_grant),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_system_grants_for_user',
         check_str=base.SYSTEM_READER,
@@ -226,8 +243,6 @@ grant_policies = [
             }
         ],
         deprecated_rule=deprecated_list_system_grants_for_user,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'check_system_grant_for_user',
@@ -241,8 +256,6 @@ grant_policies = [
             }
         ],
         deprecated_rule=deprecated_check_system_grant_for_user,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_system_grant_for_user',
@@ -256,8 +269,6 @@ grant_policies = [
             }
         ],
         deprecated_rule=deprecated_create_system_grant_for_user,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'revoke_system_grant_for_user',
@@ -271,8 +282,6 @@ grant_policies = [
             }
         ],
         deprecated_rule=deprecated_revoke_system_grant_for_user,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_system_grants_for_group',
@@ -286,8 +295,6 @@ grant_policies = [
             }
         ],
         deprecated_rule=deprecated_list_system_grants_for_group,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'check_system_grant_for_group',
@@ -301,8 +308,6 @@ grant_policies = [
             }
         ],
         deprecated_rule=deprecated_check_system_grant_for_group,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_system_grant_for_group',
@@ -316,8 +321,6 @@ grant_policies = [
             }
         ],
         deprecated_rule=deprecated_create_system_grant_for_group,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'revoke_system_grant_for_group',
@@ -331,8 +334,6 @@ grant_policies = [
             }
         ],
         deprecated_rule=deprecated_revoke_system_grant_for_group,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.STEIN
     )
 ]
 

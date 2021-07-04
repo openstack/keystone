@@ -21,15 +21,21 @@ DEPRECATED_REASON = (
 
 deprecated_check_token = policy.DeprecatedRule(
     name=base.IDENTITY % 'check_token',
-    check_str=base.RULE_ADMIN_OR_TOKEN_SUBJECT
+    check_str=base.RULE_ADMIN_OR_TOKEN_SUBJECT,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
 )
 deprecated_validate_token = policy.DeprecatedRule(
     name=base.IDENTITY % 'validate_token',
-    check_str=base.RULE_SERVICE_ADMIN_OR_TOKEN_SUBJECT
+    check_str=base.RULE_SERVICE_ADMIN_OR_TOKEN_SUBJECT,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
 )
 deprecated_revoke_token = policy.DeprecatedRule(
     name=base.IDENTITY % 'revoke_token',
-    check_str=base.RULE_ADMIN_OR_TOKEN_SUBJECT
+    check_str=base.RULE_ADMIN_OR_TOKEN_SUBJECT,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
 )
 
 SYSTEM_ADMIN_OR_TOKEN_SUBJECT = (
@@ -52,9 +58,7 @@ token_policies = [
         description='Check a token.',
         operations=[{'path': '/v3/auth/tokens',
                      'method': 'HEAD'}],
-        deprecated_rule=deprecated_check_token,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN),
+        deprecated_rule=deprecated_check_token),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'validate_token',
         check_str=SYSTEM_USER_OR_SERVICE_OR_TOKEN_SUBJECT,
@@ -62,9 +66,7 @@ token_policies = [
         description='Validate a token.',
         operations=[{'path': '/v3/auth/tokens',
                      'method': 'GET'}],
-        deprecated_rule=deprecated_validate_token,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN),
+        deprecated_rule=deprecated_validate_token),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'revoke_token',
         check_str=SYSTEM_ADMIN_OR_TOKEN_SUBJECT,
@@ -72,9 +74,7 @@ token_policies = [
         description='Revoke a token.',
         operations=[{'path': '/v3/auth/tokens',
                      'method': 'DELETE'}],
-        deprecated_rule=deprecated_revoke_token,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN)
+        deprecated_rule=deprecated_revoke_token)
 ]
 
 

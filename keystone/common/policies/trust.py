@@ -24,29 +24,39 @@ SYSTEM_READER_OR_TRUSTOR = base.SYSTEM_READER + ' or ' + RULE_TRUSTOR
 SYSTEM_READER_OR_TRUSTEE = base.SYSTEM_READER + ' or ' + RULE_TRUSTEE
 SYSTEM_ADMIN_OR_TRUSTOR = base.SYSTEM_ADMIN + ' or ' + RULE_TRUSTOR
 
+DEPRECATED_REASON = (
+    "The trust API is now aware of system scope and default roles."
+)
+
 deprecated_list_trusts = policy.DeprecatedRule(
     name=base.IDENTITY % 'list_trusts',
-    check_str=base.RULE_ADMIN_REQUIRED
+    check_str=base.RULE_ADMIN_REQUIRED,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
 )
 deprecated_list_roles_for_trust = policy.DeprecatedRule(
     name=base.IDENTITY % 'list_roles_for_trust',
-    check_str=RULE_TRUSTOR + ' or ' + RULE_TRUSTEE
+    check_str=RULE_TRUSTOR + ' or ' + RULE_TRUSTEE,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
 )
 deprecated_get_role_for_trust = policy.DeprecatedRule(
     name=base.IDENTITY % 'get_role_for_trust',
-    check_str=RULE_TRUSTOR + ' or ' + RULE_TRUSTEE
+    check_str=RULE_TRUSTOR + ' or ' + RULE_TRUSTEE,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
 )
 deprecated_delete_trust = policy.DeprecatedRule(
     name=base.IDENTITY % 'delete_trust',
-    check_str=RULE_TRUSTOR
+    check_str=RULE_TRUSTOR,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
 )
 deprecated_get_trust = policy.DeprecatedRule(
     name=base.IDENTITY % 'get_trust',
-    check_str=RULE_TRUSTOR + ' or ' + RULE_TRUSTEE
-)
-
-DEPRECATED_REASON = (
-    "The trust API is now aware of system scope and default roles."
+    check_str=RULE_TRUSTOR + ' or ' + RULE_TRUSTEE,
+    deprecated_reason=DEPRECATED_REASON,
+    deprecated_since=versionutils.deprecated.TRAIN
 )
 
 trust_policies = [
@@ -69,9 +79,7 @@ trust_policies = [
                      'method': 'GET'},
                     {'path': '/v3/OS-TRUST/trusts',
                      'method': 'HEAD'}],
-        deprecated_rule=deprecated_list_trusts,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN),
+        deprecated_rule=deprecated_list_trusts),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_trusts_for_trustor',
         check_str=SYSTEM_READER_OR_TRUSTOR,
@@ -103,9 +111,7 @@ trust_policies = [
                      'method': 'GET'},
                     {'path': '/v3/OS-TRUST/trusts/{trust_id}/roles',
                      'method': 'HEAD'}],
-        deprecated_rule=deprecated_list_roles_for_trust,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN),
+        deprecated_rule=deprecated_list_roles_for_trust),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_role_for_trust',
         check_str=SYSTEM_READER_OR_TRUSTOR_OR_TRUSTEE,
@@ -115,9 +121,7 @@ trust_policies = [
                      'method': 'GET'},
                     {'path': '/v3/OS-TRUST/trusts/{trust_id}/roles/{role_id}',
                      'method': 'HEAD'}],
-        deprecated_rule=deprecated_get_role_for_trust,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN),
+        deprecated_rule=deprecated_get_role_for_trust),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_trust',
         check_str=SYSTEM_ADMIN_OR_TRUSTOR,
@@ -125,9 +129,7 @@ trust_policies = [
         description='Revoke trust.',
         operations=[{'path': '/v3/OS-TRUST/trusts/{trust_id}',
                      'method': 'DELETE'}],
-        deprecated_rule=deprecated_delete_trust,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN),
+        deprecated_rule=deprecated_delete_trust),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_trust',
         check_str=SYSTEM_READER_OR_TRUSTOR_OR_TRUSTEE,
@@ -137,9 +139,7 @@ trust_policies = [
                      'method': 'GET'},
                     {'path': '/v3/OS-TRUST/trusts/{trust_id}',
                      'method': 'HEAD'}],
-        deprecated_rule=deprecated_get_trust,
-        deprecated_reason=DEPRECATED_REASON,
-        deprecated_since=versionutils.deprecated.TRAIN)
+        deprecated_rule=deprecated_get_trust)
 ]
 
 
