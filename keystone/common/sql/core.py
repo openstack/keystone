@@ -123,6 +123,7 @@ class JsonBlob(sql_types.TypeDecorator):
     # https://docs.sqlalchemy.org/en/14/core/custom_types.html# \
     #   sqlalchemy.types.TypeDecorator.cache_ok
     cache_ok = True
+    """This type is safe to cache."""
 
     def process_bind_param(self, value, dialect):
         return jsonutils.dumps(value)
@@ -152,6 +153,7 @@ class DateTimeInt(sql_types.TypeDecorator):
     # https://docs.sqlalchemy.org/en/14/core/custom_types.html# \
     #   sqlalchemy.types.TypeDecorator.cache_ok
     cache_ok = True
+    """This type is safe to cache."""
 
     def process_bind_param(self, value, dialect):
         if value is None:
