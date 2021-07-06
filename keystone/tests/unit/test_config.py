@@ -41,35 +41,3 @@ class ConfigTestCase(unit.TestCase):
         self.assertIsNone(CONF.auth.token)
         # Check config.set_config_defaults() has set [profiler]enabled.
         self.assertEqual(False, CONF.profiler.enabled)
-
-
-class DeprecatedTestCase(unit.TestCase):
-    """Test using the original (deprecated) name for renamed options."""
-
-    def config_files(self):
-        config_files = super(DeprecatedTestCase, self).config_files()
-        config_files.append(unit.dirs.tests_conf('deprecated.conf'))
-        return config_files
-
-    def test_sql(self):
-        # Options in [sql] were moved to [database] in Icehouse for the change
-        # to use oslo-incubator's db.sqlalchemy.sessions.
-
-        self.assertEqual('sqlite://deprecated', CONF.database.connection)
-        self.assertEqual(54321, CONF.database.idle_timeout)
-
-
-class DeprecatedOverrideTestCase(unit.TestCase):
-    """Test using the deprecated AND new name for renamed options."""
-
-    def config_files(self):
-        config_files = super(DeprecatedOverrideTestCase, self).config_files()
-        config_files.append(unit.dirs.tests_conf('deprecated_override.conf'))
-        return config_files
-
-    def test_sql(self):
-        # Options in [sql] were moved to [database] in Icehouse for the change
-        # to use oslo-incubator's db.sqlalchemy.sessions.
-
-        self.assertEqual('sqlite://new', CONF.database.connection)
-        self.assertEqual(65432, CONF.database.idle_timeout)
