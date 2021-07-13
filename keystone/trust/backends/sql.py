@@ -171,11 +171,15 @@ class Trust(base.TrustDriverBase):
                       filter_by(trustee_user_id=trustee_user_id))
             return [trust_ref.to_dict() for trust_ref in trusts]
 
-    def list_trusts_for_trustor(self, trustor_user_id):
+    def list_trusts_for_trustor(self, trustor_user_id,
+                                redelegated_trust_id=None):
         with sql.session_for_read() as session:
             trusts = (session.query(TrustModel).
                       filter_by(deleted_at=None).
                       filter_by(trustor_user_id=trustor_user_id))
+            if redelegated_trust_id:
+                trusts = trusts.filter_by(
+                    redelegated_trust_id=redelegated_trust_id)
             return [trust_ref.to_dict() for trust_ref in trusts]
 
     @sql.handle_conflicts(conflict_type='trust')
