@@ -82,6 +82,14 @@ _CC_MIDDLEWARE = (
     _Middleware(namespace='lifesaver.middleware',
                 ep='lifesaver',
                 conf={}),
+    # CCloud: add rate_limit middleware
+    _Middleware(namespace='rate_limit.middleware',
+                ep='rate-limit',
+                conf={'config_file': '/etc/keystone/ratelimit.yaml',
+                      'service_type': 'identity',
+                      'rate_limit_by': 'initiator_project_id',
+                      'backend_host': 'keystone-sapcc-rate-limit',
+                      'backend_timeout_seconds': '1'}),
 )
 
 # NOTE(morgan): ORDER HERE IS IMPORTANT! Each of these middlewares are
