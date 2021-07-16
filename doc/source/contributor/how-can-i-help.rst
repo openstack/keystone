@@ -50,7 +50,7 @@ become part of the team:
   You can also subscribe to email notifications for new bugs.
 * Subscribe to the openstack-discuss@lists.openstack.org mailing list (filter on
   subject tag ``[keystone]``) and join the #openstack-keystone IRC channel on
-  freenode. Help answer user support questions if you or your organization has
+  OFTC. Help answer user support questions if you or your organization has
   faced and solved a similar problem, or chime in on design discussions that
   will affect you and your organization.
 * Check out the low hanging fruit bugs, submit patches to fix them:
