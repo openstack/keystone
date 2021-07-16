@@ -16,7 +16,7 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
-import collections
+import collections.abc
 import grp
 import hashlib
 import itertools
@@ -81,7 +81,7 @@ def flatten_dict(d, parent_key=''):
     items = []
     for k, v in d.items():
         new_key = parent_key + '.' + k if parent_key else k
-        if isinstance(v, collections.MutableMapping):
+        if isinstance(v, collections.abc.MutableMapping):
             items.extend(list(flatten_dict(v, new_key).items()))
         else:
             items.append((new_key, v))
