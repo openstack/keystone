@@ -804,7 +804,7 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
         del user_dict['password']
         user_ref = PROVIDERS.identity_api.get_user(user['id'])
         user_ref_dict = {x: user_ref[x] for x in user_ref}
-        self.assertDictContainsSubset(user_dict, user_ref_dict)
+        self.assertLessEqual(user_dict.items(), user_ref_dict.items())
 
         user_dict['password'] = uuid.uuid4().hex
         PROVIDERS.identity_api.update_user(user['id'], user_dict)
@@ -814,7 +814,7 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
         del user_dict['password']
         user_ref = PROVIDERS.identity_api.get_user(user['id'])
         user_ref_dict = {x: user_ref[x] for x in user_ref}
-        self.assertDictContainsSubset(user_dict, user_ref_dict)
+        self.assertLessEqual(user_dict.items(), user_ref_dict.items())
 
     # The group and domain CRUD tests below override the standard ones in
     # unit.identity.test_backends.py so that we can exclude the update name
@@ -860,8 +860,9 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
         PROVIDERS.identity_api.get_group(group['id'])
         group['description'] = uuid.uuid4().hex
         group_ref = PROVIDERS.identity_api.update_group(group['id'], group)
-        self.assertDictContainsSubset(
-            PROVIDERS.identity_api.get_group(group['id']), group_ref
+        self.assertLessEqual(
+            PROVIDERS.identity_api.get_group(group['id']).items(),
+            group_ref.items()
         )
 
     @unit.skip_if_cache_disabled('identity')
@@ -878,14 +879,15 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
         PROVIDERS.identity_api.get_user(ref['id'])
         # update using identity api and get back updated user.
         user_updated = PROVIDERS.identity_api.update_user(ref['id'], user)
-        self.assertDictContainsSubset(
-            PROVIDERS.identity_api.get_user(ref['id']), user_updated
+        self.assertLessEqual(
+            PROVIDERS.identity_api.get_user(ref['id']).items(),
+            user_updated.items()
         )
-        self.assertDictContainsSubset(
+        self.assertLessEqual(
             PROVIDERS.identity_api.get_user_by_name(
                 ref['name'], ref['domain_id']
-            ),
-            user_updated
+            ).items(),
+            user_updated.items()
         )
 
     @unit.skip_if_cache_disabled('identity')
@@ -899,14 +901,15 @@ class BaseLDAPIdentity(LDAPTestSetup, IdentityTests, AssignmentTests,
         )
         user['description'] = uuid.uuid4().hex
         user_updated = PROVIDERS.identity_api.update_user(ref['id'], user)
-        self.assertDictContainsSubset(
-            PROVIDERS.identity_api.get_user(ref['id']), user_updated
+        self.assertLessEqual(
+            PROVIDERS.identity_api.get_user(ref['id']).items(),
+            user_updated.items()
         )
-        self.assertDictContainsSubset(
+        self.assertLessEqual(
             PROVIDERS.identity_api.get_user_by_name(
                 ref['name'], ref['domain_id']
-            ),
-            user_updated
+            ).items(),
+            user_updated.items()
         )
 
     def test_create_user_none_mapping(self):
@@ -1633,26 +1636,29 @@ class LDAPIdentity(BaseLDAPIdentity):
             project_id, updated_project
         )
         # Verify get_project still returns the original project_ref
-        self.assertDictContainsSubset(
-            project, PROVIDERS.resource_api.get_project(project_id))
+        self.assertLessEqual(
+            project.items(),
+            PROVIDERS.resource_api.get_project(project_id).items())
         # Invalidate cache
         PROVIDERS.resource_api.get_project.invalidate(
             PROVIDERS.resource_api, project_id
         )
         # Verify get_project now returns the new project
-        self.assertDictContainsSubset(
-            updated_project,
-            PROVIDERS.resource_api.get_project(project_id))
+        self.assertLessEqual(
+            updated_project.items(),
+            PROVIDERS.resource_api.get_project(project_id).items())
         # Update project using the resource_api manager back to original
         PROVIDERS.resource_api.update_project(project['id'], project)
         # Verify get_project returns the original project_ref
-        self.assertDictContainsSubset(
-            project, PROVIDERS.resource_api.get_project(project_id))
+        self.assertLessEqual(
+            project.items(),
+            PROVIDERS.resource_api.get_project(project_id).items())
         # Delete project bypassing resource_api
         PROVIDERS.resource_api.driver.delete_project(project_id)
         # Verify get_project still returns the project_ref
-        self.assertDictContainsSubset(
-            project, PROVIDERS.resource_api.get_project(project_id))
+        self.assertLessEqual(
+            project.items(),
+            PROVIDERS.resource_api.get_project(project_id).items())
         # Invalidate cache
         PROVIDERS.resource_api.get_project.invalidate(
             PROVIDERS.resource_api, project_id

@@ -3694,9 +3694,9 @@ class ImpliedRoleTests(AssignmentTestHelperMixin):
         expected_implied_role_ref = {
             'prior_role_id': prior_role_ref['id'],
             'implied_role_id': implied_role_ref['id']}
-        self.assertDictContainsSubset(
-            expected_implied_role_ref,
-            implied_role)
+        self.assertLessEqual(
+            expected_implied_role_ref.items(),
+            implied_role.items())
 
         PROVIDERS.role_api.delete_implied_role(
             prior_role_ref['id'],

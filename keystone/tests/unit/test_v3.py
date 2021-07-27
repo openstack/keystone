@@ -1101,7 +1101,7 @@ class RestfulTestCase(unit.SQLDriverOverrides, rest.RestfulTestCase,
         if ref:
             links = ref.pop('links')
             try:
-                self.assertDictContainsSubset(ref, entity)
+                self.assertLessEqual(ref.items(), entity.items())
                 self.assertIn(links['assignment'],
                               entity['links']['assignment'])
             finally:

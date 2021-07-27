@@ -847,12 +847,12 @@ class ResourceTests(object):
         project = unit.new_project_ref(domain_id=domain['id'])
         PROVIDERS.resource_api.create_project(project['id'], project)
         project_ref = PROVIDERS.resource_api.get_project(project['id'])
-        self.assertDictContainsSubset(project, project_ref)
+        self.assertLessEqual(project.items(), project_ref.items())
 
         project['name'] = uuid.uuid4().hex
         PROVIDERS.resource_api.update_project(project['id'], project)
         project_ref = PROVIDERS.resource_api.get_project(project['id'])
-        self.assertDictContainsSubset(project, project_ref)
+        self.assertLessEqual(project.items(), project_ref.items())
 
         PROVIDERS.resource_api.delete_project(project['id'])
         self.assertRaises(exception.ProjectNotFound,
@@ -1381,20 +1381,23 @@ class ResourceTests(object):
             domain_id, updated_project_domain_ref
         )
         # Verify get_domain still returns the domain
-        self.assertDictContainsSubset(
-            domain_ref, PROVIDERS.resource_api.get_domain(domain_id))
+        self.assertLessEqual(
+            domain_ref.items(),
+            PROVIDERS.resource_api.get_domain(domain_id).items())
         # Invalidate cache
         PROVIDERS.resource_api.get_domain.invalidate(
             PROVIDERS.resource_api, domain_id
         )
         # Verify get_domain returns the updated domain
-        self.assertDictContainsSubset(
-            updated_domain_ref, PROVIDERS.resource_api.get_domain(domain_id))
+        self.assertLessEqual(
+            updated_domain_ref.items(),
+            PROVIDERS.resource_api.get_domain(domain_id).items())
         # Update the domain back to original ref, using the assignment api
         # manager
         PROVIDERS.resource_api.update_domain(domain_id, domain_ref)
-        self.assertDictContainsSubset(
-            domain_ref, PROVIDERS.resource_api.get_domain(domain_id))
+        self.assertLessEqual(
+            domain_ref.items(),
+            PROVIDERS.resource_api.get_domain(domain_id).items())
         # Make sure domain is 'disabled', bypass resource api manager
         project_domain_ref_disabled = project_domain_ref.copy()
         project_domain_ref_disabled['enabled'] = False
@@ -1407,8 +1410,9 @@ class ResourceTests(object):
         # Delete domain, bypassing resource api manager
         PROVIDERS.resource_api.driver.delete_project(domain_id)
         # Verify get_domain still returns the domain
-        self.assertDictContainsSubset(
-            domain_ref, PROVIDERS.resource_api.get_domain(domain_id))
+        self.assertLessEqual(
+            domain_ref.items(),
+            PROVIDERS.resource_api.get_domain(domain_id).items())
         # Invalidate cache
         PROVIDERS.resource_api.get_domain.invalidate(
             PROVIDERS.resource_api, domain_id
@@ -1467,26 +1471,29 @@ class ResourceTests(object):
             project_id, updated_project
         )
         # Verify get_project still returns the original project_ref
-        self.assertDictContainsSubset(
-            project, PROVIDERS.resource_api.get_project(project_id))
+        self.assertLessEqual(
+            project.items(),
+            PROVIDERS.resource_api.get_project(project_id).items())
         # Invalidate cache
         PROVIDERS.resource_api.get_project.invalidate(
             PROVIDERS.resource_api, project_id
         )
         # Verify get_project now returns the new project
-        self.assertDictContainsSubset(
-            updated_project,
-            PROVIDERS.resource_api.get_project(project_id))
+        self.assertLessEqual(
+            updated_project.items(),
+            PROVIDERS.resource_api.get_project(project_id).items())
         # Update project using the resource_api manager back to original
         PROVIDERS.resource_api.update_project(project['id'], project)
         # Verify get_project returns the original project_ref
-        self.assertDictContainsSubset(
-            project, PROVIDERS.resource_api.get_project(project_id))
+        self.assertLessEqual(
+            project.items(),
+            PROVIDERS.resource_api.get_project(project_id).items())
         # Delete project bypassing resource
         PROVIDERS.resource_api.driver.delete_project(project_id)
         # Verify get_project still returns the project_ref
-        self.assertDictContainsSubset(
-            project, PROVIDERS.resource_api.get_project(project_id))
+        self.assertLessEqual(
+            project.items(),
+            PROVIDERS.resource_api.get_project(project_id).items())
         # Invalidate cache
         PROVIDERS.resource_api.get_project.invalidate(
             PROVIDERS.resource_api, project_id

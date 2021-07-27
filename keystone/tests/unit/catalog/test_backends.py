@@ -111,20 +111,23 @@ class CatalogTests(object):
         PROVIDERS.catalog_api.get_region(region_id)
         # update the region bypassing catalog_api
         PROVIDERS.catalog_api.driver.update_region(region_id, updated_region)
-        self.assertDictContainsSubset(
-            new_region, PROVIDERS.catalog_api.get_region(region_id)
+        self.assertLessEqual(
+            new_region.items(),
+            PROVIDERS.catalog_api.get_region(region_id).items()
         )
         PROVIDERS.catalog_api.get_region.invalidate(
             PROVIDERS.catalog_api, region_id
         )
-        self.assertDictContainsSubset(
-            updated_region, PROVIDERS.catalog_api.get_region(region_id)
+        self.assertLessEqual(
+            updated_region.items(),
+            PROVIDERS.catalog_api.get_region(region_id).items()
         )
         # delete the region
         PROVIDERS.catalog_api.driver.delete_region(region_id)
         # still get the old region
-        self.assertDictContainsSubset(
-            updated_region, PROVIDERS.catalog_api.get_region(region_id)
+        self.assertLessEqual(
+            updated_region.items(),
+            PROVIDERS.catalog_api.get_region(region_id).items()
         )
         PROVIDERS.catalog_api.get_region.invalidate(
             PROVIDERS.catalog_api, region_id
@@ -342,20 +345,23 @@ class CatalogTests(object):
         PROVIDERS.catalog_api.driver.update_service(
             service_id, updated_service
         )
-        self.assertDictContainsSubset(
-            new_service, PROVIDERS.catalog_api.get_service(service_id)
+        self.assertLessEqual(
+            new_service.items(),
+            PROVIDERS.catalog_api.get_service(service_id).items()
         )
         PROVIDERS.catalog_api.get_service.invalidate(
             PROVIDERS.catalog_api, service_id
         )
-        self.assertDictContainsSubset(
-            updated_service, PROVIDERS.catalog_api.get_service(service_id)
+        self.assertLessEqual(
+            updated_service.items(),
+            PROVIDERS.catalog_api.get_service(service_id).items()
         )
 
         # delete bypassing catalog api
         PROVIDERS.catalog_api.driver.delete_service(service_id)
-        self.assertDictContainsSubset(
-            updated_service, PROVIDERS.catalog_api.get_service(service_id)
+        self.assertLessEqual(
+            updated_service.items(),
+            PROVIDERS.catalog_api.get_service(service_id).items()
         )
         PROVIDERS.catalog_api.get_service.invalidate(
             PROVIDERS.catalog_api, service_id
@@ -416,12 +422,12 @@ class CatalogTests(object):
         PROVIDERS.catalog_api.get_endpoint(endpoint['id'])
         # delete the service bypassing catalog api
         PROVIDERS.catalog_api.driver.delete_service(service['id'])
-        self.assertDictContainsSubset(endpoint,
-                                      PROVIDERS.catalog_api.
-                                      get_endpoint(endpoint['id']))
-        self.assertDictContainsSubset(service,
-                                      PROVIDERS.catalog_api.
-                                      get_service(service['id']))
+        self.assertLessEqual(
+            endpoint.items(),
+            PROVIDERS.catalog_api.get_endpoint(endpoint['id']).items())
+        self.assertLessEqual(
+            service.items(),
+            PROVIDERS.catalog_api.get_service(service['id']).items())
         PROVIDERS.catalog_api.get_endpoint.invalidate(
             PROVIDERS.catalog_api, endpoint['id']
         )
