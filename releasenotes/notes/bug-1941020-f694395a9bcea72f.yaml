@@ -1,0 +1,11 @@
+---
+deprecations:
+  - |
+    The following options in the ``[memcache]`` section have been deprecated
+    because these options have had no effect since Pike. Please use
+    ``memcache_*`` options in the ``[cache]`` section instead.
+
+    - ``dead_retry``
+    - ``pool_maxsize``
+    - ``pool_unused_timeout``
+    - ``pool_connection_get_timeout``

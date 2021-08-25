@@ -19,6 +19,12 @@ from keystone.conf import utils
 dead_retry = cfg.IntOpt(
     'dead_retry',
     default=5 * 60,
+    deprecated_for_removal=True,
+    deprecated_reason='This option has no effect. '
+                      'Configure ``keystone.conf [cache] '
+                      'memcache_dead_retry`` option to set the '
+                      'dead_retry of memcached instead. ',
+    deprecated_since='Y',
     help=utils.fmt("""
 Number of seconds memcached server is considered dead before it is tried again.
 This is used by the key value store system.
@@ -28,7 +34,7 @@ socket_timeout = cfg.IntOpt(
     'socket_timeout',
     default=3,
     deprecated_for_removal=True,
-    deprecated_reason='This option is duplicated with oslo.cache. '
+    deprecated_reason='This option has no effect. '
                       'Configure ``keystone.conf [cache] '
                       'memcache_socket_timeout`` option to set the '
                       'socket_timeout of memcached instead. ',
@@ -41,6 +47,12 @@ store system.
 pool_maxsize = cfg.IntOpt(
     'pool_maxsize',
     default=10,
+    deprecated_for_removal=True,
+    deprecated_reason='This option has no effect. '
+                      'Configure ``keystone.conf [cache] '
+                      'memcache_pool_maxsize`` option to set the '
+                      'pool_maxsize of memcached instead. ',
+    deprecated_since='Y',
     help=utils.fmt("""
 Max total number of open connections to every memcached server. This is used by
 the key value store system.
@@ -49,6 +61,12 @@ the key value store system.
 pool_unused_timeout = cfg.IntOpt(
     'pool_unused_timeout',
     default=60,
+    deprecated_for_removal=True,
+    deprecated_reason='This option has no effect. '
+                      'Configure ``keystone.conf [cache] '
+                      'memcache_pool_unused_timeout`` option to set the '
+                      'pool_unused_timeout of memcached instead. ',
+    deprecated_since='Y',
     help=utils.fmt("""
 Number of seconds a connection to memcached is held unused in the pool before
 it is closed. This is used by the key value store system.
@@ -57,6 +75,12 @@ it is closed. This is used by the key value store system.
 pool_connection_get_timeout = cfg.IntOpt(
     'pool_connection_get_timeout',
     default=10,
+    deprecated_for_removal=True,
+    deprecated_reason='This option has no effect. '
+                      'Configure ``keystone.conf [cache] '
+                      'memcache_pool_connection_get_timeout`` option to set '
+                      'the connection_get_timeout of memcached instead. ',
+    deprecated_since='Y',
     help=utils.fmt("""
 Number of seconds that an operation will wait to get a memcache client
 connection. This is used by the key value store system.
