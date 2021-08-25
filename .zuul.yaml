@@ -19,7 +19,8 @@
     required-projects:
       - openstack/devstack-gate
       - openstack/keystone
-      - openstack/keystone-tempest-plugin
+      - name: openstack/keystone-tempest-plugin
+        override-checkout: 0.3.0
     irrelevant-files:
       - ^.*\.rst$
       - ^api-ref/.*$
@@ -38,7 +39,8 @@
     required-projects:
       - openstack/devstack-gate
       - openstack/keystone
-      - openstack/keystone-tempest-plugin
+      - name: openstack/keystone-tempest-plugin
+        override-checkout: 0.3.0
     irrelevant-files:
       - ^.*\.rst$
       - ^api-ref/.*$
@@ -57,7 +59,8 @@
     required-projects:
       - openstack/devstack-gate
       - openstack/keystone
-      - openstack/keystone-tempest-plugin
+      - name: openstack/keystone-tempest-plugin
+        override-checkout: 0.3.0
     irrelevant-files:
       - ^.*\.rst$
       - ^api-ref/.*$
@@ -154,7 +157,6 @@
         - keystone-dsvm-functional
         - keystone-dsvm-functional-v3-only
         - keystone-dsvm-py35-functional-v3-only
-        - openstack-tox-lower-constraints
         - legacy-keystoneclient-dsvm-functional:
             voting: false
             irrelevant-files:
@@ -199,7 +201,6 @@
     gate:
       jobs:
         - keystone-dsvm-functional
-        - openstack-tox-lower-constraints
         - tempest-full:
             irrelevant-files:
               - ^(test-|)requirements.txt$
