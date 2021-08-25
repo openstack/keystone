@@ -19,7 +19,8 @@
     required-projects:
       - openstack/devstack-gate
       - openstack/keystone
-      - openstack/keystone-tempest-plugin
+      - name: openstack/keystone-tempest-plugin
+        override-checkout: 0.3.0
     irrelevant-files:
       - ^.*\.rst$
       - ^api-ref/.*$
@@ -38,7 +39,8 @@
     required-projects:
       - openstack/devstack-gate
       - openstack/keystone
-      - openstack/keystone-tempest-plugin
+      - name: openstack/keystone-tempest-plugin
+        override-checkout: 0.3.0
     irrelevant-files:
       - ^.*\.rst$
       - ^api-ref/.*$
@@ -57,7 +59,8 @@
     required-projects:
       - openstack/devstack-gate
       - openstack/keystone
-      - openstack/keystone-tempest-plugin
+      - name: openstack/keystone-tempest-plugin
+        override-checkout: 0.3.0
     irrelevant-files:
       - ^.*\.rst$
       - ^api-ref/.*$
