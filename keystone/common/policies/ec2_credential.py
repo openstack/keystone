@@ -31,14 +31,14 @@ deprecated_ec2_list_credentials = policy.DeprecatedRule(
     deprecated_reason=DEPRECATED_REASON,
     deprecated_since=versionutils.deprecated.TRAIN
 )
-deprecated_ec2_create_credentials = policy.DeprecatedRule(
-    name=base.IDENTITY % 'ec2_create_credentials',
+deprecated_ec2_create_credential = policy.DeprecatedRule(
+    name=base.IDENTITY % 'ec2_create_credential',
     check_str=base.RULE_ADMIN_OR_OWNER,
     deprecated_reason=DEPRECATED_REASON,
     deprecated_since=versionutils.deprecated.TRAIN
 )
-deprecated_ec2_delete_credentials = policy.DeprecatedRule(
-    name=base.IDENTITY % 'ec2_delete_credentials',
+deprecated_ec2_delete_credential = policy.DeprecatedRule(
+    name=base.IDENTITY % 'ec2_delete_credential',
     check_str=base.RULE_ADMIN_OR_CREDENTIAL_OWNER,
     deprecated_reason=DEPRECATED_REASON,
     deprecated_since=versionutils.deprecated.TRAIN
@@ -72,7 +72,7 @@ ec2_credential_policies = [
         description='Create ec2 credential.',
         operations=[{'path': '/v3/users/{user_id}/credentials/OS-EC2',
                      'method': 'POST'}],
-        deprecated_rule=deprecated_ec2_create_credentials,
+        deprecated_rule=deprecated_ec2_create_credential,
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'ec2_delete_credential',
@@ -82,7 +82,7 @@ ec2_credential_policies = [
         operations=[{'path': ('/v3/users/{user_id}/credentials/OS-EC2/'
                               '{credential_id}'),
                      'method': 'DELETE'}],
-        deprecated_rule=deprecated_ec2_delete_credentials,
+        deprecated_rule=deprecated_ec2_delete_credential,
     )
 ]
 
