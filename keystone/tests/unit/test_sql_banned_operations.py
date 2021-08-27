@@ -263,7 +263,12 @@ class TestKeystoneExpandSchemaMigrations(
         # timestamp to datetime and updates the initial value in the contract
         # phase. Adding an exception here to pass expand banned tests,
         # otherwise fails.
-        4
+        4,
+
+        # Migration 79 changes a varchar column length, doesn't
+        # convert the data within that column/table and doesn't rebuild
+        # indexes.
+        79
     ]
 
     def setUp(self):
