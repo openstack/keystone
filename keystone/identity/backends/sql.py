@@ -32,6 +32,10 @@ from keystone.identity.backends import sql_model as model
 CONF = keystone.conf.CONF
 
 
+def _stale_data_exception_checker(exc):
+    return isinstance(exc, sqlalchemy.orm.exc.StaleDataError)
+
+
 class Identity(base.IdentityDriverBase):
     # NOTE(henry-nash): Override the __init__() method so as to take a
     # config parameter to enable sql to be used as a domain-specific driver.
@@ -201,6 +205,10 @@ class Identity(base.IdentityDriverBase):
             return base.filter_user(user_ref.to_dict())
 
     @sql.handle_conflicts(conflict_type='user')
+    # Explicitly retry on StaleDataErrors, which can happen if two clients
+    # update the same user's password and the second client has stale password
+    # information.
+    @oslo_db_api.wrap_db_retry(exception_checker=_stale_data_exception_checker)
     def update_user(self, user_id, user):
         with sql.session_for_write() as session:
             user_ref = self._get_user(session, user_id)
