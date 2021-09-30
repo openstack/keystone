@@ -91,7 +91,7 @@ class IdentityTests(object):
         #               it easier to authenticate in tests, but should
         #               not be returned by the api
         user.pop('password')
-        self.assertDictContainsSubset(user, user_ref)
+        self.assertLessEqual(user.items(), user_ref.items())
         role_list = PROVIDERS.assignment_api.get_roles_for_user_and_project(
             new_user['id'], self.project_baz['id'])
         self.assertEqual(1, len(role_list))
@@ -164,12 +164,14 @@ class IdentityTests(object):
         PROVIDERS.identity_api.get_user(ref['id'])
         # update using identity api and get back updated user.
         user_updated = PROVIDERS.identity_api.update_user(ref['id'], user)
-        self.assertDictContainsSubset(
-            PROVIDERS.identity_api.get_user(ref['id']), user_updated
+        self.assertLessEqual(
+            PROVIDERS.identity_api.get_user(ref['id']).items(),
+            user_updated.items()
         )
-        self.assertDictContainsSubset(
+        self.assertLessEqual(
             PROVIDERS.identity_api.get_user_by_name(
-                ref['name'], ref['domain_id']), user_updated
+                ref['name'], ref['domain_id']).items(),
+            user_updated.items()
         )
 
     def test_get_user_returns_not_found(self):
@@ -215,15 +217,16 @@ class IdentityTests(object):
         )
         user['description'] = uuid.uuid4().hex
         user_updated = PROVIDERS.identity_api.update_user(ref['id'], user)
-        self.assertDictContainsSubset(
-            PROVIDERS.identity_api.get_user(ref['id']), user_updated
+        self.assertLessEqual(
+            PROVIDERS.identity_api.get_user(ref['id']).items(),
+            user_updated.items()
         )
-        self.assertDictContainsSubset(
+        self.assertLessEqual(
             PROVIDERS.identity_api.get_user_by_name(
                 ref['name'],
                 ref['domain_id']
-            ),
-            user_updated
+            ).items(),
+            user_updated.items()
         )
 
     def test_get_user_by_name_returns_not_found(self):
@@ -833,12 +836,12 @@ class IdentityTests(object):
         group = unit.new_group_ref(domain_id=domain['id'])
         group = PROVIDERS.identity_api.create_group(group)
         group_ref = PROVIDERS.identity_api.get_group(group['id'])
-        self.assertDictContainsSubset(group, group_ref)
+        self.assertLessEqual(group.items(), group_ref.items())
 
         group['name'] = uuid.uuid4().hex
         PROVIDERS.identity_api.update_group(group['id'], group)
         group_ref = PROVIDERS.identity_api.get_group(group['id'])
-        self.assertDictContainsSubset(group, group_ref)
+        self.assertLessEqual(group.items(), group_ref.items())
 
         PROVIDERS.identity_api.delete_group(group['id'])
         self.assertRaises(exception.GroupNotFound,
@@ -908,8 +911,9 @@ class IdentityTests(object):
         group['name'] = uuid.uuid4().hex
         group_ref = PROVIDERS.identity_api.update_group(group['id'], group)
         # after updating through identity api, get updated group
-        self.assertDictContainsSubset(
-            PROVIDERS.identity_api.get_group(group['id']), group_ref
+        self.assertLessEqual(
+            PROVIDERS.identity_api.get_group(group['id']).items(),
+            group_ref.items()
         )
 
     def test_create_duplicate_group_name_fails(self):
@@ -950,14 +954,14 @@ class IdentityTests(object):
         user_ref = PROVIDERS.identity_api.get_user(user['id'])
         del user_dict['password']
         user_ref_dict = {x: user_ref[x] for x in user_ref}
-        self.assertDictContainsSubset(user_dict, user_ref_dict)
+        self.assertLessEqual(user_dict.items(), user_ref_dict.items())
 
         user_dict['password'] = uuid.uuid4().hex
         PROVIDERS.identity_api.update_user(user['id'], user_dict)
         user_ref = PROVIDERS.identity_api.get_user(user['id'])
         del user_dict['password']
         user_ref_dict = {x: user_ref[x] for x in user_ref}
-        self.assertDictContainsSubset(user_dict, user_ref_dict)
+        self.assertLessEqual(user_dict.items(), user_ref_dict.items())
 
         PROVIDERS.identity_api.delete_user(user['id'])
         self.assertRaises(exception.UserNotFound,
