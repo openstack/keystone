@@ -1023,8 +1023,8 @@ class TestCase(BaseTestCase):
             value,
             "%s != %s" % (expected, value))
 
-    def assertNotEmpty(self, l):
-        self.assertGreater(len(l), 0)
+    def assertNotEmpty(self, iterable):
+        self.assertGreater(len(iterable), 0)
 
     def assertUserDictEqual(self, expected, observed, message=''):
         """Assert that a user dict is equal to another user dict.
