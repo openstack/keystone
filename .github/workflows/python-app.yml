@@ -23,4 +23,14 @@ jobs:
 
     - name: Run test
       run: |
-        python3 -c "print('Mapping summary for \"My Cool Snapshot!\" (compared with \"Version 1.0.3\" at 2021-09-02 13:54:56 GMT): \n\t* 1 endpoint added\n\t* 1 endpoint removed\n\t* 8 endpoints changed\n\nYou can view the full summary using this link: https://demo.seekret.com/default/changes?revisionLeft=%22f18d4140-dd31-4e94-93c6-73ad1f060a72%22&revisionRight=%22e0bad10f-a01a-4765-86e2-2723baeaef76%22')"
+        python3 -c "print('hello')"
+
+    - uses: mshick/add-pr-comment@v1
+      with:
+        message: |
+          Mapping summary for "My Cool Snapshot!" (compared with "Version 1.0.3" at 2021-09-02 13:54:56 GMT): 
+          * 1 endpoint added
+          * 1 endpoint removed\n\t* 8 endpoints changed\n\nYou can view the full summary using this link: https://demo.seekret.com/default/changes?revisionLeft=%22f18d4140-dd31-4e94-93c6-73ad1f060a72%22&revisionRight=%22e0bad10f-a01a-4765-86e2-2723baeaef76%22
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        repo-token-user-login: 'github-actions[bot]' # The user.login for temporary GitHub tokens
+        allow-repeats: false # This is the default
