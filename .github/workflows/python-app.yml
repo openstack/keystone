@@ -26,6 +26,8 @@ jobs:
         python3 -c "print('hello')"
 
     - uses: mshick/add-pr-comment@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         message: |
           Mapping summary for "My Cool Snapshot!" (compared with "Version 1.0.3" at 2021-09-02 13:54:56 GMT): 
