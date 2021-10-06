@@ -20,7 +20,7 @@ DEPRECATED_REASON = (
 )
 
 deprecated_get_idp = policy.DeprecatedRule(
-    name=base.IDENTITY % 'get_identity_providers',
+    name=base.IDENTITY % 'get_identity_provider',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
     deprecated_since=versionutils.deprecated.STEIN
@@ -32,19 +32,19 @@ deprecated_list_idp = policy.DeprecatedRule(
     deprecated_since=versionutils.deprecated.STEIN
 )
 deprecated_update_idp = policy.DeprecatedRule(
-    name=base.IDENTITY % 'update_identity_providers',
+    name=base.IDENTITY % 'update_identity_provider',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
     deprecated_since=versionutils.deprecated.STEIN
 )
 deprecated_create_idp = policy.DeprecatedRule(
-    name=base.IDENTITY % 'create_identity_providers',
+    name=base.IDENTITY % 'create_identity_provider',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
     deprecated_since=versionutils.deprecated.STEIN
 )
 deprecated_delete_idp = policy.DeprecatedRule(
-    name=base.IDENTITY % 'delete_identity_providers',
+    name=base.IDENTITY % 'delete_identity_provider',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
     deprecated_since=versionutils.deprecated.STEIN
