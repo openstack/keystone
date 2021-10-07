@@ -30,13 +30,13 @@ deprecated_list_application_credentials_for_user = policy.DeprecatedRule(
     deprecated_since=versionutils.deprecated.TRAIN
 )
 deprecated_get_application_credentials_for_user = policy.DeprecatedRule(
-    name=base.IDENTITY % 'get_application_credentials',
+    name=base.IDENTITY % 'get_application_credential',
     check_str=base.RULE_ADMIN_OR_OWNER,
     deprecated_reason=DEPRECATED_REASON,
     deprecated_since=versionutils.deprecated.TRAIN
 )
 deprecated_delete_application_credentials_for_user = policy.DeprecatedRule(
-    name=base.IDENTITY % 'delete_application_credentials',
+    name=base.IDENTITY % 'delete_application_credential',
     check_str=base.RULE_ADMIN_OR_OWNER,
     deprecated_reason=DEPRECATED_REASON,
     deprecated_since=versionutils.deprecated.TRAIN
