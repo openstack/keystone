@@ -1,0 +1,7 @@
+---
+upgrade:
+  - |
+    [`bug 1929066 <https://bugs.launchpad.net/keystone/+bug/1929066>`_]
+    Increase the length of the `local_id` column in the `id_mapping` table
+    to accommodate LDAP group names that result in names greater than
+    64 characters.

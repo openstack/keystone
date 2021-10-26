@@ -146,6 +146,12 @@ then the same public ID will be created. This is useful if you are running
 multiple keystones and want to ensure the same ID would be generated whichever
 server you hit.
 
+.. NOTE::
+
+    In case of the LDAP backend, the names of users and groups are not hashed.
+    As a result, these are length limited to 255 characters. Longer names
+    will result in an error.
+
 While keystone will dynamically maintain the identity mapping, including
 removing entries when entities are deleted via the keystone, for those entities
 in backends that are managed outside of keystone (e.g. a read-only LDAP),
