@@ -55,7 +55,11 @@ apidoc_output_dir = 'api'
 apidoc_excluded_paths = [
     'tests/*',
     'tests',
-    'test']
+    'test',
+    # TODO(gmann): with new release of SQLAlchemy(1.4.27) TypeDecorator used
+    # in common/sql/core.py file started failing. Remove this oncethe issue of
+    # TypeDecorator is fixed.
+    'common/sql/core.py']
 apidoc_separate_modules = True
 
 # sphinxcontrib.seqdiag options
