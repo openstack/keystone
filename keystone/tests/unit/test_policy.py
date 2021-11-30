@@ -151,16 +151,14 @@ class PolicyScopeTypesEnforcementTestCase(unit.TestCase):
     def test_warning_message_is_logged_if_enforce_scope_is_false(self):
         self.config_fixture.config(group='oslo_policy', enforce_scope=False)
         expected_msg = (
-            'failed scope check. The token used to make the '
+            'Policy "foo": "" failed scope check. The token used to make the '
             'request was project scoped but the policy requires [\'system\'] '
             'scope. This behavior may change in the future where using the '
             'intended scope is required'
         )
         with mock.patch('warnings.warn') as mock_warn:
             policy.enforce(self.credentials, self.action, self.target)
-            mock_warn.assert_called_once()
-            warn_msg = mock_warn.call_args[0][0]
-            self.assertIn(expected_msg, warn_msg)
+            mock_warn.assert_called_with(expected_msg)
 
 
 class PolicyJsonTestCase(unit.TestCase):
