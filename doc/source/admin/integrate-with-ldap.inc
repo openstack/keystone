@@ -68,14 +68,32 @@ Define the destination LDAP server in the ``/etc/keystone/keystone.conf`` file:
    suffix = dc=example,dc=org
 
 
-Multiple LDAP servers can be supplied to ``url`` to provide high-availability
-support for a single LDAP backend. To specify multiple LDAP servers, simply
-change the ``url`` option in the ``[ldap]`` section to be a list, separated by
-commas:
+Although it's not recommended (see note below), multiple LDAP servers can be
+supplied to ``url`` to provide high-availability support for a single LDAP
+backend. By default, these will be tried in order of apperance, but an
+additional option, ``randomize_urls`` can be set to true, to randomize the
+list in each process (when it starts). To specify multiple LDAP servers,
+simply change the ``url`` option in the ``[ldap]`` section to be a list,
+separated by commas:
 
 .. code-block:: ini
 
    url = "ldap://localhost,ldap://backup.localhost"
+   randomize_urls = true
+
+.. NOTE::
+
+    Failover mechanisms in the LDAP backend can cause delays when switching
+    over to the next working LDAP server. Randomizing the order in which the
+    servers are tried only makes the failure behavior not dependent on which
+    of the ordered servers fail. Individual processes can still be delayed or
+    time out, so this doesn't fix the issue at hand, but only makes the
+    failure mode more gradual. This behavior cannot be easily fixed inside the
+    service, because keystone would have to monitor the status of each LDAP
+    server, which is in fact a task for a load balancer. Because of this, it
+    is recommended to use a load balancer in front of the LDAP servers,
+    which can monitor the state of the cluster and instantly redirect
+    connections to the working LDAP server.
 
 **Additional LDAP integration settings**
 
