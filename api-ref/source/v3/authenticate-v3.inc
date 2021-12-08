@@ -965,7 +965,7 @@ Status Codes
 
 .. rest_status_code:: success status.yaml
 
-   - 201
+   - 204
 
 .. rest_status_code:: error status.yaml
 
