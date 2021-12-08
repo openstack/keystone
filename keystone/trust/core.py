@@ -194,17 +194,17 @@ class Manager(manager.Manager):
         """
         trust = self.driver.get_trust(trust_id)
         trusts = self.driver.list_trusts_for_trustor(
-            trust['trustor_user_id'])
+            trust['trustor_user_id'],
+            redelegated_trust_id=trust_id)
 
         for t in trusts:
-            if t.get('redelegated_trust_id') == trust_id:
-                # recursive call to make sure all notifications are sent
-                try:
-                    self.delete_trust(t['id'])
-                except exception.TrustNotFound:  # nosec
-                    # if trust was deleted by concurrent process
-                    # consistency must not suffer
-                    pass
+            # recursive call to make sure all notifications are sent
+            try:
+                self.delete_trust(t['id'])
+            except exception.TrustNotFound:  # nosec
+                # if trust was deleted by concurrent process
+                # consistency must not suffer
+                pass
 
         # end recursion
         self.driver.delete_trust(trust_id)

@@ -48,7 +48,7 @@ class TrustDriverBase(object, metaclass=abc.ABCMeta):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def list_trusts_for_trustor(self, trustor):
+    def list_trusts_for_trustor(self, trustor, redelegated_trust_id=None):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
