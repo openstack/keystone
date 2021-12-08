@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    A new option 'randomize_urls' can be used to randomize the order in which
+    keystone connects to the LDAP servers in [ldap] 'url' list.
+    It is false by default.
