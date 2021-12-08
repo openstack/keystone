@@ -245,6 +245,33 @@ class MultiURLTests(unit.TestCase):
         ldap_connection = base_ldap.get_connection()
         self.assertEqual(urls, ldap_connection.conn.conn_pool.uri)
 
+    @mock.patch.object(common_ldap.KeystoneLDAPHandler, 'simple_bind_s')
+    def test_multiple_urls_with_comma_randomized(self, mock_ldap_bind):
+        urls = ('ldap://localhost1,ldap://localhost2,'
+                'ldap://localhost3,ldap://localhost4,'
+                'ldap://localhost5,ldap://localhost6,'
+                'ldap://localhost7,ldap://localhost8,'
+                'ldap://localhost9,ldap://localhost0')
+        self.config_fixture.config(group='ldap', url=urls,
+                                   randomize_urls=True)
+        base_ldap = common_ldap.BaseLdap(CONF)
+        ldap_connection = base_ldap.get_connection()
+
+        # Sanity check
+        self.assertEqual(len(urls.split(',')), 10)
+
+        # Check that the list is split into the same number of URIs
+        self.assertEqual(len(urls.split(',')),
+                         len(ldap_connection.conn.conn_pool.uri.split(',')))
+
+        # Check that the list is randomized
+        self.assertNotEqual(urls.split(','),
+                            ldap_connection.conn.conn_pool.uri.split(','))
+
+        # Check that the list contains the same URIs
+        self.assertEqual(set(urls.split(',')),
+                         set(ldap_connection.conn.conn_pool.uri.split(',')))
+
 
 class LDAPConnectionTimeoutTest(unit.TestCase):
     """Test for Network Connection timeout on LDAP URL connection."""
