@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    [ `Bug 1897230 <https://launchpad.net/bugs/1897280>`_]
+    Allows s3 tokens with service types sts and iam to authenticate. This
+    is necessary when using assumed role features of Ceph object storage and
+    keystone is providing the authentication service for Rados Gateway.
