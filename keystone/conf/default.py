@@ -120,8 +120,7 @@ auditing use cases.
 notification_opt_out = cfg.MultiStrOpt(
     'notification_opt_out',
     default=["identity.authenticate.success",
-             "identity.authenticate.pending",
-             "identity.authenticate.failed"],
+             "identity.authenticate.pending"],
     help=utils.fmt("""
 You can reduce the number of notifications keystone emits by explicitly
 opting out. Keystone will not emit notifications that match the patterns
