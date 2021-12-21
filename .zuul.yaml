@@ -271,8 +271,6 @@
             irrelevant-files: *irrelevant-files
         - tempest-pg-full:
             irrelevant-files: *tempest-irrelevant-files
-        - tempest-full-py3-opensuse15:
-            irrelevant-files: *tempest-irrelevant-files
         - keystone-dsvm-functional-federation-centos7:
             irrelevant-files: *irrelevant-files
         - keystone-dsvm-functional-federation-ubuntu-xenial:
