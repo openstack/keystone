@@ -13,7 +13,7 @@
 # This file handles all flask-restful resources for /v3/users
 
 import base64
-import os
+import secrets
 import uuid
 
 import flask
@@ -577,7 +577,7 @@ class UserAppCredListCreateResource(ks_flask.ResourceBase):
     @staticmethod
     def _generate_secret():
         length = 64
-        secret = os.urandom(length)
+        secret = secrets.token_bytes(length)
         secret = base64.urlsafe_b64encode(secret)
         secret = secret.rstrip(b'=')
         secret = secret.decode('utf-8')
