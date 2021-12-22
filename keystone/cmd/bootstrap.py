@@ -42,6 +42,9 @@ class Bootstrapper(object):
         self.member_role_id = None
         self.member_role_name = 'member'
 
+        self.manager_role_id = None
+        self.manager_role_name = 'manager'
+
         self.admin_role_id = None
         self.admin_role_name = None
 
@@ -68,6 +71,7 @@ class Bootstrapper(object):
         self._bootstrap_admin_user()
         self._bootstrap_reader_role()
         self._bootstrap_member_role()
+        self._bootstrap_manager_role()
         self._bootstrap_admin_role()
         self._bootstrap_service_role()
         self._bootstrap_project_role_assignment()
@@ -177,10 +181,23 @@ class Bootstrapper(object):
         self.member_role_id = role['id']
         self._ensure_implied_role(self.member_role_id, self.reader_role_id)
 
+    def _bootstrap_manager_role(self):
+        role = self._ensure_role_exists(self.manager_role_name)
+        self.manager_role_id = role['id']
+        self._ensure_implied_role(self.manager_role_id, self.member_role_id)
+
     def _bootstrap_admin_role(self):
         role = self._ensure_role_exists(self.admin_role_name)
         self.admin_role_id = role['id']
-        self._ensure_implied_role(self.admin_role_id, self.member_role_id)
+        self._ensure_implied_role(self.admin_role_id, self.manager_role_id)
+        # NOTE(dmendiza): deployments older than 2023.2 did not have a
+        # "manager" role, so we need to clean up the old admin -> member
+        # implied role
+        try:
+            PROVIDERS.role_api.delete_implied_role(self.admin_role_id,
+                                                   self.member_role_id)
+        except exception.ImpliedRoleNotFound:
+            pass
 
     def _bootstrap_admin_user(self):
         # NOTE(morganfainberg): Do not create the user if it already exists.

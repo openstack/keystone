@@ -132,22 +132,24 @@ class CliBootStrapTestCase(unit.SQLDriverOverrides, unit.TestCase):
             bootstrap.username,
             'default')
         admin_role = PROVIDERS.role_api.get_role(bootstrap.role_id)
-        reader_role = PROVIDERS.role_api.get_role(bootstrap.reader_role_id)
+        manager_role = PROVIDERS.role_api.get_role(bootstrap.manager_role_id)
         member_role = PROVIDERS.role_api.get_role(bootstrap.member_role_id)
+        reader_role = PROVIDERS.role_api.get_role(bootstrap.reader_role_id)
         service_role = PROVIDERS.role_api.get_role(bootstrap.service_role_id)
         role_list = (
             PROVIDERS.assignment_api.get_roles_for_user_and_project(
                 user['id'],
                 project['id']))
 
-        role_list_len = 4
+        role_list_len = 5
         if bootstrap.bootstrapper.project_name:
-            role_list_len = 3
+            role_list_len = 4
 
         self.assertIs(role_list_len, len(role_list))
         self.assertIn(admin_role['id'], role_list)
-        self.assertIn(reader_role['id'], role_list)
+        self.assertIn(manager_role['id'], role_list)
         self.assertIn(member_role['id'], role_list)
+        self.assertIn(reader_role['id'], role_list)
 
         if not bootstrap.bootstrapper.project_name:
             self.assertIn(service_role['id'], role_list)
