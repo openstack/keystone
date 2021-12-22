@@ -38,7 +38,7 @@ class DriverTestCase(object):
 
         policies = self.driver.list_policies()
 
-        self.assertItemsEqual([self.policy, another_policy], policies)
+        self.assertCountEqual([self.policy, another_policy], policies)
 
     def test_get_policy(self):
         self.assertEqual(self.policy,

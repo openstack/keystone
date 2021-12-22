@@ -230,7 +230,7 @@ class PolicyJsonTestCase(unit.TestCase):
                     yield str(target)
 
         doc_targets = list(read_doc_targets())
-        self.assertItemsEqual(policy_keys, doc_targets + policy_rule_keys)
+        self.assertCountEqual(policy_keys, doc_targets + policy_rule_keys)
 
 
 class GeneratePolicyFileTestCase(unit.TestCase):

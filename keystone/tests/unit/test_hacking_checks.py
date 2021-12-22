@@ -49,7 +49,7 @@ class BaseStyleCheck(unit.BaseTestCase):
 
     def assert_has_errors(self, code, expected_errors=None):
         actual_errors = [e[:3] for e in self.run_check(code)]
-        self.assertItemsEqual(expected_errors or [], actual_errors)
+        self.assertCountEqual(expected_errors or [], actual_errors)
 
 
 class TestCheckForMutableDefaultArgs(BaseStyleCheck):

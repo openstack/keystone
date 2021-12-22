@@ -1045,7 +1045,7 @@ class TestEventCallbacks(test_v3.RestfulTestCase):
         Foo()
         project_ref = unit.new_project_ref(domain_id=self.domain_id)
         PROVIDERS.resource_api.create_project(project_ref['id'], project_ref)
-        self.assertItemsEqual(['cb1', 'cb0'], callback_called)
+        self.assertCountEqual(['cb1', 'cb0'], callback_called)
 
     def test_invalid_event_callbacks(self):
         @notifications.listener

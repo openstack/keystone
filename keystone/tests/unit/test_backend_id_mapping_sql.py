@@ -388,7 +388,7 @@ class SqlIDMapping(test_backend_sql.SqlTests):
                 )
             )
             domain_a_mappings = [m.to_dict() for m in domain_a_mappings]
-        self.assertItemsEqual(local_entities[:2], domain_a_mappings)
+        self.assertCountEqual(local_entities[:2], domain_a_mappings)
 
     def test_get_domain_mapping_list_by_user_entity_type(self):
         local_entities = self._prepare_domain_mappings_for_list()
@@ -404,7 +404,7 @@ class SqlIDMapping(test_backend_sql.SqlTests):
             )
             domain_b_mappings_user = [m.to_dict()
                                       for m in domain_b_mappings_user]
-        self.assertItemsEqual(local_entities[-2:], domain_b_mappings_user)
+        self.assertCountEqual(local_entities[-2:], domain_b_mappings_user)
 
     def test_get_domain_mapping_list_by_group_entity_type(self):
         local_entities = self._prepare_domain_mappings_for_list()
@@ -421,4 +421,4 @@ class SqlIDMapping(test_backend_sql.SqlTests):
                 )
             )
             domain_b_mappings_group = domain_b_mappings_group.first().to_dict()
-        self.assertItemsEqual(local_entities[2], domain_b_mappings_group)
+        self.assertCountEqual(local_entities[2], domain_b_mappings_group)

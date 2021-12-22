@@ -1304,7 +1304,7 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
         entities = self._fetch_attribute_from_response(resp,
                                                        'identity_providers')
         entities_ids = [e['id'] for e in entities]
-        self.assertItemsEqual(entities_ids, [idp1_id, idp2_id])
+        self.assertCountEqual(entities_ids, [idp1_id, idp2_id])
 
         # filter the IdP by ID.
         url = self.base_url() + '?id=' + idp1_id
@@ -1333,7 +1333,7 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
         entities = self._fetch_attribute_from_response(resp,
                                                        'identity_providers')
         entities_ids = [e['id'] for e in entities]
-        self.assertItemsEqual(entities_ids, [idp1_id, idp2_id])
+        self.assertCountEqual(entities_ids, [idp1_id, idp2_id])
 
         # filter the IdP by 'enabled'.
         url = self.base_url() + '?enabled=True'
@@ -3332,7 +3332,7 @@ class FederatedUserTests(test_v3.RestfulTestCase, FederatedSetupMixin):
         fed_projects = r.result['projects']
 
         # compare
-        self.assertItemsEqual(auth_projects, fed_projects)
+        self.assertCountEqual(auth_projects, fed_projects)
 
     def test_auth_projects_matches_federation_projects_with_group_assign(self):
         # create project, role, group
@@ -3367,7 +3367,7 @@ class FederatedUserTests(test_v3.RestfulTestCase, FederatedSetupMixin):
         fed_projects = r.result['projects']
 
         # compare
-        self.assertItemsEqual(auth_projects, fed_projects)
+        self.assertCountEqual(auth_projects, fed_projects)
 
     def test_auth_domains_matches_federation_domains(self):
         # create domain and role
@@ -3393,7 +3393,7 @@ class FederatedUserTests(test_v3.RestfulTestCase, FederatedSetupMixin):
         fed_domains = r.result['domains']
 
         # compare
-        self.assertItemsEqual(auth_domains, fed_domains)
+        self.assertCountEqual(auth_domains, fed_domains)
 
     def test_auth_domains_matches_federation_domains_with_group_assign(self):
         # create role, group, and domain
@@ -3427,7 +3427,7 @@ class FederatedUserTests(test_v3.RestfulTestCase, FederatedSetupMixin):
         fed_domains = r.result['domains']
 
         # compare
-        self.assertItemsEqual(auth_domains, fed_domains)
+        self.assertCountEqual(auth_domains, fed_domains)
 
     def test_list_head_domains_for_user_duplicates(self):
         # create role

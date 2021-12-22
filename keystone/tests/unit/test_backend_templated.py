@@ -93,7 +93,7 @@ class TestTemplatedCatalog(unit.TestCase, catalog_tests.CatalogTests):
             expected_endpoints = e.pop('endpoints')
             observed_endpoints = o.pop('endpoints')
             self.assertDictEqual(e, o)
-            self.assertItemsEqual(expected_endpoints, observed_endpoints)
+            self.assertCountEqual(expected_endpoints, observed_endpoints)
 
     def test_get_v3_catalog(self):
         user_id = uuid.uuid4().hex
@@ -232,7 +232,7 @@ class TestTemplatedCatalog(unit.TestCase, catalog_tests.CatalogTests):
              'enabled': True,
              'name': "'Identity Service'",
              'id': 'identity'}]
-        self.assertItemsEqual(exp_services, services)
+        self.assertCountEqual(exp_services, services)
 
     # NOTE(dstanek): the following methods have been overridden
     # from unit.catalog.test_backends.CatalogTests.

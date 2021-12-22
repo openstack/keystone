@@ -66,7 +66,7 @@ class ShadowUsersBackendTests(object):
         user_created = PROVIDERS.shadow_users_api.create_nonlocal_user(user)
         self.assertEqual(user_created['id'], user['id'])
         user_found = PROVIDERS.shadow_users_api.get_user(user_created['id'])
-        self.assertItemsEqual(user_created, user_found)
+        self.assertCountEqual(user_created, user_found)
 
     def test_create_federated_user_unique_constraint(self):
         user_dict = PROVIDERS.shadow_users_api.create_federated_user(
@@ -95,7 +95,7 @@ class ShadowUsersBackendTests(object):
             self.federated_user["idp_id"],
             self.federated_user["protocol_id"],
             self.federated_user["unique_id"])
-        self.assertItemsEqual(user_dict_create, user_dict_get)
+        self.assertCountEqual(user_dict_create, user_dict_get)
         self.assertEqual(user_dict_create["id"], user_dict_get["id"])
 
     def test_update_federated_user_display_name(self):
