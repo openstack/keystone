@@ -116,6 +116,22 @@ def upgrade(migrate_engine):
         sql.Column('enabled', sql.Boolean),
         sql.Column('domain_id', sql.String(length=64), nullable=False),
         sql.Column('parent_id', sql.String(64), nullable=True),
+        sql.Column(
+            'is_domain',
+            sql.Boolean,
+            nullable=False,
+            server_default='0',
+            default=False,
+        ),
+        mysql_engine='InnoDB',
+        mysql_charset='utf8',
+    )
+
+    config_register = sql.Table(
+        'config_register',
+        meta,
+        sql.Column('type', sql.String(64), primary_key=True),
+        sql.Column('domain_id', sql.String(64), nullable=False),
         mysql_engine='InnoDB',
         mysql_charset='utf8',
     )
@@ -241,7 +257,13 @@ def upgrade(migrate_engine):
         sql.Column('target_id', sql.String(64), nullable=False),
         sql.Column('role_id', sql.String(64), nullable=False),
         sql.Column('inherited', sql.Boolean, default=False, nullable=False),
-        sql.PrimaryKeyConstraint('type', 'actor_id', 'target_id', 'role_id'),
+        sql.PrimaryKeyConstraint(
+            'type',
+            'actor_id',
+            'target_id',
+            'role_id',
+            'inherited',
+        ),
         mysql_engine='InnoDB',
         mysql_charset='utf8',
     )
@@ -307,6 +329,7 @@ def upgrade(migrate_engine):
         id_mapping,
         whitelisted_config,
         sensitive_config,
+        config_register,
     ]
 
     for table in tables:

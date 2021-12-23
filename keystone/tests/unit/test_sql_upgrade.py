@@ -75,6 +75,9 @@ from keystone.tests.unit.ksfixtures import database
 # is done to mirror the expected structure of the DB in the format of
 # { <DB_TABLE_NAME>: [<COLUMN>, <COLUMN>, ...], ... }
 INITIAL_TABLE_STRUCTURE = {
+    'config_register': [
+        'type', 'domain_id',
+    ],
     'credential': [
         'id', 'user_id', 'project_id', 'blob', 'type', 'extra',
     ],
@@ -93,7 +96,7 @@ INITIAL_TABLE_STRUCTURE = {
     ],
     'project': [
         'id', 'name', 'extra', 'description', 'enabled', 'domain_id',
-        'parent_id',
+        'parent_id', 'is_domain',
     ],
     'role': [
         'id', 'name', 'extra',
@@ -364,109 +367,6 @@ class SqlLegacyRepoUpgradeTests(SqlMigrateBase):
         for table in INITIAL_TABLE_STRUCTURE:
             self.assertTableColumns(table, INITIAL_TABLE_STRUCTURE[table])
 
-    def test_kilo_squash(self):
-        self.upgrade(67)
-
-        # In 053 the size of ID and parent region ID columns were changed
-        table = sqlalchemy.Table('region', self.metadata, autoload=True)
-        self.assertEqual(255, table.c.id.type.length)
-        self.assertEqual(255, table.c.parent_region_id.type.length)
-        table = sqlalchemy.Table('endpoint', self.metadata, autoload=True)
-        self.assertEqual(255, table.c.region_id.type.length)
-
-        # In 054 an index was created for the actor_id of the assignment table
-        table = sqlalchemy.Table('assignment', self.metadata, autoload=True)
-        index_data = [(idx.name, list(idx.columns.keys()))
-                      for idx in table.indexes]
-        self.assertIn(('ix_actor_id', ['actor_id']), index_data)
-
-        # In 055 indexes were created for user and trust IDs in the token table
-        table = sqlalchemy.Table('token', self.metadata, autoload=True)
-        index_data = [(idx.name, list(idx.columns.keys()))
-                      for idx in table.indexes]
-        self.assertIn(('ix_token_user_id', ['user_id']), index_data)
-        self.assertIn(('ix_token_trust_id', ['trust_id']), index_data)
-
-        # In 062 the role ID foreign key was removed from the assignment table
-        if self.engine.name == "mysql":
-            self.assertFalse(self.does_fk_exist('assignment', 'role_id'))
-
-        # In 064 the domain ID FK was removed from the group and user tables
-        if self.engine.name != 'sqlite':
-            # sqlite does not support FK deletions (or enforcement)
-            self.assertFalse(self.does_fk_exist('group', 'domain_id'))
-            self.assertFalse(self.does_fk_exist('user', 'domain_id'))
-
-        # In 067 the role ID index was removed from the assignment table
-        if self.engine.name == "mysql":
-            self.assertFalse(self.does_index_exist('assignment',
-                                                   'assignment_role_id_fkey'))
-
-    def test_insert_assignment_inherited_pk(self):
-        ASSIGNMENT_TABLE_NAME = 'assignment'
-        INHERITED_COLUMN_NAME = 'inherited'
-        ROLE_TABLE_NAME = 'role'
-
-        self.upgrade(72)
-
-        # Check that the 'inherited' column is not part of the PK
-        self.assertFalse(self.does_pk_exist(ASSIGNMENT_TABLE_NAME,
-                                            INHERITED_COLUMN_NAME))
-
-        session = self.sessionmaker()
-
-        role = {'id': uuid.uuid4().hex,
-                'name': uuid.uuid4().hex}
-        self.insert_dict(session, ROLE_TABLE_NAME, role)
-
-        # Create both inherited and noninherited role assignments
-        inherited = {'type': 'UserProject',
-                     'actor_id': uuid.uuid4().hex,
-                     'target_id': uuid.uuid4().hex,
-                     'role_id': role['id'],
-                     'inherited': True}
-
-        noninherited = inherited.copy()
-        noninherited['inherited'] = False
-
-        # Create another inherited role assignment as a spoiler
-        spoiler = inherited.copy()
-        spoiler['actor_id'] = uuid.uuid4().hex
-
-        self.insert_dict(session, ASSIGNMENT_TABLE_NAME, inherited)
-        self.insert_dict(session, ASSIGNMENT_TABLE_NAME, spoiler)
-
-        # Since 'inherited' is not part of the PK, we can't insert noninherited
-        self.assertRaises(db_exception.DBDuplicateEntry,
-                          self.insert_dict,
-                          session,
-                          ASSIGNMENT_TABLE_NAME,
-                          noninherited)
-
-        session.close()
-
-        self.upgrade(73)
-
-        session = self.sessionmaker()
-
-        # Check that the 'inherited' column is now part of the PK
-        self.assertTrue(self.does_pk_exist(ASSIGNMENT_TABLE_NAME,
-                                           INHERITED_COLUMN_NAME))
-
-        # The noninherited role assignment can now be inserted
-        self.insert_dict(session, ASSIGNMENT_TABLE_NAME, noninherited)
-
-        assignment_table = sqlalchemy.Table(ASSIGNMENT_TABLE_NAME,
-                                            self.metadata,
-                                            autoload=True)
-
-        assignments = session.query(assignment_table).all()
-        for assignment in (inherited, spoiler, noninherited):
-            self.assertIn((assignment['type'], assignment['actor_id'],
-                           assignment['target_id'], assignment['role_id'],
-                           assignment['inherited']),
-                          assignments)
-
     def test_endpoint_policy_upgrade(self):
         self.assertTableDoesNotExist('policy_association')
         self.upgrade(81)
@@ -616,26 +516,12 @@ class SqlLegacyRepoUpgradeTests(SqlMigrateBase):
         # that 084 did not create the table.
         self.assertTableDoesNotExist('revocation_event')
 
-    def test_project_is_domain_upgrade(self):
-        self.upgrade(74)
-        self.assertTableColumns('project',
-                                ['id', 'name', 'extra', 'description',
-                                 'enabled', 'domain_id', 'parent_id',
-                                 'is_domain'])
-
     def test_implied_roles_upgrade(self):
         self.upgrade(87)
         self.assertTableColumns('implied_role',
                                 ['prior_role_id', 'implied_role_id'])
         self.assertTrue(self.does_fk_exist('implied_role', 'prior_role_id'))
         self.assertTrue(self.does_fk_exist('implied_role', 'implied_role_id'))
-
-    def test_add_config_registration(self):
-        config_registration = 'config_register'
-        self.upgrade(74)
-        self.assertTableDoesNotExist(config_registration)
-        self.upgrade(75)
-        self.assertTableColumns(config_registration, ['type', 'domain_id'])
 
     def test_endpoint_filter_upgrade(self):
         def assert_tables_columns_exist():
@@ -1713,7 +1599,7 @@ class MigrationValidation(SqlMigrateBase, unit.TestCase):
     def test_running_db_sync_expand_without_up_to_date_legacy_fails(self):
         # Set Legacy version and then test that running expand fails if Legacy
         # isn't at the latest version.
-        self.upgrade(67)
+        self.upgrade(75)
         latest_version = self.repos[EXPAND_REPO].max_version
         self.assertRaises(
             db_exception.DBMigrationError,
