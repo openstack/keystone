@@ -163,6 +163,11 @@ def upgrade(migrate_engine):
         sql.Column('name', sql.String(length=64), nullable=False),
         sql.Column('description', sql.Text),
         sql.Column('extra', ks_sql.JsonBlob.impl),
+        migrate.UniqueConstraint(
+            'domain_id',
+            'name',
+            name='ixu_group_name_domain_id',
+        ),
         mysql_engine='InnoDB',
         mysql_charset='utf8',
     )
@@ -289,6 +294,11 @@ def upgrade(migrate_engine):
             server_default='0',
             default=False,
         ),
+        migrate.UniqueConstraint(
+            'domain_id',
+            'name',
+            name='ixu_project_name_domain_id',
+        ),
         mysql_engine='InnoDB',
         mysql_charset='utf8',
     )
@@ -385,6 +395,11 @@ def upgrade(migrate_engine):
             sql.String(64),
             nullable=False,
             server_default='<<null>>',
+        ),
+        migrate.UniqueConstraint(
+            'name',
+            'domain_id',
+            name='ixu_role_name_domain_id',
         ),
         mysql_engine='InnoDB',
         mysql_charset='utf8',
@@ -577,6 +592,12 @@ def upgrade(migrate_engine):
             ),
             nullable=False,
         ),
+        migrate.UniqueConstraint(
+            'domain_id',
+            'local_id',
+            'entity_type',
+            name='domain_id',
+        ),
         mysql_engine='InnoDB',
         mysql_charset='utf8',
     )
@@ -649,29 +670,6 @@ def upgrade(migrate_engine):
         except Exception:
             LOG.exception('Exception while creating table: %r', table)
             raise
-
-    # Unique Constraints
-    migrate.UniqueConstraint(
-        group.c.domain_id,
-        group.c.name,
-        name='ixu_group_name_domain_id',
-    ).create()
-    migrate.UniqueConstraint(
-        role.c.name,
-        role.c.domain_id,
-        name='ixu_role_name_domain_id',
-    ).create()
-    migrate.UniqueConstraint(
-        project.c.domain_id,
-        project.c.name,
-        name='ixu_project_name_domain_id',
-    ).create()
-    migrate.UniqueConstraint(
-        id_mapping.c.domain_id,
-        id_mapping.c.local_id,
-        id_mapping.c.entity_type,
-        name='domain_id',
-    ).create()
 
     fkeys = [
         {
