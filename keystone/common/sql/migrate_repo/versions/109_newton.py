@@ -100,6 +100,9 @@ def upgrade(migrate_engine):
             server_default='1',
         ),
         sql.Column('region_id', sql.String(length=255), nullable=True),
+        # NOTE(stevemar): The index was named 'service_id' in
+        # 050_fk_consistent_indexes.py and needs to be preserved
+        sql.Index('service_id', 'service_id'),
         mysql_engine='InnoDB',
         mysql_charset='utf8',
     )
@@ -431,6 +434,12 @@ def upgrade(migrate_engine):
         sql.Column('valid', sql.Boolean, default=True, nullable=False),
         sql.Column('trust_id', sql.String(length=64)),
         sql.Column('user_id', sql.String(length=64)),
+        sql.Index('ix_token_expires', 'expires'),
+        sql.Index(
+            'ix_token_expires_valid', 'expires', 'valid'
+        ),
+        sql.Index('ix_token_user_id', 'user_id'),
+        sql.Index('ix_token_trust_id', 'trust_id'),
         mysql_engine='InnoDB',
         mysql_charset='utf8',
     )
@@ -505,6 +514,9 @@ def upgrade(migrate_engine):
         meta,
         sql.Column('user_id', sql.String(length=64), primary_key=True),
         sql.Column('group_id', sql.String(length=64), primary_key=True),
+        # NOTE(stevemar): The index was named 'group_id' in
+        # 050_fk_consistent_indexes.py and needs to be preserved
+        sql.Index('group_id', 'group_id'),
         mysql_engine='InnoDB',
         mysql_charset='utf8',
     )
@@ -545,6 +557,7 @@ def upgrade(migrate_engine):
             'role_id',
             'inherited',
         ),
+        sql.Index('ix_actor_id', 'actor_id'),
         mysql_engine='InnoDB',
         mysql_charset='utf8',
     )
@@ -659,21 +672,6 @@ def upgrade(migrate_engine):
         id_mapping.c.entity_type,
         name='domain_id',
     ).create()
-
-    # Indexes
-    sql.Index('ix_token_expires', token.c.expires).create()
-    sql.Index(
-        'ix_token_expires_valid',
-        token.c.expires,
-        token.c.valid,
-    ).create()
-    sql.Index('ix_actor_id', assignment.c.actor_id).create()
-    sql.Index('ix_token_user_id', token.c.user_id).create()
-    sql.Index('ix_token_trust_id', token.c.trust_id).create()
-    # NOTE(stevemar): The two indexes below were named 'service_id' and
-    # 'group_id' in 050_fk_consistent_indexes.py, and need to be preserved
-    sql.Index('service_id', endpoint.c.service_id).create()
-    sql.Index('group_id', user_group_membership.c.group_id).create()
 
     fkeys = [
         {
