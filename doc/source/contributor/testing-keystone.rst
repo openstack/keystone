@@ -151,9 +151,9 @@ version control:
 
 .. code-block:: bash
 
-    $ python keystone/common/sql/migrate_repo/manage.py test \
-    --url=sqlite:///test.db \
-    --repository=keystone/common/sql/migrate_repo/
+    $ python keystone/common/sql/expand_repo/manage.py test \
+        --url=sqlite:///test.db \
+        --repository=keystone/common/sql/expand_repo/
 
 This command references to a SQLite database (test.db) to be used. Depending on
 the migration, this command alone does not make assertions as to the integrity

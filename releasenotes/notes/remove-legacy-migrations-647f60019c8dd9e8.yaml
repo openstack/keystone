@@ -1,0 +1,7 @@
+---
+upgrade:
+  - |
+    The legacy migrations that existed before the split into separate expand
+    schema, contract schema, and data migration migration have now been
+    removed. These have been deprecated since 10.0.0 (Newton). This should
+    have no user-facing impact.

@@ -32,18 +32,20 @@
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.coverage',
-              'sphinx.ext.viewcode',
-              'oslo_config.sphinxconfiggen',
-              'oslo_config.sphinxext',
-              'oslo_policy.sphinxpolicygen',
-              'openstackdocstheme',
-              'oslo_policy.sphinxext',
-              'sphinxcontrib.apidoc',
-              'sphinxcontrib.seqdiag',
-              'sphinx_feature_classification.support_matrix',
-              'sphinxcontrib.blockdiag'
-              ]
+extensions = [
+    'sphinx.ext.coverage',
+    'sphinx.ext.viewcode',
+    'sphinx.ext.todo',
+    'oslo_config.sphinxconfiggen',
+    'oslo_config.sphinxext',
+    'oslo_policy.sphinxpolicygen',
+    'openstackdocstheme',
+    'oslo_policy.sphinxext',
+    'sphinxcontrib.apidoc',
+    'sphinxcontrib.seqdiag',
+    'sphinx_feature_classification.support_matrix',
+    'sphinxcontrib.blockdiag'
+]
 
 blockdiag_html_image_format = 'SVG'
 

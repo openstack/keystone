@@ -43,14 +43,6 @@ do in a specific phase, then include a no-op migration to simply ``pass`` (in
 fact the ``001`` migration in each of these repositories is a no-op migration,
 so that can be used as a template).
 
-.. NOTE::
-
-    Since rolling upgrade support was added part way through the Newton cycle,
-    some migrations had already been added to the legacy repository
-    (``keystone/common/sql/migrate_repo``). This repository is now closed and
-    no new migrations should be added (except for backporting of previous
-    placeholders).
-
 In order to support rolling upgrades, where two releases of keystone briefly
 operate side-by-side using the same database without downtime, each phase of
 the migration must adhere to following constraints:
@@ -79,7 +71,7 @@ Data Migration phase:
     No schema changes are allowed.
 
 Contract phase:
-    Only contractive schema changes are allowed, such as dropping or altering
+    Only destructive schema changes are allowed, such as dropping or altering
     columns, tables, indices, and triggers.
 
     Data insertion, modification, and removal is not allowed.

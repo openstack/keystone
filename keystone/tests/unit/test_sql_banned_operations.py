@@ -28,7 +28,6 @@ import testtools
 from keystone.common.sql import contract_repo
 from keystone.common.sql import data_migration_repo
 from keystone.common.sql import expand_repo
-from keystone.common.sql import migrate_repo
 from keystone.common.sql import upgrades
 
 
@@ -39,9 +38,8 @@ class DBOperationNotAllowed(Exception):
 class BannedDBSchemaOperations(fixtures.Fixture):
     """Ban some operations for migrations."""
 
-    def __init__(self, banned_ops=None,
-                 migration_repo=migrate_repo.__file__):
-        super(BannedDBSchemaOperations, self).__init__()
+    def __init__(self, banned_ops, migration_repo):
+        super().__init__()
         self._banned_ops = banned_ops or {}
         self._migration_repo = migration_repo
 
@@ -54,7 +52,7 @@ class BannedDBSchemaOperations(fixtures.Fixture):
                 resource_op, repo_name))
 
     def setUp(self):
-        super(BannedDBSchemaOperations, self).setUp()
+        super().setUp()
         explode_lambda = {
             'Table.create': lambda *a, **k: self._explode(
                 'Table.create', self._migration_repo),
@@ -91,7 +89,9 @@ class TestBannedDBSchemaOperations(testtools.TestCase):
         """Test column operations raise DBOperationNotAllowed."""
         column = sqlalchemy.Column()
         with BannedDBSchemaOperations(
-                banned_ops={'Column': ['create', 'alter', 'drop']}):
+            banned_ops={'Column': ['create', 'alter', 'drop']},
+            migration_repo=expand_repo.__file__,
+        ):
             self.assertRaises(DBOperationNotAllowed, column.drop)
             self.assertRaises(DBOperationNotAllowed, column.alter)
             self.assertRaises(DBOperationNotAllowed, column.create)
@@ -100,8 +100,10 @@ class TestBannedDBSchemaOperations(testtools.TestCase):
         """Test table operations raise DBOperationNotAllowed."""
         table = sqlalchemy.Table()
         with BannedDBSchemaOperations(
-                banned_ops={'Table': ['create', 'alter', 'drop',
-                                      'insert', 'update', 'delete']}):
+            banned_ops={'Table': ['create', 'alter', 'drop',
+                                  'insert', 'update', 'delete']},
+            migration_repo=expand_repo.__file__,
+        ):
             self.assertRaises(DBOperationNotAllowed, table.drop)
             self.assertRaises(DBOperationNotAllowed, table.alter)
             self.assertRaises(DBOperationNotAllowed, table.create)
@@ -113,29 +115,14 @@ class TestBannedDBSchemaOperations(testtools.TestCase):
 class KeystoneMigrationsCheckers(test_migrations.WalkVersionsMixin):
     """Walk over and test all sqlalchemy-migrate migrations."""
 
-    # NOTE(xek): We start requiring things be additive in Newton, so
-    # ignore all migrations before the first version in Newton.
-    migrate_file = migrate_repo.__file__
-    first_version = 101
-    # NOTE(henry-nash): We don't ban data modification in the legacy repo,
-    # since there are already migrations that do this for Newton (and these
-    # do not cause us issues, or are already worked around).
-    banned_ops = {'Table': ['alter', 'drop'],
-                  'Column': ['alter', 'drop']}
+    migrate_file = None
+    first_version = 1
+    # A mapping of entity (Table, Column, ...) to operation
+    banned_ops = {}
     exceptions = [
         # NOTE(xek): Reviewers: DO NOT ALLOW THINGS TO BE ADDED HERE UNLESS
         # JUSTIFICATION CAN BE PROVIDED AS TO WHY THIS WILL NOT CAUSE
         # PROBLEMS FOR ROLLING UPGRADES.
-
-        # Migration 102 drops the domain table in the Newton release. All
-        # code that referenced the domain table was removed in the Mitaka
-        # release, hence this migration will not cause problems when
-        # running a mixture of Mitaka and Newton versions of keystone.
-        102,
-
-        # Migration 106 simply allows the password column to be nullable.
-        # This change would not impact a rolling upgrade.
-        106
     ]
 
     @property
@@ -190,8 +177,7 @@ class KeystoneMigrationsCheckers(test_migrations.WalkVersionsMixin):
         else:
             banned_ops = None
         with BannedDBSchemaOperations(banned_ops, self.migrate_file):
-            super(KeystoneMigrationsCheckers,
-                  self).migrate_up(version, with_data)
+            super().migrate_up(version, with_data)
 
     snake_walk = False
     downgrade = False
@@ -200,43 +186,7 @@ class KeystoneMigrationsCheckers(test_migrations.WalkVersionsMixin):
         self.walk_versions(self.snake_walk, self.downgrade)
 
 
-class TestKeystoneMigrationsMySQL(
-        KeystoneMigrationsCheckers,
-        db_fixtures.OpportunisticDBTestMixin,
-        test_base.BaseTestCase):
-    FIXTURE = db_fixtures.MySQLOpportunisticFixture
-
-    def setUp(self):
-        super(TestKeystoneMigrationsMySQL, self).setUp()
-        self.engine = enginefacade.writer.get_engine()
-        self.sessionmaker = enginefacade.writer.get_sessionmaker()
-
-
-class TestKeystoneMigrationsPostgreSQL(
-        KeystoneMigrationsCheckers,
-        db_fixtures.OpportunisticDBTestMixin,
-        test_base.BaseTestCase):
-    FIXTURE = db_fixtures.PostgresqlOpportunisticFixture
-
-    def setUp(self):
-        super(TestKeystoneMigrationsPostgreSQL, self).setUp()
-        self.engine = enginefacade.writer.get_engine()
-        self.sessionmaker = enginefacade.writer.get_sessionmaker()
-
-
-class TestKeystoneMigrationsSQLite(
-        KeystoneMigrationsCheckers,
-        db_fixtures.OpportunisticDBTestMixin,
-        test_base.BaseTestCase):
-
-    def setUp(self):
-        super(TestKeystoneMigrationsSQLite, self).setUp()
-        self.engine = enginefacade.writer.get_engine()
-        self.sessionmaker = enginefacade.writer.get_sessionmaker()
-
-
-class TestKeystoneExpandSchemaMigrations(
-        KeystoneMigrationsCheckers):
+class TestKeystoneExpandSchemaMigrations(KeystoneMigrationsCheckers):
 
     migrate_file = expand_repo.__file__
     first_version = 1
@@ -285,7 +235,6 @@ class TestKeystoneExpandSchemaMigrationsMySQL(
         super(TestKeystoneExpandSchemaMigrationsMySQL, self).setUp()
         self.engine = enginefacade.writer.get_engine()
         self.sessionmaker = enginefacade.writer.get_sessionmaker()
-        self.migrate_fully(migrate_repo.__file__)
 
 
 class TestKeystoneExpandSchemaMigrationsPostgreSQL(
@@ -298,7 +247,6 @@ class TestKeystoneExpandSchemaMigrationsPostgreSQL(
         super(TestKeystoneExpandSchemaMigrationsPostgreSQL, self).setUp()
         self.engine = enginefacade.writer.get_engine()
         self.sessionmaker = enginefacade.writer.get_sessionmaker()
-        self.migrate_fully(migrate_repo.__file__)
 
 
 class TestKeystoneDataMigrations(
@@ -326,7 +274,6 @@ class TestKeystoneDataMigrations(
 
     def setUp(self):
         super(TestKeystoneDataMigrations, self).setUp()
-        self.migrate_fully(migrate_repo.__file__)
         self.migrate_fully(expand_repo.__file__)
 
 
@@ -387,7 +334,6 @@ class TestKeystoneContractSchemaMigrations(
 
     def setUp(self):
         super(TestKeystoneContractSchemaMigrations, self).setUp()
-        self.migrate_fully(migrate_repo.__file__)
         self.migrate_fully(expand_repo.__file__)
         self.migrate_fully(data_migration_repo.__file__)
 

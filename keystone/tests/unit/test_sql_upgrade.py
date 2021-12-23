@@ -194,7 +194,6 @@ INITIAL_TABLE_STRUCTURE = {
     ],
 }
 
-LEGACY_REPO = 'migrate_repo'
 EXPAND_REPO = 'expand_repo'
 DATA_MIGRATION_REPO = 'data_migration_repo'
 CONTRACT_REPO = 'contract_repo'
@@ -222,7 +221,7 @@ class SqlUpgradeGetInitVersionTests(unit.TestCase):
         # first invocation of repo. Cannot match the full path because it is
         # based on where the test is run.
         param = repo.call_args_list[0][0][0]
-        self.assertTrue(param.endswith('/sql/' + LEGACY_REPO))
+        self.assertTrue(param.endswith('/sql/' + EXPAND_REPO))
 
     @mock.patch.object(repository, 'Repository')
     def test_get_init_version_with_path_initial_version_0(self, repo):
@@ -235,7 +234,7 @@ class SqlUpgradeGetInitVersionTests(unit.TestCase):
         # os.path.isdir() is called by `find_repo()`. Mock it to avoid
         # an exception.
         with mock.patch('os.path.isdir', return_value=True):
-            path = '/keystone/' + LEGACY_REPO + '/'
+            path = '/keystone/' + EXPAND_REPO + '/'
 
             # since 0 is the smallest version expect None
             version = upgrades.get_init_version(abs_path=path)
@@ -253,16 +252,18 @@ class SqlUpgradeGetInitVersionTests(unit.TestCase):
         # os.path.isdir() is called by `find_repo()`. Mock it to avoid
         # an exception.
         with mock.patch('os.path.isdir', return_value=True):
-            path = '/keystone/' + LEGACY_REPO + '/'
+            path = '/keystone/' + EXPAND_REPO + '/'
 
             version = upgrades.get_init_version(abs_path=path)
             self.assertEqual(initial_version, version)
 
 
-class SqlMigrateBase(db_fixtures.OpportunisticDBTestMixin,
-                     test_base.BaseTestCase):
+class MigrateBase(
+    db_fixtures.OpportunisticDBTestMixin,
+    test_base.BaseTestCase,
+):
     def setUp(self):
-        super(SqlMigrateBase, self).setUp()
+        super().setUp()
         self.engine = enginefacade.writer.get_engine()
         self.sessionmaker = enginefacade.writer.get_sessionmaker()
 
@@ -284,15 +285,12 @@ class SqlMigrateBase(db_fixtures.OpportunisticDBTestMixin,
         self.addCleanup(sql.cleanup)
 
         self.repos = {
-            LEGACY_REPO: upgrades.Repository(self.engine, LEGACY_REPO),
             EXPAND_REPO: upgrades.Repository(self.engine, EXPAND_REPO),
             DATA_MIGRATION_REPO: upgrades.Repository(
-                self.engine, DATA_MIGRATION_REPO),
-            CONTRACT_REPO: upgrades.Repository(self.engine, CONTRACT_REPO)}
-
-    def upgrade(self, *args, **kwargs):
-        """Upgrade the legacy migration repository."""
-        self.repos[LEGACY_REPO].upgrade(*args, **kwargs)
+                self.engine, DATA_MIGRATION_REPO,
+            ),
+            CONTRACT_REPO: upgrades.Repository(self.engine, CONTRACT_REPO),
+        }
 
     def expand(self, *args, **kwargs):
         """Expand database schema."""
@@ -403,21 +401,18 @@ class SqlMigrateBase(db_fixtures.OpportunisticDBTestMixin,
         return False
 
 
-class SqlLegacyRepoUpgradeTests(SqlMigrateBase):
+class ExpandSchemaUpgradeTests(MigrateBase):
+
+    def test_start_version_db_init_version(self):
+        self.assertEqual(
+            self.repos[EXPAND_REPO].min_version,
+            self.repos[EXPAND_REPO].version)
 
     def test_blank_db_to_start(self):
         self.assertTableDoesNotExist('user')
 
-    def test_start_version_db_init_version(self):
-        self.assertEqual(
-            self.repos[LEGACY_REPO].min_version,
-            self.repos[LEGACY_REPO].version,
-            'DB is not at version %s' % (
-                self.repos[LEGACY_REPO].min_version)
-        )
-
     def test_upgrade_add_initial_tables(self):
-        self.upgrade(self.repos[LEGACY_REPO].min_version + 1)
+        self.expand(1)
         self.check_initial_table_structure()
 
     def check_initial_table_structure(self):
@@ -425,45 +420,24 @@ class SqlLegacyRepoUpgradeTests(SqlMigrateBase):
             self.assertTableColumns(table, INITIAL_TABLE_STRUCTURE[table])
 
 
-class MySQLOpportunisticUpgradeTestCase(SqlLegacyRepoUpgradeTests):
-    FIXTURE = db_fixtures.MySQLOpportunisticFixture
-
-
-class PostgreSQLOpportunisticUpgradeTestCase(SqlLegacyRepoUpgradeTests):
-    FIXTURE = db_fixtures.PostgresqlOpportunisticFixture
-
-
-class SqlExpandSchemaUpgradeTests(SqlMigrateBase):
-
-    def setUp(self):
-        # Make sure the main repo is fully upgraded for this release since the
-        # expand phase is only run after such an upgrade
-        super(SqlExpandSchemaUpgradeTests, self).setUp()
-        self.upgrade()
-
-    def test_start_version_db_init_version(self):
-        self.assertEqual(
-            self.repos[EXPAND_REPO].min_version,
-            self.repos[EXPAND_REPO].version)
-
-
 class MySQLOpportunisticExpandSchemaUpgradeTestCase(
-        SqlExpandSchemaUpgradeTests):
+    ExpandSchemaUpgradeTests,
+):
     FIXTURE = db_fixtures.MySQLOpportunisticFixture
 
 
 class PostgreSQLOpportunisticExpandSchemaUpgradeTestCase(
-        SqlExpandSchemaUpgradeTests):
+    ExpandSchemaUpgradeTests,
+):
     FIXTURE = db_fixtures.PostgresqlOpportunisticFixture
 
 
-class SqlDataMigrationUpgradeTests(SqlMigrateBase):
+class DataMigrationUpgradeTests(MigrateBase):
 
     def setUp(self):
-        # Make sure the legacy and expand repos are fully upgraded, since the
-        # data migration phase is only run after these are upgraded
-        super(SqlDataMigrationUpgradeTests, self).setUp()
-        self.upgrade()
+        # Make sure the expand repo is fully upgraded, since the data migration
+        # phase is only run after this is upgraded
+        super().setUp()
         self.expand()
 
     def test_start_version_db_init_version(self):
@@ -473,22 +447,24 @@ class SqlDataMigrationUpgradeTests(SqlMigrateBase):
 
 
 class MySQLOpportunisticDataMigrationUpgradeTestCase(
-        SqlDataMigrationUpgradeTests):
+    DataMigrationUpgradeTests,
+):
     FIXTURE = db_fixtures.MySQLOpportunisticFixture
 
 
 class PostgreSQLOpportunisticDataMigrationUpgradeTestCase(
-        SqlDataMigrationUpgradeTests):
+    DataMigrationUpgradeTests,
+):
     FIXTURE = db_fixtures.PostgresqlOpportunisticFixture
 
 
-class SqlContractSchemaUpgradeTests(SqlMigrateBase, unit.TestCase):
+class ContractSchemaUpgradeTests(MigrateBase, unit.TestCase):
 
     def setUp(self):
-        # Make sure the legacy, expand and data migration repos are fully
+        # Make sure the expand and data migration repos are fully
         # upgraded, since the contract phase is only run after these are
         # upgraded.
-        super(SqlContractSchemaUpgradeTests, self).setUp()
+        super().setUp()
         self.useFixture(
             ksfixtures.KeyRepository(
                 self.config_fixture,
@@ -496,7 +472,6 @@ class SqlContractSchemaUpgradeTests(SqlMigrateBase, unit.TestCase):
                 credential_fernet.MAX_ACTIVE_KEYS
             )
         )
-        self.upgrade()
         self.expand()
         self.migrate()
 
@@ -507,53 +482,18 @@ class SqlContractSchemaUpgradeTests(SqlMigrateBase, unit.TestCase):
 
 
 class MySQLOpportunisticContractSchemaUpgradeTestCase(
-        SqlContractSchemaUpgradeTests):
+    ContractSchemaUpgradeTests,
+):
     FIXTURE = db_fixtures.MySQLOpportunisticFixture
 
 
 class PostgreSQLOpportunisticContractSchemaUpgradeTestCase(
-        SqlContractSchemaUpgradeTests):
+    ContractSchemaUpgradeTests,
+):
     FIXTURE = db_fixtures.PostgresqlOpportunisticFixture
 
 
-class VersionTests(SqlMigrateBase):
-    def test_core_initial(self):
-        """Get the version before migrated, it's the initial DB version."""
-        self.assertEqual(
-            self.repos[LEGACY_REPO].min_version,
-            self.repos[LEGACY_REPO].version)
-
-    def test_core_max(self):
-        """When get the version after upgrading, it's the new version."""
-        self.upgrade()
-        self.assertEqual(
-            self.repos[LEGACY_REPO].max_version,
-            self.repos[LEGACY_REPO].version)
-
-    def test_assert_not_schema_downgrade(self):
-        self.upgrade()
-        self.assertRaises(
-            db_exception.DBMigrationError,
-            upgrades._sync_common_repo,
-            self.repos[LEGACY_REPO].max_version - 1)
-
-    def test_these_are_not_the_migrations_you_are_looking_for(self):
-        """Keystone has shifted to rolling upgrades.
-
-        New database migrations should no longer land in the legacy migration
-        repository. Instead, new database migrations should be divided into
-        three discrete steps: schema expansion, data migration, and schema
-        contraction. These migrations live in a new set of database migration
-        repositories, called ``expand_repo``, ``data_migration_repo``, and
-        ``contract_repo``.
-
-        For more information, see "Database Migrations" here:
-
-            https://docs.openstack.org/keystone/latest/contributor/database-migrations.html
-
-        """
-        # Note to reviewers: this version number should never change.
-        self.assertEqual(109, self.repos[LEGACY_REPO].max_version)
+class VersionTests(MigrateBase):
 
     def test_migrate_repos_stay_in_lockstep(self):
         """Rolling upgrade repositories should always stay in lockstep.
@@ -618,7 +558,7 @@ class VersionTests(SqlMigrateBase):
             self.assertRegex(file_name, pattern, msg)
 
 
-class MigrationValidation(SqlMigrateBase, unit.TestCase):
+class MigrationValidation(MigrateBase, unit.TestCase):
     """Test validation of database between database phases."""
 
     def _set_db_sync_command_versions(self):
@@ -630,7 +570,6 @@ class MigrationValidation(SqlMigrateBase, unit.TestCase):
         self.assertEqual(upgrades.get_db_version('contract_repo'), 1)
 
     def test_running_db_sync_migrate_ahead_of_expand_fails(self):
-        self.upgrade()
         self._set_db_sync_command_versions()
         self.assertRaises(
             db_exception.DBMigrationError,
@@ -639,7 +578,6 @@ class MigrationValidation(SqlMigrateBase, unit.TestCase):
             "You are attempting to upgrade migrate ahead of expand")
 
     def test_running_db_sync_contract_ahead_of_migrate_fails(self):
-        self.upgrade()
         self._set_db_sync_command_versions()
         self.assertRaises(
             db_exception.DBMigrationError,
@@ -648,13 +586,8 @@ class MigrationValidation(SqlMigrateBase, unit.TestCase):
             "You are attempting to upgrade contract ahead of migrate")
 
 
-class FullMigration(SqlMigrateBase, unit.TestCase):
+class FullMigration(MigrateBase, unit.TestCase):
     """Test complete orchestration between all database phases."""
-
-    def setUp(self):
-        super(FullMigration, self).setUp()
-        # Upgrade the legacy repository
-        self.upgrade()
 
     def test_db_sync_check(self):
         checker = cli.DbSync()
