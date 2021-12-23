@@ -83,17 +83,6 @@ def upgrade(migrate_engine):
         mysql_charset='utf8',
     )
 
-    domain = sql.Table(
-        'domain',
-        meta,
-        sql.Column('id', sql.String(length=64), primary_key=True),
-        sql.Column('name', sql.String(length=64), nullable=False),
-        sql.Column('enabled', sql.Boolean, default=True, nullable=False),
-        sql.Column('extra', ks_sql.JsonBlob.impl),
-        mysql_engine='InnoDB',
-        mysql_charset='utf8',
-    )
-
     endpoint = sql.Table(
         'endpoint',
         meta,
@@ -220,6 +209,8 @@ def upgrade(migrate_engine):
         ),
         sql.Column('domain_id', sql.String(64), nullable=False),
         sql.Column('name', sql.String(255), nullable=False),
+        sql.Column('failed_auth_count', sql.Integer, nullable=True),
+        sql.Column('failed_auth_at', sql.DateTime(), nullable=True),
         sql.UniqueConstraint('domain_id', 'name'),
     )
 
@@ -242,7 +233,16 @@ def upgrade(migrate_engine):
             sql.ForeignKey(local_user.c.id, ondelete='CASCADE'),
             nullable=False,
         ),
-        sql.Column('password', sql.String(128), nullable=False),
+        sql.Column('password', sql.String(128), nullable=True),
+        sql.Column('created_at', sql.DateTime(), nullable=True),
+        sql.Column('expires_at', sql.DateTime(), nullable=True),
+        sql.Column(
+            'self_service',
+            sql.Boolean,
+            nullable=False,
+            server_default='0',
+            default=False,
+        ),
     )
 
     policy = sql.Table(
@@ -479,6 +479,23 @@ def upgrade(migrate_engine):
         sql.Column('extra', ks_sql.JsonBlob.impl),
         sql.Column('enabled', sql.Boolean),
         sql.Column('default_project_id', sql.String(length=64)),
+        sql.Column('created_at', sql.DateTime(), nullable=True),
+        sql.Column('last_active_at', sql.Date(), nullable=True),
+        mysql_engine='InnoDB',
+        mysql_charset='utf8',
+    )
+
+    nonlocal_user = sql.Table(
+        'nonlocal_user',
+        meta,
+        sql.Column('domain_id', sql.String(64), primary_key=True),
+        sql.Column('name', sql.String(255), primary_key=True),
+        sql.Column(
+            'user_id',
+            sql.String(64),
+            sql.ForeignKey(user.c.id, ondelete='CASCADE'),
+            nullable=False,
+        ),
         mysql_engine='InnoDB',
         mysql_charset='utf8',
     )
@@ -576,7 +593,6 @@ def upgrade(migrate_engine):
     # create all tables
     tables = [
         credential,
-        domain,
         endpoint,
         group,
         policy,
@@ -611,6 +627,7 @@ def upgrade(migrate_engine):
         local_user,
         password,
         federated_user,
+        nonlocal_user,
     ]
 
     for table in tables:
@@ -635,10 +652,6 @@ def upgrade(migrate_engine):
         project.c.domain_id,
         project.c.name,
         name='ixu_project_name_domain_id',
-    ).create()
-    migrate.UniqueConstraint(
-        domain.c.name,
-        name='ixu_domain_name',
     ).create()
     migrate.UniqueConstraint(
         id_mapping.c.domain_id,
@@ -755,29 +768,9 @@ def upgrade(migrate_engine):
         }
         return project_ref
 
-    def _generate_root_domain():
-        # Generate a similar root for the domain table, this is an interim
-        # step so as to allow continuation of current project domain_id FK.
-        #
-        # This special domain is filtered out by the driver, so is never
-        # visible to the manager or API.
-
-        domain_ref = {
-            'id': NULL_DOMAIN_ID,
-            'name': NULL_DOMAIN_ID,
-            'enabled': False,
-            'extra': '{}',
-        }
-        return domain_ref
-
     meta = sql.MetaData()
     meta.bind = migrate_engine
     session = sql.orm.sessionmaker(bind=migrate_engine)()
-
-    root_domain = _generate_root_domain()
-    new_entry = domain.insert().values(**root_domain)
-    session.execute(new_entry)
-    session.commit()
 
     root_domain_project = _generate_root_domain_project()
     new_entry = project.insert().values(**root_domain_project)
