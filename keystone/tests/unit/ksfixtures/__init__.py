@@ -17,3 +17,4 @@ from keystone.tests.unit.ksfixtures.cache import Cache  # noqa
 from keystone.tests.unit.ksfixtures.jws_key_repository import JWSKeyRepository  # noqa
 from keystone.tests.unit.ksfixtures.key_repository import KeyRepository  # noqa
 from keystone.tests.unit.ksfixtures.policy import Policy  # noqa
+from keystone.tests.unit.ksfixtures.warnings import WarningsFixture  # noqa

@@ -11,6 +11,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
 import atexit
 import base64
 import contextlib
@@ -24,7 +25,6 @@ import shutil
 import socket
 import sys
 import uuid
-import warnings
 
 import fixtures
 import flask
@@ -36,7 +36,6 @@ from oslo_context import fixture as oslo_ctx_fixture
 from oslo_log import fixture as log_fixture
 from oslo_log import log
 from oslo_utils import timeutils
-from sqlalchemy import exc
 import testtools
 from testtools import testcase
 
@@ -678,17 +677,8 @@ class BaseTestCase(testtools.TestCase):
         self.useFixture(fixtures.MockPatchObject(sys, 'exit',
                                                  side_effect=UnexpectedExit))
         self.useFixture(log_fixture.get_logging_handle_error_fixture())
+        self.useFixture(ksfixtures.WarningsFixture())
 
-        warnings.filterwarnings('error', category=DeprecationWarning,
-                                module='^keystone\\.')
-        warnings.filterwarnings(
-            'ignore', category=DeprecationWarning,
-            message=r"Using function/method 'db_version\(\)' is deprecated")
-        warnings.simplefilter('error', exc.SAWarning)
-        if hasattr(exc, "RemovedIn20Warning"):
-            warnings.simplefilter('ignore', exc.RemovedIn20Warning)
-
-        self.addCleanup(warnings.resetwarnings)
         # Ensure we have an empty threadlocal context at the start of each
         # test.
         self.assertIsNone(oslo_context.get_current())
