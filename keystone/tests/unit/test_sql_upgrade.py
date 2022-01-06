@@ -77,7 +77,8 @@ INITIAL_TABLE_STRUCTURE = {
         'type', 'domain_id',
     ],
     'credential': [
-        'id', 'user_id', 'project_id', 'blob', 'type', 'extra',
+        'id', 'user_id', 'project_id', 'type', 'extra', 'key_hash',
+        'encrypted_blob',
     ],
     'endpoint': [
         'id', 'legacy_endpoint_id', 'interface', 'region_id', 'service_id',
@@ -601,151 +602,6 @@ class FullMigration(MigrateBase, unit.TestCase):
             self.contract,
             upgrades.INITIAL_VERSION + 2,
         )
-
-    def test_migration_002_password_created_at_not_nullable(self):
-        # upgrade each repository to 001
-        self.expand(1)
-        self.migrate(1)
-        self.contract(1)
-
-        password = sqlalchemy.Table('password', self.metadata, autoload=True)
-        self.assertTrue(password.c.created_at.nullable)
-        # upgrade each repository to 002
-        self.expand(2)
-        self.migrate(2)
-        self.contract(2)
-        password = sqlalchemy.Table('password', self.metadata, autoload=True)
-        if self.engine.name != 'sqlite':
-            self.assertFalse(password.c.created_at.nullable)
-
-    def test_migration_003_migrate_unencrypted_credentials(self):
-        self.useFixture(
-            ksfixtures.KeyRepository(
-                self.config_fixture,
-                'credential',
-                credential_fernet.MAX_ACTIVE_KEYS
-            )
-        )
-
-        session = self.sessionmaker()
-        credential_table_name = 'credential'
-
-        # upgrade each repository to 002
-        self.expand(2)
-        self.migrate(2)
-        self.contract(2)
-
-        # populate the credential table with some sample credentials
-        credentials = list()
-        for i in range(5):
-            credential = {'id': uuid.uuid4().hex,
-                          'blob': uuid.uuid4().hex,
-                          'user_id': uuid.uuid4().hex,
-                          'type': 'cert'}
-            credentials.append(credential)
-            self.insert_dict(session, credential_table_name, credential)
-
-        # verify the current schema
-        self.assertTableColumns(
-            credential_table_name,
-            ['id', 'user_id', 'project_id', 'type', 'blob', 'extra']
-        )
-
-        # upgrade expand repo to 003 to add new columns
-        self.expand(3)
-
-        # verify encrypted_blob and key_hash columns have been added and verify
-        # the original blob column is still there
-        self.assertTableColumns(
-            credential_table_name,
-            ['id', 'user_id', 'project_id', 'type', 'blob', 'extra',
-             'key_hash', 'encrypted_blob']
-        )
-
-        # verify triggers by making sure we can't write to the credential table
-        credential = {'id': uuid.uuid4().hex,
-                      'blob': uuid.uuid4().hex,
-                      'user_id': uuid.uuid4().hex,
-                      'type': 'cert'}
-        self.assertRaises(db_exception.DBError,
-                          self.insert_dict,
-                          session,
-                          credential_table_name,
-                          credential)
-
-        # upgrade migrate repo to 003 to migrate existing credentials
-        self.migrate(3)
-
-        # make sure we've actually updated the credential with the
-        # encrypted blob and the corresponding key hash
-        credential_table = sqlalchemy.Table(
-            credential_table_name,
-            self.metadata,
-            autoload=True
-        )
-        for credential in credentials:
-            filter = credential_table.c.id == credential['id']
-            cols = [credential_table.c.key_hash, credential_table.c.blob,
-                    credential_table.c.encrypted_blob]
-            q = sqlalchemy.select(cols).where(filter)
-            result = session.execute(q).fetchone()
-
-            self.assertIsNotNone(result.encrypted_blob)
-            self.assertIsNotNone(result.key_hash)
-            # verify the original blob column is still populated
-            self.assertEqual(result.blob, credential['blob'])
-
-        # verify we can't make any writes to the credential table
-        credential = {'id': uuid.uuid4().hex,
-                      'blob': uuid.uuid4().hex,
-                      'user_id': uuid.uuid4().hex,
-                      'key_hash': uuid.uuid4().hex,
-                      'type': 'cert'}
-        self.assertRaises(db_exception.DBError,
-                          self.insert_dict,
-                          session,
-                          credential_table_name,
-                          credential)
-
-        # upgrade contract repo to 003 to remove triggers and blob column
-        self.contract(3)
-
-        # verify the new schema doesn't have a blob column anymore
-        self.assertTableColumns(
-            credential_table_name,
-            ['id', 'user_id', 'project_id', 'type', 'extra', 'key_hash',
-             'encrypted_blob']
-        )
-
-        # verify that the triggers are gone by writing to the database
-        credential = {'id': uuid.uuid4().hex,
-                      'encrypted_blob': uuid.uuid4().hex,
-                      'key_hash': uuid.uuid4().hex,
-                      'user_id': uuid.uuid4().hex,
-                      'type': 'cert'}
-        self.insert_dict(session, credential_table_name, credential)
-
-    def test_migration_004_reset_password_created_at(self):
-        # upgrade each repository to 003 and test
-        self.expand(3)
-        self.migrate(3)
-        self.contract(3)
-        password = sqlalchemy.Table('password', self.metadata, autoload=True)
-        # postgresql returns 'TIMESTAMP WITHOUT TIME ZONE'
-        self.assertTrue(
-            str(password.c.created_at.type).startswith('TIMESTAMP'))
-        # upgrade each repository to 004 and test
-        self.expand(4)
-        self.migrate(4)
-        self.contract(4)
-        password = sqlalchemy.Table('password', self.metadata, autoload=True)
-        # type would still be TIMESTAMP with postgresql
-        if self.engine.name == 'postgresql':
-            self.assertTrue(
-                str(password.c.created_at.type).startswith('TIMESTAMP'))
-        else:
-            self.assertEqual('DATETIME', str(password.c.created_at.type))
-        self.assertFalse(password.c.created_at.nullable)
 
     def test_migration_010_add_revocation_event_indexes(self):
         self.expand(9)
@@ -2324,10 +2180,6 @@ class FullMigration(MigrateBase, unit.TestCase):
 
 class MySQLOpportunisticFullMigration(FullMigration):
     FIXTURE = db_fixtures.MySQLOpportunisticFixture
-
-    def test_migration_003_migrate_unencrypted_credentials(self):
-        self.skip_test_overrides('skipped to update u-c for PyMySql version'
-                                 'to 0.10.0')
 
     def test_migration_012_add_domain_id_to_idp(self):
         self.skip_test_overrides('skipped to update u-c for PyMySql version'

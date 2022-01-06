@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import datetime
+import textwrap
 
 import migrate
 from oslo_log import log
@@ -83,9 +85,14 @@ def upgrade(migrate_engine):
         sql.Column('id', sql.String(length=64), primary_key=True),
         sql.Column('user_id', sql.String(length=64), nullable=False),
         sql.Column('project_id', sql.String(length=64)),
-        sql.Column('blob', ks_sql.JsonBlob, nullable=False),
         sql.Column('type', sql.String(length=255), nullable=False),
         sql.Column('extra', ks_sql.JsonBlob.impl),
+        sql.Column('key_hash', sql.String(64), nullable=False),
+        sql.Column(
+            'encrypted_blob',
+            ks_sql.Text,
+            nullable=False,
+        ),
         mysql_engine='InnoDB',
         mysql_charset='utf8',
     )
@@ -249,7 +256,6 @@ def upgrade(migrate_engine):
             nullable=False,
         ),
         sql.Column('password', sql.String(128), nullable=True),
-        sql.Column('created_at', sql.DateTime(), nullable=True),
         sql.Column('expires_at', sql.DateTime(), nullable=True),
         sql.Column(
             'self_service',
@@ -257,6 +263,12 @@ def upgrade(migrate_engine):
             nullable=False,
             server_default='0',
             default=False,
+        ),
+        sql.Column(
+            'created_at',
+            sql.DateTime(),
+            nullable=False,
+            default=datetime.datetime.utcnow,
         ),
     )
 
@@ -747,3 +759,27 @@ def upgrade(migrate_engine):
             name=fkey.get('name'),
             ondelete=fkey.get('ondelete'),
         ).create()
+
+    # TODO(stephenfin): Remove these procedures in a future contract migration
+
+    if migrate_engine.name == 'postgresql':
+        error_message = (
+            'Credential migration in progress. Cannot perform '
+            'writes to credential table.'
+        )
+        credential_update_trigger = textwrap.dedent(f"""
+        CREATE OR REPLACE FUNCTION keystone_read_only_update()
+          RETURNS trigger AS
+        $BODY$
+        BEGIN
+          IF NEW.encrypted_blob IS NULL THEN
+            RAISE EXCEPTION '{error_message}';
+          END IF;
+          IF NEW.encrypted_blob IS NOT NULL AND OLD.blob IS NULL THEN
+            RAISE EXCEPTION '{error_message}';
+          END IF;
+          RETURN NEW;
+        END
+        $BODY$ LANGUAGE plpgsql;
+        """)
+        migrate_engine.execute(credential_update_trigger)
