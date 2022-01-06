@@ -42,6 +42,14 @@ class WarningsFixture(fixtures.Fixture):
             message=r"Using function/method 'db_version\(\)' is deprecated",
         )
 
+        # TODO(stephenfin): Remove these when we drop support for
+        # sqlalchemy-migrate
+        warnings.filterwarnings(
+            'ignore',
+            category=sqla_exc.SADeprecationWarning,
+            module='migrate.versioning',
+        )
+
         # TODO(stephenfin): We should filter on the specific RemovedIn20Warning
         # warnings that affect us, so that we can slowly start addressing them
         warnings.simplefilter('error', sqla_exc.SAWarning)
