@@ -192,6 +192,7 @@ def upgrade(migrate_engine):
         sql.Column('id', sql.String(64), primary_key=True),
         sql.Column('enabled', sql.Boolean, nullable=False),
         sql.Column('description', sql.Text(), nullable=True),
+        sql.Column('domain_id', sql.String(64), nullable=False),
         mysql_engine='InnoDB',
         mysql_charset='utf8',
     )
@@ -225,7 +226,6 @@ def upgrade(migrate_engine):
         sql.Column(
             'user_id',
             sql.String(64),
-            sql.ForeignKey('user.id', ondelete='CASCADE'),
             nullable=False,
             unique=True,
         ),
@@ -401,6 +401,22 @@ def upgrade(migrate_engine):
         # was 'revocation_event_new' so the index got that name. We may wish to
         # rename this eventually.
         sql.Index('ix_revocation_event_new_revoked_at', 'revoked_at'),
+        sql.Index('ix_revocation_event_issued_before', 'issued_before'),
+        sql.Index(
+            'ix_revocation_event_project_id_issued_before',
+            'project_id',
+            'issued_before',
+        ),
+        sql.Index(
+            'ix_revocation_event_user_id_issued_before',
+            'user_id',
+            'issued_before',
+        ),
+        sql.Index(
+            'ix_revocation_event_audit_id_issued_before',
+            'audit_id',
+            'issued_before',
+        ),
     )
 
     role = sql.Table(
@@ -469,9 +485,7 @@ def upgrade(migrate_engine):
         sql.Column('trust_id', sql.String(length=64)),
         sql.Column('user_id', sql.String(length=64)),
         sql.Index('ix_token_expires', 'expires'),
-        sql.Index(
-            'ix_token_expires_valid', 'expires', 'valid'
-        ),
+        sql.Index('ix_token_expires_valid', 'expires', 'valid'),
         sql.Index('ix_token_user_id', 'user_id'),
         sql.Index('ix_token_trust_id', 'trust_id'),
         mysql_engine='InnoDB',
@@ -524,6 +538,31 @@ def upgrade(migrate_engine):
         sql.Column('default_project_id', sql.String(length=64)),
         sql.Column('created_at', sql.DateTime(), nullable=True),
         sql.Column('last_active_at', sql.Date(), nullable=True),
+        sql.Column(
+            'domain_id',
+            sql.String(64),
+            sql.ForeignKey(project.c.id),
+            nullable=False,
+        ),
+        sql.UniqueConstraint('id', 'domain_id', name='ixu_user_id_domain_id'),
+        mysql_engine='InnoDB',
+        mysql_charset='utf8',
+    )
+
+    user_option = sql.Table(
+        'user_option',
+        meta,
+        sql.Column(
+            'user_id',
+            sql.String(64),
+            sql.ForeignKey(user.c.id, ondelete='CASCADE'),
+            nullable=False,
+            primary_key=True,
+        ),
+        sql.Column(
+            'option_id', sql.String(4), nullable=False, primary_key=True
+        ),
+        sql.Column('option_value', ks_sql.JsonBlob, nullable=True),
         mysql_engine='InnoDB',
         mysql_charset='utf8',
     )
@@ -536,9 +575,9 @@ def upgrade(migrate_engine):
         sql.Column(
             'user_id',
             sql.String(64),
-            sql.ForeignKey(user.c.id, ondelete='CASCADE'),
             nullable=False,
         ),
+        sql.UniqueConstraint('user_id', name='ixu_nonlocal_user_user_id'),
         mysql_engine='InnoDB',
         mysql_charset='utf8',
     )
@@ -656,6 +695,7 @@ def upgrade(migrate_engine):
         trust,
         trust_role,
         user,
+        user_option,
         user_group_membership,
         region,
         assignment,
@@ -738,6 +778,24 @@ def upgrade(migrate_engine):
                 federation_protocol.c.id,
                 federation_protocol.c.idp_id,
             ],
+            'ondelete': 'CASCADE',
+        },
+        {
+            'columns': [identity_provider.c.domain_id],
+            'references': [project.c.id],
+            'name': 'domain_id',
+        },
+        {
+            'columns': [local_user.c.user_id, local_user.c.domain_id],
+            'references': [user.c.id, user.c.domain_id],
+            'onupdate': 'CASCADE',
+            'ondelete': 'CASCADE',
+        },
+        {
+            'columns': [nonlocal_user.c.user_id, nonlocal_user.c.domain_id],
+            'references': [user.c.id, user.c.domain_id],
+            'onupdate': 'CASCADE',
+            'ondelete': 'CASCADE',
         },
     ]
 
@@ -758,6 +816,7 @@ def upgrade(migrate_engine):
             refcolumns=fkey['references'],
             name=fkey.get('name'),
             ondelete=fkey.get('ondelete'),
+            onupdate=fkey.get('onupdate'),
         ).create()
 
     # TODO(stephenfin): Remove these procedures in a future contract migration
@@ -783,3 +842,46 @@ def upgrade(migrate_engine):
         $BODY$ LANGUAGE plpgsql;
         """)
         migrate_engine.execute(credential_update_trigger)
+
+        error_message = (
+            'Identity provider migration in progress. Cannot '
+            'insert new rows into the identity_provider table at '
+            'this time.'
+        )
+        identity_provider_insert_trigger = textwrap.dedent(f"""
+        CREATE OR REPLACE FUNCTION keystone_read_only_insert()
+          RETURNS trigger AS
+        $BODY$
+        BEGIN
+          RAISE EXCEPTION '{error_message}';
+        END
+        $BODY$ LANGUAGE plpgsql;
+        """)
+        migrate_engine.execute(identity_provider_insert_trigger)
+
+        federated_user_insert_trigger = textwrap.dedent("""
+        CREATE OR REPLACE FUNCTION update_federated_user_domain_id()
+            RETURNS trigger AS
+        $BODY$
+        BEGIN
+            UPDATE "user" SET domain_id = (
+                SELECT domain_id FROM identity_provider WHERE id = NEW.idp_id)
+                WHERE id = NEW.user_id and domain_id IS NULL;
+            RETURN NULL;
+        END
+        $BODY$ LANGUAGE plpgsql;
+        """)
+        migrate_engine.execute(federated_user_insert_trigger)
+
+        local_user_insert_trigger = textwrap.dedent("""
+        CREATE OR REPLACE FUNCTION update_user_domain_id()
+            RETURNS trigger AS
+        $BODY$
+        BEGIN
+            UPDATE "user" SET domain_id = NEW.domain_id
+                WHERE id = NEW.user_id;
+            RETURN NULL;
+        END
+        $BODY$ LANGUAGE plpgsql;
+        """)
+        migrate_engine.execute(local_user_insert_trigger)
