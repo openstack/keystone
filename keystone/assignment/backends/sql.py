@@ -262,6 +262,11 @@ class Assignment(base.AssignmentDriverBase):
             q = q.filter_by(role_id=role_id)
             q.delete(False)
 
+        with sql.session_for_write() as session:
+            q = session.query(SystemRoleAssignment)
+            q = q.filter_by(role_id=role_id)
+            q.delete(False)
+
     def delete_domain_assignments(self, domain_id):
         with sql.session_for_write() as session:
             q = session.query(RoleAssignment)

@@ -1,0 +1,16 @@
+---
+fixes:
+  - |
+    [`bug 1878938 <https://bugs.launchpad.net/keystone/+bug/1878938>`_]
+    Previously when a user used to have system role assignment and tries to delete
+    the same role, the system role assignments still existed in system_assignment
+    table. This causes keystone to return `HTTP 404 Not Found` errors when listing
+    role assignments with names (e.g., `--names` or `?include_names`).
+
+    If you are affected by this bug, you must remove stale role assignments
+    manually. The following is an example SQL statement you can use to fix the
+    issue, but you should verify it's applicability to your deployment's SQL
+    implementation and version.
+
+    SQL:
+         - delete from system_assignment where role_id not in (select id from role);
