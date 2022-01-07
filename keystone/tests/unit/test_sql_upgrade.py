@@ -187,7 +187,7 @@ INITIAL_TABLE_STRUCTURE = {
     ],
     'password': [
         'id', 'local_user_id', 'password', 'created_at', 'expires_at',
-        'self_service',
+        'self_service', 'password_hash', 'created_at_int', 'expires_at_int',
     ],
     'federated_user': [
         'id', 'user_id', 'idp_id', 'protocol_id', 'unique_id', 'display_name',
@@ -604,72 +604,6 @@ class FullMigration(MigrateBase, unit.TestCase):
             self.contract,
             upgrades.INITIAL_VERSION + 2,
         )
-
-    def test_migration_024_add_created_expires_at_int_columns_password(self):
-
-        self.expand(23)
-        self.migrate(23)
-        self.contract(23)
-
-        password_table_name = 'password'
-
-        self.assertTableColumns(
-            password_table_name,
-            ['id', 'local_user_id', 'password', 'password_hash', 'created_at',
-             'expires_at', 'self_service']
-        )
-
-        self.expand(24)
-
-        self.assertTableColumns(
-            password_table_name,
-            ['id', 'local_user_id', 'password', 'password_hash', 'created_at',
-             'expires_at', 'created_at_int', 'expires_at_int', 'self_service']
-        )
-
-        # Create User and Local User
-        project_table = sqlalchemy.Table('project', self.metadata,
-                                         autoload=True)
-        domain_data = {'id': '_domain', 'domain_id': '_domain',
-                       'enabled': True, 'name': '_domain', 'is_domain': True}
-        project_table.insert().values(domain_data).execute()
-        user_table = sqlalchemy.Table('user', self.metadata, autoload=True)
-        user_id = uuid.uuid4().hex
-        user = {'id': user_id, 'enabled': True, 'domain_id': domain_data['id']}
-        user_table.insert().values(user).execute()
-        local_user_table = sqlalchemy.Table('local_user', self.metadata,
-                                            autoload=True)
-        local_user = {
-            'id': 1, 'user_id': user_id, 'domain_id': user['domain_id'],
-            'name': 'name'}
-
-        local_user_table.insert().values(local_user).execute()
-
-        password_table = sqlalchemy.Table('password',
-                                          self.metadata, autoload=True)
-        password_data = {
-            'local_user_id': local_user['id'],
-            'created_at': datetime.datetime.utcnow(),
-            'expires_at': datetime.datetime.utcnow()}
-        password_table.insert().values(password_data).execute()
-
-        self.migrate(24)
-        self.contract(24)
-        passwords = list(password_table.select().execute())
-
-        epoch = datetime.datetime.fromtimestamp(0, tz=pytz.UTC)
-
-        for p in passwords:
-            c = (p.created_at.replace(tzinfo=pytz.UTC) - epoch).total_seconds()
-            e = (p.expires_at.replace(tzinfo=pytz.UTC) - epoch).total_seconds()
-            self.assertEqual(p.created_at_int, int(c * 1000000))
-            self.assertEqual(p.expires_at_int, int(e * 1000000))
-
-        # Test contract phase and ensure data can not be null
-        self.contract(24)
-        meta = sqlalchemy.MetaData(self.engine)
-        pw_table = sqlalchemy.Table('password', meta, autoload=True)
-        self.assertFalse(pw_table.c.created_at_int.nullable)
 
     def test_migration_030_expand_add_project_tags_table(self):
         self.expand(29)
