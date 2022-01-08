@@ -334,6 +334,26 @@ def upgrade(migrate_engine):
         mysql_charset='utf8',
     )
 
+    # NOTE(lamt) To allow tag name to be case sensitive for MySQL, the 'name'
+    # column needs to use collation, which is incompatible with Postgresql.
+    # Using unicode to mirror nova's server tag:
+    # https://github.com/openstack/nova/blob/master/nova/db/sqlalchemy/models.py
+    project_tag = sql.Table(
+        'project_tag',
+        meta,
+        sql.Column(
+            'project_id',
+            sql.String(64),
+            sql.ForeignKey(project.c.id, ondelete='CASCADE'),
+            nullable=False,
+            primary_key=True,
+        ),
+        sql.Column('name', sql.Unicode(255), nullable=False, primary_key=True),
+        sql.UniqueConstraint('project_id', 'name'),
+        mysql_engine='InnoDB',
+        mysql_charset='utf8',
+    )
+
     project_endpoint = sql.Table(
         'project_endpoint',
         meta,
@@ -516,13 +536,15 @@ def upgrade(migrate_engine):
         sql.Column('expires_at', sql.DateTime),
         sql.Column('remaining_uses', sql.Integer, nullable=True),
         sql.Column('extra', ks_sql.JsonBlob.impl),
+        sql.Column('expires_at_int', ks_sql.DateTimeInt()),
         sql.UniqueConstraint(
             'trustor_user_id',
             'trustee_user_id',
             'project_id',
             'impersonation',
             'expires_at',
-            name='duplicate_trust_constraint',
+            'expires_at_int',
+            name='duplicate_trust_constraint_expanded',
         ),
         mysql_engine='InnoDB',
         mysql_charset='utf8',
@@ -695,6 +717,91 @@ def upgrade(migrate_engine):
         mysql_charset='utf8',
     )
 
+    system_assignment = sql.Table(
+        'system_assignment',
+        meta,
+        sql.Column('type', sql.String(64), nullable=False),
+        sql.Column('actor_id', sql.String(64), nullable=False),
+        sql.Column('target_id', sql.String(64), nullable=False),
+        sql.Column('role_id', sql.String(64), nullable=False),
+        sql.Column('inherited', sql.Boolean, default=False, nullable=False),
+        sql.PrimaryKeyConstraint(
+            'type', 'actor_id', 'target_id', 'role_id', 'inherited'
+        ),
+        mysql_engine='InnoDB',
+        mysql_charset='utf8',
+    )
+
+    registered_limit = sql.Table(
+        'registered_limit',
+        meta,
+        sql.Column('id', sql.String(length=64), primary_key=True),
+        sql.Column('service_id', sql.String(255)),
+        sql.Column('region_id', sql.String(64), nullable=True),
+        sql.Column('resource_name', sql.String(255)),
+        sql.Column('default_limit', sql.Integer, nullable=False),
+        sql.UniqueConstraint('service_id', 'region_id', 'resource_name'),
+        mysql_engine='InnoDB',
+        mysql_charset='utf8',
+    )
+
+    limit = sql.Table(
+        'limit',
+        meta,
+        sql.Column('id', sql.String(length=64), primary_key=True),
+        sql.Column('project_id', sql.String(64), sql.ForeignKey(project.c.id)),
+        sql.Column('service_id', sql.String(255)),
+        sql.Column('region_id', sql.String(64), nullable=True),
+        sql.Column('resource_name', sql.String(255)),
+        sql.Column('resource_limit', sql.Integer, nullable=False),
+        sql.UniqueConstraint(
+            'project_id', 'service_id', 'region_id', 'resource_name'
+        ),
+        mysql_engine='InnoDB',
+        mysql_charset='utf8',
+    )
+
+    application_credential = sql.Table(
+        'application_credential',
+        meta,
+        sql.Column(
+            'internal_id', sql.Integer, primary_key=True, nullable=False
+        ),
+        sql.Column('id', sql.String(length=64), nullable=False),
+        sql.Column('name', sql.String(length=255), nullable=False),
+        sql.Column('secret_hash', sql.String(length=255), nullable=False),
+        sql.Column('description', sql.Text),
+        sql.Column('user_id', sql.String(length=64), nullable=False),
+        sql.Column('project_id', sql.String(64), nullable=True),
+        sql.Column('expires_at', ks_sql.DateTimeInt()),
+        sql.Column('system', sql.String(64), nullable=True),
+        sql.Column('unrestricted', sql.Boolean),
+        sql.UniqueConstraint(
+            'user_id', 'name', name='duplicate_app_cred_constraint'
+        ),
+        mysql_engine='InnoDB',
+        mysql_charset='utf8',
+    )
+
+    application_credential_role = sql.Table(
+        'application_credential_role',
+        meta,
+        sql.Column(
+            'application_credential_id',
+            sql.Integer,
+            sql.ForeignKey(
+                application_credential.c.internal_id, ondelete='CASCADE'
+            ),
+            primary_key=True,
+            nullable=False,
+        ),
+        sql.Column(
+            'role_id', sql.String(length=64), primary_key=True, nullable=False
+        ),
+        mysql_engine='InnoDB',
+        mysql_charset='utf8',
+    )
+
     # create all tables
     tables = [
         credential,
@@ -702,6 +809,7 @@ def upgrade(migrate_engine):
         group,
         policy,
         project,
+        project_tag,
         role,
         service,
         token,
@@ -734,6 +842,11 @@ def upgrade(migrate_engine):
         password,
         federated_user,
         nonlocal_user,
+        system_assignment,
+        limit,
+        registered_limit,
+        application_credential,
+        application_credential_role,
     ]
 
     for table in tables:
@@ -809,6 +922,18 @@ def upgrade(migrate_engine):
             'references': [user.c.id, user.c.domain_id],
             'onupdate': 'CASCADE',
             'ondelete': 'CASCADE',
+        },
+        {
+            'columns': [
+                limit.c.service_id,
+                limit.c.region_id,
+                limit.c.resource_name,
+            ],
+            'references': [
+                registered_limit.c.service_id,
+                registered_limit.c.region_id,
+                registered_limit.c.resource_name,
+            ],
         },
     ]
 
@@ -898,3 +1023,9 @@ def upgrade(migrate_engine):
         $BODY$ LANGUAGE plpgsql;
         """)
         migrate_engine.execute(local_user_insert_trigger)
+
+    # FIXME(stephenfin): Remove these indexes. They're left over from attempts
+    # to remove foreign key constraints in past migrations. Apparently
+    # sqlalchemy-migrate didn't do the job fully and left behind indexes
+    if migrate_engine.name == 'mysql':
+        sql.Index('region_id', registered_limit.c.region_id).create()

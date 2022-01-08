@@ -53,10 +53,8 @@ from oslo_log import fixture as log_fixture
 from oslo_log import log
 from oslo_serialization import jsonutils
 from oslotest import base as test_base
-import pytz
 import sqlalchemy.exc
 from sqlalchemy import inspect
-from testtools import matchers
 
 from keystone.cmd import cli
 from keystone.common import sql
@@ -93,6 +91,9 @@ INITIAL_TABLE_STRUCTURE = {
         'id', 'name', 'extra', 'description', 'enabled', 'domain_id',
         'parent_id', 'is_domain',
     ],
+    'project_tag': [
+        'project_id', 'name',
+    ],
     'role': [
         'id', 'name', 'extra', 'domain_id',
     ],
@@ -105,6 +106,7 @@ INITIAL_TABLE_STRUCTURE = {
     'trust': [
         'id', 'trustor_user_id', 'trustee_user_id', 'project_id',
         'impersonation', 'deleted_at', 'expires_at', 'remaining_uses', 'extra',
+        'expires_at_int',
     ],
     'trust_role': [
         'trust_id', 'role_id',
@@ -194,6 +196,23 @@ INITIAL_TABLE_STRUCTURE = {
     ],
     'nonlocal_user': [
         'domain_id', 'name', 'user_id',
+    ],
+    'system_assignment': [
+        'type', 'actor_id', 'target_id', 'role_id', 'inherited',
+    ],
+    'registered_limit': [
+        'id', 'service_id', 'region_id', 'resource_name', 'default_limit',
+    ],
+    'limit': [
+        'id', 'project_id', 'service_id', 'region_id', 'resource_name',
+        'resource_limit',
+    ],
+    'application_credential': [
+        'internal_id', 'id', 'name', 'secret_hash', 'description', 'user_id',
+        'project_id', 'expires_at', 'system', 'unrestricted',
+    ],
+    'application_credential_role': [
+        'application_credential_id', 'role_id',
     ],
 }
 
@@ -604,506 +623,6 @@ class FullMigration(MigrateBase, unit.TestCase):
             self.contract,
             upgrades.INITIAL_VERSION + 2,
         )
-
-    def test_migration_030_expand_add_project_tags_table(self):
-        self.expand(29)
-        self.migrate(29)
-        self.contract(29)
-
-        table_name = 'project_tag'
-        self.assertTableDoesNotExist(table_name)
-
-        self.expand(30)
-        self.migrate(30)
-        self.contract(30)
-
-        self.assertTableExists(table_name)
-        self.assertTableColumns(
-            table_name,
-            ['project_id', 'name'])
-
-    def test_migration_030_project_tags_works_correctly_after_migration(self):
-        if self.engine.name == 'sqlite':
-            self.skipTest('sqlite backend does not support foreign keys')
-
-        self.expand(30)
-        self.migrate(30)
-        self.contract(30)
-
-        project_table = sqlalchemy.Table(
-            'project', self.metadata, autoload=True)
-        tag_table = sqlalchemy.Table(
-            'project_tag', self.metadata, autoload=True)
-
-        session = self.sessionmaker()
-        project_id = uuid.uuid4().hex
-
-        project = {
-            'id': project_id,
-            'name': uuid.uuid4().hex,
-            'enabled': True,
-            'domain_id': resource_base.NULL_DOMAIN_ID,
-            'is_domain': False
-        }
-
-        tag = {
-            'project_id': project_id,
-            'name': uuid.uuid4().hex
-        }
-
-        self.insert_dict(session, 'project', project)
-        self.insert_dict(session, 'project_tag', tag)
-
-        tags_query = session.query(tag_table).filter_by(
-            project_id=project_id).all()
-        self.assertThat(tags_query, matchers.HasLength(1))
-
-        # Adding duplicate tags should cause error.
-        self.assertRaises(db_exception.DBDuplicateEntry,
-                          self.insert_dict,
-                          session, 'project_tag', tag)
-
-        session.execute(
-            project_table.delete().where(project_table.c.id == project_id)
-        )
-
-        tags_query = session.query(tag_table).filter_by(
-            project_id=project_id).all()
-        self.assertThat(tags_query, matchers.HasLength(0))
-
-        session.close()
-
-    def test_migration_031_adds_system_assignment_table(self):
-        self.expand(30)
-        self.migrate(30)
-        self.contract(30)
-
-        system_assignment_table_name = 'system_assignment'
-        self.assertTableDoesNotExist(system_assignment_table_name)
-
-        self.expand(31)
-        self.migrate(31)
-        self.contract(31)
-
-        self.assertTableExists(system_assignment_table_name)
-        self.assertTableColumns(
-            system_assignment_table_name,
-            ['type', 'actor_id', 'target_id', 'role_id', 'inherited']
-        )
-
-        system_assignment_table = sqlalchemy.Table(
-            system_assignment_table_name, self.metadata, autoload=True
-        )
-
-        system_user = {
-            'type': 'UserSystem',
-            'target_id': uuid.uuid4().hex,
-            'actor_id': uuid.uuid4().hex,
-            'role_id': uuid.uuid4().hex,
-            'inherited': False
-        }
-        system_assignment_table.insert().values(system_user).execute()
-
-        system_group = {
-            'type': 'GroupSystem',
-            'target_id': uuid.uuid4().hex,
-            'actor_id': uuid.uuid4().hex,
-            'role_id': uuid.uuid4().hex,
-            'inherited': False
-        }
-        system_assignment_table.insert().values(system_group).execute()
-
-    def test_migration_032_add_expires_at_int_column_trust(self):
-
-        self.expand(31)
-        self.migrate(31)
-        self.contract(31)
-
-        trust_table_name = 'trust'
-
-        self.assertTableColumns(
-            trust_table_name,
-            ['id', 'trustor_user_id', 'trustee_user_id', 'project_id',
-             'impersonation', 'deleted_at', 'expires_at', 'remaining_uses',
-             'extra'],
-        )
-
-        self.expand(32)
-
-        self.assertTableColumns(
-            trust_table_name,
-            ['id', 'trustor_user_id', 'trustee_user_id', 'project_id',
-             'impersonation', 'deleted_at', 'expires_at', 'expires_at_int',
-             'remaining_uses', 'extra'],
-        )
-
-        # Create Trust
-        trust_table = sqlalchemy.Table('trust', self.metadata,
-                                       autoload=True)
-        trust_1_data = {
-            'id': uuid.uuid4().hex,
-            'trustor_user_id': uuid.uuid4().hex,
-            'trustee_user_id': uuid.uuid4().hex,
-            'project_id': uuid.uuid4().hex,
-            'impersonation': False,
-            'expires_at': datetime.datetime.utcnow()
-        }
-        trust_2_data = {
-            'id': uuid.uuid4().hex,
-            'trustor_user_id': uuid.uuid4().hex,
-            'trustee_user_id': uuid.uuid4().hex,
-            'project_id': uuid.uuid4().hex,
-            'impersonation': False,
-            'expires_at': None
-        }
-        trust_table.insert().values(trust_1_data).execute()
-        trust_table.insert().values(trust_2_data).execute()
-
-        self.migrate(32)
-        self.contract(32)
-        trusts = list(trust_table.select().execute())
-
-        epoch = datetime.datetime.fromtimestamp(0, tz=pytz.UTC)
-
-        for t in trusts:
-            if t.expires_at:
-                e = t.expires_at.replace(tzinfo=pytz.UTC) - epoch
-                e = e.total_seconds()
-                self.assertEqual(t.expires_at_int, int(e * 1000000))
-
-    def test_migration_033_adds_limits_table(self):
-        self.expand(32)
-        self.migrate(32)
-        self.contract(32)
-
-        registered_limit_table_name = 'registered_limit'
-        limit_table_name = 'limit'
-        self.assertTableDoesNotExist(registered_limit_table_name)
-        self.assertTableDoesNotExist(limit_table_name)
-
-        self.expand(33)
-        self.migrate(33)
-        self.contract(33)
-
-        self.assertTableExists(registered_limit_table_name)
-        self.assertTableColumns(
-            registered_limit_table_name,
-            ['id', 'service_id', 'resource_name', 'region_id', 'default_limit']
-        )
-        self.assertTableExists(limit_table_name)
-        self.assertTableColumns(
-            limit_table_name,
-            ['id', 'project_id', 'service_id', 'resource_name', 'region_id',
-             'resource_limit']
-        )
-
-        session = self.sessionmaker()
-        service_id = uuid.uuid4().hex
-        service = {
-            'id': service_id,
-            'type': 'compute',
-            'enabled': True
-        }
-        region = {
-            'id': 'RegionOne',
-            'description': 'test'
-        }
-        project_id = uuid.uuid4().hex
-        project = {
-            'id': project_id,
-            'name': 'nova',
-            'enabled': True,
-            'domain_id': resource_base.NULL_DOMAIN_ID,
-            'is_domain': False
-        }
-        self.insert_dict(session, 'service', service)
-        self.insert_dict(session, 'region', region)
-        self.insert_dict(session, 'project', project)
-
-        # Insert one registered limit
-        registered_limit_table = sqlalchemy.Table(
-            registered_limit_table_name, self.metadata, autoload=True)
-        registered_limit = {
-            'id': uuid.uuid4().hex,
-            'service_id': service_id,
-            'region_id': 'RegionOne',
-            'resource_name': 'cores',
-            'default_limit': 10
-        }
-        registered_limit_table.insert().values(registered_limit).execute()
-
-        # It will raise error if insert another one with same service_id,
-        # region_id and resource name.
-        registered_limit['id'] = uuid.uuid4().hex
-        registered_limit['default_limit'] = 20
-        self.assertRaises(db_exception.DBDuplicateEntry,
-                          registered_limit_table.insert().values(
-                              registered_limit).execute)
-
-        # Insert one without region_id
-        registered_limit_without_region = {
-            'id': uuid.uuid4().hex,
-            'service_id': service_id,
-            'resource_name': 'cores',
-            'default_limit': 10
-        }
-        registered_limit_table.insert().values(
-            registered_limit_without_region).execute()
-
-        # It will not raise error if insert another one with same service_id
-        # and resource_name but the region_id is None. Because that
-        # UniqueConstraint doesn't work if one of the columns is None. This
-        # should be controlled at the Manager layer to forbid this behavior.
-        registered_limit_without_region['id'] = uuid.uuid4().hex
-        registered_limit_table.insert().values(
-            registered_limit_without_region).execute()
-
-        # Insert one limit
-        limit_table = sqlalchemy.Table(
-            limit_table_name, self.metadata, autoload=True)
-        limit = {
-            'id': uuid.uuid4().hex,
-            'project_id': project_id,
-            'service_id': service_id,
-            'region_id': 'RegionOne',
-            'resource_name': 'cores',
-            'resource_limit': 5
-        }
-        limit_table.insert().values(limit).execute()
-
-        # Insert another one with the same project_id, service_id, region_id
-        # and resource_name, then raise error.
-        limit['id'] = uuid.uuid4().hex
-        limit['resource_limit'] = 10
-        self.assertRaises(db_exception.DBDuplicateEntry,
-                          limit_table.insert().values(limit).execute)
-
-        # Insert one without region_id
-        limit_without_region = {
-            'id': uuid.uuid4().hex,
-            'project_id': project_id,
-            'service_id': service_id,
-            'resource_name': 'cores',
-            'resource_limit': 5
-        }
-        limit_table.insert().values(limit_without_region).execute()
-
-    def test_migration_034_adds_application_credential_table(self):
-        self.expand(33)
-        self.migrate(33)
-        self.contract(33)
-
-        application_credential_table_name = 'application_credential'
-        self.assertTableDoesNotExist(application_credential_table_name)
-        application_credential_role_table_name = 'application_credential_role'
-        self.assertTableDoesNotExist(application_credential_role_table_name)
-
-        self.expand(34)
-        self.migrate(34)
-        self.contract(34)
-
-        self.assertTableExists(application_credential_table_name)
-        self.assertTableColumns(
-            application_credential_table_name,
-            ['internal_id', 'id', 'name', 'secret_hash',
-             'description', 'user_id', 'project_id', 'expires_at',
-             'allow_application_credential_creation']
-        )
-        if self.engine.name == 'mysql':
-            self.assertTrue(self.does_index_exist(
-                'application_credential', 'duplicate_app_cred_constraint'))
-        else:
-            self.assertTrue(self.does_constraint_exist(
-                'application_credential', 'duplicate_app_cred_constraint'))
-        self.assertTableExists(application_credential_role_table_name)
-        self.assertTableColumns(
-            application_credential_role_table_name,
-            ['application_credential_id', 'role_id']
-        )
-
-        app_cred_table = sqlalchemy.Table(
-            application_credential_table_name, self.metadata, autoload=True
-        )
-        app_cred_role_table = sqlalchemy.Table(
-            application_credential_role_table_name,
-            self.metadata, autoload=True
-        )
-        self.assertTrue(self.does_fk_exist('application_credential_role',
-                                           'application_credential_id'))
-
-        expires_at = datetime.datetime.utcnow().replace(tzinfo=pytz.UTC)
-        epoch = datetime.datetime.fromtimestamp(0, tz=pytz.UTC)
-        expires_at_int = (expires_at - epoch).total_seconds()
-        app_cred = {
-            'internal_id': 1,
-            'id': uuid.uuid4().hex,
-            'name': uuid.uuid4().hex,
-            'secret_hash': uuid.uuid4().hex,
-            'description': uuid.uuid4().hex,
-            'user_id': uuid.uuid4().hex,
-            'project_id': uuid.uuid4().hex,
-            'expires_at': expires_at_int,
-            'allow_application_credential_creation': False
-        }
-        app_cred_table.insert().values(app_cred).execute()
-
-        # Exercise unique constraint
-        dup_app_cred = {
-            'internal_id': 2,
-            'id': uuid.uuid4().hex,
-            'name': app_cred['name'],
-            'secret_hash': uuid.uuid4().hex,
-            'user_id': app_cred['user_id'],
-            'project_id': uuid.uuid4().hex
-        }
-        insert = app_cred_table.insert().values(dup_app_cred)
-        self.assertRaises(db_exception.DBDuplicateEntry,
-                          insert.execute)
-
-        role_rel = {
-            'application_credential_id': app_cred['internal_id'],
-            'role_id': uuid.uuid4().hex
-        }
-        app_cred_role_table.insert().values(role_rel).execute()
-
-        # Exercise role table primary keys
-        insert = app_cred_role_table.insert().values(role_rel)
-        self.assertRaises(db_exception.DBDuplicateEntry, insert.execute)
-
-    def test_migration_035_add_system_column_to_credential_table(self):
-        self.expand(34)
-        self.migrate(34)
-        self.contract(34)
-
-        application_credential_table_name = 'application_credential'
-        self.assertTableExists(application_credential_table_name)
-        self.assertTableColumns(
-            application_credential_table_name,
-            ['internal_id', 'id', 'name', 'secret_hash',
-             'description', 'user_id', 'project_id', 'expires_at',
-             'allow_application_credential_creation']
-        )
-
-        self.expand(35)
-        self.migrate(35)
-        self.contract(35)
-
-        self.assertTableColumns(
-            application_credential_table_name,
-            ['internal_id', 'id', 'name', 'secret_hash',
-             'description', 'user_id', 'project_id', 'system', 'expires_at',
-             'allow_application_credential_creation']
-        )
-
-        application_credential_table = sqlalchemy.Table(
-            application_credential_table_name, self.metadata, autoload=True
-        )
-
-        # Test that we can insert an application credential without project_id
-        # defined.
-        expires_at = datetime.datetime.utcnow().replace(tzinfo=pytz.UTC)
-        epoch = datetime.datetime.fromtimestamp(0, tz=pytz.UTC)
-        expires_at_int = (expires_at - epoch).total_seconds()
-        app_cred = {
-            'internal_id': 1,
-            'id': uuid.uuid4().hex,
-            'name': uuid.uuid4().hex,
-            'secret_hash': uuid.uuid4().hex,
-            'description': uuid.uuid4().hex,
-            'user_id': uuid.uuid4().hex,
-            'system': uuid.uuid4().hex,
-            'expires_at': expires_at_int,
-            'allow_application_credential_creation': False
-        }
-        application_credential_table.insert().values(app_cred).execute()
-
-        # Test that we can insert an application credential with a project_id
-        # and without system defined.
-        app_cred = {
-            'internal_id': 2,
-            'id': uuid.uuid4().hex,
-            'name': uuid.uuid4().hex,
-            'secret_hash': uuid.uuid4().hex,
-            'description': uuid.uuid4().hex,
-            'user_id': uuid.uuid4().hex,
-            'project_id': uuid.uuid4().hex,
-            'expires_at': expires_at_int,
-            'allow_application_credential_creation': False
-        }
-        application_credential_table.insert().values(app_cred).execute()
-
-        # Test that we can create an application credential without a project
-        # or a system defined. Technically, project_id and system should be
-        # mutually exclusive, which will be handled by the application and not
-        # the data layer.
-        app_cred = {
-            'internal_id': 3,
-            'id': uuid.uuid4().hex,
-            'name': uuid.uuid4().hex,
-            'secret_hash': uuid.uuid4().hex,
-            'description': uuid.uuid4().hex,
-            'user_id': uuid.uuid4().hex,
-            'expires_at': expires_at_int,
-            'allow_application_credential_creation': False
-        }
-        application_credential_table.insert().values(app_cred).execute()
-
-    def test_migration_036_rename_application_credentials_column(self):
-        self.expand(35)
-        self.migrate(35)
-        self.contract(35)
-
-        application_credential_table_name = 'application_credential'
-        application_credential_role_table_name = 'application_credential_role'
-
-        self.expand(36)
-        self.migrate(36)
-        self.contract(36)
-
-        self.assertTableColumns(
-            application_credential_table_name,
-            ['internal_id', 'id', 'name', 'secret_hash',
-             'description', 'user_id', 'project_id', 'system', 'expires_at',
-             'unrestricted']
-        )
-
-        application_credential_table = sqlalchemy.Table(
-            application_credential_table_name, self.metadata, autoload=True
-        )
-        app_cred_role_table = sqlalchemy.Table(
-            application_credential_role_table_name,
-            self.metadata, autoload=True
-        )
-
-        # Test that the new column works
-        app_cred = {
-            'internal_id': 1,
-            'id': uuid.uuid4().hex,
-            'name': uuid.uuid4().hex,
-            'secret_hash': uuid.uuid4().hex,
-            'description': uuid.uuid4().hex,
-            'user_id': uuid.uuid4().hex,
-            'system': uuid.uuid4().hex,
-            'expires_at': None,
-            'unrestricted': False
-        }
-        application_credential_table.insert().values(app_cred).execute()
-        role_rel = {
-            'application_credential_id': app_cred['internal_id'],
-            'role_id': uuid.uuid4().hex
-        }
-        app_cred_role_table.insert().values(role_rel).execute()
-
-    def test_migration_037_remove_service_and_region_fk_for_registered_limit(
-            self):
-        self.expand(37)
-        self.migrate(37)
-        self.contract(37)
-
-        registered_limit_table_name = 'registered_limit'
-        registered_limit_table = sqlalchemy.Table(registered_limit_table_name,
-                                                  self.metadata, autoload=True)
-        self.assertEqual(set([]), registered_limit_table.foreign_keys)
 
     def test_migration_045_add_description_to_limit(self):
 
