@@ -17,10 +17,17 @@
 Database Migrations
 ===================
 
+.. note::
+
+    The framework being used is currently being migrated from
+    SQLAlchemy-Migrate to Alembic, meaning this information will change in the
+    near-term.
+
 Starting with Newton, keystone supports upgrading both with and without
 downtime. In order to support this, there are three separate migration
-repositories (all under ``keystone/common/sql/``) that match the three phases
-of an upgrade (schema expansion, data migration, and schema contraction):
+repositories (all under ``keystone/common/sql/legacy_migrations``) that match
+the three phases of an upgrade (schema expansion, data migration, and schema
+contraction):
 
 ``expand_repo``
     For additive schema modifications and triggers to ensure data is kept in

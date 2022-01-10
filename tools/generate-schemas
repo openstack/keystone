@@ -28,7 +28,7 @@ set -e
 
 source .tox/py38/bin/activate
 
-INIT_VERSION=$(ls -1 keystone/common/sql/expand_repo/versions/ | head -1 | awk -F_ '{print $1}' | sed 's/^0*//')
+INIT_VERSION=$(ls -1 keystone/common/sql/legacy_migrations/expand_repo/versions/ | head -1 | awk -F_ '{print $1}' | sed 's/^0*//')
 INIT_VERSION=$(($INIT_VERSION-1))
 
 echo "Detected init version of $INIT_VERSION"
@@ -43,28 +43,28 @@ rm -f "/tmp/keystone-schemas/$INIT_VERSION-*.sql"
 function sync () {
     DB_URL=$1
 
-    python keystone/common/sql/expand_repo/manage.py version_control \
+    python keystone/common/sql/legacy_migrations/expand_repo/manage.py version_control \
       --database "$DB_URL" \
       --version "$INIT_VERSION" \
-      --repository keystone/common/sql/expand_repo/
-    python keystone/common/sql/data_migration_repo/manage.py version_control \
+      --repository keystone/common/sql/legacy_migrations/expand_repo/
+    python keystone/common/sql/legacy_migrations/data_migration_repo/manage.py version_control \
       --database "$DB_URL" \
       --version "$INIT_VERSION" \
-      --repository keystone/common/sql/data_migration_repo/
-    python keystone/common/sql/contract_repo/manage.py version_control \
+      --repository keystone/common/sql/legacy_migrations/data_migration_repo/
+    python keystone/common/sql/legacy_migrations/contract_repo/manage.py version_control \
       --database "$DB_URL" \
       --version "$INIT_VERSION" \
-      --repository keystone/common/sql/contract_repo/
+      --repository keystone/common/sql/legacy_migrations/contract_repo/
 
-    python keystone/common/sql/expand_repo/manage.py upgrade \
+    python keystone/common/sql/legacy_migrations/expand_repo/manage.py upgrade \
       --database "$DB_URL" \
-      --repository keystone/common/sql/expand_repo/
-    python keystone/common/sql/data_migration_repo/manage.py upgrade \
+      --repository keystone/common/sql/legacy_migrations/expand_repo/
+    python keystone/common/sql/legacy_migrations/data_migration_repo/manage.py upgrade \
       --database "$DB_URL" \
-      --repository keystone/common/sql/data_migration_repo/
-    python keystone/common/sql/contract_repo/manage.py upgrade \
+      --repository keystone/common/sql/legacy_migrations/data_migration_repo/
+    python keystone/common/sql/legacy_migrations/contract_repo/manage.py upgrade \
       --database "$DB_URL" \
-      --repository keystone/common/sql/contract_repo/
+      --repository keystone/common/sql/legacy_migrations/contract_repo/
 }
 
 #

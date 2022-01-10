@@ -12,7 +12,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-
 import os
 
 import fixtures
@@ -25,9 +24,9 @@ from oslotest import base as test_base
 import sqlalchemy
 import testtools
 
-from keystone.common.sql import contract_repo
-from keystone.common.sql import data_migration_repo
-from keystone.common.sql import expand_repo
+from keystone.common.sql.legacy_migrations import contract_repo
+from keystone.common.sql.legacy_migrations import data_migration_repo
+from keystone.common.sql.legacy_migrations import expand_repo
 from keystone.common.sql import upgrades
 
 

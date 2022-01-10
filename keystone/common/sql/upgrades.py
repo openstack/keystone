@@ -68,8 +68,13 @@ class Repository(object):
 
 def find_repo(repo_name):
     """Return the absolute path to the named repository."""
-    path = os.path.abspath(os.path.join(
-        os.path.dirname(sql.__file__), repo_name))
+    path = os.path.abspath(
+        os.path.join(
+            os.path.dirname(sql.__file__),
+            'legacy_migrations',
+            repo_name,
+        )
+    )
 
     if not os.path.isdir(path):
         raise exception.MigrationNotProvided(sql.__name__, path)
