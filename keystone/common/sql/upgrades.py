@@ -29,7 +29,7 @@ from keystone.i18n import _
 
 USE_TRIGGERS = True
 
-INITIAL_VERSION = 65
+INITIAL_VERSION = 72
 EXPAND_REPO = 'expand_repo'
 DATA_MIGRATION_REPO = 'data_migration_repo'
 CONTRACT_REPO = 'contract_repo'

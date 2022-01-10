@@ -194,6 +194,7 @@ def upgrade(migrate_engine):
         sql.Column('enabled', sql.Boolean, nullable=False),
         sql.Column('description', sql.Text(), nullable=True),
         sql.Column('domain_id', sql.String(64), nullable=False),
+        sql.Column('authorization_ttl', sql.Integer, nullable=True),
         mysql_engine='InnoDB',
         mysql_charset='utf8',
     )
@@ -619,12 +620,7 @@ def upgrade(migrate_engine):
         sql.Column('default_project_id', sql.String(length=64)),
         sql.Column('created_at', sql.DateTime(), nullable=True),
         sql.Column('last_active_at', sql.Date(), nullable=True),
-        sql.Column(
-            'domain_id',
-            sql.String(64),
-            sql.ForeignKey(project.c.id),
-            nullable=False,
-        ),
+        sql.Column('domain_id', sql.String(64), nullable=False),
         sql.UniqueConstraint('id', 'domain_id', name='ixu_user_id_domain_id'),
         sql.Index('ix_default_project_id', 'default_project_id'),
         mysql_engine='InnoDB',
@@ -909,6 +905,32 @@ def upgrade(migrate_engine):
         mysql_charset='utf8',
     )
 
+    expiring_user_group_membership = sql.Table(
+        'expiring_user_group_membership',
+        meta,
+        sql.Column(
+            'user_id',
+            sql.String(64),
+            sql.ForeignKey(user.c.id),
+            primary_key=True,
+        ),
+        sql.Column(
+            'group_id',
+            sql.String(64),
+            sql.ForeignKey(group.c.id),
+            primary_key=True,
+        ),
+        sql.Column(
+            'idp_id',
+            sql.String(64),
+            sql.ForeignKey(identity_provider.c.id, ondelete='CASCADE'),
+            primary_key=True,
+        ),
+        sql.Column('last_verified', sql.DateTime(), nullable=False),
+        mysql_engine='InnoDB',
+        mysql_charset='utf8',
+    )
+
     # create all tables
     tables = [
         credential,
@@ -958,6 +980,7 @@ def upgrade(migrate_engine):
         application_credential_role,
         access_rule,
         app_cred_access_rule,
+        expiring_user_group_membership,
     ]
 
     for table in tables:
@@ -1016,11 +1039,6 @@ def upgrade(migrate_engine):
                 federation_protocol.c.idp_id,
             ],
             'ondelete': 'CASCADE',
-        },
-        {
-            'columns': [identity_provider.c.domain_id],
-            'references': [project.c.id],
-            'name': 'domain_id',
         },
         {
             'columns': [local_user.c.user_id, local_user.c.domain_id],
@@ -1132,3 +1150,8 @@ def upgrade(migrate_engine):
         # FIXME(stephenfin): This should be dropped when we add the FK
         # constraint to this column
         sql.Index('registered_limit_id', limit.c.registered_limit_id).create()
+
+        # FIXME(stephenfin): These are leftover from when we removed a FK
+        # constraint and should probable be dropped
+        sql.Index('domain_id', identity_provider.c.domain_id).create()
+        sql.Index('domain_id', user.c.domain_id).create()

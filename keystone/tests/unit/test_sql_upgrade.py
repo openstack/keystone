@@ -142,7 +142,7 @@ INITIAL_TABLE_STRUCTURE = {
         'id', 'policy_id', 'endpoint_id', 'service_id', 'region_id',
     ],
     'identity_provider': [
-        'id', 'enabled', 'description', 'domain_id',
+        'id', 'enabled', 'description', 'domain_id', 'authorization_ttl',
     ],
     'federation_protocol': [
         'id', 'idp_id', 'mapping_id', 'remote_id_attribute',
@@ -222,6 +222,9 @@ INITIAL_TABLE_STRUCTURE = {
     ],
     'application_credential_access_rule': [
         'application_credential_id', 'access_rule_id',
+    ],
+    'expiring_user_group_membership': [
+        'user_id', 'group_id', 'idp_id', 'last_verified',
     ],
 }
 
@@ -632,46 +635,6 @@ class FullMigration(MigrateBase, unit.TestCase):
             self.contract,
             upgrades.INITIAL_VERSION + 2,
         )
-
-    def test_migration_072_drop_domain_id_fk(self):
-        self.expand(71)
-        self.migrate(71)
-        self.contract(71)
-
-        self.assertTrue(self.does_fk_exist('user', 'domain_id'))
-        self.assertTrue(self.does_fk_exist('identity_provider', 'domain_id'))
-
-        self.expand(72)
-        self.migrate(72)
-        self.contract(72)
-
-        self.assertFalse(self.does_fk_exist('user', 'domain_id'))
-        self.assertFalse(self.does_fk_exist('identity_provider', 'domain_id'))
-
-    def test_migration_073_contract_expiring_group_membership(self):
-        self.expand(72)
-        self.migrate(72)
-        self.contract(72)
-
-        membership_table = 'expiring_user_group_membership'
-        self.assertTableDoesNotExist(membership_table)
-
-        idp_table = 'identity_provider'
-        self.assertTableColumns(
-            idp_table,
-            ['id', 'domain_id', 'enabled', 'description'])
-
-        self.expand(73)
-        self.migrate(73)
-        self.contract(73)
-
-        self.assertTableColumns(
-            membership_table,
-            ['user_id', 'group_id', 'idp_id', 'last_verified'])
-        self.assertTableColumns(
-            idp_table,
-            ['id', 'domain_id', 'enabled', 'description',
-             'authorization_ttl'])
 
     def test_migration_079_expand_update_local_id_limit(self):
         self.expand(78)
