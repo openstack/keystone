@@ -23,6 +23,15 @@ from keystone.identity.mapping_backends import mapping as mapping_backend
 CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
+# FIXME(stephenfin): Remove this as soon as we're done reworking the
+# migrations. Until then, this is necessary to allow us to use the native
+# sqlalchemy-migrate tooling (which won't register opts). Alternatively, maybe
+# the server default *shouldn't* rely on a (changeable) config option value?
+try:
+    service_provider_relay_state_prefix_default = CONF.saml.relay_state_prefix
+except Exception:
+    service_provider_relay_state_prefix_default = 'ss:mem:'
+
 
 def upgrade(migrate_engine):
     meta = sql.MetaData()
@@ -432,7 +441,7 @@ def upgrade(migrate_engine):
             'relay_state_prefix',
             sql.String(256),
             nullable=False,
-            server_default=CONF.saml.relay_state_prefix,
+            server_default=service_provider_relay_state_prefix_default,
         ),
         mysql_engine='InnoDB',
         mysql_charset='utf8',
