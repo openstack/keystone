@@ -39,10 +39,8 @@ For further information, see `oslo.db documentation
     all data will be lost.
 """
 
-import datetime
 import glob
 import os
-import uuid
 
 import fixtures
 from migrate.versioning import script
@@ -51,7 +49,6 @@ from oslo_db.sqlalchemy import enginefacade
 from oslo_db.sqlalchemy import test_fixtures as db_fixtures
 from oslo_log import fixture as log_fixture
 from oslo_log import log
-from oslo_serialization import jsonutils
 from oslotest import base as test_base
 import sqlalchemy.exc
 from sqlalchemy import inspect
@@ -90,11 +87,17 @@ INITIAL_TABLE_STRUCTURE = {
         'id', 'name', 'extra', 'description', 'enabled', 'domain_id',
         'parent_id', 'is_domain',
     ],
+    'project_option': [
+        'project_id', 'option_id', 'option_value',
+    ],
     'project_tag': [
         'project_id', 'name',
     ],
     'role': [
         'id', 'name', 'extra', 'domain_id', 'description',
+    ],
+    'role_option': [
+        'role_id', 'option_id', 'option_value',
     ],
     'service': [
         'id', 'type', 'extra', 'enabled',
@@ -105,7 +108,7 @@ INITIAL_TABLE_STRUCTURE = {
     'trust': [
         'id', 'trustor_user_id', 'trustee_user_id', 'project_id',
         'impersonation', 'deleted_at', 'expires_at', 'remaining_uses', 'extra',
-        'expires_at_int',
+        'expires_at_int', 'redelegated_trust_id', 'redelegation_count',
     ],
     'trust_role': [
         'trust_id', 'role_id',
@@ -142,7 +145,7 @@ INITIAL_TABLE_STRUCTURE = {
         'id', 'enabled', 'description', 'domain_id',
     ],
     'federation_protocol': [
-        'id', 'idp_id', 'mapping_id',
+        'id', 'idp_id', 'mapping_id', 'remote_id_attribute',
     ],
     'mapping': [
         'id', 'rules',
@@ -204,8 +207,7 @@ INITIAL_TABLE_STRUCTURE = {
         'default_limit', 'description',
     ],
     'limit': [
-        'internal_id', 'id', 'project_id', 'service_id', 'region_id',
-        'resource_name', 'resource_limit', 'description',
+        'internal_id', 'id', 'project_id', 'resource_limit', 'description',
         'registered_limit_id', 'domain_id',
     ],
     'application_credential': [
@@ -216,7 +218,7 @@ INITIAL_TABLE_STRUCTURE = {
         'application_credential_id', 'role_id',
     ],
     'access_rule': [
-        'id', 'service', 'path', 'method',
+        'id', 'service', 'path', 'method', 'external_id', 'user_id',
     ],
     'application_credential_access_rule': [
         'application_credential_id', 'access_rule_id',
@@ -630,177 +632,6 @@ class FullMigration(MigrateBase, unit.TestCase):
             self.contract,
             upgrades.INITIAL_VERSION + 2,
         )
-
-    def test_migration_062_add_trust_redelegation(self):
-        # ensure initial schema
-        self.expand(61)
-        self.migrate(61)
-        self.contract(61)
-        self.assertTableColumns('trust', ['id',
-                                          'trustor_user_id',
-                                          'trustee_user_id',
-                                          'project_id',
-                                          'impersonation',
-                                          'expires_at',
-                                          'expires_at_int',
-                                          'remaining_uses',
-                                          'deleted_at',
-                                          'extra'])
-
-        # fixture
-        trust = {
-            'id': uuid.uuid4().hex,
-            'trustor_user_id': uuid.uuid4().hex,
-            'trustee_user_id': uuid.uuid4().hex,
-            'project_id': uuid.uuid4().hex,
-            'impersonation': True,
-            'expires_at': datetime.datetime.now(),
-            'remaining_uses': 10,
-            'deleted_at': datetime.datetime.now(),
-            'redelegated_trust_id': uuid.uuid4().hex,
-            'redelegation_count': 3,
-            'other': uuid.uuid4().hex
-        }
-        old_trust = trust.copy()
-        old_extra = {
-            'redelegated_trust_id': old_trust.pop('redelegated_trust_id'),
-            'redelegation_count': old_trust.pop('redelegation_count'),
-            'other': old_trust.pop('other')
-        }
-        old_trust['extra'] = jsonutils.dumps(old_extra)
-        # load fixture
-        session = self.sessionmaker()
-        self.insert_dict(session, 'trust', old_trust)
-
-        # ensure redelegation data is in extra
-        stored_trust = list(
-            session.execute(self.load_table('trust').select())
-        )[0]
-        self.assertDictEqual({
-            'redelegated_trust_id': trust['redelegated_trust_id'],
-            'redelegation_count': trust['redelegation_count'],
-            'other': trust['other']},
-            jsonutils.loads(stored_trust.extra))
-
-        # upgrade and ensure expected schema
-        self.expand(62)
-        self.migrate(62)
-        self.contract(62)
-        self.assertTableColumns('trust', ['id',
-                                          'trustor_user_id',
-                                          'trustee_user_id',
-                                          'project_id',
-                                          'impersonation',
-                                          'expires_at',
-                                          'expires_at_int',
-                                          'remaining_uses',
-                                          'deleted_at',
-                                          'redelegated_trust_id',
-                                          'redelegation_count',
-                                          'extra'])
-
-        trust_table = sqlalchemy.Table('trust', self.metadata, autoload=True)
-        self.assertTrue(trust_table.c.redelegated_trust_id.nullable)
-        self.assertTrue(trust_table.c.redelegation_count.nullable)
-
-        # test target data layout
-        upgraded_trust = list(
-            session.execute(self.load_table('trust').select())
-        )[0]
-        self.assertDictEqual({'other': trust['other']},
-                             jsonutils.loads(upgraded_trust.extra))
-        self.assertEqual(trust['redelegated_trust_id'],
-                         upgraded_trust.redelegated_trust_id)
-        self.assertEqual(trust['redelegation_count'],
-                         upgraded_trust.redelegation_count)
-
-    def test_migration_063_drop_limit_columns(self):
-        self.expand(62)
-        self.migrate(62)
-        self.contract(62)
-
-        limit_table = 'limit'
-        self.assertTableColumns(
-            limit_table,
-            ['id', 'project_id', 'service_id', 'region_id', 'resource_name',
-             'resource_limit', 'description', 'internal_id',
-             'registered_limit_id', 'domain_id'])
-
-        self.expand(63)
-        self.migrate(63)
-        self.contract(63)
-
-        self.assertTableColumns(
-            limit_table,
-            ['id', 'project_id', 'resource_limit', 'description',
-             'internal_id', 'registered_limit_id', 'domain_id'])
-
-    def test_migration_064_add_remote_id_attribute_federation_protocol(self):
-        self.expand(63)
-        self.migrate(63)
-        self.contract(63)
-
-        federation_protocol_table_name = 'federation_protocol'
-        self.assertTableColumns(
-            federation_protocol_table_name,
-            ['id', 'idp_id', 'mapping_id']
-        )
-
-        self.expand(64)
-        self.migrate(64)
-        self.contract(64)
-
-        self.assertTableColumns(
-            federation_protocol_table_name,
-            ['id', 'idp_id', 'mapping_id', 'remote_id_attribute']
-        )
-
-    def test_migration_065_add_user_external_id_to_access_rule(self):
-        self.expand(64)
-        self.migrate(64)
-        self.contract(64)
-
-        self.assertTableColumns(
-            'access_rule',
-            ['id', 'service', 'path', 'method']
-        )
-
-        self.expand(65)
-        self.migrate(65)
-        self.contract(65)
-
-        self.assertTableColumns(
-            'access_rule',
-            ['id', 'external_id', 'user_id', 'service', 'path', 'method']
-        )
-        self.assertTrue(self.does_index_exist('access_rule', 'external_id'))
-        self.assertTrue(self.does_index_exist('access_rule', 'user_id'))
-        self.assertTrue(self.does_unique_constraint_exist(
-            'access_rule', 'external_id'))
-        self.assertTrue(self.does_unique_constraint_exist(
-            'access_rule', ['user_id', 'service', 'path', 'method']))
-
-    def test_migration_066_add_role_and_project_options_tables(self):
-        self.expand(65)
-        self.migrate(65)
-        self.contract(65)
-
-        role_option = 'role_option'
-        project_option = 'project_option'
-        self.assertTableDoesNotExist(role_option)
-        self.assertTableDoesNotExist(project_option)
-
-        self.expand(66)
-        self.migrate(66)
-        self.contract(66)
-
-        self.assertTableColumns(
-            project_option,
-            ['project_id', 'option_id', 'option_value'])
-
-        self.assertTableColumns(
-            role_option,
-            ['role_id', 'option_id', 'option_value'])
 
     def test_migration_072_drop_domain_id_fk(self):
         self.expand(71)
