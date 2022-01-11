@@ -411,11 +411,11 @@ use_pool` is also enabled.
 pool_retry_max = cfg.IntOpt(
     'pool_retry_max',
     default=3,
-    min=0,
+    min=1,
     help=utils.fmt("""
-The maximum number of times to attempt reconnecting to the LDAP server before
-aborting. A value of zero prevents retries. This option has no effect unless
-`[ldap] use_pool` is also enabled.
+The maximum number of times to attempt connecting to the LDAP server before
+aborting. A value of one makes only one connection attempt.
+This option has no effect unless `[ldap] use_pool` is also enabled.
 """))
 
 pool_retry_delay = cfg.FloatOpt(

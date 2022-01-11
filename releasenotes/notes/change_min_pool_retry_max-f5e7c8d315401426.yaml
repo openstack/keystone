@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    Change the min value of pool_retry_max to 1. Setting this value to 0
+    caused the pool to fail before connecting to ldap, always raising
+    MaxConnectionReachedError.
