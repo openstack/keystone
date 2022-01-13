@@ -211,15 +211,6 @@ class Doctor(BaseApp):
         raise SystemExit(doctor.diagnose())
 
 
-def assert_not_extension(extension):
-    if extension:
-        print(_("All extensions have been moved into keystone core and as "
-                "such its migrations are maintained by the main keystone "
-                "database control. Use the command: keystone-manage "
-                "db_sync"))
-        raise RuntimeError
-
-
 class DbSync(BaseApp):
     """Sync the database."""
 
@@ -228,44 +219,59 @@ class DbSync(BaseApp):
     @classmethod
     def add_argument_parser(cls, subparsers):
         parser = super(DbSync, cls).add_argument_parser(subparsers)
-        parser.add_argument('version', default=None, nargs='?',
-                            help=('Migrate the database up to a specified '
-                                  'version. If not provided, db_sync will '
-                                  'migrate the database to the latest known '
-                                  'version. Schema downgrades are not '
-                                  'supported.'))
-        parser.add_argument('--extension', default=None,
-                            help=('This is a deprecated option to migrate a '
-                                  'specified extension. Since extensions are '
-                                  'now part of the main repository, '
-                                  'specifying db_sync without this option '
-                                  'will cause all extensions to be migrated.'))
+        parser.add_argument(
+            'version',
+            default=None,
+            nargs='?',
+            help=(
+                'Migrate the database up to a specified version. '
+                'If not provided, db_sync will migrate the database to the '
+                'latest known version. '
+                'Schema downgrades are not supported.'
+            ),
+        )
         group = parser.add_mutually_exclusive_group()
-        group.add_argument('--expand', default=False, action='store_true',
-                           help=('Expand the database schema in preparation '
-                                 'for data migration.'))
-        group.add_argument('--migrate', default=False,
-                           action='store_true',
-                           help=('Copy all data that needs to be migrated '
-                                 'within the database ahead of starting the '
-                                 'first keystone node upgraded to the new '
-                                 'release. This command should be run '
-                                 'after the --expand command. Once the '
-                                 '--migrate command has completed, you can '
-                                 'upgrade all your keystone nodes to the new '
-                                 'release and restart them.'))
-
-        group.add_argument('--contract', default=False, action='store_true',
-                           help=('Remove any database tables and columns '
-                                 'that are no longer required. This command '
-                                 'should be run after all keystone nodes are '
-                                 'running the new release.'))
-
-        group.add_argument('--check', default=False, action='store_true',
-                           help=('Check for outstanding database actions that '
-                                 'still need to be executed. This command can '
-                                 'be used to verify the condition of the '
-                                 'current database state.'))
+        group.add_argument(
+            '--expand',
+            default=False,
+            action='store_true',
+            help=(
+                'Expand the database schema in preparation for data migration.'
+            ),
+        )
+        group.add_argument(
+            '--migrate',
+            default=False,
+            action='store_true',
+            help=(
+                'Copy all data that needs to be migrated within the database '
+                'ahead of starting the first keystone node upgraded to the '
+                'new release. '
+                'This command should be run after the --expand command. '
+                'Once the --migrate command has completed, you can upgrade '
+                'all your keystone nodes to the new release and restart them.'
+            ),
+        )
+        group.add_argument(
+            '--contract',
+            default=False,
+            action='store_true',
+            help=(
+                'Remove any database tables and columns that are no longer '
+                'required. This command should be run after all keystone '
+                'nodes are running the new release.'
+            ),
+        )
+        group.add_argument(
+            '--check',
+            default=False,
+            action='store_true',
+            help=(
+                'Check for outstanding database actions that still need to be '
+                'executed. This command can be used to verify the condition '
+                'of the current database state.'
+            ),
+        )
         return parser
 
     @classmethod
@@ -274,16 +280,19 @@ class DbSync(BaseApp):
         try:
             expand_version = upgrades.get_db_version(repo='expand_repo')
         except migration.exception.DBMigrationError:
-            LOG.info('Your database is not currently under version '
-                     'control or the database is already controlled. Your '
-                     'first step is to run `keystone-manage db_sync '
-                     '--expand`.')
+            LOG.info(
+                'Your database is not currently under version '
+                'control or the database is already controlled. Your '
+                'first step is to run `keystone-manage db_sync --expand`.'
+            )
             return 2
+
         try:
             migrate_version = upgrades.get_db_version(
                 repo='data_migration_repo')
         except migration.exception.DBMigrationError:
             migrate_version = 0
+
         try:
             contract_version = upgrades.get_db_version(repo='contract_repo')
         except migration.exception.DBMigrationError:
@@ -293,8 +302,10 @@ class DbSync(BaseApp):
             upgrades.find_repo('expand_repo'))
         migration_script_version = int(max(repo.versions.versions))
 
-        if (contract_version > migrate_version or migrate_version >
-                expand_version):
+        if (
+            contract_version > migrate_version or
+            migrate_version > expand_version
+        ):
             LOG.info('Your database is out of sync. For more information '
                      'refer to https://docs.openstack.org/keystone/'
                      'latest/admin/identity-upgrading.html')
@@ -311,29 +322,31 @@ class DbSync(BaseApp):
             LOG.info('Migrate version is ahead of contract. Your next '
                      'step is to run `keystone-manage db_sync --contract`.')
             status = 4
-        elif (migration_script_version == expand_version == migrate_version ==
-                contract_version):
+        elif (
+            migration_script_version == expand_version == migrate_version ==
+            contract_version
+        ):
             LOG.info('All db_sync commands are upgraded to the same '
                      'version and up-to-date.')
-        LOG.info('The latest installed migration script version is: '
-                 '%(script)d.\nCurrent repository versions:\nExpand: '
-                 '%(expand)d \nMigrate: %(migrate)d\nContract: '
-                 '%(contract)d', {'script': migration_script_version,
-                                  'expand': expand_version,
-                                  'migrate': migrate_version,
-                                  'contract': contract_version})
+        LOG.info(
+            'The latest installed migration script version is: %(script)d.\n'
+            'Current repository versions:\n'
+            'Expand: %(expand)d\n'
+            'Migrate: %(migrate)d\n'
+            'Contract: %(contract)d',
+            {
+                'script': migration_script_version,
+                'expand': expand_version,
+                'migrate': migrate_version,
+                'contract': contract_version,
+            },
+        )
         return status
 
     @staticmethod
     def main():
-        assert_not_extension(CONF.command.extension)
-        # It is possible to run expand and migrate at the same time,
-        # expand needs to run first however.
         if CONF.command.check:
             sys.exit(DbSync.check_db_sync_status())
-        elif CONF.command.expand and CONF.command.migrate:
-            upgrades.expand_schema()
-            upgrades.migrate_data()
         elif CONF.command.expand:
             upgrades.expand_schema()
         elif CONF.command.migrate:
@@ -350,20 +363,8 @@ class DbVersion(BaseApp):
 
     name = 'db_version'
 
-    @classmethod
-    def add_argument_parser(cls, subparsers):
-        parser = super(DbVersion, cls).add_argument_parser(subparsers)
-        parser.add_argument('--extension', default=None,
-                            help=('This is a deprecated option to print the '
-                                  'version of a specified extension. Since '
-                                  'extensions are now part of the main '
-                                  'repository, the version of an extension is '
-                                  'implicit in the version of the main '
-                                  'repository.'))
-
     @staticmethod
     def main():
-        assert_not_extension(CONF.command.extension)
         print(upgrades.get_db_version())
 
 

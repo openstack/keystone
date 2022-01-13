@@ -1,0 +1,6 @@
+---
+upgrade:
+  - |
+    The ``--extension`` option of ``keystone-manage db_sync`` has been
+    deprecated since 10.0.0 (Newton) and raised an error when provided. It
+    has now been removed entirely.
