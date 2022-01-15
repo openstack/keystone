@@ -38,7 +38,7 @@ def json_body_before_request():
 
         # Explicitly check if the content is supposed to be json.
         if (flask.request.is_json
-                or flask.request.headers['Content-Type'] == ''):
+                or flask.request.headers.get('Content-Type', '') == ''):
             json_decoded = flask.request.get_json(force=True)
             if not isinstance(json_decoded, dict):
                 # In the case that the returned value was not a dict, force
