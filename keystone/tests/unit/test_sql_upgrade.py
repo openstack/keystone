@@ -43,11 +43,9 @@ import datetime
 import glob
 import json
 import os
-from unittest import mock
 import uuid
 
 import fixtures
-from migrate.versioning import repository
 from migrate.versioning import script
 from oslo_db import exception as db_exception
 from oslo_db.sqlalchemy import enginefacade
@@ -196,68 +194,10 @@ INITIAL_TABLE_STRUCTURE = {
     ],
 }
 
+INITIAL_VERSION = 1
 EXPAND_REPO = 'expand_repo'
 DATA_MIGRATION_REPO = 'data_migration_repo'
 CONTRACT_REPO = 'contract_repo'
-
-
-# Test upgrades.get_init_version separately to ensure it works before
-# using in the SqlUpgrade tests.
-class SqlUpgradeGetInitVersionTests(unit.TestCase):
-    @mock.patch.object(repository, 'Repository')
-    def test_get_init_version_no_path(self, repo):
-        migrate_versions = mock.MagicMock()
-        # make a version list starting with zero. `get_init_version` will
-        # return None for this value.
-        migrate_versions.versions.versions = list(range(0, 5))
-        repo.return_value = migrate_versions
-
-        # os.path.isdir() is called by `find_repo()`. Mock it to avoid
-        # an exception.
-        with mock.patch('os.path.isdir', return_value=True):
-            # since 0 is the smallest version expect None
-            version = upgrades.get_init_version()
-            self.assertIsNone(version)
-
-        # check that the default path was used as the first argument to the
-        # first invocation of repo. Cannot match the full path because it is
-        # based on where the test is run.
-        param = repo.call_args_list[0][0][0]
-        self.assertTrue(param.endswith('/sql/' + EXPAND_REPO))
-
-    @mock.patch.object(repository, 'Repository')
-    def test_get_init_version_with_path_initial_version_0(self, repo):
-        migrate_versions = mock.MagicMock()
-        # make a version list starting with zero. `get_init_version` will
-        # return None for this value.
-        migrate_versions.versions.versions = list(range(0, 5))
-        repo.return_value = migrate_versions
-
-        # os.path.isdir() is called by `find_repo()`. Mock it to avoid
-        # an exception.
-        with mock.patch('os.path.isdir', return_value=True):
-            path = '/keystone/' + EXPAND_REPO + '/'
-
-            # since 0 is the smallest version expect None
-            version = upgrades.get_init_version(abs_path=path)
-            self.assertIsNone(version)
-
-    @mock.patch.object(repository, 'Repository')
-    def test_get_init_version_with_path(self, repo):
-        initial_version = 10
-
-        migrate_versions = mock.MagicMock()
-        migrate_versions.versions.versions = list(range(initial_version + 1,
-                                                        initial_version + 5))
-        repo.return_value = migrate_versions
-
-        # os.path.isdir() is called by `find_repo()`. Mock it to avoid
-        # an exception.
-        with mock.patch('os.path.isdir', return_value=True):
-            path = '/keystone/' + EXPAND_REPO + '/'
-
-            version = upgrades.get_init_version(abs_path=path)
-            self.assertEqual(initial_version, version)
 
 
 class MigrateBase(
@@ -419,7 +359,7 @@ class ExpandSchemaUpgradeTests(MigrateBase):
         self.assertTableDoesNotExist('user')
 
     def test_upgrade_add_initial_tables(self):
-        self.expand(1)
+        self.expand(INITIAL_VERSION)
         self.check_initial_table_structure()
 
     def check_initial_table_structure(self):
@@ -569,28 +509,33 @@ class MigrationValidation(MigrateBase, unit.TestCase):
     """Test validation of database between database phases."""
 
     def _set_db_sync_command_versions(self):
-        self.expand(1)
-        self.migrate(1)
-        self.contract(1)
-        self.assertEqual(upgrades.get_db_version('expand_repo'), 1)
-        self.assertEqual(upgrades.get_db_version('data_migration_repo'), 1)
-        self.assertEqual(upgrades.get_db_version('contract_repo'), 1)
+        self.expand(INITIAL_VERSION)
+        self.migrate(INITIAL_VERSION)
+        self.contract(INITIAL_VERSION)
+        for version in (
+            upgrades.get_db_version('expand_repo'),
+            upgrades.get_db_version('data_migration_repo'),
+            upgrades.get_db_version('contract_repo'),
+        ):
+            self.assertEqual(INITIAL_VERSION, version)
 
     def test_running_db_sync_migrate_ahead_of_expand_fails(self):
         self._set_db_sync_command_versions()
         self.assertRaises(
             db_exception.DBMigrationError,
             self.migrate,
-            2,
-            "You are attempting to upgrade migrate ahead of expand")
+            INITIAL_VERSION + 1,
+            "You are attempting to upgrade migrate ahead of expand",
+        )
 
     def test_running_db_sync_contract_ahead_of_migrate_fails(self):
         self._set_db_sync_command_versions()
         self.assertRaises(
             db_exception.DBMigrationError,
             self.contract,
-            2,
-            "You are attempting to upgrade contract ahead of migrate")
+            INITIAL_VERSION + 1,
+            "You are attempting to upgrade contract ahead of migrate",
+        )
 
 
 class FullMigration(MigrateBase, unit.TestCase):
@@ -609,7 +554,7 @@ class FullMigration(MigrateBase, unit.TestCase):
 
         # Assert the correct message is printed when expand is the first step
         # that needs to run
-        self.expand(1)
+        self.expand(INITIAL_VERSION)
         log_info = self.useFixture(fixtures.FakeLogger(level=log.INFO))
         status = checker.check_db_sync_status()
         self.assertIn("keystone-manage db_sync --expand", log_info.output)
@@ -643,15 +588,19 @@ class FullMigration(MigrateBase, unit.TestCase):
         # We shouldn't allow for operators to accidentally run migration out of
         # order. This test ensures we fail if we attempt to upgrade the
         # contract repository ahead of the expand or migrate repositories.
-        self.expand(3)
-        self.migrate(3)
-        self.assertRaises(db_exception.DBMigrationError, self.contract, 4)
+        self.expand(INITIAL_VERSION)
+        self.migrate(INITIAL_VERSION)
+        self.assertRaises(
+            db_exception.DBMigrationError,
+            self.contract,
+            INITIAL_VERSION + 1,
+        )
 
     def test_migration_002_password_created_at_not_nullable(self):
         # upgrade each repository to 001
-        self.expand(1)
-        self.migrate(1)
-        self.contract(1)
+        self.expand(INITIAL_VERSION)
+        self.migrate(INITIAL_VERSION)
+        self.contract(INITIAL_VERSION)
 
         password = sqlalchemy.Table('password', self.metadata, autoload=True)
         self.assertTrue(password.c.created_at.nullable)
@@ -1283,7 +1232,7 @@ class FullMigration(MigrateBase, unit.TestCase):
         pw_table = sqlalchemy.Table('password', meta, autoload=True)
         self.assertFalse(pw_table.c.created_at_int.nullable)
 
-    def test_migration_30_expand_add_project_tags_table(self):
+    def test_migration_030_expand_add_project_tags_table(self):
         self.expand(29)
         self.migrate(29)
         self.contract(29)

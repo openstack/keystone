@@ -27,9 +27,9 @@ from keystone.common import sql
 from keystone import exception
 from keystone.i18n import _
 
-
 USE_TRIGGERS = True
 
+INITIAL_VERSION = 0
 EXPAND_REPO = 'expand_repo'
 DATA_MIGRATION_REPO = 'data_migration_repo'
 CONTRACT_REPO = 'contract_repo'
@@ -40,8 +40,7 @@ class Repository(object):
         self.repo_name = repo_name
 
         self.repo_path = find_repo(self.repo_name)
-        self.min_version = (
-            get_init_version(abs_path=self.repo_path))
+        self.min_version = INITIAL_VERSION
         self.schema_ = versioning_api.ControlledSchema.create(
             engine, self.repo_path, self.min_version)
         self.max_version = self.schema_.repository.version().version
@@ -139,39 +138,12 @@ def _sync_repo(repo_name):
     abs_path = find_repo(repo_name)
     with sql.session_for_write() as session:
         engine = session.get_bind()
-        # Register the repo with the version control API
-        # If it already knows about the repo, it will throw
-        # an exception that we can safely ignore
-        try:
-            migration.db_version_control(engine, abs_path)
-        except (migration.exception.DBMigrationError,
-                exceptions.DatabaseAlreadyControlledError):  # nosec
-            pass
-        init_version = get_init_version(abs_path=abs_path)
-        migration.db_sync(engine, abs_path,
-                          init_version=init_version, sanity_check=False)
-
-
-def get_init_version(abs_path=None):
-    """Get the initial version of a migrate repository.
-
-    :param abs_path: Absolute path to migrate repository.
-    :return:         initial version number or None, if DB is empty.
-    """
-    if abs_path is None:
-        abs_path = find_repo(EXPAND_REPO)
-
-    repo = migrate.versioning.repository.Repository(abs_path)
-
-    # Sadly, Repository has a `latest` but not an `oldest`.
-    # The value is a VerNum object which needs to be converted into an int.
-    oldest = int(min(repo.versions.versions))
-
-    if oldest < 1:
-        return None
-
-    # The initial version is one less
-    return oldest - 1
+        migration.db_sync(
+            engine,
+            abs_path,
+            init_version=INITIAL_VERSION,
+            sanity_check=False,
+        )
 
 
 def _assert_not_schema_downgrade(version=None):
@@ -220,8 +192,7 @@ def offline_sync_database_to_version(version=None):
 def get_db_version(repo=EXPAND_REPO):
     with sql.session_for_read() as session:
         repo = find_repo(repo)
-        return migration.db_version(
-            session.get_bind(), repo, get_init_version(repo))
+        return migration.db_version(session.get_bind(), repo, INITIAL_VERSION)
 
 
 def validate_upgrade_order(repo_name, target_repo_version=None):
