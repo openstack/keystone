@@ -277,7 +277,7 @@ class DbSync(BaseApp):
     def check_db_sync_status(cls):
         status = 0
         try:
-            expand_version = upgrades.get_db_version(repo='expand_repo')
+            expand_version = upgrades.get_db_version(branch='expand')
         except db_exception.DBMigrationError:
             LOG.info(
                 'Your database is not currently under version '
@@ -288,12 +288,12 @@ class DbSync(BaseApp):
 
         try:
             migrate_version = upgrades.get_db_version(
-                repo='data_migration_repo')
+                branch='data_migration')
         except db_exception.DBMigrationError:
             migrate_version = 0
 
         try:
-            contract_version = upgrades.get_db_version(repo='contract_repo')
+            contract_version = upgrades.get_db_version(branch='contract')
         except db_exception.DBMigrationError:
             contract_version = 0
 

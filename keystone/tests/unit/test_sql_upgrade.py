@@ -248,7 +248,7 @@ class Repository:
         version = migrate_api._migrate_version(
             self.schema_, version, upgrade, err,
         )
-        upgrades.validate_upgrade_order(
+        upgrades._validate_upgrade_order(
             self.repo_name, target_repo_version=version,
         )
         if not current_schema:
@@ -305,28 +305,28 @@ class MigrateBase(
         self.addCleanup(sql.cleanup)
 
         self.repos = {
-            upgrades.EXPAND_REPO: Repository(
-                self.engine, upgrades.EXPAND_REPO,
+            upgrades.EXPAND_BRANCH: Repository(
+                self.engine, upgrades.EXPAND_BRANCH,
             ),
-            upgrades.DATA_MIGRATION_REPO: Repository(
-                self.engine, upgrades.DATA_MIGRATION_REPO,
+            upgrades.DATA_MIGRATION_BRANCH: Repository(
+                self.engine, upgrades.DATA_MIGRATION_BRANCH,
             ),
-            upgrades.CONTRACT_REPO: Repository(
-                self.engine, upgrades.CONTRACT_REPO,
+            upgrades.CONTRACT_BRANCH: Repository(
+                self.engine, upgrades.CONTRACT_BRANCH,
             ),
         }
 
     def expand(self, *args, **kwargs):
         """Expand database schema."""
-        self.repos[upgrades.EXPAND_REPO].upgrade(*args, **kwargs)
+        self.repos[upgrades.EXPAND_BRANCH].upgrade(*args, **kwargs)
 
     def migrate(self, *args, **kwargs):
         """Migrate data."""
-        self.repos[upgrades.DATA_MIGRATION_REPO].upgrade(*args, **kwargs)
+        self.repos[upgrades.DATA_MIGRATION_BRANCH].upgrade(*args, **kwargs)
 
     def contract(self, *args, **kwargs):
         """Contract database schema."""
-        self.repos[upgrades.CONTRACT_REPO].upgrade(*args, **kwargs)
+        self.repos[upgrades.CONTRACT_BRANCH].upgrade(*args, **kwargs)
 
     @property
     def metadata(self):
@@ -362,8 +362,8 @@ class ExpandSchemaUpgradeTests(MigrateBase):
 
     def test_start_version_db_init_version(self):
         self.assertEqual(
-            self.repos[upgrades.EXPAND_REPO].min_version,
-            self.repos[upgrades.EXPAND_REPO].version)
+            self.repos[upgrades.EXPAND_BRANCH].min_version,
+            self.repos[upgrades.EXPAND_BRANCH].version)
 
     def test_blank_db_to_start(self):
         self.assertTableDoesNotExist('user')
@@ -399,8 +399,8 @@ class DataMigrationUpgradeTests(MigrateBase):
 
     def test_start_version_db_init_version(self):
         self.assertEqual(
-            self.repos[upgrades.DATA_MIGRATION_REPO].min_version,
-            self.repos[upgrades.DATA_MIGRATION_REPO].version,
+            self.repos[upgrades.DATA_MIGRATION_BRANCH].min_version,
+            self.repos[upgrades.DATA_MIGRATION_BRANCH].version,
         )
 
 
@@ -435,8 +435,8 @@ class ContractSchemaUpgradeTests(MigrateBase, unit.TestCase):
 
     def test_start_version_db_init_version(self):
         self.assertEqual(
-            self.repos[upgrades.CONTRACT_REPO].min_version,
-            self.repos[upgrades.CONTRACT_REPO].version,
+            self.repos[upgrades.CONTRACT_BRANCH].min_version,
+            self.repos[upgrades.CONTRACT_BRANCH].version,
         )
 
 
@@ -476,12 +476,12 @@ class VersionTests(MigrateBase):
         """
         # Transitive comparison: expand == data migration == contract
         self.assertEqual(
-            self.repos[upgrades.EXPAND_REPO].max_version,
-            self.repos[upgrades.DATA_MIGRATION_REPO].max_version,
+            self.repos[upgrades.EXPAND_BRANCH].max_version,
+            self.repos[upgrades.DATA_MIGRATION_BRANCH].max_version,
         )
         self.assertEqual(
-            self.repos[upgrades.DATA_MIGRATION_REPO].max_version,
-            self.repos[upgrades.CONTRACT_REPO].max_version,
+            self.repos[upgrades.DATA_MIGRATION_BRANCH].max_version,
+            self.repos[upgrades.CONTRACT_BRANCH].max_version,
         )
 
     def test_migrate_repos_file_names_have_prefix(self):
@@ -496,17 +496,17 @@ class VersionTests(MigrateBase):
         versions_path = '/versions'
 
         # test for expand prefix, e.g. 001_expand_new_fk_constraint.py
-        repo_path = self.repos[upgrades.EXPAND_REPO].repo_path
+        repo_path = self.repos[upgrades.EXPAND_BRANCH].repo_path
         expand_list = glob.glob(repo_path + versions_path + '/*.py')
         self.assertRepoFileNamePrefix(expand_list, 'expand')
 
         # test for migrate prefix, e.g. 001_migrate_new_fk_constraint.py
-        repo_path = self.repos[upgrades.DATA_MIGRATION_REPO].repo_path
+        repo_path = self.repos[upgrades.DATA_MIGRATION_BRANCH].repo_path
         migrate_list = glob.glob(repo_path + versions_path + '/*.py')
         self.assertRepoFileNamePrefix(migrate_list, 'migrate')
 
         # test for contract prefix, e.g. 001_contract_new_fk_constraint.py
-        repo_path = self.repos[upgrades.CONTRACT_REPO].repo_path
+        repo_path = self.repos[upgrades.CONTRACT_BRANCH].repo_path
         contract_list = glob.glob(repo_path + versions_path + '/*.py')
         self.assertRepoFileNamePrefix(contract_list, 'contract')
 
@@ -530,9 +530,9 @@ class MigrationValidation(MigrateBase, unit.TestCase):
         self.migrate(upgrades.INITIAL_VERSION + 1)
         self.contract(upgrades.INITIAL_VERSION + 1)
         for version in (
-            upgrades.get_db_version('expand_repo'),
-            upgrades.get_db_version('data_migration_repo'),
-            upgrades.get_db_version('contract_repo'),
+            upgrades.get_db_version('expand'),
+            upgrades.get_db_version('data_migration'),
+            upgrades.get_db_version('contract'),
         ):
             self.assertEqual(upgrades.INITIAL_VERSION + 1, version)
 
@@ -560,7 +560,7 @@ class FullMigration(MigrateBase, unit.TestCase):
 
     def test_db_sync_check(self):
         checker = cli.DbSync()
-        latest_version = self.repos[upgrades.EXPAND_REPO].max_version
+        latest_version = self.repos[upgrades.EXPAND_BRANCH].max_version
 
         # If the expand repository doesn't exist yet, then we need to make sure
         # we advertise that `--expand` must be run first.
