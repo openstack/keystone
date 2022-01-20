@@ -24,49 +24,13 @@ import sqlalchemy as sa
 
 from keystone.common import sql
 from keystone import exception
+from keystone.i18n import _
 
 INITIAL_VERSION = 72
 LATEST_VERSION = 79
 EXPAND_REPO = 'expand_repo'
 DATA_MIGRATION_REPO = 'data_migration_repo'
 CONTRACT_REPO = 'contract_repo'
-
-
-class Repository(object):
-    def __init__(self, engine, repo_name):
-        self.repo_name = repo_name
-
-        self.repo_path = _get_migrate_repo_path(self.repo_name)
-        self.min_version = INITIAL_VERSION
-        self.schema_ = migrate_api.ControlledSchema.create(
-            engine, self.repo_path, self.min_version)
-        self.max_version = self.schema_.repository.version().version
-
-    def upgrade(self, version=None, current_schema=None):
-        version = version or self.max_version
-        err = ''
-        upgrade = True
-        version = migrate_api._migrate_version(
-            self.schema_, version, upgrade, err)
-        validate_upgrade_order(self.repo_name, target_repo_version=version)
-        if not current_schema:
-            current_schema = self.schema_
-        changeset = current_schema.changeset(version)
-        for ver, change in changeset:
-            self.schema_.runchange(ver, change, changeset.step)
-
-        if self.schema_.version != version:
-            raise Exception(
-                'Actual version (%s) of %s does not equal expected '
-                'version (%s)' % (
-                    self.schema_.version, self.repo_name, version))
-
-    @property
-    def version(self):
-        with sql.session_for_read() as session:
-            return _migrate_db_version(
-                session.get_bind(), self.repo_path, self.min_version,
-            )
 
 
 def _get_migrate_repo_path(repo_name):
@@ -235,8 +199,10 @@ def validate_upgrade_order(repo_name, target_repo_version=None):
     """
     # Initialize a dict to have each key assigned a repo with their value being
     # the repo that comes before.
-    db_sync_order = {DATA_MIGRATION_REPO: EXPAND_REPO,
-                     CONTRACT_REPO: DATA_MIGRATION_REPO}
+    db_sync_order = {
+        DATA_MIGRATION_REPO: EXPAND_REPO,
+        CONTRACT_REPO: DATA_MIGRATION_REPO,
+    }
 
     if repo_name == EXPAND_REPO:
         return
