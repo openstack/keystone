@@ -281,61 +281,53 @@ class DbSync(BaseApp):
         except db_exception.DBMigrationError:
             LOG.info(
                 'Your database is not currently under version '
-                'control or the database is already controlled. Your '
-                'first step is to run `keystone-manage db_sync --expand`.'
+                'control or the database is already controlled. '
+                'Your first step is to run `keystone-manage db_sync --expand`.'
+            )
+            return 2
+
+        if isinstance(expand_version, int):
+            # we're still using sqlalchemy-migrate
+            LOG.info(
+                'Your database is currently using legacy version control. '
+                'Your first step is to run `keystone-manage db_sync --expand`.'
             )
             return 2
 
         try:
-            migrate_version = upgrades.get_db_version(
-                branch='data_migration')
-        except db_exception.DBMigrationError:
-            migrate_version = 0
-
-        try:
             contract_version = upgrades.get_db_version(branch='contract')
         except db_exception.DBMigrationError:
-            contract_version = 0
+            contract_version = None
 
-        migration_script_version = upgrades.LATEST_VERSION
+        heads = upgrades.get_current_heads()
 
         if (
-            contract_version > migrate_version or
-            migrate_version > expand_version
+            upgrades.EXPAND_BRANCH not in heads or
+            heads[upgrades.EXPAND_BRANCH] != expand_version
         ):
-            LOG.info('Your database is out of sync. For more information '
-                     'refer to https://docs.openstack.org/keystone/'
-                     'latest/admin/identity-upgrading.html')
-            status = 1
-        elif migration_script_version > expand_version:
             LOG.info('Your database is not up to date. Your first step is '
                      'to run `keystone-manage db_sync --expand`.')
             status = 2
-        elif expand_version > migrate_version:
-            LOG.info('Expand version is ahead of migrate. Your next step '
-                     'is to run `keystone-manage db_sync --migrate`.')
-            status = 3
-        elif migrate_version > contract_version:
-            LOG.info('Migrate version is ahead of contract. Your next '
+        elif (
+            upgrades.CONTRACT_BRANCH not in heads or
+            heads[upgrades.CONTRACT_BRANCH] != contract_version
+        ):
+            LOG.info('Expand version is ahead of contract. Your next '
                      'step is to run `keystone-manage db_sync --contract`.')
             status = 4
-        elif (
-            migration_script_version == expand_version == migrate_version ==
-            contract_version
-        ):
+        else:
             LOG.info('All db_sync commands are upgraded to the same '
                      'version and up-to-date.')
+
         LOG.info(
-            'The latest installed migration script version is: %(script)d.\n'
             'Current repository versions:\n'
-            'Expand: %(expand)d\n'
-            'Migrate: %(migrate)d\n'
-            'Contract: %(contract)d',
+            'Expand: %(expand)s (head: %(expand_head)s)\n'
+            'Contract: %(contract)s (head: %(contract_head)s)',
             {
-                'script': migration_script_version,
                 'expand': expand_version,
-                'migrate': migrate_version,
+                'expand_head': heads.get(upgrades.EXPAND_BRANCH),
                 'contract': contract_version,
+                'contract_head': heads.get(upgrades.CONTRACT_BRANCH),
             },
         )
         return status

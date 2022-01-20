@@ -10,243 +10,331 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import os
-import tempfile
-from unittest import mock
+"""Tests for database migrations for the database.
 
-from migrate import exceptions as migrate_exception
+These are "opportunistic" tests which allow testing against all three databases
+(sqlite in memory, mysql, pg) in a properly configured unit test environment.
+
+For the opportunistic testing you need to set up DBs named 'openstack_citest'
+with user 'openstack_citest' and password 'openstack_citest' on localhost. The
+test will then use that DB and username/password combo to run the tests.
+"""
+
+import fixtures
 from migrate.versioning import api as migrate_api
-from migrate.versioning import repository as migrate_repository
-from oslo_db import exception as db_exception
+from oslo_db import options as db_options
 from oslo_db.sqlalchemy import enginefacade
-from oslo_db.sqlalchemy import test_fixtures as db_fixtures
-from oslotest import base as test_base
-import sqlalchemy
+from oslo_db.sqlalchemy import test_fixtures
+from oslo_db.sqlalchemy import test_migrations
+from oslo_log.fixture import logging_error as log_fixture
+from oslo_log import log as logging
+from oslotest import base
 
+from keystone.common import sql
 from keystone.common.sql import upgrades
-from keystone.common import utils
+import keystone.conf
+from keystone.tests.unit import ksfixtures
+
+# We need to import all of these so the tables are registered. It would be
+# easier if these were all in a central location :(
+import keystone.application_credential.backends.sql  # noqa: F401
+import keystone.assignment.backends.sql  # noqa: F401
+import keystone.assignment.role_backends.sql_model  # noqa: F401
+import keystone.catalog.backends.sql  # noqa: F401
+import keystone.credential.backends.sql  # noqa: F401
+import keystone.endpoint_policy.backends.sql  # noqa: F401
+import keystone.federation.backends.sql  # noqa: F401
+import keystone.identity.backends.sql_model  # noqa: F401
+import keystone.identity.mapping_backends.sql  # noqa: F401
+import keystone.limit.backends.sql  # noqa: F401
+import keystone.oauth1.backends.sql  # noqa: F401
+import keystone.policy.backends.sql  # noqa: F401
+import keystone.resource.backends.sql_model  # noqa: F401
+import keystone.resource.config_backends.sql  # noqa: F401
+import keystone.revoke.backends.sql  # noqa: F401
+import keystone.trust.backends.sql  # noqa: F401
+
+CONF = keystone.conf.CONF
+LOG = logging.getLogger(__name__)
 
 
-class TestMigrationCommon(
-    db_fixtures.OpportunisticDBTestMixin, test_base.BaseTestCase,
-):
+class KeystoneModelsMigrationsSync(test_migrations.ModelsMigrationsSync):
+    """Test sqlalchemy-migrate migrations."""
+
+    # Migrations can take a long time, particularly on underpowered CI nodes.
+    # Give them some breathing room.
+    TIMEOUT_SCALING_FACTOR = 4
 
     def setUp(self):
-        super().setUp()
+        # Ensure BaseTestCase's ConfigureLogging fixture is disabled since
+        # we're using our own (StandardLogging).
+        with fixtures.EnvironmentVariable('OS_LOG_CAPTURE', '0'):
+            super().setUp()
+
+        self.useFixture(log_fixture.get_logging_handle_error_fixture())
+        self.useFixture(ksfixtures.WarningsFixture())
+        self.useFixture(ksfixtures.StandardLogging())
 
         self.engine = enginefacade.writer.get_engine()
 
-        self.path = tempfile.mkdtemp('test_migration')
-        self.path1 = tempfile.mkdtemp('test_migration')
-        self.return_value = '/home/openstack/migrations'
-        self.return_value1 = '/home/extension/migrations'
-        self.init_version = 1
-        self.test_version = 123
+        # Configure our connection string in CONF and enable SQLite fkeys
+        db_options.set_defaults(CONF, connection=self.engine.url)
 
-        self.patcher_repo = mock.patch.object(migrate_repository, 'Repository')
-        self.repository = self.patcher_repo.start()
-        self.repository.side_effect = [self.return_value, self.return_value1]
+        # TODO(stephenfin): Do we need this? I suspect not since we're using
+        # enginefacade.write.get_engine() directly above
+        # Override keystone's context manager to be oslo.db's global context
+        # manager.
+        sql.core._TESTING_USE_GLOBAL_CONTEXT_MANAGER = True
+        self.addCleanup(setattr,
+                        sql.core, '_TESTING_USE_GLOBAL_CONTEXT_MANAGER', False)
+        self.addCleanup(sql.cleanup)
 
-        self.mock_api_db = mock.patch.object(migrate_api, 'db_version')
-        self.mock_api_db_version = self.mock_api_db.start()
-        self.mock_api_db_version.return_value = self.test_version
+    def db_sync(self, engine):
+        upgrades.offline_sync_database_to_version(engine=engine)
 
-    def tearDown(self):
-        os.rmdir(self.path)
-        self.mock_api_db.stop()
-        self.patcher_repo.stop()
-        super().tearDown()
+    def get_engine(self):
+        return self.engine
 
-    def test_find_migrate_repo_path_not_found(self):
-        self.assertRaises(
-            db_exception.DBMigrationError,
-            upgrades._find_migrate_repo,
-            "/foo/bar/",
-        )
+    def get_metadata(self):
+        return sql.ModelBase.metadata
 
-    def test_find_migrate_repo_called_once(self):
-        my_repository = upgrades._find_migrate_repo(self.path)
-        self.repository.assert_called_once_with(self.path)
-        self.assertEqual(self.return_value, my_repository)
+    def include_object(self, object_, name, type_, reflected, compare_to):
+        if type_ == 'table':
+            # migrate_version is a sqlalchemy-migrate control table and
+            # isn't included in the models
+            if name == 'migrate_version':
+                return False
 
-    def test_find_migrate_repo_called_few_times(self):
-        repo1 = upgrades._find_migrate_repo(self.path)
-        repo2 = upgrades._find_migrate_repo(self.path1)
-        self.assertNotEqual(repo1, repo2)
+            # This is created in tests and isn't a "real" table
+            if name == 'test_table':
+                return False
 
-    def test_db_version_control(self):
-        with utils.nested_contexts(
-            mock.patch.object(upgrades, '_find_migrate_repo'),
-            mock.patch.object(migrate_api, 'version_control'),
-        ) as (mock_find_repo, mock_version_control):
-            mock_find_repo.return_value = self.return_value
+            # FIXME(stephenfin): This was dropped in commit 93aff6e42 but the
+            # migrations were never adjusted
+            if name == 'token':
+                return False
 
-            version = upgrades._migrate_db_version_control(
-                self.engine, self.path, self.test_version)
+        return True
 
-            self.assertEqual(self.test_version, version)
-            mock_version_control.assert_called_once_with(
-                self.engine, self.return_value, self.test_version)
+    def filter_metadata_diff(self, diff):
+        """Filter changes before assert in test_models_sync().
 
-    @mock.patch.object(upgrades, '_find_migrate_repo')
-    @mock.patch.object(migrate_api, 'version_control')
-    def test_db_version_control_version_less_than_actual_version(
-        self, mock_version_control, mock_find_repo,
-    ):
-        mock_find_repo.return_value = self.return_value
-        mock_version_control.side_effect = \
-            migrate_exception.DatabaseAlreadyControlledError
-        self.assertRaises(
-            db_exception.DBMigrationError,
-            upgrades._migrate_db_version_control, self.engine,
-            self.path, self.test_version - 1)
+        :param diff: a list of differences (see `compare_metadata()` docs for
+            details on format)
+        :returns: a list of differences
+        """
+        new_diff = []
+        for element in diff:
+            # The modify_foo elements are lists; everything else is a tuple
+            if isinstance(element, list):
+                if element[0][0] == 'modify_nullable':
+                    if (element[0][2], element[0][3]) in (
+                        ('credential', 'encrypted_blob'),
+                        ('credential', 'key_hash'),
+                        ('federated_user', 'user_id'),
+                        ('federated_user', 'idp_id'),
+                        ('local_user', 'user_id'),
+                        ('nonlocal_user', 'user_id'),
+                        ('password', 'local_user_id'),
+                    ):
+                        continue  # skip
 
-    @mock.patch.object(upgrades, '_find_migrate_repo')
-    @mock.patch.object(migrate_api, 'version_control')
-    def test_db_version_control_version_greater_than_actual_version(
-        self, mock_version_control, mock_find_repo,
-    ):
-        mock_find_repo.return_value = self.return_value
-        mock_version_control.side_effect = \
-            migrate_exception.InvalidVersionError
-        self.assertRaises(
-            db_exception.DBMigrationError,
-            upgrades._migrate_db_version_control, self.engine,
-            self.path, self.test_version + 1)
+                if element[0][0] == 'modify_default':
+                    if (element[0][2], element[0][3]) in (
+                        ('password', 'created_at_int'),
+                        ('password', 'self_service'),
+                        ('project', 'is_domain'),
+                        ('service_provider', 'relay_state_prefix'),
+                    ):
+                        continue  # skip
+            else:
+                if element[0] == 'add_constraint':
+                    if (
+                        element[1].table.name,
+                        [x.name for x in element[1].columns],
+                    ) in (
+                        ('project_tag', ['project_id', 'name']),
+                        (
+                            'trust',
+                            [
+                                'trustor_user_id',
+                                'trustee_user_id',
+                                'project_id',
+                                'impersonation',
+                                'expires_at',
+                            ],
+                        ),
+                    ):
+                        continue  # skip
 
-    def test_db_version_return(self):
-        ret_val = upgrades._migrate_db_version(
-            self.engine, self.path, self.init_version)
-        self.assertEqual(self.test_version, ret_val)
+                # FIXME(stephenfin): These have a different name on PostgreSQL.
+                # Resolve by renaming the constraint on the models.
+                if element[0] == 'remove_constraint':
+                    if (
+                        element[1].table.name,
+                        [x.name for x in element[1].columns],
+                    ) in (
+                        ('access_rule', ['external_id']),
+                        (
+                            'trust',
+                            [
+                                'trustor_user_id',
+                                'trustee_user_id',
+                                'project_id',
+                                'impersonation',
+                                'expires_at',
+                                'expires_at_int',
+                            ],
+                        ),
+                    ):
+                        continue  # skip
 
-    def test_db_version_raise_not_controlled_error_first(self):
-        with mock.patch.object(
-            upgrades, '_migrate_db_version_control',
-        ) as mock_ver:
-            self.mock_api_db_version.side_effect = [
-                migrate_exception.DatabaseNotControlledError('oups'),
-                self.test_version]
+                # FIXME(stephenfin): These indexes are present in the
+                # migrations but not on the equivalent models. Resolve by
+                # updating the models.
+                if element[0] == 'add_index':
+                    if (
+                        element[1].table.name,
+                        [x.name for x in element[1].columns],
+                    ) in (
+                        ('access_rule', ['external_id']),
+                        ('access_rule', ['user_id']),
+                        ('revocation_event', ['revoked_at']),
+                        ('system_assignment', ['actor_id']),
+                        ('user', ['default_project_id']),
+                    ):
+                        continue  # skip
 
-            ret_val = upgrades._migrate_db_version(
-                self.engine, self.path, self.init_version)
-            self.assertEqual(self.test_version, ret_val)
-            mock_ver.assert_called_once_with(
-                self.engine, self.path, version=self.init_version)
+                # FIXME(stephenfin): These indexes are present on the models
+                # but not in the migrations. Resolve by either removing from
+                # the models or adding new migrations.
+                if element[0] == 'remove_index':
+                    if (
+                        element[1].table.name,
+                        [x.name for x in element[1].columns],
+                    ) in (
+                        ('access_rule', ['external_id']),
+                        ('access_rule', ['user_id']),
+                        ('access_token', ['consumer_id']),
+                        ('endpoint', ['service_id']),
+                        ('revocation_event', ['revoked_at']),
+                        ('user', ['default_project_id']),
+                        ('user_group_membership', ['group_id']),
+                        (
+                            'trust',
+                            [
+                                'trustor_user_id',
+                                'trustee_user_id',
+                                'project_id',
+                                'impersonation',
+                                'expires_at',
+                                'expires_at_int',
+                            ],
+                        ),
+                        (),
+                    ):
+                        continue  # skip
 
-    def test_db_version_raise_not_controlled_error_tables(self):
-        with mock.patch.object(sqlalchemy, 'MetaData') as mock_meta:
-            self.mock_api_db_version.side_effect = \
-                migrate_exception.DatabaseNotControlledError('oups')
-            my_meta = mock.MagicMock()
-            my_meta.tables = {'a': 1, 'b': 2}
-            mock_meta.return_value = my_meta
+                # FIXME(stephenfin): These fks are present in the
+                # migrations but not on the equivalent models. Resolve by
+                # updating the models.
+                if element[0] == 'add_fk':
+                    if (element[1].table.name, element[1].column_keys) in (
+                        (
+                            'application_credential_access_rule',
+                            ['access_rule_id'],
+                        ),
+                        ('limit', ['registered_limit_id']),
+                        ('registered_limit', ['service_id']),
+                        ('registered_limit', ['region_id']),
+                        ('endpoint', ['region_id']),
+                    ):
+                        continue  # skip
 
-            self.assertRaises(
-                db_exception.DBMigrationError, upgrades._migrate_db_version,
-                self.engine, self.path, self.init_version)
+                # FIXME(stephenfin): These indexes are present on the models
+                # but not in the migrations. Resolve by either removing from
+                # the models or adding new migrations.
+                if element[0] == 'remove_fk':
+                    if (element[1].table.name, element[1].column_keys) in (
+                        (
+                            'application_credential_access_rule',
+                            ['access_rule_id'],
+                        ),
+                        ('endpoint', ['region_id']),
+                        ('assignment', ['role_id']),
+                    ):
+                        continue  # skip
 
-    @mock.patch.object(migrate_api, 'version_control')
-    def test_db_version_raise_not_controlled_error_no_tables(self, mock_vc):
-        with mock.patch.object(sqlalchemy, 'MetaData') as mock_meta:
-            self.mock_api_db_version.side_effect = (
-                migrate_exception.DatabaseNotControlledError('oups'),
-                self.init_version)
-            my_meta = mock.MagicMock()
-            my_meta.tables = {}
-            mock_meta.return_value = my_meta
+            new_diff.append(element)
 
-            upgrades._migrate_db_version(
-                self.engine, self.path, self.init_version)
+        return new_diff
 
-            mock_vc.assert_called_once_with(
-                self.engine, self.return_value1, self.init_version)
 
-    @mock.patch.object(migrate_api, 'version_control')
-    def test_db_version_raise_not_controlled_alembic_tables(self, mock_vc):
-        # When there are tables but the alembic control table
-        # (alembic_version) is present, attempt to version the db.
-        # This simulates the case where there is are multiple repos (different
-        # abs_paths) and a different path has been versioned already.
-        with mock.patch.object(sqlalchemy, 'MetaData') as mock_meta:
-            self.mock_api_db_version.side_effect = [
-                migrate_exception.DatabaseNotControlledError('oups'), None]
-            my_meta = mock.MagicMock()
-            my_meta.tables = {'alembic_version': 1, 'b': 2}
-            mock_meta.return_value = my_meta
+class TestModelsSyncSQLite(
+    KeystoneModelsMigrationsSync,
+    test_fixtures.OpportunisticDBTestMixin,
+    base.BaseTestCase,
+):
+    pass
 
-            upgrades._migrate_db_version(
-                self.engine, self.path, self.init_version)
 
-            mock_vc.assert_called_once_with(
-                self.engine, self.return_value1, self.init_version)
+class TestModelsSyncMySQL(
+    KeystoneModelsMigrationsSync,
+    test_fixtures.OpportunisticDBTestMixin,
+    base.BaseTestCase,
+):
+    FIXTURE = test_fixtures.MySQLOpportunisticFixture
 
-    @mock.patch.object(migrate_api, 'version_control')
-    def test_db_version_raise_not_controlled_migrate_tables(self, mock_vc):
-        # When there are tables but the sqlalchemy-migrate control table
-        # (migrate_version) is present, attempt to version the db.
-        # This simulates the case where there is are multiple repos (different
-        # abs_paths) and a different path has been versioned already.
-        with mock.patch.object(sqlalchemy, 'MetaData') as mock_meta:
-            self.mock_api_db_version.side_effect = [
-                migrate_exception.DatabaseNotControlledError('oups'), None]
-            my_meta = mock.MagicMock()
-            my_meta.tables = {'migrate_version': 1, 'b': 2}
-            mock_meta.return_value = my_meta
 
-            upgrades._migrate_db_version(
-                self.engine, self.path, self.init_version)
+class TestModelsSyncPostgreSQL(
+    KeystoneModelsMigrationsSync,
+    test_fixtures.OpportunisticDBTestMixin,
+    base.BaseTestCase,
+):
+    FIXTURE = test_fixtures.PostgresqlOpportunisticFixture
 
-            mock_vc.assert_called_once_with(
-                self.engine, self.return_value1, self.init_version)
 
-    def test_db_sync_wrong_version(self):
-        self.assertRaises(
-            db_exception.DBMigrationError,
-            upgrades._migrate_db_sync, self.engine, self.path, 'foo')
+class KeystoneModelsMigrationsLegacySync(KeystoneModelsMigrationsSync):
+    """Test that the models match the database after old migrations are run."""
 
-    @mock.patch.object(migrate_api, 'upgrade')
-    def test_db_sync_script_not_present(self, upgrade):
-        # For non existent upgrades script file sqlalchemy-migrate will raise
-        # VersionNotFoundError which will be wrapped in DBMigrationError.
-        upgrade.side_effect = migrate_exception.VersionNotFoundError
-        self.assertRaises(
-            db_exception.DBMigrationError,
-            upgrades._migrate_db_sync, self.engine, self.path,
-            self.test_version + 1)
+    def db_sync(self, engine):
+        # the 'upgrades._db_sync' method will not use the legacy
+        # sqlalchemy-migrate-based migration flow unless the database is
+        # already controlled with sqlalchemy-migrate, so we need to manually
+        # enable version controlling with this tool to test this code path
+        for branch in (
+            upgrades.EXPAND_BRANCH,
+            upgrades.DATA_MIGRATION_BRANCH,
+            upgrades.CONTRACT_BRANCH,
+        ):
+            repository = upgrades._find_migrate_repo(branch)
+            migrate_api.version_control(
+                engine, repository, upgrades.MIGRATE_INIT_VERSION)
 
-    @mock.patch.object(migrate_api, 'upgrade')
-    def test_db_sync_known_error_raised(self, upgrade):
-        upgrade.side_effect = migrate_exception.KnownError
-        self.assertRaises(
-            db_exception.DBMigrationError,
-            upgrades._migrate_db_sync, self.engine, self.path,
-            self.test_version + 1)
+        # now we can apply migrations as expected and the legacy path will be
+        # followed
+        super().db_sync(engine)
 
-    def test_db_sync_upgrade(self):
-        init_ver = 55
-        with utils.nested_contexts(
-            mock.patch.object(upgrades, '_find_migrate_repo'),
-            mock.patch.object(migrate_api, 'upgrade')
-        ) as (mock_find_repo, mock_upgrade):
-            mock_find_repo.return_value = self.return_value
-            self.mock_api_db_version.return_value = self.test_version - 1
 
-            upgrades._migrate_db_sync(
-                self.engine, self.path, self.test_version, init_ver)
+class TestModelsLegacySyncSQLite(
+    KeystoneModelsMigrationsLegacySync,
+    test_fixtures.OpportunisticDBTestMixin,
+    base.BaseTestCase,
+):
+    pass
 
-            mock_upgrade.assert_called_once_with(
-                self.engine, self.return_value, self.test_version)
 
-    def test_db_sync_downgrade(self):
-        with utils.nested_contexts(
-            mock.patch.object(upgrades, '_find_migrate_repo'),
-            mock.patch.object(migrate_api, 'downgrade')
-        ) as (mock_find_repo, mock_downgrade):
-            mock_find_repo.return_value = self.return_value
-            self.mock_api_db_version.return_value = self.test_version + 1
+class TestModelsLegacySyncMySQL(
+    KeystoneModelsMigrationsLegacySync,
+    test_fixtures.OpportunisticDBTestMixin,
+    base.BaseTestCase,
+):
+    FIXTURE = test_fixtures.MySQLOpportunisticFixture
 
-            upgrades._migrate_db_sync(
-                self.engine, self.path, self.test_version)
 
-            mock_downgrade.assert_called_once_with(
-                self.engine, self.return_value, self.test_version)
+class TestModelsLegacySyncPostgreSQL(
+    KeystoneModelsMigrationsLegacySync,
+    test_fixtures.OpportunisticDBTestMixin,
+    base.BaseTestCase,
+):
+    FIXTURE = test_fixtures.PostgresqlOpportunisticFixture

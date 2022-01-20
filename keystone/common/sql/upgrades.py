@@ -16,24 +16,47 @@
 
 import os
 
+from alembic import command as alembic_api
+from alembic import config as alembic_config
+from alembic import migration as alembic_migration
+from alembic import script as alembic_script
 from migrate import exceptions as migrate_exceptions
 from migrate.versioning import api as migrate_api
 from migrate.versioning import repository as migrate_repository
 from oslo_db import exception as db_exception
-import sqlalchemy as sa
+from oslo_log import log as logging
 
 from keystone.common import sql
-from keystone import exception
-from keystone.i18n import _
+import keystone.conf
 
-INITIAL_VERSION = 72
-LATEST_VERSION = 79
+CONF = keystone.conf.CONF
+LOG = logging.getLogger(__name__)
+
+ALEMBIC_INIT_VERSION = '27e647c0fad4'
+MIGRATE_INIT_VERSION = 72
+
 EXPAND_BRANCH = 'expand'
 DATA_MIGRATION_BRANCH = 'data_migration'
 CONTRACT_BRANCH = 'contract'
 
+RELEASES = (
+    'yoga',
+)
+MIGRATION_BRANCHES = (EXPAND_BRANCH, CONTRACT_BRANCH)
+VERSIONS_PATH = os.path.join(
+    os.path.dirname(sql.__file__),
+    'migrations',
+    'versions',
+)
 
-def _get_migrate_repo_path(branch):
+
+def _find_migrate_repo(branch):
+    """Get the project's change script repository
+
+    :param branch: Name of the repository "branch" to be used; this will be
+        transformed to repository path.
+    :returns: An instance of ``migrate.versioning.repository.Repository``
+    """
     abs_path = os.path.abspath(
         os.path.join(
             os.path.dirname(sql.__file__),
@@ -41,203 +64,273 @@ def _get_migrate_repo_path(branch):
             f'{branch}_repo',
         )
     )
-
-    if not os.path.isdir(abs_path):
-        raise exception.MigrationNotProvided(sql.__name__, abs_path)
-
-    return abs_path
-
-
-def _find_migrate_repo(abs_path):
-    """Get the project's change script repository
-
-    :param abs_path: Absolute path to migrate repository
-    """
     if not os.path.exists(abs_path):
         raise db_exception.DBMigrationError("Path %s not found" % abs_path)
     return migrate_repository.Repository(abs_path)
 
 
-def _migrate_db_version_control(engine, abs_path, version=None):
-    """Mark a database as under this repository's version control.
+def _find_alembic_conf():
+    """Get the project's alembic configuration
 
-    Once a database is under version control, schema changes should
-    only be done via change scripts in this repository.
-
-    :param engine: SQLAlchemy engine instance for a given database
-    :param abs_path: Absolute path to migrate repository
-    :param version: Initial database version
+    :returns: An instance of ``alembic.config.Config``
     """
-    repository = _find_migrate_repo(abs_path)
-
-    try:
-        migrate_api.version_control(engine, repository, version)
-    except migrate_exceptions.InvalidVersionError as ex:
-        raise db_exception.DBMigrationError("Invalid version : %s" % ex)
-    except migrate_exceptions.DatabaseAlreadyControlledError:
-        raise db_exception.DBMigrationError("Database is already controlled.")
-
-    return version
-
-
-def _migrate_db_version(engine, abs_path, init_version):
-    """Show the current version of the repository.
-
-    :param engine: SQLAlchemy engine instance for a given database
-    :param abs_path: Absolute path to migrate repository
-    :param init_version: Initial database version
-    """
-    repository = _find_migrate_repo(abs_path)
-    try:
-        return migrate_api.db_version(engine, repository)
-    except migrate_exceptions.DatabaseNotControlledError:
-        pass
-
-    meta = sa.MetaData()
-    meta.reflect(bind=engine)
-    tables = meta.tables
-    if (
-        len(tables) == 0 or
-        'alembic_version' in tables or
-        'migrate_version' in tables
-    ):
-        _migrate_db_version_control(engine, abs_path, version=init_version)
-        return migrate_api.db_version(engine, repository)
-
-    msg = _(
-        "The database is not under version control, but has tables. "
-        "Please stamp the current version of the schema manually."
+    path = os.path.join(
+        os.path.abspath(os.path.dirname(__file__)), 'alembic.ini',
     )
-    raise db_exception.DBMigrationError(msg)
+
+    config = alembic_config.Config(os.path.abspath(path))
+
+    config.set_main_option('sqlalchemy.url', CONF.database.connection)
+
+    # we don't want to use the logger configuration from the file, which is
+    # only really intended for the CLI
+    # https://stackoverflow.com/a/42691781/613428
+    config.attributes['configure_logger'] = False
+
+    # we want to scan all the versioned subdirectories
+    version_paths = [VERSIONS_PATH]
+    for release in RELEASES:
+        for branch in MIGRATION_BRANCHES:
+            version_path = os.path.join(VERSIONS_PATH, release, branch)
+            version_paths.append(version_path)
+    config.set_main_option('version_locations', ' '.join(version_paths))
+
+    return config
 
 
-def _migrate_db_sync(engine, abs_path, version=None, init_version=0):
-    """Upgrade or downgrade a database.
+def _get_current_heads(engine, config):
+    script = alembic_script.ScriptDirectory.from_config(config)
 
-    Function runs the upgrade() or downgrade() functions in change scripts.
+    with engine.connect() as conn:
+        context = alembic_migration.MigrationContext.configure(conn)
+        heads = context.get_current_heads()
 
-    :param engine: SQLAlchemy engine instance for a given database
-    :param abs_path: Absolute path to migrate repository.
-    :param version: Database will upgrade/downgrade until this version.
-        If None - database will update to the latest available version.
-    :param init_version: Initial database version
-    """
+    heads_map = {}
 
-    if version is not None:
-        try:
-            version = int(version)
-        except ValueError:
-            msg = _("version should be an integer")
-            raise db_exception.DBMigrationError(msg)
+    for head in heads:
+        if CONTRACT_BRANCH in script.get_revision(head).branch_labels:
+            heads_map[CONTRACT_BRANCH] = head
+        else:
+            heads_map[EXPAND_BRANCH] = head
 
-    current_version = _migrate_db_version(engine, abs_path, init_version)
-    repository = _find_migrate_repo(abs_path)
-
-    if version is None or version > current_version:
-        try:
-            return migrate_api.upgrade(engine, repository, version)
-        except Exception as ex:
-            raise db_exception.DBMigrationError(ex)
-    else:
-        return migrate_api.downgrade(engine, repository, version)
+    return heads_map
 
 
-def get_db_version(branch=EXPAND_BRANCH):
-    abs_path = _get_migrate_repo_path(branch)
+def get_current_heads():
+    """Get the current head of each the expand and contract branches."""
+    config = _find_alembic_conf()
+
     with sql.session_for_read() as session:
-        return _migrate_db_version(
-            session.get_bind(),
-            abs_path,
-            INITIAL_VERSION,
-        )
-
-
-def _db_sync(branch):
-    abs_path = _get_migrate_repo_path(branch)
-    with sql.session_for_write() as session:
         engine = session.get_bind()
-        _migrate_db_sync(
-            engine=engine,
-            abs_path=abs_path,
-            init_version=INITIAL_VERSION,
-        )
+
+    # discard the URL encoded in alembic.ini in favour of the URL
+    # configured for the engine by the database fixtures, casting from
+    # 'sqlalchemy.engine.url.URL' to str in the process. This returns a
+    # RFC-1738 quoted URL, which means that a password like "foo@" will be
+    # turned into "foo%40". This in turns causes a problem for
+    # set_main_option() because that uses ConfigParser.set, which (by
+    # design) uses *python* interpolation to write the string out ... where
+    # "%" is the special python interpolation character! Avoid this
+    # mismatch by quoting all %'s for the set below.
+    engine_url = str(engine.url).replace('%', '%%')
+    config.set_main_option('sqlalchemy.url', str(engine_url))
+
+    heads = _get_current_heads(engine, config)
+
+    return heads
 
 
-def _validate_upgrade_order(branch, target_repo_version=None):
-    """Validate the state of the migration repositories.
+def _is_database_under_migrate_control(engine):
+    # if any of the repos is present, they're all present (in theory, at least)
+    repository = _find_migrate_repo('expand')
+    try:
+        migrate_api.db_version(engine, repository)
+        return True
+    except migrate_exceptions.DatabaseNotControlledError:
+        return False
+
+
+def _is_database_under_alembic_control(engine):
+    with engine.connect() as conn:
+        context = alembic_migration.MigrationContext.configure(conn)
+        return bool(context.get_current_heads())
+
+
+def _init_alembic_on_legacy_database(engine, config):
+    """Init alembic in an existing environment with sqlalchemy-migrate."""
+    LOG.info(
+        'The database is still under sqlalchemy-migrate control; '
+        'applying any remaining sqlalchemy-migrate-based migrations '
+        'and fake applying the initial alembic migration'
+    )
+
+    # bring all repos up to date; note that we're relying on the fact that
+    # there aren't any "real" contract migrations left (since the great squash
+    # of migrations in yoga) so we're really only applying the expand side of
+    # '079_expand_update_local_id_limit' and the rest are for completeness'
+    # sake
+    for branch in (EXPAND_BRANCH, DATA_MIGRATION_BRANCH, CONTRACT_BRANCH):
+        repository = _find_migrate_repo(branch or 'expand')
+        migrate_api.upgrade(engine, repository)
+
+    # re-use the connection rather than creating a new one
+    with engine.begin() as connection:
+        config.attributes['connection'] = connection
+        alembic_api.stamp(config, ALEMBIC_INIT_VERSION)
+
+
+def _upgrade_alembic(engine, config, branch):
+    revision = 'heads'
+    if branch:
+        revision = f'{branch}@head'
+
+    # re-use the connection rather than creating a new one
+    with engine.begin() as connection:
+        config.attributes['connection'] = connection
+        alembic_api.upgrade(config, revision)
+
+
+def get_db_version(branch=EXPAND_BRANCH, *, engine=None):
+    config = _find_alembic_conf()
+
+    if engine is None:
+        with sql.session_for_read() as session:
+            engine = session.get_bind()
+
+    # discard the URL encoded in alembic.ini in favour of the URL
+    # configured for the engine by the database fixtures, casting from
+    # 'sqlalchemy.engine.url.URL' to str in the process. This returns a
+    # RFC-1738 quoted URL, which means that a password like "foo@" will be
+    # turned into "foo%40". This in turns causes a problem for
+    # set_main_option() because that uses ConfigParser.set, which (by
+    # design) uses *python* interpolation to write the string out ... where
+    # "%" is the special python interpolation character! Avoid this
+    # mismatch by quoting all %'s for the set below.
+    engine_url = str(engine.url).replace('%', '%%')
+    config.set_main_option('sqlalchemy.url', str(engine_url))
+
+    migrate_version = None
+    if _is_database_under_migrate_control(engine):
+        repository = _find_migrate_repo(branch)
+        migrate_version = migrate_api.db_version(engine, repository)
+
+    alembic_version = None
+    if _is_database_under_alembic_control(engine):
+        # we use '.get' since the particular branch might not have been created
+        alembic_version = _get_current_heads(engine, config).get(branch)
+
+    return alembic_version or migrate_version
+
+
+def _db_sync(branch=None, *, engine=None):
+    config = _find_alembic_conf()
+
+    if engine is None:
+        with sql.session_for_write() as session:
+            engine = session.get_bind()
+
+    # discard the URL encoded in alembic.ini in favour of the URL
+    # configured for the engine by the database fixtures, casting from
+    # 'sqlalchemy.engine.url.URL' to str in the process. This returns a
+    # RFC-1738 quoted URL, which means that a password like "foo@" will be
+    # turned into "foo%40". This in turns causes a problem for
+    # set_main_option() because that uses ConfigParser.set, which (by
+    # design) uses *python* interpolation to write the string out ... where
+    # "%" is the special python interpolation character! Avoid this
+    # mismatch by quoting all %'s for the set below.
+    engine_url = str(engine.url).replace('%', '%%')
+    config.set_main_option('sqlalchemy.url', str(engine_url))
+
+    # if we're in a deployment where sqlalchemy-migrate is already present,
+    # then apply all the updates for that and fake apply the initial
+    # alembic migration; if we're not then 'upgrade' will take care of
+    # everything this should be a one-time operation
+    if (
+        not _is_database_under_alembic_control(engine) and
+        _is_database_under_migrate_control(engine)
+    ):
+        _init_alembic_on_legacy_database(engine, config)
+
+    _upgrade_alembic(engine, config, branch)
+
+
+def _validate_upgrade_order(branch, *, engine=None):
+    """Validate the upgrade order of the migration branches.
 
     This is run before allowing the db_sync command to execute. Ensure the
-    upgrade step and version specified by the operator remains consistent with
-    the upgrade process. I.e. expand's version is greater or equal to
-    migrate's, migrate's version is greater or equal to contract's.
+    expand steps have been run before the contract steps.
 
-    :param branch: The name of the repository that the user is trying to
-                      upgrade.
-    :param target_repo_version: The version to upgrade the repo. Otherwise, the
-                                version will be upgraded to the latest version
-                                available.
+    :param branch: The name of the branch that the user is trying to
+        upgrade.
     """
-    # Initialize a dict to have each key assigned a repo with their value being
-    # the repo that comes before.
-    db_sync_order = {
-        DATA_MIGRATION_BRANCH: EXPAND_BRANCH,
-        CONTRACT_BRANCH: DATA_MIGRATION_BRANCH,
-    }
-
     if branch == EXPAND_BRANCH:
         return
 
-    # find the latest version that the current command will upgrade to if there
-    # wasn't a version specified for upgrade.
-    if not target_repo_version:
-        abs_path = _get_migrate_repo_path(branch)
-        repo = _find_migrate_repo(abs_path)
-        target_repo_version = int(repo.latest)
+    if branch == DATA_MIGRATION_BRANCH:
+        # this is a no-op in alembic land
+        return
 
-    # get current version of the command that runs before the current command.
-    dependency_repo_version = get_db_version(branch=db_sync_order[branch])
+    config = _find_alembic_conf()
 
-    if dependency_repo_version < target_repo_version:
+    if engine is None:
+        with sql.session_for_read() as session:
+            engine = session.get_bind()
+
+    script = alembic_script.ScriptDirectory.from_config(config)
+    expand_head = None
+    for head in script.get_heads():
+        if EXPAND_BRANCH in script.get_revision(head).branch_labels:
+            expand_head = head
+            break
+
+    with engine.connect() as conn:
+        context = alembic_migration.MigrationContext.configure(conn)
+        current_heads = context.get_current_heads()
+
+    if expand_head not in current_heads:
         raise db_exception.DBMigrationError(
-            'You are attempting to upgrade %s ahead of %s. Please refer to '
+            'You are attempting to upgrade contract ahead of expand. '
+            'Please refer to '
             'https://docs.openstack.org/keystone/latest/admin/'
             'identity-upgrading.html '
-            'to see the proper steps for rolling upgrades.' % (
-                branch, db_sync_order[branch]))
+            'to see the proper steps for rolling upgrades.'
+        )
 
 
-def expand_schema():
+def expand_schema(engine=None):
     """Expand the database schema ahead of data migration.
 
     This is run manually by the keystone-manage command before the first
     keystone node is migrated to the latest release.
     """
-    _validate_upgrade_order(EXPAND_BRANCH)
-    _db_sync(branch=EXPAND_BRANCH)
+    _validate_upgrade_order(EXPAND_BRANCH, engine=engine)
+    _db_sync(EXPAND_BRANCH, engine=engine)
 
 
-def migrate_data():
+def migrate_data(engine=None):
     """Migrate data to match the new schema.
 
     This is run manually by the keystone-manage command once the keystone
     schema has been expanded for the new release.
     """
-    _validate_upgrade_order(DATA_MIGRATION_BRANCH)
-    _db_sync(branch=DATA_MIGRATION_BRANCH)
+    print(
+        'Data migrations are no longer supported with alembic. '
+        'This is now a no-op.'
+    )
 
 
-def contract_schema():
+def contract_schema(engine=None):
     """Contract the database.
 
     This is run manually by the keystone-manage command once the keystone
     nodes have been upgraded to the latest release and will remove any old
     tables/columns that are no longer required.
     """
-    _validate_upgrade_order(CONTRACT_BRANCH)
-    _db_sync(branch=CONTRACT_BRANCH)
+    _validate_upgrade_order(CONTRACT_BRANCH, engine=engine)
+    _db_sync(CONTRACT_BRANCH, engine=engine)
 
 
-def offline_sync_database_to_version(version=None):
+def offline_sync_database_to_version(version=None, *, engine=None):
     """Perform and off-line sync of the database.
 
     Migrate the database up to the latest version, doing the equivalent of
@@ -252,6 +345,4 @@ def offline_sync_database_to_version(version=None):
     if version:
         raise Exception('Specifying a version is no longer supported')
 
-    expand_schema()
-    migrate_data()
-    contract_schema()
+    _db_sync(engine=engine)
