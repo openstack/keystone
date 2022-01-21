@@ -21,6 +21,8 @@ Create Date: 2022-01-21 00:00:00.000000
 revision = '29e87d24a316'
 down_revision = '27e647c0fad4'
 branch_labels = ('expand',)
+# milestone identifier
+keystone_milestone = ['yoga']
 
 
 def upgrade():
