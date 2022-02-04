@@ -73,10 +73,12 @@ Verbosely, keystone can be bootstrapped with:
         --bootstrap-internal-url http://localhost:5000
 
 This will create an ``admin`` user with the ``admin`` role on the ``admin``
-project. The user will have the password specified in the command. Note that
-both the user and the project will be created in the ``default`` domain. By not
-creating an endpoint in the catalog users will need to provide endpoint
-overrides to perform additional identity operations.
+project and the system. This allows the user to generate project-scoped and
+system-scoped tokens which ensures they have full RBAC authorization. The user
+will have the password specified in the command.  Note that both the user and
+the project will be created in the ``default`` domain. By not creating an
+endpoint in the catalog users will need to provide endpoint overrides to
+perform additional identity operations.
 
 This command will also create ``member`` and ``reader`` roles. The ``admin``
 role implies the ``member`` role and ``member`` role implies the ``reader``
