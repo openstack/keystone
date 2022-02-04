@@ -127,8 +127,7 @@ class KeystoneMigrationsCheckers(test_migrations.WalkVersionsMixin):
 
     @property
     def INIT_VERSION(self):
-        return upgrades.get_init_version(
-            abs_path=os.path.abspath(os.path.dirname(self.migrate_file)))
+        return upgrades.INITIAL_VERSION
 
     @property
     def REPOSITORY(self):
