@@ -677,6 +677,7 @@ class BaseTestCase(testtools.TestCase):
         self.useFixture(fixtures.MockPatchObject(sys, 'exit',
                                                  side_effect=UnexpectedExit))
         self.useFixture(log_fixture.get_logging_handle_error_fixture())
+        self.stdlog = self.useFixture(ksfixtures.StandardLogging())
         self.useFixture(ksfixtures.WarningsFixture())
 
         # Ensure we have an empty threadlocal context at the start of each

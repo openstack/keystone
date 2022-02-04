@@ -11,6 +11,7 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+
 """
 Test for SQL migration extensions.
 
@@ -25,12 +26,12 @@ To run these tests against a live database:
 
 3. Run the tests using::
 
-    tox -e py27 -- keystone.tests.unit.test_sql_upgrade
+    tox -e py39 -- keystone.tests.unit.test_sql_upgrade
 
 For further information, see `oslo.db documentation
 <https://docs.openstack.org/oslo.db/latest/contributor/index.html#how-to-run-unit-tests>`_.
 
-WARNING::
+.. warning::
 
     Your database will be wiped.
 
@@ -51,6 +52,7 @@ from migrate.versioning import script
 from oslo_db import exception as db_exception
 from oslo_db.sqlalchemy import enginefacade
 from oslo_db.sqlalchemy import test_fixtures as db_fixtures
+from oslo_log import fixture as log_fixture
 from oslo_log import log
 from oslo_serialization import jsonutils
 from oslotest import base as test_base
@@ -264,6 +266,11 @@ class MigrateBase(
 ):
     def setUp(self):
         super().setUp()
+
+        self.useFixture(log_fixture.get_logging_handle_error_fixture())
+        self.stdlog = self.useFixture(ksfixtures.StandardLogging())
+        self.useFixture(ksfixtures.WarningsFixture())
+
         self.engine = enginefacade.writer.get_engine()
         self.sessionmaker = enginefacade.writer.get_sessionmaker()
 
