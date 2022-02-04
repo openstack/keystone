@@ -87,6 +87,19 @@ files, respectively (currently only the SQL driver is supported).
 Changing the SQL Model and Driver
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+.. note::
+
+   The below guidance is out-of-date and refers to the legacy ``migrate_repo``
+   migration repository, which was removed in 21.0.0 (Yoga). Nowadays, for a
+   change like this, you would create an additive or "expand" migration in the
+   ``expand_repo`` repository along with null migrations in the
+   ``contract_repo`` and ``data_migration_repo`` repositories. For more
+   information, refer to :doc:`/contributor/database-migrations`.
+
+.. todo::
+
+   Update this section to reflect the new migration model.
+
 First, you need to change the role model to include the description attribute.
 Go to `keystone/assignment/role_backends/sql.py` and update it like::
 

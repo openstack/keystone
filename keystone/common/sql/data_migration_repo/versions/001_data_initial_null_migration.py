@@ -13,6 +13,44 @@
 # A null initial migration to open this repo. Do not re-use replace this with
 # a real migration, add additional ones in subsequent version scripts.
 
+import sqlalchemy as sql
+import sqlalchemy.orm
+
+NULL_DOMAIN_ID = '<<keystone.domain.root>>'
+
 
 def upgrade(migrate_engine):
-    pass
+
+    def _generate_root_domain_project():
+        # Generate a project that will act as a root for all domains, in order
+        # for use to be able to use a FK constraint on domain_id. Projects
+        # acting as a domain will not reference this as their parent_id, just
+        # as domain_id.
+        #
+        # This special project is filtered out by the driver, so is never
+        # visible to the manager or API.
+
+        project_ref = {
+            'id': NULL_DOMAIN_ID,
+            'name': NULL_DOMAIN_ID,
+            'enabled': False,
+            'description': '',
+            'domain_id': NULL_DOMAIN_ID,
+            'is_domain': True,
+            'parent_id': None,
+            'extra': '{}',
+        }
+        return project_ref
+
+    meta = sql.MetaData()
+    meta.bind = migrate_engine
+    session = sql.orm.sessionmaker(bind=migrate_engine)()
+
+    project = sql.Table('project', meta, autoload=True)
+
+    root_domain_project = _generate_root_domain_project()
+    new_entry = project.insert().values(**root_domain_project)
+    session.execute(new_entry)
+    session.commit()
+
+    session.close()

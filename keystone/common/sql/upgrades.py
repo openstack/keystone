@@ -30,7 +30,6 @@ from keystone.i18n import _
 
 USE_TRIGGERS = True
 
-LEGACY_REPO = 'migrate_repo'
 EXPAND_REPO = 'expand_repo'
 DATA_MIGRATION_REPO = 'data_migration_repo'
 CONTRACT_REPO = 'contract_repo'
@@ -136,16 +135,6 @@ def find_repo(repo_name):
     return path
 
 
-def _sync_common_repo(version):
-    abs_path = find_repo(LEGACY_REPO)
-    init_version = get_init_version()
-    with sql.session_for_write() as session:
-        engine = session.get_bind()
-        _assert_not_schema_downgrade(version=version)
-        migration.db_sync(engine, abs_path, version=version,
-                          init_version=init_version, sanity_check=False)
-
-
 def _sync_repo(repo_name):
     abs_path = find_repo(repo_name)
     with sql.session_for_write() as session:
@@ -170,7 +159,7 @@ def get_init_version(abs_path=None):
     :return:         initial version number or None, if DB is empty.
     """
     if abs_path is None:
-        abs_path = find_repo(LEGACY_REPO)
+        abs_path = find_repo(EXPAND_REPO)
 
     repo = migrate.versioning.repository.Repository(abs_path)
 
@@ -221,14 +210,14 @@ def offline_sync_database_to_version(version=None):
     USE_TRIGGERS = False
 
     if version:
-        _sync_common_repo(version)
-    else:
-        expand_schema()
-        migrate_data()
-        contract_schema()
+        raise Exception('Specifying a version is no longer supported')
+
+    expand_schema()
+    migrate_data()
+    contract_schema()
 
 
-def get_db_version(repo=LEGACY_REPO):
+def get_db_version(repo=EXPAND_REPO):
     with sql.session_for_read() as session:
         repo = find_repo(repo)
         return migration.db_version(
@@ -254,19 +243,7 @@ def validate_upgrade_order(repo_name, target_repo_version=None):
     db_sync_order = {DATA_MIGRATION_REPO: EXPAND_REPO,
                      CONTRACT_REPO: DATA_MIGRATION_REPO}
 
-    if repo_name == LEGACY_REPO:
-        return
-    # If expand is being run, we validate that Legacy repo is at the maximum
-    # version before running the additional schema expansions.
-    elif repo_name == EXPAND_REPO:
-        abs_path = find_repo(LEGACY_REPO)
-        repo = migrate.versioning.repository.Repository(abs_path)
-        if int(repo.latest) != get_db_version():
-            raise db_exception.DBMigrationError(
-                'Your Legacy repo version is not up to date. Please refer to '
-                'https://docs.openstack.org/keystone/latest/admin/'
-                'identity-upgrading.html '
-                'to see the proper steps for rolling upgrades.')
+    if repo_name == EXPAND_REPO:
         return
 
     # find the latest version that the current command will upgrade to if there
@@ -295,9 +272,6 @@ def expand_schema():
     keystone node is migrated to the latest release.
 
     """
-    # Make sure all the legacy migrations are run before we run any new
-    # expand migrations.
-    _sync_common_repo(version=None)
     validate_upgrade_order(EXPAND_REPO)
     _sync_repo(repo_name=EXPAND_REPO)
 
