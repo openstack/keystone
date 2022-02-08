@@ -255,7 +255,6 @@ def upgrade(migrate_engine):
             sql.ForeignKey(local_user.c.id, ondelete='CASCADE'),
             nullable=False,
         ),
-        sql.Column('password', sql.String(128), nullable=True),
         sql.Column('expires_at', sql.DateTime(), nullable=True),
         sql.Column(
             'self_service',
@@ -463,6 +462,7 @@ def upgrade(migrate_engine):
             nullable=False,
             server_default='<<null>>',
         ),
+        sql.Column('description', sql.String(255), nullable=True),
         migrate.UniqueConstraint(
             'name',
             'domain_id',
@@ -753,7 +753,7 @@ def upgrade(migrate_engine):
         'limit',
         meta,
         sql.Column('id', sql.String(length=64), nullable=False),
-        sql.Column('project_id', sql.String(64)),
+        sql.Column('project_id', sql.String(64), nullable=True),
         sql.Column('service_id', sql.String(255)),
         sql.Column('region_id', sql.String(64), nullable=True),
         sql.Column('resource_name', sql.String(255)),
@@ -767,6 +767,7 @@ def upgrade(migrate_engine):
             'registered_limit_id',
             sql.String(64),
         ),
+        sql.Column('domain_id', sql.String(64), nullable=True),
         # NOTE(stephenfin): Name chosen to preserve backwards compatibility
         # with names used for primary key unique constraints
         sql.UniqueConstraint('id', name='limit_id_key'),
@@ -810,6 +811,40 @@ def upgrade(migrate_engine):
         ),
         sql.Column(
             'role_id', sql.String(length=64), primary_key=True, nullable=False
+        ),
+        mysql_engine='InnoDB',
+        mysql_charset='utf8',
+    )
+
+    access_rule = sql.Table(
+        'access_rule',
+        meta,
+        sql.Column('id', sql.Integer, primary_key=True, nullable=False),
+        sql.Column('service', sql.String(64)),
+        sql.Column('path', sql.String(128)),
+        sql.Column('method', sql.String(16)),
+        mysql_engine='InnoDB',
+        mysql_charset='utf8',
+    )
+
+    app_cred_access_rule = sql.Table(
+        'application_credential_access_rule',
+        meta,
+        sql.Column(
+            'application_credential_id',
+            sql.Integer,
+            sql.ForeignKey(
+                application_credential.c.internal_id, ondelete='CASCADE'
+            ),
+            primary_key=True,
+            nullable=False,
+        ),
+        sql.Column(
+            'access_rule_id',
+            sql.Integer,
+            sql.ForeignKey(access_rule.c.id, ondelete='CASCADE'),
+            primary_key=True,
+            nullable=False,
         ),
         mysql_engine='InnoDB',
         mysql_charset='utf8',
@@ -860,6 +895,8 @@ def upgrade(migrate_engine):
         limit,
         application_credential,
         application_credential_role,
+        access_rule,
+        app_cred_access_rule,
     ]
 
     for table in tables:

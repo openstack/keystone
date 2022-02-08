@@ -60,7 +60,6 @@ from keystone.cmd import cli
 from keystone.common import sql
 from keystone.common.sql import upgrades
 from keystone.credential.providers import fernet as credential_fernet
-from keystone.resource.backends import base as resource_base
 from keystone.tests import unit
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit.ksfixtures import database
@@ -95,7 +94,7 @@ INITIAL_TABLE_STRUCTURE = {
         'project_id', 'name',
     ],
     'role': [
-        'id', 'name', 'extra', 'domain_id',
+        'id', 'name', 'extra', 'domain_id', 'description',
     ],
     'service': [
         'id', 'type', 'extra', 'enabled',
@@ -188,7 +187,7 @@ INITIAL_TABLE_STRUCTURE = {
         'failed_auth_at',
     ],
     'password': [
-        'id', 'local_user_id', 'password', 'created_at', 'expires_at',
+        'id', 'local_user_id', 'created_at', 'expires_at',
         'self_service', 'password_hash', 'created_at_int', 'expires_at_int',
     ],
     'federated_user': [
@@ -207,7 +206,7 @@ INITIAL_TABLE_STRUCTURE = {
     'limit': [
         'internal_id', 'id', 'project_id', 'service_id', 'region_id',
         'resource_name', 'resource_limit', 'description',
-        'registered_limit_id',
+        'registered_limit_id', 'domain_id',
     ],
     'application_credential': [
         'internal_id', 'id', 'name', 'secret_hash', 'description', 'user_id',
@@ -215,6 +214,12 @@ INITIAL_TABLE_STRUCTURE = {
     ],
     'application_credential_role': [
         'application_credential_id', 'role_id',
+    ],
+    'access_rule': [
+        'id', 'service', 'path', 'method',
+    ],
+    'application_credential_access_rule': [
+        'application_credential_id', 'access_rule_id',
     ],
 }
 
@@ -625,149 +630,6 @@ class FullMigration(MigrateBase, unit.TestCase):
             self.contract,
             upgrades.INITIAL_VERSION + 2,
         )
-
-    def test_migration_053_adds_description_to_role(self):
-        self.expand(52)
-        self.migrate(52)
-        self.contract(52)
-
-        role_table_name = 'role'
-        self.assertTableColumns(
-            role_table_name,
-            ['id', 'name', 'domain_id', 'extra']
-        )
-
-        self.expand(53)
-        self.migrate(53)
-        self.contract(53)
-
-        self.assertTableColumns(
-            role_table_name,
-            ['id', 'name', 'domain_id', 'extra', 'description']
-        )
-
-        role_table = sqlalchemy.Table(
-            role_table_name, self.metadata, autoload=True
-        )
-
-        role = {
-            'id': uuid.uuid4().hex,
-            'name': "test",
-            'domain_id': resource_base.NULL_DOMAIN_ID,
-            'description': "This is a string"
-        }
-        role_table.insert().values(role).execute()
-
-        role_without_description = {
-            'id': uuid.uuid4().hex,
-            'name': "test1",
-            'domain_id': resource_base.NULL_DOMAIN_ID
-        }
-        role_table.insert().values(role_without_description).execute()
-
-    def test_migration_054_drop_old_password_column(self):
-        self.expand(53)
-        self.migrate(53)
-        self.contract(53)
-
-        password_table = 'password'
-        self.assertTableColumns(
-            password_table,
-            ['id', 'local_user_id', 'password', 'password_hash',
-             'self_service', 'created_at_int', 'created_at', 'expires_at_int',
-             'expires_at']
-        )
-
-        self.expand(54)
-        self.migrate(54)
-        self.contract(54)
-
-        self.assertTableColumns(
-            password_table,
-            ['id', 'local_user_id', 'password_hash', 'self_service',
-             'created_at_int', 'created_at', 'expires_at_int', 'expires_at']
-        )
-
-    def test_migration_055_add_domain_to_limit(self):
-        self.expand(54)
-        self.migrate(54)
-        self.contract(54)
-
-        limit_table_name = 'limit'
-        limit_table = sqlalchemy.Table(limit_table_name, self.metadata,
-                                       autoload=True)
-        self.assertFalse(hasattr(limit_table.c, 'domain_id'))
-
-        self.expand(55)
-        self.migrate(55)
-        self.contract(55)
-
-        self.assertTableColumns(
-            limit_table_name,
-            ['id', 'project_id', 'service_id', 'region_id', 'resource_name',
-             'resource_limit', 'description', 'internal_id',
-             'registered_limit_id', 'domain_id'])
-        self.assertTrue(limit_table.c.project_id.nullable)
-
-    def test_migration_056_add_application_credential_access_rules(self):
-        self.expand(55)
-        self.migrate(55)
-        self.contract(55)
-
-        self.assertTableDoesNotExist('access_rule')
-        self.assertTableDoesNotExist('application_credential_access_rule')
-
-        self.expand(56)
-        self.migrate(56)
-        self.contract(56)
-
-        self.assertTableExists('access_rule')
-        self.assertTableExists('application_credential_access_rule')
-        self.assertTableColumns(
-            'access_rule',
-            ['id', 'service', 'path', 'method']
-        )
-        self.assertTableColumns(
-            'application_credential_access_rule',
-            ['application_credential_id', 'access_rule_id']
-        )
-        self.assertTrue(self.does_fk_exist(
-            'application_credential_access_rule', 'application_credential_id'))
-        self.assertTrue(self.does_fk_exist(
-            'application_credential_access_rule', 'access_rule_id'))
-
-        app_cred_table = sqlalchemy.Table(
-            'application_credential', self.metadata, autoload=True
-        )
-        access_rule_table = sqlalchemy.Table(
-            'access_rule', self.metadata, autoload=True
-        )
-        app_cred_access_rule_table = sqlalchemy.Table(
-            'application_credential_access_rule',
-            self.metadata, autoload=True
-        )
-        app_cred = {
-            'internal_id': 1,
-            'id': uuid.uuid4().hex,
-            'name': uuid.uuid4().hex,
-            'secret_hash': uuid.uuid4().hex,
-            'user_id': uuid.uuid4().hex,
-            'project_id': uuid.uuid4().hex
-        }
-        app_cred_table.insert().values(app_cred).execute()
-        access_rule = {
-            'id': 1,
-            'service': uuid.uuid4().hex,
-            'path': '/v2.1/servers',
-            'method': 'GET'
-        }
-        access_rule_table.insert().values(access_rule).execute()
-        app_cred_access_rule_rel = {
-            'application_credential_id': app_cred['internal_id'],
-            'access_rule_id': access_rule['id']
-        }
-        app_cred_access_rule_table.insert().values(
-            app_cred_access_rule_rel).execute()
 
     def test_migration_062_add_trust_redelegation(self):
         # ensure initial schema
