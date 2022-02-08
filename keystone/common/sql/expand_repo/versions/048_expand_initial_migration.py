@@ -735,12 +735,16 @@ def upgrade(migrate_engine):
     registered_limit = sql.Table(
         'registered_limit',
         meta,
-        sql.Column('id', sql.String(length=64), primary_key=True),
+        sql.Column('id', sql.String(length=64), nullable=False),
         sql.Column('service_id', sql.String(255)),
         sql.Column('region_id', sql.String(64), nullable=True),
         sql.Column('resource_name', sql.String(255)),
         sql.Column('default_limit', sql.Integer, nullable=False),
-        sql.UniqueConstraint('service_id', 'region_id', 'resource_name'),
+        sql.Column('description', sql.Text),
+        sql.Column('internal_id', sql.Integer, primary_key=True),
+        # NOTE(stephenfin): Name chosen to preserve backwards compatibility
+        # with names used for primary key unique constraints
+        sql.UniqueConstraint('id', name='registered_limit_id_key'),
         mysql_engine='InnoDB',
         mysql_charset='utf8',
     )
@@ -748,15 +752,24 @@ def upgrade(migrate_engine):
     limit = sql.Table(
         'limit',
         meta,
-        sql.Column('id', sql.String(length=64), primary_key=True),
-        sql.Column('project_id', sql.String(64), sql.ForeignKey(project.c.id)),
+        sql.Column('id', sql.String(length=64), nullable=False),
+        sql.Column('project_id', sql.String(64)),
         sql.Column('service_id', sql.String(255)),
         sql.Column('region_id', sql.String(64), nullable=True),
         sql.Column('resource_name', sql.String(255)),
         sql.Column('resource_limit', sql.Integer, nullable=False),
-        sql.UniqueConstraint(
-            'project_id', 'service_id', 'region_id', 'resource_name'
+        sql.Column('description', sql.Text),
+        sql.Column('internal_id', sql.Integer, primary_key=True),
+        # FIXME(stephenfin): This should have a foreign key constraint on
+        # registered_limit.id, but sqlalchemy-migrate clearly didn't handle
+        # creating a column with embedded FK info as was attempted in 048
+        sql.Column(
+            'registered_limit_id',
+            sql.String(64),
         ),
+        # NOTE(stephenfin): Name chosen to preserve backwards compatibility
+        # with names used for primary key unique constraints
+        sql.UniqueConstraint('id', name='limit_id_key'),
         mysql_engine='InnoDB',
         mysql_charset='utf8',
     )
@@ -843,8 +856,8 @@ def upgrade(migrate_engine):
         federated_user,
         nonlocal_user,
         system_assignment,
-        limit,
         registered_limit,
+        limit,
         application_credential,
         application_credential_role,
     ]
@@ -922,18 +935,6 @@ def upgrade(migrate_engine):
             'references': [user.c.id, user.c.domain_id],
             'onupdate': 'CASCADE',
             'ondelete': 'CASCADE',
-        },
-        {
-            'columns': [
-                limit.c.service_id,
-                limit.c.region_id,
-                limit.c.resource_name,
-            ],
-            'references': [
-                registered_limit.c.service_id,
-                registered_limit.c.region_id,
-                registered_limit.c.resource_name,
-            ],
         },
     ]
 
@@ -1029,3 +1030,7 @@ def upgrade(migrate_engine):
     # sqlalchemy-migrate didn't do the job fully and left behind indexes
     if migrate_engine.name == 'mysql':
         sql.Index('region_id', registered_limit.c.region_id).create()
+
+        # FIXME(stephenfin): This should be dropped when we add the FK
+        # constraint to this column
+        sql.Index('registered_limit_id', limit.c.registered_limit_id).create()
