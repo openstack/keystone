@@ -165,6 +165,7 @@ def upgrade(migrate_engine):
             primary_key=True,
         ),
         sql.Column('mapping_id', sql.String(64), nullable=False),
+        sql.Column('remote_id_attribute', sql.String(64)),
         mysql_engine='InnoDB',
         mysql_charset='utf8',
     )
@@ -333,6 +334,24 @@ def upgrade(migrate_engine):
         mysql_charset='utf8',
     )
 
+    project_option = sql.Table(
+        'project_option',
+        meta,
+        sql.Column(
+            'project_id',
+            sql.String(64),
+            sql.ForeignKey(project.c.id, ondelete='CASCADE'),
+            nullable=False,
+            primary_key=True,
+        ),
+        sql.Column(
+            'option_id', sql.String(4), nullable=False, primary_key=True
+        ),
+        sql.Column('option_value', ks_sql.JsonBlob, nullable=True),
+        mysql_engine='InnoDB',
+        mysql_charset='utf8',
+    )
+
     # NOTE(lamt) To allow tag name to be case sensitive for MySQL, the 'name'
     # column needs to use collation, which is incompatible with Postgresql.
     # Using unicode to mirror nova's server tag:
@@ -472,6 +491,24 @@ def upgrade(migrate_engine):
         mysql_charset='utf8',
     )
 
+    role_option = sql.Table(
+        'role_option',
+        meta,
+        sql.Column(
+            'role_id',
+            sql.String(64),
+            sql.ForeignKey(role.c.id, ondelete='CASCADE'),
+            nullable=False,
+            primary_key=True,
+        ),
+        sql.Column(
+            'option_id', sql.String(4), nullable=False, primary_key=True
+        ),
+        sql.Column('option_value', ks_sql.JsonBlob, nullable=True),
+        mysql_engine='InnoDB',
+        mysql_charset='utf8',
+    )
+
     service = sql.Table(
         'service',
         meta,
@@ -545,6 +582,16 @@ def upgrade(migrate_engine):
             'expires_at',
             'expires_at_int',
             name='duplicate_trust_constraint_expanded',
+        ),
+        sql.Column(
+            'redelegated_trust_id',
+            sql.String(64),
+            nullable=True,
+        ),
+        sql.Column(
+            'redelegation_count',
+            sql.Integer,
+            nullable=True,
         ),
         mysql_engine='InnoDB',
         mysql_charset='utf8',
@@ -754,9 +801,6 @@ def upgrade(migrate_engine):
         meta,
         sql.Column('id', sql.String(length=64), nullable=False),
         sql.Column('project_id', sql.String(64), nullable=True),
-        sql.Column('service_id', sql.String(255)),
-        sql.Column('region_id', sql.String(64), nullable=True),
-        sql.Column('resource_name', sql.String(255)),
         sql.Column('resource_limit', sql.Integer, nullable=False),
         sql.Column('description', sql.Text),
         sql.Column('internal_id', sql.Integer, primary_key=True),
@@ -823,6 +867,21 @@ def upgrade(migrate_engine):
         sql.Column('service', sql.String(64)),
         sql.Column('path', sql.String(128)),
         sql.Column('method', sql.String(16)),
+        sql.Column('external_id', sql.String(64)),
+        sql.Column('user_id', sql.String(64)),
+        sql.UniqueConstraint(
+            'external_id',
+            name='access_rule_external_id_key',
+        ),
+        sql.UniqueConstraint(
+            'user_id',
+            'service',
+            'path',
+            'method',
+            name='duplicate_access_rule_for_user_constraint',
+        ),
+        sql.Index('user_id', 'user_id'),
+        sql.Index('external_id', 'external_id'),
         mysql_engine='InnoDB',
         mysql_charset='utf8',
     )
@@ -857,8 +916,10 @@ def upgrade(migrate_engine):
         group,
         policy,
         project,
+        project_option,
         project_tag,
         role,
+        role_option,
         service,
         token,
         trust,
