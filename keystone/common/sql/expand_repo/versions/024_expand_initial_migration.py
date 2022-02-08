@@ -264,6 +264,18 @@ def upgrade(migrate_engine):
             server_default='0',
             default=False,
         ),
+        # NOTE(notmorgan): To support the full range of scrypt and pbkfd
+        # password hash lengths, this should be closer to varchar(1500) instead
+        # of varchar(255).
+        sql.Column('password_hash', sql.String(255), nullable=True),
+        sql.Column(
+            'created_at_int',
+            ks_sql.DateTimeInt(),
+            nullable=False,
+            default=0,
+            server_default='0',
+        ),
+        sql.Column('expires_at_int', ks_sql.DateTimeInt(), nullable=True),
         sql.Column(
             'created_at',
             sql.DateTime(),
@@ -545,6 +557,7 @@ def upgrade(migrate_engine):
             nullable=False,
         ),
         sql.UniqueConstraint('id', 'domain_id', name='ixu_user_id_domain_id'),
+        sql.Index('ix_default_project_id', 'default_project_id'),
         mysql_engine='InnoDB',
         mysql_charset='utf8',
     )
