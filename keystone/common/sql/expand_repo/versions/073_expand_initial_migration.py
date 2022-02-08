@@ -50,24 +50,91 @@ def upgrade(migrate_engine):
             % migrate_engine.url.database
         )
 
-    access_token = sql.Table(
-        'access_token',
+    application_credential = sql.Table(
+        'application_credential',
         meta,
-        sql.Column('id', sql.String(64), primary_key=True, nullable=False),
-        sql.Column('access_secret', sql.String(64), nullable=False),
         sql.Column(
-            'authorizing_user_id', sql.String(64), nullable=False, index=True
+            'internal_id', sql.Integer, primary_key=True, nullable=False
         ),
-        sql.Column('project_id', sql.String(64), nullable=False),
-        sql.Column('role_ids', sql.Text(), nullable=False),
+        sql.Column('id', sql.String(length=64), nullable=False),
+        sql.Column('name', sql.String(length=255), nullable=False),
+        sql.Column('secret_hash', sql.String(length=255), nullable=False),
+        sql.Column('description', sql.Text),
+        sql.Column('user_id', sql.String(length=64), nullable=False),
+        sql.Column('project_id', sql.String(64), nullable=True),
+        sql.Column('expires_at', ks_sql.DateTimeInt()),
+        sql.Column('system', sql.String(64), nullable=True),
+        sql.Column('unrestricted', sql.Boolean),
+        sql.UniqueConstraint(
+            'user_id', 'name', name='duplicate_app_cred_constraint'
+        ),
+        mysql_engine='InnoDB',
+        mysql_charset='utf8',
+    )
+
+    assignment = sql.Table(
+        'assignment',
+        meta,
         sql.Column(
-            'consumer_id',
-            sql.String(64),
-            sql.ForeignKey('consumer.id'),
+            'type',
+            sql.Enum(
+                assignment_sql.AssignmentType.USER_PROJECT,
+                assignment_sql.AssignmentType.GROUP_PROJECT,
+                assignment_sql.AssignmentType.USER_DOMAIN,
+                assignment_sql.AssignmentType.GROUP_DOMAIN,
+                name='type',
+            ),
             nullable=False,
-            index=True,
         ),
-        sql.Column('expires_at', sql.String(64), nullable=True),
+        sql.Column('actor_id', sql.String(64), nullable=False),
+        sql.Column('target_id', sql.String(64), nullable=False),
+        sql.Column('role_id', sql.String(64), nullable=False),
+        sql.Column('inherited', sql.Boolean, default=False, nullable=False),
+        sql.PrimaryKeyConstraint(
+            'type',
+            'actor_id',
+            'target_id',
+            'role_id',
+            'inherited',
+        ),
+        sql.Index('ix_actor_id', 'actor_id'),
+        mysql_engine='InnoDB',
+        mysql_charset='utf8',
+    )
+
+    access_rule = sql.Table(
+        'access_rule',
+        meta,
+        sql.Column('id', sql.Integer, primary_key=True, nullable=False),
+        sql.Column('service', sql.String(64)),
+        sql.Column('path', sql.String(128)),
+        sql.Column('method', sql.String(16)),
+        sql.Column('external_id', sql.String(64)),
+        sql.Column('user_id', sql.String(64)),
+        sql.UniqueConstraint(
+            'external_id',
+            name='access_rule_external_id_key',
+        ),
+        sql.UniqueConstraint(
+            'user_id',
+            'service',
+            'path',
+            'method',
+            name='duplicate_access_rule_for_user_constraint',
+        ),
+        sql.Index('user_id', 'user_id'),
+        sql.Index('external_id', 'external_id'),
+        mysql_engine='InnoDB',
+        mysql_charset='utf8',
+    )
+
+    config_register = sql.Table(
+        'config_register',
+        meta,
+        sql.Column('type', sql.String(64), primary_key=True),
+        sql.Column('domain_id', sql.String(64), nullable=False),
+        mysql_engine='InnoDB',
+        mysql_charset='utf8',
     )
 
     consumer = sql.Table(
@@ -97,79 +164,6 @@ def upgrade(migrate_engine):
         mysql_charset='utf8',
     )
 
-    endpoint = sql.Table(
-        'endpoint',
-        meta,
-        sql.Column('id', sql.String(length=64), primary_key=True),
-        sql.Column('legacy_endpoint_id', sql.String(length=64)),
-        sql.Column('interface', sql.String(length=8), nullable=False),
-        sql.Column('service_id', sql.String(length=64), nullable=False),
-        sql.Column('url', sql.Text, nullable=False),
-        sql.Column('extra', ks_sql.JsonBlob.impl),
-        sql.Column(
-            'enabled',
-            sql.Boolean,
-            nullable=False,
-            default=True,
-            server_default='1',
-        ),
-        sql.Column('region_id', sql.String(length=255), nullable=True),
-        # NOTE(stevemar): The index was named 'service_id' in
-        # 050_fk_consistent_indexes.py and needs to be preserved
-        sql.Index('service_id', 'service_id'),
-        mysql_engine='InnoDB',
-        mysql_charset='utf8',
-    )
-
-    endpoint_group = sql.Table(
-        'endpoint_group',
-        meta,
-        sql.Column('id', sql.String(64), primary_key=True),
-        sql.Column('name', sql.String(255), nullable=False),
-        sql.Column('description', sql.Text, nullable=True),
-        sql.Column('filters', sql.Text(), nullable=False),
-    )
-
-    federated_user = sql.Table(
-        'federated_user',
-        meta,
-        sql.Column('id', sql.Integer, primary_key=True, nullable=False),
-        sql.Column(
-            'user_id',
-            sql.String(64),
-            sql.ForeignKey('user.id', ondelete='CASCADE'),
-            nullable=False,
-        ),
-        sql.Column(
-            'idp_id',
-            sql.String(64),
-            sql.ForeignKey('identity_provider.id', ondelete='CASCADE'),
-            nullable=False,
-        ),
-        sql.Column('protocol_id', sql.String(64), nullable=False),
-        sql.Column('unique_id', sql.String(255), nullable=False),
-        sql.Column('display_name', sql.String(255), nullable=True),
-        sql.UniqueConstraint('idp_id', 'protocol_id', 'unique_id'),
-        mysql_engine='InnoDB',
-        mysql_charset='utf8',
-    )
-
-    federation_protocol = sql.Table(
-        'federation_protocol',
-        meta,
-        sql.Column('id', sql.String(64), primary_key=True),
-        sql.Column(
-            'idp_id',
-            sql.String(64),
-            sql.ForeignKey('identity_provider.id', ondelete='CASCADE'),
-            primary_key=True,
-        ),
-        sql.Column('mapping_id', sql.String(64), nullable=False),
-        sql.Column('remote_id_attribute', sql.String(64)),
-        mysql_engine='InnoDB',
-        mysql_charset='utf8',
-    )
-
     group = sql.Table(
         'group',
         meta,
@@ -182,6 +176,31 @@ def upgrade(migrate_engine):
             'domain_id',
             'name',
             name='ixu_group_name_domain_id',
+        ),
+        mysql_engine='InnoDB',
+        mysql_charset='utf8',
+    )
+
+    id_mapping = sql.Table(
+        'id_mapping',
+        meta,
+        sql.Column('public_id', sql.String(64), primary_key=True),
+        sql.Column('domain_id', sql.String(64), nullable=False),
+        sql.Column('local_id', sql.String(64), nullable=False),
+        sql.Column(
+            'entity_type',
+            sql.Enum(
+                mapping_backend.EntityType.USER,
+                mapping_backend.EntityType.GROUP,
+                name='entity_type',
+            ),
+            nullable=False,
+        ),
+        migrate.UniqueConstraint(
+            'domain_id',
+            'local_id',
+            'entity_type',
+            name='domain_id',
         ),
         mysql_engine='InnoDB',
         mysql_charset='utf8',
@@ -205,37 +224,11 @@ def upgrade(migrate_engine):
         sql.Column(
             'idp_id',
             sql.String(64),
-            sql.ForeignKey('identity_provider.id', ondelete='CASCADE'),
+            sql.ForeignKey(identity_provider.c.id, ondelete='CASCADE'),
         ),
         sql.Column('remote_id', sql.String(255), primary_key=True),
         mysql_engine='InnoDB',
         mysql_charset='utf8',
-    )
-
-    implied_role = sql.Table(
-        'implied_role',
-        meta,
-        sql.Column('prior_role_id', sql.String(length=64), primary_key=True),
-        sql.Column('implied_role_id', sql.String(length=64), primary_key=True),
-        mysql_engine='InnoDB',
-        mysql_charset='utf8',
-    )
-
-    local_user = sql.Table(
-        'local_user',
-        meta,
-        sql.Column('id', sql.Integer, primary_key=True, nullable=False),
-        sql.Column(
-            'user_id',
-            sql.String(64),
-            nullable=False,
-            unique=True,
-        ),
-        sql.Column('domain_id', sql.String(64), nullable=False),
-        sql.Column('name', sql.String(255), nullable=False),
-        sql.Column('failed_auth_count', sql.Integer, nullable=True),
-        sql.Column('failed_auth_at', sql.DateTime(), nullable=True),
-        sql.UniqueConstraint('domain_id', 'name'),
     )
 
     mapping = sql.Table(
@@ -245,44 +238,6 @@ def upgrade(migrate_engine):
         sql.Column('rules', sql.Text(), nullable=False),
         mysql_engine='InnoDB',
         mysql_charset='utf8',
-    )
-
-    password = sql.Table(
-        'password',
-        meta,
-        sql.Column('id', sql.Integer, primary_key=True, nullable=False),
-        sql.Column(
-            'local_user_id',
-            sql.Integer,
-            sql.ForeignKey(local_user.c.id, ondelete='CASCADE'),
-            nullable=False,
-        ),
-        sql.Column('expires_at', sql.DateTime(), nullable=True),
-        sql.Column(
-            'self_service',
-            sql.Boolean,
-            nullable=False,
-            server_default='0',
-            default=False,
-        ),
-        # NOTE(notmorgan): To support the full range of scrypt and pbkfd
-        # password hash lengths, this should be closer to varchar(1500) instead
-        # of varchar(255).
-        sql.Column('password_hash', sql.String(255), nullable=True),
-        sql.Column(
-            'created_at_int',
-            ks_sql.DateTimeInt(),
-            nullable=False,
-            default=0,
-            server_default='0',
-        ),
-        sql.Column('expires_at_int', ks_sql.DateTimeInt(), nullable=True),
-        sql.Column(
-            'created_at',
-            sql.DateTime(),
-            nullable=False,
-            default=datetime.datetime.utcnow,
-        ),
     )
 
     policy = sql.Table(
@@ -317,8 +272,24 @@ def upgrade(migrate_engine):
         sql.Column('extra', ks_sql.JsonBlob.impl),
         sql.Column('description', sql.Text),
         sql.Column('enabled', sql.Boolean),
-        sql.Column('domain_id', sql.String(length=64), nullable=False),
-        sql.Column('parent_id', sql.String(64), nullable=True),
+        sql.Column(
+            'domain_id',
+            sql.String(length=64),
+            sql.ForeignKey(
+                'project.id',
+                name='project_domain_id_fkey',
+            ),
+            nullable=False,
+        ),
+        sql.Column(
+            'parent_id',
+            sql.String(64),
+            sql.ForeignKey(
+                'project.id',
+                name='project_parent_id_fkey',
+            ),
+            nullable=True,
+        ),
         sql.Column(
             'is_domain',
             sql.Boolean,
@@ -333,6 +304,17 @@ def upgrade(migrate_engine):
         ),
         mysql_engine='InnoDB',
         mysql_charset='utf8',
+    )
+
+    project_endpoint = sql.Table(
+        'project_endpoint',
+        meta,
+        sql.Column(
+            'endpoint_id', sql.String(64), primary_key=True, nullable=False
+        ),
+        sql.Column(
+            'project_id', sql.String(64), primary_key=True, nullable=False
+        ),
     )
 
     project_option = sql.Table(
@@ -373,35 +355,30 @@ def upgrade(migrate_engine):
         mysql_charset='utf8',
     )
 
-    project_endpoint = sql.Table(
-        'project_endpoint',
+    region = sql.Table(
+        'region',
         meta,
-        sql.Column(
-            'endpoint_id', sql.String(64), primary_key=True, nullable=False
-        ),
-        sql.Column(
-            'project_id', sql.String(64), primary_key=True, nullable=False
-        ),
+        sql.Column('id', sql.String(255), primary_key=True),
+        sql.Column('description', sql.String(255), nullable=False),
+        sql.Column('parent_region_id', sql.String(255), nullable=True),
+        sql.Column('extra', sql.Text()),
+        mysql_engine='InnoDB',
+        mysql_charset='utf8',
     )
 
-    project_endpoint_group = sql.Table(
-        'project_endpoint_group',
+    registered_limit = sql.Table(
+        'registered_limit',
         meta,
-        sql.Column(
-            'endpoint_group_id',
-            sql.String(64),
-            sql.ForeignKey('endpoint_group.id'),
-            nullable=False,
-        ),
-        sql.Column('project_id', sql.String(64), nullable=False),
-        sql.PrimaryKeyConstraint('endpoint_group_id', 'project_id'),
-    )
-
-    config_register = sql.Table(
-        'config_register',
-        meta,
-        sql.Column('type', sql.String(64), primary_key=True),
-        sql.Column('domain_id', sql.String(64), nullable=False),
+        sql.Column('id', sql.String(length=64), nullable=False),
+        sql.Column('service_id', sql.String(255)),
+        sql.Column('region_id', sql.String(64), nullable=True),
+        sql.Column('resource_name', sql.String(255)),
+        sql.Column('default_limit', sql.Integer, nullable=False),
+        sql.Column('description', sql.Text),
+        sql.Column('internal_id', sql.Integer, primary_key=True),
+        # NOTE(stephenfin): Name chosen to preserve backwards compatibility
+        # with names used for primary key unique constraints
+        sql.UniqueConstraint('id', name='registered_limit_id_key'),
         mysql_engine='InnoDB',
         mysql_charset='utf8',
     )
@@ -418,7 +395,7 @@ def upgrade(migrate_engine):
         sql.Column(
             'consumer_id',
             sql.String(64),
-            sql.ForeignKey('consumer.id'),
+            sql.ForeignKey(consumer.c.id),
             nullable=False,
             index=True,
         ),
@@ -510,6 +487,17 @@ def upgrade(migrate_engine):
         mysql_charset='utf8',
     )
 
+    sensitive_config = sql.Table(
+        'sensitive_config',
+        meta,
+        sql.Column('domain_id', sql.String(64), primary_key=True),
+        sql.Column('group', sql.String(255), primary_key=True),
+        sql.Column('option', sql.String(255), primary_key=True),
+        sql.Column('value', ks_sql.JsonBlob.impl, nullable=False),
+        mysql_engine='InnoDB',
+        mysql_charset='utf8',
+    )
+
     service = sql.Table(
         'service',
         meta,
@@ -540,6 +528,21 @@ def upgrade(migrate_engine):
             sql.String(256),
             nullable=False,
             server_default=service_provider_relay_state_prefix_default,
+        ),
+        mysql_engine='InnoDB',
+        mysql_charset='utf8',
+    )
+
+    system_assignment = sql.Table(
+        'system_assignment',
+        meta,
+        sql.Column('type', sql.String(64), nullable=False),
+        sql.Column('actor_id', sql.String(64), nullable=False),
+        sql.Column('target_id', sql.String(64), nullable=False),
+        sql.Column('role_id', sql.String(64), nullable=False),
+        sql.Column('inherited', sql.Boolean, default=False, nullable=False),
+        sql.PrimaryKeyConstraint(
+            'type', 'actor_id', 'target_id', 'role_id', 'inherited'
         ),
         mysql_engine='InnoDB',
         mysql_charset='utf8',
@@ -627,6 +630,34 @@ def upgrade(migrate_engine):
         mysql_charset='utf8',
     )
 
+    user_group_membership = sql.Table(
+        'user_group_membership',
+        meta,
+        sql.Column(
+            'user_id',
+            sql.String(length=64),
+            sql.ForeignKey(
+                user.c.id,
+                name='fk_user_group_membership_user_id',
+            ),
+            primary_key=True,
+        ),
+        sql.Column(
+            'group_id',
+            sql.String(length=64),
+            sql.ForeignKey(
+                group.c.id,
+                name='fk_user_group_membership_group_id',
+            ),
+            primary_key=True,
+        ),
+        # NOTE(stevemar): The index was named 'group_id' in
+        # 050_fk_consistent_indexes.py and needs to be preserved
+        sql.Index('group_id', 'group_id'),
+        mysql_engine='InnoDB',
+        mysql_charset='utf8',
+    )
+
     user_option = sql.Table(
         'user_option',
         meta,
@@ -645,99 +676,6 @@ def upgrade(migrate_engine):
         mysql_charset='utf8',
     )
 
-    nonlocal_user = sql.Table(
-        'nonlocal_user',
-        meta,
-        sql.Column('domain_id', sql.String(64), primary_key=True),
-        sql.Column('name', sql.String(255), primary_key=True),
-        sql.Column(
-            'user_id',
-            sql.String(64),
-            nullable=False,
-        ),
-        sql.UniqueConstraint('user_id', name='ixu_nonlocal_user_user_id'),
-        mysql_engine='InnoDB',
-        mysql_charset='utf8',
-    )
-
-    user_group_membership = sql.Table(
-        'user_group_membership',
-        meta,
-        sql.Column('user_id', sql.String(length=64), primary_key=True),
-        sql.Column('group_id', sql.String(length=64), primary_key=True),
-        # NOTE(stevemar): The index was named 'group_id' in
-        # 050_fk_consistent_indexes.py and needs to be preserved
-        sql.Index('group_id', 'group_id'),
-        mysql_engine='InnoDB',
-        mysql_charset='utf8',
-    )
-
-    region = sql.Table(
-        'region',
-        meta,
-        sql.Column('id', sql.String(255), primary_key=True),
-        sql.Column('description', sql.String(255), nullable=False),
-        sql.Column('parent_region_id', sql.String(255), nullable=True),
-        sql.Column('extra', sql.Text()),
-        mysql_engine='InnoDB',
-        mysql_charset='utf8',
-    )
-
-    assignment = sql.Table(
-        'assignment',
-        meta,
-        sql.Column(
-            'type',
-            sql.Enum(
-                assignment_sql.AssignmentType.USER_PROJECT,
-                assignment_sql.AssignmentType.GROUP_PROJECT,
-                assignment_sql.AssignmentType.USER_DOMAIN,
-                assignment_sql.AssignmentType.GROUP_DOMAIN,
-                name='type',
-            ),
-            nullable=False,
-        ),
-        sql.Column('actor_id', sql.String(64), nullable=False),
-        sql.Column('target_id', sql.String(64), nullable=False),
-        sql.Column('role_id', sql.String(64), nullable=False),
-        sql.Column('inherited', sql.Boolean, default=False, nullable=False),
-        sql.PrimaryKeyConstraint(
-            'type',
-            'actor_id',
-            'target_id',
-            'role_id',
-            'inherited',
-        ),
-        sql.Index('ix_actor_id', 'actor_id'),
-        mysql_engine='InnoDB',
-        mysql_charset='utf8',
-    )
-
-    id_mapping = sql.Table(
-        'id_mapping',
-        meta,
-        sql.Column('public_id', sql.String(64), primary_key=True),
-        sql.Column('domain_id', sql.String(64), nullable=False),
-        sql.Column('local_id', sql.String(64), nullable=False),
-        sql.Column(
-            'entity_type',
-            sql.Enum(
-                mapping_backend.EntityType.USER,
-                mapping_backend.EntityType.GROUP,
-                name='entity_type',
-            ),
-            nullable=False,
-        ),
-        migrate.UniqueConstraint(
-            'domain_id',
-            'local_id',
-            'entity_type',
-            name='domain_id',
-        ),
-        mysql_engine='InnoDB',
-        mysql_charset='utf8',
-    )
-
     whitelisted_config = sql.Table(
         'whitelisted_config',
         meta,
@@ -749,92 +687,24 @@ def upgrade(migrate_engine):
         mysql_charset='utf8',
     )
 
-    sensitive_config = sql.Table(
-        'sensitive_config',
+    access_token = sql.Table(
+        'access_token',
         meta,
-        sql.Column('domain_id', sql.String(64), primary_key=True),
-        sql.Column('group', sql.String(255), primary_key=True),
-        sql.Column('option', sql.String(255), primary_key=True),
-        sql.Column('value', ks_sql.JsonBlob.impl, nullable=False),
-        mysql_engine='InnoDB',
-        mysql_charset='utf8',
-    )
-
-    system_assignment = sql.Table(
-        'system_assignment',
-        meta,
-        sql.Column('type', sql.String(64), nullable=False),
-        sql.Column('actor_id', sql.String(64), nullable=False),
-        sql.Column('target_id', sql.String(64), nullable=False),
-        sql.Column('role_id', sql.String(64), nullable=False),
-        sql.Column('inherited', sql.Boolean, default=False, nullable=False),
-        sql.PrimaryKeyConstraint(
-            'type', 'actor_id', 'target_id', 'role_id', 'inherited'
-        ),
-        mysql_engine='InnoDB',
-        mysql_charset='utf8',
-    )
-
-    registered_limit = sql.Table(
-        'registered_limit',
-        meta,
-        sql.Column('id', sql.String(length=64), nullable=False),
-        sql.Column('service_id', sql.String(255)),
-        sql.Column('region_id', sql.String(64), nullable=True),
-        sql.Column('resource_name', sql.String(255)),
-        sql.Column('default_limit', sql.Integer, nullable=False),
-        sql.Column('description', sql.Text),
-        sql.Column('internal_id', sql.Integer, primary_key=True),
-        # NOTE(stephenfin): Name chosen to preserve backwards compatibility
-        # with names used for primary key unique constraints
-        sql.UniqueConstraint('id', name='registered_limit_id_key'),
-        mysql_engine='InnoDB',
-        mysql_charset='utf8',
-    )
-
-    limit = sql.Table(
-        'limit',
-        meta,
-        sql.Column('id', sql.String(length=64), nullable=False),
-        sql.Column('project_id', sql.String(64), nullable=True),
-        sql.Column('resource_limit', sql.Integer, nullable=False),
-        sql.Column('description', sql.Text),
-        sql.Column('internal_id', sql.Integer, primary_key=True),
-        # FIXME(stephenfin): This should have a foreign key constraint on
-        # registered_limit.id, but sqlalchemy-migrate clearly didn't handle
-        # creating a column with embedded FK info as was attempted in 048
+        sql.Column('id', sql.String(64), primary_key=True, nullable=False),
+        sql.Column('access_secret', sql.String(64), nullable=False),
         sql.Column(
-            'registered_limit_id',
+            'authorizing_user_id', sql.String(64), nullable=False, index=True
+        ),
+        sql.Column('project_id', sql.String(64), nullable=False),
+        sql.Column('role_ids', sql.Text(), nullable=False),
+        sql.Column(
+            'consumer_id',
             sql.String(64),
+            sql.ForeignKey(consumer.c.id),
+            nullable=False,
+            index=True,
         ),
-        sql.Column('domain_id', sql.String(64), nullable=True),
-        # NOTE(stephenfin): Name chosen to preserve backwards compatibility
-        # with names used for primary key unique constraints
-        sql.UniqueConstraint('id', name='limit_id_key'),
-        mysql_engine='InnoDB',
-        mysql_charset='utf8',
-    )
-
-    application_credential = sql.Table(
-        'application_credential',
-        meta,
-        sql.Column(
-            'internal_id', sql.Integer, primary_key=True, nullable=False
-        ),
-        sql.Column('id', sql.String(length=64), nullable=False),
-        sql.Column('name', sql.String(length=255), nullable=False),
-        sql.Column('secret_hash', sql.String(length=255), nullable=False),
-        sql.Column('description', sql.Text),
-        sql.Column('user_id', sql.String(length=64), nullable=False),
-        sql.Column('project_id', sql.String(64), nullable=True),
-        sql.Column('expires_at', ks_sql.DateTimeInt()),
-        sql.Column('system', sql.String(64), nullable=True),
-        sql.Column('unrestricted', sql.Boolean),
-        sql.UniqueConstraint(
-            'user_id', 'name', name='duplicate_app_cred_constraint'
-        ),
-        mysql_engine='InnoDB',
-        mysql_charset='utf8',
+        sql.Column('expires_at', sql.String(64), nullable=True),
     )
 
     application_credential_role = sql.Table(
@@ -856,33 +726,7 @@ def upgrade(migrate_engine):
         mysql_charset='utf8',
     )
 
-    access_rule = sql.Table(
-        'access_rule',
-        meta,
-        sql.Column('id', sql.Integer, primary_key=True, nullable=False),
-        sql.Column('service', sql.String(64)),
-        sql.Column('path', sql.String(128)),
-        sql.Column('method', sql.String(16)),
-        sql.Column('external_id', sql.String(64)),
-        sql.Column('user_id', sql.String(64)),
-        sql.UniqueConstraint(
-            'external_id',
-            name='access_rule_external_id_key',
-        ),
-        sql.UniqueConstraint(
-            'user_id',
-            'service',
-            'path',
-            'method',
-            name='duplicate_access_rule_for_user_constraint',
-        ),
-        sql.Index('user_id', 'user_id'),
-        sql.Index('external_id', 'external_id'),
-        mysql_engine='InnoDB',
-        mysql_charset='utf8',
-    )
-
-    app_cred_access_rule = sql.Table(
+    application_credential_access_rule = sql.Table(
         'application_credential_access_rule',
         meta,
         sql.Column(
@@ -903,6 +747,55 @@ def upgrade(migrate_engine):
         ),
         mysql_engine='InnoDB',
         mysql_charset='utf8',
+    )
+
+    endpoint = sql.Table(
+        'endpoint',
+        meta,
+        sql.Column('id', sql.String(length=64), primary_key=True),
+        sql.Column('legacy_endpoint_id', sql.String(length=64)),
+        sql.Column('interface', sql.String(length=8), nullable=False),
+        sql.Column(
+            'service_id',
+            sql.String(length=64),
+            sql.ForeignKey(
+                service.c.id,
+                name='endpoint_service_id_fkey',
+            ),
+            nullable=False,
+        ),
+        sql.Column('url', sql.Text, nullable=False),
+        sql.Column('extra', ks_sql.JsonBlob.impl),
+        sql.Column(
+            'enabled',
+            sql.Boolean,
+            nullable=False,
+            default=True,
+            server_default='1',
+        ),
+        sql.Column(
+            'region_id',
+            sql.String(length=255),
+            sql.ForeignKey(
+                region.c.id,
+                name='fk_endpoint_region_id',
+            ),
+            nullable=True,
+        ),
+        # NOTE(stevemar): The index was named 'service_id' in
+        # 050_fk_consistent_indexes.py and needs to be preserved
+        sql.Index('service_id', 'service_id'),
+        mysql_engine='InnoDB',
+        mysql_charset='utf8',
+    )
+
+    endpoint_group = sql.Table(
+        'endpoint_group',
+        meta,
+        sql.Column('id', sql.String(64), primary_key=True),
+        sql.Column('name', sql.String(255), nullable=False),
+        sql.Column('description', sql.Text, nullable=True),
+        sql.Column('filters', sql.Text(), nullable=False),
     )
 
     expiring_user_group_membership = sql.Table(
@@ -931,56 +824,251 @@ def upgrade(migrate_engine):
         mysql_charset='utf8',
     )
 
+    federation_protocol = sql.Table(
+        'federation_protocol',
+        meta,
+        sql.Column('id', sql.String(64), primary_key=True),
+        sql.Column(
+            'idp_id',
+            sql.String(64),
+            sql.ForeignKey(identity_provider.c.id, ondelete='CASCADE'),
+            primary_key=True,
+        ),
+        sql.Column('mapping_id', sql.String(64), nullable=False),
+        sql.Column('remote_id_attribute', sql.String(64)),
+        mysql_engine='InnoDB',
+        mysql_charset='utf8',
+    )
+
+    implied_role = sql.Table(
+        'implied_role',
+        meta,
+        sql.Column(
+            'prior_role_id',
+            sql.String(length=64),
+            sql.ForeignKey(
+                role.c.id,
+                name='implied_role_prior_role_id_fkey',
+                ondelete='CASCADE',
+            ),
+            primary_key=True,
+        ),
+        sql.Column(
+            'implied_role_id',
+            sql.String(length=64),
+            sql.ForeignKey(
+                role.c.id,
+                name='implied_role_implied_role_id_fkey',
+                ondelete='CASCADE',
+            ),
+            primary_key=True,
+        ),
+        mysql_engine='InnoDB',
+        mysql_charset='utf8',
+    )
+
+    limit = sql.Table(
+        'limit',
+        meta,
+        sql.Column('id', sql.String(length=64), nullable=False),
+        sql.Column('project_id', sql.String(64), nullable=True),
+        sql.Column('resource_limit', sql.Integer, nullable=False),
+        sql.Column('description', sql.Text),
+        sql.Column('internal_id', sql.Integer, primary_key=True),
+        # FIXME(stephenfin): This should have a foreign key constraint on
+        # registered_limit.id, but sqlalchemy-migrate clearly didn't handle
+        # creating a column with embedded FK info as was attempted in 048
+        sql.Column(
+            'registered_limit_id',
+            sql.String(64),
+        ),
+        sql.Column('domain_id', sql.String(64), nullable=True),
+        # NOTE(stephenfin): Name chosen to preserve backwards compatibility
+        # with names used for primary key unique constraints
+        sql.UniqueConstraint('id', name='limit_id_key'),
+        mysql_engine='InnoDB',
+        mysql_charset='utf8',
+    )
+
+    local_user = sql.Table(
+        'local_user',
+        meta,
+        sql.Column('id', sql.Integer, primary_key=True, nullable=False),
+        sql.Column(
+            'user_id',
+            sql.String(64),
+            nullable=False,
+            unique=True,
+        ),
+        sql.Column('domain_id', sql.String(64), nullable=False),
+        sql.Column('name', sql.String(255), nullable=False),
+        sql.Column('failed_auth_count', sql.Integer, nullable=True),
+        sql.Column('failed_auth_at', sql.DateTime(), nullable=True),
+        sql.ForeignKeyConstraint(
+            ['user_id', 'domain_id'],
+            [user.c.id, user.c.domain_id],
+            name='local_user_user_id_fkey',
+            onupdate='CASCADE',
+            ondelete='CASCADE',
+        ),
+        sql.UniqueConstraint('domain_id', 'name'),
+    )
+
+    nonlocal_user = sql.Table(
+        'nonlocal_user',
+        meta,
+        sql.Column('domain_id', sql.String(64), primary_key=True),
+        sql.Column('name', sql.String(255), primary_key=True),
+        sql.Column(
+            'user_id',
+            sql.String(64),
+            nullable=False,
+        ),
+        sql.ForeignKeyConstraint(
+            ['user_id', 'domain_id'],
+            [user.c.id, user.c.domain_id],
+            name='nonlocal_user_user_id_fkey',
+            onupdate='CASCADE',
+            ondelete='CASCADE',
+        ),
+        sql.UniqueConstraint('user_id', name='ixu_nonlocal_user_user_id'),
+        mysql_engine='InnoDB',
+        mysql_charset='utf8',
+    )
+
+    password = sql.Table(
+        'password',
+        meta,
+        sql.Column('id', sql.Integer, primary_key=True, nullable=False),
+        sql.Column(
+            'local_user_id',
+            sql.Integer,
+            sql.ForeignKey(local_user.c.id, ondelete='CASCADE'),
+            nullable=False,
+        ),
+        sql.Column('expires_at', sql.DateTime(), nullable=True),
+        sql.Column(
+            'self_service',
+            sql.Boolean,
+            nullable=False,
+            server_default='0',
+            default=False,
+        ),
+        # NOTE(notmorgan): To support the full range of scrypt and pbkfd
+        # password hash lengths, this should be closer to varchar(1500) instead
+        # of varchar(255).
+        sql.Column('password_hash', sql.String(255), nullable=True),
+        sql.Column(
+            'created_at_int',
+            ks_sql.DateTimeInt(),
+            nullable=False,
+            default=0,
+            server_default='0',
+        ),
+        sql.Column('expires_at_int', ks_sql.DateTimeInt(), nullable=True),
+        sql.Column(
+            'created_at',
+            sql.DateTime(),
+            nullable=False,
+            default=datetime.datetime.utcnow,
+        ),
+    )
+
+    project_endpoint_group = sql.Table(
+        'project_endpoint_group',
+        meta,
+        sql.Column(
+            'endpoint_group_id',
+            sql.String(64),
+            sql.ForeignKey(endpoint_group.c.id),
+            nullable=False,
+        ),
+        sql.Column('project_id', sql.String(64), nullable=False),
+        sql.PrimaryKeyConstraint('endpoint_group_id', 'project_id'),
+    )
+
+    federated_user = sql.Table(
+        'federated_user',
+        meta,
+        sql.Column('id', sql.Integer, primary_key=True, nullable=False),
+        sql.Column(
+            'user_id',
+            sql.String(64),
+            sql.ForeignKey(user.c.id, ondelete='CASCADE'),
+            nullable=False,
+        ),
+        sql.Column(
+            'idp_id',
+            sql.String(64),
+            sql.ForeignKey(identity_provider.c.id, ondelete='CASCADE'),
+            nullable=False,
+        ),
+        sql.Column('protocol_id', sql.String(64), nullable=False),
+        sql.Column('unique_id', sql.String(255), nullable=False),
+        sql.Column('display_name', sql.String(255), nullable=True),
+        sql.ForeignKeyConstraint(
+            ['protocol_id', 'idp_id'],
+            [federation_protocol.c.id, federation_protocol.c.idp_id],
+            name='federated_user_protocol_id_fkey',
+            ondelete='CASCADE',
+        ),
+        sql.UniqueConstraint('idp_id', 'protocol_id', 'unique_id'),
+        mysql_engine='InnoDB',
+        mysql_charset='utf8',
+    )
+
     # create all tables
     tables = [
+        access_rule,
+        application_credential,
+        assignment,
+        config_register,
+        consumer,
         credential,
-        endpoint,
         group,
+        id_mapping,
+        identity_provider,
+        idp_remote_ids,
+        mapping,
         policy,
+        policy_association,
         project,
+        project_endpoint,
         project_option,
         project_tag,
+        region,
+        registered_limit,
+        request_token,
+        revocation_event,
         role,
         role_option,
+        sensitive_config,
         service,
+        service_provider,
+        system_assignment,
         token,
         trust,
         trust_role,
         user,
-        user_option,
         user_group_membership,
-        region,
-        assignment,
-        id_mapping,
+        user_option,
         whitelisted_config,
-        sensitive_config,
-        config_register,
-        policy_association,
-        identity_provider,
-        federation_protocol,
-        mapping,
-        service_provider,
-        idp_remote_ids,
-        consumer,
-        request_token,
+
         access_token,
-        revocation_event,
-        project_endpoint,
-        endpoint_group,
-        project_endpoint_group,
-        implied_role,
-        local_user,
-        password,
-        federated_user,
-        nonlocal_user,
-        system_assignment,
-        registered_limit,
-        limit,
-        application_credential,
+        application_credential_access_rule,
         application_credential_role,
-        access_rule,
-        app_cred_access_rule,
+        endpoint,
+        endpoint_group,
         expiring_user_group_membership,
+        federation_protocol,
+        implied_role,
+        limit,
+        local_user,
+        nonlocal_user,
+        password,
+        project_endpoint_group,
+
+        federated_user,
     ]
 
     for table in tables:
@@ -990,69 +1078,7 @@ def upgrade(migrate_engine):
             LOG.exception('Exception while creating table: %r', table)
             raise
 
-    fkeys = [
-        {
-            'columns': [endpoint.c.service_id],
-            'references': [service.c.id],
-        },
-        {
-            'columns': [user_group_membership.c.group_id],
-            'references': [group.c.id],
-            'name': 'fk_user_group_membership_group_id',
-        },
-        {
-            'columns': [user_group_membership.c.user_id],
-            'references': [user.c.id],
-            'name': 'fk_user_group_membership_user_id',
-        },
-        {
-            'columns': [project.c.domain_id],
-            'references': [project.c.id],
-        },
-        {
-            'columns': [endpoint.c.region_id],
-            'references': [region.c.id],
-            'name': 'fk_endpoint_region_id',
-        },
-        {
-            'columns': [project.c.parent_id],
-            'references': [project.c.id],
-            'name': 'project_parent_id_fkey',
-        },
-        {
-            'columns': [implied_role.c.prior_role_id],
-            'references': [role.c.id],
-            'ondelete': 'CASCADE',
-        },
-        {
-            'columns': [implied_role.c.implied_role_id],
-            'references': [role.c.id],
-            'ondelete': 'CASCADE',
-        },
-        {
-            'columns': [
-                federated_user.c.protocol_id,
-                federated_user.c.idp_id,
-            ],
-            'references': [
-                federation_protocol.c.id,
-                federation_protocol.c.idp_id,
-            ],
-            'ondelete': 'CASCADE',
-        },
-        {
-            'columns': [local_user.c.user_id, local_user.c.domain_id],
-            'references': [user.c.id, user.c.domain_id],
-            'onupdate': 'CASCADE',
-            'ondelete': 'CASCADE',
-        },
-        {
-            'columns': [nonlocal_user.c.user_id, nonlocal_user.c.domain_id],
-            'references': [user.c.id, user.c.domain_id],
-            'onupdate': 'CASCADE',
-            'ondelete': 'CASCADE',
-        },
-    ]
+    fkeys = []
 
     if migrate_engine.name == 'sqlite':
         # NOTE(stevemar): We need to keep this FK constraint due to 073, but
