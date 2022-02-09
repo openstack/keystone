@@ -77,7 +77,7 @@ class UtilsTestCase(unit.BaseTestCase):
         self.config_fixture.config(strict_password_check=False)
         password = uuid.uuid4().hex
         verified = common_utils.verify_length_and_trunc_password(password)
-        self.assertEqual(password, verified)
+        self.assertEqual(password.encode('utf-8'), verified)
 
     def test_that_a_hash_can_not_be_validated_against_a_hash(self):
         # NOTE(dstanek): Bug 1279849 reported a problem where passwords
@@ -97,7 +97,7 @@ class UtilsTestCase(unit.BaseTestCase):
         max_length = CONF.identity.max_password_length
         invalid_password = 'passw0rd'
         trunc = common_utils.verify_length_and_trunc_password(invalid_password)
-        self.assertEqual(invalid_password[:max_length], trunc)
+        self.assertEqual(invalid_password.encode('utf-8')[:max_length], trunc)
 
     def test_verify_long_password_strict_raises_exception(self):
         self.config_fixture.config(strict_password_check=True)
@@ -130,6 +130,17 @@ class UtilsTestCase(unit.BaseTestCase):
     def test_hash_long_password_strict(self):
         self.config_fixture.config(strict_password_check=True)
         invalid_length_password = '0' * 9999999
+        self.assertRaises(exception.PasswordVerificationError,
+                          common_utils.hash_password,
+                          invalid_length_password)
+
+    def test_max_algo_length_truncates_password(self):
+        self.config_fixture.config(strict_password_check=True)
+        self.config_fixture.config(group='identity',
+                                   password_hash_algorithm='bcrypt')
+        self.config_fixture.config(group='identity',
+                                   max_password_length='96')
+        invalid_length_password = '0' * 96
         self.assertRaises(exception.PasswordVerificationError,
                           common_utils.hash_password,
                           invalid_length_password)
