@@ -187,7 +187,7 @@ def upgrade():
         'id_mapping',
         sql.Column('public_id', sql.String(64), primary_key=True),
         sql.Column('domain_id', sql.String(64), nullable=False),
-        sql.Column('local_id', sql.String(64), nullable=False),
+        sql.Column('local_id', sql.String(255), nullable=False),
         sql.Column(
             'entity_type',
             sql.Enum(
