@@ -99,7 +99,11 @@ max_password_length = cfg.IntOpt(
     max=passlib.utils.MAX_PASSWORD_SIZE,
     help=utils.fmt("""
 Maximum allowed length for user passwords. Decrease this value to improve
-performance. Changing this value does not effect existing passwords.
+performance. Changing this value does not effect existing passwords. This value
+can also be overridden by certain hashing algorithms maximum allowed length
+which takes precedence over the configured value.
+
+The bcrypt max_password_length is 54.
 """))
 
 list_limit = cfg.IntOpt(
