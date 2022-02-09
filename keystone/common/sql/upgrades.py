@@ -16,15 +16,17 @@
 
 import os
 
-import migrate
-from migrate.versioning import api as versioning_api
+from migrate import exceptions as migrate_exceptions
+from migrate.versioning import api as migrate_api
+from migrate.versioning import repository as migrate_repository
 from oslo_db import exception as db_exception
-from oslo_db.sqlalchemy import migration
+import sqlalchemy as sa
 
 from keystone.common import sql
 from keystone import exception
 
 INITIAL_VERSION = 72
+LATEST_VERSION = 79
 EXPAND_REPO = 'expand_repo'
 DATA_MIGRATION_REPO = 'data_migration_repo'
 CONTRACT_REPO = 'contract_repo'
@@ -34,9 +36,9 @@ class Repository(object):
     def __init__(self, engine, repo_name):
         self.repo_name = repo_name
 
-        self.repo_path = find_repo(self.repo_name)
+        self.repo_path = _get_migrate_repo_path(self.repo_name)
         self.min_version = INITIAL_VERSION
-        self.schema_ = versioning_api.ControlledSchema.create(
+        self.schema_ = migrate_api.ControlledSchema.create(
             engine, self.repo_path, self.min_version)
         self.max_version = self.schema_.repository.version().version
 
@@ -44,7 +46,7 @@ class Repository(object):
         version = version or self.max_version
         err = ''
         upgrade = True
-        version = versioning_api._migrate_version(
+        version = migrate_api._migrate_version(
             self.schema_, version, upgrade, err)
         validate_upgrade_order(self.repo_name, target_repo_version=version)
         if not current_schema:
@@ -62,13 +64,13 @@ class Repository(object):
     @property
     def version(self):
         with sql.session_for_read() as session:
-            return migration.db_version(
-                session.get_bind(), self.repo_path, self.min_version)
+            return _migrate_db_version(
+                session.get_bind(), self.repo_path, self.min_version,
+            )
 
 
-def find_repo(repo_name):
-    """Return the absolute path to the named repository."""
-    path = os.path.abspath(
+def _get_migrate_repo_path(repo_name):
+    abs_path = os.path.abspath(
         os.path.join(
             os.path.dirname(sql.__file__),
             'legacy_migrations',
@@ -76,21 +78,114 @@ def find_repo(repo_name):
         )
     )
 
-    if not os.path.isdir(path):
-        raise exception.MigrationNotProvided(sql.__name__, path)
+    if not os.path.isdir(abs_path):
+        raise exception.MigrationNotProvided(sql.__name__, abs_path)
 
-    return path
+    return abs_path
+
+
+def _find_migrate_repo(abs_path):
+    """Get the project's change script repository
+
+    :param abs_path: Absolute path to migrate repository
+    """
+    if not os.path.exists(abs_path):
+        raise db_exception.DBMigrationError("Path %s not found" % abs_path)
+    return migrate_repository.Repository(abs_path)
+
+
+def _migrate_db_version_control(engine, abs_path, version=None):
+    """Mark a database as under this repository's version control.
+
+    Once a database is under version control, schema changes should
+    only be done via change scripts in this repository.
+
+    :param engine: SQLAlchemy engine instance for a given database
+    :param abs_path: Absolute path to migrate repository
+    :param version: Initial database version
+    """
+    repository = _find_migrate_repo(abs_path)
+
+    try:
+        migrate_api.version_control(engine, repository, version)
+    except migrate_exceptions.InvalidVersionError as ex:
+        raise db_exception.DBMigrationError("Invalid version : %s" % ex)
+    except migrate_exceptions.DatabaseAlreadyControlledError:
+        raise db_exception.DBMigrationError("Database is already controlled.")
+
+    return version
+
+
+def _migrate_db_version(engine, abs_path, init_version):
+    """Show the current version of the repository.
+
+    :param engine: SQLAlchemy engine instance for a given database
+    :param abs_path: Absolute path to migrate repository
+    :param init_version: Initial database version
+    """
+    repository = _find_migrate_repo(abs_path)
+    try:
+        return migrate_api.db_version(engine, repository)
+    except migrate_exceptions.DatabaseNotControlledError:
+        pass
+
+    meta = sa.MetaData()
+    meta.reflect(bind=engine)
+    tables = meta.tables
+    if (
+        len(tables) == 0 or
+        'alembic_version' in tables or
+        'migrate_version' in tables
+    ):
+        _migrate_db_version_control(engine, abs_path, version=init_version)
+        return migrate_api.db_version(engine, repository)
+
+    msg = _(
+        "The database is not under version control, but has tables. "
+        "Please stamp the current version of the schema manually."
+    )
+    raise db_exception.DBMigrationError(msg)
+
+
+def _migrate_db_sync(engine, abs_path, version=None, init_version=0):
+    """Upgrade or downgrade a database.
+
+    Function runs the upgrade() or downgrade() functions in change scripts.
+
+    :param engine: SQLAlchemy engine instance for a given database
+    :param abs_path: Absolute path to migrate repository.
+    :param version: Database will upgrade/downgrade until this version.
+        If None - database will update to the latest available version.
+    :param init_version: Initial database version
+    """
+
+    if version is not None:
+        try:
+            version = int(version)
+        except ValueError:
+            msg = _("version should be an integer")
+            raise db_exception.DBMigrationError(msg)
+
+    current_version = _migrate_db_version(engine, abs_path, init_version)
+    repository = _find_migrate_repo(abs_path)
+
+    if version is None or version > current_version:
+        try:
+            return migrate_api.upgrade(engine, repository, version)
+        except Exception as ex:
+            raise db_exception.DBMigrationError(ex)
+    else:
+        return migrate_api.downgrade(engine, repository, version)
 
 
 def _sync_repo(repo_name):
-    abs_path = find_repo(repo_name)
+    abs_path = _get_migrate_repo_path(repo_name)
     with sql.session_for_write() as session:
         engine = session.get_bind()
-        migration.db_sync(
-            engine,
-            abs_path,
+        _migrate_db_sync(
+            engine=engine,
+            abs_path=abs_path,
             init_version=INITIAL_VERSION,
-            sanity_check=False,
         )
 
 
@@ -115,9 +210,13 @@ def offline_sync_database_to_version(version=None):
 
 
 def get_db_version(repo=EXPAND_REPO):
+    abs_path = _get_migrate_repo_path(repo)
     with sql.session_for_read() as session:
-        repo = find_repo(repo)
-        return migration.db_version(session.get_bind(), repo, INITIAL_VERSION)
+        return _migrate_db_version(
+            session.get_bind(),
+            abs_path,
+            INITIAL_VERSION,
+        )
 
 
 def validate_upgrade_order(repo_name, target_repo_version=None):
@@ -145,8 +244,8 @@ def validate_upgrade_order(repo_name, target_repo_version=None):
     # find the latest version that the current command will upgrade to if there
     # wasn't a version specified for upgrade.
     if not target_repo_version:
-        abs_path = find_repo(repo_name)
-        repo = migrate.versioning.repository.Repository(abs_path)
+        abs_path = _get_migrate_repo_path(repo_name)
+        repo = _find_migrate_repo(abs_path)
         target_repo_version = int(repo.latest)
 
     # get current version of the command that runs before the current command.

@@ -18,9 +18,8 @@ import os
 import sys
 import uuid
 
-import migrate
 from oslo_config import cfg
-from oslo_db.sqlalchemy import migration
+from oslo_db import exception as db_exception
 from oslo_log import log
 from oslo_serialization import jsonutils
 import pbr.version
@@ -279,7 +278,7 @@ class DbSync(BaseApp):
         status = 0
         try:
             expand_version = upgrades.get_db_version(repo='expand_repo')
-        except migration.exception.DBMigrationError:
+        except db_exception.DBMigrationError:
             LOG.info(
                 'Your database is not currently under version '
                 'control or the database is already controlled. Your '
@@ -290,17 +289,15 @@ class DbSync(BaseApp):
         try:
             migrate_version = upgrades.get_db_version(
                 repo='data_migration_repo')
-        except migration.exception.DBMigrationError:
+        except db_exception.DBMigrationError:
             migrate_version = 0
 
         try:
             contract_version = upgrades.get_db_version(repo='contract_repo')
-        except migration.exception.DBMigrationError:
+        except db_exception.DBMigrationError:
             contract_version = 0
 
-        repo = migrate.versioning.repository.Repository(
-            upgrades.find_repo('expand_repo'))
-        migration_script_version = int(max(repo.versions.versions))
+        migration_script_version = upgrades.LATEST_VERSION
 
         if (
             contract_version > migrate_version or

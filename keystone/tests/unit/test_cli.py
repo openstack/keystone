@@ -25,7 +25,6 @@ import fixtures
 import freezegun
 import http.client
 import oslo_config.fixture
-from oslo_db.sqlalchemy import migration
 from oslo_log import log
 from oslo_serialization import jsonutils
 from oslo_upgradecheck import upgradecheck
@@ -804,17 +803,6 @@ class CliDBSyncTestCase(unit.BaseTestCase):
             CONF, 'command', self.FakeConfCommand(self)))
         cli.DbSync.main()
         self._assert_correct_call(upgrades.contract_schema)
-
-    @mock.patch('keystone.cmd.cli.upgrades.get_db_version')
-    def test_db_sync_check_when_database_is_empty(self, mocked_get_db_version):
-        e = migration.exception.DBMigrationError("Invalid version")
-        mocked_get_db_version.side_effect = e
-        checker = cli.DbSync()
-
-        log_info = self.useFixture(fixtures.FakeLogger(level=log.INFO))
-        status = checker.check_db_sync_status()
-        self.assertIn("not currently under version control", log_info.output)
-        self.assertEqual(status, 2)
 
 
 class TestMappingPopulate(unit.SQLDriverOverrides, unit.TestCase):
