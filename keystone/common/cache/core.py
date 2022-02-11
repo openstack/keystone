@@ -14,7 +14,7 @@
 
 """Keystone Caching Layer Implementation."""
 
-import os
+import secrets
 
 from dogpile.cache import region
 from dogpile.cache import util
@@ -36,7 +36,7 @@ class RegionInvalidationManager(object):
         self._region_key = self.REGION_KEY_PREFIX + region_name
 
     def _generate_new_id(self):
-        return os.urandom(10)
+        return secrets.token_bytes(10)
 
     @property
     def region_id(self):
