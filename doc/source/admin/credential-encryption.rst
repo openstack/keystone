@@ -60,47 +60,6 @@ the response. Neither the cipher text, nor the hash of the key used to encrypt
 the ``blob`` are exposed through the API. Furthermore, the key is only used
 internally to keystone.
 
-Encrypting existing credentials
--------------------------------
-
-When upgrading a Mitaka deployment to Newton, three database migrations will
-ensure all credentials are encrypted. The process is as follows:
-
-1. An additive schema change is made to create the new ``encrypted_blob`` and
-   ``key_hash`` columns in the existing ``credential`` table using
-   ``keystone-manage db_sync --expand``.
-2. A data migration will loop through all existing credentials, encrypt each
-   ``blob`` and store the result in the new ``encrypted_blob`` column. The hash
-   of the key used is also written to the ``key_hash`` column for that specific
-   credential. This step is done using ``keystone-manage db_sync --migrate``.
-3. A contractive schema will remove the ``blob`` column that held the plain
-   text representations of the credential using ``keystone-manage db_sync
-   --contract``. This should only be done after all nodes in the deployment are
-   running Newton. If any Mitaka nodes are running after the database is
-   contracted, they won't be able to read credentials since they are looking
-   for the ``blob`` column that no longer exists.
-
-.. NOTE::
-
-    You may also use ``keystone-manage db_sync --check`` in order to check the
-    current status of your rolling upgrades.
-
-If performing a rolling upgrade, please note that a limited service outage will
-take affect during this migration. When the migration is in place, credentials
-will become read-only until the database is contracted. After the contract
-phase is complete, credentials will be writeable to the backend. A
-``[credential] key_repository`` location must be specified through
-configuration and bootstrapped with keys using ``keystone-manage
-credential_setup`` prior to migrating any existing credentials. If a new key
-repository isn't setup using ``keystone-manage credential_setup`` keystone will
-assume a null key to encrypt and decrypt credentials until a proper key
-repository is present. The null key is a key consisting of all null bytes and
-its only purpose is to ease the upgrade process from Mitaka to Newton. It is
-highly recommended that the null key isn't used. It is no more secure than
-storing credentials in plain text. If the null key is used, you should migrate
-to a proper key repository using ``keystone-manage credential_setup`` and
-``keystone-manage credential_migrate``.
-
 Encryption key management
 -------------------------
 
