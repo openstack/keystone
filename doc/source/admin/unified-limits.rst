@@ -154,7 +154,7 @@ recommend extremely careful planning and understanding of various enforcement
 models if you're planning on switching from one model to another in a
 deployment.
 
-Keystone exposes a ``GET /limits-model`` endpoint that returns the enforcement
+Keystone exposes a ``GET /limits/model`` endpoint that returns the enforcement
 model selected by the deployment. This allows limit information to be
 discoverable and preserves interoperability between OpenStack deployments with
 different enforcement models.
