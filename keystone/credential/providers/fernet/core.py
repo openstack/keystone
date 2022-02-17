@@ -96,7 +96,7 @@ class Provider(core.Provider):
         :returns: a decrypted credential
         """
         key_utils = fernet_utils.FernetUtils(
-            CONF.credential.key_repository, MAX_ACTIVE_KEYS)
+            CONF.credential.key_repository, MAX_ACTIVE_KEYS, 'credential')
         keys = key_utils.load_keys(use_null_key=True)
         fernet_keys = [fernet.Fernet(key) for key in keys]
         crypto = fernet.MultiFernet(fernet_keys)
