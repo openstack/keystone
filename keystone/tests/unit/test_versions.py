@@ -371,6 +371,9 @@ V3_JSON_HOME_RESOURCES = {
         'href-template': '/users/{user_id}/projects',
         'href-vars': {'user_id': json_home.Parameters.USER_ID, }},
     json_home.build_v3_resource_relation('users'): {'href': '/users'},
+    json_home.build_v3_extension_resource_relation(
+        'OS-OAUTH2', '1.0', 'token'): {
+        'href': '/OS-OAUTH2/token'},
     _build_federation_rel(resource_name='domains'): {
         'href': '/auth/domains'},
     _build_federation_rel(resource_name='websso'): {

@@ -29,6 +29,13 @@ def json_body_before_request():
     # exit if there is nothing to be done, (no body)
     if not flask.request.get_data():
         return None
+    elif flask.request.path and flask.request.path.startswith(
+            '/v3/OS-OAUTH2/'):
+        # When the user makes a request to the OAuth2.0 token endpoint,
+        # the user should use the "application/x-www-form-urlencoded" format
+        # with a character encoding of UTF-8 in the HTTP request entity-body.
+        # At the scenario there is nothing to be done and exit.
+        return None
 
     try:
         # flask does loading for us for json, use the flask default loader
