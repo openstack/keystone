@@ -31,7 +31,7 @@ custom policies.
 Roles Definitions
 -----------------
 
-The default roles provided by keystone, via ``keystone-manage boostrap``, are
+The default roles provided by keystone, via ``keystone-manage bootstrap``, are
 related through role implications. The ``admin`` role implies the ``member``
 role, and the ``member`` role implies the ``reader`` role. These implications
 mean users with the ``admin`` role automatically have the ``member`` and
