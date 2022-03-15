@@ -603,6 +603,11 @@ def _common_ldap_initialization(url, use_tls=False, tls_cacertfile=None,
         if not ldap.TLS_AVAIL:
             raise ValueError(_('Invalid LDAP TLS_AVAIL option: %s. TLS '
                                'not available') % ldap.TLS_AVAIL)
+        if not tls_cacertfile and not tls_cacertdir:
+            raise ValueError(_('You need to set tls_cacertfile or '
+                               'tls_cacertdir if use_tls is true or '
+                               'url uses ldaps: scheme.'))
+
         if tls_cacertfile:
             # NOTE(topol)
             # python ldap TLS does not verify CACERTFILE or CACERTDIR
