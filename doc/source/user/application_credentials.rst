@@ -174,8 +174,47 @@ Access Rules
 ============
 
 In addition to delegating a subset of roles to an application credential, you
-may also delegate more fine-grained access control by using access rules. For
-example, to create an application credential that is constricted to creating
+may also delegate more fine-grained access control by using access rules.
+
+.. note::
+
+   Application credentials with access rules require additional configuration
+   of each service that will use it. See below for details.
+
+If application credentials with access rules are required, an OpenStack
+service using keystonemiddleware to authenticate with keystone, needs to
+define ``service_type`` in its configuration file. Following is an example for the
+cinder V3 service:
+
+.. code-block:: ini
+
+   [keystone_authtoken]
+   service_type = volumev3
+
+For other OpenStack sevices, their types can be obtained using the OpenStack
+client. For example:
+
+.. code-block:: console
+
+   $ openstack service list -c Name -c Type
+   +-----------+-----------+
+   | Name      | Type      |
+   +-----------+-----------+
+   | glance    | image     |
+   | cinderv3  | volumev3  |
+   | cinderv2  | volumev2  |
+   | keystone  | identity  |
+   | nova      | compute   |
+   | neutron   | network   |
+   | placement | placement |
+   +-----------+-----------+
+
+.. note::
+
+   Updates to the configuration files of a service require restart of the appropriate
+   services for the changes to take effect.
+
+In order to create an example application credential that is constricted to creating
 servers in nova, the user can add the following access rules:
 
 .. code-block:: console
