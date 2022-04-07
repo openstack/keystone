@@ -31,7 +31,7 @@ class TestCaseWithBootstrap(core.BaseTestCase):
     Re-implementation of TestCase that doesn't load a bunch of fixtures by
     hand and instead uses the bootstrap process. This makes it so that our base
     tests have the same things available to us as operators after they run
-    boostrap. It also makes our tests DRY and pushes setup required for
+    bootstrap. It also makes our tests DRY and pushes setup required for
     specific tests into the actual test class, instead of pushing it into a
     generic structure that gets loaded for every test.
 
@@ -46,7 +46,7 @@ class TestCaseWithBootstrap(core.BaseTestCase):
             ksfixtures.KeyRepository(
                 self.config_fixture,
                 'fernet_tokens',
-                CONF.fernet_tokens.max_active_keys
+                CONF.fernet_tokens.max_active_keys,
             )
         )
 
@@ -54,7 +54,7 @@ class TestCaseWithBootstrap(core.BaseTestCase):
             ksfixtures.KeyRepository(
                 self.config_fixture,
                 'fernet_receipts',
-                CONF.fernet_receipts.max_active_keys
+                CONF.fernet_receipts.max_active_keys,
             )
         )
 
@@ -72,7 +72,8 @@ class TestCaseWithBootstrap(core.BaseTestCase):
         try:
             PROVIDERS.resource_api.create_domain(
                 default_fixtures.ROOT_DOMAIN['id'],
-                default_fixtures.ROOT_DOMAIN)
+                default_fixtures.ROOT_DOMAIN,
+            )
         except exception.Conflict:
             pass
 
