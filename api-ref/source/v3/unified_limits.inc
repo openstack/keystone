@@ -614,8 +614,8 @@ Example
    :language: javascript
 
 
-Delete Registered Limit
-=======================
+Delete Limit
+============
 
 .. rest_method::  DELETE /v3/limits/{limit_id}
 
