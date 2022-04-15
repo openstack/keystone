@@ -351,6 +351,33 @@ remaining_uses:
   in: body
   required: false
   type: boolean
+request_token_grant_type_body_required:
+  description: |
+    Value MUST be set to "client_credentials".
+  in: body
+  required: true
+  type: string
+response_token_access_token_body:
+  description: |
+    The authentication token issued by the authorization server.
+  in: body
+  required: true
+  type: string
+response_token_expires_in_body:
+  description: |
+    The lifetime in seconds of the access token.  For example, the value "3600"
+    denotes that the access token will expire in one hour from the time the
+    response was generated.
+  in: body
+  required: true
+  type: integer
+response_token_token_type_body:
+  description: |
+    The type of the token issued by the authorization server. Currently only the
+    "Bearer" token type is supported.
+  in: body
+  required: true
+  type: string
 revoke_audit_chain_id:
   description: |
     Specifies a group of tokens based upon the ``audit_id`` of the
@@ -553,4 +580,3 @@ url:
   in: body
   required: true
   type: string
-
