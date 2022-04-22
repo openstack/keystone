@@ -40,8 +40,8 @@ secret:
 .. code-block:: python
 
     import base64
-    message = '1234567890123456'
-    print base64.b32encode(message).rstrip('=')
+    message = b'1234567890123456'
+    print(base64.b32encode(message).rstrip(b'='))
 
 Example output::
 
