@@ -1100,7 +1100,7 @@ def upgrade():
 
     bind = op.get_bind()
     meta = sql.MetaData()
-    project = sql.Table('project', meta, autoload_with=bind.engine)
+    project = sql.Table('project', meta, autoload_with=bind)
 
     root_domain_project = _generate_root_domain_project()
     op.execute(project.insert().values(**root_domain_project))
