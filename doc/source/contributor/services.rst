@@ -99,7 +99,7 @@ The "default" domain
 
     The v2.0 API has been removed as of the Queens release. While this section
     references the v2.0 API, it is purely for historical reasons that clarify
-    the existance of the *default* domain.
+    the existence of the *default* domain.
 
 Domains were introduced as a v3-only feature. As a result, the v2.0 API didn't
 understand the concept of domains. To allow for both versions of the Identity
