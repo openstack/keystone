@@ -8,15 +8,16 @@
 # Andi Chandler <andi@gowling.com>, 2018. #zanata
 # Andi Chandler <andi@gowling.com>, 2019. #zanata
 # Andi Chandler <andi@gowling.com>, 2020. #zanata
+# Andi Chandler <andi@gowling.com>, 2022. #zanata
 msgid ""
 msgstr ""
 "Project-Id-Version: keystone VERSION\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2021-01-08 19:57+0000\n"
+"POT-Creation-Date: 2022-05-20 04:41+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2020-10-28 02:12+0000\n"
+"PO-Revision-Date: 2022-05-25 08:57+0000\n"
 "Last-Translator: Andi Chandler <andi@gowling.com>\n"
 "Language: en_GB\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -133,15 +134,6 @@ msgstr "Access token not found"
 
 msgid "Additional authentications steps required."
 msgstr "Additional authentications steps required."
-
-msgid ""
-"All extensions have been moved into keystone core and as such its migrations "
-"are maintained by the main keystone database control. Use the command: "
-"keystone-manage db_sync"
-msgstr ""
-"All extensions have been moved into Keystone core and as such its migrations "
-"are maintained by the main Keystone database control. Use the command: "
-"keystone-manage db_sync"
 
 msgid "An unexpected error occurred when retrieving domain configs"
 msgstr "An unexpected error occurred when retrieving domain configs"
@@ -1205,6 +1197,13 @@ msgstr "The action you have requested has not been implemented."
 msgid "The authenticated user should match the trustor"
 msgstr "The authenticated user should match the trustor"
 
+msgid ""
+"The database is not under version control, but has tables. Please stamp the "
+"current version of the schema manually."
+msgstr ""
+"The database is not under version control but has tables. Please stamp the "
+"current version of the schema manually."
+
 #, python-format
 msgid ""
 "The given operator %(_op)s is not valid. It must be one of the following: "
@@ -1405,9 +1404,6 @@ msgid ""
 msgstr ""
 "Unable to delete region %(region_id)s because it or its child regions have "
 "associated endpoints."
-
-msgid "Unable to downgrade schema"
-msgstr "Unable to downgrade schema"
 
 #, python-format
 msgid "Unable to establish a connection to LDAP Server (%(url)s)."
@@ -1760,3 +1756,6 @@ msgstr "tls_cacertdir %s not found or is not a directory"
 #, python-format
 msgid "tls_cacertfile %s not found or is not a file"
 msgstr "tls_cacertfile %s not found or is not a file"
+
+msgid "version should be an integer"
+msgstr "version should be an integer"
