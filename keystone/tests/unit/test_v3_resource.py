@@ -1397,6 +1397,40 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
             new_regular_project['id'], [p['id'] for p in r.result['projects']]
         )
 
+    def test_list_projects_is_domain_filter_domain_scoped_token(self):
+        """Call ``GET /projects?is_domain=True/False`` with domain scope"""
+        # grant the domain role to user
+        path = '/domains/%s/users/%s/roles/%s' % (
+            self.domain_id, self.user['id'], self.role['id'])
+        self.put(path=path)
+
+        auth = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            domain_id=self.domain_id)
+
+        # Check that listing the domains does not result in an empty list
+        new_is_domain_project = unit.new_project_ref(is_domain=True)
+        new_is_domain_project = PROVIDERS.resource_api.create_project(
+            new_is_domain_project['id'], new_is_domain_project)
+
+        r = self.get('/projects?is_domain=True', auth=auth,
+                     expected_status=200)
+        self.assertIn(new_is_domain_project['id'],
+                      [p['id'] for p in r.result['projects']])
+
+        # Check that the projects are still being filtered
+        # The previously created is_domain project is a domain, so
+        # we can reuse it for the project
+        new_regular_project = unit.new_project_ref(
+            is_domain=False, domain_id=new_is_domain_project['id'])
+        new_regular_project = PROVIDERS.resource_api.create_project(
+            new_regular_project['id'], new_regular_project)
+        r = self.get('/projects?is_domain=False', auth=auth,
+                     expected_status=200)
+        self.assertNotIn(new_regular_project['id'],
+                         [p['id'] for p in r.result['projects']])
+
     def test_list_project_is_domain_filter_default(self):
         """Default project list should not see projects acting as domains."""
         # Get the initial count of regular projects
