@@ -35,6 +35,23 @@ class WarningsFixture(fixtures.Fixture):
             module='^keystone\\.',
         )
 
+        warnings.filterwarnings(
+            'ignore',
+            message=(
+                'Policy enforcement is depending on the value of '
+                '(token|group_ids). '
+                'This key is deprecated. Please update your policy '
+                'file to use the standard policy values.'
+            ),
+        )
+
+        # NOTE(stephenfin): Ignore scope check UserWarnings from oslo.policy.
+        warnings.filterwarnings(
+            'ignore',
+            message="Policy .* failed scope check",
+            category=UserWarning,
+        )
+
         # TODO(stephenfin): This will be fixed once we drop sqlalchemy-migrate
         warnings.filterwarnings(
             'ignore',
