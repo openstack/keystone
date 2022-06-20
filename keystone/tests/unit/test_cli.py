@@ -754,17 +754,27 @@ class CliDBSyncTestCase(unit.BaseTestCase):
             self.version = None
 
     def setUp(self):
-        super(CliDBSyncTestCase, self).setUp()
+        super().setUp()
         self.config_fixture = self.useFixture(oslo_config.fixture.Config(CONF))
         self.config_fixture.register_cli_opt(cli.command_opt)
-        upgrades.offline_sync_database_to_version = mock.Mock()
-        upgrades.expand_schema = mock.Mock()
-        upgrades.migrate_data = mock.Mock()
-        upgrades.contract_schema = mock.Mock()
+
+        self.patchers = patchers = [
+            mock.patch.object(upgrades, "offline_sync_database_to_version"),
+            mock.patch.object(upgrades, "expand_schema"),
+            mock.patch.object(upgrades, "migrate_data"),
+            mock.patch.object(upgrades, "contract_schema"),
+        ]
+        for p in patchers:
+            p.start()
         self.command_check = False
         self.command_expand = False
         self.command_migrate = False
         self.command_contract = False
+
+    def tearDown(self):
+        for p in self.patchers:
+            p.stop()
+        super().tearDown()
 
     def _assert_correct_call(self, mocked_function):
         for func in [upgrades.offline_sync_database_to_version,
