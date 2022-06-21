@@ -35,10 +35,12 @@
 - job:
     name: keystone-dsvm-py3-functional-fips
     parent: keystone-dsvm-py3-functional
-    nodeset: devstack-single-node-centos-8-stream
+    nodeset: devstack-single-node-centos-9-stream
     description: |
-      Functional testing for a FIPS enabled Centos 8 system
+      Functional testing for a FIPS enabled Centos 9 system
     pre-run: playbooks/enable-fips.yaml
+    vars:
+      nslookup_target: 'opendev.org'
 
 - job:
     name: keystone-dsvm-functional-federation-opensuse15
