@@ -11,16 +11,18 @@
 # 颜海峰 <yanheven@gmail.com>, 2014
 # Andreas Jaeger <jaegerandi@gmail.com>, 2016. #zanata
 # Eric Lei <1165970798@qq.com>, 2016. #zanata
+# Research and Development Center UnitedStack <dev@unitedstack.com>, 2022. #zanata
 msgid ""
 msgstr ""
 "Project-Id-Version: keystone VERSION\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2022-05-20 04:41+0000\n"
+"POT-Creation-Date: 2022-07-01 18:11+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2016-09-28 03:23+0000\n"
-"Last-Translator: Eric Lei <1165970798@qq.com>\n"
+"PO-Revision-Date: 2022-06-14 12:29+0000\n"
+"Last-Translator: Research and Development Center UnitedStack "
+"<dev@unitedstack.com>\n"
 "Language: zh_CN\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
 "Generated-By: Babel 2.0\n"
@@ -729,6 +731,14 @@ msgstr "用户类型 %s 不受支持"
 msgid "You are not authorized to perform the requested action."
 msgstr "您没有授权完成所请求的操作。"
 
+msgid ""
+"You cannot change your password at this time due to password policy "
+"disallowing password changes. Please contact your administrator to reset "
+"your password."
+msgstr ""
+"因为密码策略被设置为禁止修改密码，目前您不能更改密码。请联系管理员重置您的密"
+"码。"
+
 #, python-format
 msgid ""
 "You cannot change your password at this time due to the minimum password "
@@ -737,7 +747,7 @@ msgid ""
 "contact your administrator to reset your password."
 msgstr ""
 "没有达到密码最小使用时长，目前您不能更改密码。一旦您修改了密码，在下次可被修"
-"改前该密码必须使用%(min_age_days)d天.请在%(days_left)d天后重试，或者联系管理"
+"改前该密码必须使用%(min_age_days)d天。请在%(days_left)d天后重试，或者联系管理"
 "员重置您的密码。"
 
 msgid ""

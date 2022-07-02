@@ -1,15 +1,16 @@
 # Andi Chandler <andi@gowling.com>, 2017. #zanata
 # Andi Chandler <andi@gowling.com>, 2018. #zanata
 # Andi Chandler <andi@gowling.com>, 2020. #zanata
+# Andi Chandler <andi@gowling.com>, 2022. #zanata
 msgid ""
 msgstr ""
 "Project-Id-Version: Keystone Release Notes\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-20 04:40+0000\n"
+"POT-Creation-Date: 2022-07-01 18:09+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2020-12-19 01:35+0000\n"
+"PO-Revision-Date: 2022-06-20 11:10+0000\n"
 "Last-Translator: Andi Chandler <andi@gowling.com>\n"
 "Language-Team: English (United Kingdom)\n"
 "Language: en_GB\n"
@@ -81,6 +82,9 @@ msgstr "13.0.2"
 msgid "13.0.3"
 msgstr "13.0.3"
 
+msgid "13.0.4-9"
+msgstr "13.0.4-9"
+
 msgid "14.0.0"
 msgstr "14.0.0"
 
@@ -93,11 +97,17 @@ msgstr "14.1.0"
 msgid "14.2.0"
 msgstr "14.2.0"
 
+msgid "14.2.0-7"
+msgstr "14.2.0-7"
+
 msgid "15.0.0"
 msgstr "15.0.0"
 
 msgid "15.0.1"
 msgstr "15.0.1"
+
+msgid "15.0.1-9"
+msgstr "15.0.1-9"
 
 msgid "16.0.0"
 msgstr "16.0.0"
@@ -105,8 +115,32 @@ msgstr "16.0.0"
 msgid "16.0.1"
 msgstr "16.0.1"
 
+msgid "16.0.2"
+msgstr "16.0.2"
+
 msgid "17.0.0"
 msgstr "17.0.0"
+
+msgid "17.0.1"
+msgstr "17.0.1"
+
+msgid "18.0.0"
+msgstr "18.0.0"
+
+msgid "18.1.0"
+msgstr "18.1.0"
+
+msgid "19.0.0"
+msgstr "19.0.0"
+
+msgid "19.0.0-8"
+msgstr "19.0.0-8"
+
+msgid "20.0.0"
+msgstr "20.0.0"
+
+msgid "21.0.0"
+msgstr "21.0.0"
 
 msgid "8.0.1"
 msgstr "8.0.1"
@@ -291,6 +325,15 @@ msgstr ""
 "Certain variables in ``keystone.conf`` now have options, which determine if "
 "the user's setting is valid."
 
+msgid ""
+"Change the min value of pool_retry_max to 1. Setting this value to 0 caused "
+"the pool to fail before connecting to ldap, always raising "
+"MaxConnectionReachedError."
+msgstr ""
+"Change the min value of pool_retry_max to 1. Setting this value to 0 caused "
+"the pool to fail before connecting to ldap, always raising "
+"MaxConnectionReachedError."
+
 msgid "Configuring per-Identity Provider WebSSO is now supported."
 msgstr "Configuring per-Identity Provider WebSSO is now supported."
 
@@ -455,6 +498,24 @@ msgstr ""
 "to continue to hash passwords in a manner that older (pre Pike release) "
 "keystones can still verify passwords. Once all upgrades are complete, ensure "
 "this option is set back to `False`."
+
+msgid ""
+"If you are affected by this bug, a fix in the keystone database will be "
+"needed so we recommend to dump the users' tables before doing this process:"
+msgstr ""
+"If you are affected by this bug, a fix in the keystone database will be "
+"needed so we recommend to dump the users' tables before doing this process:"
+
+msgid ""
+"If you are affected by this bug, you must remove stale role assignments "
+"manually. The following is an example SQL statement you can use to fix the "
+"issue, but you should verify it's applicability to your deployment's SQL "
+"implementation and version."
+msgstr ""
+"If you are affected by this bug, you must remove stale role assignments "
+"manually. The following is an example SQL statement you can use to fix the "
+"issue, but you should verify it's applicability to your deployment's SQL "
+"implementation and version."
 
 msgid ""
 "In ``keystone-paste.ini``, using ``paste.filter_factory`` is deprecated in "
@@ -675,6 +736,9 @@ msgstr ""
 msgid "Queens Series Release Notes"
 msgstr "Queens Series Release Notes"
 
+msgid "Rocky Series Release Notes"
+msgstr "Rocky Series Release Notes"
+
 msgid ""
 "Routes and SQL backends for the contrib extensions have been removed, they "
 "have been incorporated into keystone and are no longer optional. This "
@@ -765,6 +829,9 @@ msgstr ""
 "method to validate tokens (``validate_token``), that has the signature "
 "``validate_token(self, token_ref)``. If using a custom token provider, "
 "update the custom provider accordingly."
+
+msgid "Stein Series Release Notes"
+msgstr "Stein Series Release Notes"
 
 msgid ""
 "Support for writing to LDAP has been removed. See ``Other Notes`` for more "
@@ -1392,6 +1459,9 @@ msgstr ""
 msgid "Tokens can now be cached when issued."
 msgstr "Tokens can now be cached when issued."
 
+msgid "Train Series Release Notes"
+msgstr "Train Series Release Notes"
+
 msgid ""
 "UUID token provider ``[token] provider=uuid`` has been deprecated in favor "
 "of Fernet tokens ``[token] provider=fernet``. With Fernet tokens becoming "
@@ -1427,6 +1497,15 @@ msgstr ""
 "Using the full path to the driver class is deprecated in favour of using the "
 "entrypoint. In the Mitaka release, the entrypoint must be used."
 
+msgid "Ussuri Series Release Notes"
+msgstr "Ussuri Series Release Notes"
+
+msgid "Victoria Series Release Notes"
+msgstr "Victoria Series Release Notes"
+
+msgid "Wallaby Series Release Notes"
+msgstr "Wallaby Series Release Notes"
+
 msgid ""
 "We have added the ``password_expires_at`` attribute to the user response "
 "object."
@@ -1447,6 +1526,12 @@ msgid ""
 msgstr ""
 "Write support for the LDAP has been removed in favour of read-only support. "
 "The following operations are no longer supported for LDAP:"
+
+msgid "Xena Series Release Notes"
+msgstr "Xena Series Release Notes"
+
+msgid "Yoga Series Release Notes"
+msgstr "Yoga Series Release Notes"
 
 msgid ""
 "[`Bug 1645487 <https://bugs.launchpad.net/keystone/+bug/1645487>`_] Added a "
@@ -1785,6 +1870,13 @@ msgstr "lt - password expires before the timestamp"
 
 msgid "lte - password expires at or before timestamp"
 msgstr "lte - password expires at or before timestamp"
+
+msgid ""
+"mysqldump -h <mysql host> -p -P <mysql port> -u keystone keystone "
+"federated_user local_user user > user_tables.sql"
+msgstr ""
+"mysqldump -h <mysql host> -p -P <mysql port> -u keystone keystone "
+"federated_user local_user user > user_tables.sql"
 
 msgid "neq - password expires not at the timestamp"
 msgstr "neq - password expires not at the timestamp"
