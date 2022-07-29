@@ -155,7 +155,7 @@ downtime if it is required.
 Upgrading without downtime
 --------------------------
 
-.. NOTE:
+.. versionadded:: 10.0.0 (Newton)
 
     Upgrading without downtime is only supported in deployments upgrading
     *from* Newton or a newer release.
@@ -165,6 +165,12 @@ Upgrading without downtime
     --expand`` command will incur downtime (similar to running
     ``keystone-manage db_sync``), as it runs legacy (downtime-incurring)
     migrations prior to running schema expansions.
+
+.. versionchanged:: 21.0.0 (Yoga)
+
+    The migration tooling was changed from *SQLAlchemy-Migrate* to *Alembic*.
+    As part of this change, the data migration phase of the database upgrades
+    was dropped.
 
 This is a high-level description of our upgrade strategy built around
 additional options in ``keystone-manage db_sync``. Although it is much more
@@ -187,11 +193,11 @@ authenticate requests normally.
 #. Update your configuration files on the first node (``/etc/keystone/``) with
    those corresponding to the latest release.
 
-#. (*New in Newton*) Run ``keystone-manage doctor`` on the first node to
+#. Run ``keystone-manage doctor`` on the first node to
    diagnose symptoms of common deployment issues and receive instructions for
    resolving them.
 
-#. (*New in Newton*) Run ``keystone-manage db_sync --expand`` on the first node
+#. Run ``keystone-manage db_sync --expand`` on the first node
    to expand the database schema to a superset of what both the previous and
    next release can utilize, and create triggers to facilitate the live
    migration process.
@@ -210,14 +216,12 @@ authenticate requests normally.
    triggers will live migrate the data to the new schema so it can be read by
    the next release.
 
-#. (*New in Newton*) Run ``keystone-manage db_sync --migrate`` on the first
-   node to forcefully perform data migrations. This process will migrate all
-   data from the old schema to the new schema while the previous release
-   continues to operate normally.
+   .. note::
 
-   When this process completes, all data will be available in both the new
-   schema and the old schema, so both the previous release and the next release
-   will be capable of operating normally.
+       Prior to Yoga, data migrations were treated separatly and required the
+       use of the ``keystone-manage db_sync --migrate`` command after applying
+       the expand migrations. This is no longer necessary and the
+       ``keystone-manage db_sync --migrate`` command is now a no-op.
 
 #. Update your configuration files (``/etc/keystone/``) on all nodes (except
    the first node, which you've already done) with those corresponding to the
@@ -230,20 +234,27 @@ authenticate requests normally.
    As the next release begins writing to the new schema, database triggers will
    also migrate the data to the old schema, keeping both data schemas in sync.
 
-#. (*New in Newton*) Run ``keystone-manage db_sync --contract`` to remove the
-   old schema and all data migration triggers.
+#. Run ``keystone-manage db_sync --contract`` to remove the old schema and all
+   data migration triggers.
 
    When this process completes, the database will no longer be able to support
    the previous release.
 
-Using db_sync check
-~~~~~~~~~~~~~~~~~~~
+Using ``db_sync check``
+~~~~~~~~~~~~~~~~~~~~~~~
 
-(*New in Pike*) In order to check the current state of your rolling upgrades,
-you may run the command ``keystone-manage db_sync --check``. This will inform
-you of any outstanding actions you have left to take as well as any possible
-upgrades you can make from your current version. Here are a list of possible
-return codes.
+.. versionadded:: 12.0.0 (Pike)
+
+.. versionchanged:: 21.0.0 (Yoga)
+
+    Previously this command would return ``3`` if data migrations were
+    required. Data migrations are now part of the expand schema migrations,
+    therefore this step is no longer necessary.
+
+In order to check the current state of your rolling upgrades, you may run the
+command ``keystone-manage db_sync --check``. This will inform you of any
+outstanding actions you have left to take as well as any possible upgrades you
+can make from your current version. Here are a list of possible return codes.
 
 * A return code of ``0`` means you are currently up to date with the latest
   migration script version and all ``db_sync`` commands are complete.
@@ -255,9 +266,6 @@ return codes.
   version is available, your database is not currently under version control,
   or the database is already under control. Your first step is to run
   ``keystone-manage db_sync --expand``.
-
-* A return code of ``3`` means that the expansion stage is complete, and the
-  next step is to run ``keystone-manage db_sync --migrate``.
 
 * A return code of ``4`` means that the expansion and data migration stages are
   complete, and the next step is to run ``keystone-manage db_sync --contract``.

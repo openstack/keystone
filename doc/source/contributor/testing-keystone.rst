@@ -138,32 +138,9 @@ Identity module.
 Testing Schema Migrations
 -------------------------
 
-.. note::
-
-    The framework being used is currently being migrated from
-    SQLAlchemy-Migrate to Alembic, meaning this information will change in the
-    near-term.
-
-The application of schema migrations can be tested using SQLAlchemy Migrate's
-built-in test runner, one migration at a time.
-
-.. WARNING::
-
-    This may leave your database in an inconsistent state; attempt this in
-    non-production environments only!
-
-This is useful for testing the *next* migration in sequence in a database under
-version control:
-
-.. code-block:: bash
-
-    $ python keystone/common/sql/legacy_migrations/expand_repo/manage.py test \
-        --url=sqlite:///test.db \
-        --repository=keystone/common/sql/legacy_migrations/expand_repo/
-
-This command references to a SQLite database (test.db) to be used. Depending on
-the migration, this command alone does not make assertions as to the integrity
-of your data during migration.
+Tests for database migrations can be found in
+``keystone/tests/unit/test_sql_upgrade.py`` and
+``keystone/tests/unit/test_sql_banned_operations.py``.
 
 LDAP Tests
 ----------

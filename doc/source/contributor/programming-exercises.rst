@@ -53,9 +53,7 @@ Refer to the :doc:`API Change tutorial <api_change_tutorial>`. In short, you wil
 steps:
 
 #. Create a SQL migration to add the parameter to the database table
-   (:py:mod:`keystone.common.sql.legacy_migration.expand_repo.versions`,
-   :py:mod:`keystone.common.sql.legacy_migration.data_migration_repo.versions`,
-   :py:mod:`keystone.common.sql.legacy_migration.contract_repo.versions`)
+   (:py:mod:`keystone.common.sql.migrations.versions`)
 
 #. Add a SQL migration unit test (`keystone/tests/unit/test_sql_upgrade.py`)
 

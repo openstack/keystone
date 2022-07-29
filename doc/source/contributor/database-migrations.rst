@@ -17,52 +17,45 @@
 Database Migrations
 ===================
 
-.. note::
+.. versionchanged:: 21.0.0 (Yoga)
 
-    The framework being used is currently being migrated from
-    SQLAlchemy-Migrate to Alembic, meaning this information will change in the
-    near-term.
+    The database migration framework was changed from SQLAlchemy-Migrate to
+    Alembic in the Yoga release. Previously there were three SQLAlchemy-Migrate
+    repos, corresponding to different type of migration operation: the *expand*
+    repo, the *data migration* repo, and the *contract* repo. There are now
+    only two Alembic branches, the *expand* branch and the *contract* branch,
+    and data migration operations have been folded into the former
 
 Starting with Newton, keystone supports upgrading both with and without
-downtime. In order to support this, there are three separate migration
-repositories (all under ``keystone/common/sql/legacy_migrations``) that match
-the three phases of an upgrade (schema expansion, data migration, and schema
-contraction):
+downtime. In order to support this, there are two separate branches (all under
+``keystone/common/sql/migrations``): the *expand* and the *contract* branch.
 
-``expand_repo``
+*expand*
     For additive schema modifications and triggers to ensure data is kept in
     sync between the old and new schema until the point when there are no
     keystone instances running old code.
 
-``data_migration_repo``
-    To ensure new tables/columns are fully populated with data from the old
-    schema.
+    May also contain data migrations to ensure new tables/columns are fully
+    populated with data from the old schema.
 
-``contract_repo``
+*contract*
     Run after all old code versions have been upgraded to running the new code,
     so remove any old schema columns/tables that are not used by the new
     version of the code. Drop any triggers added in the expand phase.
 
-All migrations are required to have a migration script in each of these repos,
-each with the same version number (which is indicated by the first three digits
-of the name of the script, e.g. ``003_add_X_table.py``). If there is no work to
-do in a specific phase, then include a no-op migration to simply ``pass`` (in
-fact the ``001`` migration in each of these repositories is a no-op migration,
-so that can be used as a template).
+A migration script must belong to one branch. If a migration has both additive
+and destruction operations, it must be split into two migrations scripts, one
+in each branch.
 
 In order to support rolling upgrades, where two releases of keystone briefly
 operate side-by-side using the same database without downtime, each phase of
 the migration must adhere to following constraints:
 
-These triggers should be removed in the contract phase. There are further
-restrictions as to what can and cannot be included in migration scripts in each
-phase:
-
 Expand phase:
-    Only additive schema changes are allowed, such as new columns, tables,
-    indices, and triggers.
+    Only additive schema changes, such as new columns, tables, indices, and
+    triggers, and data insertion are allowed.
 
-    Data insertion, modification, and removal is not allowed.
+    Data modification or removal is not allowed.
 
     Triggers must be created to keep data in sync between the previous release
     and the next release. Data written by the previous release must be readable
@@ -72,20 +65,14 @@ Expand phase:
     In cases it is not possible for triggers to maintain data integrity across
     multiple schemas, writing data should be forbidden using triggers.
 
-Data Migration phase:
-    Data is allowed to be inserted, updated, and deleted.
-
-    No schema changes are allowed.
-
 Contract phase:
-    Only destructive schema changes are allowed, such as dropping or altering
-    columns, tables, indices, and triggers.
-
-    Data insertion, modification, and removal is not allowed.
+    Only destructive schema changes, such as dropping or altering
+    columns, tables, indices, and triggers, or data modification or removal are
+    allowed.
 
     Triggers created during the expand phase must be dropped.
 
 For more information on writing individual migration scripts refer to
-`SQLAlchemy-migrate`_.
+`Alembic`_.
 
-.. _SQLAlchemy-migrate: https://opendev.org/openstack/sqlalchemy-migrate
+.. _Alembic: https://alembic.sqlalchemy.org/
