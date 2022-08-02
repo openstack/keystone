@@ -110,7 +110,7 @@ class EndpointGroupsResource(ks_flask.ResourceBase):
 
 class EPFilterEndpointProjectsResource(flask_restful.Resource):
     def get(self, endpoint_id):
-        """"Return a list of projects associated with the endpoint."""
+        """Return a list of projects associated with the endpoint."""
         ENFORCER.enforce_call(action='identity:list_projects_for_endpoint')
         PROVIDERS.catalog_api.get_endpoint(endpoint_id)
         refs = PROVIDERS.catalog_api.list_projects_for_endpoint(endpoint_id)

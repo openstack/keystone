@@ -32,7 +32,7 @@ _build_resource_relation = json_home_relations.os_oauth2_resource_rel_func
 class AccessTokenResource(ks_flask.ResourceBase):
 
     def _method_not_allowed(self):
-        """Raise a method not allowed error"""
+        """Raise a method not allowed error."""
         raise exception.OAuth2OtherError(
             int(http.client.METHOD_NOT_ALLOWED),
             http.client.responses[http.client.METHOD_NOT_ALLOWED],
@@ -40,27 +40,27 @@ class AccessTokenResource(ks_flask.ResourceBase):
 
     @ks_flask.unenforced_api
     def get(self):
-        """The method is not allowed"""
+        """The method is not allowed."""
         self._method_not_allowed()
 
     @ks_flask.unenforced_api
     def head(self):
-        """The method is not allowed"""
+        """The method is not allowed."""
         self._method_not_allowed()
 
     @ks_flask.unenforced_api
     def put(self):
-        """The method is not allowed"""
+        """The method is not allowed."""
         self._method_not_allowed()
 
     @ks_flask.unenforced_api
     def patch(self):
-        """The method is not allowed"""
+        """The method is not allowed."""
         self._method_not_allowed()
 
     @ks_flask.unenforced_api
     def delete(self):
-        """The method is not allowed"""
+        """The method is not allowed."""
         self._method_not_allowed()
 
     @ks_flask.unenforced_api
@@ -69,7 +69,6 @@ class AccessTokenResource(ks_flask.ResourceBase):
 
         POST /v3/OS-OAUTH2/token
         """
-
         client_auth = flask.request.authorization
         if not client_auth:
             error = exception.OAuth2InvalidClient(

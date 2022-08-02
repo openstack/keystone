@@ -51,7 +51,7 @@ VERSIONS_PATH = os.path.join(
 
 
 def _find_migrate_repo(branch):
-    """Get the project's change script repository
+    """Get the project's change script repository.
 
     :param branch: Name of the repository "branch" to be used; this will be
         transformed to repository path.
@@ -70,7 +70,7 @@ def _find_migrate_repo(branch):
 
 
 def _find_alembic_conf():
-    """Get the project's alembic configuration
+    """Get the project's alembic configuration.
 
     :returns: An instance of ``alembic.config.Config``
     """

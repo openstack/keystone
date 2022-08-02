@@ -10,7 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-"""Initial version
+"""Initial version.
 
 Revision ID: 27e647c0fad4
 Revises:

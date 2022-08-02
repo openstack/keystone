@@ -36,7 +36,7 @@ class RevokeDriverBase(object, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def list_events(self, last_fetch=None, token=None):
-        """return the revocation events, as a list of objects.
+        """Return the revocation events, as a list of objects.
 
         :param last_fetch:   Time of last fetch.  Return all events newer.
         :param token: dictionary of values from a token, normalized for
@@ -52,7 +52,7 @@ class RevokeDriverBase(object, metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def revoke(self, event):
-        """register a revocation event.
+        """Register a revocation event.
 
         :param event: An instance of
             keystone.revoke.model.RevocationEvent
