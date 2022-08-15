@@ -54,8 +54,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Keystone Release Notes'
-copyright = u'2015, Keystone Developers'
+project = 'Keystone Release Notes'
+copyright = '2015, Keystone Developers'
 
 # Release  notes are version independent
 
@@ -197,8 +197,8 @@ htmlhelp_basename = 'KeystoneReleaseNotesdoc'
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
     ('index', 'KeystoneReleaseNotes.tex',
-     u'Keystone Release Notes Documentation',
-     u'Keystone Developers', 'manual'),
+     'Keystone Release Notes Documentation',
+     'Keystone Developers', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -227,8 +227,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'keystonereleasenotes', u'Keystone Release Notes Documentation',
-     [u'Keystone Developers'], 1)
+    ('index', 'keystonereleasenotes', 'Keystone Release Notes Documentation',
+     ['Keystone Developers'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -241,8 +241,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    ('index', 'KeystoneReleaseNotes', u'Keystone Release Notes Documentation',
-     u'Keystone Developers', 'KeystoneReleaseNotes',
+    ('index', 'KeystoneReleaseNotes', 'Keystone Release Notes Documentation',
+     'Keystone Developers', 'KeystoneReleaseNotes',
      'Identity, Authentication and Access Management for OpenStack.',
      'Miscellaneous'),
 ]
