@@ -722,3 +722,36 @@ class ResourceDeleteForbidden(ForbiddenNotSecurity):
     message_format = _('Unable to delete immutable %(type)s resource: '
                        '`%(resource_id)s. Set resource option "immutable" '
                        'to false first.')
+
+
+class OAuth2Error(Error):
+
+    def __init__(self, code, title, error_title, message):
+        self.code = code
+        self.title = title
+        self.error_title = error_title
+        self.message_format = message
+
+
+class OAuth2InvalidClient(OAuth2Error):
+    def __init__(self, code, title, message):
+        error_title = 'invalid_client'
+        super().__init__(code, title, error_title, message)
+
+
+class OAuth2InvalidRequest(OAuth2Error):
+    def __init__(self, code, title, message):
+        error_title = 'invalid_request'
+        super().__init__(code, title, error_title, message)
+
+
+class OAuth2UnsupportedGrantType(OAuth2Error):
+    def __init__(self, code, title, message):
+        error_title = 'unsupported_grant_type'
+        super().__init__(code, title, error_title, message)
+
+
+class OAuth2OtherError(OAuth2Error):
+    def __init__(self, code, title, message):
+        error_title = 'other_error'
+        super().__init__(code, title, error_title, message)

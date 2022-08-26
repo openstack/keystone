@@ -27,11 +27,11 @@ except ImportError:
 
 import keystone.api
 from keystone import exception
+from keystone.oauth2 import handlers as oauth2_handlers
+from keystone.receipt import handlers as receipt_handlers
 from keystone.server.flask import common as ks_flask
 from keystone.server.flask.request_processing import json_body
 from keystone.server.flask.request_processing import req_logging
-
-from keystone.receipt import handlers as receipt_handlers
 
 LOG = log.getLogger(__name__)
 
@@ -75,6 +75,8 @@ def _handle_keystone_exception(error):
     # TODO(adriant): register this with its own specific handler:
     if isinstance(error, exception.InsufficientAuthMethods):
         return receipt_handlers.build_receipt(error)
+    elif isinstance(error, exception.OAuth2Error):
+        return oauth2_handlers.build_response(error)
 
     # Handle logging
     if isinstance(error, exception.Unauthorized):
