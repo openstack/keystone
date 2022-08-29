@@ -12,6 +12,8 @@
 
 # This file handles all flask-restful resources for /v3/ec2tokens
 
+import urllib.parse
+
 import flask
 import http.client
 from keystoneclient.contrib.ec2 import utils as ec2_utils
@@ -42,8 +44,8 @@ class EC2TokensResource(EC2_S3_Resource.ResourceBase):
             # NOTE(vish): Some client libraries don't use the port when
             # signing requests, so try again without the port.
             elif ':' in credentials['host']:
-                hostname, _port = credentials.split(':')
-                credentials['host'] = hostname
+                parsed = urllib.parse.urlsplit('//' + credentials['host'])
+                credentials['host'] = parsed.hostname
                 # NOTE(davechen): we need to reinitialize 'signer' to avoid
                 # contaminated status of signature, this is similar with
                 # other programming language libraries, JAVA for example.
