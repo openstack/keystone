@@ -1735,6 +1735,12 @@ GROUPS_ASSERTION_ONLY_ONE_GROUP = {
     'groups': 'ALL USERS'
 }
 
+GROUPS_ASSERTION_ONLY_ONE_NUMERICAL_GROUP = {
+    'userEmail': 'jill@example.com',
+    'UserName': 'jsmith',
+    'groups': '1234'
+}
+
 GROUPS_DOMAIN_ASSERTION = {
     'openstack_user': 'bwilliams',
     'openstack_user_domain': 'default',
