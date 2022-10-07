@@ -214,6 +214,114 @@ class UtilsTestCase(unit.BaseTestCase):
         expected_string_ending = str(time.second) + 'Z'
         self.assertTrue(string_time.endswith(expected_string_ending))
 
+    def test_get_certificate_subject_dn(self):
+        cert_pem = unit.create_pem_certificate(
+            unit.create_dn(
+                common_name='test',
+                organization_name='dev',
+                locality_name='suzhou',
+                state_or_province_name='jiangsu',
+                country_name='cn',
+                user_id='user_id',
+                domain_component='test.com',
+                email_address='user@test.com'
+            ))
+
+        dn = common_utils.get_certificate_subject_dn(cert_pem)
+        self.assertEqual('test', dn.get('CN'))
+        self.assertEqual('dev', dn.get('O'))
+        self.assertEqual('suzhou', dn.get('L'))
+        self.assertEqual('jiangsu', dn.get('ST'))
+        self.assertEqual('cn', dn.get('C'))
+        self.assertEqual('user_id', dn.get('UID'))
+        self.assertEqual('test.com', dn.get('DC'))
+        self.assertEqual('user@test.com', dn.get('emailAddress'))
+
+    def test_get_certificate_issuer_dn(self):
+        root_cert, root_key = unit.create_certificate(
+            unit.create_dn(
+                country_name='jp',
+                state_or_province_name='kanagawa',
+                locality_name='kawasaki',
+                organization_name='fujitsu',
+                organizational_unit_name='test',
+                common_name='root'
+            ))
+
+        cert_pem = unit.create_pem_certificate(
+            unit.create_dn(
+                common_name='test',
+                organization_name='dev',
+                locality_name='suzhou',
+                state_or_province_name='jiangsu',
+                country_name='cn',
+                user_id='user_id',
+                domain_component='test.com',
+                email_address='user@test.com'
+            ), ca=root_cert, ca_key=root_key)
+
+        dn = common_utils.get_certificate_subject_dn(cert_pem)
+        self.assertEqual('test', dn.get('CN'))
+        self.assertEqual('dev', dn.get('O'))
+        self.assertEqual('suzhou', dn.get('L'))
+        self.assertEqual('jiangsu', dn.get('ST'))
+        self.assertEqual('cn', dn.get('C'))
+        self.assertEqual('user_id', dn.get('UID'))
+        self.assertEqual('test.com', dn.get('DC'))
+        self.assertEqual('user@test.com', dn.get('emailAddress'))
+
+        dn = common_utils.get_certificate_issuer_dn(cert_pem)
+        self.assertEqual('root', dn.get('CN'))
+        self.assertEqual('fujitsu', dn.get('O'))
+        self.assertEqual('kawasaki', dn.get('L'))
+        self.assertEqual('kanagawa', dn.get('ST'))
+        self.assertEqual('jp', dn.get('C'))
+        self.assertEqual('test', dn.get('OU'))
+
+    def test_get_certificate_subject_dn_not_pem_format(self):
+        self.assertRaises(
+            exception.ValidationError,
+            common_utils.get_certificate_subject_dn,
+            'MIIEkTCCAnkCFDIzsgpdRGF//5ukMuueXnRxQALhMA0GCSqGSIb3DQEBCwUAMIGC')
+
+    def test_get_certificate_issuer_dn_not_pem_format(self):
+        self.assertRaises(
+            exception.ValidationError,
+            common_utils.get_certificate_issuer_dn,
+            'MIIEkTCCAnkCFDIzsgpdRGF//5ukMuueXnRxQALhMA0GCSqGSIb3DQEBCwUAMIGC')
+
+    def test_get_certificate_thumbprint(self):
+        cert_pem = '''-----BEGIN CERTIFICATE-----
+        MIIEkTCCAnkCFDIzsgpdRGF//5ukMuueXnRxQALhMA0GCSqGSIb3DQEBCwUAMIGC
+        MQswCQYDVQQGEwJjbjEQMA4GA1UECAwHamlhbmdzdTEPMA0GA1UEBwwGc3V6aG91
+        MQ0wCwYDVQQKDARqZnR0MQwwCgYDVQQLDANkZXYxEzARBgNVBAMMCnJvb3QubG9j
+        YWwxHjAcBgkqhkiG9w0BCQEWD3Rlc3RAcm9vdC5sb2NhbDAeFw0yMjA2MTYwNzM3
+        NTZaFw0yMjEyMTMwNzM3NTZaMIGGMQswCQYDVQQGEwJjbjEQMA4GA1UECAwHamlh
+        bmdzdTEPMA0GA1UEBwwGc3V6aG91MQ0wCwYDVQQKDARqZnR0MQwwCgYDVQQLDANk
+        ZXYxFTATBgNVBAMMDGNsaWVudC5sb2NhbDEgMB4GCSqGSIb3DQEJARYRdGVzdEBj
+        bGllbnQubG9jYWwwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCah1Uz
+        2OVbk8zLslxxGV+AR6FTy9b/VoinmB6A0jJA1Zz2D6rsjN2S5xQ5wHIO2WSVX9Ry
+        SonOmeZZqRA9faNJcNNcrBhJICScAhMGHCuli3EUMry/6xK0OYHGgI2X6mcTaIjv
+        tFKHO1BCb5YGdNBa+ff+ncTeVX/PeN3nKjA4xvQb9JZxJTgY0JVhledbaoepFSdW
+        EFW0nbUF+8lj1gCo5E4cAX1eTcUKs43FnWGCJcJT6FB1vP9x8e4h9p0RWbb9GMrU
+        DXKbzF5e28qIiCkYHv2/A/G/J+aeg2K4Cbqy+8908I5BdWZEsJBhWJ0+CEtC3n91
+        fU6dnAyipO496aa/AgMBAAEwDQYJKoZIhvcNAQELBQADggIBABoOOmLrWNlQzodS
+        n2wfkiF0Lz+pj3FKFPz3sYUYWkAiKXU/6RRu1Md7INRo0MFau4iAN8Raq4JFdbnU
+        HRN9G/UU58ETqi/8cYfOA2+MHHRif1Al9YSvTgHQa6ljZPttGeigOqmGlovPd+7R
+        vLXlKtcr5XBVk9pWPmVpwtAN3bMVlphgEqBO26Ff9J3G5PaNQ6UdpwXC19mRqk6r
+        BUsFBRwy7EeeGNy8DvoHTJfMc2JUbLjesSMOmIkaOGbhe327iRd/GJe4dO91+prE
+        HNWVR/bVoGiUZvSLPqrwU173XbdNd6yMKC+fULICI34eaWDe1zHrg9XdRxtessUx
+        OyJw5bgH09lOs8DSYXjFyx5lDxtERKHaLRgpSNd5foQO/mHiegC2qmdtxqKyOwub
+        V/h6vziDsFZfciwmo6iw3ZpdBvjbYqw32joURQ1IVh1naY6ZzMwq/PsyYVhMYUNB
+        XYPKvm68YfKuYmpwF7Z5Wll4EWm5DTq1dbmjdo+OQsMyiwWepWE0WV7Ng+AEbTqP
+        /akzUXt/AEbbBpZskB6v5q/YOcglWuAQVXs2viguyDvOQVbEB7JKDi4xzlZg3kQP
+        apjt17fip7wQi2jJkwdyAqvrdi/xLhK5+6BSo04lNc8sGZ9wToIoNkgv0cG+BrVU
+        4cJHNiTQl8bxfSgwemgSYnnyXM4k
+        -----END CERTIFICATE-----'''
+        thumbprint = common_utils.get_certificate_thumbprint(cert_pem)
+        self.assertEqual('dMmoJKE9MIJK9VcyahYCb417JDhDfdtTiq_krco8-tk=',
+                         thumbprint)
+
 
 class ServiceHelperTests(unit.BaseTestCase):
 

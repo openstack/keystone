@@ -28,6 +28,10 @@ import socket
 import sys
 import uuid
 
+from cryptography.hazmat.primitives.asymmetric import rsa
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives.serialization import Encoding
+from cryptography import x509
 import fixtures
 import flask
 from flask import testing as flask_testing
@@ -431,6 +435,77 @@ def new_totp_credential(user_id, project_id=None, blob=None):
                                     blob=blob,
                                     type='totp')
     return credential
+
+
+def create_dn(
+    common_name=None,
+    locality_name=None,
+    state_or_province_name=None,
+    organization_name=None,
+    organizational_unit_name=None,
+    country_name=None,
+    street_address=None,
+    domain_component=None,
+    user_id=None,
+    email_address=None,
+):
+    oid = x509.NameOID
+    attr = x509.NameAttribute
+    dn = []
+    if common_name:
+        dn.append(attr(oid.COMMON_NAME, common_name))
+    if locality_name:
+        dn.append(attr(oid.LOCALITY_NAME, locality_name))
+    if state_or_province_name:
+        dn.append(attr(oid.STATE_OR_PROVINCE_NAME, state_or_province_name))
+    if organization_name:
+        dn.append(attr(oid.ORGANIZATION_NAME, organization_name))
+    if organizational_unit_name:
+        dn.append(attr(oid.ORGANIZATIONAL_UNIT_NAME, organizational_unit_name))
+    if country_name:
+        dn.append(attr(oid.COUNTRY_NAME, country_name))
+    if street_address:
+        dn.append(attr(oid.STREET_ADDRESS, street_address))
+    if domain_component:
+        dn.append(attr(oid.DOMAIN_COMPONENT, domain_component))
+    if user_id:
+        dn.append(attr(oid.USER_ID, user_id))
+    if email_address:
+        dn.append(attr(oid.EMAIL_ADDRESS, email_address))
+    return x509.Name(dn)
+
+
+def update_dn(dn1, dn2):
+    dn1_attrs = {attr.oid: attr for attr in dn1}
+    dn2_attrs = {attr.oid: attr for attr in dn2}
+    dn1_attrs.update(dn2_attrs)
+    return x509.Name([attr for attr in dn1_attrs.values()])
+
+
+def create_certificate(subject_dn, ca=None, ca_key=None):
+    private_key = rsa.generate_private_key(
+        public_exponent=65537,
+        key_size=2048,
+    )
+    issuer = ca.subject if ca else subject_dn
+    if not ca_key:
+        ca_key = private_key
+    today = datetime.datetime.today()
+    cert = x509.CertificateBuilder(
+        issuer_name=issuer,
+        subject_name=subject_dn,
+        public_key=private_key.public_key(),
+        serial_number=x509.random_serial_number(),
+        not_valid_before=today,
+        not_valid_after=today + datetime.timedelta(365, 0, 0),
+    ).sign(ca_key, hashes.SHA256())
+
+    return cert, private_key
+
+
+def create_pem_certificate(subject_dn, ca=None, ca_key=None):
+    cert, _ = create_certificate(subject_dn, ca=ca, ca_key=ca_key)
+    return cert.public_bytes(Encoding.PEM).decode('ascii')
 
 
 def new_application_credential_ref(roles=None,

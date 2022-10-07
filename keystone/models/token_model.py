@@ -79,6 +79,9 @@ class TokenModel(object):
         self.application_credential_id = None
         self.__application_credential = None
 
+        self.oauth2_credential_id = None
+        self.oauth2_thumbprint = None
+
     def __repr__(self):
         """Return string representation of TokenModel."""
         desc = ('<%(type)s (audit_id=%(audit_id)s, '
@@ -439,6 +442,9 @@ class TokenModel(object):
                 roles.append({'id': role['id'], 'name': role['name']})
 
         return roles
+
+    def _get_oauth2_credential_roles(self):
+        return self._get_project_roles()
 
     @property
     def roles(self):

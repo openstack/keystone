@@ -15,7 +15,7 @@
 #    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 #    License for the specific language governing permissions and limitations
 #    under the License.
-
+import base64
 import collections.abc
 import contextlib
 import grp
@@ -25,6 +25,7 @@ import os
 import pwd
 import uuid
 
+from cryptography import x509
 from oslo_log import log
 from oslo_serialization import jsonutils
 from oslo_utils import reflection
@@ -58,6 +59,14 @@ verify_length_and_trunc_password = password_hashing.verify_length_and_trunc_pass
 hash_password = password_hashing.hash_password
 hash_user_password = password_hashing.hash_user_password
 check_password = password_hashing.check_password
+
+
+# NOTE(hiromu): This dict defines alternative DN string for X.509. When
+# retriving DN from X.509, converting attributes types that are not listed
+# in the RFC4514 to a corresponding alternative DN string.
+ATTR_NAME_OVERRIDES = {
+    x509.NameOID.EMAIL_ADDRESS: "emailAddress",
+}
 
 
 def resource_uuid(value):
@@ -456,6 +465,61 @@ def check_endpoint_url(url):
         url.replace('$(', '%(') % substitutions
     except (KeyError, TypeError, ValueError):
         raise exception.URLValidationError(url=url)
+
+
+def get_certificate_subject_dn(cert_pem):
+    """Get subject DN from the PEM certificate content.
+
+    :param str cert_pem: the PEM certificate content
+    :rtype: JSON data for subject DN
+    :raises keystone.exception.ValidationError: if the PEM certificate content
+        is invalid
+    """
+    dn_dict = {}
+    try:
+        cert = x509.load_pem_x509_certificate(cert_pem.encode('utf-8'))
+        for item in cert.subject:
+            name, value = item.rfc4514_string(
+                attr_name_overrides=ATTR_NAME_OVERRIDES).split('=')
+            dn_dict[name] = value
+    except Exception as error:
+        LOG.exception(error)
+        message = _('The certificate content is not PEM format.')
+        raise exception.ValidationError(message=message)
+    return dn_dict
+
+
+def get_certificate_issuer_dn(cert_pem):
+    """Get issuer DN from the PEM certificate content.
+
+    :param str cert_pem: the PEM certificate content
+    :rtype: JSON data for issuer DN
+    :raises keystone.exception.ValidationError: if the PEM certificate content
+        is invalid
+    """
+    dn_dict = {}
+    try:
+        cert = x509.load_pem_x509_certificate(cert_pem.encode('utf-8'))
+        for item in cert.issuer:
+            name, value = item.rfc4514_string(
+                attr_name_overrides=ATTR_NAME_OVERRIDES).split('=')
+            dn_dict[name] = value
+    except Exception as error:
+        LOG.exception(error)
+        message = _('The certificate content is not PEM format.')
+        raise exception.ValidationError(message=message)
+    return dn_dict
+
+
+def get_certificate_thumbprint(cert_pem):
+    """Get certificate thumbprint from the PEM certificate content.
+
+    :param str cert_pem: the PEM certificate content
+    :rtype: certificate thumbprint
+    """
+    thumb_sha256 = hashlib.sha256(cert_pem.encode('ascii')).digest()
+    thumbprint = base64.urlsafe_b64encode(thumb_sha256).decode('ascii')
+    return thumbprint
 
 
 def create_directory(directory, keystone_user_id=None, keystone_group_id=None):
