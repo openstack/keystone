@@ -5561,6 +5561,21 @@ class ApplicationCredentialAuth(test_v3.RestfulTestCase):
             self.v3_create_token(auth_data,
                                  expected_status=http_client.UNAUTHORIZED)
 
+    def test_application_credential_expiration_limits_token_expiration(self):
+        expires_at = datetime.datetime.utcnow() + datetime.timedelta(minutes=1)
+        app_cred = self._make_app_cred(expires=expires_at)
+        app_cred_ref = self.app_cred_api.create_application_credential(
+            app_cred)
+        auth_data = self.build_authentication_request(
+            app_cred_id=app_cred_ref['id'], secret=app_cred_ref['secret'])
+        resp = self.v3_create_token(auth_data,
+                                    expected_status=http_client.CREATED)
+        token = resp.headers.get('X-Subject-Token')
+        future = datetime.datetime.utcnow() + datetime.timedelta(minutes=2)
+        with freezegun.freeze_time(future):
+            self._validate_token(token,
+                                 expected_status=http_client.UNAUTHORIZED)
+
     def test_application_credential_fails_when_user_deleted(self):
         app_cred = self._make_app_cred()
         app_cred_ref = self.app_cred_api.create_application_credential(

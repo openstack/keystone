@@ -269,6 +269,23 @@ class Manager(manager.Manager):
                 default_expire_time(), subsecond=True
             )
 
+        # NOTE(d34dh0r53): If this token is being issued with an application
+        # credential and the application credential expires before the token
+        # we need to set the token expiration to be the same as the application
+        # credential. See CVE-2022-2447 for more information.
+        if app_cred_id is not None:
+            app_cred_api = PROVIDERS.application_credential_api
+            app_cred = app_cred_api.get_application_credential(
+                token.application_credential_id)
+            token_time = timeutils.normalize_time(
+                timeutils.parse_isotime(token.expires_at))
+            if (app_cred['expires_at'] is not None) and (
+                    token_time > app_cred['expires_at']):
+                token.expires_at = app_cred['expires_at'].isoformat()
+                LOG.debug('Resetting token expiration to the application'
+                          ' credential expiration: %s',
+                          app_cred['expires_at'].isoformat())
+
         token_id, issued_at = self.driver.generate_id_and_issued_at(token)
         token.mint(token_id, issued_at)
 
