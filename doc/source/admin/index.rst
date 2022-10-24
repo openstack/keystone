@@ -20,3 +20,4 @@ operators to help with administering a keystone deployment.
    authentication-mechanisms
    oauth2-usage-guide
    configure-https
+   oauth2-mtls-usage-guide
