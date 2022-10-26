@@ -156,10 +156,11 @@ class TokenFormatter(object):
         # characters. Even though Keystone isn't storing a Fernet token
         # anywhere, we can't say it isn't being stored somewhere else with
         # those kind of backend constraints.
-        if len(token) > 255:
-            LOG.info('Fernet token created with length of %d '
-                     'characters, which exceeds 255 characters',
-                     len(token))
+        if len(token) > CONF.max_token_size:
+            LOG.info(
+                f'Fernet token created with length of {len(token)} '
+                f'characters, which exceeds {CONF.max_token_size} characters',
+            )
 
         return token
 
