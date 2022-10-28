@@ -1,0 +1,23 @@
+---
+fixes:
+  - |
+    [`bug 1848342 <https://bugs.launchpad.net/keystone/+bug/1848342>`_]
+    There was an inconsistency in the ephemeral user update flow. Every time a
+    federated user logged in, keystone created an entry in the local_user
+    table instead of just updating the entries in the user and federated_user
+    tables, which caused duplicate entries when listing users. Now, the
+    keystone will not create the entry in the local_user table while updating
+    an ephemeral user.
+
+    If you are affected by this bug, a fix in the keystone database will be
+    needed so we recommend to dump the users' tables before doing this process:
+
+    mysql db example:
+        - mysqldump -h <mysql host> -p -P <mysql port> -u keystone keystone federated_user local_user user > user_tables.sql
+        - mysql -h <mysql host> -D keystone -p -P <mysql port> -u keystone -e 'delete from local_user where user_id in (select user_id from federated_user);'
+
+    SQL:
+     - delete from local_user where user_id in (select user_id from federated_user);
+
+
+

@@ -12,6 +12,7 @@
 
 import uuid
 
+from keystone.common import driver_hints
 from keystone.common import provider_api
 
 PROVIDERS = provider_api.ProviderAPIs
@@ -62,3 +63,33 @@ class ShadowUsersCoreTests(object):
 
         # The shadowed users still share the same unique ID.
         self.assertEqual(shadow_user1['id'], shadow_user2['id'])
+
+    def test_shadow_federated_user_not_creating_a_local_user(self):
+        PROVIDERS.identity_api.shadow_federated_user(
+            self.federated_user['idp_id'],
+            self.federated_user['protocol_id'],
+            self.federated_user['unique_id'],
+            self.federated_user['display_name'],
+            "some_id@mail.provider")
+
+        hints = driver_hints.Hints()
+        hints.add_filter('name', self.federated_user['display_name'])
+        users = PROVIDERS.identity_api.list_users(hints=hints)
+
+        self.assertEqual(1, len(users))
+
+        # Avoid caching
+        self.federated_user['display_name'] = uuid.uuid4().hex
+
+        PROVIDERS.identity_api.shadow_federated_user(
+            self.federated_user['idp_id'],
+            self.federated_user['protocol_id'],
+            self.federated_user['unique_id'],
+            self.federated_user['display_name'],
+            "some_id@mail.provider")
+
+        hints.add_filter('name', self.federated_user['display_name'])
+        users = PROVIDERS.identity_api.list_users(hints=hints)
+
+        # The number os users must remain 1
+        self.assertEqual(1, len(users))
