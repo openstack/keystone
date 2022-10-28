@@ -251,7 +251,7 @@ class DirectMaps(object):
         self._matches = []
 
     def __str__(self):
-        """return the direct map array as a string."""
+        """Return the direct map array as a string."""
         return '%s' % self._matches
 
     def add(self, values):

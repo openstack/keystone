@@ -228,6 +228,7 @@ class MigrateBase(
     db_fixtures.OpportunisticDBTestMixin,
 ):
     """Test complete orchestration between all database phases."""
+
     def setUp(self):
         super().setUp()
 

@@ -23,7 +23,7 @@ def symptom_database_connection_is_not_SQLite():
     migrations, making it unsuitable for use in keystone. Please change your
     `keystone.conf [database] connection` value to point to a supported
     database driver, such as MySQL.
-    """
+    """  # noqa: D403
     return (
         CONF.database.connection is not None
         and 'sqlite' in CONF.database.connection)

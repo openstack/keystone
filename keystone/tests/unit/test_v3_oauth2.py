@@ -113,8 +113,7 @@ class AccessTokenTests(OAuth2Tests):
     def _create_access_token(self, client):
         pass
 
-    def _get_access_token_method_not_allowed(self, app_cred,
-                                             http_func):
+    def _get_access_token_method_not_allowed(self, app_cred, http_func):
         client_id = app_cred.get('id')
         client_secret = app_cred.get('secret')
         b64str = b64encode(
@@ -139,7 +138,6 @@ class AccessTokenTests(OAuth2Tests):
 
     def test_get_access_token(self):
         """Test case when an access token can be successfully obtain."""
-
         client_name = 'client_name_test'
         app_cred = self._create_app_cred(self.user_id, client_name)
         resp = self._get_access_token(
@@ -155,7 +153,6 @@ class AccessTokenTests(OAuth2Tests):
 
     def test_get_access_token_without_client_auth(self):
         """Test case when there is no client authorization."""
-
         client_name = 'client_name_test'
         app_cred = self._create_app_cred(self.user_id, client_name)
         headers = {
@@ -181,7 +178,6 @@ class AccessTokenTests(OAuth2Tests):
 
     def test_get_access_token_auth_type_is_not_basic(self):
         """Test case when auth_type is not basic."""
-
         client_name = 'client_name_test'
         app_cred = self._create_app_cred(self.user_id, client_name)
         client_id = app_cred.get('id')
@@ -215,7 +211,6 @@ class AccessTokenTests(OAuth2Tests):
 
     def test_get_access_token_without_client_id(self):
         """Test case when there is no client_id."""
-
         client_name = 'client_name_test'
         app_cred = self._create_app_cred(self.user_id, client_name)
         client_secret = app_cred.get('secret')
@@ -241,7 +236,6 @@ class AccessTokenTests(OAuth2Tests):
 
     def test_get_access_token_without_client_secret(self):
         """Test case when there is no client_secret."""
-
         client_name = 'client_name_test'
         app_cred = self._create_app_cred(self.user_id, client_name)
         client_id = app_cred.get('id')
@@ -267,7 +261,6 @@ class AccessTokenTests(OAuth2Tests):
 
     def test_get_access_token_without_grant_type(self):
         """Test case when there is no grant_type."""
-
         client_name = 'client_name_test'
         app_cred = self._create_app_cred(self.user_id, client_name)
         data = {}
@@ -288,7 +281,6 @@ class AccessTokenTests(OAuth2Tests):
 
     def test_get_access_token_blank_grant_type(self):
         """Test case when grant_type is blank."""
-
         client_name = 'client_name_test'
         app_cred = self._create_app_cred(self.user_id, client_name)
         data = {
@@ -312,7 +304,6 @@ class AccessTokenTests(OAuth2Tests):
 
     def test_get_access_token_grant_type_is_not_client_credentials(self):
         """Test case when grant_type is not client_credentials."""
-
         client_name = 'client_name_test'
         app_cred = self._create_app_cred(self.user_id, client_name)
         data = {
@@ -336,7 +327,6 @@ class AccessTokenTests(OAuth2Tests):
 
     def test_get_access_token_failed_401(self):
         """Test case when client authentication failed."""
-
         client_name = 'client_name_test'
         app_cred = self._create_app_cred(self.user_id, client_name)
         error = 'invalid_client'
@@ -376,7 +366,6 @@ class AccessTokenTests(OAuth2Tests):
 
     def test_get_access_token_failed_400(self):
         """Test case when the called API is incorrect."""
-
         client_name = 'client_name_test'
         app_cred = self._create_app_cred(self.user_id, client_name)
         error = 'invalid_request'
@@ -412,7 +401,6 @@ class AccessTokenTests(OAuth2Tests):
 
     def test_get_access_token_failed_500_other(self):
         """Test case when unexpected error."""
-
         client_name = 'client_name_test'
         app_cred = self._create_app_cred(self.user_id, client_name)
         error = 'other_error'
@@ -448,7 +436,6 @@ class AccessTokenTests(OAuth2Tests):
 
     def test_get_access_token_failed_500(self):
         """Test case when internal server error."""
-
         client_name = 'client_name_test'
         app_cred = self._create_app_cred(self.user_id, client_name)
         error = 'other_error'
@@ -484,7 +471,6 @@ class AccessTokenTests(OAuth2Tests):
 
     def test_get_access_token_method_get_not_allowed(self):
         """Test case when the request is get method that is not allowed."""
-
         client_name = 'client_name_test'
         app_cred = self._create_app_cred(self.user_id, client_name)
         json_resp = self._get_access_token_method_not_allowed(
@@ -496,7 +482,6 @@ class AccessTokenTests(OAuth2Tests):
 
     def test_get_access_token_method_patch_not_allowed(self):
         """Test case when the request is patch method that is not allowed."""
-
         client_name = 'client_name_test'
         app_cred = self._create_app_cred(self.user_id, client_name)
         json_resp = self._get_access_token_method_not_allowed(
@@ -508,7 +493,6 @@ class AccessTokenTests(OAuth2Tests):
 
     def test_get_access_token_method_put_not_allowed(self):
         """Test case when the request is put method that is not allowed."""
-
         client_name = 'client_name_test'
         app_cred = self._create_app_cred(self.user_id, client_name)
         json_resp = self._get_access_token_method_not_allowed(
@@ -520,7 +504,6 @@ class AccessTokenTests(OAuth2Tests):
 
     def test_get_access_token_method_delete_not_allowed(self):
         """Test case when the request is delete method that is not allowed."""
-
         client_name = 'client_name_test'
         app_cred = self._create_app_cred(self.user_id, client_name)
         json_resp = self._get_access_token_method_not_allowed(
@@ -532,7 +515,6 @@ class AccessTokenTests(OAuth2Tests):
 
     def test_get_access_token_method_head_not_allowed(self):
         """Test case when the request is head method that is not allowed."""
-
         client_name = 'client_name_test'
         app_cred = self._create_app_cred(self.user_id, client_name)
         client_id = app_cred.get('id')
