@@ -1,0 +1,33 @@
+version: "3"
+
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    command: start-dev --log-level debug --log=console,file --https-certificate-file=/etc/certs/devstack-cert.pem --https-certificate-key-file=/etc/certs/devstack-cert.pem
+    container_name: oidc_keycloak_1
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: nomoresecret
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: nomoresecret
+      KEYCLOAK_LOG_LEVEL: DEBUG
+      DB_VENDOR: mariadb
+      DB_DATABASE: keycloak
+      DB_USER: keycloak
+      DB_PASSWORD: "nomoresecret"
+      DB_ADDR: "keycloak-database"
+      DB_PORT: "3306"
+      JAVA_OPTS: "-server -Xms128m -Xmx1024m -XX:MetaspaceSize=128M -XX:MaxMetaspaceSize=512m -Djava.net.preferIPv4Stack=true -Djboss.modules.system.pkgs=org.jboss.byteman -Djava.awt.headless=true"
+    ports:
+      - "8088:8080"  # host:container
+      - "8443:8443"
+    volumes:
+            - DEVSTACK_DEST:/etc/certs:rw
+
+  keycloak-database:
+    image: quay.io/metal3-io/mariadb:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: nomoresecret
+      MYSQL_DATABASE: keycloak
+      MYSQL_USER: keycloak
+      MYSQL_PASSWORD: nomoresecret

@@ -202,6 +202,21 @@
     name: keystone-dsvm-py35-functional-federation
     parent: keystone-dsvm-py35-functional-federation-ubuntu-xenial
 
+# Experimental
+- job:
+    name: keystone-dsvm-functional-oidc-federation
+    parent: keystone-dsvm-functional
+    vars:
+      devstack_localrc:
+        TEMPEST_PLUGINS: '/opt/stack/keystone-tempest-plugin'
+        USE_PYTHON3: True
+        OS_CACERT: '/opt/stack/data/ca_bundle.pem'
+      devstack_services:
+        tls-proxy: true
+        keystone-oidc-federation: true
+      devstack_plugins:
+        keystone: https://opendev.org/openstack/keystone
+
 - project:
     templates:
       - openstack-cover-jobs
@@ -278,4 +293,6 @@
         - keystone-dsvm-functional-federation-ubuntu-xenial:
             irrelevant-files: *irrelevant-files
         - keystone-dsvm-py35-functional-federation-ubuntu-xenial:
+            irrelevant-files: *irrelevant-files
+        - keystone-dsvm-functional-oidc-federation:
             irrelevant-files: *irrelevant-files
