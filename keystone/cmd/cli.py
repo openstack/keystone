@@ -183,6 +183,7 @@ class BootStrap(BaseApp):
             self.bootstrapper.immutable_roles = True
 
         self.bootstrapper.bootstrap()
+        self.service_role_id = self.bootstrapper.service_role_id
         self.reader_role_id = self.bootstrapper.reader_role_id
         self.member_role_id = self.bootstrapper.member_role_id
         self.role_id = self.bootstrapper.admin_role_id

@@ -134,14 +134,24 @@ class CliBootStrapTestCase(unit.SQLDriverOverrides, unit.TestCase):
         admin_role = PROVIDERS.role_api.get_role(bootstrap.role_id)
         reader_role = PROVIDERS.role_api.get_role(bootstrap.reader_role_id)
         member_role = PROVIDERS.role_api.get_role(bootstrap.member_role_id)
+        service_role = PROVIDERS.role_api.get_role(bootstrap.service_role_id)
         role_list = (
             PROVIDERS.assignment_api.get_roles_for_user_and_project(
                 user['id'],
                 project['id']))
-        self.assertIs(3, len(role_list))
+
+        role_list_len = 4
+        if bootstrap.bootstrapper.project_name:
+            role_list_len = 3
+
+        self.assertIs(role_list_len, len(role_list))
         self.assertIn(admin_role['id'], role_list)
         self.assertIn(reader_role['id'], role_list)
         self.assertIn(member_role['id'], role_list)
+
+        if not bootstrap.bootstrapper.project_name:
+            self.assertIn(service_role['id'], role_list)
+
         system_roles = (
             PROVIDERS.assignment_api.list_system_grants_for_user(
                 user['id']
@@ -352,7 +362,7 @@ class CliBootStrapTestCase(unit.SQLDriverOverrides, unit.TestCase):
         domain = PROVIDERS.resource_api.create_domain(domain['id'], domain)
         domain_roles = {}
 
-        for name in ['admin', 'member', 'reader']:
+        for name in ['admin', 'member', 'reader', 'service']:
             domain_role = {
                 'domain_id': domain['id'],
                 'id': uuid.uuid4().hex,
