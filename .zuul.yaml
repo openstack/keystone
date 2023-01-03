@@ -205,7 +205,7 @@
 - project:
     templates:
       - openstack-cover-jobs
-      - openstack-python3-zed-jobs
+      - openstack-python3-jobs
       - publish-openstack-docs-pti
       - periodic-stable-jobs
       - check-requirements
