@@ -1468,9 +1468,11 @@ class CADFNotificationsDataTestCase(test_v3.RestfulTestCase):
         observer = None
         resource_type = EXP_RESOURCE_TYPE
 
-        ref = unit.new_service_ref()
-        ref['type'] = 'identity'
-        PROVIDERS.catalog_api.create_service(ref['id'], ref.copy())
+        ref = getattr(self, 'service', None)
+        if ref is None or ref['type'] != 'identity':
+            ref = unit.new_service_ref()
+            ref['type'] = 'identity'
+            PROVIDERS.catalog_api.create_service(ref['id'], ref.copy())
 
         action = CREATED_OPERATION + '.' + resource_type
         initiator = notifications._get_request_audit_info(self.user_id)
