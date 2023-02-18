@@ -351,9 +351,11 @@ class AuthContextMiddleware(provider_api.ProviderAPIMixin,
 
         if not context_env.get('is_admin', False):
             resp = super(AuthContextMiddleware, self).process_request(request)
-
             if resp:
                 return resp
+            if request.token_auth.has_user_token and \
+                    not request.user_token_valid:
+                raise exception.Unauthorized(_('Not authorized.'))
             if request.token_auth.user is not None:
                 request.set_user_headers(request.token_auth.user)
 
