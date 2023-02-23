@@ -163,12 +163,23 @@ class LdapPoolCommonTestMixin(object):
 
         # Then open 3 connections again and make sure size does not grow
         # over 3
-        with _get_conn() as _:  # conn1
+        with _get_conn() as c1:  # conn1
+            self.assertEqual(3, len(ldappool_cm))
+            c1.connected = False
+            with _get_conn() as c2:  # conn2
+                self.assertEqual(3, len(ldappool_cm))
+                c2.connected = False
+                with _get_conn() as c3:  # conn3
+                    c3.connected = False
+                    c3.unbind_ext_s()
+                    self.assertEqual(3, len(ldappool_cm))
+
+        with _get_conn() as c1:  # conn1
             self.assertEqual(1, len(ldappool_cm))
-            with _get_conn() as _:  # conn2
+            with _get_conn() as c2:  # conn2
                 self.assertEqual(2, len(ldappool_cm))
-                with _get_conn() as _:  # conn3
-                    _.unbind_ext_s()
+                with _get_conn() as c3:  # conn3
+                    c3.unbind_ext_s()
                     self.assertEqual(3, len(ldappool_cm))
 
     def test_password_change_with_pool(self):
@@ -208,6 +219,105 @@ class LdapPoolCommonTestMixin(object):
                               PROVIDERS.identity_api.authenticate,
                               user_id=self.user_sna['id'],
                               password=old_password)
+
+    @mock.patch.object(fakeldap.FakeLdap, 'search_ext')
+    def test_search_ext_ensure_pool_connection_released(self, mock_search_ext):
+        """Test search_ext exception resiliency.
+
+        Call search_ext function in isolation. Doing so will cause
+        search_ext to borrow a connection from the pool and associate
+        it with an AsynchronousMessage object. Borrowed connection ought
+        to be released if anything goes wrong during LDAP API call. This
+        test case intentionally throws an exception to ensure everything
+        goes as expected when LDAP connection raises an exception.
+        """
+        class CustomDummyException(Exception):
+            pass
+
+        # Throw an exception intentionally when LDAP
+        # connection search_ext function is called
+        mock_search_ext.side_effect = CustomDummyException()
+        self.config_fixture.config(group='ldap', pool_size=1)
+        pool = self.conn_pools[CONF.ldap.url]
+        user_api = ldap.UserApi(CONF)
+
+        # setUp primes the pool so pool
+        # must have one connection
+        self.assertEqual(1, len(pool))
+        for i in range(1, 10):
+            handler = user_api.get_connection()
+            # Just to ensure that we're using pooled connections
+            self.assertIsInstance(handler.conn, common_ldap.PooledLDAPHandler)
+            # LDAP API will throw CustomDummyException. In this scenario
+            # we expect LDAP connection to be made available back to the
+            # pool.
+            self.assertRaises(
+                CustomDummyException,
+                lambda: handler.search_ext(
+                    'dc=example,dc=test',
+                    'dummy',
+                    'objectclass=*',
+                    ['mail', 'userPassword']
+                )
+            )
+            # Pooled connection must not be evicted from the pool
+            self.assertEqual(1, len(pool))
+            # Ensure that the connection is inactive afterwards
+            with pool._pool_lock:
+                for slot, conn in enumerate(pool._pool):
+                    self.assertFalse(conn.active)
+
+            self.assertEqual(mock_search_ext.call_count, i)
+
+    @mock.patch.object(fakeldap.FakeLdap, 'result3')
+    def test_result3_ensure_pool_connection_released(self, mock_result3):
+        """Test search_ext-->result3 exception resiliency.
+
+        Call search_ext function, grab an AsynchronousMessage object and
+        call result3 with it. During the result3 call, LDAP API will throw
+        an exception.The expectation is that the associated LDAP pool
+        connection for AsynchronousMessage must be released back to the
+        LDAP connection pool.
+        """
+        class CustomDummyException(Exception):
+            pass
+
+        # Throw an exception intentionally when LDAP
+        # connection result3 function is called
+        mock_result3.side_effect = CustomDummyException()
+        self.config_fixture.config(group='ldap', pool_size=1)
+        pool = self.conn_pools[CONF.ldap.url]
+        user_api = ldap.UserApi(CONF)
+
+        # setUp primes the pool so pool
+        # must have one connection
+        self.assertEqual(1, len(pool))
+        for i in range(1, 10):
+            handler = user_api.get_connection()
+            # Just to ensure that we're using pooled connections
+            self.assertIsInstance(handler.conn, common_ldap.PooledLDAPHandler)
+            msg = handler.search_ext(
+                'dc=example,dc=test',
+                'dummy',
+                'objectclass=*',
+                ['mail', 'userPassword']
+            )
+            # Connection is in use, must be already marked active
+            self.assertTrue(msg.connection.active)
+            # Pooled connection must not be evicted from the pool
+            self.assertEqual(1, len(pool))
+            # LDAP API will throw CustomDummyException. In this
+            # scenario we expect LDAP connection to be made
+            # available back to the pool.
+            self.assertRaises(
+                CustomDummyException,
+                lambda: handler.result3(msg)
+            )
+            # Connection must be set inactive
+            self.assertFalse(msg.connection.active)
+            # Pooled connection must not be evicted from the pool
+            self.assertEqual(1, len(pool))
+            self.assertEqual(mock_result3.call_count, i)
 
 
 class LDAPIdentity(LdapPoolCommonTestMixin,
