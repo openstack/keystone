@@ -78,7 +78,7 @@ class Credential(base.CredentialDriverBase):
             return [ref.to_dict() for ref in refs]
 
     def _get_credential(self, session, credential_id):
-        ref = session.query(CredentialModel).get(credential_id)
+        ref = session.get(CredentialModel, credential_id)
         if ref is None:
             raise exception.CredentialNotFound(credential_id=credential_id)
         return ref

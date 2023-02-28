@@ -225,7 +225,7 @@ class UserResourceOptionTests(test_backend_sql.SqlTests):
 
     def _get_user_ref(self, user_id):
         with sql.session_for_read() as session:
-            return session.query(model.User).get(user_id)
+            return session.get(model.User, user_id)
 
     def _create_user(self, user_dict):
         user_dict['id'] = uuid.uuid4().hex
@@ -390,7 +390,7 @@ class DisableInactiveUserTests(test_backend_sql.SqlTests):
 
     def _get_user_ref(self, user_id):
         with sql.session_for_read() as session:
-            return session.query(model.User).get(user_id)
+            return session.get(model.User, user_id)
 
     def _create_user(self, user_dict, last_active_at):
         user_dict['id'] = uuid.uuid4().hex
@@ -402,7 +402,7 @@ class DisableInactiveUserTests(test_backend_sql.SqlTests):
 
     def _update_user_last_active_at(self, user_id, last_active_at):
         with sql.session_for_write() as session:
-            user_ref = session.query(model.User).get(user_id)
+            user_ref = session.get(model.User, user_id)
             user_ref.last_active_at = last_active_at
             return user_ref
 
@@ -794,7 +794,7 @@ class PasswordExpiresValidationTests(test_backend_sql.SqlTests):
         driver = PROVIDERS.identity_api.driver
         driver.create_user(user_dict['id'], user_dict)
         with sql.session_for_write() as session:
-            user_ref = session.query(model.User).get(user_dict['id'])
+            user_ref = session.get(model.User, user_dict['id'])
             user_ref.password_ref.created_at = password_created_at
             user_ref.password_ref.expires_at = (
                 user_ref._get_password_expires_at(password_created_at))
@@ -887,7 +887,7 @@ class MinimumPasswordAgeTests(test_backend_sql.SqlTests):
         # except the latest, need to have `created_at` slightly less than
         # the latest password.
         with sql.session_for_write() as session:
-            user_ref = session.query(model.User).get(user_id)
+            user_ref = session.get(model.User, user_id)
             latest_password = user_ref.password_ref
             slightly_less = datetime.timedelta(minutes=1)
             for password_ref in user_ref.local_user.passwords:

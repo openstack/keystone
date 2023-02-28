@@ -156,4 +156,4 @@ class ShadowUsersBackendTests(object):
 
     def _get_user_ref(self, user_id):
         with sql.session_for_read() as session:
-            return session.query(model.User).get(user_id)
+            return session.get(model.User, user_id)

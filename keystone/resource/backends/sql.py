@@ -39,7 +39,7 @@ class Resource(base.ResourceDriverBase):
         return ref.id == base.NULL_DOMAIN_ID
 
     def _get_project(self, session, project_id):
-        project_ref = session.query(sql_model.Project).get(project_id)
+        project_ref = session.get(sql_model.Project, project_id)
         if project_ref is None or self._is_hidden_ref(project_ref):
             raise exception.ProjectNotFound(project_id=project_id)
         return project_ref

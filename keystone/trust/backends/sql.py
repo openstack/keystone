@@ -185,7 +185,7 @@ class Trust(base.TrustDriverBase):
     @sql.handle_conflicts(conflict_type='trust')
     def delete_trust(self, trust_id):
         with sql.session_for_write() as session:
-            trust_ref = session.query(TrustModel).get(trust_id)
+            trust_ref = session.get(TrustModel, trust_id)
             if not trust_ref:
                 raise exception.TrustNotFound(trust_id=trust_id)
             trust_ref.deleted_at = timeutils.utcnow()

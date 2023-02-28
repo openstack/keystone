@@ -85,13 +85,6 @@ class WarningsFixture(fixtures.Fixture):
         warnings.filterwarnings(
             'ignore',
             module='keystone',
-            message=r'The Query.get\(\) method is considered legacy .*',
-            category=sqla_exc.SADeprecationWarning,
-        )
-
-        warnings.filterwarnings(
-            'ignore',
-            module='keystone',
             message=r'".*" object is being merged into a Session along .*',
             category=sqla_exc.SADeprecationWarning,
         )

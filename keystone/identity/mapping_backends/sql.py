@@ -64,7 +64,7 @@ class Mapping(base.MappingDriverBase):
 
     def get_id_mapping(self, public_id):
         with sql.session_for_read() as session:
-            mapping_ref = session.query(IDMapping).get(public_id)
+            mapping_ref = session.get(IDMapping, public_id)
             if mapping_ref:
                 return mapping_ref.to_dict()
 

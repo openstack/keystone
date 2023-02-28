@@ -113,7 +113,7 @@ class Identity(base.IdentityDriverBase):
 
     def _record_failed_auth(self, user_id):
         with sql.session_for_write() as session:
-            user_ref = session.query(model.User).get(user_id)
+            user_ref = session.get(model.User, user_id)
             if not user_ref.local_user.failed_auth_count:
                 user_ref.local_user.failed_auth_count = 0
             user_ref.local_user.failed_auth_count += 1
@@ -121,7 +121,7 @@ class Identity(base.IdentityDriverBase):
 
     def _reset_failed_auth(self, user_id):
         with sql.session_for_write() as session:
-            user_ref = session.query(model.User).get(user_id)
+            user_ref = session.get(model.User, user_id)
             user_ref.local_user.failed_auth_count = 0
             user_ref.local_user.failed_auth_at = None
 
@@ -189,7 +189,7 @@ class Identity(base.IdentityDriverBase):
                 user.default_project_id = None
 
     def _get_user(self, session, user_id):
-        user_ref = session.query(model.User).get(user_id)
+        user_ref = session.get(model.User, user_id)
         if not user_ref:
             raise exception.UserNotFound(user_id=user_id)
         return user_ref
@@ -258,7 +258,7 @@ class Identity(base.IdentityDriverBase):
 
     def change_password(self, user_id, new_password):
         with sql.session_for_write() as session:
-            user_ref = session.query(model.User).get(user_id)
+            user_ref = session.get(model.User, user_id)
             lock_pw_opt = user_ref.get_resource_option(
                 options.LOCK_PASSWORD_OPT.option_id)
             if lock_pw_opt is not None and lock_pw_opt.option_value is True:
@@ -407,7 +407,7 @@ class Identity(base.IdentityDriverBase):
             return [ref.to_dict() for ref in refs]
 
     def _get_group(self, session, group_id):
-        ref = session.query(model.Group).get(group_id)
+        ref = session.get(model.Group, group_id)
         if not ref:
             raise exception.GroupNotFound(group_id=group_id)
         return ref

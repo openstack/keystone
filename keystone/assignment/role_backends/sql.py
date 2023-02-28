@@ -60,7 +60,7 @@ class Role(base.RoleDriverBase):
                 return [role_ref.to_dict() for role_ref in role_refs]
 
     def _get_role(self, session, role_id):
-        ref = session.query(sql_model.RoleTable).get(role_id)
+        ref = session.get(sql_model.RoleTable, role_id)
         if ref is None:
             raise exception.RoleNotFound(role_id=role_id)
         return ref

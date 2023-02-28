@@ -98,7 +98,7 @@ class Catalog(base.CatalogDriverBase):
             return [s.to_dict() for s in list(regions)]
 
     def _get_region(self, session, region_id):
-        ref = session.query(Region).get(region_id)
+        ref = session.get(Region, region_id)
         if not ref:
             raise exception.RegionNotFound(region_id=region_id)
         return ref
@@ -186,7 +186,7 @@ class Catalog(base.CatalogDriverBase):
             return [s.to_dict() for s in list(services)]
 
     def _get_service(self, session, service_id):
-        ref = session.query(Service).get(service_id)
+        ref = session.get(Service, service_id)
         if not ref:
             raise exception.ServiceNotFound(service_id=service_id)
         return ref
@@ -437,8 +437,9 @@ class Catalog(base.CatalogDriverBase):
             session.add(endpoint_filter_ref)
 
     def _get_project_endpoint_ref(self, session, endpoint_id, project_id):
-        endpoint_filter_ref = session.query(ProjectEndpoint).get(
-            (endpoint_id, project_id))
+        endpoint_filter_ref = session.get(
+            ProjectEndpoint, (endpoint_id, project_id),
+        )
         if endpoint_filter_ref is None:
             msg = _('Endpoint %(endpoint_id)s not found in project '
                     '%(project_id)s') % {'endpoint_id': endpoint_id,
@@ -489,8 +490,7 @@ class Catalog(base.CatalogDriverBase):
             return endpoint_group_ref.to_dict()
 
     def _get_endpoint_group(self, session, endpoint_group_id):
-        endpoint_group_ref = session.query(EndpointGroup).get(
-            endpoint_group_id)
+        endpoint_group_ref = session.get(EndpointGroup, endpoint_group_id)
         if endpoint_group_ref is None:
             raise exception.EndpointGroupNotFound(
                 endpoint_group_id=endpoint_group_id)
@@ -539,9 +539,9 @@ class Catalog(base.CatalogDriverBase):
 
     def _get_endpoint_group_in_project(self, session,
                                        endpoint_group_id, project_id):
-        endpoint_group_project_ref = session.query(
-            ProjectEndpointGroupMembership).get((endpoint_group_id,
-                                                 project_id))
+        endpoint_group_project_ref = session.get(
+            ProjectEndpointGroupMembership, (endpoint_group_id, project_id),
+        )
         if endpoint_group_project_ref is None:
             msg = _('Endpoint Group Project Association not found')
             raise exception.NotFound(msg)
