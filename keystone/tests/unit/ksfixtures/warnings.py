@@ -106,13 +106,6 @@ class WarningsFixture(fixtures.Fixture):
         warnings.filterwarnings(
             'ignore',
             module='keystone',
-            message=r'The legacy calling style of select\(\) .*',
-            category=sqla_exc.SADeprecationWarning,
-        )
-
-        warnings.filterwarnings(
-            'ignore',
-            module='keystone',
             message=r'".*" object is being merged into a Session along .*',
             category=sqla_exc.SADeprecationWarning,
         )

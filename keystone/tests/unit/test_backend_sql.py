@@ -76,7 +76,7 @@ class DataTypeRoundTrips(SqlTests):
         with sql.session_for_read() as session:
             val = session.scalar(
                 sqlalchemy.select(
-                    [sqlalchemy.literal({"key": "value"}, type_=core.JsonBlob)]
+                    sqlalchemy.literal({"key": "value"}, type_=core.JsonBlob),
                 )
             )
 
@@ -95,7 +95,7 @@ class DataTypeRoundTrips(SqlTests):
         with sql.session_for_read() as session:
             val = session.scalar(
                 sqlalchemy.select(
-                    [sqlalchemy.cast(sqlalchemy.null(), type_=core.JsonBlob)]
+                    sqlalchemy.cast(sqlalchemy.null(), type_=core.JsonBlob),
                 )
             )
 
@@ -112,7 +112,7 @@ class DataTypeRoundTrips(SqlTests):
         with sql.session_for_read() as session:
             val = session.scalar(
                 sqlalchemy.select(
-                    [sqlalchemy.literal(None, type_=core.JsonBlob)]
+                    sqlalchemy.literal(None, type_=core.JsonBlob),
                 )
             )
 
@@ -123,12 +123,10 @@ class DataTypeRoundTrips(SqlTests):
         with sql.session_for_read() as session:
             val = session.scalar(
                 sqlalchemy.select(
-                    [
-                        sqlalchemy.cast(
-                            sqlalchemy.literal(None, type_=core.JsonBlob),
-                            sqlalchemy.String,
-                        )
-                    ]
+                    sqlalchemy.cast(
+                        sqlalchemy.literal(None, type_=core.JsonBlob),
+                        sqlalchemy.String,
+                    ),
                 )
             )
 
@@ -140,11 +138,9 @@ class DataTypeRoundTrips(SqlTests):
             datetime_value = datetime.datetime(2019, 5, 15, 10, 17, 55)
             val = session.scalar(
                 sqlalchemy.select(
-                    [
-                        sqlalchemy.literal(
-                            datetime_value, type_=core.DateTimeInt
-                        ),
-                    ]
+                    sqlalchemy.literal(
+                        datetime_value, type_=core.DateTimeInt
+                    ),
                 )
             )
 
@@ -156,14 +152,12 @@ class DataTypeRoundTrips(SqlTests):
             datetime_value = datetime.datetime(2019, 5, 15, 10, 17, 55)
             val = session.scalar(
                 sqlalchemy.select(
-                    [
-                        sqlalchemy.cast(
-                            sqlalchemy.literal(
-                                datetime_value, type_=core.DateTimeInt
-                            ),
-                            sqlalchemy.Integer
-                        )
-                    ]
+                    sqlalchemy.cast(
+                        sqlalchemy.literal(
+                            datetime_value, type_=core.DateTimeInt
+                        ),
+                        sqlalchemy.Integer
+                    ),
                 )
             )
 
@@ -174,9 +168,7 @@ class DataTypeRoundTrips(SqlTests):
         with sql.session_for_read() as session:
             val = session.scalar(
                 sqlalchemy.select(
-                    [
-                        sqlalchemy.literal(None, type_=core.DateTimeInt),
-                    ]
+                    sqlalchemy.literal(None, type_=core.DateTimeInt),
                 )
             )
 
