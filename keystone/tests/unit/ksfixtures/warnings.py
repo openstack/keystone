@@ -79,16 +79,6 @@ class WarningsFixture(fixtures.Fixture):
             category=sqla_exc.SADeprecationWarning,
         )
 
-        # ...but filter everything out until we get around to fixing them
-        # TODO(stephenfin): Fix all of these
-
-        warnings.filterwarnings(
-            'ignore',
-            module='keystone',
-            message=r'".*" object is being merged into a Session along .*',
-            category=sqla_exc.SADeprecationWarning,
-        )
-
         self.addCleanup(self._reset_warning_filters)
 
     def _reset_warning_filters(self):
