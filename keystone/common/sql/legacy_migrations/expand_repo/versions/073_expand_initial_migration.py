@@ -37,6 +37,10 @@ except Exception:
 
 def upgrade(migrate_engine):
     meta = sql.MetaData()
+
+    # NOTE(stephenfin): This is not compatible with SQLAlchemy 2.0 but neither
+    # is sqlalchemy-migrate which requires this. We'll remove these migrations
+    # when dropping SQLAlchemy < 2.x support
     meta.bind = migrate_engine
 
     if migrate_engine.name == 'mysql':
