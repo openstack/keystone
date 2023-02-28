@@ -49,7 +49,7 @@ def upgrade(migrate_engine):
     meta.bind = migrate_engine
     session = sql.orm.sessionmaker(bind=migrate_engine)()
 
-    project = sql.Table('project', meta, autoload=True)
+    project = sql.Table('project', meta, autoload_with=migrate_engine)
 
     root_domain_project = _generate_root_domain_project()
     new_entry = project.insert().values(**root_domain_project)

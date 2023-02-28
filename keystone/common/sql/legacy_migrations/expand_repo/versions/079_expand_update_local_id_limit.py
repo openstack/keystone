@@ -23,6 +23,6 @@ def upgrade(migrate_engine):
     meta.bind = migrate_engine
 
     id_mapping_table = sql.Table(
-        'id_mapping', meta, autoload=True
+        'id_mapping', meta, autoload_with=migrate_engine,
     )
     id_mapping_table.c.local_id.alter(type=sql.String(255))

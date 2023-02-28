@@ -99,13 +99,6 @@ class WarningsFixture(fixtures.Fixture):
         warnings.filterwarnings(
             'ignore',
             module='keystone',
-            message=r'The autoload parameter is deprecated .*',
-            category=sqla_exc.SADeprecationWarning,
-        )
-
-        warnings.filterwarnings(
-            'ignore',
-            module='keystone',
             message=r'".*" object is being merged into a Session along .*',
             category=sqla_exc.SADeprecationWarning,
         )
