@@ -134,6 +134,17 @@ class UtilsTestCase(unit.BaseTestCase):
                           common_utils.hash_password,
                           invalid_length_password)
 
+    def test_max_algo_length_truncates_password(self):
+        self.config_fixture.config(strict_password_check=True)
+        self.config_fixture.config(group='identity',
+                                   password_hash_algorithm='bcrypt')
+        self.config_fixture.config(group='identity',
+                                   max_password_length='64')
+        invalid_length_password = '0' * 64
+        self.assertRaises(exception.PasswordVerificationError,
+                          common_utils.hash_password,
+                          invalid_length_password)
+
     def _create_test_user(self, password=OPTIONAL):
         user = {"name": "hthtest"}
         if password is not self.OPTIONAL:
