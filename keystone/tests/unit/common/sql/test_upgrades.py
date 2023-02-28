@@ -21,7 +21,6 @@ test will then use that DB and username/password combo to run the tests.
 """
 
 import fixtures
-from migrate.versioning import api as migrate_api
 from oslo_db import options as db_options
 from oslo_db.sqlalchemy import enginefacade
 from oslo_db.sqlalchemy import test_fixtures
@@ -288,52 +287,6 @@ class TestModelsSyncMySQL(
 
 class TestModelsSyncPostgreSQL(
     KeystoneModelsMigrationsSync,
-    test_fixtures.OpportunisticDBTestMixin,
-    base.BaseTestCase,
-):
-    FIXTURE = test_fixtures.PostgresqlOpportunisticFixture
-
-
-class KeystoneModelsMigrationsLegacySync(KeystoneModelsMigrationsSync):
-    """Test that the models match the database after old migrations are run."""
-
-    def db_sync(self, engine):
-        # the 'upgrades._db_sync' method will not use the legacy
-        # sqlalchemy-migrate-based migration flow unless the database is
-        # already controlled with sqlalchemy-migrate, so we need to manually
-        # enable version controlling with this tool to test this code path
-        for branch in (
-            upgrades.EXPAND_BRANCH,
-            upgrades.DATA_MIGRATION_BRANCH,
-            upgrades.CONTRACT_BRANCH,
-        ):
-            repository = upgrades._find_migrate_repo(branch)
-            migrate_api.version_control(
-                engine, repository, upgrades.MIGRATE_INIT_VERSION)
-
-        # now we can apply migrations as expected and the legacy path will be
-        # followed
-        super().db_sync(engine)
-
-
-class TestModelsLegacySyncSQLite(
-    KeystoneModelsMigrationsLegacySync,
-    test_fixtures.OpportunisticDBTestMixin,
-    base.BaseTestCase,
-):
-    pass
-
-
-class TestModelsLegacySyncMySQL(
-    KeystoneModelsMigrationsLegacySync,
-    test_fixtures.OpportunisticDBTestMixin,
-    base.BaseTestCase,
-):
-    FIXTURE = test_fixtures.MySQLOpportunisticFixture
-
-
-class TestModelsLegacySyncPostgreSQL(
-    KeystoneModelsMigrationsLegacySync,
     test_fixtures.OpportunisticDBTestMixin,
     base.BaseTestCase,
 ):

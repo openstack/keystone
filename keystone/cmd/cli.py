@@ -286,14 +286,6 @@ class DbSync(BaseApp):
             )
             return 2
 
-        if isinstance(expand_version, int):
-            # we're still using sqlalchemy-migrate
-            LOG.info(
-                'Your database is currently using legacy version control. '
-                'Your first step is to run `keystone-manage db_sync --expand`.'
-            )
-            return 2
-
         try:
             contract_version = upgrades.get_db_version(branch='contract')
         except db_exception.DBMigrationError:

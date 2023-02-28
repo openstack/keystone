@@ -40,7 +40,6 @@ For further information, see `oslo.db documentation
 """
 
 import fixtures
-from migrate.versioning import script
 from oslo_db import options as db_options
 from oslo_db.sqlalchemy import enginefacade
 from oslo_db.sqlalchemy import test_fixtures as db_fixtures
@@ -238,11 +237,6 @@ class MigrateBase(
 
         self.engine = enginefacade.writer.get_engine()
         self.sessionmaker = enginefacade.writer.get_sessionmaker()
-
-        # NOTE(dstanek): Clear out sqlalchemy-migrate's script cache to allow
-        # us to have multiple repos (expand, migrate, contract) where the
-        # modules have the same name (001_awesome.py).
-        self.addCleanup(script.PythonScript.clear)
 
         db_options.set_defaults(CONF, connection=self.engine.url)
 
