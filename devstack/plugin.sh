@@ -14,7 +14,13 @@
 # under the License.
 
 KEYSTONE_PLUGIN=$DEST/keystone/devstack
-source $KEYSTONE_PLUGIN/lib/federation.sh
+
+if is_service_enabled keystone-saml2-federation; then
+    source $KEYSTONE_PLUGIN/lib/federation.sh
+elif is_service_enabled keystone-oidc-federation; then
+    source $KEYSTONE_PLUGIN/lib/oidc.sh
+fi
+
 source $KEYSTONE_PLUGIN/lib/scope.sh
 
 # For more information on Devstack plugins, including a more detailed
@@ -25,6 +31,10 @@ if [[ "$1" == "stack" && "$2" == "install" ]]; then
     # This phase is executed after the projects have been installed
     echo "Keystone plugin - Install phase"
     if is_service_enabled keystone-saml2-federation; then
+        echo "installing saml2 federation"
+        install_federation
+    elif is_service_enabled keystone-oidc-federation; then
+        echo "installing oidc federation"
         install_federation
     fi
 
@@ -33,6 +43,10 @@ elif [[ "$1" == "stack" && "$2" == "post-config" ]]; then
     # before they are started
     echo "Keystone plugin - Post-config phase"
     if is_service_enabled keystone-saml2-federation; then
+        echo "configuring saml2 federation"
+        configure_federation
+    elif is_service_enabled keystone-oidc-federation; then
+        echo "configuring oidc federation"
         configure_federation
     fi
 
@@ -40,12 +54,21 @@ elif [[ "$1" == "stack" && "$2" == "extra" ]]; then
     # This phase is executed after the projects have been started
     echo "Keystone plugin - Extra phase"
     if is_service_enabled keystone-saml2-federation; then
+        echo "registering saml2 federation"
+        register_federation
+    elif is_service_enabled keystone-oidc-federation; then
+        echo "registering oidc federation"
         register_federation
     fi
+
 elif [[ "$1" == "stack" && "$2" == "test-config" ]]; then
     # This phase is executed after Tempest was configured
     echo "Keystone plugin - Test-config phase"
     if is_service_enabled keystone-saml2-federation; then
+        echo "config tests settings for saml"
+        configure_tests_settings
+    elif is_service_enabled keystone-oidc-federation; then
+        echo "config tests settings for oidc"
         configure_tests_settings
     fi
     if [[ "$(trueorfalse False KEYSTONE_ENFORCE_SCOPE)" == "True" ]] ; then
@@ -66,6 +89,10 @@ if [[ "$1" == "clean" ]]; then
     # Called by clean.sh after the "unstack" phase
     # Undo what was performed during the "install" phase
     if is_service_enabled keystone-saml2-federation; then
+        echo "uninstalling saml"
+        uninstall_federation
+    elif is_service_enabled keystone-oidc-federation; then
+        echo "uninstalling oidc"
         uninstall_federation
     fi
 fi
