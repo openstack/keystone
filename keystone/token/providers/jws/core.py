@@ -70,7 +70,8 @@ class Provider(base.Provider):
             identity_provider_id=token.identity_provider_id,
             protocol_id=token.protocol_id,
             access_token_id=token.access_token_id,
-            app_cred_id=token.application_credential_id
+            app_cred_id=token.application_credential_id,
+            thumbprint=token.oauth2_thumbprint,
         )
 
     def validate_token(self, token_id):
@@ -106,7 +107,8 @@ class JWSFormatter(object):
                      system=None, domain_id=None, project_id=None,
                      trust_id=None, federated_group_ids=None,
                      identity_provider_id=None, protocol_id=None,
-                     access_token_id=None, app_cred_id=None):
+                     access_token_id=None, app_cred_id=None,
+                     thumbprint=None):
 
         issued_at = utils.isotime(subsecond=True)
         issued_at_int = self._convert_time_string_to_int(issued_at)
@@ -128,7 +130,8 @@ class JWSFormatter(object):
             'openstack_idp_id': identity_provider_id,
             'openstack_protocol_id': protocol_id,
             'openstack_access_token_id': access_token_id,
-            'openstack_app_cred_id': app_cred_id
+            'openstack_app_cred_id': app_cred_id,
+            'openstack_thumbprint': thumbprint,
         }
 
         # NOTE(lbragstad): Calling .items() on a dictionary in python 2 returns
@@ -164,6 +167,7 @@ class JWSFormatter(object):
         protocol_id = payload.get('openstack_protocol_id', None)
         access_token_id = payload.get('openstack_access_token_id', None)
         app_cred_id = payload.get('openstack_app_cred_id', None)
+        thumbprint = payload.get('openstack_thumbprint', None)
 
         issued_at = self._convert_time_int_to_string(issued_at_int)
         expires_at = self._convert_time_int_to_string(expires_at_int)
@@ -171,7 +175,7 @@ class JWSFormatter(object):
         return (
             user_id, methods, audit_ids, system, domain_id, project_id,
             trust_id, federated_group_ids, identity_provider_id, protocol_id,
-            access_token_id, app_cred_id, issued_at, expires_at
+            access_token_id, app_cred_id, thumbprint, issued_at, expires_at,
         )
 
     def _decode_token_from_id(self, token_id):

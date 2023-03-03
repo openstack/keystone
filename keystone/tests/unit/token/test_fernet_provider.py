@@ -317,7 +317,7 @@ class TestTokenFormatter(unit.TestCase):
 
         (user_id, methods, audit_ids, system, domain_id, project_id, trust_id,
          federated_group_ids, identity_provider_id, protocol_id,
-         access_token_id, app_cred_id, issued_at,
+         access_token_id, app_cred_id, thumbprint, issued_at,
          expires_at) = token_formatter.validate_token(token)
 
         self.assertEqual(exp_user_id, user_id)
@@ -352,7 +352,7 @@ class TestTokenFormatter(unit.TestCase):
 
         (user_id, methods, audit_ids, system, domain_id, project_id, trust_id,
          federated_group_ids, identity_provider_id, protocol_id,
-         access_token_id, app_cred_id, issued_at,
+         access_token_id, app_cred_id, thumbprint, issued_at,
          expires_at) = token_formatter.validate_token(token)
 
         self.assertEqual(exp_user_id, user_id)
@@ -473,7 +473,7 @@ class TestPayloads(unit.TestCase):
                       exp_trust_id=None, exp_federated_group_ids=None,
                       exp_identity_provider_id=None, exp_protocol_id=None,
                       exp_access_token_id=None, exp_app_cred_id=None,
-                      encode_ids=False):
+                      encode_ids=False, exp_thumbprint=None):
         def _encode_id(value):
             if value is not None and str(value) and encode_ids:
                 return value.encode('utf-8')
@@ -496,12 +496,14 @@ class TestPayloads(unit.TestCase):
             _encode_id(exp_identity_provider_id),
             exp_protocol_id,
             _encode_id(exp_access_token_id),
-            _encode_id(exp_app_cred_id))
+            _encode_id(exp_app_cred_id),
+            exp_thumbprint)
 
         (user_id, methods, system, project_id,
          domain_id, expires_at, audit_ids,
          trust_id, federated_group_ids, identity_provider_id, protocol_id,
-         access_token_id, app_cred_id) = payload_class.disassemble(payload)
+         access_token_id, app_cred_id,
+         thumbprint) = payload_class.disassemble(payload)
 
         self.assertEqual(exp_user_id, user_id)
         self.assertEqual(exp_methods, methods)

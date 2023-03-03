@@ -1,0 +1,13 @@
+---
+features:
+  - |
+    [`blueprint support-oauth2-mtls <https://blueprints.launchpad.net/keystone/+spec/support-oauth2-mtls>`_]
+    Provide the option for users to proof-of-possession of OAuth 2.0 access
+    token based on `RFC8705 OAuth 2.0 Mutual-TLS Client Authentication and
+    Certificate-Bound Access Tokens`. Users can now use the OAuth 2.0 Access
+    Token API to get an OAuth 2.0 certificate-bound access token from the
+    keystone identity server with OAuth 2.0 credentials and Mutual-TLS
+    certificates. Then users can use the OAuth 2.0 certificate-bound access
+    token and the Mutual-TLS certificates to access the OpenStack APIs that use
+    the keystone middleware to support OAuth 2.0 Mutual-TLS client
+    authentication.

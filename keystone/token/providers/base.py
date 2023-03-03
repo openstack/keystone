@@ -44,6 +44,7 @@ class Provider(object, metaclass=abc.ABCMeta):
         ``protocol_id`` unique ID of the protocol used to obtain the token
         ``access_token_id`` the unique ID of the access_token for OAuth1 tokens
         ``app_cred_id`` the unique ID of the application credential
+        ``param thumbprint`` thumbprint of the certificate for OAuth2.0 mTLS
         ``issued_at`` a datetime object of when the token was minted
         ``expires_at`` a datetime object of when the token expires
 

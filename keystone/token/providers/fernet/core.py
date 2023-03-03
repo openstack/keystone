@@ -58,6 +58,8 @@ class Provider(base.Provider):
                 return tf.FederatedUnscopedPayload
         elif token.application_credential_id:
             return tf.ApplicationCredentialScopedPayload
+        elif token.oauth2_thumbprint:
+            return tf.Oauth2CredentialsScopedPayload
         elif token.project_scoped:
             return tf.ProjectScopedPayload
         elif token.domain_scoped:
@@ -83,7 +85,8 @@ class Provider(base.Provider):
             identity_provider_id=token.identity_provider_id,
             protocol_id=token.protocol_id,
             access_token_id=token.access_token_id,
-            app_cred_id=token.application_credential_id
+            app_cred_id=token.application_credential_id,
+            thumbprint=token.oauth2_thumbprint,
         )
         creation_datetime_obj = self.token_formatter.creation_time(token_id)
         issued_at = ks_utils.isotime(

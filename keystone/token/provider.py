@@ -154,8 +154,8 @@ class Manager(manager.Manager):
     def _validate_token(self, token_id):
         (user_id, methods, audit_ids, system, domain_id,
             project_id, trust_id, federated_group_ids, identity_provider_id,
-            protocol_id, access_token_id, app_cred_id, issued_at,
-            expires_at) = self.driver.validate_token(token_id)
+            protocol_id, access_token_id, app_cred_id, thumbprint,
+            issued_at, expires_at) = self.driver.validate_token(token_id)
 
         token = token_model.TokenModel()
         token.user_id = user_id
@@ -169,6 +169,7 @@ class Manager(manager.Manager):
         token.trust_id = trust_id
         token.access_token_id = access_token_id
         token.application_credential_id = app_cred_id
+        token.oauth2_thumbprint = thumbprint
         token.expires_at = expires_at
         if federated_group_ids is not None:
             token.is_federated = True
@@ -221,7 +222,7 @@ class Manager(manager.Manager):
     def issue_token(self, user_id, method_names, expires_at=None,
                     system=None, project_id=None, domain_id=None,
                     auth_context=None, trust_id=None, app_cred_id=None,
-                    parent_audit_id=None):
+                    thumbprint=None, parent_audit_id=None):
 
         # NOTE(lbragstad): Grab a blank token object and use composition to
         # build the token according to the authentication and authorization
@@ -235,6 +236,7 @@ class Manager(manager.Manager):
         token.trust_id = trust_id
         token.application_credential_id = app_cred_id
         token.audit_id = random_urlsafe_str()
+        token.oauth2_thumbprint = thumbprint
         token.parent_audit_id = parent_audit_id
 
         if auth_context:
