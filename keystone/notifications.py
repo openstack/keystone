@@ -117,6 +117,13 @@ def build_audit_initiator():
     if oslo_context.global_request_id:
         initiator.global_request_id = oslo_context.global_request_id
 
+    try:
+        token_info = flask.request.environ['keystone.token_info']
+        app_cred_id = token_info['token']['application_credential']['id']
+        initiator.application_credential_id = app_cred_id
+    except KeyError:
+        pass
+
     return initiator
 
 
