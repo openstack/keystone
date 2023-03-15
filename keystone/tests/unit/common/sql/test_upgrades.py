@@ -147,18 +147,6 @@ class KeystoneModelsMigrationsSync(test_migrations.ModelsMigrationsSync):
                     ):
                         continue  # skip
             else:
-                # FIXME(stephenfin): These unique constraint are unecessary
-                # since the columns are already included in a primary key
-                # constraint. The constraints are ignored in PostgreSQL.
-                if element[0] == 'add_constraint':
-                    if (
-                        element[1].table.name,
-                        [x.name for x in element[1].columns],
-                    ) in (
-                        ('project_tag', ['project_id', 'name']),
-                    ):
-                        continue  # skip
-
                 # FIXME(stephenfin): These indexes are present in the
                 # migrations but not on the equivalent models. Resolve by
                 # updating the models.
