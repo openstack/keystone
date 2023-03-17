@@ -479,8 +479,9 @@ def get_certificate_subject_dn(cert_pem):
     try:
         cert = x509.load_pem_x509_certificate(cert_pem.encode('utf-8'))
         for item in cert.subject:
-            name, value = item.rfc4514_string(
-                attr_name_overrides=ATTR_NAME_OVERRIDES).split('=')
+            name, value = item.rfc4514_string().split('=')
+            if item.oid in ATTR_NAME_OVERRIDES:
+                name = ATTR_NAME_OVERRIDES[item.oid]
             dn_dict[name] = value
     except Exception as error:
         LOG.exception(error)
@@ -501,8 +502,9 @@ def get_certificate_issuer_dn(cert_pem):
     try:
         cert = x509.load_pem_x509_certificate(cert_pem.encode('utf-8'))
         for item in cert.issuer:
-            name, value = item.rfc4514_string(
-                attr_name_overrides=ATTR_NAME_OVERRIDES).split('=')
+            name, value = item.rfc4514_string().split('=')
+            if item.oid in ATTR_NAME_OVERRIDES:
+                name = ATTR_NAME_OVERRIDES[item.oid]
             dn_dict[name] = value
     except Exception as error:
         LOG.exception(error)
