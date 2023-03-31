@@ -652,7 +652,7 @@ class Manager(manager.Manager):
             role_refs_to_check = list(role_refs)
             ref_results = list(role_refs)
             checked_role_refs = list()
-            while(role_refs_to_check):
+            while role_refs_to_check:
                 next_ref = role_refs_to_check.pop()
                 checked_role_refs.append(next_ref)
                 next_role_id = next_ref['role_id']
