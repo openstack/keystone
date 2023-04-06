@@ -12,17 +12,30 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import oslo_config.cfg
 from oslo_log import log
 from oslo_serialization import jsonutils
 from sqlalchemy import orm
 
 from keystone.common import sql
+import keystone.conf
 from keystone import exception
 from keystone.federation.backends import base
 from keystone.i18n import _
 
-
+CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
+
+# FIXME(stephenfin): This is necessary to allow Sphinx to auto-generate
+# documentation. Sphinx's autogen extension doesn't/can't initialise
+# oslo.config and register options which means attempts to retrieve this value
+# fail. Using a configurable option for server_default feels like a bad idea
+# and we should probably remove server_default in favour of setting the value
+# in code.
+try:
+    service_provider_relay_state_prefix_default = CONF.saml.relay_state_prefix
+except oslo_config.cfg.NoSuchOptError:
+    service_provider_relay_state_prefix_default = 'ss:mem:'
 
 
 class FederationProtocolModel(sql.ModelBase, sql.ModelDictMixin):
@@ -156,7 +169,11 @@ class ServiceProviderModel(sql.ModelBase, sql.ModelDictMixin):
     description = sql.Column(sql.Text(), nullable=True)
     auth_url = sql.Column(sql.String(256), nullable=False)
     sp_url = sql.Column(sql.String(256), nullable=False)
-    relay_state_prefix = sql.Column(sql.String(256), nullable=False)
+    relay_state_prefix = sql.Column(
+        sql.String(256),
+        nullable=False,
+        server_default=service_provider_relay_state_prefix_default,
+    )
 
     @classmethod
     def from_dict(cls, dictionary):

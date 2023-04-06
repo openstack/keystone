@@ -34,19 +34,6 @@ target_metadata = core.ModelBase.metadata
 
 def include_object(object, name, type_, reflected, compare_to):
     BORKED_COLUMNS = (
-        # nullable values are incorrect
-        ('credential', 'encrypted_blob'),
-        ('credential', 'key_hash'),
-        ('federated_user', 'user_id'),
-        ('federated_user', 'idp_id'),
-        ('local_user', 'user_id'),
-        ('nonlocal_user', 'user_id'),
-        ('password', 'local_user_id'),
-        # default values are incorrect
-        ('password', 'created_at_int'),
-        ('password', 'self_service'),
-        ('project', 'is_domain'),
-        ('service_provider', 'relay_state_prefix'),
     )
 
     BORKED_UNIQUE_CONSTRAINTS = (
