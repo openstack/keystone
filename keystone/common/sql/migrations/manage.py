@@ -14,6 +14,7 @@
 # under the License.
 
 import copy
+import sys
 
 from alembic import command as alembic_command
 from alembic import script as alembic_script
@@ -27,27 +28,29 @@ from keystone.common.sql import upgrades
 import keystone.conf
 from keystone.i18n import _
 
-# We need to import all of these so the tables are registered. It would be
-# easier if these were all in a central location :(
-import keystone.application_credential.backends.sql  # noqa: F401
-import keystone.assignment.backends.sql  # noqa: F401
-import keystone.assignment.role_backends.sql_model  # noqa: F401
-import keystone.catalog.backends.sql  # noqa: F401
-import keystone.credential.backends.sql  # noqa: F401
-import keystone.endpoint_policy.backends.sql  # noqa: F401
-import keystone.federation.backends.sql  # noqa: F401
-import keystone.identity.backends.sql_model  # noqa: F401
-import keystone.identity.mapping_backends.sql  # noqa: F401
-import keystone.limit.backends.sql  # noqa: F401
-import keystone.oauth1.backends.sql  # noqa: F401
-import keystone.policy.backends.sql  # noqa: F401
-import keystone.resource.backends.sql_model  # noqa: F401
-import keystone.resource.config_backends.sql  # noqa: F401
-import keystone.revoke.backends.sql  # noqa: F401
-import keystone.trust.backends.sql  # noqa: F401
-
 CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
+
+
+def import_sql_modules():
+    # We need to import all of these so the tables are registered. It would be
+    # easier if these were all in a central location :(
+    import keystone.application_credential.backends.sql  # noqa: F401
+    import keystone.assignment.backends.sql  # noqa: F401
+    import keystone.assignment.role_backends.sql_model  # noqa: F401
+    import keystone.catalog.backends.sql  # noqa: F401
+    import keystone.credential.backends.sql  # noqa: F401
+    import keystone.endpoint_policy.backends.sql  # noqa: F401
+    import keystone.federation.backends.sql  # noqa: F401
+    import keystone.identity.backends.sql_model  # noqa: F401
+    import keystone.identity.mapping_backends.sql  # noqa: F401
+    import keystone.limit.backends.sql  # noqa: F401
+    import keystone.oauth1.backends.sql  # noqa: F401
+    import keystone.policy.backends.sql  # noqa: F401
+    import keystone.resource.backends.sql_model  # noqa: F401
+    import keystone.resource.config_backends.sql  # noqa: F401
+    import keystone.revoke.backends.sql  # noqa: F401
+    import keystone.trust.backends.sql  # noqa: F401
 
 
 def do_alembic_command(config, cmd, revision=None, **kwargs):
@@ -239,20 +242,33 @@ command_opt = cfg.SubCommandOpt(
 )
 
 
-def main():
+def main(argv):
     CONF.register_cli_opt(command_opt)
 
     keystone.conf.configure()
     sql.initialize()
+    keystone.conf.set_default_for_default_log_levels()
+
+    user_supplied_config_file = False
+    if argv:
+        for argument in argv:
+            if argument == '--config-file':
+                user_supplied_config_file = True
 
     CONF(
         project='keystone',
         version=pbr.version.VersionInfo('keystone').version_string(),
     )
+
+    if not CONF.default_config_files and not user_supplied_config_file:
+        LOG.warning('Config file not found, using default configs.')
+
+    import_sql_modules()
+
     config = upgrades.get_alembic_config()
 
     return bool(CONF.command.func(config, CONF.command.name))
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv)
