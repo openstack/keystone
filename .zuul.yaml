@@ -99,17 +99,6 @@
     name: keystone-dsvm-py3-functional-federation-ubuntu-jammy-k2k
     parent: keystone-tempest-federation-k2k
 
-# This job will execute 'tox -e upgrade' from the OSA
-# repo specified in 'osa_test_repo'.
-- job:
-    name: openstack-ansible-keystone-rolling-upgrade
-    parent: openstack-ansible-cross-repo-functional
-    required-projects:
-      - name: openstack/openstack-ansible-os_keystone
-    vars:
-      tox_env: upgrade
-      osa_test_repo: openstack/openstack-ansible-os_keystone
-
 - job:
     name: keystone-tempest-ldap-domain-specific-driver
     parent: devstack-tempest
@@ -209,8 +198,6 @@
     experimental:
       jobs:
         - keystone-grenade-multinode:
-            irrelevant-files: *irrelevant-files
-        - openstack-ansible-keystone-rolling-upgrade:
             irrelevant-files: *irrelevant-files
         - tempest-pg-full:
             irrelevant-files: *tempest-irrelevant-files
