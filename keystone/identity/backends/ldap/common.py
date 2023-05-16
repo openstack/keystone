@@ -872,10 +872,6 @@ class PooledLDAPHandler(LDAPHandler):
         # ultimately renders the pool unusable, causing a DoS.
         try:
             results = message.connection.result3(message.id, all, timeout)
-        except Exception:
-            # We don't want to ignore thrown
-            # exceptions, raise them
-            raise
         finally:
             # Now that we have the results from the LDAP server for
             # the message, we don't need the the context manager used
