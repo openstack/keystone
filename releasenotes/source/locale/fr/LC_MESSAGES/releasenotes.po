@@ -1,0 +1,120 @@
+# Gérald LONLAS <g.lonlas@gmail.com>, 2016. #zanata
+msgid ""
+msgstr ""
+"Project-Id-Version: Keystone Release Notes\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-05-16 18:13+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2016-10-22 05:03+0000\n"
+"Last-Translator: Gérald LONLAS <g.lonlas@gmail.com>\n"
+"Language-Team: French\n"
+"Language: fr\n"
+"X-Generator: Zanata 4.3.3\n"
+"Plural-Forms: nplurals=2; plural=(n > 1)\n"
+
+msgid "10.0.0"
+msgstr "10.0.0"
+
+msgid "8.0.1"
+msgstr "8.0.1"
+
+msgid "8.1.0"
+msgstr "8.1.0"
+
+msgid "9.0.0"
+msgstr "9.0.0"
+
+msgid "9.2.0"
+msgstr "9.2.0"
+
+msgid "Bug Fixes"
+msgstr "Corrections de bugs"
+
+msgid "Critical Issues"
+msgstr "Erreurs critiques"
+
+msgid "Current Series Release Notes"
+msgstr "Note de la release actuelle"
+
+msgid "Deprecation Notes"
+msgstr "Notes dépréciées "
+
+msgid "Keystone Release Notes"
+msgstr "Note de release de Keystone"
+
+msgid "Liberty Series Release Notes"
+msgstr "Note de release pour Liberty"
+
+msgid "Mitaka Series Release Notes"
+msgstr "Note de release pour Mitaka"
+
+msgid "New Features"
+msgstr "Nouvelles fonctionnalités"
+
+msgid "Newton Series Release Notes"
+msgstr "Note de release pour Newton"
+
+msgid "Other Notes"
+msgstr "Autres notes"
+
+msgid "Security Issues"
+msgstr "Problèmes de sécurités"
+
+msgid "Upgrade Notes"
+msgstr "Notes de mises à jours"
+
+msgid "``add user to group``"
+msgstr "``add user to group``"
+
+msgid "``create group``"
+msgstr "``create group``"
+
+msgid "``create user``"
+msgstr "``create user``"
+
+msgid "``delete group``"
+msgstr "``delete group``"
+
+msgid "``delete user``"
+msgstr "``delete user``"
+
+msgid "``keystone/common/cache/backends/memcache_pool``"
+msgstr "``keystone/common/cache/backends/memcache_pool``"
+
+msgid "``keystone/common/cache/backends/mongo``"
+msgstr "``keystone/common/cache/backends/mongo``"
+
+msgid "``keystone/common/cache/backends/noop``"
+msgstr "``keystone/common/cache/backends/noop``"
+
+msgid "``keystone/contrib/admin_crud``"
+msgstr "``keystone/contrib/admin_crud``"
+
+msgid "``keystone/contrib/endpoint_filter``"
+msgstr "``keystone/contrib/endpoint_filter``"
+
+msgid "``keystone/contrib/federation``"
+msgstr "``keystone/contrib/federation``"
+
+msgid "``keystone/contrib/oauth1``"
+msgstr "``keystone/contrib/oauth1``"
+
+msgid "``keystone/contrib/revoke``"
+msgstr "``keystone/contrib/revoke``"
+
+msgid "``keystone/contrib/simple_cert``"
+msgstr "``keystone/contrib/simple_cert``"
+
+msgid "``keystone/contrib/user_crud``"
+msgstr "``keystone/contrib/user_crud``"
+
+msgid "``remove user from group``"
+msgstr "``remove user from group``"
+
+msgid "``update group``"
+msgstr "``update group``"
+
+msgid "``update user``"
+msgstr "``update user``"
