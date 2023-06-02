@@ -1,0 +1,202 @@
+# Sungjin Kang <gang.sungjin@gmail.com>, 2017. #zanata
+# Ian Y. Choi <ianyrchoi@gmail.com>, 2018. #zanata
+msgid ""
+msgstr ""
+"Project-Id-Version: Keystone Release Notes\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-05-16 18:13+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"PO-Revision-Date: 2018-02-14 07:39+0000\n"
+"Last-Translator: Ian Y. Choi <ianyrchoi@gmail.com>\n"
+"Language-Team: Korean (South Korea)\n"
+"Language: ko_KR\n"
+"X-Generator: Zanata 4.3.3\n"
+"Plural-Forms: nplurals=1; plural=0\n"
+
+msgid "'/' and ',' are not allowed to be in a tag"
+msgstr "'/' 및 ',' 는 태그 내에서 허용하지 않습니다"
+
+msgid ""
+"**Experimental** - Domain specific configuration options can be stored in "
+"SQL instead of configuration files, using the new REST APIs."
+msgstr ""
+"**실험적 기능** - 도메인에 특화된 구성 옵션을 구성 파일 대신 SQL에 새로운 "
+"REST API를 사용하여 저장 가능합니다."
+
+msgid ""
+"**Experimental** - Keystone now supports tokenless authorization with X.509 "
+"SSL client certificate."
+msgstr ""
+"**실험적 기능** - Keystone이 이제 X.509 SSL 클라이언트 인증서를 사용한 토큰"
+"이 없는 인증 방식 (tokenless authorization)을 지원합니다."
+
+msgid "10.0.0"
+msgstr "10.0.0"
+
+msgid "10.0.1"
+msgstr "10.0.1"
+
+msgid "10.0.3"
+msgstr "10.0.3"
+
+msgid "11.0.0"
+msgstr "11.0.0"
+
+msgid "11.0.1"
+msgstr "11.0.1"
+
+msgid "11.0.3"
+msgstr "11.0.3"
+
+msgid "12.0.0"
+msgstr "12.0.0"
+
+msgid "8.0.1"
+msgstr "8.0.1"
+
+msgid "8.1.0"
+msgstr "8.1.0"
+
+msgid "9.0.0"
+msgstr "9.0.0"
+
+msgid "9.2.0"
+msgstr "9.2.0"
+
+msgid "Bug Fixes"
+msgstr "버그 수정"
+
+msgid "Critical Issues"
+msgstr "치명적인 이슈"
+
+msgid "Current Series Release Notes"
+msgstr "현재 시리즈 릴리즈 노트"
+
+msgid "Deprecation Notes"
+msgstr "지원 종료된 기능 노트"
+
+msgid ""
+"For additional details see: `event notifications <See https://docs.openstack."
+"org/developer/keystone/event_notifications.html>`_"
+msgstr ""
+"추가적으로 자세한 사항을 확인하려면 : `event notifications <See https://docs."
+"openstack.org/developer/keystone/event_notifications.html>`_"
+
+msgid "Keystone Release Notes"
+msgstr "Keystone 릴리즈 노트"
+
+msgid "Liberty Series Release Notes"
+msgstr "Liberty 시리즈 릴리즈 노트"
+
+msgid "Mitaka Series Release Notes"
+msgstr "Mitaka 시리즈 릴리즈 노트"
+
+msgid "New Features"
+msgstr "새로운 기능"
+
+msgid "Newton Series Release Notes"
+msgstr "Newton 시리즈 릴리즈 노트"
+
+msgid "Ocata Series Release Notes"
+msgstr "Ocata 시리즈 릴리즈 노트"
+
+msgid "Other Notes"
+msgstr "기타 기능"
+
+msgid "Pike Series Release Notes"
+msgstr "Pike 시리즈 릴리즈 노트"
+
+msgid "Queens Series Release Notes"
+msgstr "Queens 시리즈 릴리즈 노트"
+
+msgid "Security Issues"
+msgstr "보안 이슈"
+
+msgid "To::"
+msgstr "To::"
+
+msgid "Upgrade Notes"
+msgstr "업그레이드 노트"
+
+msgid "``add user to group``"
+msgstr "``add user to group``"
+
+msgid "``create group``"
+msgstr "``create group``"
+
+msgid "``create user``"
+msgstr "``create user``"
+
+msgid "``delete group``"
+msgstr "``delete group``"
+
+msgid "``delete user``"
+msgstr "``delete user``"
+
+msgid "``issue_v2_token``"
+msgstr "``issue_v2_token``"
+
+msgid "``issue_v3_token``"
+msgstr "``issue_v3_token``"
+
+msgid "``keystone.common.kvs.backends.inmemdb.MemoryBackend``"
+msgstr "``keystone.common.kvs.backends.inmemdb.MemoryBackend``"
+
+msgid "``keystone.common.kvs.backends.memcached.MemcachedBackend``"
+msgstr "``keystone.common.kvs.backends.memcached.MemcachedBackend``"
+
+msgid "``keystone.token.persistence.backends.kvs.Token``"
+msgstr "``keystone.token.persistence.backends.kvs.Token``"
+
+msgid "``keystone/common/cache/backends/memcache_pool``"
+msgstr "``keystone/common/cache/backends/memcache_pool``"
+
+msgid "``keystone/common/cache/backends/mongo``"
+msgstr "``keystone/common/cache/backends/mongo``"
+
+msgid "``keystone/common/cache/backends/noop``"
+msgstr "``keystone/common/cache/backends/noop``"
+
+msgid "``keystone/contrib/admin_crud``"
+msgstr "``keystone/contrib/admin_crud``"
+
+msgid "``keystone/contrib/endpoint_filter``"
+msgstr "``keystone/contrib/endpoint_filter``"
+
+msgid "``keystone/contrib/federation``"
+msgstr "``keystone/contrib/federation``"
+
+msgid "``keystone/contrib/oauth1``"
+msgstr "``keystone/contrib/oauth1``"
+
+msgid "``keystone/contrib/revoke``"
+msgstr "``keystone/contrib/revoke``"
+
+msgid "``keystone/contrib/simple_cert``"
+msgstr "``keystone/contrib/simple_cert``"
+
+msgid "``keystone/contrib/user_crud``"
+msgstr "``keystone/contrib/user_crud``"
+
+msgid "``remove user from group``"
+msgstr "``remove user from group``"
+
+msgid "``update group``"
+msgstr "``update group``"
+
+msgid "``update user``"
+msgstr "``update user``"
+
+msgid "``validate_non_persistent_token``"
+msgstr "``validate_non_persistent_token``"
+
+msgid "``validate_v2_token``"
+msgstr "``validate_v2_token``"
+
+msgid "``validate_v3_token``"
+msgstr "``validate_v3_token``"
+
+msgid "to::"
+msgstr "to::"
