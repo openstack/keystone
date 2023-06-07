@@ -69,7 +69,7 @@ class AccessRuleModel(sql.ModelBase, sql.ModelDictMixin):
     __tablename__ = 'access_rule'
     attributes = ['external_id', 'user_id', 'service', 'path', 'method']
     id = sql.Column(sql.Integer, primary_key=True, nullable=False)
-    external_id = sql.Column(sql.String(64), index=True, unique=True)
+    external_id = sql.Column(sql.String(64), index=True)
     user_id = sql.Column(sql.String(64), index=True)
     service = sql.Column(sql.String(64))
     path = sql.Column(sql.String(128))
