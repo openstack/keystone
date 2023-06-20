@@ -122,6 +122,22 @@
       devstack_services:
         ldap: true
 
+# Temporary job until SQLAlchemy 2.0 is no longer blocked by upper-requirements
+- job:
+    name: keystone-tox-py310-with-sqlalchemy-2x
+    parent: openstack-tox-py310
+    description: |
+      Run unit tests with main branch of SQLAlchemy, alembic and oslo.db.
+      Takes advantage of the base tox job's install-siblings feature.
+    # The job only tests the latest and shouldn't be run on the stable branches
+    branches: ^(?!stable)
+    required-projects:
+      - name: github.com/sqlalchemy/sqlalchemy
+        override-checkout: main
+      - name: github.com/sqlalchemy/alembic
+        override-checkout: main
+      - name: openstack/oslo.db
+
 # Experimental
 - job:
     name: keystone-tox-patch_cover
@@ -214,6 +230,7 @@
       - openstack-python3-xena-jobs-arm64
     check:
       jobs:
+        - keystone-tox-py310-with-sqlalchemy-2x
         - keystone-dsvm-py3-functional:
             irrelevant-files: &irrelevant-files
               - ^.*\.rst$
@@ -253,6 +270,7 @@
         - keystone-protection-functional
     gate:
       jobs:
+        - keystone-tox-py310-with-sqlalchemy-2x
         - keystone-dsvm-py3-functional:
             irrelevant-files: *irrelevant-files
         - keystone-dsvm-py3-functional-federation-ubuntu-focal-k2k:
