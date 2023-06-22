@@ -264,7 +264,7 @@ class MigrateBase(
     @property
     def metadata(self):
         """A collection of tables and their associated schemas."""
-        return sqlalchemy.MetaData(self.engine)
+        return sqlalchemy.MetaData()
 
     def load_table(self, name):
         table = sqlalchemy.Table(
