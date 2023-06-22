@@ -31,8 +31,8 @@ class WarningsFixture(fixtures.Fixture):
 
         warnings.filterwarnings(
             'error',
+            module='keystone',
             category=DeprecationWarning,
-            module='^keystone\\.',
         )
 
         warnings.filterwarnings(
@@ -59,19 +59,70 @@ class WarningsFixture(fixtures.Fixture):
             message=r"Using function/method 'db_version\(\)' is deprecated",
         )
 
-        # TODO(stephenfin): Remove these when we drop support for
-        # sqlalchemy-migrate
+        warnings.filterwarnings(
+            'error',
+            module='keystone',
+            category=sqla_exc.SAWarning,
+        )
+
         warnings.filterwarnings(
             'ignore',
             category=sqla_exc.SADeprecationWarning,
-            module='migrate.versioning',
         )
 
-        # TODO(stephenfin): We should filter on the specific RemovedIn20Warning
-        # warnings that affect us, so that we can slowly start addressing them
-        warnings.simplefilter('error', sqla_exc.SAWarning)
-        if hasattr(sqla_exc, 'RemovedIn20Warning'):
-            warnings.simplefilter('ignore', sqla_exc.RemovedIn20Warning)
+        # Enable deprecation warnings for keystone itself to capture upcoming
+        # SQLALchemy changes
+
+        warnings.filterwarnings(
+            'error',
+            module='keystone',
+            category=sqla_exc.SADeprecationWarning,
+        )
+
+        # ...but filter everything out until we get around to fixing them
+        # TODO(stephenfin): Fix all of these
+
+        warnings.filterwarnings(
+            'ignore',
+            module='keystone',
+            message=r'Passing a string to Connection.execute\(\) is .*',
+            category=sqla_exc.SADeprecationWarning,
+        )
+
+        warnings.filterwarnings(
+            'ignore',
+            module='keystone',
+            message=r'The Query.get\(\) method is considered legacy .*',
+            category=sqla_exc.SADeprecationWarning,
+        )
+
+        warnings.filterwarnings(
+            'ignore',
+            module='keystone',
+            message=r'The autoload parameter is deprecated .*',
+            category=sqla_exc.SADeprecationWarning,
+        )
+
+        warnings.filterwarnings(
+            'ignore',
+            module='keystone',
+            message=r'The legacy calling style of select\(\) .*',
+            category=sqla_exc.SADeprecationWarning,
+        )
+
+        warnings.filterwarnings(
+            'ignore',
+            module='keystone',
+            message=r'The MetaData.bind argument is deprecated .*',
+            category=sqla_exc.SADeprecationWarning,
+        )
+
+        warnings.filterwarnings(
+            'ignore',
+            module='keystone',
+            message=r'".*" object is being merged into a Session along .*',
+            category=sqla_exc.SADeprecationWarning,
+        )
 
         self.addCleanup(self._reset_warning_filters)
 
