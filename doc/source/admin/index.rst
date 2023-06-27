@@ -19,3 +19,4 @@ operators to help with administering a keystone deployment.
    keystone-features
    authentication-mechanisms
    oauth2-usage-guide
+   configure-https
