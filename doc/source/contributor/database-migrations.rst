@@ -26,6 +26,11 @@ Database Migrations
     only two Alembic branches, the *expand* branch and the *contract* branch,
     and data migration operations have been folded into the former
 
+.. versionchanged:: 24.0.0 (Bobcat)
+
+   Added support for auto-generation of migrations using the
+   ``keystone.common.sql.migrations.manage`` script.
+
 Starting with Newton, keystone supports upgrading both with and without
 downtime. In order to support this, there are two separate branches (all under
 ``keystone/common/sql/migrations``): the *expand* and the *contract* branch.
@@ -72,7 +77,51 @@ Contract phase:
 
     Triggers created during the expand phase must be dropped.
 
-For more information on writing individual migration scripts refer to
-`Alembic`_.
+Writing your own migrations
+---------------------------
 
+Because Keystone uses the expand-contract pattern for database migrations, it
+is not possible to use the standard ``alembic`` CLI tool. Instead, Keystone
+provides its own tool which provides a similar UX to the ``alembic`` tool but
+which auto-configures alembic (the library) for this pattern.
+
+To create a new *expand* branch migration:
+
+.. code-block:: bash
+
+   $ tox -e venv -- python -m keystone.common.sql.migrations.manage \
+       revision --expand -m "My expand migration"
+
+To create a new *contract* branch migration:
+
+.. code-block:: bash
+
+   $ tox -e venv -- python -m keystone.common.sql.migrations.manage \
+       revision --expand -m "My contract migration"
+
+To auto-generate an *expand* and/or *contract* branch migration:
+
+.. code-block:: bash
+
+   $ tox -e venv -- python -m keystone.common.sql.migrations.manage \
+       revision --autogenerate -m "My auto-generated migration"
+
+.. important::
+
+   Because of discrepancies between the migrations and models which are yet to
+   be ironed out, a number of columns are intentionally ignored. You can view
+   these by inspecting the ``env.py`` file in
+   ``keystone/common/sql/migrations``.
+
+To view the help page:
+
+.. code-block:: bash
+
+   python -m keystone.common.sql.migrations.manage --help
+
+For information on how this tool works, refer to `this blog post`_.
+For more information on writing migration scripts in general refer to the
+`Alembic`_ documentation.
+
+.. _this blog post: https://that.guru/blog/zero-downtime-upgrades-with-alembic-and-sqlalchemy/
 .. _Alembic: https://alembic.sqlalchemy.org/
