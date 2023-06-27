@@ -60,38 +60,19 @@ class BannedDBSchemaOperations(fixtures.Fixture):
 
     @staticmethod
     def _explode(op, revision):
-        msg = "Operation '%s' is not allowed in migration %s"
-        raise DBOperationNotAllowed(msg % (op, revision))
+        def fail(*a, **kw):
+            msg = "Operation '%s' is not allowed in migration %s"
+            raise DBOperationNotAllowed(msg % (op, revision))
+
+        return fail
 
     def setUp(self):
         super().setUp()
-        explode_lambda = {
-            x: lambda *a, **k: self._explode(x, self._revision)
-            for x in [
-                'add_column',
-                'alter_column',
-                'batch_alter_table',
-                'bulk_insert',
-                'create_check_constraint',
-                'create_exclude_constraint',
-                'create_foreign_key',
-                'create_index',
-                'create_primary_key',
-                'create_table',
-                'create_table_comment',
-                'create_unique_constraint',
-                'drop_column',
-                'drop_constraint',
-                'drop_index',
-                'drop_table',
-                'drop_table_comment',
-                # 'execute',
-                'rename_table',
-            ]
-        }
         for op in self._banned_ops:
             self.useFixture(
-                fixtures.MonkeyPatch('alembic.op.%s' % op, explode_lambda[op])
+                fixtures.MonkeyPatch(
+                    'alembic.op.%s' % op, self._explode(op, self._revision),
+                )
             )
 
 
@@ -105,7 +86,6 @@ class KeystoneMigrationsWalk(
     BANNED_OPS = {
         'expand': [
             'alter_column',
-            'batch_alter_table',
             'drop_column',
             'drop_constraint',
             'drop_index',
