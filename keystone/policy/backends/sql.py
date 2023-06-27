@@ -43,7 +43,7 @@ class Policy(rules.Policy):
 
     def _get_policy(self, session, policy_id):
         """Private method to get a policy model object (NOT a dictionary)."""
-        ref = session.query(PolicyModel).get(policy_id)
+        ref = session.get(PolicyModel, policy_id)
         if not ref:
             raise exception.PolicyNotFound(policy_id=policy_id)
         return ref

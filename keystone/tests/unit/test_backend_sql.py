@@ -1022,7 +1022,7 @@ class SqlTrust(SqlTests, trust_tests.TrustTests):
         with sql.session_for_write() as session:
             new_id = uuid.uuid4().hex
             self.create_sample_trust(new_id)
-            trust_ref = session.query(trust_sql.TrustModel).get(new_id)
+            trust_ref = session.get(trust_sql.TrustModel, new_id)
             self.assertIsNotNone(trust_ref._expires_at)
             self.assertEqual(trust_ref._expires_at, trust_ref.expires_at_int)
             self.assertEqual(trust_ref.expires_at, trust_ref.expires_at_int)

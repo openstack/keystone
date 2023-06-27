@@ -157,7 +157,7 @@ class ShadowUsers(base.ShadowUsersDriverBase):
     def set_last_active_at(self, user_id):
         if CONF.security_compliance.disable_user_account_days_inactive:
             with sql.session_for_write() as session:
-                user_ref = session.query(model.User).get(user_id)
+                user_ref = session.get(model.User, user_id)
                 user_ref.last_active_at = datetime.datetime.utcnow().date()
 
     @sql.handle_conflicts(conflict_type='federated_user')
@@ -210,7 +210,7 @@ class ShadowUsers(base.ShadowUsersDriverBase):
             return identity_base.filter_user(user_ref.to_dict())
 
     def _get_user(self, session, user_id):
-        user_ref = session.query(model.User).get(user_id)
+        user_ref = session.get(model.User, user_id)
         if not user_ref:
             raise exception.UserNotFound(user_id=user_id)
         return user_ref

@@ -86,7 +86,7 @@ class AccessToken(sql.ModelBase, sql.ModelDictMixin):
 
 class OAuth1(base.Oauth1DriverBase):
     def _get_consumer(self, session, consumer_id):
-        consumer_ref = session.query(Consumer).get(consumer_id)
+        consumer_ref = session.get(Consumer, consumer_id)
         if consumer_ref is None:
             raise exception.NotFound(_('Consumer not found'))
         return consumer_ref
@@ -172,7 +172,7 @@ class OAuth1(base.Oauth1DriverBase):
             return token_ref.to_dict()
 
     def _get_request_token(self, session, request_token_id):
-        token_ref = session.query(RequestToken).get(request_token_id)
+        token_ref = session.get(RequestToken, request_token_id)
         if token_ref is None:
             raise exception.NotFound(_('Request token not found'))
         return token_ref
@@ -231,7 +231,7 @@ class OAuth1(base.Oauth1DriverBase):
             return token_ref.to_dict()
 
     def _get_access_token(self, session, access_token_id):
-        token_ref = session.query(AccessToken).get(access_token_id)
+        token_ref = session.get(AccessToken, access_token_id)
         if token_ref is None:
             raise exception.NotFound(_('Access token not found'))
         return token_ref

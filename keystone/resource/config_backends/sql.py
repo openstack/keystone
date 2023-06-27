@@ -141,7 +141,7 @@ class DomainConfig(base.DomainConfigDriverBase):
 
     def read_registration(self, type):
         with sql.session_for_read() as session:
-            ref = session.query(ConfigRegister).get(type)
+            ref = session.get(ConfigRegister, type)
             if not ref:
                 raise exception.ConfigRegistrationNotFound()
             return ref.domain_id

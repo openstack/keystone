@@ -205,7 +205,7 @@ class Federation(base.FederationDriverBase):
             session.delete(idp_ref)
 
     def _get_idp(self, session, idp_id):
-        idp_ref = session.query(IdentityProviderModel).get(idp_id)
+        idp_ref = session.get(IdentityProviderModel, idp_id)
         if not idp_ref:
             raise exception.IdentityProviderNotFound(idp_id=idp_id)
         return idp_ref
@@ -303,7 +303,7 @@ class Federation(base.FederationDriverBase):
 
     # Mapping CRUD
     def _get_mapping(self, session, mapping_id):
-        mapping_ref = session.query(MappingModel).get(mapping_id)
+        mapping_ref = session.get(MappingModel, mapping_id)
         if not mapping_ref:
             raise exception.MappingNotFound(mapping_id=mapping_id)
         return mapping_ref
@@ -369,7 +369,7 @@ class Federation(base.FederationDriverBase):
             session.delete(sp_ref)
 
     def _get_sp(self, session, sp_id):
-        sp_ref = session.query(ServiceProviderModel).get(sp_id)
+        sp_ref = session.get(ServiceProviderModel, sp_id)
         if not sp_ref:
             raise exception.ServiceProviderNotFound(sp_id=sp_id)
         return sp_ref
