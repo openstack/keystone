@@ -20,9 +20,6 @@ from alembic import command as alembic_api
 from alembic import config as alembic_config
 from alembic import migration as alembic_migration
 from alembic import script as alembic_script
-from migrate import exceptions as migrate_exceptions
-from migrate.versioning import api as migrate_api
-from migrate.versioning import repository as migrate_repository
 from oslo_db import exception as db_exception
 from oslo_log import log as logging
 
@@ -33,7 +30,6 @@ CONF = keystone.conf.CONF
 LOG = logging.getLogger(__name__)
 
 ALEMBIC_INIT_VERSION = '27e647c0fad4'
-MIGRATE_INIT_VERSION = 72
 
 EXPAND_BRANCH = 'expand'
 DATA_MIGRATION_BRANCH = 'data_migration'
@@ -48,25 +44,6 @@ VERSIONS_PATH = os.path.join(
     'migrations',
     'versions',
 )
-
-
-def _find_migrate_repo(branch):
-    """Get the project's change script repository.
-
-    :param branch: Name of the repository "branch" to be used; this will be
-        transformed to repository path.
-    :returns: An instance of ``migrate.versioning.repository.Repository``
-    """
-    abs_path = os.path.abspath(
-        os.path.join(
-            os.path.dirname(sql.__file__),
-            'legacy_migrations',
-            f'{branch}_repo',
-        )
-    )
-    if not os.path.exists(abs_path):
-        raise db_exception.DBMigrationError("Path %s not found" % abs_path)
-    return migrate_repository.Repository(abs_path)
 
 
 def _find_alembic_conf():
@@ -140,43 +117,10 @@ def get_current_heads():
     return heads
 
 
-def _is_database_under_migrate_control(engine):
-    # if any of the repos is present, they're all present (in theory, at least)
-    repository = _find_migrate_repo('expand')
-    try:
-        migrate_api.db_version(engine, repository)
-        return True
-    except migrate_exceptions.DatabaseNotControlledError:
-        return False
-
-
 def _is_database_under_alembic_control(engine):
     with engine.connect() as conn:
         context = alembic_migration.MigrationContext.configure(conn)
         return bool(context.get_current_heads())
-
-
-def _init_alembic_on_legacy_database(engine, config):
-    """Init alembic in an existing environment with sqlalchemy-migrate."""
-    LOG.info(
-        'The database is still under sqlalchemy-migrate control; '
-        'applying any remaining sqlalchemy-migrate-based migrations '
-        'and fake applying the initial alembic migration'
-    )
-
-    # bring all repos up to date; note that we're relying on the fact that
-    # there aren't any "real" contract migrations left (since the great squash
-    # of migrations in yoga) so we're really only applying the expand side of
-    # '079_expand_update_local_id_limit' and the rest are for completeness'
-    # sake
-    for branch in (EXPAND_BRANCH, DATA_MIGRATION_BRANCH, CONTRACT_BRANCH):
-        repository = _find_migrate_repo(branch or 'expand')
-        migrate_api.upgrade(engine, repository)
-
-    # re-use the connection rather than creating a new one
-    with engine.begin() as connection:
-        config.attributes['connection'] = connection
-        alembic_api.stamp(config, ALEMBIC_INIT_VERSION)
 
 
 def _upgrade_alembic(engine, config, branch):
@@ -209,17 +153,10 @@ def get_db_version(branch=EXPAND_BRANCH, *, engine=None):
     engine_url = str(engine.url).replace('%', '%%')
     config.set_main_option('sqlalchemy.url', str(engine_url))
 
-    migrate_version = None
-    if _is_database_under_migrate_control(engine):
-        repository = _find_migrate_repo(branch)
-        migrate_version = migrate_api.db_version(engine, repository)
+    # we use '.get' since the particular branch might not have been created
+    alembic_version = _get_current_heads(engine, config).get(branch)
 
-    alembic_version = None
-    if _is_database_under_alembic_control(engine):
-        # we use '.get' since the particular branch might not have been created
-        alembic_version = _get_current_heads(engine, config).get(branch)
-
-    return alembic_version or migrate_version
+    return alembic_version
 
 
 def _db_sync(branch=None, *, engine=None):
@@ -240,16 +177,6 @@ def _db_sync(branch=None, *, engine=None):
     # mismatch by quoting all %'s for the set below.
     engine_url = str(engine.url).replace('%', '%%')
     config.set_main_option('sqlalchemy.url', str(engine_url))
-
-    # if we're in a deployment where sqlalchemy-migrate is already present,
-    # then apply all the updates for that and fake apply the initial
-    # alembic migration; if we're not then 'upgrade' will take care of
-    # everything this should be a one-time operation
-    if (
-        not _is_database_under_alembic_control(engine) and
-        _is_database_under_migrate_control(engine)
-    ):
-        _init_alembic_on_legacy_database(engine, config)
 
     _upgrade_alembic(engine, config, branch)
 
