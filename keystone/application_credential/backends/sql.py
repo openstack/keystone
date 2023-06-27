@@ -44,11 +44,13 @@ class ApplicationCredentialModel(sql.ModelBase, sql.ModelDictMixin):
     roles = sqlalchemy.orm.relationship(
         'ApplicationCredentialRoleModel',
         backref=sqlalchemy.orm.backref('application_credential'),
-        cascade='all, delete-orphan')
+        cascade='all, delete-orphan',
+        cascade_backrefs=False)
     access_rules = sqlalchemy.orm.relationship(
         'ApplicationCredentialAccessRuleModel',
         backref=sqlalchemy.orm.backref('application_credential'),
-        cascade='all, delete-orphan')
+        cascade='all, delete-orphan',
+        cascade_backrefs=False)
 
 
 class ApplicationCredentialRoleModel(sql.ModelBase, sql.ModelDictMixin):
@@ -78,7 +80,8 @@ class AccessRuleModel(sql.ModelBase, sql.ModelDictMixin):
     )
     application_credential = sqlalchemy.orm.relationship(
         'ApplicationCredentialAccessRuleModel',
-        backref=sqlalchemy.orm.backref('access_rule'))
+        backref=sqlalchemy.orm.backref('access_rule'),
+        cascade_backrefs=False)
 
 
 class ApplicationCredentialAccessRuleModel(sql.ModelBase, sql.ModelDictMixin):
