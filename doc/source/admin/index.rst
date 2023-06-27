@@ -18,3 +18,4 @@ operators to help with administering a keystone deployment.
    service-api-protection
    keystone-features
    authentication-mechanisms
+   oauth2-usage-guide

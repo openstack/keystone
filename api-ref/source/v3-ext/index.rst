@@ -22,6 +22,7 @@ This page describes these Identity API v3 extensions:
 
 * `OS-ENDPOINT-POLICY API`_
 * `OS-OAUTH1 API`_
+* `OS-OAUTH2 API`_
 * `OS-TRUST API`_
 * `OS-REVOKE API`_
 * `OS-EP-FILTER API`_
@@ -32,6 +33,7 @@ This page describes these Identity API v3 extensions:
 
 .. include:: endpoint-policy.inc
 .. include:: oauth.inc
+.. include:: oauth2.inc
 .. include:: trust.inc
 .. include:: revoke.inc
 .. include:: ep-filter.inc
