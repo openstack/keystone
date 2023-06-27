@@ -45,14 +45,15 @@ def upgrade(migrate_engine):
 
     if migrate_engine.name == 'mysql':
         # In Folsom we explicitly converted migrate_version to UTF8.
-        migrate_engine.execute(
-            'ALTER TABLE migrate_version CONVERT TO CHARACTER SET utf8'
-        )
-        # Set default DB charset to UTF8.
-        migrate_engine.execute(
-            'ALTER DATABASE %s DEFAULT CHARACTER SET utf8'
-            % migrate_engine.url.database
-        )
+        with migrate_engine.connect() as conn:
+            conn.exec_driver_sql(
+                'ALTER TABLE migrate_version CONVERT TO CHARACTER SET utf8'
+            )
+            # Set default DB charset to UTF8.
+            conn.exec_driver_sql(
+                'ALTER DATABASE %s DEFAULT CHARACTER SET utf8'
+                % migrate_engine.url.database
+            )
 
     application_credential = sql.Table(
         'application_credential',
@@ -1126,7 +1127,6 @@ def upgrade(migrate_engine):
         END
         $BODY$ LANGUAGE plpgsql;
         """)
-        migrate_engine.execute(credential_update_trigger)
 
         error_message = (
             'Identity provider migration in progress. Cannot '
@@ -1142,7 +1142,6 @@ def upgrade(migrate_engine):
         END
         $BODY$ LANGUAGE plpgsql;
         """)
-        migrate_engine.execute(identity_provider_insert_trigger)
 
         federated_user_insert_trigger = textwrap.dedent("""
         CREATE OR REPLACE FUNCTION update_federated_user_domain_id()
@@ -1156,7 +1155,6 @@ def upgrade(migrate_engine):
         END
         $BODY$ LANGUAGE plpgsql;
         """)
-        migrate_engine.execute(federated_user_insert_trigger)
 
         local_user_insert_trigger = textwrap.dedent("""
         CREATE OR REPLACE FUNCTION update_user_domain_id()
@@ -1169,7 +1167,12 @@ def upgrade(migrate_engine):
         END
         $BODY$ LANGUAGE plpgsql;
         """)
-        migrate_engine.execute(local_user_insert_trigger)
+
+        with migrate_engine.connect() as conn:
+            conn.exec_driver_sql(credential_update_trigger)
+            conn.exec_driver_sql(identity_provider_insert_trigger)
+            conn.exec_driver_sql(federated_user_insert_trigger)
+            conn.exec_driver_sql(local_user_insert_trigger)
 
     # FIXME(stephenfin): Remove these indexes. They're left over from attempts
     # to remove foreign key constraints in past migrations. Apparently
