@@ -21,6 +21,8 @@ Create Date: 2022-01-21 00:00:00.000000
 revision = 'e25ffa003242'
 down_revision = '27e647c0fad4'
 branch_labels = ('contract',)
+# milestone identifier
+keystone_milestone = ['yoga']
 
 
 def upgrade():
