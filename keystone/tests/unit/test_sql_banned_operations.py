@@ -275,6 +275,32 @@ class KeystoneMigrationsWalk(
         indexes = inspector.get_indexes('project_tag')
         self.assertNotIn('project_id', {x['name'] for x in indexes})
 
+    def _pre_upgrade_11c3b243b4cb(self, connection):
+        inspector = sqlalchemy.inspect(connection)
+        columns = inspector.get_columns('service_provider')
+        found = False
+        for column in columns:
+            if column['name'] != 'relay_state_prefix':
+                continue
+
+            # The default should initially be set to the CONF value
+            self.assertIsNotNone(column['default'])
+            found = True
+        self.assertTrue(found, 'Failed to find column')
+
+    def _check_11c3b243b4cb(self, connection):
+        inspector = sqlalchemy.inspect(connection)
+        columns = inspector.get_columns('service_provider')
+        found = False
+        for column in columns:
+            if column['name'] != 'relay_state_prefix':
+                continue
+
+            # The default should now be unset
+            self.assertIsNone(column['default'])
+            found = True
+        self.assertTrue(found, 'Failed to find column')
+
     def test_single_base_revision(self):
         """Ensure we only have a single base revision.
 
