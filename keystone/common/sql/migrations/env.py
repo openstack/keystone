@@ -50,8 +50,6 @@ def include_object(object, name, type_, reflected, compare_to):
     )
 
     BORKED_UNIQUE_CONSTRAINTS = (
-        # duplicate constraints on primary key columns
-        ('project_tag', ['project_id', 'name']),
     )
 
     BORKED_FK_CONSTRAINTS = (

@@ -118,7 +118,6 @@ class ProjectTag(sql.ModelBase, sql.ModelDictMixin):
         sql.String(64), sql.ForeignKey('project.id', ondelete='CASCADE'),
         nullable=False, primary_key=True)
     name = sql.Column(sql.Unicode(255), nullable=False, primary_key=True)
-    __table_args__ = (sql.UniqueConstraint('project_id', 'name'),)
 
 
 class ProjectOption(sql.ModelBase):
