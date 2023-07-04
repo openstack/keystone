@@ -18,6 +18,7 @@ import fixtures
 from oslo_db.sqlalchemy import enginefacade
 from oslo_db.sqlalchemy import test_fixtures
 from oslo_log import log as logging
+import sqlalchemy
 
 from keystone.common import sql
 from keystone.common.sql import upgrades
@@ -155,6 +156,12 @@ class KeystoneMigrationsWalk(
             for branch_label in revision.branch_labels:
                 banned_ops.extend(self.BANNED_OPS[branch_label])
 
+        # SQLite migrations are running in batch mode, which mean we recreate a
+        # table in all migrations. As such, we can't really blacklist things so
+        # don't even try.
+        if self.FIXTURE.DRIVER == 'sqlite':
+            banned_ops = []
+
         with BannedDBSchemaOperations(banned_ops, version):
             alembic_api.upgrade(self.config, version)
 
@@ -177,6 +184,75 @@ class KeystoneMigrationsWalk(
     def _check_29e87d24a316(self, connection):
         """This is a no-op migration."""
         pass
+
+    # 2023.2 bobcat
+
+    _99de3849d860_removed_constraints = {
+        'access_rule': 'access_rule_external_id_key',
+        'trust': 'duplicate_trust_constraint_expanded',
+    }
+
+    def _pre_upgrade_99de3849d860(self, connection):
+        inspector = sqlalchemy.inspect(connection)
+        for table, constraint in (
+            self._99de3849d860_removed_constraints.items()
+        ):
+            constraints = [
+                x['name'] for x in
+                inspector.get_unique_constraints(table)
+            ]
+            self.assertIn(constraint, constraints)
+
+    def _check_99de3849d860(self, connection):
+        inspector = sqlalchemy.inspect(connection)
+        for table, constraint in (
+            self._99de3849d860_removed_constraints.items()
+        ):
+            constraints = [
+                x['name'] for x in
+                inspector.get_unique_constraints(table)
+            ]
+            self.assertNotIn(constraint, constraints)
+
+    def _pre_upgrade_b4f8b3f584e0(self, connection):
+        inspector = sqlalchemy.inspect(connection)
+        constraints = inspector.get_unique_constraints('trust')
+        self.assertNotIn(
+            'duplicate_trust_constraint',
+            {x['name'] for x in constraints},
+        )
+        self.assertNotIn(
+            [
+                'trustor_user_id',
+                'trustee_user_id',
+                'project_id',
+                'impersonation',
+                'expires_at',
+            ],
+            {x['column_names'] for x in constraints},
+        )
+
+    def _check_b4f8b3f584e0(self, connection):
+        inspector = sqlalchemy.inspect(connection)
+        constraints = inspector.get_unique_constraints('trust')
+        self.assertIn(
+            'duplicate_trust_constraint',
+            {x['name'] for x in constraints},
+        )
+        constraint = [
+            x for x in constraints if x['name'] ==
+            'duplicate_trust_constraint'
+        ][0]
+        self.assertEqual(
+            [
+                'trustor_user_id',
+                'trustee_user_id',
+                'project_id',
+                'impersonation',
+                'expires_at',
+            ],
+            constraint['column_names'],
+        )
 
     def test_single_base_revision(self):
         """Ensure we only have a single base revision.

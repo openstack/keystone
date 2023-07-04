@@ -50,31 +50,8 @@ def include_object(object, name, type_, reflected, compare_to):
     )
 
     BORKED_UNIQUE_CONSTRAINTS = (
-        # removed constraints
+        # duplicate constraints on primary key columns
         ('project_tag', ['project_id', 'name']),
-        (
-            'trust',
-            [
-                'trustor_user_id',
-                'trustee_user_id',
-                'project_id',
-                'impersonation',
-                'expires_at',
-            ],
-        ),
-        # added constraints
-        ('access_rule', ['external_id']),
-        (
-            'trust',
-            [
-                'trustor_user_id',
-                'trustee_user_id',
-                'project_id',
-                'impersonation',
-                'expires_at',
-                'expires_at_int',
-            ],
-        ),
     )
 
     BORKED_FK_CONSTRAINTS = (
@@ -122,7 +99,7 @@ def include_object(object, name, type_, reflected, compare_to):
     # affected item. However, we only want to skip the actual things we know
     # about untl we have enough time to fix them. These issues are listed in
     # keystone.tests.unit.common.sql.test_upgrades.KeystoneModelsMigrationsSync
-    # However, this isn't a bug issues since the test is more specific and will
+    # However, this isn't an issue since the test is more specific and will
     # catch other issues and anyone making changes to the columns and hoping to
     # autogenerate them would need to fix the latent issue first anyway.
     if type_ == 'column':
