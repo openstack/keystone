@@ -276,7 +276,7 @@ class LocalUser(sql.ModelBase, sql.ModelDictMixin):
     __tablename__ = 'local_user'
     attributes = ['id', 'user_id', 'domain_id', 'name']
     id = sql.Column(sql.Integer, primary_key=True)
-    user_id = sql.Column(sql.String(64))
+    user_id = sql.Column(sql.String(64), nullable=False)
     domain_id = sql.Column(sql.String(64), nullable=False)
     name = sql.Column(sql.String(255), nullable=False)
     passwords = orm.relationship('Password',
@@ -301,8 +301,11 @@ class Password(sql.ModelBase, sql.ModelDictMixin):
     attributes = ['id', 'local_user_id', 'password_hash', 'created_at',
                   'expires_at']
     id = sql.Column(sql.Integer, primary_key=True)
-    local_user_id = sql.Column(sql.Integer, sql.ForeignKey('local_user.id',
-                               ondelete='CASCADE'))
+    local_user_id = sql.Column(
+        sql.Integer,
+        sql.ForeignKey('local_user.id', ondelete='CASCADE'),
+        nullable=False,
+    )
     password_hash = sql.Column(sql.String(255), nullable=True)
 
     # TODO(lbragstad): Once Rocky opens for development, the _created_at and
@@ -315,11 +318,19 @@ class Password(sql.ModelBase, sql.ModelDictMixin):
                              default=datetime.datetime.utcnow)
     _expires_at = sql.Column('expires_at', sql.DateTime, nullable=True)
     # set the default to 0, a 0 indicates it is unset.
-    created_at_int = sql.Column(sql.DateTimeInt(), nullable=False,
-                                default=datetime.datetime.utcnow)
+    created_at_int = sql.Column(
+        sql.DateTimeInt(),
+        nullable=False,
+        default=0,
+        server_default='0',
+    )
     expires_at_int = sql.Column(sql.DateTimeInt(), nullable=True)
-    self_service = sql.Column(sql.Boolean, default=False, nullable=False,
-                              server_default='0')
+    self_service = sql.Column(
+        sql.Boolean,
+        default=False,
+        nullable=False,
+        server_default='0',
+    )
 
     @hybrid_property
     def created_at(self):
@@ -345,10 +356,16 @@ class FederatedUser(sql.ModelBase, sql.ModelDictMixin):
     attributes = ['id', 'user_id', 'idp_id', 'protocol_id', 'unique_id',
                   'display_name']
     id = sql.Column(sql.Integer, primary_key=True)
-    user_id = sql.Column(sql.String(64), sql.ForeignKey('user.id',
-                                                        ondelete='CASCADE'))
-    idp_id = sql.Column(sql.String(64), sql.ForeignKey('identity_provider.id',
-                                                       ondelete='CASCADE'))
+    user_id = sql.Column(
+        sql.String(64),
+        sql.ForeignKey('user.id', ondelete='CASCADE'),
+        nullable=False,
+    )
+    idp_id = sql.Column(
+        sql.String(64),
+        sql.ForeignKey('identity_provider.id', ondelete='CASCADE'),
+        nullable=False,
+    )
     protocol_id = sql.Column(sql.String(64), nullable=False)
     unique_id = sql.Column(sql.String(255), nullable=False)
     display_name = sql.Column(sql.String(255), nullable=True)
@@ -368,7 +385,7 @@ class NonLocalUser(sql.ModelBase, sql.ModelDictMixin):
     attributes = ['domain_id', 'name', 'user_id']
     domain_id = sql.Column(sql.String(64), primary_key=True)
     name = sql.Column(sql.String(255), primary_key=True)
-    user_id = sql.Column(sql.String(64))
+    user_id = sql.Column(sql.String(64), nullable=False)
     __table_args__ = (
         sql.UniqueConstraint('user_id'),
         sqlalchemy.ForeignKeyConstraint(

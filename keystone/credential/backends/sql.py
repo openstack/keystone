@@ -30,9 +30,9 @@ class CredentialModel(sql.ModelBase, sql.ModelDictMixinWithExtras):
     user_id = sql.Column(sql.String(64),
                          nullable=False)
     project_id = sql.Column(sql.String(64))
-    _encrypted_blob = sql.Column('encrypted_blob', sql.Text(), nullable=True)
+    _encrypted_blob = sql.Column('encrypted_blob', sql.Text(), nullable=False)
     type = sql.Column(sql.String(255), nullable=False)
-    key_hash = sql.Column(sql.String(64), nullable=True)
+    key_hash = sql.Column(sql.String(64), nullable=False)
     extra = sql.Column(sql.JsonBlob())
 
     @hybrid_property
