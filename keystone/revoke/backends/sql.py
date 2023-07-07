@@ -97,6 +97,7 @@ class Revoke(base.RevokeDriverBase):
             user = [RevocationEvent.user_id.is_(None)]
             proj = [RevocationEvent.project_id.is_(None)]
             audit = [RevocationEvent.audit_id.is_(None)]
+            trust = [RevocationEvent.trust_id.is_(None)]
             if token['user_id']:
                 user.append(RevocationEvent.user_id == token['user_id'])
             if token['trustor_id']:
@@ -107,9 +108,12 @@ class Revoke(base.RevokeDriverBase):
                 proj.append(RevocationEvent.project_id == token['project_id'])
             if token['audit_id']:
                 audit.append(RevocationEvent.audit_id == token['audit_id'])
+            if token['trust_id']:
+                trust.append(RevocationEvent.trust_id == token['trust_id'])
             query = query.filter(sqlalchemy.and_(sqlalchemy.or_(*user),
                                                  sqlalchemy.or_(*proj),
-                                                 sqlalchemy.or_(*audit)))
+                                                 sqlalchemy.or_(*audit),
+                                                 sqlalchemy.or_(*trust)))
             events = [revoke_model.RevokeEvent(**e.to_dict()) for e in query]
             return events
 
