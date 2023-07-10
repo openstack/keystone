@@ -151,19 +151,21 @@ Parameters
 .. rest_parameters:: parameters.yaml
 
    - X-Subject-Token: X-Subject-Token
-   - domain: domain
-   - methods: auth_methods
-   - user: user
    - token: token
-   - expires_at: expires_at
-   - project: project
-   - catalog: catalog
-   - roles: roles
+   - application_credential: auth_application_credential_body
+   - application_credential.id: response_application_credential_id_body
+   - application_credential.name: response_application_credential_name_body
+   - application_credential.restricted: response_application_credential_unrestricted_body
    - audit_ids: audit_ids
+   - catalog: catalog
+   - expires_at: expires_at
    - issued_at: issued_at
-   - id: user_id
-   - name: user_name
-   - application_credential_restricted: auth_application_credential_restricted_body
+   - methods: auth_methods
+   - project: project
+   - roles: roles
+   - user: user
+   - user.id: user_id
+   - user.name: user_name
 
 Example
 ~~~~~~~

@@ -500,7 +500,7 @@ auth:
   in: body
   required: true
   type: object
-auth_application_credential_restricted_body:
+auth_application_credential_body:
   description: |
     Whether the application credential is permitted to be used for creating and
     deleting additional application credentials and trusts.
