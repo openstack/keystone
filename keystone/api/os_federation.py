@@ -353,8 +353,7 @@ class ServiceProvidersResource(_ResourceBase):
         validation.lazy_validate(schema.service_provider_create, sp)
         sp = self._normalize_dict(sp)
         sp.setdefault('enabled', False)
-        sp.setdefault('relay_state_prefix',
-                      CONF.saml.relay_state_prefix)
+        sp.setdefault('relay_state_prefix', CONF.saml.relay_state_prefix)
         sp_ref = PROVIDERS.federation_api.create_sp(sp_id, sp)
         return self.wrap_member(sp_ref), http.client.CREATED
 
