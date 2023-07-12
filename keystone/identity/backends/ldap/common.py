@@ -860,11 +860,22 @@ class PooledLDAPHandler(LDAPHandler):
         cleaned up when message.clean() is called.
 
         """
-        results = message.connection.result3(message.id, all, timeout)
-
-        # Now that we have the results from the LDAP server for the message, we
-        # don't need the the context manager used to create the connection.
-        message.clean()
+        # message.connection.result3 might throw an exception
+        # so the code must ensure that message.clean() is invoked
+        # regardless of the result3's result. Otherwise, the
+        # connection will be marked as active forever, which
+        # ultimately renders the pool unusable, causing a DoS.
+        try:
+            results = message.connection.result3(message.id, all, timeout)
+        except Exception:
+            # We don't want to ignore thrown
+            # exceptions, raise them
+            raise
+        finally:
+            # Now that we have the results from the LDAP server for
+            # the message, we don't need the the context manager used
+            # to create the connection.
+            message.clean()
 
         return results
 
