@@ -97,7 +97,7 @@ To create a new *contract* branch migration:
 .. code-block:: bash
 
    $ tox -e venv -- python -m keystone.common.sql.migrations.manage \
-       revision --expand -m "My contract migration"
+       revision --contract -m "My contract migration"
 
 To auto-generate an *expand* and/or *contract* branch migration:
 
