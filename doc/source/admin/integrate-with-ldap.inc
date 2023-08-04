@@ -17,20 +17,12 @@ authorization (using the *assignment* feature). OpenStack Identity only
 supports read-only LDAP integration.
 
 The *identity* feature enables administrators to manage users and groups
-by each domain or the OpenStack Identity service entirely.
+by each domain or the OpenStack Identity service entirely. This is
+supported by the LDAP identity back end.
 
 The *assignment* feature enables administrators to manage project role
-authorization using the OpenStack Identity service SQL database, while
-providing user authentication through the LDAP directory.
-
-.. NOTE::
-
-    It is possible to isolate identity related information to LDAP in a
-    deployment and keep resource information in a separate datastore. It is not
-    possible to do the opposite, where resource information is stored in LDAP
-    and identity information is stored in SQL. If the resource or assignment
-    back ends are integrated with LDAP, the identity back end must also be
-    integrated with LDAP.
+authorization using the OpenStack Identity service SQL database. There
+is no assignment back end for LDAP.
 
 Identity LDAP server set up
 ---------------------------
