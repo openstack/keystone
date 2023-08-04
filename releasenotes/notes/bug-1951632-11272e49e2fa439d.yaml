@@ -1,0 +1,12 @@
+---
+features:
+  - |
+      [`bug 1951632 <https://bugs.launchpad.net/keystone/+bug/1951632>`_]
+      ``Support has been added for deploying `service` role during the bootstrap
+      process in addition to the `admin`, `member` and `reader` role.``
+upgrades:
+  - |
+      ``If the bootstrap process is re-run, and a `service` role already exists,
+      it does not recreate the `service` role. See
+      [`bug 1951632 <https://bugs.launchpad.net/keystone/+bug/1951632>`_]
+      for more details.``

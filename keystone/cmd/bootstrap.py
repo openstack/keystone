@@ -45,6 +45,9 @@ class Bootstrapper(object):
         self.admin_role_id = None
         self.admin_role_name = None
 
+        self.service_role_id = None
+        self.service_role_name = 'service'
+
         self.region_id = None
 
         self.service_name = None
@@ -66,6 +69,7 @@ class Bootstrapper(object):
         self._bootstrap_reader_role()
         self._bootstrap_member_role()
         self._bootstrap_admin_role()
+        self._bootstrap_service_role()
         self._bootstrap_project_role_assignment()
         self._bootstrap_system_role_assignment()
         self._bootstrap_region()
@@ -159,6 +163,10 @@ class Bootstrapper(object):
                 prior_role_id,
                 implied_role_id
             )
+
+    def _bootstrap_service_role(self):
+        role = self._ensure_role_exists(self.service_role_name)
+        self.service_role_id = role['id']
 
     def _bootstrap_reader_role(self):
         role = self._ensure_role_exists(self.reader_role_name)

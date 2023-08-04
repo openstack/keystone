@@ -337,6 +337,58 @@ simplified check string expression:
    "service:foobar:update": "role:member"
    "service:foobar:delete": "role:admin"
 
+In addition to above roles, from 2023.2 (Bobcat) release
+``keystone-manage bootstrap`` will provide `service` role as well. If a
+``service`` role is already present in the deployment, then a new one
+is not created.  This way any local scripts relying on the role ID will not
+be broken.
+
+.. note::
+    If you already have a ``service`` role in your deployment, you should
+    review its usage to make sure it is used only for service-to-service
+    communication.
+
+Once ``service`` role is created, OpenStack service
+developers can start integrating it into their default policies as expressed:
+
+.. code-block:: python
+
+   policy.DocumentedRuleDefault(
+       name='os_compute_api:os-server-external-events:create',
+       check_str='role:service',
+       scope_types=['project']
+   )
+
+It is important to note that we need to keep all the service-to-service APIs
+default to ``service`` role only. For example, a policy that requires
+``service`` can be expressed as:
+
+.. code-block:: yaml
+
+    "service:foobar:create": "role:service"
+
+There might be exception service-to-service APIs which project think are
+useful to be used by admin or non-admin user then they can take the
+exceptional decision to default them to user role and ``service`` role.  For
+example, a policy that requires ``service`` and ``admin`` can be expressed as:
+
+.. code-block:: yaml
+
+    "service:foobar:create": "role:service" OR "role:admin"
+
+Additionally, any deployment tools that create service accounts for OpenStack
+services, should start preparing for these policy changes by updating their
+role assignments and performing the deployment language equivalent of the
+following:
+
+.. code-block:: console
+
+   $ openstack role add --user nova --project service service
+   $ openstack role add --user cinder --project service service
+   $ openstack role add --user neutron --project service service
+   $ openstack role add --user glance  --project service service
+   $ openstack role add --user manila  --project service service
+
 How do I incorporate authorization scopes into a service?
 =========================================================
 

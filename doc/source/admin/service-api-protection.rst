@@ -25,21 +25,28 @@ Default roles and behaviors across scopes allow operators to delegate more
 functionality to their team, auditors, customers, and users without maintaining
 custom policies.
 
+In addition to ``admin``, ``member``, and ``reader`` role, from 2023.2 (Bobcat)
+release keystone will provide ``service`` role by default as well. Operators
+can use this role for service to service API calls instead of using ``admin``
+role for the same. The service role will be separate from ``admin``,
+``member``, ``reader`` and will not implicate any  of these roles.
+
 .. _`token guide`: https://docs.openstack.org/keystone/latest/admin/tokens-overview.html#authorization-scopes
 
 -----------------
 Roles Definitions
 -----------------
 
-The default roles provided by keystone, via ``keystone-manage bootstrap``, are
-related through role implications. The ``admin`` role implies the ``member``
-role, and the ``member`` role implies the ``reader`` role. These implications
-mean users with the ``admin`` role automatically have the ``member`` and
-``reader`` roles. Additionally, users with the ``member`` role automatically
-have the ``reader`` role. Implying roles reduces role assignments and forms a
-natural hierarchy between the default roles. It also reduces the complexity of
-default policies by making check strings short. For example, a policy that
-requires ``reader`` can be expressed as:
+The default roles provided by keystone via ``keystone-manage bootstrap``
+(except for the ``service`` role) are related through role implications. The
+``admin`` role implies the ``member`` role, and the ``member`` role implies
+the ``reader`` role. These implications mean users with the ``admin`` role
+automatically have the ``member`` and ``reader`` roles. Additionally,
+users with the ``member`` role automatically have the ``reader`` role.
+Implying roles reduces role assignments and forms a natural hierarchy between
+the default roles. It also reduces the complexity of default policies by
+making check strings short. For example, a policy that requires ``reader``
+can be expressed as:
 
 .. code-block:: yaml
 
@@ -126,6 +133,36 @@ deployment because they're operators. Users with ``admin`` on a project
 shouldn't be able to manage things outside the project because it would violate
 the tenancy of their role assignment (this doesn't apply consistently since
 services are addressing this individually at their own pace).
+
+Service
+=======
+
+We reserve the ``service`` role for Service-to-service communication. The aim
+of a ``service`` role is to allow a service to communicate with another service
+and possibly be granted elevated privileges by the service receiving the
+request. Before the introduction of the ``service`` role, a service had to be
+granted the ``admin`` role in order to have elevated privileges, which gave a
+service powers way beyond what was necessary.  With the ``service`` role in
+place, we can now allow all service-to-service APIs to default to the
+``service`` role only. For example, a policy that requires
+``service`` can be expressed as:
+
+.. code-block:: yaml
+
+    "identity:create_foo": "role:service"
+
+There might be exception service-to-service APIs which project think are
+useful to be used by admin or non-admin user then they can take the
+exceptional decision to default them to user role and ``service`` role.  For
+example, a policy that requires ``service`` and ``admin`` can be expressed as:
+
+.. code-block:: yaml
+
+    "identity:create_foo": "role:service" or "role:admin"
+
+.. note::
+    Unlike the other default roles, the ``service`` role is *not* a member
+    of a role hierarchy.  It is a standalone role.
 
 .. note::
 
