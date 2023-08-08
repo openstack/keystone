@@ -31,4 +31,6 @@ def symptom_unreasonable_max_token_size():
       depending on the IDs returned from LDAP, resulting in longer Fernet
       tokens (adjust your `max_token_size` accordingly).
     """
-    return 'fernet' in CONF.token.provider and CONF.max_token_size > 255
+    # return 'fernet' in CONF.token.provider and CONF.max_token_size > 255
+    # CCloud: we are using ldap, hence the max_token_size needs to go up.
+    return ('fernet' in CONF.token.provider and CONF.max_token_size > 268)
