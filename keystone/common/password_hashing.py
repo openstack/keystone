@@ -68,7 +68,7 @@ def verify_length_and_trunc_password(password):
     # When using bcrypt, we limit the password length to 54 to ensure all
     # bytes are fully mixed. See:
     # https://passlib.readthedocs.io/en/stable/lib/passlib.hash.bcrypt.html#security-issues
-    BCRYPT_MAX_LENGTH = 54
+    BCRYPT_MAX_LENGTH = 72
     if (CONF.identity.password_hash_algorithm == 'bcrypt' and  # nosec: B105
             CONF.identity.max_password_length > BCRYPT_MAX_LENGTH):
         msg = "Truncating password to algorithm specific maximum length %d characters."
@@ -78,16 +78,17 @@ def verify_length_and_trunc_password(password):
         max_length = CONF.identity.max_password_length
 
     try:
-        if len(password) > max_length:
+        password_utf8 = password.encode('utf-8')
+        if len(password_utf8) > max_length:
             if CONF.strict_password_check:
                 raise exception.PasswordVerificationError(size=max_length)
             else:
                 msg = "Truncating user password to %d characters."
                 LOG.warning(msg, max_length)
-                return password[:max_length]
+                return password_utf8[:max_length]
         else:
-            return password
-    except TypeError:
+            return password_utf8
+    except AttributeError:
         raise exception.ValidationError(attribute='string', target='password')
 
 
@@ -100,7 +101,7 @@ def check_password(password, hashed):
     """
     if password is None or hashed is None:
         return False
-    password_utf8 = verify_length_and_trunc_password(password).encode('utf-8')
+    password_utf8 = verify_length_and_trunc_password(password)
     hasher = _get_hasher_from_ident(hashed)
     return hasher.verify(password_utf8, hashed)
 
@@ -117,7 +118,7 @@ def hash_user_password(user):
 def hash_password(password):
     """Hash a password. Harder."""
     params = {}
-    password_utf8 = verify_length_and_trunc_password(password).encode('utf-8')
+    password_utf8 = verify_length_and_trunc_password(password)
     conf_hasher = CONF.identity.password_hash_algorithm
     hasher = _HASHER_NAME_MAP.get(conf_hasher)
 
