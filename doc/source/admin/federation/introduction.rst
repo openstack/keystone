@@ -395,8 +395,8 @@ OpenID Connect with keystone and horizon
      useragent <- horizon [label = "HTTP 302
                                     Location:
                                     /v3/auth/OS-FEDERATION
-                                    /websso/saml2"];
-     useragent -> httpd [label = "GET /v3/auth/OS-FEDERATION/websso/saml2"];
+                                    /websso/openid"];
+     useragent -> httpd [label = "GET /v3/auth/OS-FEDERATION/websso/openid"];
      useragent <- httpd [label = "HTTP 302
                                    Location:
                                    https://idp/auth?
