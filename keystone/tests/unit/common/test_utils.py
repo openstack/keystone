@@ -145,6 +145,17 @@ class UtilsTestCase(unit.BaseTestCase):
                           common_utils.hash_password,
                           invalid_length_password)
 
+    def test_bcrypt_sha256_not_truncate_password(self):
+        self.config_fixture.config(strict_password_check=True)
+        self.config_fixture.config(group='identity',
+                                   password_hash_algorithm='bcrypt_sha256')
+        password = '0' * 128
+        password_verified = \
+            common_utils.verify_length_and_trunc_password(password)
+        hashed = common_utils.hash_password(password)
+        self.assertTrue(common_utils.check_password(password, hashed))
+        self.assertEqual(password.encode('utf-8'), password_verified)
+
     def _create_test_user(self, password=OPTIONAL):
         user = {"name": "hthtest"}
         if password is not self.OPTIONAL:

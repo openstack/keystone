@@ -27,6 +27,7 @@ CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
 SUPPORTED_HASHERS = frozenset([passlib.hash.bcrypt,
+                               passlib.hash.bcrypt_sha256,
                                passlib.hash.scrypt,
                                passlib.hash.pbkdf2_sha512,
                                passlib.hash.sha512_crypt])
@@ -39,12 +40,26 @@ _HASHER_NAME_MAP = {hasher.name: hasher for hasher in SUPPORTED_HASHERS}
 # '$<ident>$<metadata>$<hash>') so we can do a fast-lookup on the hasher to
 # use. If has hasher has multiple ident options it is encoded in the
 # .ident_values attribute whereas hashers that have a single option
-# (sha512_crypt) only has the .ident attribute.
+# ( ) only has the .ident attribute.
+# NOTE(noonedeadpunk): Though bcrypt_sha256 does define <ident> as part of
+# the metadata, actual indent is represented with a <prefix> instead.
+def _get_hash_ident(hashers):
+    for hasher in hashers:
+        if hasattr(hasher, 'prefix'):
+            ident = (getattr(hasher, 'prefix'),)
+        elif hasattr(hasher, 'ident_values'):
+            ident = getattr(hasher, 'ident_values')
+        else:
+            ident = (getattr(hasher, 'ident'),)
+        yield (hasher, ident)
+
+
 _HASHER_IDENT_MAP = {
     prefix: module for module, prefix in itertools.chain(
-        *[zip([mod] * len(getattr(mod, 'ident_values', (mod.ident,))),
-              getattr(mod, 'ident_values', (mod.ident,)))
-          for mod in SUPPORTED_HASHERS])}
+        *[zip([mod] * len(ident), ident)
+            for mod, ident in _get_hash_ident(SUPPORTED_HASHERS)]
+    )
+}
 
 
 def _get_hasher_from_ident(hashed):
