@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    Passwords that are hashed using bcrypt are now truncated properly to the
+    maximum allowed length by the algorythm. This solves regression, when
+    passwords longer then 54 symbols are getting invalidated after the
+    Keystone upgrade.

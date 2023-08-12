@@ -103,7 +103,7 @@ performance. Changing this value does not effect existing passwords. This value
 can also be overridden by certain hashing algorithms maximum allowed length
 which takes precedence over the configured value.
 
-The bcrypt max_password_length is 54.
+The bcrypt max_password_length is 72 bytes.
 """))
 
 list_limit = cfg.IntOpt(
