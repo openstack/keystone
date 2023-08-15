@@ -142,7 +142,11 @@ def render_token_response_from_model(token, include_catalog=True):
             token_reference['token'][key]['access_rules'] = (
                 token.application_credential['access_rules']
             )
-    if token.oauth2_thumbprint:
+    # NOTE(noonedeadpunk): We are using getattr as previously cached tokens
+    #                      won't have the attribute and keystone will fail
+    #                      with AttributeError for TTL of the cache.
+    token_oauth2_thumbprint = getattr(token, 'oauth2_thumbprint', None)
+    if token_oauth2_thumbprint:
         token_reference['token']['oauth2_credential'] = {
             'x5t#S256': token.oauth2_thumbprint
         }
