@@ -2,13 +2,6 @@
 Unified Limits
 ==============
 
-.. WARNING::
-
-    The unified limits API is currently labeled as experimental and can change
-    in backwards incompatible ways. After we get feedback on the intricacies of
-    the API and no longer expect to make API breaking changes, the API will be
-    marked as stable.
-
 As of the Queens release, keystone has the ability to store and relay
 information known as a limit. Limits can be used by services to enforce quota
 on resources across OpenStack. This section describes the basic concepts of
