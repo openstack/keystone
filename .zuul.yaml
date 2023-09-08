@@ -77,9 +77,9 @@
         IDP_ID: k2k
 
 - job:
-    name: keystone-dsvm-py3-functional-federation-ubuntu-focal
+    name: keystone-dsvm-py3-functional-federation-ubuntu-jammy
     parent: keystone-dsvm-functional
-    nodeset: openstack-single-node-focal
+    nodeset: openstack-single-node-jammy
     vars:
       devstack_localrc:
         TEMPEST_PLUGINS: '/opt/stack/keystone-tempest-plugin'
@@ -94,8 +94,8 @@
         /var/log/shibboleth: logs
 
 - job:
-    name: keystone-dsvm-py3-functional-federation-ubuntu-focal-k2k
-    parent: keystone-dsvm-py3-functional-federation-ubuntu-focal
+    name: keystone-dsvm-py3-functional-federation-ubuntu-jammy-k2k
+    parent: keystone-dsvm-py3-functional-federation-ubuntu-jammy
     vars:
       devstack_localrc:
         IDP_ID: k2k
@@ -130,7 +130,7 @@
       Run unit tests with main branch of SQLAlchemy, alembic and oslo.db.
       Takes advantage of the base tox job's install-siblings feature.
     # The job only tests the latest and shouldn't be run on the stable branches
-    branches: ^(?!stable)
+    branches: ^[^(stable)]
     required-projects:
       - name: github.com/sqlalchemy/sqlalchemy
         override-checkout: main
@@ -257,10 +257,10 @@
         - keystone-dsvm-py3-functional-fips:
             voting: false
             irrelevant-files: *irrelevant-files
-        - keystone-dsvm-py3-functional-federation-ubuntu-focal:
+        - keystone-dsvm-py3-functional-federation-ubuntu-jammy:
             voting: false
             irrelevant-files: *irrelevant-files
-        - keystone-dsvm-py3-functional-federation-ubuntu-focal-k2k:
+        - keystone-dsvm-py3-functional-federation-ubuntu-jammy-k2k:
             irrelevant-files: *irrelevant-files
         - keystoneclient-devstack-functional:
             voting: false
@@ -288,7 +288,7 @@
         - keystone-tox-py310-with-sqlalchemy-2x
         - keystone-dsvm-py3-functional:
             irrelevant-files: *irrelevant-files
-        - keystone-dsvm-py3-functional-federation-ubuntu-focal-k2k:
+        - keystone-dsvm-py3-functional-federation-ubuntu-jammy-k2k:
             irrelevant-files: *irrelevant-files
         - tempest-full-py3:
             irrelevant-files: *tempest-irrelevant-files

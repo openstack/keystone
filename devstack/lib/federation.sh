@@ -76,7 +76,7 @@ function configure_shibboleth {
 
 function install_federation {
     if is_ubuntu; then
-        install_package libapache2-mod-shib2 xmlsec1
+        install_package libapache2-mod-shib xmlsec1
 
         # Create a new keypair for Shibboleth
         sudo shib-keygen -f
