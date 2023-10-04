@@ -1,0 +1,6 @@
+---
+features:
+  - |
+    Added support for the ``bcrypt_sha256`` password hashing algorythm, which
+    does workaround limitation on a password length BCrypt have by running the
+    password through HMAC-SHA2-256 first.
