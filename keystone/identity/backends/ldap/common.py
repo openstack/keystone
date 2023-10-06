@@ -15,6 +15,7 @@
 import abc
 import codecs
 import os.path
+import random
 import re
 import sys
 import uuid
@@ -1166,7 +1167,12 @@ class BaseLdap(object):
     tree_dn = None
 
     def __init__(self, conf):
-        self.LDAP_URL = conf.ldap.url
+        if conf.ldap.randomize_urls:
+            urls = re.split(r'[\s,]+', conf.ldap.url)
+            random.shuffle(urls)
+            self.LDAP_URL = ','.join(urls)
+        else:
+            self.LDAP_URL = conf.ldap.url
         self.LDAP_USER = conf.ldap.user
         self.LDAP_PASSWORD = conf.ldap.password
         self.LDAP_SCOPE = ldap_scope(conf.ldap.query_scope)
