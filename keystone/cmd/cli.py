@@ -433,7 +433,7 @@ class FernetSetup(BasePermissionsSetup):
                 os.path.abspath(CONF.fernet_receipts.key_repository)):
             cls.initialize_fernet_repository(
                 keystone_user_id, keystone_group_id, 'fernet_receipts')
-        elif(CONF.fernet_tokens.max_active_keys !=
+        elif (CONF.fernet_tokens.max_active_keys !=
                 CONF.fernet_receipts.max_active_keys):
             # WARNING(adriant): If the directories are the same,
             # 'max_active_keys' is ignored from fernet_receipts in favor of
