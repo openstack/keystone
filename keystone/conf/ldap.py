@@ -24,6 +24,18 @@ as a comma separated string. The first URL to successfully bind is used for the
 connection.
 """))
 
+randomize_urls = cfg.BoolOpt(
+    'randomize_urls',
+    default=False,
+    help=utils.fmt("""
+Randomize the order of URLs in each keystone process. This makes the failure
+behavior more gradual, since if the first server is down, a process/thread
+will wait for the specified timeout before attempting a connection to a
+server further down the list. This defaults to False, for backward
+compatibility.
+"""))
+
+
 user = cfg.StrOpt(
     'user',
     help=utils.fmt("""
@@ -479,6 +491,7 @@ use_auth_pool` is also enabled.
 GROUP_NAME = __name__.split('.')[-1]
 ALL_OPTS = [
     url,
+    randomize_urls,
     user,
     password,
     suffix,
