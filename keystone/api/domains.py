@@ -99,11 +99,22 @@ class DomainResource(ks_flask.ResourceBase):
 
     def _list_domains(self):
         filters = ['name', 'enabled']
+        target = None
+        if self.oslo_context.domain_id:
+            target = {'domain': {'id': self.oslo_context.domain_id}}
         ENFORCER.enforce_call(action='identity:list_domains',
-                              filters=filters)
+                              filters=filters,
+                              target_attr=target)
         hints = self.build_driver_hints(filters)
         refs = PROVIDERS.resource_api.list_domains(hints=hints)
-        return self.wrap_collection(refs, hints=hints)
+        if self.oslo_context.domain_id:
+            domain_id = self.oslo_context.domain_id
+            filtered_refs = [
+                ref for ref in refs if ref['id'] == domain_id
+            ]
+        else:
+            filtered_refs = refs
+        return self.wrap_collection(filtered_refs, hints=hints)
 
     def post(self):
         """Create domain.
