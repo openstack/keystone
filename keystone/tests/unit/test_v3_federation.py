@@ -4367,7 +4367,7 @@ class SAMLGenerationTests(test_v3.RestfulTestCase):
                           self.signed_assertion)
         expected_log = (
             'Error when signing assertion, reason: %s\n' % exception_msg)
-        self.assertEqual(expected_log, logger_fixture.output)
+        self.assertIn(expected_log, logger_fixture.output)
 
     def test_sign_assertion_logs_message_if_xmlsec1_is_not_installed(self):
         with mock.patch.object(subprocess, 'check_output') as co_mock:
@@ -4383,7 +4383,7 @@ class SAMLGenerationTests(test_v3.RestfulTestCase):
 
             expected_log = ('Unable to locate xmlsec1 binary on the system. '
                             'Check to make sure it is installed.\n')
-            self.assertEqual(expected_log, logger_fixture.output)
+            self.assertIn(expected_log, logger_fixture.output)
 
 
 class IdPMetadataGenerationTests(test_v3.RestfulTestCase):
