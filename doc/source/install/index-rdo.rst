@@ -6,7 +6,7 @@ Abstract
 ~~~~~~~~
 
 This guide will show you how to install Keystone by using packages
-available on Red Hat Enterprise Linux 7 and its derivatives through
+available on Red Hat Enterprise Linux 8 and 9 and their derivatives through
 the RDO repository.
 
 Explanations of configuration options and sample configuration files

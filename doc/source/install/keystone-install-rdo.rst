@@ -62,13 +62,9 @@ Install and configure components
 
    .. code-block:: console
 
-      # yum install openstack-keystone httpd mod_wsgi
+      # dnf install openstack-keystone httpd python3-mod_wsgi
 
    .. end
-
-   .. note::
-
-        For RHEL8/Centos8 and above install package python3-mod_wsgi.
 
 2. Edit the ``/etc/keystone/keystone.conf`` file and complete the following
    actions:
