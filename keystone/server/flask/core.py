@@ -189,7 +189,7 @@ def setup_app_middleware(app):
     # CCloud
     if os.environ.get('SENTRY_DSN', None):
         app.config['SENTRY_CONFIG'] = {
-            'ignore_exceptions': [exception.NotFound],
+            'ignore_exceptions': [exception.NotFound, exception.Unauthorized],
         }
 
         sentry = Sentry()
