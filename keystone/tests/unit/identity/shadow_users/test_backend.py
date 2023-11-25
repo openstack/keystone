@@ -11,6 +11,7 @@
 # under the License.
 
 import datetime
+from unittest import mock
 import uuid
 
 from keystone.common import provider_api
@@ -18,6 +19,7 @@ from keystone.common import sql
 import keystone.conf
 from keystone import exception
 from keystone.identity.backends import sql_model as model
+from keystone.identity.shadow_backends import sql as shadow_sql
 from keystone.tests import unit
 
 
@@ -128,6 +130,30 @@ class ShadowUsersBackendTests(object):
         user_ref = self._get_user_ref(user_auth['id'])
         self.assertGreaterEqual(now, user_ref.last_active_at)
 
+    def test_set_last_active_at_on_non_existing_user(self):
+        self.config_fixture.config(group='security_compliance',
+                                   disable_user_account_days_inactive=90)
+        password = uuid.uuid4().hex
+        user = self._create_user(password)
+
+        # the user can be deleted while authentication is running; to imitate
+        # this, set_last_active_at is mocked to delete the user and then run
+        # normally
+        real_last_active_at = shadow_sql.ShadowUsers.set_last_active_at
+        test_self = self
+
+        def fake_last_active_at(self, user_id):
+            test_self._delete_user(user_id)
+            real_last_active_at(self, user_id)
+
+        with mock.patch.object(shadow_sql.ShadowUsers, 'set_last_active_at',
+                               fake_last_active_at):
+            with self.make_request():
+                # the call is expected to just succeed without exceptions
+                PROVIDERS.identity_api.authenticate(
+                    user_id=user['id'],
+                    password=password)
+
     def test_set_last_active_at_when_config_setting_is_none(self):
         self.config_fixture.config(group='security_compliance',
                                    disable_user_account_days_inactive=None)
@@ -153,6 +179,9 @@ class ShadowUsersBackendTests(object):
             'password': password
         }
         return PROVIDERS.identity_api.create_user(user)
+
+    def _delete_user(self, user_id):
+        return PROVIDERS.identity_api.delete_user(user_id)
 
     def _get_user_ref(self, user_id):
         with sql.session_for_read() as session:
