@@ -26,11 +26,6 @@ from keystone.i18n import _
 
 LOG = log.getLogger(__name__)
 
-if hasattr(inspect, 'getfullargspec'):
-    getargspec = inspect.getfullargspec
-else:
-    getargspec = inspect.getargspec
-
 
 def response_truncated(f):
     """Truncate the list returned by the wrapped function.
@@ -90,7 +85,7 @@ class _TraceMeta(type):
 
     @staticmethod
     def wrapper(__f, __classname):
-        __argspec = getargspec(__f)
+        __argspec = inspect.getfullargspec(__f)
         __fn_info = '%(module)s.%(classname)s.%(funcname)s' % {
             'module': inspect.getmodule(__f).__name__,
             'classname': __classname,
