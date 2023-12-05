@@ -180,6 +180,7 @@ class SecurityErrorTestCase(ExceptionTestCase):
     def setUp(self):
         super(SecurityErrorTestCase, self).setUp()
         self.config_fixture = self.useFixture(config_fixture.Config(CONF))
+        self.config_fixture.config(public_endpoint='http://localhost:5050')
 
     def test_unauthorized_exposure(self):
         self.config_fixture.config(debug=False)

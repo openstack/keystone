@@ -20,11 +20,10 @@ from keystone.tests import unit
 class FormatUrlTests(unit.BaseTestCase):
 
     def test_successful_formatting(self):
-        url_template = ('http://$(public_bind_host)s:$(admin_port)d/'
+        url_template = ('http://server:9090/'
                         '$(tenant_id)s/$(user_id)s/$(project_id)s')
         project_id = uuid.uuid4().hex
-        values = {'public_bind_host': 'server', 'admin_port': 9090,
-                  'tenant_id': 'A', 'user_id': 'B', 'project_id': project_id}
+        values = {'tenant_id': 'A', 'user_id': 'B', 'project_id': project_id}
         actual_url = utils.format_url(url_template, values)
 
         expected_url = 'http://server:9090/A/B/%s' % (project_id,)
@@ -33,20 +32,20 @@ class FormatUrlTests(unit.BaseTestCase):
     def test_raises_malformed_on_missing_key(self):
         self.assertRaises(exception.MalformedEndpoint,
                           utils.format_url,
-                          "http://$(public_bind_host)s/$(public_port)d",
-                          {"public_bind_host": "1"})
+                          "http://server:9090/$(tenant_id)s",
+                          {})
 
     def test_raises_malformed_on_wrong_type(self):
         self.assertRaises(exception.MalformedEndpoint,
                           utils.format_url,
-                          "http://$(public_bind_host)d",
-                          {"public_bind_host": "something"})
+                          "http://server:9090/$(tenant_id)d",
+                          {"tenant_id": 'A'})
 
     def test_raises_malformed_on_incomplete_format(self):
         self.assertRaises(exception.MalformedEndpoint,
                           utils.format_url,
-                          "http://$(public_bind_host)",
-                          {"public_bind_host": "1"})
+                          "http://server:9090/$(tenant_id)",
+                          {"tenant_id": 'A'})
 
     def test_formatting_a_non_string(self):
         def _test(url_template):
@@ -62,10 +61,9 @@ class FormatUrlTests(unit.BaseTestCase):
         # If the url template contains a substitution that's not in the allowed
         # list then MalformedEndpoint is raised.
         # For example, admin_token isn't allowed.
-        url_template = ('http://$(public_bind_host)s:$(public_port)d/'
+        url_template = ('http://server:9090/'
                         '$(project_id)s/$(user_id)s/$(admin_token)s')
-        values = {'public_bind_host': 'server', 'public_port': 9090,
-                  'project_id': 'A', 'user_id': 'B', 'admin_token': 'C'}
+        values = {'user_id': 'B', 'admin_token': 'C'}
         self.assertRaises(exception.MalformedEndpoint,
                           utils.format_url,
                           url_template,
@@ -78,10 +76,9 @@ class FormatUrlTests(unit.BaseTestCase):
         # This is intentional behavior since we don't want to skip
         # all the later endpoints once there is an URL of endpoint
         # trying to replace 'tenant_id' with None.
-        url_template = ('http://$(public_bind_host)s:$(admin_port)d/'
+        url_template = ('http://server:9090/'
                         '$(tenant_id)s/$(user_id)s')
-        values = {'public_bind_host': 'server', 'admin_port': 9090,
-                  'user_id': 'B'}
+        values = {'user_id': 'B'}
         self.assertIsNone(utils.format_url(url_template, values,
                           silent_keyerror_failures=['tenant_id']))
 
@@ -92,9 +89,8 @@ class FormatUrlTests(unit.BaseTestCase):
         # This is intentional behavior since we don't want to skip
         # all the later endpoints once there is an URL of endpoint
         # trying to replace 'project_id' with None.
-        url_template = ('http://$(public_bind_host)s:$(admin_port)d/'
+        url_template = ('http://server:9090/'
                         '$(project_id)s/$(user_id)s')
-        values = {'public_bind_host': 'server', 'admin_port': 9090,
-                  'user_id': 'B'}
+        values = {'user_id': 'B'}
         self.assertIsNone(utils.format_url(url_template, values,
                           silent_keyerror_failures=['project_id']))

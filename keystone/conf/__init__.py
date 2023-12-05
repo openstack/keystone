@@ -15,7 +15,6 @@ import logging
 from oslo_cache import core as cache
 from oslo_config import cfg
 from oslo_log import log
-from oslo_log import versionutils
 import oslo_messaging
 from oslo_middleware import cors
 from oslo_policy import opts as policy_opts
@@ -30,7 +29,6 @@ from keystone.conf import default
 from keystone.conf import domain_config
 from keystone.conf import endpoint_filter
 from keystone.conf import endpoint_policy
-from keystone.conf import eventlet_server
 from keystone.conf import federation
 from keystone.conf import fernet_receipts
 from keystone.conf import fernet_tokens
@@ -68,7 +66,6 @@ conf_modules = [
     domain_config,
     endpoint_filter,
     endpoint_policy,
-    eventlet_server,
     federation,
     fernet_receipts,
     fernet_tokens,
@@ -96,8 +93,6 @@ conf_modules = [
 
 
 oslo_messaging.set_transport_defaults(control_exchange='keystone')
-_DEPRECATED_REASON = ('This option is only used by eventlet mode which has '
-                      'been removed from Keystone in Newton release.')
 
 
 def set_default_for_default_log_levels():
@@ -129,25 +124,6 @@ def setup_logging():
 def configure(conf=None):
     if conf is None:
         conf = CONF
-
-    conf.register_cli_opt(
-        cfg.BoolOpt('standard-threads', default=False,
-                    help='Do not monkey-patch threading system modules.',
-                    deprecated_for_removal=True,
-                    deprecated_reason=_DEPRECATED_REASON,
-                    deprecated_since=versionutils.deprecated.STEIN))
-    conf.register_cli_opt(
-        cfg.StrOpt('pydev-debug-host',
-                   help='Host to connect to for remote debugger.',
-                   deprecated_for_removal=True,
-                   deprecated_reason=_DEPRECATED_REASON,
-                   deprecated_since=versionutils.deprecated.STEIN))
-    conf.register_cli_opt(
-        cfg.PortOpt('pydev-debug-port',
-                    help='Port to connect to for remote debugger.',
-                    deprecated_for_removal=True,
-                    deprecated_reason=_DEPRECATED_REASON,
-                    deprecated_since=versionutils.deprecated.STEIN))
 
     for module in conf_modules:
         module.register_opts(conf)
