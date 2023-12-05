@@ -58,16 +58,8 @@ deprecated_delete_domain_config = policy.DeprecatedRule(
 domain_config_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_domain_config',
-        check_str=base.SYSTEM_ADMIN,
-        # FIXME(lbragstad): The domain configuration API has traditionally
-        # required system or cloud administrators. If, or when, keystone
-        # implements the ability for project administrator to use these APIs,
-        # then 'project' should be added to scope_types. Adding support for
-        # project or domain administrator to manage their own domain
-        # configuration would be useful and alleviate work for system
-        # administrators, but until we have checks in code that enforce those
-        # checks, let's keep this as a system-level operation.
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system', 'project'],
         description='Create domain configuration.',
         operations=[
             {
@@ -79,8 +71,8 @@ domain_config_policies = [
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_domain_config',
-        check_str=base.SYSTEM_READER,
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_OR_SYSTEM_READER,
+        scope_types=['system', 'project'],
         description=('Get the entire domain configuration for a domain, an '
                      'option group within a domain, or a specific '
                      'configuration option within a group for a domain.'),
@@ -143,8 +135,8 @@ domain_config_policies = [
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_domain_config',
-        check_str=base.SYSTEM_ADMIN,
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system', 'project'],
         description=('Update domain configuration for either a domain, '
                      'specific group or a specific option in a group.'),
         operations=[
@@ -165,8 +157,8 @@ domain_config_policies = [
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_domain_config',
-        check_str=base.SYSTEM_ADMIN,
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system', 'project'],
         description=('Delete domain configuration for either a domain, '
                      'specific group or a specific option in a group.'),
         operations=[
@@ -187,8 +179,8 @@ domain_config_policies = [
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_domain_config_default',
-        check_str=base.SYSTEM_READER,
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_OR_SYSTEM_READER,
+        scope_types=['system', 'project'],
         description=('Get domain configuration default for either a domain, '
                      'specific group or a specific option in a group.'),
         operations=[
