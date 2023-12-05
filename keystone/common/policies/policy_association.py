@@ -105,8 +105,8 @@ deprecated_delete_policy_assoc_for_region_and_service = policy.DeprecatedRule(
 policy_association_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_policy_association_for_endpoint',
-        check_str=base.SYSTEM_ADMIN,
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system', 'project'],
         description='Associate a policy to a specific endpoint.',
         operations=[{'path': ('/v3/policies/{policy_id}/OS-ENDPOINT-POLICY/'
                               'endpoints/{endpoint_id}'),
@@ -114,8 +114,8 @@ policy_association_policies = [
         deprecated_rule=deprecated_create_policy_assoc_for_endpoint),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'check_policy_association_for_endpoint',
-        check_str=base.SYSTEM_READER,
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_OR_SYSTEM_READER,
+        scope_types=['system', 'project'],
         description='Check policy association for endpoint.',
         operations=[{'path': ('/v3/policies/{policy_id}/OS-ENDPOINT-POLICY/'
                               'endpoints/{endpoint_id}'),
@@ -126,8 +126,8 @@ policy_association_policies = [
         deprecated_rule=deprecated_check_policy_assoc_for_endpoint),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_policy_association_for_endpoint',
-        check_str=base.SYSTEM_ADMIN,
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system', 'project'],
         description='Delete policy association for endpoint.',
         operations=[{'path': ('/v3/policies/{policy_id}/OS-ENDPOINT-POLICY/'
                               'endpoints/{endpoint_id}'),
@@ -135,8 +135,8 @@ policy_association_policies = [
         deprecated_rule=deprecated_delete_policy_assoc_for_endpoint),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_policy_association_for_service',
-        check_str=base.SYSTEM_ADMIN,
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system', 'project'],
         description='Associate a policy to a specific service.',
         operations=[{'path': ('/v3/policies/{policy_id}/OS-ENDPOINT-POLICY/'
                               'services/{service_id}'),
@@ -144,8 +144,8 @@ policy_association_policies = [
         deprecated_rule=deprecated_create_policy_assoc_for_service),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'check_policy_association_for_service',
-        check_str=base.SYSTEM_READER,
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_OR_SYSTEM_READER,
+        scope_types=['system', 'project'],
         description='Check policy association for service.',
         operations=[{'path': ('/v3/policies/{policy_id}/OS-ENDPOINT-POLICY/'
                               'services/{service_id}'),
@@ -156,8 +156,8 @@ policy_association_policies = [
         deprecated_rule=deprecated_check_policy_assoc_for_service),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_policy_association_for_service',
-        check_str=base.SYSTEM_ADMIN,
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system', 'project'],
         description='Delete policy association for service.',
         operations=[{'path': ('/v3/policies/{policy_id}/OS-ENDPOINT-POLICY/'
                               'services/{service_id}'),
@@ -166,8 +166,8 @@ policy_association_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % (
             'create_policy_association_for_region_and_service'),
-        check_str=base.SYSTEM_ADMIN,
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system', 'project'],
         description=('Associate a policy to a specific region and service '
                      'combination.'),
         operations=[{'path': ('/v3/policies/{policy_id}/OS-ENDPOINT-POLICY/'
@@ -176,8 +176,8 @@ policy_association_policies = [
         deprecated_rule=deprecated_create_policy_assoc_for_region_and_service),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'check_policy_association_for_region_and_service',
-        check_str=base.SYSTEM_READER,
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_OR_SYSTEM_READER,
+        scope_types=['system', 'project'],
         description='Check policy association for region and service.',
         operations=[{'path': ('/v3/policies/{policy_id}/OS-ENDPOINT-POLICY/'
                               'services/{service_id}/regions/{region_id}'),
@@ -189,8 +189,8 @@ policy_association_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % (
             'delete_policy_association_for_region_and_service'),
-        check_str=base.SYSTEM_ADMIN,
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system', 'project'],
         description='Delete policy association for region and service.',
         operations=[{'path': ('/v3/policies/{policy_id}/OS-ENDPOINT-POLICY/'
                               'services/{service_id}/regions/{region_id}'),
@@ -198,8 +198,8 @@ policy_association_policies = [
         deprecated_rule=deprecated_delete_policy_assoc_for_region_and_service),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_policy_for_endpoint',
-        check_str=base.SYSTEM_READER,
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_OR_SYSTEM_READER,
+        scope_types=['system', 'project'],
         description='Get policy for endpoint.',
         operations=[{'path': ('/v3/endpoints/{endpoint_id}/OS-ENDPOINT-POLICY/'
                               'policy'),
@@ -210,8 +210,8 @@ policy_association_policies = [
         deprecated_rule=deprecated_get_policy_for_endpoint),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_endpoints_for_policy',
-        check_str=base.SYSTEM_READER,
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_OR_SYSTEM_READER,
+        scope_types=['system', 'project'],
         description='List endpoints for policy.',
         operations=[{'path': ('/v3/policies/{policy_id}/OS-ENDPOINT-POLICY/'
                               'endpoints'),

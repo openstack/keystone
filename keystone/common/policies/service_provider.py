@@ -54,14 +54,8 @@ deprecated_delete_sp = policy.DeprecatedRule(
 service_provider_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_service_provider',
-        check_str=base.SYSTEM_ADMIN,
-        # FIXME(lbragstad): Today, keystone doesn't support federation without
-        # modifying configuration files. It makes sense to require system scope
-        # for these operations until keystone supports a way to add federated
-        # identity and service providers strictly over the API. At that point,
-        # it will make sense to include `project` in the list of `scope_types`
-        # for service provider policies.
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system', 'project'],
         description='Create federated service provider.',
         operations=[{'path': ('/v3/OS-FEDERATION/service_providers/'
                               '{service_provider_id}'),
@@ -69,8 +63,8 @@ service_provider_policies = [
         deprecated_rule=deprecated_create_sp),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_service_providers',
-        check_str=base.SYSTEM_READER,
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_OR_SYSTEM_READER,
+        scope_types=['system', 'project'],
         description='List federated service providers.',
         operations=[
             {
@@ -86,8 +80,8 @@ service_provider_policies = [
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_service_provider',
-        check_str=base.SYSTEM_READER,
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_OR_SYSTEM_READER,
+        scope_types=['system', 'project'],
         description='Get federated service provider.',
         operations=[
             {
@@ -105,8 +99,8 @@ service_provider_policies = [
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_service_provider',
-        check_str=base.SYSTEM_ADMIN,
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system', 'project'],
         description='Update federated service provider.',
         operations=[{'path': ('/v3/OS-FEDERATION/service_providers/'
                               '{service_provider_id}'),
@@ -114,8 +108,8 @@ service_provider_policies = [
         deprecated_rule=deprecated_update_sp),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_service_provider',
-        check_str=base.SYSTEM_ADMIN,
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system', 'project'],
         description='Delete federated service provider.',
         operations=[{'path': ('/v3/OS-FEDERATION/service_providers/'
                               '{service_provider_id}'),

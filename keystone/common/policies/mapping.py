@@ -54,14 +54,8 @@ deprecated_delete_mapping = policy.DeprecatedRule(
 mapping_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_mapping',
-        check_str=base.SYSTEM_ADMIN,
-        # FIXME(lbragstad): Today, keystone doesn't support federation unless
-        # the person create identity providers, service providers, or mappings
-        # has the ability to modify keystone and Apache configuration files.
-        # If, or when, keystone adds support for federating identities without
-        # having to touch system configuration files, the list of `scope_types`
-        # for these policies should include `project`.
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system', 'project'],
         description=('Create a new federated mapping containing one or '
                      'more sets of rules.'),
         operations=[{'path': '/v3/OS-FEDERATION/mappings/{mapping_id}',
@@ -69,8 +63,8 @@ mapping_policies = [
         deprecated_rule=deprecated_create_mapping),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_mapping',
-        check_str=base.SYSTEM_READER,
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_OR_SYSTEM_READER,
+        scope_types=['system', 'project'],
         description='Get a federated mapping.',
         operations=[
             {
@@ -86,8 +80,8 @@ mapping_policies = [
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_mappings',
-        check_str=base.SYSTEM_READER,
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_OR_SYSTEM_READER,
+        scope_types=['system', 'project'],
         description='List federated mappings.',
         operations=[
             {
@@ -103,16 +97,16 @@ mapping_policies = [
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_mapping',
-        check_str=base.SYSTEM_ADMIN,
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system', 'project'],
         description='Delete a federated mapping.',
         operations=[{'path': '/v3/OS-FEDERATION/mappings/{mapping_id}',
                      'method': 'DELETE'}],
         deprecated_rule=deprecated_delete_mapping),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_mapping',
-        check_str=base.SYSTEM_ADMIN,
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system', 'project'],
         description='Update a federated mapping.',
         operations=[{'path': '/v3/OS-FEDERATION/mappings/{mapping_id}',
                      'method': 'PATCH'}],

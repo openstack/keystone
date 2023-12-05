@@ -20,6 +20,10 @@ SYSTEM_READER_OR_DOMAIN_READER_FOR_TARGET_USER_OR_OWNER = (
     '(role:reader and domain_id:%(target.user.domain_id)s) or '
     'user_id:%(user_id)s'
 )
+ADMIN_OR_SYSTEM_READER_OR_DOMAIN_READER_FOR_TARGET_OR_OWNER = (
+    '(' + base.RULE_ADMIN_REQUIRED + ') or (' +
+    SYSTEM_READER_OR_DOMAIN_READER_FOR_TARGET_USER_OR_OWNER
+)
 
 SYSTEM_READER_OR_DOMAIN_READER_FOR_TARGET_GROUP_USER = (
     '(role:reader and system_scope:all) or '
@@ -27,17 +31,18 @@ SYSTEM_READER_OR_DOMAIN_READER_FOR_TARGET_GROUP_USER = (
     'domain_id:%(target.group.domain_id)s and '
     'domain_id:%(target.user.domain_id)s)'
 )
-
-SYSTEM_ADMIN_OR_DOMAIN_ADMIN_FOR_TARGET_GROUP_USER = (
-    '(role:admin and system_scope:all) or '
-    '(role:admin and '
-    'domain_id:%(target.group.domain_id)s and '
-    'domain_id:%(target.user.domain_id)s)'
+ADMIN_OR_SYSTEM_READER_OR_DOMAIN_READER_FOR_TARGET_GROUP = (
+    '(' + base.RULE_ADMIN_REQUIRED + ') or (' +
+    SYSTEM_READER_OR_DOMAIN_READER_FOR_TARGET_GROUP_USER
 )
 
 SYSTEM_READER_OR_DOMAIN_READER = (
     '(role:reader and system_scope:all) or '
     '(role:reader and domain_id:%(target.group.domain_id)s)'
+)
+ADMIN_OR_SYSTEM_READER_OR_DOMAIN_READER = (
+    '(' + base.RULE_ADMIN_REQUIRED + ') or ' +
+    SYSTEM_READER_OR_DOMAIN_READER
 )
 
 SYSTEM_ADMIN_OR_DOMAIN_ADMIN = (
@@ -113,8 +118,8 @@ deprecated_add_user_to_group = policy.DeprecatedRule(
 group_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_group',
-        check_str=SYSTEM_READER_OR_DOMAIN_READER,
-        scope_types=['system', 'domain'],
+        check_str=ADMIN_OR_SYSTEM_READER_OR_DOMAIN_READER,
+        scope_types=['system', 'domain', 'project'],
         description='Show group details.',
         operations=[{'path': '/v3/groups/{group_id}',
                      'method': 'GET'},
@@ -123,8 +128,8 @@ group_policies = [
         deprecated_rule=deprecated_get_group),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_groups',
-        check_str=SYSTEM_READER_OR_DOMAIN_READER,
-        scope_types=['system', 'domain'],
+        check_str=ADMIN_OR_SYSTEM_READER_OR_DOMAIN_READER,
+        scope_types=['system', 'domain', 'project'],
         description='List groups.',
         operations=[{'path': '/v3/groups',
                      'method': 'GET'},
@@ -133,7 +138,7 @@ group_policies = [
         deprecated_rule=deprecated_list_groups),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_groups_for_user',
-        check_str=SYSTEM_READER_OR_DOMAIN_READER_FOR_TARGET_USER_OR_OWNER,
+        check_str=ADMIN_OR_SYSTEM_READER_OR_DOMAIN_READER_FOR_TARGET_OR_OWNER,
         scope_types=['system', 'domain', 'project'],
         description='List groups to which a user belongs.',
         operations=[{'path': '/v3/users/{user_id}/groups',
@@ -143,32 +148,32 @@ group_policies = [
         deprecated_rule=deprecated_list_groups_for_user),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_group',
-        check_str=SYSTEM_ADMIN_OR_DOMAIN_ADMIN,
-        scope_types=['system', 'domain'],
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system', 'domain', 'project'],
         description='Create group.',
         operations=[{'path': '/v3/groups',
                      'method': 'POST'}],
         deprecated_rule=deprecated_create_group),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_group',
-        check_str=SYSTEM_ADMIN_OR_DOMAIN_ADMIN,
-        scope_types=['system', 'domain'],
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system', 'domain', 'project'],
         description='Update group.',
         operations=[{'path': '/v3/groups/{group_id}',
                      'method': 'PATCH'}],
         deprecated_rule=deprecated_update_group),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_group',
-        check_str=SYSTEM_ADMIN_OR_DOMAIN_ADMIN,
-        scope_types=['system', 'domain'],
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system', 'domain', 'project'],
         description='Delete group.',
         operations=[{'path': '/v3/groups/{group_id}',
                      'method': 'DELETE'}],
         deprecated_rule=deprecated_delete_group),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_users_in_group',
-        check_str=SYSTEM_READER_OR_DOMAIN_READER,
-        scope_types=['system', 'domain'],
+        check_str=ADMIN_OR_SYSTEM_READER_OR_DOMAIN_READER,
+        scope_types=['system', 'domain', 'project'],
         description='List members of a specific group.',
         operations=[{'path': '/v3/groups/{group_id}/users',
                      'method': 'GET'},
@@ -177,16 +182,16 @@ group_policies = [
         deprecated_rule=deprecated_list_users_in_group),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'remove_user_from_group',
-        check_str=SYSTEM_ADMIN_OR_DOMAIN_ADMIN_FOR_TARGET_GROUP_USER,
-        scope_types=['system', 'domain'],
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system', 'domain', 'project'],
         description='Remove user from group.',
         operations=[{'path': '/v3/groups/{group_id}/users/{user_id}',
                      'method': 'DELETE'}],
         deprecated_rule=deprecated_remove_user_from_group),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'check_user_in_group',
-        check_str=SYSTEM_READER_OR_DOMAIN_READER_FOR_TARGET_GROUP_USER,
-        scope_types=['system', 'domain'],
+        check_str=ADMIN_OR_SYSTEM_READER_OR_DOMAIN_READER_FOR_TARGET_GROUP,
+        scope_types=['system', 'domain', 'project'],
         description='Check whether a user is a member of a group.',
         operations=[{'path': '/v3/groups/{group_id}/users/{user_id}',
                      'method': 'HEAD'},
@@ -195,8 +200,8 @@ group_policies = [
         deprecated_rule=deprecated_check_user_in_group),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'add_user_to_group',
-        check_str=SYSTEM_ADMIN_OR_DOMAIN_ADMIN_FOR_TARGET_GROUP_USER,
-        scope_types=['system', 'domain'],
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system', 'domain', 'project'],
         description='Add user to group.',
         operations=[{'path': '/v3/groups/{group_id}/users/{user_id}',
                      'method': 'PUT'}],
