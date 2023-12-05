@@ -14,7 +14,8 @@ from oslo_policy import policy
 
 from keystone.common.policies import base
 
-SYSTEM_OR_DOMAIN_OR_PROJECT_USER = (
+ADMIN_OR_SYSTEM_OR_DOMAIN_OR_PROJECT_USER = (
+    base.RULE_ADMIN_REQUIRED + ' or '
     '(' + base.SYSTEM_READER + ') or '
     '('
     'domain_id:%(target.limit.domain.id)s or '
@@ -38,7 +39,7 @@ limit_policies = [
                      'method': 'HEAD'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_limit',
-        check_str=SYSTEM_OR_DOMAIN_OR_PROJECT_USER,
+        check_str=ADMIN_OR_SYSTEM_OR_DOMAIN_OR_PROJECT_USER,
         scope_types=['system', 'domain', 'project'],
         description='Show limit details.',
         operations=[{'path': '/v3/limits/{limit_id}',
@@ -56,22 +57,22 @@ limit_policies = [
                      'method': 'HEAD'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_limits',
-        check_str=base.SYSTEM_ADMIN,
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system', 'project'],
         description='Create limits.',
         operations=[{'path': '/v3/limits',
                      'method': 'POST'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_limit',
-        check_str=base.SYSTEM_ADMIN,
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system', 'project'],
         description='Update limit.',
         operations=[{'path': '/v3/limits/{limit_id}',
                      'method': 'PATCH'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_limit',
-        check_str=base.SYSTEM_ADMIN,
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system', 'project'],
         description='Delete limit.',
         operations=[{'path': '/v3/limits/{limit_id}',
                      'method': 'DELETE'}])

@@ -60,12 +60,12 @@ deprecated_delete_implied_role = policy.DeprecatedRule(
 implied_role_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_implied_role',
-        check_str=base.SYSTEM_READER,
+        check_str=base.RULE_ADMIN_OR_SYSTEM_READER,
         # FIXME(lbragstad) The management of implied roles currently makes
         # sense as a system-only resource. Once keystone has the ability to
         # support RBAC solely over the API without having to customize policy
         # files, scope_types should include 'project'.
-        scope_types=['system'],
+        scope_types=['system', 'project'],
         description='Get information about an association between two roles. '
                     'When a relationship exists between a prior role and an '
                     'implied role and the prior role is assigned to a user, '
@@ -76,8 +76,8 @@ implied_role_policies = [
         deprecated_rule=deprecated_get_implied_role),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_implied_roles',
-        check_str=base.SYSTEM_READER,
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_OR_SYSTEM_READER,
+        scope_types=['system', 'project'],
         description='List associations between two roles. When a relationship '
                     'exists between a prior role and an implied role and the '
                     'prior role is assigned to a user, the user also assumes '
@@ -90,8 +90,8 @@ implied_role_policies = [
         deprecated_rule=deprecated_list_implied_roles),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_implied_role',
-        check_str=base.SYSTEM_ADMIN,
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system', 'project'],
         description='Create an association between two roles. When a '
                     'relationship exists between a prior role and an implied '
                     'role and the prior role is assigned to a user, the user '
@@ -102,8 +102,8 @@ implied_role_policies = [
         deprecated_rule=deprecated_create_implied_role),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_implied_role',
-        check_str=base.SYSTEM_ADMIN,
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system', 'project'],
         description='Delete the association between two roles. When a '
                     'relationship exists between a prior role and an implied '
                     'role and the prior role is assigned to a user, the user '
@@ -115,8 +115,8 @@ implied_role_policies = [
         deprecated_rule=deprecated_delete_implied_role),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_role_inference_rules',
-        check_str=base.SYSTEM_READER,
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_OR_SYSTEM_READER,
+        scope_types=['system', 'project'],
         description='List all associations between two roles in the system. '
                     'When a relationship exists between a prior role and an '
                     'implied role and the prior role is assigned to a user, '
@@ -127,8 +127,8 @@ implied_role_policies = [
         deprecated_rule=deprecated_list_role_inference_rules),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'check_implied_role',
-        check_str=base.SYSTEM_READER,
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_OR_SYSTEM_READER,
+        scope_types=['system', 'project'],
         description='Check an association between two roles. When a '
                     'relationship exists between a prior role and an implied '
                     'role and the prior role is assigned to a user, the user '

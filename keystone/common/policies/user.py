@@ -20,14 +20,18 @@ SYSTEM_READER_OR_DOMAIN_READER_OR_USER = (
     '(role:reader and token.domain.id:%(target.user.domain_id)s) or '
     'user_id:%(target.user.id)s'
 )
+ADMIN_OR_SYSTEM_READER_OR_DOMAIN_READER_OR_USER = (
+    '(' + base.RULE_ADMIN_REQUIRED + ') or ' +
+    SYSTEM_READER_OR_DOMAIN_READER_OR_USER
+
+)
 
 SYSTEM_READER_OR_DOMAIN_READER = (
     '(' + base.SYSTEM_READER + ') or (' + base.DOMAIN_READER + ')'
 )
-
-SYSTEM_ADMIN_OR_DOMAIN_ADMIN = (
-    '(role:admin and system_scope:all) or '
-    '(role:admin and token.domain.id:%(target.user.domain_id)s)'
+ADMIN_OR_SYSTEM_READER_OR_DOMAIN_READER = (
+    '(' + base.RULE_ADMIN_REQUIRED + ') or ' +
+    SYSTEM_READER_OR_DOMAIN_READER
 )
 
 DEPRECATED_REASON = (
@@ -68,7 +72,7 @@ deprecated_delete_user = policy.DeprecatedRule(
 user_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_user',
-        check_str=SYSTEM_READER_OR_DOMAIN_READER_OR_USER,
+        check_str=ADMIN_OR_SYSTEM_READER_OR_DOMAIN_READER_OR_USER,
         scope_types=['system', 'domain', 'project'],
         description='Show user details.',
         operations=[{'path': '/v3/users/{user_id}',
@@ -78,8 +82,8 @@ user_policies = [
         deprecated_rule=deprecated_get_user),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_users',
-        check_str=SYSTEM_READER_OR_DOMAIN_READER,
-        scope_types=['system', 'domain'],
+        check_str=ADMIN_OR_SYSTEM_READER_OR_DOMAIN_READER,
+        scope_types=['system', 'domain', 'project'],
         description='List users.',
         operations=[{'path': '/v3/users',
                      'method': 'GET'},
@@ -112,24 +116,24 @@ user_policies = [
                      'method': 'GET'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_user',
-        check_str=SYSTEM_ADMIN_OR_DOMAIN_ADMIN,
-        scope_types=['system', 'domain'],
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system', 'domain', 'project'],
         description='Create a user.',
         operations=[{'path': '/v3/users',
                      'method': 'POST'}],
         deprecated_rule=deprecated_create_user),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_user',
-        check_str=SYSTEM_ADMIN_OR_DOMAIN_ADMIN,
-        scope_types=['system', 'domain'],
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system', 'domain', 'project'],
         description='Update a user, including administrative password resets.',
         operations=[{'path': '/v3/users/{user_id}',
                      'method': 'PATCH'}],
         deprecated_rule=deprecated_update_user),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_user',
-        check_str=SYSTEM_ADMIN_OR_DOMAIN_ADMIN,
-        scope_types=['system', 'domain'],
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system', 'domain', 'project'],
         description='Delete a user.',
         operations=[{'path': '/v3/users/{user_id}',
                      'method': 'DELETE'}],

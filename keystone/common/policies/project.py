@@ -20,6 +20,10 @@ SYSTEM_READER_OR_DOMAIN_READER_OR_PROJECT_USER = (
     '(role:reader and domain_id:%(target.project.domain_id)s) or '
     'project_id:%(target.project.id)s'
 )
+ADMIN_OR_SYSTEM_READER_OR_DOMAIN_READER_OR_PROJECT_USER = (
+    '(' + base.RULE_ADMIN_REQUIRED + ') or ' +
+    SYSTEM_READER_OR_DOMAIN_READER_OR_PROJECT_USER
+)
 
 SYSTEM_ADMIN_OR_DOMAIN_ADMIN_OR_PROJECT_ADMIN = (
     '(' + base.SYSTEM_ADMIN + ') or '
@@ -41,10 +45,19 @@ SYSTEM_READER_OR_DOMAIN_READER_OR_OWNER = (
     # the context user_id to the target user id.
     'user_id:%(target.user.id)s'
 )
+ADMIN_OR_SYSTEM_READER_OR_DOMAIN_READER_OR_OWNER = (
+    '(' + base.RULE_ADMIN_REQUIRED + ') or ' +
+    SYSTEM_READER_OR_DOMAIN_READER_OR_OWNER
+)
 
 SYSTEM_READER_OR_DOMAIN_READER = (
     '(' + base.SYSTEM_READER + ') or '
     '(role:reader and domain_id:%(target.domain_id)s)'
+)
+
+ADMIN_OR_SYSTEM_READER_OR_DOMAIN_READER = (
+    '(' + base.RULE_ADMIN_REQUIRED + ') or ' +
+    SYSTEM_READER_OR_DOMAIN_READER
 )
 
 SYSTEM_ADMIN_OR_DOMAIN_ADMIN = (
@@ -149,19 +162,15 @@ project_policies = [
         deprecated_rule=deprecated_get_project),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_projects',
-        check_str=SYSTEM_READER_OR_DOMAIN_READER,
-        # FIXME(lbragstad): Project administrators should be able to list
-        # projects they administer or possibly their children.  Until keystone
-        # is smart enough to handle those cases, keep scope_types set to
-        # 'system' and 'domain'.
-        scope_types=['system', 'domain'],
+        check_str=ADMIN_OR_SYSTEM_READER_OR_DOMAIN_READER,
+        scope_types=['system', 'domain', 'project'],
         description='List projects.',
         operations=[{'path': '/v3/projects',
                      'method': 'GET'}],
         deprecated_rule=deprecated_list_projects),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_user_projects',
-        check_str=SYSTEM_READER_OR_DOMAIN_READER_OR_OWNER,
+        check_str=ADMIN_OR_SYSTEM_READER_OR_DOMAIN_READER_OR_OWNER,
         scope_types=['system', 'domain', 'project'],
         description='List projects for user.',
         operations=[{'path': '/v3/users/{user_id}/projects',
@@ -169,31 +178,31 @@ project_policies = [
         deprecated_rule=deprecated_list_user_projects),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_project',
-        check_str=SYSTEM_ADMIN_OR_DOMAIN_ADMIN,
-        scope_types=['system', 'domain'],
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system', 'domain', 'project'],
         description='Create project.',
         operations=[{'path': '/v3/projects',
                      'method': 'POST'}],
         deprecated_rule=deprecated_create_project),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_project',
-        check_str=SYSTEM_ADMIN_OR_DOMAIN_ADMIN,
-        scope_types=['system', 'domain'],
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system', 'domain', 'project'],
         description='Update project.',
         operations=[{'path': '/v3/projects/{project_id}',
                      'method': 'PATCH'}],
         deprecated_rule=deprecated_update_project),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_project',
-        check_str=SYSTEM_ADMIN_OR_DOMAIN_ADMIN,
-        scope_types=['system', 'domain'],
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system', 'domain', 'project'],
         description='Delete project.',
         operations=[{'path': '/v3/projects/{project_id}',
                      'method': 'DELETE'}],
         deprecated_rule=deprecated_delete_project),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_project_tags',
-        check_str=SYSTEM_READER_OR_DOMAIN_READER_OR_PROJECT_USER,
+        check_str=ADMIN_OR_SYSTEM_READER_OR_DOMAIN_READER_OR_PROJECT_USER,
         scope_types=['system', 'domain', 'project'],
         description='List tags for a project.',
         operations=[{'path': '/v3/projects/{project_id}/tags',
@@ -203,7 +212,7 @@ project_policies = [
         deprecated_rule=deprecated_list_project_tags),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_project_tag',
-        check_str=SYSTEM_READER_OR_DOMAIN_READER_OR_PROJECT_USER,
+        check_str=ADMIN_OR_SYSTEM_READER_OR_DOMAIN_READER_OR_PROJECT_USER,
         scope_types=['system', 'domain', 'project'],
         description='Check if project contains a tag.',
         operations=[{'path': '/v3/projects/{project_id}/tags/{value}',
@@ -213,7 +222,7 @@ project_policies = [
         deprecated_rule=deprecated_get_project_tag),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_project_tags',
-        check_str=SYSTEM_ADMIN_OR_DOMAIN_ADMIN_OR_PROJECT_ADMIN,
+        check_str=base.RULE_ADMIN_REQUIRED,
         scope_types=['system', 'domain', 'project'],
         description='Replace all tags on a project with the new set of tags.',
         operations=[{'path': '/v3/projects/{project_id}/tags',
@@ -221,7 +230,7 @@ project_policies = [
         deprecated_rule=deprecated_update_project_tag),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_project_tag',
-        check_str=SYSTEM_ADMIN_OR_DOMAIN_ADMIN_OR_PROJECT_ADMIN,
+        check_str=base.RULE_ADMIN_REQUIRED,
         scope_types=['system', 'domain', 'project'],
         description='Add a single tag to a project.',
         operations=[{'path': '/v3/projects/{project_id}/tags/{value}',
@@ -229,7 +238,7 @@ project_policies = [
         deprecated_rule=deprecated_create_project_tag),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_project_tags',
-        check_str=SYSTEM_ADMIN_OR_DOMAIN_ADMIN_OR_PROJECT_ADMIN,
+        check_str=base.RULE_ADMIN_REQUIRED,
         scope_types=['system', 'domain', 'project'],
         description='Remove all tags from a project.',
         operations=[{'path': '/v3/projects/{project_id}/tags',
@@ -237,7 +246,7 @@ project_policies = [
         deprecated_rule=deprecated_delete_project_tags),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_project_tag',
-        check_str=SYSTEM_ADMIN_OR_DOMAIN_ADMIN_OR_PROJECT_ADMIN,
+        check_str=base.RULE_ADMIN_REQUIRED,
         scope_types=['system', 'domain', 'project'],
         description='Delete a specified tag from project.',
         operations=[{'path': '/v3/projects/{project_id}/tags/{value}',
