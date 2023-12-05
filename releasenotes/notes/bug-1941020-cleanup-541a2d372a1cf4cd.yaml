@@ -1,0 +1,11 @@
+---
+upgrade:
+  - |
+    The following deprecated options in the ``[memcache]`` section have been
+    removed.
+
+    - ``dead_retry``
+    - ``pool_maxsize``
+    - ``pool_unused_timeout``
+    - ``pool_connection_get_timeout``
+
