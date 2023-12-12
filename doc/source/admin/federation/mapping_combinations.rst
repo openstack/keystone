@@ -75,6 +75,11 @@ A mapping looks as follows:
   * `<user>`: the local user that will be mapped to the federated user.
   * `<group>`: (optional) the local groups the federated user will be placed in.
   * `<projects>`: (optional) the local projects mapped to the federated user.
+  * `<domain>`: (optional) the local domain mapped to the federated user,
+    projects, and groups. Projects and groups can also override this default
+    domain by defining a domain of their own. Moreover, if no domain is
+    defined in this configuration, the attribute mapping schema will use the
+    identity provider OpenStack domain.
 
 * `remote`: a JSON object containing information on what remote attributes will be mapped.
 
@@ -847,7 +852,8 @@ It is important to note the following constraints apply when auto-provisioning:
 
 * Projects are the only resource that will be created dynamically.
 * Projects will be created within the domain associated with the Identity
-  Provider.
+  Provider or the domain mapped via the attribute mapping
+  (`federation_attribute_mapping_schema_version >= 2.0`).
 * The ``projects`` section of the mapping must also contain a ``roles``
   section.
 

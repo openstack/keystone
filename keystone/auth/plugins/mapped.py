@@ -106,6 +106,60 @@ def handle_scoped_token(token, federation_api, identity_api):
     return response_data
 
 
+def configure_project_domain(shadow_project, idp_domain_id,
+                             resource_api):
+    """Configure federated projects domain.
+
+    We set the domain to be the default (idp_domain_id) if the project
+    from the attribute mapping comes without a domain.
+    """
+    LOG.debug('Processing domain for project: %s', shadow_project)
+    domain = shadow_project.get('domain', {"id": idp_domain_id})
+    if 'id' not in domain:
+        db_domain = resource_api.get_domain_by_name(domain['name'])
+        domain = {"id": db_domain.get('id')}
+    shadow_project['domain'] = domain
+    LOG.debug('Project [%s] domain ID was resolved to [%s]',
+              shadow_project['name'], shadow_project['domain']['id'])
+
+
+def handle_projects_from_mapping(shadow_projects, idp_domain_id,
+                                 existing_roles, user, assignment_api,
+                                 resource_api):
+    for shadow_project in shadow_projects:
+        configure_project_domain(
+            shadow_project, idp_domain_id, resource_api)
+        try:
+            # Check and see if the project already exists and if it
+            # does not, try to create it.
+            project = resource_api.get_project_by_name(
+                shadow_project['name'], shadow_project['domain']['id']
+            )
+        except exception.ProjectNotFound:
+            LOG.info(
+                'Project %(project_name)s does not exist. It will be '
+                'automatically provisioning for user %(user_id)s.',
+                {'project_name': shadow_project['name'],
+                 'user_id': user['id']}
+            )
+            project_ref = {
+                'id': uuid.uuid4().hex,
+                'name': shadow_project['name'],
+                'domain_id': shadow_project['domain']['id']
+            }
+            project = resource_api.create_project(
+                project_ref['id'],
+                project_ref
+            )
+        shadow_roles = shadow_project['roles']
+        for shadow_role in shadow_roles:
+            assignment_api.create_grant(
+                existing_roles[shadow_role['name']]['id'],
+                user_id=user['id'],
+                project_id=project['id']
+            )
+
+
 def handle_unscoped_token(auth_payload, resource_api, federation_api,
                           identity_api, assignment_api, role_api):
 
@@ -140,41 +194,6 @@ def handle_unscoped_token(auth_payload, resource_api, federation_api,
                         role_name=shadow_role['name'],
                         identity_provider=idp_id
                     )
-
-    def create_projects_from_mapping(shadow_projects, idp_domain_id,
-                                     existing_roles, user, assignment_api,
-                                     resource_api):
-        for shadow_project in shadow_projects:
-            try:
-                # Check and see if the project already exists and if it
-                # does not, try to create it.
-                project = resource_api.get_project_by_name(
-                    shadow_project['name'], idp_domain_id
-                )
-            except exception.ProjectNotFound:
-                LOG.info(
-                    'Project %(project_name)s does not exist. It will be '
-                    'automatically provisioning for user %(user_id)s.',
-                    {'project_name': shadow_project['name'],
-                     'user_id': user['id']}
-                )
-                project_ref = {
-                    'id': uuid.uuid4().hex,
-                    'name': shadow_project['name'],
-                    'domain_id': idp_domain_id
-                }
-                project = resource_api.create_project(
-                    project_ref['id'],
-                    project_ref
-                )
-
-            shadow_roles = shadow_project['roles']
-            for shadow_role in shadow_roles:
-                assignment_api.create_grant(
-                    existing_roles[shadow_role['name']]['id'],
-                    user_id=user['id'],
-                    project_id=project['id']
-                )
 
     def is_ephemeral_user(mapped_properties):
         return mapped_properties['user']['type'] == utils.UserType.EPHEMERAL
@@ -231,21 +250,19 @@ def handle_unscoped_token(auth_payload, resource_api, federation_api,
             raise exception.Unauthorized(e)
 
         if is_ephemeral_user(mapped_properties):
-            unique_id, display_name = (
-                get_user_unique_id_and_display_name(mapped_properties)
-            )
-            email = mapped_properties['user'].get('email')
+            idp_domain_id = federation_api.get_idp(
+                identity_provider)['domain_id']
+
+            validate_and_prepare_federated_user(mapped_properties,
+                                                idp_domain_id, resource_api)
+
             user = identity_api.shadow_federated_user(
                 identity_provider,
-                protocol, unique_id,
-                display_name,
-                email,
+                protocol, mapped_properties['user'],
                 group_ids=mapped_properties['group_ids'])
 
             if 'projects' in mapped_properties:
-                idp_domain_id = federation_api.get_idp(
-                    identity_provider
-                )['domain_id']
+
                 existing_roles = {
                     role['name']: role for role in role_api.list_roles()
                 }
@@ -260,7 +277,7 @@ def handle_unscoped_token(auth_payload, resource_api, federation_api,
                     idp_domain_id,
                     identity_provider
                 )
-                create_projects_from_mapping(
+                handle_projects_from_mapping(
                     mapped_properties['projects'],
                     idp_domain_id,
                     existing_roles,
@@ -327,7 +344,8 @@ def apply_mapping_filter(identity_provider, protocol, assertion,
     return mapped_properties, mapping_id
 
 
-def get_user_unique_id_and_display_name(mapped_properties):
+def validate_and_prepare_federated_user(
+        mapped_properties, idp_domain_id, resource_api):
     """Setup federated username.
 
     Function covers all the cases for properly setting user id, a primary
@@ -343,8 +361,17 @@ def get_user_unique_id_and_display_name(mapped_properties):
     3) If user_id is not set and user_name is, set user_id as url safe version
        of user_name.
 
+    Furthermore, we set the IdP as the user domain, if the user definition
+    does not come with a domain definition.
+
     :param mapped_properties: Properties issued by a RuleProcessor.
     :type: dictionary
+
+    :param idp_domain_id: The domain ID of the IdP registered in OpenStack.
+    :type: string
+
+    :param resource_api: The resource API used to access the database layer.
+    :type: object
 
     :raises keystone.exception.Unauthorized: If neither `user_name` nor
         `user_id` is set.
@@ -372,4 +399,13 @@ def get_user_unique_id_and_display_name(mapped_properties):
     if user_name:
         user['name'] = user_name
     user['id'] = parse.quote(user_id)
-    return (user['id'], user['name'])
+
+    LOG.debug('Processing domain for federated user: %s', user)
+    domain = user.get('domain', {"id": idp_domain_id})
+    if 'id' not in domain:
+        db_domain = resource_api.get_domain_by_name(domain['name'])
+        domain = {"id": db_domain.get('id')}
+
+    user['domain'] = domain
+    LOG.debug('User [%s] domain ID was resolved to [%s]', user['name'],
+              user['domain']['id'])

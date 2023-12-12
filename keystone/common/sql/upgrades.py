@@ -39,6 +39,7 @@ CONTRACT_BRANCH = 'contract'
 RELEASES = (
     'yoga',
     'bobcat',
+    '2024.01',
 )
 MILESTONES = (
     'yoga',

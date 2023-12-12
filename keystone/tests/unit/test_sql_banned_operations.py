@@ -221,16 +221,16 @@ class KeystoneMigrationsWalk(
             'duplicate_trust_constraint',
             {x['name'] for x in constraints},
         )
-        self.assertNotIn(
-            [
-                'trustor_user_id',
-                'trustee_user_id',
-                'project_id',
-                'impersonation',
-                'expires_at',
-            ],
-            {x['column_names'] for x in constraints},
-        )
+
+        all_constraints = []
+        for c in constraints:
+            all_constraints + c.get('column_names', [])
+
+        not_allowed_constraints = ['trustor_user_id', 'trustee_user_id',
+                                   'project_id', 'impersonation', 'expires_at',
+                                   ]
+        for not_c in not_allowed_constraints:
+            self.assertNotIn(not_c, all_constraints)
 
     def _check_b4f8b3f584e0(self, connection):
         inspector = sqlalchemy.inspect(connection)
@@ -300,6 +300,26 @@ class KeystoneMigrationsWalk(
             self.assertIsNone(column['default'])
             found = True
         self.assertTrue(found, 'Failed to find column')
+
+    def _pre_upgrade_47147121(self, connection):
+        inspector = sqlalchemy.inspect(connection)
+        columns = inspector.get_columns('mapping')
+
+        all_column_names = []
+        for c in columns:
+            all_column_names.append(c.get('name'))
+
+        self.assertNotIn('schema_version', all_column_names)
+
+    def _check_47147121(self, connection):
+        inspector = sqlalchemy.inspect(connection)
+        columns = inspector.get_columns('mapping')
+
+        all_column_names = []
+        for c in columns:
+            all_column_names.append(c.get('name'))
+
+        self.assertIn('schema_version', all_column_names)
 
     def test_single_base_revision(self):
         """Ensure we only have a single base revision.

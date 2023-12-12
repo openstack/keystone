@@ -179,7 +179,8 @@ class FederatedSetupMixin(object):
     def mapping_ref(self, rules=None):
         return {
             'id': uuid.uuid4().hex,
-            'rules': rules or self.rules['rules']
+            'rules': rules or self.rules['rules'],
+            'schema_version': "1.0"
         }
 
     def _scope_request(self, unscoped_token_id, scope, scope_id):
@@ -3035,6 +3036,27 @@ class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
             idp=self.IDP_WITH_REMOTE,
             environment={uuid.uuid4().hex: self.REMOTE_IDS[0]}
         )
+
+    def test_issue_token_for_ephemeral_user_with_remote_domain(self):
+        """Test ephemeral user is created in the domain set by assertion.
+
+        Shadow user may belong to the domain set by the assertion data.
+        To verify that:
+         - precreate domain used later in the assertion
+         - update mapping to unclude user domain name coming from assertion
+         - auth user
+         - verify user domain is not the IDP domain
+
+        """
+        domain_ref = unit.new_domain_ref(name="user_domain")
+        PROVIDERS.resource_api.create_domain(domain_ref["id"], domain_ref)
+
+        PROVIDERS.federation_api.update_mapping(
+            self.mapping["id"],
+            mapping_fixtures.MAPPING_EPHEMERAL_USER_REMOTE_DOMAIN)
+        r = self._issue_unscoped_token(assertion='USER_WITH_DOMAIN_ASSERTION')
+        self.assertEqual(r.user_domain["id"], domain_ref["id"])
+        self.assertNotEqual(r.user_domain["id"], self.idp["domain_id"])
 
 
 class FernetFederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):

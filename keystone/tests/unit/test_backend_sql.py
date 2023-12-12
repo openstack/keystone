@@ -680,15 +680,20 @@ class SqlIdentity(SqlTests,
         new_group = PROVIDERS.identity_api.create_group(new_group)
 
         fed_dict = unit.new_federated_user_ref()
+        fed_dict['id'] = fed_dict['unique_id']
+        fed_dict['name'] = fed_dict['display_name']
+        fed_dict['domain'] = {'id': uuid.uuid4().hex}
+
         fed_dict['idp_id'] = 'myidp'
         fed_dict['protocol_id'] = 'mapped'
 
         with freezegun.freeze_time(time - tick) as frozen_time:
             user = PROVIDERS.identity_api.shadow_federated_user(
-                **fed_dict, group_ids=[new_group['id']])
+                fed_dict['idp_id'], fed_dict['protocol_id'],
+                fed_dict, group_ids=[new_group['id']])
 
-            PROVIDERS.identity_api.check_user_in_group(user['id'],
-                                                       new_group['id'])
+            PROVIDERS.identity_api.check_user_in_group(
+                user['id'], new_group['id'])
 
             # Expiration
             frozen_time.tick(tick)
@@ -699,7 +704,8 @@ class SqlIdentity(SqlTests,
 
             # Renewal
             PROVIDERS.identity_api.shadow_federated_user(
-                **fed_dict, group_ids=[new_group['id']])
+                fed_dict['idp_id'], fed_dict['protocol_id'], fed_dict,
+                group_ids=[new_group['id']])
             PROVIDERS.identity_api.check_user_in_group(user['id'],
                                                        new_group['id'])
 

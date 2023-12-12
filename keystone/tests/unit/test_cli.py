@@ -1866,6 +1866,7 @@ class TestMappingEngineTester(unit.BaseTestCase):
             self.input = parent.command_input
             self.prefix = parent.command_prefix
             self.engine_debug = parent.command_engine_debug
+            self.mapping_schema_version = parent.mapping_schema_version
 
     def setUp(self):
         # Set up preset cli options and a parser
@@ -1884,6 +1885,8 @@ class TestMappingEngineTester(unit.BaseTestCase):
         parser_test = argparse.ArgumentParser()
         subparsers = parser_test.add_subparsers()
         self.parser = cli.MappingEngineTester.add_argument_parser(subparsers)
+
+        self.mapping_schema_version = '1.0'
 
     def config_files(self):
         config_files = super(TestMappingEngineTester, self).config_files()

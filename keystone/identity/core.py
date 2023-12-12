@@ -1208,18 +1208,12 @@ class Manager(manager.Manager):
 
         hints = driver_hints.Hints()
         hints.add_filter('user_id', user_id)
-        fed_users = PROVIDERS.shadow_users_api.list_federated_users_info(hints)
 
         driver.delete_user(entity_id)
         PROVIDERS.assignment_api.delete_user_assignments(user_id)
         self.get_user.invalidate(self, user_id)
         self.get_user_by_name.invalidate(self, user_old['name'],
                                          user_old['domain_id'])
-        for fed_user in fed_users:
-            self._shadow_federated_user.invalidate(
-                self, fed_user['idp_id'], fed_user['protocol_id'],
-                fed_user['unique_id'], fed_user['display_name'],
-                user_old.get('extra', {}).get('email'))
 
         PROVIDERS.credential_api.delete_credentials_for_user(user_id)
         PROVIDERS.id_mapping_api.delete_id_mapping(user_id)
@@ -1482,54 +1476,59 @@ class Manager(manager.Manager):
         except exception.UserNotFound:
             return PROVIDERS.shadow_users_api.create_nonlocal_user(user)
 
-    @MEMOIZE
-    def _shadow_federated_user(self, idp_id, protocol_id, unique_id,
-                               display_name, email=None):
+    def _shadow_federated_user(self, idp_id, protocol_id, user):
         user_dict = {}
+        email = user.get('email')
         try:
+            LOG.debug("Trying to update name for federated user [%s].", user)
+
             PROVIDERS.shadow_users_api.update_federated_user_display_name(
-                idp_id, protocol_id, unique_id, display_name)
+                idp_id, protocol_id, user['id'], user['name'])
             user_dict = PROVIDERS.shadow_users_api.get_federated_user(
-                idp_id, protocol_id, unique_id)
+                idp_id, protocol_id, user['id'])
+
             if email:
+                LOG.debug("Executing the e-mail update for federated user "
+                          "[%s].", user)
+
                 user_ref = {"email": email}
                 self.update_user(user_dict['id'], user_ref)
                 user_dict.update({"email": email})
         except exception.UserNotFound:
-            idp = PROVIDERS.federation_api.get_idp(idp_id)
             federated_dict = {
                 'idp_id': idp_id,
                 'protocol_id': protocol_id,
-                'unique_id': unique_id,
-                'display_name': display_name
+                'unique_id': user['id'],
+                'display_name': user['name']
             }
+            LOG.debug("Creating federated user [%s].", user)
             user_dict = (
                 PROVIDERS.shadow_users_api.create_federated_user(
-                    idp['domain_id'], federated_dict, email=email
+                    user["domain"]['id'],
+                    federated_dict, email=email
                 )
             )
         PROVIDERS.shadow_users_api.set_last_active_at(user_dict['id'])
         return user_dict
 
-    def shadow_federated_user(self, idp_id, protocol_id, unique_id,
-                              display_name, email=None, group_ids=None):
+    def shadow_federated_user(self, idp_id, protocol_id, user, group_ids=None):
         """Map a federated user to a user.
 
         :param idp_id: identity provider id
         :param protocol_id: protocol id
-        :param unique_id: unique id for the user within the IdP
-        :param display_name: user's display name
-        :param email: user's email
+        :param user: User dictionary
         :param group_ids: list of group ids to add the user to
 
         :returns: dictionary of the mapped User entity
         """
-        user_dict = self._shadow_federated_user(
-            idp_id, protocol_id, unique_id, display_name, email)
+        user_dict = self._shadow_federated_user(idp_id, protocol_id, user)
+
         # Note(knikolla): The shadowing operation can be cached,
         # however we need to update the expiring group memberships.
         if group_ids:
             for group_id in group_ids:
+                LOG.info("Adding user [%s] to group [%s].",
+                         user_dict, group_id)
                 PROVIDERS.shadow_users_api.add_user_to_group_expires(
                     user_dict['id'], group_id)
         return user_dict
