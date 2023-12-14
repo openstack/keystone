@@ -7,11 +7,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Keystone Release Notes\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-08-25 16:45+0000\n"
+"POT-Creation-Date: 2023-12-13 19:11+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2023-02-03 04:36+0000\n"
+"PO-Revision-Date: 2023-09-09 10:43+0000\n"
 "Last-Translator: Andi Chandler <andi@gowling.com>\n"
 "Language-Team: English (United Kingdom)\n"
 "Language: en_GB\n"
@@ -119,6 +119,9 @@ msgstr "16.0.1"
 msgid "16.0.2"
 msgstr "16.0.2"
 
+msgid "16.0.2-9"
+msgstr "16.0.2-9"
+
 msgid "17.0.0"
 msgstr "17.0.0"
 
@@ -140,11 +143,17 @@ msgstr "19.0.1"
 msgid "20.0.0"
 msgstr "20.0.0"
 
+msgid "20.0.1"
+msgstr "20.0.1"
+
 msgid "21.0.0"
 msgstr "21.0.0"
 
 msgid "22.0.0"
 msgstr "22.0.0"
+
+msgid "23.0.0"
+msgstr "23.0.0"
 
 msgid "8.0.1"
 msgstr "8.0.1"
@@ -1934,6 +1943,18 @@ msgstr "``delete group``"
 msgid "``delete user``"
 msgstr "``delete user``"
 
+msgid "``identity:update_domain``"
+msgstr "``identity:update_domain``"
+
+msgid "``identity:update_limit``"
+msgstr "``identity:update_limit``"
+
+msgid "``identity:update_registered_limit``"
+msgstr "``identity:update_registered_limit``"
+
+msgid "``identtity:delete_domain``"
+msgstr "``identtity:delete_domain``"
+
 msgid "``issue_v2_token``"
 msgstr "``issue_v2_token``"
 
@@ -1999,6 +2020,15 @@ msgstr ""
 "added to SAML assertion in order to map user and project domains, "
 "respectively."
 
+msgid "``pool_connection_get_timeout``"
+msgstr "``pool_connection_get_timeout``"
+
+msgid "``pool_maxsize``"
+msgstr "``pool_maxsize``"
+
+msgid "``pool_unused_timeout``"
+msgstr "``pool_unused_timeout``"
+
 msgid "``remove user from group``"
 msgstr "``remove user from group``"
 
@@ -2023,6 +2053,16 @@ msgstr "all config options under ``[kvs]`` in `keystone.conf`"
 msgid "and will return a list of mappings for a given domain ID."
 msgstr "and will return a list of mappings for a given domain ID."
 
+msgid ""
+"delete from local_user where user_id in (select user_id from federated_user);"
+msgstr ""
+"delete from local_user where user_id in (select user_id from federated_user);"
+
+msgid ""
+"delete from system_assignment where role_id not in (select id from role);"
+msgstr ""
+"delete from system_assignment where role_id not in (select id from role);"
+
 msgid "eq - password expires at the timestamp"
 msgstr "eq - password expires at the timestamp"
 
@@ -2031,6 +2071,13 @@ msgstr "gt - password expires after the timestamp"
 
 msgid "gte - password expires at or after the timestamp"
 msgstr "gte - password expires at or after the timestamp"
+
+msgid ""
+"https://specs.openstack.org/openstack/keystone-specs/specs/keystone/train/"
+"explicit-domains-ids.html"
+msgstr ""
+"https://specs.openstack.org/openstack/keystone-specs/specs/keystone/train/"
+"explicit-domains-ids.html"
 
 msgid "lt - password expires before the timestamp"
 msgstr "lt - password expires before the timestamp"
