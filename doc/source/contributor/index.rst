@@ -33,7 +33,6 @@ Contributor Documentation
    auth-plugins.rst
    database-migrations.rst
    id-manage.rst
-   translated-responses.rst
    architecture.rst
    services.rst
    developing-drivers.rst
