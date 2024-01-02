@@ -242,8 +242,9 @@ def build_token_values(token):
         token_values['assignment_domain_id'] = None
 
     role_list = []
-    if token.roles is not None:
-        for role in token.roles:
+    token_roles = token.roles
+    if token_roles is not None:
+        for role in token_roles:
             role_list.append(role['id'])
     token_values['roles'] = role_list
 
