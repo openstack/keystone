@@ -938,6 +938,7 @@ class Manager(manager.Manager):
 
         return assignments
 
+    @MEMOIZE_COMPUTED_ASSIGNMENTS
     def list_role_assignments(self, role_id=None, user_id=None, group_id=None,
                               system=None, domain_id=None, project_id=None,
                               include_subtree=False, inherited=None,
@@ -1080,6 +1081,7 @@ class Manager(manager.Manager):
         system_assignments = self.list_system_grants_for_group(group_id)
         for assignment in system_assignments:
             self.delete_system_grant_for_group(group_id, assignment['id'])
+        COMPUTED_ASSIGNMENTS_REGION.invalidate()
 
     def delete_user_assignments(self, user_id):
         # FIXME(lbragstad): This should be refactored in the Rocky release so
@@ -1091,6 +1093,7 @@ class Manager(manager.Manager):
         system_assignments = self.list_system_grants_for_user(user_id)
         for assignment in system_assignments:
             self.delete_system_grant_for_user(user_id, assignment['id'])
+        COMPUTED_ASSIGNMENTS_REGION.invalidate()
 
     def check_system_grant_for_user(self, user_id, role_id):
         """Check if a user has a specific role on the system.
@@ -1163,6 +1166,7 @@ class Manager(manager.Manager):
         target_id = self._SYSTEM_SCOPE_TOKEN
         inherited = False
         self.driver.delete_system_grant(role_id, user_id, target_id, inherited)
+        COMPUTED_ASSIGNMENTS_REGION.invalidate()
 
     def check_system_grant_for_group(self, group_id, role_id):
         """Check if a group has a specific role on the system.
@@ -1237,6 +1241,7 @@ class Manager(manager.Manager):
         self.driver.delete_system_grant(
             role_id, group_id, target_id, inherited
         )
+        COMPUTED_ASSIGNMENTS_REGION.invalidate()
 
     def list_all_system_grants(self):
         """Return a list of all system grants."""
