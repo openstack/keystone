@@ -643,6 +643,9 @@ class AssignmentTests(AssignmentTestHelperMixin):
         # attempts to lookup a group that has been deleted in the backend
         with mock.patch.object(PROVIDERS.identity_api, 'get_group',
                                _group_not_found):
+            # Mocking a dependent function makes the cache invalid
+            keystone.assignment.COMPUTED_ASSIGNMENTS_REGION.invalidate()
+
             assignment_list = PROVIDERS.assignment_api.list_role_assignments(
                 include_names=True
             )
@@ -669,6 +672,9 @@ class AssignmentTests(AssignmentTestHelperMixin):
         # in the backend
         with mock.patch.object(PROVIDERS.identity_api, 'list_users_in_group',
                                _group_not_found):
+            # Mocking a dependent function makes the cache invalid
+            keystone.assignment.COMPUTED_ASSIGNMENTS_REGION.invalidate()
+
             assignment_list = PROVIDERS.assignment_api.list_role_assignments(
                 effective=True
             )
