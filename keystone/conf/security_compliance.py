@@ -94,7 +94,7 @@ than the `password_expires_days`.
 
 password_regex = cfg.StrOpt(
     'password_regex',
-    help=utils.fmt("""
+    help=utils.fmt(r"""
 The regular expression used to validate password strength requirements. By
 default, the regular expression will match any password. The following is an
 example of a pattern which requires at least 1 letter, 1 digit, and have a
