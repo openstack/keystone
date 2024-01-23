@@ -49,7 +49,8 @@ deprecated_delete_domain = policy.DeprecatedRule(
     deprecated_reason=DEPRECATED_REASON,
     deprecated_since=versionutils.deprecated.STEIN
 )
-SYSTEM_USER_OR_DOMAIN_USER_OR_PROJECT_USER = (
+ADMIN_OR_SYSTEM_USER_OR_DOMAIN_USER_OR_PROJECT_USER = (
+    base.RULE_ADMIN_REQUIRED + ' or '
     '(role:reader and system_scope:all) or '
     'token.domain.id:%(target.domain.id)s or '
     'token.project.domain.id:%(target.domain.id)s'
@@ -61,7 +62,7 @@ domain_policies = [
         name=base.IDENTITY % 'get_domain',
         # NOTE(lbragstad): This policy allows system, domain, and
         # project-scoped tokens.
-        check_str=SYSTEM_USER_OR_DOMAIN_USER_OR_PROJECT_USER,
+        check_str=ADMIN_OR_SYSTEM_USER_OR_DOMAIN_USER_OR_PROJECT_USER,
         scope_types=['system', 'domain', 'project'],
         description='Show domain details.',
         operations=[{'path': '/v3/domains/{domain_id}',
@@ -69,32 +70,32 @@ domain_policies = [
         deprecated_rule=deprecated_get_domain),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_domains',
-        check_str=base.SYSTEM_READER,
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_OR_SYSTEM_READER,
+        scope_types=['system', 'project'],
         description='List domains.',
         operations=[{'path': '/v3/domains',
                      'method': 'GET'}],
         deprecated_rule=deprecated_list_domains),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_domain',
-        check_str=base.SYSTEM_ADMIN,
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system', 'project'],
         description='Create domain.',
         operations=[{'path': '/v3/domains',
                      'method': 'POST'}],
         deprecated_rule=deprecated_create_domain),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_domain',
-        check_str=base.SYSTEM_ADMIN,
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system', 'project'],
         description='Update domain.',
         operations=[{'path': '/v3/domains/{domain_id}',
                      'method': 'PATCH'}],
         deprecated_rule=deprecated_update_domain),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_domain',
-        check_str=base.SYSTEM_ADMIN,
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system', 'project'],
         description='Delete domain.',
         operations=[{'path': '/v3/domains/{domain_id}',
                      'method': 'DELETE'}],

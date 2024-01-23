@@ -18,11 +18,7 @@ revoke_event_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_revoke_events',
         check_str=base.RULE_SERVICE_OR_ADMIN,
-        # NOTE(lbragstad): This API was originally introduced so that services
-        # could invalidate tokens based on revocation events. This is system
-        # specific so it make sense to associate `system` as the scope type
-        # required for this policy.
-        scope_types=['system'],
+        scope_types=['system', 'project'],
         description='List revocation events.',
         operations=[{'path': '/v3/OS-REVOKE/events',
                      'method': 'GET'}])

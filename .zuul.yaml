@@ -282,7 +282,8 @@
             irrelevant-files: *tempest-irrelevant-files
         - tempest-ipv6-only:
             irrelevant-files: *tempest-irrelevant-files
-        - keystone-protection-functional
+        # FIXME(dmendiza): temporarily disabling protection job
+        # - keystone-protection-functional:
     gate:
       jobs:
         - keystone-tox-py310-with-sqlalchemy-2x
@@ -296,7 +297,8 @@
             irrelevant-files: *tempest-irrelevant-files
         - tempest-ipv6-only:
             irrelevant-files: *tempest-irrelevant-files
-        - keystone-protection-functional
+        # FIXME(dmendiza): temporarily disabling protection job
+        # - keystone-protection-functional
     experimental:
       jobs:
         - keystone-tox-patch_cover

@@ -178,7 +178,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
         self.assertEqual(3, len(trusts))
         self.assertValidTrustListResponse(r)
 
-        # list all trusts as the trustor as the trustee.
+        # list all trusts for trustee as the trustor
         list_as_trustor_url = (
             '/OS-TRUST/trusts?trustee_user_id=%s' % self.user_id
         )
@@ -188,17 +188,20 @@ class TestTrustOperations(test_v3.RestfulTestCase):
         self.assertEqual(0, len(trusts))
 
         # list all trusts as the trustee is forbidden
-        list_all_as_trustee_url = (
-            '/OS-TRUST/trusts?trustee_user_id=%s' % self.trustee_user_id
-        )
-        r = self.get(
-            list_all_as_trustee_url,
-            expected_status=http.client.FORBIDDEN
-        )
-        self.head(
-            list_all_as_trustee_url,
-            expected_status=http.client.FORBIDDEN
-        )
+        # FIXME(dmendiza): This test is not written to do what the above
+        # comment says it should be doing. The main issue is that it's
+        # still using the trustor credentiasl to make the request.
+        # list_all_as_trustee_url = (
+        #     '/OS-TRUST/trusts?trustee_user_id=%s' % self.trustee_user_id
+        # )
+        # r = self.get(
+        #     list_all_as_trustee_url,
+        #     expected_status=http.client.FORBIDDEN
+        # )
+        # self.head(
+        #     list_all_as_trustee_url,
+        #     expected_status=http.client.FORBIDDEN
+        # )
 
     def test_create_trust_with_expiration_in_the_past_fails(self):
         ref = unit.new_trust_ref(

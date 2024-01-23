@@ -55,11 +55,8 @@ deprecated_delete_protocol = policy.DeprecatedRule(
 protocol_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_protocol',
-        check_str=base.SYSTEM_ADMIN,
-        # FIXME(lbragstad): Once it is possible to add complete federated
-        # identity without having to modify system configuration files, like
-        # Apache, this should include 'project' in scope_types.
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system', 'project'],
         description='Create federated protocol.',
         operations=[{'path': ('/v3/OS-FEDERATION/identity_providers/{idp_id}/'
                               'protocols/{protocol_id}'),
@@ -67,8 +64,8 @@ protocol_policies = [
         deprecated_rule=deprecated_create_protocol),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_protocol',
-        check_str=base.SYSTEM_ADMIN,
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system', 'project'],
         description='Update federated protocol.',
         operations=[{'path': ('/v3/OS-FEDERATION/identity_providers/{idp_id}/'
                               'protocols/{protocol_id}'),
@@ -76,8 +73,8 @@ protocol_policies = [
         deprecated_rule=deprecated_update_protocol),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_protocol',
-        check_str=base.SYSTEM_READER,
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_OR_SYSTEM_READER,
+        scope_types=['system', 'project'],
         description='Get federated protocol.',
         operations=[{'path': ('/v3/OS-FEDERATION/identity_providers/{idp_id}/'
                               'protocols/{protocol_id}'),
@@ -85,8 +82,8 @@ protocol_policies = [
         deprecated_rule=deprecated_get_protocol),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_protocols',
-        check_str=base.SYSTEM_READER,
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_OR_SYSTEM_READER,
+        scope_types=['system', 'project'],
         description='List federated protocols.',
         operations=[{'path': ('/v3/OS-FEDERATION/identity_providers/{idp_id}/'
                               'protocols'),
@@ -94,8 +91,8 @@ protocol_policies = [
         deprecated_rule=deprecated_list_protocols),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_protocol',
-        check_str=base.SYSTEM_ADMIN,
-        scope_types=['system'],
+        check_str=base.RULE_ADMIN_REQUIRED,
+        scope_types=['system', 'project'],
         description='Delete federated protocol.',
         operations=[{'path': ('/v3/OS-FEDERATION/identity_providers/{idp_id}/'
                               'protocols/{protocol_id}'),
