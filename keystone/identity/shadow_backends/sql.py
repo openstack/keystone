@@ -158,7 +158,8 @@ class ShadowUsers(base.ShadowUsersDriverBase):
         if CONF.security_compliance.disable_user_account_days_inactive:
             with sql.session_for_write() as session:
                 user_ref = session.get(model.User, user_id)
-                user_ref.last_active_at = datetime.datetime.utcnow().date()
+                if user_ref:
+                    user_ref.last_active_at = datetime.datetime.utcnow().date()
 
     @sql.handle_conflicts(conflict_type='federated_user')
     def update_federated_user_display_name(self, idp_id, protocol_id,
