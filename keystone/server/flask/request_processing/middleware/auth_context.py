@@ -12,7 +12,6 @@
 
 
 import functools
-import itertools
 import re
 import wsgiref.util
 
@@ -73,12 +72,9 @@ def best_match_language(req):
 def base_url(context):
     url = CONF['public_endpoint']
 
-    if url:
-        substitutions = dict(
-            itertools.chain(CONF.items(), CONF.eventlet_server.items()))
-
-        url = url % substitutions
-    elif 'environment' in context:
+    if not url:
+        if 'environment' not in context:
+            raise ValueError('Endpoint cannot be detected')
         url = wsgiref.util.application_uri(context['environment'])
         # remove version from the URL as it may be part of SCRIPT_NAME but
         # it should not be part of base URL
@@ -86,11 +82,6 @@ def base_url(context):
 
         # now remove the standard port
         url = utils.remove_standard_port(url)
-    else:
-        # if we don't have enough information to come up with a base URL,
-        # then fall back to localhost. This should never happen in
-        # production environment.
-        url = 'http://localhost:%d' % CONF.eventlet_server.public_port
 
     return url.rstrip('/')
 

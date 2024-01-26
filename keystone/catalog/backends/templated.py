@@ -12,7 +12,6 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import itertools
 import os.path
 
 from oslo_log import log
@@ -207,8 +206,7 @@ class Catalog(base.CatalogDriverBase):
                   empty dict.
 
         """
-        substitutions = dict(
-            itertools.chain(CONF.items(), CONF.eventlet_server.items()))
+        substitutions = dict(CONF.items())
         substitutions.update({'user_id': user_id})
         silent_keyerror_failures = []
         if project_id:
