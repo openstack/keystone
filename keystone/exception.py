@@ -755,3 +755,20 @@ class OAuth2OtherError(OAuth2Error):
     def __init__(self, code, title, message):
         error_title = 'other_error'
         super().__init__(code, title, error_title, message)
+
+
+class RedirectRequired(Exception):
+    """Error class for redirection.
+
+    Child classes should define an HTTP redirect url
+    message_format.
+
+    """
+
+    redirect_url = None
+    code = http.client.FOUND
+
+    def __init__(self, redirect_url, **kwargs):
+        self.redirect_url = redirect_url
+
+        super(RedirectRequired, self).__init__(**kwargs)
