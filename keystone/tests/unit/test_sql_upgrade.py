@@ -142,7 +142,7 @@ INITIAL_TABLE_STRUCTURE = {
         'id', 'idp_id', 'mapping_id', 'remote_id_attribute',
     ],
     'mapping': [
-        'id', 'rules',
+        'id', 'rules', 'schema_version',
     ],
     'service_provider': [
         'auth_url', 'id', 'enabled', 'description', 'sp_url',

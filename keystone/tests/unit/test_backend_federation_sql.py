@@ -41,7 +41,8 @@ class SqlFederation(test_backend_sql.SqlModels):
 
     def test_mapping(self):
         cols = (('id', sql.String, 64),
-                ('rules', sql.JsonBlob, None))
+                ('rules', sql.JsonBlob, None),
+                ('schema_version', sql.String, 5))
         self.assertExpectedSchema('mapping', cols)
 
     def test_service_provider(self):

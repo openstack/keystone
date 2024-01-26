@@ -210,7 +210,8 @@ class AuthContextMiddlewareTest(test_backend_sql.SqlTests,
             mapped_rules = rules.get('rules', {})
         return {
             'id': uuid.uuid4().hex,
-            'rules': mapped_rules
+            'rules': mapped_rules,
+            'schema_version': "1.0"
         }
 
     def _assert_tokenless_auth_context(self, context, ephemeral_user=False):

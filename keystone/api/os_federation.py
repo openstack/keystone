@@ -17,6 +17,8 @@ import flask_restful
 import http.client
 from oslo_serialization import jsonutils
 
+from oslo_log import log
+
 from keystone.api._shared import authentication
 from keystone.api._shared import json_home_relations
 from keystone.common import provider_api
@@ -30,6 +32,7 @@ from keystone.federation import utils
 from keystone.server import flask as ks_flask
 
 
+LOG = log.getLogger(__name__)
 CONF = keystone.conf.CONF
 ENFORCER = rbac_enforcer.RBACEnforcer
 PROVIDERS = provider_api.ProviderAPIs
@@ -272,30 +275,50 @@ class MappingResource(_ResourceBase):
         ENFORCER.enforce_call(action='identity:list_mappings')
         return self.wrap_collection(PROVIDERS.federation_api.list_mappings())
 
+    def _internal_normalize_and_validate_attribute_mapping(
+            self, action_executed_message="created"):
+        mapping = self.request_body_json.get('mapping', {})
+        mapping = self._normalize_dict(mapping)
+
+        if not mapping.get('schema_version'):
+            default_schema_version =\
+                utils.get_default_attribute_mapping_schema_version()
+            LOG.debug("A mapping [%s] was %s without providing a "
+                      "'schema_version'; therefore, we need to set one. The "
+                      "current default is [%s]. We will use this value for "
+                      "the attribute mapping being registered. It is "
+                      "recommended that one does not rely on this default "
+                      "value, as it can change, and the already persisted "
+                      "attribute mappings will remain with the previous "
+                      "default values.", mapping, action_executed_message,
+                      default_schema_version)
+            mapping['schema_version'] = default_schema_version
+        utils.validate_mapping_structure(mapping)
+        return mapping
+
     def put(self, mapping_id):
         """Create a mapping.
 
         PUT /OS-FEDERATION/mappings/{mapping_id}
         """
         ENFORCER.enforce_call(action='identity:create_mapping')
-        mapping = self.request_body_json.get('mapping', {})
-        mapping = self._normalize_dict(mapping)
-        utils.validate_mapping_structure(mapping)
-        mapping_ref = PROVIDERS.federation_api.create_mapping(
-            mapping_id, mapping)
+
+        am = self._internal_normalize_and_validate_attribute_mapping(
+            "registered")
+        mapping_ref = PROVIDERS.federation_api.create_mapping(mapping_id, am)
+
         return self.wrap_member(mapping_ref), http.client.CREATED
 
     def patch(self, mapping_id):
-        """Update a mapping.
+        """Update an attribute mapping for identity federation.
 
         PATCH /OS-FEDERATION/mappings/{mapping_id}
         """
         ENFORCER.enforce_call(action='identity:update_mapping')
-        mapping = self.request_body_json.get('mapping', {})
-        mapping = self._normalize_dict(mapping)
-        utils.validate_mapping_structure(mapping)
-        mapping_ref = PROVIDERS.federation_api.update_mapping(
-            mapping_id, mapping)
+
+        am = self._internal_normalize_and_validate_attribute_mapping("updated")
+        mapping_ref = PROVIDERS.federation_api.update_mapping(mapping_id, am)
+
         return self.wrap_member(mapping_ref)
 
     def delete(self, mapping_id):

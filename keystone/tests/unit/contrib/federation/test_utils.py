@@ -23,6 +23,8 @@ from keystone.federation import utils as mapping_utils
 from keystone.tests import unit
 from keystone.tests.unit import mapping_fixtures
 
+from unittest import mock
+
 
 CONF = keystone.conf.CONF
 FAKE_MAPPING_ID = uuid.uuid4().hex
@@ -553,10 +555,18 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         self.assertIsNotNone(mapped_properties)
         self.assertValidMappedUserObject(mapped_properties)
         self.assertEqual('jsmith', mapped_properties['user']['name'])
-        unique_id, display_name = mapped.get_user_unique_id_and_display_name(
-            mapped_properties)
-        self.assertEqual('jsmith', unique_id)
-        self.assertEqual('jsmith', display_name)
+
+        resource_api_mock = mock.patch(
+            'keystone.resource.core.DomainConfigManager')
+        idp_domain_id = uuid.uuid4().hex
+        mapped.validate_and_prepare_federated_user(mapped_properties,
+                                                   idp_domain_id,
+                                                   resource_api_mock)
+
+        self.assertEqual('jsmith', mapped_properties['user']['id'])
+        self.assertEqual('jsmith', mapped_properties['user']['name'])
+        self.assertEqual(idp_domain_id,
+                         mapped_properties['user']['domain']['id'])
 
     def test_user_identifications_name_and_federated_domain(self):
         """Test various mapping options and how users are identified.
@@ -576,10 +586,20 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         mapped_properties = rp.process(assertion)
         self.assertIsNotNone(mapped_properties)
         self.assertValidMappedUserObject(mapped_properties)
-        unique_id, display_name = mapped.get_user_unique_id_and_display_name(
-            mapped_properties)
-        self.assertEqual('tbo', display_name)
-        self.assertEqual('abc123%40example.com', unique_id)
+
+        resource_api_mock = mock.patch(
+            'keystone.resource.core.DomainConfigManager')
+        idp_domain_id = uuid.uuid4().hex
+        user_domain_id = mapped_properties['user']['domain']['id']
+        mapped.validate_and_prepare_federated_user(mapped_properties,
+                                                   idp_domain_id,
+                                                   resource_api_mock)
+
+        self.assertEqual('tbo', mapped_properties['user']['name'])
+        self.assertEqual('abc123%40example.com',
+                         mapped_properties['user']['id'])
+        self.assertEqual(user_domain_id,
+                         mapped_properties['user']['domain']['id'])
 
     def test_user_identification_id(self):
         """Test various mapping options and how users are identified.
@@ -600,10 +620,17 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         self.assertIsNotNone(mapped_properties)
         self.assertValidMappedUserObject(mapped_properties)
         with self.flask_app.test_request_context():
-            unique_id, display_name = (
-                mapped.get_user_unique_id_and_display_name(mapped_properties))
-        self.assertEqual('bob', unique_id)
-        self.assertEqual('bob', display_name)
+            resource_api_mock = mock.patch(
+                'keystone.resource.core.DomainConfigManager')
+            idp_domain_id = uuid.uuid4().hex
+            mapped.validate_and_prepare_federated_user(mapped_properties,
+                                                       idp_domain_id,
+                                                       resource_api_mock)
+
+        self.assertEqual('bob', mapped_properties['user']['name'])
+        self.assertEqual('bob', mapped_properties['user']['id'])
+        self.assertEqual(idp_domain_id,
+                         mapped_properties['user']['domain']['id'])
 
     def test_get_user_unique_id_and_display_name(self):
 
@@ -616,10 +643,17 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         self.assertValidMappedUserObject(mapped_properties)
         with self.flask_app.test_request_context(
                 environ_base={'REMOTE_USER': 'remote_user'}):
-            unique_id, display_name = (
-                mapped.get_user_unique_id_and_display_name(mapped_properties))
-        self.assertEqual('bob', unique_id)
-        self.assertEqual('remote_user', display_name)
+            resource_api_mock = mock.patch(
+                'keystone.resource.core.DomainConfigManager')
+            idp_domain_id = uuid.uuid4().hex
+            mapped.validate_and_prepare_federated_user(mapped_properties,
+                                                       idp_domain_id,
+                                                       resource_api_mock)
+
+        self.assertEqual('remote_user', mapped_properties['user']['name'])
+        self.assertEqual('bob', mapped_properties['user']['id'])
+        self.assertEqual(idp_domain_id,
+                         mapped_properties['user']['domain']['id'])
 
     def test_user_identification_id_and_name(self):
         """Test various mapping options and how users are identified.
@@ -650,11 +684,20 @@ class MappingRuleEngineTests(unit.BaseTestCase):
             mapped_properties = rp.process(assertion)
             self.assertIsNotNone(mapped_properties)
             self.assertValidMappedUserObject(mapped_properties)
-            unique_id, display_name = (
-                mapped.get_user_unique_id_and_display_name(mapped_properties)
-            )
-            self.assertEqual(exp_user_name, display_name)
-            self.assertEqual('abc123%40example.com', unique_id)
+
+            resource_api_mock = mock.patch(
+                'keystone.resource.core.DomainConfigManager')
+            idp_domain_id = uuid.uuid4().hex
+            user_domain_id = mapped_properties['user']['domain']['id']
+            mapped.validate_and_prepare_federated_user(mapped_properties,
+                                                       idp_domain_id,
+                                                       resource_api_mock)
+
+            self.assertEqual(exp_user_name, mapped_properties['user']['name'])
+            self.assertEqual('abc123%40example.com',
+                             mapped_properties['user']['id'])
+            self.assertEqual(user_domain_id,
+                             mapped_properties['user']['domain']['id'])
 
     def test_whitelist_pass_through(self):
         mapping = mapping_fixtures.MAPPING_GROUPS_WHITELIST_PASS_THROUGH

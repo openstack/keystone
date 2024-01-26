@@ -714,6 +714,32 @@ MAPPING_EPHEMERAL_USER = {
     ]
 }
 
+MAPPING_EPHEMERAL_USER_REMOTE_DOMAIN = {
+    "rules": [
+        {
+            "local": [
+                {
+                    "user": {
+                        "name": "{0}",
+                        "domain": {
+                            "name": "{1}"
+                        },
+                        "type": "ephemeral"
+                    }
+                }
+            ],
+            "remote": [
+                {
+                    "type": "UserName"
+                },
+                {
+                    "type": "OIDC-openstack-user-domain"
+                },
+            ]
+        }
+    ]
+}
+
 MAPPING_GROUPS_WHITELIST = {
     "rules": [
         {
@@ -1747,6 +1773,11 @@ GROUPS_DOMAIN_ASSERTION = {
     'openstack_roles': 'Admin',
     'openstack_groups': 'JSON:{"name":"group1","domain":{"name":"xxx"}};'
                         'JSON:{"name":"group2","domain":{"name":"yyy"}}'
+}
+
+USER_WITH_DOMAIN_ASSERTION = {
+    'UserName': 'marek',
+    'OIDC-openstack-user-domain': 'user_domain'
 }
 
 MAPPING_UNICODE = {

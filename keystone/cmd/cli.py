@@ -40,6 +40,11 @@ from keystone.federation import utils as mapping_engine
 from keystone.i18n import _
 from keystone.server import backends
 
+# We need to define the log level to INFO. Otherwise, when using the
+# system, we will not be able to see anything.
+log.set_defaults(default_log_levels="INFO")
+
+
 CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
@@ -1144,6 +1149,8 @@ class MappingEngineTester(BaseApp):
             raise SystemExit(_("Error while opening file "
                                "%(path)s: %(err)s") % {'path': path, 'err': e})
 
+        LOG.debug("Assertions loaded: [%s].", self.assertion)
+
     def normalize_assertion(self):
         def split(line, line_num):
             try:
@@ -1179,6 +1186,9 @@ class MappingEngineTester(BaseApp):
     def main(cls):
         if CONF.command.engine_debug:
             mapping_engine.LOG.logger.setLevel('DEBUG')
+            LOG.logger.setLevel('DEBUG')
+
+            LOG.debug("Debug log level enabled!")
         else:
             mapping_engine.LOG.logger.setLevel('WARN')
 
@@ -1186,7 +1196,23 @@ class MappingEngineTester(BaseApp):
 
         tester.read_rules(CONF.command.rules)
         tester.normalize_rules()
-        mapping_engine.validate_mapping_structure(tester.rules)
+
+        attribute_mapping = tester.rules.copy()
+        if CONF.command.mapping_schema_version:
+            attribute_mapping[
+                'schema_version'] = CONF.command.mapping_schema_version
+
+        if not attribute_mapping.get('schema_version'):
+            default_schema_version = '1.0'
+            LOG.warning('No schema version defined in rules [%s]. Therefore,'
+                        'we will use the default as [%s].', attribute_mapping,
+                        default_schema_version)
+            attribute_mapping[
+                'schema_version'] = default_schema_version
+
+        LOG.info("Validating Attribute mapping rules [%s].", attribute_mapping)
+        mapping_engine.validate_mapping_structure(attribute_mapping)
+        LOG.info("Attribute mapping rules are valid.")
 
         tester.read_assertion(CONF.command.input)
         tester.normalize_assertion()
@@ -1200,6 +1226,8 @@ class MappingEngineTester(BaseApp):
         rp = mapping_engine.RuleProcessor(tester.mapping_id,
                                           tester.rules['rules'])
         mapped = rp.process(tester.assertion)
+
+        LOG.info("Result of the attribute mapping processing.")
         print(jsonutils.dumps(mapped, indent=2))
 
     @classmethod
@@ -1234,6 +1262,11 @@ class MappingEngineTester(BaseApp):
                             default=False, action="store_true",
                             help=("Enable debug messages from the mapping "
                                   "engine."))
+        parser.add_argument('--mapping-schema-version', default=None,
+                            required=False,
+                            help=("The override for the schema version of "
+                                  "the rules that are loaded in the 'rules' "
+                                  "option of the test CLI."))
 
 
 class MappingPopulate(BaseApp):

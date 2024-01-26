@@ -102,6 +102,18 @@ Default time in minutes for the validity of group memberships carried over
 from a mapping. Default is 0, which means disabled.
 """))
 
+attribute_mapping_default_schema_version = cfg.StrOpt(
+    'attribute_mapping_default_schema_version',
+    default='1.0',
+    help=utils.fmt("""
+The attribute mapping default schema version to be used, if the attribute
+mapping being registered does not have a schema version. One must bear in
+mind that changing this value will have no effect on attribute mappings that
+were previously registered when another default value was applied. Once
+registered, one needs to update the attribute mapping schema via the update
+API to be able to change an attribute mapping schema version.
+"""))
+
 
 GROUP_NAME = __name__.split('.')[-1]
 ALL_OPTS = [
@@ -113,6 +125,7 @@ ALL_OPTS = [
     sso_callback_template,
     caching,
     default_authorization_ttl,
+    attribute_mapping_default_schema_version,
 ]
 
 

@@ -164,8 +164,10 @@ class Manager(manager.Manager):
 
     def evaluate(self, idp_id, protocol_id, assertion_data):
         mapping = self.get_mapping_from_idp_and_protocol(idp_id, protocol_id)
-        rules = mapping['rules']
-        rule_processor = utils.RuleProcessor(mapping['id'], rules)
+
+        rule_processor = utils.create_attribute_mapping_rules_processor(
+            mapping)
+
         mapped_properties = rule_processor.process(assertion_data)
         return mapped_properties, mapping['id']
 
@@ -176,17 +178,8 @@ class Manager(manager.Manager):
     def delete_protocol(self, idp_id, protocol_id):
         hints = driver_hints.Hints()
         hints.add_filter('protocol_id', protocol_id)
-        shadow_users = PROVIDERS.shadow_users_api.list_federated_users_info(
-            hints)
 
         self.driver.delete_protocol(idp_id, protocol_id)
-
-        for shadow_user in shadow_users:
-            PROVIDERS.identity_api._shadow_federated_user.invalidate(
-                PROVIDERS.identity_api, shadow_user['idp_id'],
-                shadow_user['protocol_id'], shadow_user['unique_id'],
-                shadow_user['display_name'],
-                shadow_user.get('extra', {}).get('email'))
 
     def update_protocol(self, idp_id, protocol_id, protocol):
         self._validate_mapping_exists(protocol['mapping_id'])
