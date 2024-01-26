@@ -129,12 +129,13 @@ class Manager(manager.Manager):
         if CONF.token.cache_on_issue or CONF.token.caching:
             TOKENS_REGION.invalidate()
 
-    def check_revocation_v3(self, token):
-        token_values = self.revoke_api.model.build_token_values(token)
+    @MEMOIZE_TOKENS
+    def check_revocation_v3(self, token_values):
         PROVIDERS.revoke_api.check_token(token_values)
 
     def check_revocation(self, token):
-        return self.check_revocation_v3(token)
+        token_values = self.revoke_api.model.build_token_values(token)
+        return self.check_revocation_v3(token_values)
 
     def validate_token(self, token_id, window_seconds=0,
                        access_rules_support=None):
@@ -298,7 +299,7 @@ class Manager(manager.Manager):
 
         return token
 
-    def invalidate_individual_token_cache(self, token_id):
+    def invalidate_individual_token_cache(self, token):
         # NOTE(morganfainberg): invalidate takes the exact same arguments as
         # the normal method, this means we need to pass "self" in (which gets
         # stripped off).
@@ -308,7 +309,9 @@ class Manager(manager.Manager):
         # consulted before accepting a token as valid.  For now we will
         # do the explicit individual token invalidation.
 
-        self._validate_token.invalidate(self, token_id)
+        self._validate_token.invalidate(self, token.id)
+        token_values = self.revoke_api.model.build_token_values(token)
+        self.check_revocation_v3.invalidate(self, token_values)
 
     def revoke_token(self, token_id, revoke_chain=False):
         token = self.validate_token(token_id)
@@ -328,4 +331,4 @@ class Manager(manager.Manager):
         # invalidated? We maintain a cached revocation list, which should be
         # consulted before accepting a token as valid.  For now we will
         # do the explicit individual token invalidation.
-        self.invalidate_individual_token_cache(token_id)
+        self.invalidate_individual_token_cache(token)

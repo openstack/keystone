@@ -1310,6 +1310,12 @@ class Manager(manager.Manager):
             for user_id in user_ids:
                 self._persist_revocation_event_for_user(user_id)
 
+            reason_s = (
+                'Invalidating the token cache because group %(group_id)s '
+                'has been deleted.' % {'group_id': group_id}
+            )
+            notifications.invalidate_token_cache_notification(reason_s)
+
         # Invalidate user role assignments cache region, as it may be caching
         # role assignments expanded from the specified group to its users
         assignment.COMPUTED_ASSIGNMENTS_REGION.invalidate()
@@ -1362,6 +1368,16 @@ class Manager(manager.Manager):
         # Invalidate user role assignments cache region, as it may be caching
         # role assignments expanded from this group to this user
         assignment.COMPUTED_ASSIGNMENTS_REGION.invalidate()
+        reason = (
+            'Invalidating the token cache because user %(user_id)s was '
+            'removed from group %(group_id)s. Authorization will be '
+            'calculated and enforced accordingly the next time they '
+            'authenticate or validate a token.' % {
+                'user_id': user_id,
+                'group_id': group_id,
+            }
+        )
+        notifications.invalidate_token_cache_notification(reason)
         notifications.Audit.removed_from(self._GROUP, group_id, self._USER,
                                          user_id, initiator)
 
@@ -1474,6 +1490,13 @@ class Manager(manager.Manager):
 
         notifications.Audit.updated(self._USER, user_id, initiator)
         self._persist_revocation_event_for_user(user_id)
+        reason_s = (
+            'Invalidating the token cache because user %(user_id)s changed '
+            'the password. Authorization will be calculated and enforced '
+            'accordingly the next time they authenticate or validate a '
+            'token.' % {'user_id': user_id}
+        )
+        notifications.invalidate_token_cache_notification(reason_s)
 
     @MEMOIZE
     def _shadow_nonlocal_user(self, user):
