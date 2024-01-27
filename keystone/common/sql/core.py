@@ -20,7 +20,6 @@ CONF() because it sets up configuration options.
 """
 import datetime
 import functools
-import pytz
 
 from oslo_db import exception as db_exception
 from oslo_db import options as db_options
@@ -148,7 +147,7 @@ class DateTimeInt(sql_types.TypeDecorator):
     """
 
     impl = sql.BigInteger
-    epoch = datetime.datetime.fromtimestamp(0, tz=pytz.UTC)
+    epoch = datetime.datetime.fromtimestamp(0, tz=datetime.timezone.utc)
     # NOTE(ralonsoh): set to True as any other TypeDecorator in SQLAlchemy
     # https://docs.sqlalchemy.org/en/14/core/custom_types.html# \
     #   sqlalchemy.types.TypeDecorator.cache_ok
@@ -163,7 +162,7 @@ class DateTimeInt(sql_types.TypeDecorator):
                 raise ValueError(_('Programming Error: value to be stored '
                                    'must be a datetime object.'))
             value = timeutils.normalize_time(value)
-            value = value.replace(tzinfo=pytz.UTC)
+            value = value.replace(tzinfo=datetime.timezone.utc)
             # NOTE(morgan): We are casting this to an int, and ensuring we
             # preserve microsecond data by moving the decimal. This is easier
             # than being concerned with the differences in Numeric types in
@@ -177,9 +176,11 @@ class DateTimeInt(sql_types.TypeDecorator):
             # Convert from INT to appropriate micro-second float (microseconds
             # after the decimal) from what was stored to the DB
             value = float(value) / 1000000
-            # NOTE(morgan): Explictly use timezone "pytz.UTC" to ensure we are
-            # not adjusting the actual datetime object from what we stored.
-            dt_obj = datetime.datetime.fromtimestamp(value, tz=pytz.UTC)
+            # NOTE(morgan): Explictly use timezone "datetime.timezone.utc" to
+            # ensure we are not adjusting the actual datetime object from what
+            # we stored.
+            dt_obj = datetime.datetime.fromtimestamp(value,
+                                                     tz=datetime.timezone.utc)
             # Return non-tz aware datetime object (as keystone expects)
             return timeutils.normalize_time(dt_obj)
 
