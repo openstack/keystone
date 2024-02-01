@@ -154,7 +154,7 @@ automatically.
 project_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_project',
-        check_str=SYSTEM_READER_OR_DOMAIN_READER_OR_PROJECT_USER,
+        check_str=ADMIN_OR_SYSTEM_READER_OR_DOMAIN_READER_OR_PROJECT_USER,
         scope_types=['system', 'domain', 'project'],
         description='Show project details.',
         operations=[{'path': '/v3/projects/{project_id}',
