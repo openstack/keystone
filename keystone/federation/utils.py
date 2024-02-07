@@ -50,8 +50,8 @@ ROLE_PROPERTIES = {
             "name": {
                 "type": "string"
             },
-            "additionalProperties": False
-        }
+        },
+        "additionalProperties": False
     }
 }
 
