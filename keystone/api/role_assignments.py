@@ -51,6 +51,12 @@ class RoleAssignmentsResource(ks_flask.ResourceBase):
         ]
         target = None
         if self.oslo_context.domain_id:
+            # NOTE(dmendiza): Normally we want the target dict to contain
+            # information about the target entity, not information from the
+            # context.  In this case, however, we are going to filter the
+            # response to only contain information about the domain in scope
+            # so we reflect the domain_id from the context into the target
+            # to validate domain-scoped tokens.
             target = {'domain_id': self.oslo_context.domain_id}
         ENFORCER.enforce_call(action='identity:list_role_assignments',
                               filters=filters,
@@ -80,15 +86,18 @@ class RoleAssignmentsResource(ks_flask.ResourceBase):
             'group.id', 'role.id', 'scope.domain.id', 'scope.project.id',
             'scope.OS-INHERIT:inherited_to', 'user.id'
         ]
+        project_id = flask.request.args.get('scope.project.id')
         target = None
-        if 'scope.project.id' in flask.request.args:
-            project_id = flask.request.args['scope.project.id']
-            if project_id:
-                target = {'project': PROVIDERS.resource_api.get_project(
-                    project_id)}
+        if project_id:
+            target = {
+                'project': PROVIDERS.resource_api.get_project(project_id)
+            }
+            # Add target.domain_id to validate domain-scoped tokens
+            target['domain_id'] = target['project']['domain_id']
+
         ENFORCER.enforce_call(action='identity:list_role_assignments_for_tree',
                               filters=filters, target_attr=target)
-        if not flask.request.args.get('scope.project.id'):
+        if not project_id:
             msg = _('scope.project.id must be specified if include_subtree '
                     'is also specified')
             raise exception.ValidationError(message=msg)
