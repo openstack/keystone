@@ -44,7 +44,7 @@ class EC2ContribCoreV3(test_v3.RestfulTestCase):
         self.assertEqual(http.client.METHOD_NOT_ALLOWED,
                          resp.status_code)
 
-    def test_valid_authentication_response_with_proper_secret(self):
+    def _test_valid_authentication_response_with_proper_secret(self, **kwargs):
         signer = ec2_utils.Ec2Signer(self.cred_blob['secret'])
         timestamp = utils.isotime(timeutils.utcnow())
         credentials = {
@@ -63,8 +63,16 @@ class EC2ContribCoreV3(test_v3.RestfulTestCase):
         resp = self.post(
             '/ec2tokens',
             body={'credentials': credentials},
-            expected_status=http.client.OK)
+            expected_status=http.client.OK,
+            **kwargs)
         self.assertValidProjectScopedTokenResponse(resp, self.user)
+
+    def test_valid_authentication_response_with_proper_secret(self):
+        self._test_valid_authentication_response_with_proper_secret()
+
+    def test_valid_authentication_response_with_proper_secret_noauth(self):
+        self._test_valid_authentication_response_with_proper_secret(
+            noauth=True)
 
     def test_valid_authentication_response_with_signature_v4(self):
         signer = ec2_utils.Ec2Signer(self.cred_blob['secret'])
