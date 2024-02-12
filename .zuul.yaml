@@ -226,7 +226,7 @@
       - check-requirements
       - integrated-gate-py3
       - release-notes-jobs-python3
-      - openstack-python3-xena-jobs-arm64
+      - openstack-python3-jobs-arm64
     check:
       jobs:
         - keystone-dsvm-py3-functional:
