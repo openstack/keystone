@@ -1,0 +1,6 @@
+---
+fixes:
+  - |
+    [`bug 2052916 <https://bugs.launchpad.net/keystone/+bug/2052916>`_]
+    Fixed a bug where a HTTP GET request against ``/v3/s3tokens`` or
+    ``/v3/ec2tokens`` would return HTTP 500 instead of HTTP 405.
