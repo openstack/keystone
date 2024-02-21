@@ -43,40 +43,6 @@
       nslookup_target: 'opendev.org'
 
 - job:
-    name: keystone-dsvm-functional-federation-opensuse15
-    parent: keystone-dsvm-functional
-    nodeset: devstack-single-node-opensuse-15
-    vars:
-      devstack_localrc:
-        TEMPEST_PLUGINS: '/opt/stack/keystone-tempest-plugin'
-      devstack_services:
-        keystone-saml2-federation: true
-        tls-proxy: false
-      devstack_plugins:
-        keystone: https://opendev.org/openstack/keystone
-      zuul_copy_output:
-        /etc/shibboleth: logs
-        /var/log/shibboleth: logs
-
-- job:
-    name: keystone-dsvm-py3-functional-federation-opensuse15
-    parent: keystone-dsvm-functional-federation-opensuse15
-    vars:
-      devstack_localrc:
-        TEMPEST_PLUGINS: '/opt/stack/keystone-tempest-plugin'
-        USE_PYTHON3: True
-      zuul_copy_output:
-        /etc/shibboleth: logs
-        /var/log/shibboleth: logs
-
-- job:
-    name: keystone-dsvm-py3-functional-federation-opensuse15-k2k
-    parent: keystone-dsvm-py3-functional-federation-opensuse15
-    vars:
-      devstack_localrc:
-        IDP_ID: k2k
-
-- job:
     name: keystone-dsvm-py3-functional-federation-ubuntu-jammy
     parent: keystone-dsvm-functional
     nodeset: openstack-single-node-jammy
