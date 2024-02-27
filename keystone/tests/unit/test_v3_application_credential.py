@@ -68,6 +68,36 @@ class ApplicationCredentialTestCase(test_v3.RestfulTestCase):
         # But not the stored hash
         self.assertNotIn('secret_hash', resp.json['application_credential'])
 
+    def test_create_application_credential_implied_role(self):
+        """Test creation with implied roles.
+
+        Verify that implied roles are respected when user creates new
+        application credential specifying a role that implies some other
+        role
+        """
+        implied_role = unit.new_role_ref(name='implied')
+        implied_role_id = implied_role['id']
+        PROVIDERS.role_api.create_role(implied_role_id, implied_role)
+        PROVIDERS.role_api.create_implied_role(self.role_id, implied_role_id)
+        with self.test_client() as c:
+            roles = [{'id': self.role_id}]
+            app_cred_body = self._app_cred_body(roles=roles)
+            token = self.get_scoped_token()
+            resp = c.post(
+                '/v3/users/%s/application_credentials' % self.user_id,
+                json=app_cred_body,
+                expected_status_code=http.client.CREATED,
+                headers={'X-Auth-Token': token})
+        # Create operation returns the secret
+        self.assertIn('secret', resp.json['application_credential'])
+        # But not the stored hash
+        self.assertNotIn('secret_hash', resp.json['application_credential'])
+        # Ensure implied role is also granted
+        self.assertIn(
+            implied_role_id,
+            [x['id'] for x in resp.json["application_credential"]["roles"]]
+        )
+
     def test_create_application_credential_with_secret(self):
         with self.test_client() as c:
             secret = 'supersecuresecret'

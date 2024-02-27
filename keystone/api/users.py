@@ -598,6 +598,19 @@ class UserAppCredListCreateResource(ks_flask.ResourceBase):
     def _get_roles(self, app_cred_data, token):
         if app_cred_data.get('roles'):
             roles = self._normalize_role_list(app_cred_data['roles'])
+            # When "roles" passed into the application credentials creation
+            # we need to ensure also all implied roles are included similarly
+            # to how it behaves when no roles are passed and current user roles
+            # are being used.
+            # So loop over all roles implied by the current role and add it
+            # explicitly if not already there
+            for role in roles:
+                for implied_role in PROVIDERS.role_api.list_implied_roles(
+                        role['id']):
+                    imp_role_obj = PROVIDERS.role_api.get_role(
+                        implied_role['implied_role_id'])
+                    if imp_role_obj['id'] not in [x['id'] for x in roles]:
+                        roles.append(imp_role_obj)
             # NOTE(cmurphy): The user is not allowed to add a role that is not
             # in their token. This is to prevent trustees or application
             # credential users from escallating their privileges to include
