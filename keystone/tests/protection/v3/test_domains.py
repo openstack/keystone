@@ -128,7 +128,74 @@ class _SystemMemberAndReaderDomainTests(object):
             )
 
 
-class _DomainAndProjectUserDomainTests(object):
+class _DomainReaderDomainTests(object):
+
+    def test_user_can_list_domains(self):
+        # second domain, should be invisible to scoped reader
+        second_domain = PROVIDERS.resource_api.create_domain(
+            uuid.uuid4().hex, unit.new_domain_ref()
+        )
+
+        # user should only see their own domain
+        with self.test_client() as c:
+            r = c.get('/v3/domains', headers=self.headers)
+            self.assertEqual(1, len(r.json['domains']))
+            self.assertNotIn(
+                second_domain['id'], [d['id'] for d in r.json['domains']]
+            )
+            self.assertEqual(self.domain_id, r.json['domains'][0]['id'])
+
+    def test_user_can_filter_domains_by_name(self):
+        # second domain, should be invisible to domain-scoped reader
+        second_domain = PROVIDERS.resource_api.create_domain(
+            uuid.uuid4().hex, unit.new_domain_ref()
+        )
+
+        with self.test_client() as c:
+            # filtering for own domain should succeed
+            r = c.get(
+                '/v3/domains?name=%s' % self.domain['name'],
+                headers=self.headers
+            )
+            self.assertEqual(1, len(r.json['domains']))
+            self.assertNotIn(
+                second_domain['id'], [d['id'] for d in r.json['domains']]
+            )
+            self.assertEqual(self.domain['id'], r.json['domains'][0]['id'])
+
+            # filtering for the second domain should yield no results
+            r = c.get(
+                '/v3/domains?name=%s' % second_domain['name'],
+                headers=self.headers
+            )
+            self.assertEqual(0, len(r.json['domains']))
+
+    def test_user_can_filter_domains_by_enabled(self):
+        # additional domains, neither should be visible to domain-scoped reader
+        enabled_domain = PROVIDERS.resource_api.create_domain(
+            uuid.uuid4().hex, unit.new_domain_ref()
+        )
+        disabled_domain = PROVIDERS.resource_api.create_domain(
+            uuid.uuid4().hex, unit.new_domain_ref(enabled=False)
+        )
+
+        # user should only see their own domain when filtering for enabled
+        with self.test_client() as c:
+            r = c.get('/v3/domains?enabled=true', headers=self.headers)
+            enabled_domain_ids = []
+            for domain in r.json['domains']:
+                enabled_domain_ids.append(domain['id'])
+            self.assertEqual(1, len(r.json['domains']))
+            self.assertEqual(self.domain_id, r.json['domains'][0]['id'])
+            self.assertNotIn(enabled_domain['id'], enabled_domain_ids)
+            self.assertNotIn(disabled_domain['id'], enabled_domain_ids)
+
+            # filtering for disabled should yield no results
+            r = c.get('/v3/domains?enabled=false', headers=self.headers)
+            self.assertEqual(0, len(r.json['domains']))
+
+
+class _ProjectUserDomainTests(object):
 
     def test_user_can_get_a_domain(self):
         with self.test_client() as c:
@@ -355,7 +422,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
 
 class DomainUserTests(base_classes.TestCaseWithBootstrap,
                       common_auth.AuthTestMixin,
-                      _DomainAndProjectUserDomainTests):
+                      _DomainReaderDomainTests):
 
     def setUp(self):
         super(DomainUserTests, self).setUp()
@@ -363,10 +430,10 @@ class DomainUserTests(base_classes.TestCaseWithBootstrap,
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
-        domain = PROVIDERS.resource_api.create_domain(
+        self.domain = PROVIDERS.resource_api.create_domain(
             uuid.uuid4().hex, unit.new_domain_ref()
         )
-        self.domain_id = domain['id']
+        self.domain_id = self.domain['id']
         domain_user = unit.new_user_ref(domain_id=self.domain_id)
         self.domain_user_id = PROVIDERS.identity_api.create_user(
             domain_user
@@ -391,7 +458,7 @@ class DomainUserTests(base_classes.TestCaseWithBootstrap,
 
 class ProjectReaderTests(base_classes.TestCaseWithBootstrap,
                          common_auth.AuthTestMixin,
-                         _DomainAndProjectUserDomainTests):
+                         _ProjectUserDomainTests):
 
     def setUp(self):
         super(ProjectReaderTests, self).setUp()
@@ -434,7 +501,7 @@ class ProjectReaderTests(base_classes.TestCaseWithBootstrap,
 
 class ProjectMemberTests(base_classes.TestCaseWithBootstrap,
                          common_auth.AuthTestMixin,
-                         _DomainAndProjectUserDomainTests):
+                         _ProjectUserDomainTests):
 
     def setUp(self):
         super(ProjectMemberTests, self).setUp()
@@ -477,7 +544,7 @@ class ProjectMemberTests(base_classes.TestCaseWithBootstrap,
 
 class ProjectAdminTests(base_classes.TestCaseWithBootstrap,
                         common_auth.AuthTestMixin,
-                        _DomainAndProjectUserDomainTests):
+                        _ProjectUserDomainTests):
 
     def setUp(self):
         super(ProjectAdminTests, self).setUp()
