@@ -163,8 +163,8 @@ def handle_projects_from_mapping(shadow_projects, idp_domain_id,
 def handle_unscoped_token(auth_payload, resource_api, federation_api,
                           identity_api, assignment_api, role_api):
 
-    def validate_shadow_mapping(shadow_projects, existing_roles, idp_domain_id,
-                                idp_id):
+    def validate_shadow_mapping(shadow_projects, existing_roles,
+                                user_domain_id, idp_id):
         # Validate that the roles in the shadow mapping actually exist. If
         # they don't we should bail early before creating anything.
         for shadow_project in shadow_projects:
@@ -184,11 +184,11 @@ def handle_unscoped_token(auth_payload, resource_api, federation_api,
                     raise exception.RoleNotFound(shadow_role['name'])
                 role = existing_roles[shadow_role['name']]
                 if (role['domain_id'] is not None and
-                        role['domain_id'] != idp_domain_id):
+                        role['domain_id'] != user_domain_id):
                     LOG.error(
                         'Role %(role)s is a domain-specific role and '
                         'cannot be assigned within %(domain)s.',
-                        {'role': shadow_role['name'], 'domain': idp_domain_id}
+                        {'role': shadow_role['name'], 'domain': user_domain_id}
                     )
                     raise exception.DomainSpecificRoleNotWithinIdPDomain(
                         role_name=shadow_role['name'],
@@ -271,10 +271,11 @@ def handle_unscoped_token(auth_payload, resource_api, federation_api,
                 # mapping and what it's saying to create. If there is something
                 # wrong with how the mapping is, we should bail early before we
                 # create anything.
+
                 validate_shadow_mapping(
                     mapped_properties['projects'],
                     existing_roles,
-                    idp_domain_id,
+                    mapped_properties['user']['domain']['id'],
                     identity_provider
                 )
                 handle_projects_from_mapping(
