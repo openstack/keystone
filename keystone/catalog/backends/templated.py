@@ -61,11 +61,7 @@ class Catalog(base.CatalogDriverBase):
 
       catalog.$REGION.$SERVICE.$key = $value
 
-    and is stored in a similar looking hierarchy. Where a value can contain
-    values to be interpolated by standard python string interpolation that look
-    like (the % is replaced by a $):
-
-      http://localhost:$(public_port)s/
+    and is stored in a similar looking hierarchy.
 
     When expanding the template it will pass in a dict made up of the conf
     instance plus a few additional key-values, notably project_id and user_id.

@@ -15,3 +15,13 @@ upgrade:
     - ``standard-threads``
     - ``pydev-debug-host``
     - ``pydev-debug-port``
+
+  - |
+    Keystone no longer substitute the following string interpolations in
+    catalog information. Replace string interpolations by hard-coded strings
+    before upgrade.
+
+    - ``public_bind_host``
+    - ``public_bind_port``
+    - ``public_admin_host``
+    - ``public_admin_port``

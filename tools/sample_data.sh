@@ -19,8 +19,7 @@
 # This script is based on the original DevStack keystone_data.sh script.
 #
 # It demonstrates how to bootstrap Keystone with an administrative user
-# using the `keystone-manage bootstrap` command.  It will get the admin_port
-# from keystone.conf if available.
+# using the `keystone-manage bootstrap` command.
 #
 # Disable creation of endpoints by setting DISABLE_ENDPOINTS environment variable.
 # Use this with the Catalog Templated backend.
@@ -55,6 +54,7 @@ NEUTRON_PASSWORD=${NEUTRON_PASSWORD:-${SERVICE_PASSWORD:-neutron}}
 CONTROLLER_PUBLIC_ADDRESS=${CONTROLLER_PUBLIC_ADDRESS:-localhost}
 CONTROLLER_ADMIN_ADDRESS=${CONTROLLER_ADMIN_ADDRESS:-localhost}
 CONTROLLER_INTERNAL_ADDRESS=${CONTROLLER_INTERNAL_ADDRESS:-localhost}
+KEYSTONE_PORT=${KEYSTONE_PORT:-5000}
 
 TOOLS_DIR=$(cd $(dirname "$0") && pwd)
 KEYSTONE_CONF=${KEYSTONE_CONF:-/etc/keystone/keystone.conf}
@@ -67,14 +67,6 @@ if [[ ! -r "$KEYSTONE_CONF" ]]; then
     fi
 fi
 
-# Extract some info from Keystone's configuration file
-if [[ -r "$KEYSTONE_CONF" ]]; then
-    CONFIG_ADMIN_PORT=$(sed 's/[[:space:]]//g' $KEYSTONE_CONF | grep ^admin_port= | cut -d'=' -f2)
-    if [[ -z "${CONFIG_ADMIN_PORT}" ]]; then
-        # default config options are commented out, so lets try those
-        CONFIG_ADMIN_PORT=$(sed 's/[[:space:]]//g' $KEYSTONE_CONF | grep ^\#admin_port= | cut -d'=' -f2)
-    fi
-fi
 
 export OS_USERNAME=admin
 export OS_PASSWORD=$ADMIN_PASSWORD
@@ -82,13 +74,13 @@ export OS_PROJECT_NAME=admin
 export OS_USER_DOMAIN_ID=default
 export OS_PROJECT_DOMAIN_ID=default
 export OS_IDENTITY_API_VERSION=3
-export OS_AUTH_URL=http://$CONTROLLER_PUBLIC_ADDRESS:${CONFIG_ADMIN_PORT:-5000}/v3
+export OS_AUTH_URL=http://$CONTROLLER_PUBLIC_ADDRESS:${KEYSTONE_PORT}/v3
 
 export OS_BOOTSTRAP_PASSWORD=$ADMIN_PASSWORD
 export OS_BOOTSTRAP_REGION_ID=RegionOne
-export OS_BOOTSTRAP_ADMIN_URL="http://$CONTROLLER_PUBLIC_ADDRESS:\$(public_port)s/v3"
-export OS_BOOTSTRAP_PUBLIC_URL="http://$CONTROLLER_ADMIN_ADDRESS:\$(admin_port)s/v3"
-export OS_BOOTSTRAP_INTERNAL_URL="http://$CONTROLLER_INTERNAL_ADDRESS:\$(public_port)s/v3"
+export OS_BOOTSTRAP_ADMIN_URL="http://$CONTROLLER_PUBLIC_ADDRESS:${KEYSTONE_PORT}/v3"
+export OS_BOOTSTRAP_PUBLIC_URL="http://$CONTROLLER_ADMIN_ADDRESS:${KEYSTONE_PORT}/v3"
+export OS_BOOTSTRAP_INTERNAL_URL="http://$CONTROLLER_INTERNAL_ADDRESS:${KEYSTONE_PORT}/v3"
 keystone-manage bootstrap
 
 #
