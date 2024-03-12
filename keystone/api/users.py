@@ -272,7 +272,8 @@ class UserResource(ks_flask.ResourceBase):
             action='identity:delete_user',
             build_target=_build_user_target_enforcement
         )
-        PROVIDERS.identity_api.delete_user(user_id)
+        PROVIDERS.identity_api.delete_user(
+            user_id, initiator=self.audit_initiator)
         return None, http.client.NO_CONTENT
 
 
