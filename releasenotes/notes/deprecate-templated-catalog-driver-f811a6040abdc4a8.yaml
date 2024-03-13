@@ -1,0 +1,5 @@
+---
+deprecations:
+  - |
+    The templated catalog driver has been deprecated and will be removed in
+    a future release.

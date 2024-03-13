@@ -16,6 +16,11 @@ catalog.RegionOne.volumev3.adminURL = http://localhost:8776/v3
 catalog.RegionOne.volumev3.internalURL = http://localhost:8776/v3
 catalog.RegionOne.volumev3.name = Volume Service V3
 
+catalog.RegionOne.image.publicURL = http://localhost:9292
+catalog.RegionOne.image.adminURL = http://localhost:9292
+catalog.RegionOne.image.internalURL = http://localhost:9292
+catalog.RegionOne.image.name = Image Service
+
 catalog.RegionOne.network.publicURL = http://localhost:9696
 catalog.RegionOne.network.adminURL = http://localhost:9696
 catalog.RegionOne.network.internalURL = http://localhost:9696

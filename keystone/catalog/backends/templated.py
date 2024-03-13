@@ -83,6 +83,8 @@ class Catalog(base.CatalogDriverBase):
 
     def __init__(self, templates=None):
         super(Catalog, self).__init__()
+        LOG.warning('The templated catalog driver has been deprecated and '
+                    'will be removed in a future release.')
         if templates:
             self.templates = templates
         else:
