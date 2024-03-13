@@ -27,7 +27,7 @@ services:
   keycloak-database:
     image: quay.io/metal3-io/mariadb:latest
     environment:
-      MYSQL_ROOT_PASSWORD: nomoresecret
-      MYSQL_DATABASE: keycloak
-      MYSQL_USER: keycloak
-      MYSQL_PASSWORD: nomoresecret
+      MARIADB_ROOT_PASSWORD: nomoresecret
+      MARIADB_DATABASE: keycloak
+      MARIADB_USER: keycloak
+      MARIADB_PASSWORD: nomoresecret
