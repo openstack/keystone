@@ -38,13 +38,15 @@ deprecated_revoke_token = policy.DeprecatedRule(
     deprecated_since=versionutils.deprecated.TRAIN
 )
 
-SYSTEM_ADMIN_OR_TOKEN_SUBJECT = (
-    '(role:admin and system_scope:all) or rule:token_subject'  # nosec
+ADMIN_OR_TOKEN_SUBJECT = (
+    base.RULE_ADMIN_REQUIRED + ' or rule:token_subject'  # nosec
 )
-SYSTEM_USER_OR_TOKEN_SUBJECT = (
+ADMIN_OR_SYSTEM_USER_OR_TOKEN_SUBJECT = (
+    base.RULE_ADMIN_REQUIRED + ' or '
     '(role:reader and system_scope:all) or rule:token_subject'  # nosec
 )
-SYSTEM_USER_OR_SERVICE_OR_TOKEN_SUBJECT = (
+ADMIN_OR_SYSTEM_USER_OR_SERVICE_OR_TOKEN_SUBJECT = (
+    base.RULE_ADMIN_REQUIRED + ' or '
     '(role:reader and system_scope:all) '  # nosec
     'or rule:service_role or rule:token_subject'  # nosec
 )
@@ -53,7 +55,7 @@ SYSTEM_USER_OR_SERVICE_OR_TOKEN_SUBJECT = (
 token_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'check_token',
-        check_str=SYSTEM_USER_OR_TOKEN_SUBJECT,
+        check_str=ADMIN_OR_SYSTEM_USER_OR_TOKEN_SUBJECT,
         scope_types=['system', 'domain', 'project'],
         description='Check a token.',
         operations=[{'path': '/v3/auth/tokens',
@@ -61,7 +63,7 @@ token_policies = [
         deprecated_rule=deprecated_check_token),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'validate_token',
-        check_str=SYSTEM_USER_OR_SERVICE_OR_TOKEN_SUBJECT,
+        check_str=ADMIN_OR_SYSTEM_USER_OR_SERVICE_OR_TOKEN_SUBJECT,
         scope_types=['system', 'domain', 'project'],
         description='Validate a token.',
         operations=[{'path': '/v3/auth/tokens',
@@ -69,7 +71,7 @@ token_policies = [
         deprecated_rule=deprecated_validate_token),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'revoke_token',
-        check_str=SYSTEM_ADMIN_OR_TOKEN_SUBJECT,
+        check_str=ADMIN_OR_TOKEN_SUBJECT,
         scope_types=['system', 'domain', 'project'],
         description='Revoke a token.',
         operations=[{'path': '/v3/auth/tokens',
