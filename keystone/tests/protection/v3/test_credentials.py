@@ -1131,11 +1131,13 @@ class ProjectAdminTests(base_classes.TestCaseWithBootstrap,
         # broken behavior with better scope checking.
         with open(self.policy_file_name, 'w') as f:
             overridden_policies = {
-                'identity:get_credential': bp.SYSTEM_READER_OR_CRED_OWNER,
-                'identity:list_credentials': bp.SYSTEM_READER_OR_CRED_OWNER,
-                'identity:create_credential': bp.SYSTEM_ADMIN_OR_CRED_OWNER,
-                'identity:update_credential': bp.SYSTEM_ADMIN_OR_CRED_OWNER,
-                'identity:delete_credential': bp.SYSTEM_ADMIN_OR_CRED_OWNER
+                'identity:get_credential':
+                bp.ADMIN_OR_SYSTEM_READER_OR_CRED_OWNER,
+                'identity:list_credentials':
+                bp.ADMIN_OR_SYSTEM_READER_OR_CRED_OWNER,
+                'identity:create_credential': bp.ADMIN_OR_CRED_OWNER,
+                'identity:update_credential': bp.ADMIN_OR_CRED_OWNER,
+                'identity:delete_credential': bp.ADMIN_OR_CRED_OWNER
             }
             f.write(jsonutils.dumps(overridden_policies))
 
