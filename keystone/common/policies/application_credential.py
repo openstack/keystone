@@ -46,7 +46,7 @@ deprecated_delete_application_credentials_for_user = policy.DeprecatedRule(
 application_credential_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_application_credential',
-        check_str=base.RULE_SYSTEM_READER_OR_OWNER,
+        check_str=base.ADMIN_OR_SYSTEM_READER_OR_OWNER,
         scope_types=['system', 'project'],
         description='Show application credential details.',
         operations=[{'path': resource_path,
@@ -56,7 +56,7 @@ application_credential_policies = [
         deprecated_rule=deprecated_get_application_credentials_for_user),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_application_credentials',
-        check_str=base.RULE_SYSTEM_READER_OR_OWNER,
+        check_str=base.ADMIN_OR_SYSTEM_READER_OR_OWNER,
         scope_types=['system', 'project'],
         description='List application credentials for a user.',
         operations=[{'path': collection_path,
@@ -73,7 +73,7 @@ application_credential_policies = [
                      'method': 'POST'}]),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_application_credential',
-        check_str=base.RULE_SYSTEM_ADMIN_OR_OWNER,
+        check_str=base.RULE_ADMIN_OR_OWNER,
         scope_types=['system', 'project'],
         description='Delete an application credential.',
         operations=[{'path': resource_path,
