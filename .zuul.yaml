@@ -20,16 +20,16 @@
       - openstack/keystone-tempest-plugin
     vars:
       tox_envlist: all
-      tempest_test_regex: 'keystone_tempest_plugin'
+      tempest_test_regex: "keystone_tempest_plugin"
       devstack_localrc:
-        TEMPEST_PLUGINS: '/opt/stack/keystone-tempest-plugin'
+        TEMPEST_PLUGINS: "/opt/stack/keystone-tempest-plugin"
 
 - job:
     name: keystone-dsvm-py3-functional
     parent: keystone-dsvm-functional
     vars:
       devstack_localrc:
-        TEMPEST_PLUGINS: '/opt/stack/keystone-tempest-plugin'
+        TEMPEST_PLUGINS: "/opt/stack/keystone-tempest-plugin"
         USE_PYTHON3: True
 
 - job:
@@ -40,7 +40,7 @@
       Functional testing for a FIPS enabled Centos 9 system
     pre-run: playbooks/enable-fips.yaml
     vars:
-      nslookup_target: 'opendev.org'
+      nslookup_target: "opendev.org"
 
 - job:
     name: keystone-dsvm-functional-federation-opensuse15
@@ -82,7 +82,7 @@
     nodeset: openstack-single-node-jammy
     vars:
       devstack_localrc:
-        TEMPEST_PLUGINS: '/opt/stack/keystone-tempest-plugin'
+        TEMPEST_PLUGINS: "/opt/stack/keystone-tempest-plugin"
         USE_PYTHON3: True
       devstack_services:
         keystone-saml2-federation: true
@@ -116,8 +116,8 @@
     parent: devstack-tempest
     vars:
       devstack_localrc:
-        KEYSTONE_CLEAR_LDAP: 'yes'
-        LDAP_PASSWORD: 'nomoresecret'
+        KEYSTONE_CLEAR_LDAP: "yes"
+        LDAP_PASSWORD: "nomoresecret"
         USE_PYTHON3: True
       devstack_services:
         ldap: true
@@ -169,9 +169,9 @@
     parent: keystone-dsvm-functional
     vars:
       devstack_localrc:
-        TEMPEST_PLUGINS: '/opt/stack/keystone-tempest-plugin'
+        TEMPEST_PLUGINS: "/opt/stack/keystone-tempest-plugin"
         USE_PYTHON3: True
-        OS_CACERT: '/opt/stack/data/ca_bundle.pem'
+        OS_CACERT: "/opt/stack/data/ca_bundle.pem"
       devstack_services:
         tls-proxy: true
         keystone-oidc-federation: true
