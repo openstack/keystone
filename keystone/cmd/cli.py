@@ -26,6 +26,7 @@ import pbr.version
 
 from keystone.cmd import bootstrap
 from keystone.cmd import doctor
+from keystone.cmd import idutils
 from keystone.common import driver_hints
 from keystone.common import fernet_utils
 from keystone.common import jwt_utils
@@ -194,6 +195,73 @@ class BootStrap(BaseApp):
     def main(cls):
         klass = cls()
         klass.do_bootstrap()
+
+
+class ProjectSetup(BaseApp):
+    """Create project with specified UUID."""
+
+    name = 'project_setup'
+
+    def __init__(self):
+        self.identity = idutils.Identity()
+
+    @classmethod
+    def add_argument_parser(cls, subparsers):
+        parser = super(ProjectSetup, cls).add_argument_parser(subparsers)
+        parser.add_argument('--project-name', default=None, required=True,
+                            help='The name of the keystone project being'
+                            ' created.')
+        parser.add_argument('--project-id', default=None,
+                            help='The UUID of the keystone project being'
+                            ' created.')
+        return parser
+
+    def do_project_setup(self):
+        """Create project with specified UUID."""
+        self.identity.project_name = CONF.command.project_name
+        self.identity.project_id = CONF.command.project_id
+        self.identity.project_setup()
+
+    @classmethod
+    def main(cls):
+        klass = cls()
+        klass.do_project_setup()
+
+
+class UserSetup(BaseApp):
+    """Create user with specified UUID."""
+
+    name = 'user_setup'
+
+    def __init__(self):
+        self.identity = idutils.Identity()
+
+    @classmethod
+    def add_argument_parser(cls, subparsers):
+        parser = super(UserSetup, cls).add_argument_parser(subparsers)
+        parser.add_argument('--username', default=None, required=True,
+                            help='The username of the keystone user that'
+                            ' is being created.')
+        parser.add_argument('--user-password-plain', default=None,
+                            required=True,
+                            help='The plaintext password for the keystone'
+                            ' user that is being created.')
+        parser.add_argument('--user-id', default=None,
+                            help='The UUID of the keystone user being '
+                            'created.')
+        return parser
+
+    def do_user_setup(self):
+        """Create user with specified UUID."""
+        self.identity.user_name = CONF.command.username
+        self.identity.user_password = CONF.command.user_password_plain
+        self.identity.user_id = CONF.command.user_id
+        self.identity.user_setup()
+
+    @classmethod
+    def main(cls):
+        klass = cls()
+        klass.do_user_setup()
 
 
 class Doctor(BaseApp):
@@ -1297,12 +1365,14 @@ CMDS = [
     MappingPopulate,
     MappingPurge,
     MappingEngineTester,
+    ProjectSetup,
     ReceiptRotate,
     ReceiptSetup,
     SamlIdentityProviderMetadata,
     TokenRotate,
     TokenSetup,
-    TrustFlush
+    TrustFlush,
+    UserSetup
 ]
 
 
