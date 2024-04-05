@@ -402,9 +402,9 @@ class ProjectAdminTests(base_classes.TestCaseWithBootstrap,
         # update permissions or update policies without breaking users. This
         # will cause these specific tests to fail since we're trying to correct
         # this broken behavior with better scope checking.
-        reader_or_cred_owner = bp.SYSTEM_READER_OR_CRED_OWNER
+        reader_or_cred_owner = bp.ADMIN_OR_SYSTEM_READER_OR_CRED_OWNER
         reader_or_owner = bp.RULE_SYSTEM_READER_OR_OWNER
-        admin_or_cred_owner = bp.SYSTEM_ADMIN_OR_CRED_OWNER
+        admin_or_cred_owner = bp.ADMIN_OR_CRED_OWNER
         with open(self.policy_file_name, 'w') as f:
             overridden_policies = {
                 'identity:ec2_get_credential': reader_or_cred_owner,

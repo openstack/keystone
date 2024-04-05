@@ -48,16 +48,20 @@ SYSTEM_READER = 'role:reader and system_scope:all'
 SYSTEM_ADMIN = 'role:admin and system_scope:all'
 DOMAIN_READER = 'role:reader and domain_id:%(target.domain_id)s'
 RULE_SYSTEM_ADMIN_OR_OWNER = '(' + SYSTEM_ADMIN + ') or rule:owner'
-RULE_SYSTEM_READER_OR_OWNER = '(' + SYSTEM_READER + ') or rule:owner'
+ADMIN_OR_SYSTEM_READER_OR_OWNER = (
+    '(' + RULE_ADMIN_REQUIRED + ') or '
+    '(' + SYSTEM_READER + ') or rule:owner'
+)
 RULE_ADMIN_OR_SYSTEM_READER = 'rule:admin_required or (' + SYSTEM_READER + ')'
 
 # Credential and EC2 Credential policies
-SYSTEM_READER_OR_CRED_OWNER = (
+ADMIN_OR_SYSTEM_READER_OR_CRED_OWNER = (
+    '(' + RULE_ADMIN_REQUIRED + ') or '
     '(' + SYSTEM_READER + ') '
     'or user_id:%(target.credential.user_id)s'
 )
-SYSTEM_ADMIN_OR_CRED_OWNER = (
-    '(' + SYSTEM_ADMIN + ') '
+ADMIN_OR_CRED_OWNER = (
+    '(' + RULE_ADMIN_REQUIRED + ') '
     'or user_id:%(target.credential.user_id)s'
 )
 
