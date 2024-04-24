@@ -1156,7 +1156,7 @@ class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
                     'typeURI': 'service/security/account/user',
                     'host': {'address': 'localhost'},
                     'id': 'openstack:0a90d95d-582c-4efb-9cbc-e2ca7ca9c341',
-                    'username': u'admin'
+                    'name': 'admin'
                 },
                 'target': {
                     'typeURI': 'service/security/account/user',
@@ -1211,6 +1211,7 @@ class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
         self.assertEqual(len(self._notifications), 1)
         note = self._notifications.pop()
         initiator = note['initiator']
+        self.assertEqual(self.user['name'], initiator.name)
         self.assertEqual(self.user['name'], initiator.username)
 
     def test_v3_authenticate_user_name_and_domain_id(self):

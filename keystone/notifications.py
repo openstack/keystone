@@ -833,6 +833,8 @@ def _add_username_to_initiator(initiator):
         return initiator
     try:
         user_ref = PROVIDERS.identity_api.get_user(initiator.user_id)
+        # NOTE(jake): name should be used, username kept for compatibility
+        initiator.name = user_ref['name']
         initiator.username = user_ref['name']
     except (exception.UserNotFound, AttributeError):
         # Either user not found or no user_id, move along
