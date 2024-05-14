@@ -85,7 +85,7 @@ role_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_role',
         check_str=base.RULE_ADMIN_OR_SYSTEM_READER,
-        scope_types=['system', 'project'],
+        scope_types=['system', 'domain', 'project'],
         description='Show role details.',
         operations=[{'path': '/v3/roles/{role_id}',
                      'method': 'GET'},
@@ -95,7 +95,7 @@ role_policies = [
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_roles',
         check_str=base.RULE_ADMIN_OR_SYSTEM_READER,
-        scope_types=['system', 'project'],
+        scope_types=['system', 'domain', 'project'],
         description='List roles.',
         operations=[{'path': '/v3/roles',
                      'method': 'GET'},
