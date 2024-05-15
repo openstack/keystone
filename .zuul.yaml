@@ -15,7 +15,6 @@
     parent: devstack-tempest
     timeout: 4200
     required-projects:
-      - openstack/devstack-gate
       - openstack/keystone
       - openstack/keystone-tempest-plugin
     vars:
