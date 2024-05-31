@@ -1124,6 +1124,13 @@ class DomainConfigManager(manager.Manager):
                         'option': option}
             raise exception.UnexpectedError(exception=msg)
 
+        if CONF.domain_config.additional_whitelisted_options:
+            self.whitelisted_options.update(
+                **CONF.domain_config.additional_whitelisted_options)
+        if CONF.domain_config.additional_sensitive_options:
+            self.sensitive_options.update(
+                **CONF.domain_config.additional_sensitive_options)
+
         if (group and group not in self.whitelisted_options and
                 group not in self.sensitive_options):
             msg = _('Group %(group)s is not supported '
@@ -1131,15 +1138,15 @@ class DomainConfigManager(manager.Manager):
             raise exception.InvalidDomainConfig(reason=msg)
 
         if option:
-            if (option not in self.whitelisted_options[group] and option not in
-                    self.sensitive_options[group]):
+            if (option not in self.whitelisted_options.get(group, {})
+                    and option not in self.sensitive_options.get(group, {})):
                 msg = _('Option %(option)s in group %(group)s is not '
                         'supported for domain specific configurations') % {
                             'group': group, 'option': option}
                 raise exception.InvalidDomainConfig(reason=msg)
 
     def _is_sensitive(self, group, option):
-        return option in self.sensitive_options[group]
+        return option in self.sensitive_options.get(group, {})
 
     def _config_to_list(self, config):
         """Build list of options for use by backend drivers."""

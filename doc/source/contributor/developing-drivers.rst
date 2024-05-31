@@ -74,6 +74,62 @@ The TLDR; steps (and too long didn't write yet):
 5. Configure your new driver in ``keystone.conf``
 6. Sit back and enjoy!
 
+Identity Driver Configuration
+-----------------------------
+
+As described in the :ref:`domain_specific_configuration` there are 2 ways of
+configuring domain specific drivers: using files and using database.
+Configuration with files is straight forward but is having a major disadvantage
+of requiring restart of Keystone for the refresh of configuration or even for
+Keystone to start using chosen driver after adding a new domain.
+
+Configuring drivers using database is a flexible alternative that allows
+dynamic reconfiguration and even changes using the API (requires admin
+privileges by default). There are 2 independent parts for this to work properly:
+
+Defining configuration options
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Driver class (as pointed by EntryPoints) may have a static method
+`register_opts` accepting `conf` argument. This method, if present, is being
+invoked during loading the driver and registered options are then
+available when the driver is being instantiated.
+
+.. code-block:: python
+
+   class CustomDriver(base.IdentityDriverBase):
+
+       @classmethod
+       def register_opts(cls, conf):
+           grp = cfg.OptGroup("foo")
+           opts = [cfg.StrOpt("opt1")]
+           conf.register_group(grp)
+           conf.register_opts(opts, group=grp)
+
+       def __init__(self, conf=None):
+           # conf contains options registered above and domain specific values
+           # being set.
+           pass
+
+       ...
+
+Allowing domain configuration per API
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A safety measure of the Keystone domain configuration API is that options
+allowed for the change need to be explicitly whitelisted. This is done
+in the `domain_config` section of the main Keystone configuration file.
+
+.. code-block:: cfg
+
+   [domain_config]
+   additional_whitelisted_options=<GROUP_NAME>:[opt1,opt2,opt3]
+   additional_sensitive_options=<GROUP_NAME>:[password]
+
+The `<GROUP_NAME>` is the name of the configuration group as defined by the
+driver. Sensitive options are not included in the GET api call and are stored
+in a separate database table.
+
 Driver Interface Changes
 ------------------------
 

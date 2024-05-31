@@ -134,6 +134,16 @@ class IdentityDriverBase(object, metaclass=abc.ABCMeta):
 
     """
 
+    # @classmethod
+    # def register_opts(cls, conf):
+    #     """Register driver specific configuration options.
+
+    #     For domain configuration being stored in the database it is necessary
+    #     for the driver to register configuration options. This method is
+    #     optional and if it is not present no options are registered.
+    #     """
+    #     pass
+
     def _get_conf(self):
         try:
             return self.conf or CONF
