@@ -19,13 +19,13 @@ import datetime
 import functools
 import hashlib
 import json
-import secrets
-
 import ldap
 import os
+import secrets
 import shutil
 import socket
 import sys
+import unittest
 import uuid
 
 from cryptography.hazmat.primitives.asymmetric import rsa
@@ -43,7 +43,6 @@ from oslo_log import fixture as log_fixture
 from oslo_log import log
 from oslo_utils import timeutils
 import testtools
-from testtools import testcase
 
 import keystone.api
 from keystone.common import context
@@ -154,12 +153,12 @@ def skip_if_cache_disabled(*sections):
         @functools.wraps(f)
         def inner(*args, **kwargs):
             if not CONF.cache.enabled:
-                raise testcase.TestSkipped('Cache globally disabled.')
+                raise unittest.SkipTest('Cache globally disabled.')
             for s in sections:
                 conf_sec = getattr(CONF, s, None)
                 if conf_sec is not None:
                     if not getattr(conf_sec, 'caching', True):
-                        raise testcase.TestSkipped('%s caching disabled.' % s)
+                        raise unittest.SkipTest('%s caching disabled.' % s)
             return f(*args, **kwargs)
         return inner
     return wrapper
@@ -174,8 +173,7 @@ def skip_if_cache_is_enabled(*sections):
                     conf_sec = getattr(CONF, s, None)
                     if conf_sec is not None:
                         if getattr(conf_sec, 'caching', True):
-                            raise testcase.TestSkipped('%s caching enabled.' %
-                                                       s)
+                            raise unittest.SkipTest('%s caching enabled.' % s)
             return f(*args, **kwargs)
         return inner
     return wrapper
@@ -187,7 +185,7 @@ def skip_if_no_multiple_domains_support(f):
     def wrapper(*args, **kwargs):
         test_obj = args[0]
         if not test_obj.identity_api.multiple_domains_supported:
-            raise testcase.TestSkipped('No multiple domains support')
+            raise unittest.SkipTest('No multiple domains support')
         return f(*args, **kwargs)
     return wrapper
 
