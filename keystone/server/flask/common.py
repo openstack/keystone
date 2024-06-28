@@ -167,7 +167,11 @@ def _assert_rbac_enforcement_called(resp):
     g = flask.g
     # NOTE(morgan): OPTIONS is a special case and is handled by flask
     # internally. We should never be enforcing on OPTIONS calls.
-    if flask.request.method != 'OPTIONS':
+    # Request validation could abort even before we start processing. It
+    # makes no sense to enfore RBAC
+    if flask.request.method != 'OPTIONS' and resp.status_code not in [
+        http.client.BAD_REQUEST
+    ]:
         assert getattr(  # nosec
             g, enforcer._ENFORCEMENT_CHECK_ATTR, False
         ), msg  # nosec
