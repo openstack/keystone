@@ -46,7 +46,7 @@ class S3ContribCore(test_v3.RestfulTestCase):
         self.assertEqual(http.client.METHOD_NOT_ALLOWED,
                          resp.status_code)
 
-    def test_good_response(self):
+    def _test_good_response(self, **kwargs):
         sts = 'string to sign'  # opaque string from swift3
         sig = hmac.new(self.cred_blob['secret'].encode('ascii'),
                        sts.encode('ascii'), hashlib.sha1).digest()
@@ -57,9 +57,16 @@ class S3ContribCore(test_v3.RestfulTestCase):
                 'signature': base64.b64encode(sig).strip(),
                 'token': base64.b64encode(sts.encode('ascii')).strip(),
             }},
-            expected_status=http.client.OK)
+            expected_status=http.client.OK,
+            **kwargs)
         self.assertValidProjectScopedTokenResponse(resp, self.user,
                                                    forbid_token_id=True)
+
+    def test_good_response(self):
+        self._test_good_response()
+
+    def test_good_response_noauth(self):
+        self._test_good_response(noauth=True)
 
     def test_bad_request(self):
         self.post(
