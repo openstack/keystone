@@ -138,8 +138,9 @@ def get_current_heads():
     # design) uses *python* interpolation to write the string out ... where
     # "%" is the special python interpolation character! Avoid this
     # mismatch by quoting all %'s for the set below.
-    engine_url = str(engine.url).replace('%', '%%')
-    config.set_main_option('sqlalchemy.url', str(engine_url))
+    engine_url = engine.url.render_as_string(
+        hide_password=False).replace('%', '%%')
+    config.set_main_option('sqlalchemy.url', engine_url)
 
     heads = _get_current_heads(engine, config)
 
@@ -179,8 +180,9 @@ def get_db_version(branch=EXPAND_BRANCH, *, engine=None):
     # design) uses *python* interpolation to write the string out ... where
     # "%" is the special python interpolation character! Avoid this
     # mismatch by quoting all %'s for the set below.
-    engine_url = str(engine.url).replace('%', '%%')
-    config.set_main_option('sqlalchemy.url', str(engine_url))
+    engine_url = engine.url.render_as_string(
+        hide_password=False).replace('%', '%%')
+    config.set_main_option('sqlalchemy.url', engine_url)
 
     # we use '.get' since the particular branch might not have been created
     alembic_version = _get_current_heads(engine, config).get(branch)
@@ -204,8 +206,9 @@ def _db_sync(branch=None, *, engine=None):
     # design) uses *python* interpolation to write the string out ... where
     # "%" is the special python interpolation character! Avoid this
     # mismatch by quoting all %'s for the set below.
-    engine_url = str(engine.url).replace('%', '%%')
-    config.set_main_option('sqlalchemy.url', str(engine_url))
+    engine_url = engine.url.render_as_string(
+        hide_password=False).replace('%', '%%')
+    config.set_main_option('sqlalchemy.url', engine_url)
 
     _upgrade_alembic(engine, config, branch)
 
