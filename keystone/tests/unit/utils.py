@@ -15,10 +15,8 @@
 import functools
 import os
 import time
+import unittest
 import uuid
-
-from testtools import testcase
-
 
 TZ = None
 
@@ -54,7 +52,7 @@ def wip(message, expected_exception=Exception, bug=None):
     Based on code by Nat Pryce:
     https://gist.github.com/npryce/997195#file-wip-py
 
-    The test will always be run. If the test fails then a TestSkipped
+    The test will always be run. If the test fails then a SkipTest
     exception is raised. If the test passes an AssertionError exception
     is raised so that the developer knows they made the test pass. This
     is a reminder to remove the decorator.
@@ -97,7 +95,7 @@ def wip(message, expected_exception=Exception, bug=None):
                          'exception': __e.__class__.__name__})
                 # NOTE(notmorgan): We got the expected exception we can safely
                 # skip this test.
-                raise testcase.TestSkipped(
+                raise unittest.SkipTest(
                     'Work In Progress Test Failed as '
                     'expected%(bugstr)s: %(message)s' %
                     {'message': message, 'bugstr': bugstr})

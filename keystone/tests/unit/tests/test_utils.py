@@ -10,6 +10,8 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import unittest
+
 from testtools import matchers
 from testtools import testcase
 
@@ -24,7 +26,7 @@ class TestWipDecorator(testcase.TestCase):
         def test():
             raise Exception('i expected a failure - this is a WIP')
 
-        e = self.assertRaises(testcase.TestSkipped, test)
+        e = self.assertRaises(unittest.SkipTest, test)
         self.assertThat(str(e), matchers.Contains('#000000'))
 
     def test_raises_AssertionError_when_test_passes(self):

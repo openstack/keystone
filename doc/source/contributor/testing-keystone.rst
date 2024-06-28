@@ -180,7 +180,7 @@ including:
   in code if a fix isn't ready yet.
 
 The :func:`keystone.tests.unit.utils.wip` decorator can be used to mark a test
-as WIP. A WIP test will always be run. If the test fails then a TestSkipped
+as WIP. A WIP test will always be run. If the test fails then a SkipTest
 exception is raised because we expect the test to fail. We do not pass
 the test in this case so that it doesn't count toward the number of
 successfully run tests. If the test passes an AssertionError exception is
