@@ -82,7 +82,12 @@ entity_update = {
 
 _VALID_ENABLED_FORMATS = [True, False]
 
-_INVALID_ENABLED_FORMATS = ['some string', 1, 0, 'True', 'False']
+# NOTE(gtema): During impliementing JsonSchema validation some
+# normalization has been done and it was noticed that value 'True' for boolean
+# is explicitly expected in i.e. is_domain while other test verifies it is
+# rejected. Therefore `True` and `False` values are removed from invalid values
+# to be more conforming to other OpenStack services.
+_INVALID_ENABLED_FORMATS = ['some string', 1, 0]
 
 _INVALID_DESC_FORMATS = [False, 1, 2.0]
 

@@ -39,3 +39,12 @@ truncated: dict[str, Any] = {
         "response limit"
     ),
 }
+
+tags: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "tags": {"type": "array", "items": {"type": "string"}},
+        "links": links,
+    },
+    "additionalProperties": False,
+}
