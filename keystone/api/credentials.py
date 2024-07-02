@@ -18,9 +18,10 @@ import http.client
 import flask
 from oslo_serialization import jsonutils
 
+from keystone.api import validation
+from keystone.common import json_home
 from keystone.common import provider_api
 from keystone.common import rbac_enforcer
-from keystone.common import validation
 import keystone.conf
 from keystone.credential import schema
 from keystone import exception
@@ -46,7 +47,35 @@ def _build_target_enforcement():
     return target
 
 
-class CredentialResource(ks_flask.ResourceBase):
+def _blob_to_json(ref: dict) -> dict:
+    """Serialize blob as string."""
+    # credentials stored via ec2tokens before the fix for #1259584
+    # need json_serailzing, as that's the documented API format
+    blob = ref.get('blob')
+    if isinstance(blob, dict):
+        ref = ref.copy()
+        ref['blob'] = jsonutils.dumps(blob)
+    return ref
+
+
+def _validate_blob_json(ref: dict) -> dict:
+    """Validate `blob` is a valid object."""
+    try:
+        blob = jsonutils.loads(ref.get('blob'))
+    except (ValueError, TabError):
+        raise exception.ValidationError(
+            message=_('Invalid blob in credential')
+        )
+    if not blob or not isinstance(blob, dict):
+        raise exception.ValidationError(attribute='blob', target='credential')
+    if blob.get('access') is None:
+        raise exception.ValidationError(
+            attribute='access', target='credential'
+        )
+    return blob
+
+
+class CredentialsResource(ks_flask.ResourceBase):
     collection_key = 'credentials'
     member_key = 'credential'
 
@@ -82,7 +111,7 @@ class CredentialResource(ks_flask.ResourceBase):
     ):
         # Generates an assigns a unique identifier to a credential reference.
         if ref.get('type', '').lower() == 'ec2':
-            blob = self._validate_blob_json(ref)
+            blob = _validate_blob_json(ref)
             ref = ref.copy()
             ref['id'] = hashlib.sha256(
                 blob['access'].encode('utf8')
@@ -104,7 +133,13 @@ class CredentialResource(ks_flask.ResourceBase):
         else:
             return super()._assign_unique_id(ref)
 
-    def _list_credentials(self):
+    @validation.request_query_schema(schema.index_request_query)
+    @validation.response_body_schema(schema.index_response_body)
+    def get(self):
+        """List credentials.
+
+        GET /v3/credentials
+        """
         filters = ['user_id', 'type']
         if not self.oslo_context.system_scope:
             target = {'credential': {'user_id': self.oslo_context.user_id}}
@@ -136,34 +171,22 @@ class CredentialResource(ks_flask.ResourceBase):
             except exception.Forbidden:
                 pass
         refs = filtered_refs
-        refs = [self._blob_to_json(r) for r in refs]
+        refs = [_blob_to_json(r) for r in refs]
         return self.wrap_collection(refs, hints=hints)
 
-    def _get_credential(self, credential_id):
-        ENFORCER.enforce_call(
-            action='identity:get_credential',
-            build_target=_build_target_enforcement,
-        )
-        credential = PROVIDERS.credential_api.get_credential(credential_id)
-        return self.wrap_member(self._blob_to_json(credential))
-
-    def get(self, credential_id=None):
-        # Get Credential or List of credentials.
-        if credential_id is None:
-            # No Parameter passed means that we're doing a LIST action.
-            return self._list_credentials()
-        else:
-            return self._get_credential(credential_id)
-
+    @validation.request_body_schema(schema.create_request_body)
+    @validation.response_body_schema(schema.credential_response_body)
     def post(self):
-        # Create a new credential
+        """Create new credentials.
+
+        POST /v3/credentials
+        """
         credential = self.request_body_json.get('credential', {})
         target = {}
         target['credential'] = credential
         ENFORCER.enforce_call(
             action='identity:create_credential', target_attr=target
         )
-        validation.lazy_validate(schema.credential_create, credential)
         trust_id = getattr(self.oslo_context, 'trust_id', None)
         app_cred_id = getattr(
             self.auth_context['token'], 'application_credential_id', None
@@ -182,9 +205,14 @@ class CredentialResource(ks_flask.ResourceBase):
         )
         return self.wrap_member(ref), http.client.CREATED
 
+
+class CredentialResource(ks_flask.ResourceBase):
+    collection_key = 'credentials'
+    member_key = 'credential'
+
     def _validate_blob_update_keys(self, credential, ref):
         if credential.get('type', '').lower() == 'ec2':
-            new_blob = self._validate_blob_json(ref)
+            new_blob = _validate_blob_json(ref)
             old_blob = credential.get('blob')
             if isinstance(old_blob, str):
                 old_blob = jsonutils.loads(old_blob)
@@ -199,8 +227,27 @@ class CredentialResource(ks_flask.ResourceBase):
                     message = _('%s can not be updated for credential') % key
                     raise exception.ValidationError(message=message)
 
-    def patch(self, credential_id):
-        # Update Credential
+    @validation.response_body_schema(schema.credential_response_body)
+    def get(self, credential_id: str):
+        """Retrieve existing credentials.
+
+        GET /v3/credentials/{credential_id}
+        """
+        # Get Credential.
+        ENFORCER.enforce_call(
+            action='identity:get_credential',
+            build_target=_build_target_enforcement,
+        )
+        credential = PROVIDERS.credential_api.get_credential(credential_id)
+        return self.wrap_member(_blob_to_json(credential))
+
+    @validation.request_body_schema(schema.update_request_body)
+    @validation.response_body_schema(schema.credential_response_body)
+    def patch(self, credential_id: str):
+        """Update existing credentials.
+
+        PATCH /v3/credentials/{credential_id}
+        """
         ENFORCER.enforce_call(
             action='identity:update_credential',
             build_target=_build_target_enforcement,
@@ -208,7 +255,6 @@ class CredentialResource(ks_flask.ResourceBase):
         current = PROVIDERS.credential_api.get_credential(credential_id)
 
         credential = self.request_body_json.get('credential', {})
-        validation.lazy_validate(schema.credential_update, credential)
         self._validate_blob_update_keys(current.copy(), credential.copy())
         self._require_matching_id(credential)
         # Check that the user hasn't illegally modified the owner or scope
@@ -221,8 +267,11 @@ class CredentialResource(ks_flask.ResourceBase):
         )
         return self.wrap_member(ref)
 
-    def delete(self, credential_id):
-        # Delete credentials
+    def delete(self, credential_id: str):
+        """Delete credentials.
+
+        DELETE /v3/credentials/{credential_id}
+        """
         ENFORCER.enforce_call(
             action='identity:delete_credential',
             build_target=_build_target_enforcement,
@@ -240,8 +289,26 @@ class CredentialAPI(ks_flask.APIBase):
 
     _name = 'credentials'
     _import_name = __name__
-    resource_mapping = []
-    resources = [CredentialResource]
+    resource_mapping = [
+        ks_flask.construct_resource_map(
+            resource=CredentialsResource,
+            url='/credentials',
+            resource_kwargs={},
+            rel="credentials",
+            path_vars=None,
+        ),
+        ks_flask.construct_resource_map(
+            resource=CredentialResource,
+            url='/credentials/<string:credential_id>',
+            resource_kwargs={},
+            rel="credential",
+            path_vars={
+                'credential_id': json_home.build_v3_parameter_relation(
+                    "credential_id"
+                )
+            },
+        ),
+    ]
 
 
 APIs = (CredentialAPI,)
