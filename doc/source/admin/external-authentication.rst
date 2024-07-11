@@ -4,7 +4,7 @@ Using external authentication with Keystone
 
 When Keystone is executed in a web server like Apache HTTPD,
 it is possible to have the web server also handle authentication.
-This enables support for additional methods of authentication that 
+This enables support for additional methods of authentication that
 are not provided by the identity store backend and
 the authentication plugins that Keystone supports.
 

@@ -16,7 +16,7 @@ deprecations:
     [`bug 1794376 <https://bugs.launchpad.net/keystone/+bug/1794376>`_]
     The following domain policy check strings have been deprecated in
     favor of more clear and concise defaults:
-    
+
     * ``identity:get_domain``
     * ``identity:list_domains``
     * ``identity:create_domain``
