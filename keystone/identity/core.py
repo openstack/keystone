@@ -25,6 +25,7 @@ import uuid
 from oslo_config import cfg
 from oslo_log import log
 from pycadf import reason
+import stevedore
 
 from keystone import assignment  # TODO(lbragstad): Decouple this dependency
 from keystone.common import cache
@@ -62,6 +63,23 @@ REGISTRATION_ATTEMPTS = 10
 
 # Config Registration Types
 SQL_DRIVER = 'SQL'
+
+
+def get_driver(namespace, driver_name, *args):
+    """Get identity driver without initializing.
+
+    The method is invoked to be able to introspect domain specific driver
+    looking for additional configuration options required by the driver.
+    """
+    try:
+        driver_manager = stevedore.DriverManager(namespace,
+                                                 driver_name,
+                                                 invoke_on_load=False,
+                                                 invoke_args=args)
+        return driver_manager.driver
+    except stevedore.exception.NoMatches:
+        msg = (_('Unable to find %(name)r driver in %(namespace)r.'))
+        raise ImportError(msg % {'name': driver_name, 'namespace': namespace})
 
 
 class DomainConfigs(provider_api.ProviderAPIMixin, dict):
@@ -262,12 +280,51 @@ class DomainConfigs(provider_api.ProviderAPIMixin, dict):
                              default_config_files=[],
                              default_config_dirs=[])
 
+        # Try to identify the required driver for the domain to let it register
+        # supported configuration options. In difference to the FS based
+        # configuration this is being set through `oslo_cfg.set_override` and
+        # thus require special treatment.
+        try:
+            driver_name = specific_config.get("identity", {}).get(
+                "driver", domain_config["cfg"].identity.driver)
+            # For the non in-tree drivers ...
+            if driver_name not in ["sql", "ldap"]:
+                # Locate the driver without invoking ...
+                driver = get_driver(
+                    Manager.driver_namespace, driver_name)
+                # Check whether it wants to register additional config options
+                # ...
+                if hasattr(driver, "register_opts"):
+                    # And register them for the domain_config (not the global
+                    # Keystone config)
+                    driver.register_opts(domain_config["cfg"])
+        except Exception as ex:
+            # If we failed for some reason - something wrong with the driver,
+            # so let's just skip registering config options. This matches older
+            # behavior of Keystone where out-of-tree drivers were not able to
+            # register config options with the DB configuration loading branch.
+            LOG.debug(
+                f"Exception during attempt to load domain specific "
+                f"configuration options: {ex}")
+
         # Override any options that have been passed in as specified in the
         # database.
         for group in specific_config:
             for option in specific_config[group]:
-                domain_config['cfg'].set_override(
-                    option, specific_config[group][option], group)
+                # NOTE(gtema): Very first time default driver is being ordered
+                # to process the domain. This will change once initialization
+                # completes. Until the driver specific configuration is being
+                # registered `set_override` will fail for options not known by
+                # the core Keystone. Make this loading not failing letting code
+                # to complete the process properly.
+                try:
+                    domain_config['cfg'].set_override(
+                        option, specific_config[group][option], group)
+                except (cfg.NoSuchOptError, cfg.NoSuchGroupError):
+                    # Error to register config overrides for wrong driver. This
+                    # is not worth of logging since it is a normal case during
+                    # Keystone initialization.
+                    pass
 
         domain_config['cfg_overrides'] = specific_config
         domain_config['driver'] = self._load_driver(domain_config)

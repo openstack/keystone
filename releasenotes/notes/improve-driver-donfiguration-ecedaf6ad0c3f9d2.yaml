@@ -1,0 +1,8 @@
+---
+features:
+  - |
+    Improve configuration management for the out-of-tree identity drivers. When
+    driver implements a special method it is being invoked before instantiating
+    the driver when reading configuration from the database. Also 2 new
+    `domain_config` section configuration options are added to allow such
+    driver specific parameters to be managed using the API.

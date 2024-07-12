@@ -12,12 +12,14 @@
 
 """Unit tests for core identity behavior."""
 
+import fixtures
 import itertools
 import os
 from unittest import mock
 import uuid
 
 from oslo_config import fixture as config_fixture
+import stevedore
 
 from keystone.common import provider_api
 import keystone.conf
@@ -25,6 +27,7 @@ from keystone import exception
 from keystone import identity
 from keystone.tests import unit
 from keystone.tests.unit import default_fixtures
+from keystone.tests.unit.identity.backends import fake_driver
 from keystone.tests.unit.ksfixtures import database
 
 
@@ -181,3 +184,50 @@ class TestDatabaseDomainConfigs(unit.TestCase):
         self.assertEqual(CONF.ldap.suffix, res.ldap.suffix)
         self.assertEqual(CONF.ldap.use_tls, res.ldap.use_tls)
         self.assertEqual(CONF.ldap.query_scope, res.ldap.query_scope)
+
+    def test_loading_config_from_database_out_of_tree(self):
+        # Test domain config loading for out-of-tree driver supporting own
+        # config options
+
+        # Prepare fake driver
+        extension = stevedore.extension.Extension(
+            name="foo", entry_point=None,
+            obj=fake_driver.FooDriver(), plugin=None
+        )
+        fake_driver_manager = stevedore.DriverManager.make_test_instance(
+            extension, namespace="keystone.identity"
+        )
+        # replace DriverManager with a patched test instance
+        self.useFixture(
+            fixtures.MockPatchObject(
+                stevedore, "DriverManager", return_value=fake_driver_manager
+            )
+        ).mock
+
+        self.config_fixture.config(
+            domain_configurations_from_database=True, group="identity"
+        )
+        self.config_fixture.config(
+            additional_whitelisted_options={"foo": ["opt1"]},
+            group="domain_config"
+        )
+        domain = unit.new_domain_ref()
+        PROVIDERS.resource_api.create_domain(domain["id"], domain)
+        # Override two config options for our domain
+        conf = {
+            "foo": {"opt1": uuid.uuid4().hex},
+            "identity": {"driver": "foo"}}
+        PROVIDERS.domain_config_api.create_config(domain["id"], conf)
+        domain_config = identity.DomainConfigs()
+        domain_config.setup_domain_drivers("foo", PROVIDERS.resource_api)
+        # Make sure our two overrides are in place, and others are not affected
+        res = domain_config.get_domain_conf(domain["id"])
+
+        self.assertEqual(conf["foo"]["opt1"], res.foo.opt1)
+
+        # Reset whitelisted options in the provider directly. Due to the fact
+        # that there are too many singletons used around the code basis there
+        # is a chance of clash when other API domain_config tests are being
+        # executed by the same process. It is NOT ENOUGH just to invoke reset
+        # on fixtures.
+        PROVIDERS.domain_config_api.whitelisted_options.pop("foo", None)
