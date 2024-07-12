@@ -13,6 +13,8 @@
 # under the License.
 
 import http.client
+import typing as ty
+
 from oslo_log import log
 from oslo_utils import encodeutils
 
@@ -66,9 +68,9 @@ class Error(Exception, metaclass=_KeystoneExceptionMeta):
 
     """
 
-    code = None
-    title = None
-    message_format = None
+    code: ty.Optional[int] = None
+    title: ty.Optional[str] = None
+    message_format: ty.Optional[str] = None
 
     def __init__(self, message=None, **kwargs):
         try:

@@ -35,7 +35,7 @@ from keystone.server.flask.request_processing.middleware import url_normalize
 #   * "ep": the entry-point name
 #   * "conf": extra config data for the entry_point (None or Dict)
 _Middleware = collections.namedtuple(
-    'LoadableMiddleware', 'namespace, ep, conf'
+    '_Middleware', ['namespace', 'ep', 'conf']
 )
 
 

@@ -53,7 +53,7 @@ opts.set_defaults(CONF, DEFAULT_POLICY_FILE)
 class RBACEnforcer:
     """Enforce RBAC on API calls."""
 
-    __shared_state__ = {}
+    __shared_state__: dict = {}
     __ENFORCER = None
     ACTION_STORE_ATTR = 'keystone:RBAC:action_name'
     # FOR TESTS ONLY

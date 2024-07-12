@@ -21,7 +21,7 @@ from keystone.tests.unit import utils
 ModelBase = declarative.declarative_base()
 
 
-class TestModel(ModelBase, sql.ModelDictMixin):
+class TestModel(ModelBase, sql.ModelDictMixin):  # type: ignore
     __tablename__ = 'testmodel'
     id = sql.Column(sql.String(64), primary_key=True)
     text = sql.Column(sql.String(64), nullable=False)

@@ -152,7 +152,7 @@ class TrustResource(ks_flask.ResourceBase):
                 original_trust['redelegated_trust_id']
             )
 
-        if not ((trust.get('project_id')) in [None, '']):
+        if (trust.get('project_id')) not in [None, '']:
             # Check project exists.
             PROVIDERS.resource_api.get_project(trust['project_id'])
             # Get a list of roles including any domain specific roles

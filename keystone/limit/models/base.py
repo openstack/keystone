@@ -10,6 +10,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 import abc
+import typing as ty
 
 import stevedore
 
@@ -34,9 +35,9 @@ def load_driver(driver_name, *args):
 class ModelBase(metaclass=abc.ABCMeta):
     """Interface for a limit model driver."""
 
-    NAME = None
-    DESCRIPTION = None
-    MAX_PROJECT_TREE_DEPTH = None
+    NAME: str
+    DESCRIPTION: str
+    MAX_PROJECT_TREE_DEPTH: ty.Optional[int] = None
 
     def check_limit(self, limits):
         """Check the new creating or updating limits if satisfy the model.

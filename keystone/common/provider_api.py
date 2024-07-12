@@ -12,8 +12,8 @@
 
 
 class ProviderAPIRegistry:
-    __shared_object_state = {}
-    __registry = {}
+    __shared_object_state: dict = {}
+    __registry: dict = {}
     __iter__ = __registry.__iter__
     __getitem__ = __registry.__getitem__
     locked = False

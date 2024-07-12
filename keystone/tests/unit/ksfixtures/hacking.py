@@ -92,7 +92,7 @@ class HackingCode(fixtures.Fixture):
     # the incorrect col_offset for below function defined in above code sample
     # def f(foo, bad=[], more_bad=[x for x in range(3)]):
     if sys.version_info < (3, 8, 2):
-        mutable_default_args['expected_errors'][2] = (10, 29, 'K001')
+        mutable_default_args['expected_errors'][2] = (10, 29, 'K001')  # type: ignore[index]
 
     comments_begin_with_space = {
         'code': """

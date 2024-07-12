@@ -87,7 +87,7 @@ class LimitModel(sql.ModelBase, sql.ModelDictMixin):
             return self.registered_limit.service_id
         return None
 
-    @service_id.expression
+    @service_id.expression  # type: ignore[no-redef]
     def service_id(self):
         return RegisteredLimitModel.service_id
 
@@ -97,7 +97,7 @@ class LimitModel(sql.ModelBase, sql.ModelDictMixin):
             return self.registered_limit.region_id
         return None
 
-    @region_id.expression
+    @region_id.expression  # type: ignore[no-redef]
     def region_id(self):
         return RegisteredLimitModel.region_id
 
@@ -107,7 +107,7 @@ class LimitModel(sql.ModelBase, sql.ModelDictMixin):
             return self.registered_limit.resource_name
         return self._resource_name
 
-    @resource_name.expression
+    @resource_name.expression  # type: ignore[no-redef]
     def resource_name(self):
         return RegisteredLimitModel.resource_name
 

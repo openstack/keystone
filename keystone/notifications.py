@@ -46,7 +46,7 @@ LOG = log.getLogger(__name__)
 # NOTE(gyee): actions that can be notified. One must update this list whenever
 # a new action is supported.
 _ACTIONS = collections.namedtuple(
-    'NotificationActions', 'created, deleted, disabled, updated, internal'
+    '_ACTIONS', ['created', 'deleted', 'disabled', 'updated', 'internal']
 )
 ACTIONS = _ACTIONS(
     created='created',
@@ -76,7 +76,7 @@ CADF_TYPE_MAP = {
 
 SAML_AUDIT_TYPE = 'http://docs.oasis-open.org/security/saml/v2.0'
 # resource types that can be notified
-_SUBSCRIBERS = {}
+_SUBSCRIBERS: dict = {}
 _notifier = None
 SERVICE = 'identity'
 PROVIDERS = provider_api.ProviderAPIs

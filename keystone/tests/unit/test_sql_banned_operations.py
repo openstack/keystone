@@ -11,6 +11,7 @@
 # under the License.
 
 import os
+import typing as ty
 
 from alembic import command as alembic_api
 from alembic import script as alembic_script
@@ -112,7 +113,7 @@ class KeystoneMigrationsWalk(
         },
     }
 
-    BANNED_OP_EXCEPTIONS = [
+    BANNED_OP_EXCEPTIONS: list[ty.Any] = [
         # NOTE(xek, henry-nash): Reviewers: DO NOT ALLOW THINGS TO BE ADDED
         # HERE UNLESS JUSTIFICATION CAN BE PROVIDED AS TO WHY THIS WILL NOT
         # CAUSE PROBLEMS FOR ROLLING UPGRADES.

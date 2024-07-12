@@ -43,7 +43,7 @@ class CredentialModel(sql.ModelBase, sql.ModelDictMixinWithExtras):
     def encrypted_blob(self):
         return self._encrypted_blob
 
-    @encrypted_blob.setter
+    @encrypted_blob.setter  # type: ignore[no-redef]
     def encrypted_blob(self, encrypted_blob):
         # Make sure to hand over the encrypted credential as a string value
         # to the backend driver to avoid the sql drivers (esp. psycopg2)
