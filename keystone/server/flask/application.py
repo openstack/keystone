@@ -89,6 +89,11 @@ def _handle_keystone_exception(error):
             "Authorization failed. %(exception)s from %(remote_addr)s",
             {'exception': error, 'remote_addr': flask.request.remote_addr},
         )
+    # NOTE(frickler): NotFound exceptions happen regularly during
+    # normal operations, e.g. when doing "openstack role show member",
+    # so don't make a fuss about them
+    elif isinstance(error, exception.NotFound):
+        LOG.debug(str(error))
     else:
         LOG.exception(str(error))
 
