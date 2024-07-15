@@ -111,7 +111,10 @@ class RoleResource(ks_flask.ResourceBase):
         """
         role = self.request_body_json.get('role', {})
         if self._is_domain_role(role):
-            ENFORCER.enforce_call(action='identity:create_domain_role')
+            target = {'role': role}
+            ENFORCER.enforce_call(
+                action='identity:create_domain_role', target_attr=target
+            )
         else:
             ENFORCER.enforce_call(action='identity:create_role')
         validation.lazy_validate(schema.role_create, role)

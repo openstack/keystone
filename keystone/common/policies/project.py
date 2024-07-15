@@ -49,7 +49,7 @@ SYSTEM_READER_OR_DOMAIN_READER_OR_OWNER = (
     # the context user_id to the target user id.
     'user_id:%(target.user.id)s'
 )
-ADMIN_OR_SYSTEM_READER_OR_DOMAIN_READER_OR_OWNER = (
+ADMIN_SYSTEM_READER_OR_DOMAIN_READER_OR_OWNER = (
     '('
     + base.RULE_ADMIN_REQUIRED
     + ') or '
@@ -65,9 +65,9 @@ ADMIN_OR_SYSTEM_READER_OR_DOMAIN_READER = (
     '(' + base.RULE_ADMIN_REQUIRED + ') or ' + SYSTEM_READER_OR_DOMAIN_READER
 )
 
-SYSTEM_ADMIN_OR_DOMAIN_ADMIN = (
-    '(role:admin and system_scope:all) or '
-    '(role:admin and domain_id:%(target.project.domain_id)s)'
+ADMIN_OR_DOMAIN_MANAGER = (
+    '(' + base.RULE_ADMIN_REQUIRED + ') or '
+    '(role:manager and domain_id:%(target.project.domain_id)s)'
 )
 
 DEPRECATED_REASON = (
@@ -175,7 +175,7 @@ project_policies = [
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_user_projects',
-        check_str=ADMIN_OR_SYSTEM_READER_OR_DOMAIN_READER_OR_OWNER,
+        check_str=ADMIN_SYSTEM_READER_OR_DOMAIN_READER_OR_OWNER,
         scope_types=['system', 'domain', 'project'],
         description='List projects for user.',
         operations=[{'path': '/v3/users/{user_id}/projects', 'method': 'GET'}],
@@ -183,7 +183,7 @@ project_policies = [
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_project',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=ADMIN_OR_DOMAIN_MANAGER,
         scope_types=['system', 'domain', 'project'],
         description='Create project.',
         operations=[{'path': '/v3/projects', 'method': 'POST'}],
@@ -191,7 +191,7 @@ project_policies = [
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_project',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=ADMIN_OR_DOMAIN_MANAGER,
         scope_types=['system', 'domain', 'project'],
         description='Update project.',
         operations=[{'path': '/v3/projects/{project_id}', 'method': 'PATCH'}],
@@ -199,7 +199,7 @@ project_policies = [
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_project',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=ADMIN_OR_DOMAIN_MANAGER,
         scope_types=['system', 'domain', 'project'],
         description='Delete project.',
         operations=[{'path': '/v3/projects/{project_id}', 'method': 'DELETE'}],
@@ -235,7 +235,7 @@ project_policies = [
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_project_tags',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=ADMIN_OR_DOMAIN_MANAGER,
         scope_types=['system', 'domain', 'project'],
         description='Replace all tags on a project with the new set of tags.',
         operations=[
@@ -245,7 +245,7 @@ project_policies = [
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_project_tag',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=ADMIN_OR_DOMAIN_MANAGER,
         scope_types=['system', 'domain', 'project'],
         description='Add a single tag to a project.',
         operations=[
@@ -255,7 +255,7 @@ project_policies = [
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_project_tags',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=ADMIN_OR_DOMAIN_MANAGER,
         scope_types=['system', 'domain', 'project'],
         description='Remove all tags from a project.',
         operations=[
@@ -265,7 +265,7 @@ project_policies = [
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_project_tag',
-        check_str=base.RULE_ADMIN_REQUIRED,
+        check_str=ADMIN_OR_DOMAIN_MANAGER,
         scope_types=['system', 'domain', 'project'],
         description='Delete a specified tag from project.',
         operations=[

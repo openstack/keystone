@@ -1,0 +1,12 @@
+---
+features:
+  - >
+    [`bug 2045974 <https://bugs.launchpad.net/keystone/+bug/2045974>`_]
+    The Domain Manager Persona has been added. This makes identity-related
+    self-service capabilities for users within domains possible without
+    requiring the 'admin' role. Assigning the 'manager' role to users in domain
+    scope now allows them to manage projects, groups, users and role
+    assignments within the domain. This is subject to the following
+    restriction: the roles that domain managers can assign and revoke are
+    limited by a new ``domain_managed_target_role`` policy rule which defaults
+    to 'reader', 'member' and 'manager'.
