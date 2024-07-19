@@ -1,0 +1,29 @@
+---
+features:
+  - |
+    Added a new command to the admin cli tool:
+    `keystone-manage reset_last_active`.  This new command updates the database
+    to overwritet any NULL values in `last_active_at` in the user table to the
+    current time. This is a necessary step to fix Bug #2074018. See launchpad
+    for details.
+fixes:
+  - |
+    Fixed Bug #2074018: Changed the user model to always save the date of the
+    last user activity in `last_active_at`.  Previous to this change, the
+    `last_active_at` field was only updated when the option for
+    `[security_compliance] disable_user_account_days_inactive` was set.
+    If your deployment is affected by this bug, you must run
+    `keystone-manage reset_last_active` before setting the
+    `disable_user_account_days_inactive` option.
+security:
+  - |
+    The new `keystone-manage rest_last_active` command resets all NULL values
+    in `last_active_at` in the user table to help fix Bug #2074018.  Running
+    this command may be necessary in environments that have been deployed for
+    a long time and later decide to adopt the
+    `[security_compliance disable_user_account_days_inactive = X` option.
+    See Bug #2074018 for details.
+
+    A side-effect of this command is that it resets the amount of time that an
+    unused account is active for.  Unused accounts will remain active until the
+    configured days have elapsed since the day the command is run.

@@ -170,6 +170,9 @@ class Identity(base.IdentityDriverBase):
     def delete_user(self, user_id):
         raise exception.Forbidden(READ_ONLY_LDAP_ERROR_MESSAGE)
 
+    def reset_last_active(self):
+        raise exception.Forbidden(READ_ONLY_LDAP_ERROR_MESSAGE)
+
     def change_password(self, user_id, new_password):
         raise exception.Forbidden(READ_ONLY_LDAP_ERROR_MESSAGE)
 

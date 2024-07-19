@@ -72,6 +72,9 @@ class FooDriver(base.IdentityDriverBase):
     def get_user_by_name(self, user_name, domain_id):
         raise exception.NotImplemented()  # pragma: no cover
 
+    def reset_last_active(self):
+        raise exception.NotImplemented()  # pragma: no cover
+
     def create_group(self, group_id, group):
         raise exception.NotImplemented()  # pragma: no cover
 
