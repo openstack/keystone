@@ -345,6 +345,16 @@ class IdentityDriverBase(object, metaclass=abc.ABCMeta):
         """
         raise exception.NotImplemented()  # pragma: no cover
 
+    @abc.abstractmethod
+    def reset_last_active(self):
+        """Resets null last_active_at values.
+
+        This method looks for all users in the database that have a null
+        value for last_updated_at and resets that value to the current
+        time.
+        """
+        raise exception.NotImplemented()  # pragma: no cover
+
     # group crud
 
     @abc.abstractmethod

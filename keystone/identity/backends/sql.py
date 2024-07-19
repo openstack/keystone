@@ -390,6 +390,14 @@ class Identity(base.IdentityDriverBase):
 
             session.delete(ref)
 
+    def reset_last_active(self):
+        with sql.session_for_write() as session:
+            session.query(model.User).filter(
+                model.User.last_active_at.is_(None).update(
+                    {'last_active_at': datetime.datetime.utcnow()}
+                )
+            )
+
     # group crud
 
     @sql.handle_conflicts(conflict_type='group')

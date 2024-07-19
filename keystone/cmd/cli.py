@@ -425,6 +425,47 @@ class DbVersion(BaseApp):
         print(upgrades.get_db_version())
 
 
+class ResetLastActive(BaseApp):
+    """Reset null values for all users to current time."""
+
+    name = "reset_last_active"
+
+    @classmethod
+    def add_argument_parser(cls, subparsers):
+        parser = super().add_argument_parser(subparsers)
+        parser.add_argument(
+            '--force',
+            action='store_true',
+            help='Write to the database without asking for confirmation',
+        )
+        return parser
+
+    @staticmethod
+    def main():
+        if not CONF.command.force:
+            confirm = input(
+                "Security Warning: reset_last_active  will update all users\n"
+                "in the database with a NULL value for last_active_at to be\n"
+                "last active at the current time.  This includes users that\n"
+                "have never logged in.  If your Keystone deployment is\n"
+                "configured to use disable_user_account_days_inactive, these\n"
+                "users will still be enabled and won't be disabled until the\n"
+                "configured amount of time has passed after this command is\n"
+                "run.\n"
+                "Are you sure you want to continue [y/N]? "
+            )
+            if confirm.lower() not in ('y', 'yes'):
+                raise SystemExit('reset_last_active aborted.')
+
+        LOG.debug(
+            "Resetting null values to current time %s",
+            datetime.datetime.utcnow,
+        )
+        drivers = backends.load_backends()
+        identity_api = drivers['identity_api']
+        identity_api.reset_last_active()
+
+
 class BasePermissionsSetup(BaseApp):
     """Common user/group setup for file permissions."""
 
@@ -1374,6 +1415,7 @@ CMDS = [
     ProjectSetup,
     ReceiptRotate,
     ReceiptSetup,
+    ResetLastActive,
     SamlIdentityProviderMetadata,
     TokenRotate,
     TokenSetup,
