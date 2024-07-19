@@ -155,8 +155,11 @@ class ShadowUsersBackendTests(object):
                     password=password)
 
     def test_set_last_active_at_when_config_setting_is_none(self):
-        self.config_fixture.config(group='security_compliance',
-                                   disable_user_account_days_inactive=None)
+        self.config_fixture.config(
+            group='security_compliance',
+            disable_user_account_days_inactive=None,
+        )
+        now = datetime.datetime.utcnow().date()
         password = uuid.uuid4().hex
         user = self._create_user(password)
         with self.make_request():
@@ -164,7 +167,7 @@ class ShadowUsersBackendTests(object):
                 user_id=user['id'],
                 password=password)
         user_ref = self._get_user_ref(user_auth['id'])
-        self.assertIsNone(user_ref.last_active_at)
+        self.assertGreaterEqual(now, user_ref.last_active_at)
 
     def _add_nonlocal_user(self, nonlocal_user):
         with sql.session_for_write() as session:
