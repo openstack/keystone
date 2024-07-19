@@ -23,7 +23,7 @@ Grant by the following steps in this guide. In this example,
 .. _application credentials: https://docs.openstack.org/api-ref/identity/v3/index.html#application-credentials
 .. _`Identity API reference`: https://docs.openstack.org/api-ref/identity/v3/index.html#os-oauth2-api
 
-.. warning:: 
+.. warning::
 
    It is strongly recommended that HTTPS be enabled in Keystone when using
    OAuth2.0 Client Credentials. See :doc:`./configure-https` for details.

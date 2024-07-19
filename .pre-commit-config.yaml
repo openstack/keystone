@@ -1,0 +1,46 @@
+---
+default_language_version:
+  # force all unspecified python hooks to run python3
+  python: python3
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+      - id: mixed-line-ending
+        args: ['--fix', 'lf']
+        exclude: '.*\.(svg)$'
+      - id: check-byte-order-marker
+      - id: check-executables-have-shebangs
+      - id: check-merge-conflict
+      - id: debug-statements
+      - id: check-yaml
+        files: .*\.(yaml|yml)$
+        exclude: '^zuul.d/.*$'
+  # TODO(gtema): Uncomment once content is fixed
+  # - repo: https://github.com/PyCQA/doc8
+  #   rev: v1.1.1
+  #   hooks:
+  #     - id: doc8
+  # - repo: https://github.com/asottile/pyupgrade
+  #   rev: v3.15.2
+  #   hooks:
+  #     - id: pyupgrade
+  #       args: ['--py38-plus']
+  # TODO(gtema): Uncomment it once all files are blackified
+  # - repo: https://github.com/psf/black
+  #   rev: 24.4.0
+  #   hooks:
+  #     - id: black
+  #       args: ['-S', '-l', '79']
+  # - repo: https://opendev.org/openstack/hacking
+  #   rev: 6.1.0
+  #   hooks:
+  #     - id: hacking
+  #       additional_dependencies:
+  #         - flake8-import-order~=0.18.2
+  #       exclude: '^(doc|releasenotes|tools)/.*$'
+  # - repo: https://github.com/pre-commit/mirrors-mypy
+  #   rev: v1.9.0
+  #   hooks:
+  #     - id: mypy
