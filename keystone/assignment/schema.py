@@ -18,19 +18,19 @@ from keystone.common.validation import parameter_types
 _role_properties = {
     'name': parameter_types.name,
     'description': parameter_types.description,
-    'options': ro.ROLE_OPTIONS_REGISTRY.json_schema
+    'options': ro.ROLE_OPTIONS_REGISTRY.json_schema,
 }
 
 role_create = {
     'type': 'object',
     'properties': _role_properties,
     'required': ['name'],
-    'additionalProperties': True
+    'additionalProperties': True,
 }
 
 role_update = {
     'type': 'object',
     'properties': _role_properties,
     'minProperties': 1,
-    'additionalProperties': True
+    'additionalProperties': True,
 }

@@ -43,7 +43,8 @@ _build_resource_relation = json_home_relations.os_federation_resource_rel_func
 
 IDP_ID_PARAMETER_RELATION = _build_param_relation(parameter_name='idp_id')
 PROTOCOL_ID_PARAMETER_RELATION = _build_param_relation(
-    parameter_name='protocol_id')
+    parameter_name='protocol_id'
+)
 SP_ID_PARAMETER_RELATION = _build_param_relation(parameter_name='sp_id')
 
 
@@ -76,10 +77,17 @@ class IdentityProvidersResource(_ResourceBase):
     collection_key = 'identity_providers'
     member_key = 'identity_provider'
     api_prefix = '/OS-FEDERATION'
-    _public_parameters = frozenset(['id', 'enabled', 'description',
-                                    'remote_ids', 'links', 'domain_id',
-                                    'authorization_ttl'
-                                    ])
+    _public_parameters = frozenset(
+        [
+            'id',
+            'enabled',
+            'description',
+            'remote_ids',
+            'links',
+            'domain_id',
+            'authorization_ttl',
+        ]
+    )
     _id_path_param_name_override = 'idp_id'
 
     @staticmethod
@@ -117,8 +125,9 @@ class IdentityProvidersResource(_ResourceBase):
         GET/HEAD /OS-FEDERATION/identity_providers
         """
         filters = ['id', 'enabled']
-        ENFORCER.enforce_call(action='identity:list_identity_providers',
-                              filters=filters)
+        ENFORCER.enforce_call(
+            action='identity:list_identity_providers', filters=filters
+        )
         hints = self.build_driver_hints(filters)
         refs = PROVIDERS.federation_api.list_idps(hints=hints)
         refs = [self.filter_params(r) for r in refs]
@@ -135,12 +144,10 @@ class IdentityProvidersResource(_ResourceBase):
         """
         ENFORCER.enforce_call(action='identity:create_identity_provider')
         idp = self.request_body_json.get('identity_provider', {})
-        validation.lazy_validate(schema.identity_provider_create,
-                                 idp)
+        validation.lazy_validate(schema.identity_provider_create, idp)
         idp = self._normalize_dict(idp)
         idp.setdefault('enabled', False)
-        idp_ref = PROVIDERS.federation_api.create_idp(
-            idp_id, idp)
+        idp_ref = PROVIDERS.federation_api.create_idp(idp_id, idp)
         return self.wrap_member(idp_ref), http.client.CREATED
 
     def patch(self, idp_id):
@@ -148,8 +155,7 @@ class IdentityProvidersResource(_ResourceBase):
         idp = self.request_body_json.get('identity_provider', {})
         validation.lazy_validate(schema.identity_provider_update, idp)
         idp = self._normalize_dict(idp)
-        idp_ref = PROVIDERS.federation_api.update_idp(
-            idp_id, idp)
+        idp_ref = PROVIDERS.federation_api.update_idp(idp_id, idp)
         return self.wrap_member(idp_ref)
 
     def delete(self, idp_id):
@@ -162,8 +168,7 @@ class _IdentityProvidersProtocolsResourceBase(_ResourceBase):
     collection_key = 'protocols'
     member_key = 'protocol'
     _public_parameters = frozenset(['id', 'mapping_id', 'links'])
-    json_home_additional_parameters = {
-        'idp_id': IDP_ID_PARAMETER_RELATION}
+    json_home_additional_parameters = {'idp_id': IDP_ID_PARAMETER_RELATION}
     json_home_collection_resource_name_override = 'identity_provider_protocols'
     json_home_member_resource_name_override = 'identity_provider_protocol'
 
@@ -179,7 +184,8 @@ class _IdentityProvidersProtocolsResourceBase(_ResourceBase):
         """
         ref.setdefault('links', {})
         ref['links']['identity_provider'] = ks_flask.base_url(
-            path=ref['idp_id'])
+            path=ref['idp_id']
+        )
 
 
 class IDPProtocolsListResource(_IdentityProvidersProtocolsResourceBase):
@@ -220,8 +226,9 @@ class IDPProtocolsCRUDResource(_IdentityProvidersProtocolsResourceBase):
         protocol = self.request_body_json.get('protocol', {})
         validation.lazy_validate(schema.protocol_create, protocol)
         protocol = self._normalize_dict(protocol)
-        ref = PROVIDERS.federation_api.create_protocol(idp_id, protocol_id,
-                                                       protocol)
+        ref = PROVIDERS.federation_api.create_protocol(
+            idp_id, protocol_id, protocol
+        )
         return self.wrap_member(ref), http.client.CREATED
 
     def patch(self, idp_id, protocol_id):
@@ -233,8 +240,9 @@ class IDPProtocolsCRUDResource(_IdentityProvidersProtocolsResourceBase):
         ENFORCER.enforce_call(action='identity:update_protocol')
         protocol = self.request_body_json.get('protocol', {})
         validation.lazy_validate(schema.protocol_update, protocol)
-        ref = PROVIDERS.federation_api.update_protocol(idp_id, protocol_id,
-                                                       protocol)
+        ref = PROVIDERS.federation_api.update_protocol(
+            idp_id, protocol_id, protocol
+        )
         return self.wrap_member(ref)
 
     def delete(self, idp_id, protocol_id):
@@ -264,8 +272,9 @@ class MappingResource(_ResourceBase):
         HEAD/GET /OS-FEDERATION/mappings/{mapping_id}
         """
         ENFORCER.enforce_call(action='identity:get_mapping')
-        return self.wrap_member(PROVIDERS.federation_api.get_mapping(
-            mapping_id))
+        return self.wrap_member(
+            PROVIDERS.federation_api.get_mapping(mapping_id)
+        )
 
     def _list_mappings(self):
         """List mappings.
@@ -276,22 +285,28 @@ class MappingResource(_ResourceBase):
         return self.wrap_collection(PROVIDERS.federation_api.list_mappings())
 
     def _internal_normalize_and_validate_attribute_mapping(
-            self, action_executed_message="created"):
+        self, action_executed_message="created"
+    ):
         mapping = self.request_body_json.get('mapping', {})
         mapping = self._normalize_dict(mapping)
 
         if not mapping.get('schema_version'):
-            default_schema_version =\
+            default_schema_version = (
                 utils.get_default_attribute_mapping_schema_version()
-            LOG.debug("A mapping [%s] was %s without providing a "
-                      "'schema_version'; therefore, we need to set one. The "
-                      "current default is [%s]. We will use this value for "
-                      "the attribute mapping being registered. It is "
-                      "recommended that one does not rely on this default "
-                      "value, as it can change, and the already persisted "
-                      "attribute mappings will remain with the previous "
-                      "default values.", mapping, action_executed_message,
-                      default_schema_version)
+            )
+            LOG.debug(
+                "A mapping [%s] was %s without providing a "
+                "'schema_version'; therefore, we need to set one. The "
+                "current default is [%s]. We will use this value for "
+                "the attribute mapping being registered. It is "
+                "recommended that one does not rely on this default "
+                "value, as it can change, and the already persisted "
+                "attribute mappings will remain with the previous "
+                "default values.",
+                mapping,
+                action_executed_message,
+                default_schema_version,
+            )
             mapping['schema_version'] = default_schema_version
         utils.validate_mapping_structure(mapping)
         return mapping
@@ -304,7 +319,8 @@ class MappingResource(_ResourceBase):
         ENFORCER.enforce_call(action='identity:create_mapping')
 
         am = self._internal_normalize_and_validate_attribute_mapping(
-            "registered")
+            "registered"
+        )
         mapping_ref = PROVIDERS.federation_api.create_mapping(mapping_id, am)
 
         return self.wrap_member(mapping_ref), http.client.CREATED
@@ -334,8 +350,17 @@ class MappingResource(_ResourceBase):
 class ServiceProvidersResource(_ResourceBase):
     collection_key = 'service_providers'
     member_key = 'service_provider'
-    _public_parameters = frozenset(['auth_url', 'id', 'enabled', 'description',
-                                    'links', 'relay_state_prefix', 'sp_url'])
+    _public_parameters = frozenset(
+        [
+            'auth_url',
+            'id',
+            'enabled',
+            'description',
+            'links',
+            'relay_state_prefix',
+            'sp_url',
+        ]
+    )
     _id_path_param_name_override = 'sp_id'
     api_prefix = '/OS-FEDERATION'
 
@@ -358,12 +383,14 @@ class ServiceProvidersResource(_ResourceBase):
         GET/HEAD /OS-FEDERATION/service_providers
         """
         filters = ['id', 'enabled']
-        ENFORCER.enforce_call(action='identity:list_service_providers',
-                              filters=filters)
+        ENFORCER.enforce_call(
+            action='identity:list_service_providers', filters=filters
+        )
         hints = self.build_driver_hints(filters)
-        refs = [self.filter_params(r)
-                for r in
-                PROVIDERS.federation_api.list_sps(hints=hints)]
+        refs = [
+            self.filter_params(r)
+            for r in PROVIDERS.federation_api.list_sps(hints=hints)
+        ]
         return self.wrap_collection(refs, hints=hints)
 
     def put(self, sp_id):
@@ -452,7 +479,7 @@ class OSFederationAuthResource(flask_restful.Resource):
                 'methods': [protocol_id],
                 protocol_id: {
                     'identity_provider': idp_id,
-                    'protocol': protocol_id
+                    'protocol': protocol_id,
                 },
             }
         }
@@ -476,17 +503,22 @@ class OSFederationAPI(ks_flask.APIBase):
             url='/saml2/metadata',
             resource_kwargs={},
             rel='metadata',
-            resource_relation_func=_build_resource_relation),
+            resource_relation_func=_build_resource_relation,
+        ),
         ks_flask.construct_resource_map(
             resource=OSFederationAuthResource,
-            url=('/identity_providers/<string:idp_id>/protocols/'
-                 '<string:protocol_id>/auth'),
+            url=(
+                '/identity_providers/<string:idp_id>/protocols/'
+                '<string:protocol_id>/auth'
+            ),
             resource_kwargs={},
             rel='identity_provider_protocol_auth',
             resource_relation_func=_build_resource_relation,
             path_vars={
                 'idp_id': IDP_ID_PARAMETER_RELATION,
-                'protocol_id': PROTOCOL_ID_PARAMETER_RELATION}),
+                'protocol_id': PROTOCOL_ID_PARAMETER_RELATION,
+            },
+        ),
     ]
 
 
@@ -505,15 +537,17 @@ class OSFederationIdentityProvidersProtocolsAPI(ks_flask.APIBase):
     resource_mapping = [
         ks_flask.construct_resource_map(
             resource=IDPProtocolsCRUDResource,
-            url=('/OS-FEDERATION/identity_providers/<string:idp_id>/protocols/'
-                 '<string:protocol_id>'),
+            url=(
+                '/OS-FEDERATION/identity_providers/<string:idp_id>/protocols/'
+                '<string:protocol_id>'
+            ),
             resource_kwargs={},
             rel='identity_provider_protocol',
             resource_relation_func=_build_resource_relation,
             path_vars={
                 'idp_id': IDP_ID_PARAMETER_RELATION,
-                'protocol_id': PROTOCOL_ID_PARAMETER_RELATION
-            }
+                'protocol_id': PROTOCOL_ID_PARAMETER_RELATION,
+            },
         ),
         ks_flask.construct_resource_map(
             resource=IDPProtocolsListResource,
@@ -521,9 +555,7 @@ class OSFederationIdentityProvidersProtocolsAPI(ks_flask.APIBase):
             resource_kwargs={},
             rel='identity_provider_protocols',
             resource_relation_func=_build_resource_relation,
-            path_vars={
-                'idp_id': IDP_ID_PARAMETER_RELATION
-            }
+            path_vars={'idp_id': IDP_ID_PARAMETER_RELATION},
         ),
     ]
 
@@ -549,5 +581,5 @@ APIs = (
     OSFederationIdentityProvidersAPI,
     OSFederationIdentityProvidersProtocolsAPI,
     OSFederationMappingsAPI,
-    OSFederationServiceProvidersAPI
+    OSFederationServiceProvidersAPI,
 )

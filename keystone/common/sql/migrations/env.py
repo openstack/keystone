@@ -33,11 +33,9 @@ target_metadata = core.ModelBase.metadata
 
 
 def include_object(object, name, type_, reflected, compare_to):
-    BORKED_COLUMNS = (
-    )
+    BORKED_COLUMNS = ()
 
-    BORKED_UNIQUE_CONSTRAINTS = (
-    )
+    BORKED_UNIQUE_CONSTRAINTS = ()
 
     BORKED_FK_CONSTRAINTS = (
         # removed fks

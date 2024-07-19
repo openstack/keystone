@@ -12,25 +12,20 @@
 
 
 _policy_properties = {
-    'blob': {
-        'type': 'string'
-    },
-    'type': {
-        'type': 'string',
-        'maxLength': 255
-    }
+    'blob': {'type': 'string'},
+    'type': {'type': 'string', 'maxLength': 255},
 }
 
 policy_create = {
     'type': 'object',
     'properties': _policy_properties,
     'required': ['blob', 'type'],
-    'additionalProperties': True
+    'additionalProperties': True,
 }
 
 policy_update = {
     'type': 'object',
     'properties': _policy_properties,
     'minProperties': 1,
-    'additionalProperties': True
+    'additionalProperties': True,
 }

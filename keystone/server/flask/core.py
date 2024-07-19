@@ -34,29 +34,34 @@ from keystone.server.flask.request_processing.middleware import url_normalize
 #   * "namespace": namespace for the entry_point
 #   * "ep": the entry-point name
 #   * "conf": extra config data for the entry_point (None or Dict)
-_Middleware = collections.namedtuple('LoadableMiddleware',
-                                     'namespace, ep, conf')
+_Middleware = collections.namedtuple(
+    'LoadableMiddleware', 'namespace, ep, conf'
+)
 
 
 CONF = keystone.conf.CONF
 # NOTE(morgan): ORDER HERE IS IMPORTANT! The middleware will process the
 # request in this list's order.
 _APP_MIDDLEWARE = (
-    _Middleware(namespace='keystone.server_middleware',
-                ep='cors',
-                conf={'oslo_config_project': 'keystone'}),
-    _Middleware(namespace='keystone.server_middleware',
-                ep='sizelimit',
-                conf={}),
-    _Middleware(namespace='keystone.server_middleware',
-                ep='http_proxy_to_wsgi',
-                conf={}),
-    _Middleware(namespace='keystone.server_middleware',
-                ep='osprofiler',
-                conf={}),
-    _Middleware(namespace='keystone.server_middleware',
-                ep='request_id',
-                conf={}),
+    _Middleware(
+        namespace='keystone.server_middleware',
+        ep='cors',
+        conf={'oslo_config_project': 'keystone'},
+    ),
+    _Middleware(
+        namespace='keystone.server_middleware', ep='sizelimit', conf={}
+    ),
+    _Middleware(
+        namespace='keystone.server_middleware',
+        ep='http_proxy_to_wsgi',
+        conf={},
+    ),
+    _Middleware(
+        namespace='keystone.server_middleware', ep='osprofiler', conf={}
+    ),
+    _Middleware(
+        namespace='keystone.server_middleware', ep='request_id', conf={}
+    ),
 )
 
 # NOTE(morgan): ORDER HERE IS IMPORTANT! Each of these middlewares are
@@ -77,8 +82,11 @@ def _get_config_files(env=None):
 
     dirname = env.get('OS_KEYSTONE_CONFIG_DIR', '').strip()
 
-    files = [s.strip() for s in
-             env.get('OS_KEYSTONE_CONFIG_FILES', '').split(';') if s.strip()]
+    files = [
+        s.strip()
+        for s in env.get('OS_KEYSTONE_CONFIG_FILES', '').split(';')
+        if s.strip()
+    ]
 
     if dirname:
         if not files:
@@ -101,9 +109,11 @@ def setup_app_middleware(app):
     # within the pipeline therefore cannot be magically appended/prepended
     if CONF.wsgi.debug_middleware:
         # Add in the Debug Middleware
-        MW = (_Middleware(namespace='keystone.server_middleware',
-                          ep='debug',
-                          conf={}),) + _APP_MIDDLEWARE
+        MW = (
+            _Middleware(
+                namespace='keystone.server_middleware', ep='debug', conf={}
+            ),
+        ) + _APP_MIDDLEWARE
 
     # Apply internal-only Middleware (e.g. AuthContextMiddleware). These
     # are below all externally loaded middleware in request processing.
@@ -122,7 +132,8 @@ def setup_app_middleware(app):
         # object pointed at "application". We may need to eventually move away
         # from the "factory" mechanism.
         loaded = stevedore.DriverManager(
-            mw.namespace, mw.ep, invoke_on_load=False)
+            mw.namespace, mw.ep, invoke_on_load=False
+        )
         # NOTE(morgan): global_conf (args[0]) to the factory is always empty
         # and local_conf (args[1]) will be the mw.conf dict. This allows for
         # configuration to be passed for middleware such as oslo CORS which
@@ -137,18 +148,20 @@ def setup_app_middleware(app):
     return app
 
 
-def initialize_application(name, post_log_configured_function=lambda: None,
-                           config_files=None):
-    possible_topdir = os.path.normpath(os.path.join(
-                                       os.path.abspath(__file__),
-                                       os.pardir,
-                                       os.pardir,
-                                       os.pardir,
-                                       os.pardir))
+def initialize_application(
+    name, post_log_configured_function=lambda: None, config_files=None
+):
+    possible_topdir = os.path.normpath(
+        os.path.join(
+            os.path.abspath(__file__),
+            os.pardir,
+            os.pardir,
+            os.pardir,
+            os.pardir,
+        )
+    )
 
-    dev_conf = os.path.join(possible_topdir,
-                            'etc',
-                            'keystone.conf')
+    dev_conf = os.path.join(possible_topdir, 'etc', 'keystone.conf')
     if not config_files:
         config_files = None
         if os.path.exists(dev_conf):
@@ -169,7 +182,8 @@ def initialize_application(name, post_log_configured_function=lambda: None,
         return app
 
     _unused, app = keystone.server.setup_backends(
-        startup_application_fn=loadapp)
+        startup_application_fn=loadapp
+    )
 
     # setup OSprofiler notifier and enable the profiling if that is configured
     # in Keystone configuration file.

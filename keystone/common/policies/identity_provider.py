@@ -23,31 +23,31 @@ deprecated_get_idp = policy.DeprecatedRule(
     name=base.IDENTITY % 'get_identity_provider',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.STEIN
+    deprecated_since=versionutils.deprecated.STEIN,
 )
 deprecated_list_idp = policy.DeprecatedRule(
     name=base.IDENTITY % 'list_identity_providers',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.STEIN
+    deprecated_since=versionutils.deprecated.STEIN,
 )
 deprecated_update_idp = policy.DeprecatedRule(
     name=base.IDENTITY % 'update_identity_provider',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.STEIN
+    deprecated_since=versionutils.deprecated.STEIN,
 )
 deprecated_create_idp = policy.DeprecatedRule(
     name=base.IDENTITY % 'create_identity_provider',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.STEIN
+    deprecated_since=versionutils.deprecated.STEIN,
 )
 deprecated_delete_idp = policy.DeprecatedRule(
     name=base.IDENTITY % 'delete_identity_provider',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.STEIN
+    deprecated_since=versionutils.deprecated.STEIN,
 )
 
 
@@ -63,23 +63,22 @@ identity_provider_policies = [
         # requires modifying configuration files.
         scope_types=['system', 'project'],
         description='Create identity provider.',
-        operations=[{'path': '/v3/OS-FEDERATION/identity_providers/{idp_id}',
-                     'method': 'PUT'}],
-        deprecated_rule=deprecated_create_idp),
+        operations=[
+            {
+                'path': '/v3/OS-FEDERATION/identity_providers/{idp_id}',
+                'method': 'PUT',
+            }
+        ],
+        deprecated_rule=deprecated_create_idp,
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_identity_providers',
         check_str=base.RULE_ADMIN_OR_SYSTEM_READER,
         scope_types=['system', 'project'],
         description='List identity providers.',
         operations=[
-            {
-                'path': '/v3/OS-FEDERATION/identity_providers',
-                'method': 'GET'
-            },
-            {
-                'path': '/v3/OS-FEDERATION/identity_providers',
-                'method': 'HEAD'
-            }
+            {'path': '/v3/OS-FEDERATION/identity_providers', 'method': 'GET'},
+            {'path': '/v3/OS-FEDERATION/identity_providers', 'method': 'HEAD'},
         ],
         deprecated_rule=deprecated_list_idp,
     ),
@@ -91,12 +90,12 @@ identity_provider_policies = [
         operations=[
             {
                 'path': '/v3/OS-FEDERATION/identity_providers/{idp_id}',
-                'method': 'GET'
+                'method': 'GET',
             },
             {
                 'path': '/v3/OS-FEDERATION/identity_providers/{idp_id}',
-                'method': 'HEAD'
-            }
+                'method': 'HEAD',
+            },
         ],
         deprecated_rule=deprecated_get_idp,
     ),
@@ -105,17 +104,27 @@ identity_provider_policies = [
         check_str=base.RULE_ADMIN_REQUIRED,
         scope_types=['system', 'project'],
         description='Update identity provider.',
-        operations=[{'path': '/v3/OS-FEDERATION/identity_providers/{idp_id}',
-                     'method': 'PATCH'}],
-        deprecated_rule=deprecated_update_idp),
+        operations=[
+            {
+                'path': '/v3/OS-FEDERATION/identity_providers/{idp_id}',
+                'method': 'PATCH',
+            }
+        ],
+        deprecated_rule=deprecated_update_idp,
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_identity_provider',
         check_str=base.RULE_ADMIN_REQUIRED,
         scope_types=['system', 'project'],
         description='Delete identity provider.',
-        operations=[{'path': '/v3/OS-FEDERATION/identity_providers/{idp_id}',
-                     'method': 'DELETE'}],
-        deprecated_rule=deprecated_delete_idp),
+        operations=[
+            {
+                'path': '/v3/OS-FEDERATION/identity_providers/{idp_id}',
+                'method': 'DELETE',
+            }
+        ],
+        deprecated_rule=deprecated_delete_idp,
+    ),
 ]
 
 

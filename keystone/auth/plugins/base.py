@@ -20,11 +20,13 @@ from keystone import exception
 
 
 AuthHandlerResponse = collections.namedtuple(
-    'AuthHandlerResponse', 'status, response_body, response_data')
+    'AuthHandlerResponse', 'status, response_body, response_data'
+)
 
 
-class AuthMethodHandler(provider_api.ProviderAPIMixin, object,
-                        metaclass=abc.ABCMeta):
+class AuthMethodHandler(
+    provider_api.ProviderAPIMixin, object, metaclass=abc.ABCMeta
+):
     """Abstract base class for an authentication plugin."""
 
     def __init__(self):

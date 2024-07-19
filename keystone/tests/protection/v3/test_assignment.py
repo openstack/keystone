@@ -54,7 +54,7 @@ class _AssignmentTestUtilities(object):
 
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         # create a user+project role assignment.
@@ -126,48 +126,64 @@ class _SystemUserTests(object):
         assignments = self._setup_test_role_assignments()
 
         # this assignment is created by keystone-manage bootstrap
-        self.expected.append({
-            'user_id': self.bootstrapper.admin_user_id,
-            'project_id': self.bootstrapper.project_id,
-            'role_id': self.bootstrapper.admin_role_id
-        })
+        self.expected.append(
+            {
+                'user_id': self.bootstrapper.admin_user_id,
+                'project_id': self.bootstrapper.project_id,
+                'role_id': self.bootstrapper.admin_role_id,
+            }
+        )
 
         # this assignment is created by keystone-manage bootstrap
-        self.expected.append({
-            'user_id': self.bootstrapper.admin_user_id,
-            'system': 'all',
-            'role_id': self.bootstrapper.admin_role_id
-        })
-        self.expected.append({
-            'user_id': assignments['user_id'],
-            'project_id': assignments['project_id'],
-            'role_id': assignments['role_id']
-        })
-        self.expected.append({
-            'user_id': assignments['user_id'],
-            'domain_id': assignments['domain_id'],
-            'role_id': assignments['role_id']
-        })
-        self.expected.append({
-            'user_id': assignments['user_id'],
-            'system': 'all',
-            'role_id': assignments['role_id']
-        })
-        self.expected.append({
-            'group_id': assignments['group_id'],
-            'project_id': assignments['project_id'],
-            'role_id': assignments['role_id']
-        })
-        self.expected.append({
-            'group_id': assignments['group_id'],
-            'domain_id': assignments['domain_id'],
-            'role_id': assignments['role_id']
-        })
-        self.expected.append({
-            'group_id': assignments['group_id'],
-            'system': 'all',
-            'role_id': assignments['role_id']
-        })
+        self.expected.append(
+            {
+                'user_id': self.bootstrapper.admin_user_id,
+                'system': 'all',
+                'role_id': self.bootstrapper.admin_role_id,
+            }
+        )
+        self.expected.append(
+            {
+                'user_id': assignments['user_id'],
+                'project_id': assignments['project_id'],
+                'role_id': assignments['role_id'],
+            }
+        )
+        self.expected.append(
+            {
+                'user_id': assignments['user_id'],
+                'domain_id': assignments['domain_id'],
+                'role_id': assignments['role_id'],
+            }
+        )
+        self.expected.append(
+            {
+                'user_id': assignments['user_id'],
+                'system': 'all',
+                'role_id': assignments['role_id'],
+            }
+        )
+        self.expected.append(
+            {
+                'group_id': assignments['group_id'],
+                'project_id': assignments['project_id'],
+                'role_id': assignments['role_id'],
+            }
+        )
+        self.expected.append(
+            {
+                'group_id': assignments['group_id'],
+                'domain_id': assignments['domain_id'],
+                'role_id': assignments['role_id'],
+            }
+        )
+        self.expected.append(
+            {
+                'group_id': assignments['group_id'],
+                'system': 'all',
+                'role_id': assignments['role_id'],
+            }
+        )
 
         with self.test_client() as c:
             r = c.get('/v3/role_assignments', headers=self.headers)
@@ -182,48 +198,64 @@ class _SystemUserTests(object):
         assignments = self._setup_test_role_assignments()
 
         # this assignment is created by keystone-manage bootstrap
-        self.expected.append({
-            'user_id': self.bootstrapper.admin_user_id,
-            'project_id': self.bootstrapper.project_id,
-            'role_id': self.bootstrapper.admin_role_id
-        })
+        self.expected.append(
+            {
+                'user_id': self.bootstrapper.admin_user_id,
+                'project_id': self.bootstrapper.project_id,
+                'role_id': self.bootstrapper.admin_role_id,
+            }
+        )
 
         # this assignment is created by keystone-manage bootstrap
-        self.expected.append({
-            'user_id': self.bootstrapper.admin_user_id,
-            'system': 'all',
-            'role_id': self.bootstrapper.admin_role_id
-        })
-        self.expected.append({
-            'user_id': assignments['user_id'],
-            'project_id': assignments['project_id'],
-            'role_id': assignments['role_id']
-        })
-        self.expected.append({
-            'user_id': assignments['user_id'],
-            'domain_id': assignments['domain_id'],
-            'role_id': assignments['role_id']
-        })
-        self.expected.append({
-            'user_id': assignments['user_id'],
-            'system': 'all',
-            'role_id': assignments['role_id']
-        })
-        self.expected.append({
-            'group_id': assignments['group_id'],
-            'project_id': assignments['project_id'],
-            'role_id': assignments['role_id']
-        })
-        self.expected.append({
-            'group_id': assignments['group_id'],
-            'domain_id': assignments['domain_id'],
-            'role_id': assignments['role_id']
-        })
-        self.expected.append({
-            'group_id': assignments['group_id'],
-            'system': 'all',
-            'role_id': assignments['role_id']
-        })
+        self.expected.append(
+            {
+                'user_id': self.bootstrapper.admin_user_id,
+                'system': 'all',
+                'role_id': self.bootstrapper.admin_role_id,
+            }
+        )
+        self.expected.append(
+            {
+                'user_id': assignments['user_id'],
+                'project_id': assignments['project_id'],
+                'role_id': assignments['role_id'],
+            }
+        )
+        self.expected.append(
+            {
+                'user_id': assignments['user_id'],
+                'domain_id': assignments['domain_id'],
+                'role_id': assignments['role_id'],
+            }
+        )
+        self.expected.append(
+            {
+                'user_id': assignments['user_id'],
+                'system': 'all',
+                'role_id': assignments['role_id'],
+            }
+        )
+        self.expected.append(
+            {
+                'group_id': assignments['group_id'],
+                'project_id': assignments['project_id'],
+                'role_id': assignments['role_id'],
+            }
+        )
+        self.expected.append(
+            {
+                'group_id': assignments['group_id'],
+                'domain_id': assignments['domain_id'],
+                'role_id': assignments['role_id'],
+            }
+        )
+        self.expected.append(
+            {
+                'group_id': assignments['group_id'],
+                'system': 'all',
+                'role_id': assignments['role_id'],
+            }
+        )
 
         with self.test_client() as c:
             r = c.get(
@@ -242,20 +274,20 @@ class _SystemUserTests(object):
             {
                 'user_id': assignments['user_id'],
                 'project_id': assignments['project_id'],
-                'role_id': assignments['role_id']
+                'role_id': assignments['role_id'],
             },
             {
                 'group_id': assignments['group_id'],
                 'project_id': assignments['project_id'],
-                'role_id': assignments['role_id']
-            }
+                'role_id': assignments['role_id'],
+            },
         ]
         project_id = assignments['project_id']
 
         with self.test_client() as c:
             r = c.get(
                 '/v3/role_assignments?scope.project.id=%s' % project_id,
-                headers=self.headers
+                headers=self.headers,
             )
             self.assertEqual(len(expected), len(r.json['role_assignments']))
             actual = self._extract_role_assignments_from_response_body(r)
@@ -268,20 +300,20 @@ class _SystemUserTests(object):
             {
                 'user_id': assignments['user_id'],
                 'domain_id': assignments['domain_id'],
-                'role_id': assignments['role_id']
+                'role_id': assignments['role_id'],
             },
             {
                 'group_id': assignments['group_id'],
                 'domain_id': assignments['domain_id'],
-                'role_id': assignments['role_id']
-            }
+                'role_id': assignments['role_id'],
+            },
         ]
         domain_id = assignments['domain_id']
 
         with self.test_client() as c:
             r = c.get(
                 '/v3/role_assignments?scope.domain.id=%s' % domain_id,
-                headers=self.headers
+                headers=self.headers,
             )
             self.assertEqual(len(expected), len(r.json['role_assignments']))
             actual = self._extract_role_assignments_from_response_body(r)
@@ -292,26 +324,31 @@ class _SystemUserTests(object):
         assignments = self._setup_test_role_assignments()
 
         # this assignment is created by keystone-manage bootstrap
-        self.expected.append({
-            'user_id': self.bootstrapper.admin_user_id,
-            'system': 'all',
-            'role_id': self.bootstrapper.admin_role_id
-        })
-        self.expected.append({
-            'user_id': assignments['user_id'],
-            'system': 'all',
-            'role_id': assignments['role_id']
-        })
-        self.expected.append({
-            'group_id': assignments['group_id'],
-            'system': 'all',
-            'role_id': assignments['role_id']
-        })
+        self.expected.append(
+            {
+                'user_id': self.bootstrapper.admin_user_id,
+                'system': 'all',
+                'role_id': self.bootstrapper.admin_role_id,
+            }
+        )
+        self.expected.append(
+            {
+                'user_id': assignments['user_id'],
+                'system': 'all',
+                'role_id': assignments['role_id'],
+            }
+        )
+        self.expected.append(
+            {
+                'group_id': assignments['group_id'],
+                'system': 'all',
+                'role_id': assignments['role_id'],
+            }
+        )
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/role_assignments?scope.system=all',
-                headers=self.headers
+                '/v3/role_assignments?scope.system=all', headers=self.headers
             )
             self.assertEqual(
                 len(self.expected), len(r.json['role_assignments'])
@@ -327,25 +364,25 @@ class _SystemUserTests(object):
             {
                 'user_id': assignments['user_id'],
                 'project_id': assignments['project_id'],
-                'role_id': assignments['role_id']
+                'role_id': assignments['role_id'],
             },
             {
                 'user_id': assignments['user_id'],
                 'domain_id': assignments['domain_id'],
-                'role_id': assignments['role_id']
+                'role_id': assignments['role_id'],
             },
             {
                 'user_id': assignments['user_id'],
                 'system': 'all',
-                'role_id': assignments['role_id']
-            }
+                'role_id': assignments['role_id'],
+            },
         ]
         user_id = assignments['user_id']
 
         with self.test_client() as c:
             r = c.get(
                 '/v3/role_assignments?user.id=%s' % user_id,
-                headers=self.headers
+                headers=self.headers,
             )
             self.assertEqual(len(expected), len(r.json['role_assignments']))
             actual = self._extract_role_assignments_from_response_body(r)
@@ -358,25 +395,25 @@ class _SystemUserTests(object):
             {
                 'group_id': assignments['group_id'],
                 'project_id': assignments['project_id'],
-                'role_id': assignments['role_id']
+                'role_id': assignments['role_id'],
             },
             {
                 'group_id': assignments['group_id'],
                 'domain_id': assignments['domain_id'],
-                'role_id': assignments['role_id']
+                'role_id': assignments['role_id'],
             },
             {
                 'group_id': assignments['group_id'],
                 'system': 'all',
-                'role_id': assignments['role_id']
-            }
+                'role_id': assignments['role_id'],
+            },
         ]
         group_id = assignments['group_id']
 
         with self.test_client() as c:
             r = c.get(
                 '/v3/role_assignments?group.id=%s' % group_id,
-                headers=self.headers
+                headers=self.headers,
             )
             self.assertEqual(len(expected), len(r.json['role_assignments']))
             actual = self._extract_role_assignments_from_response_body(r)
@@ -385,45 +422,60 @@ class _SystemUserTests(object):
 
     def test_user_can_filter_role_assignments_by_role(self):
         assignments = self._setup_test_role_assignments()
-        self.expected = [ra for ra in self.expected
-                         if ra['role_id'] == assignments['role_id']]
-        self.expected.append({
-            'user_id': assignments['user_id'],
-            'project_id': assignments['project_id'],
-            'role_id': assignments['role_id']
-        })
-        self.expected.append({
-            'user_id': assignments['user_id'],
-            'domain_id': assignments['domain_id'],
-            'role_id': assignments['role_id']
-        })
-        self.expected.append({
-            'user_id': assignments['user_id'],
-            'system': 'all',
-            'role_id': assignments['role_id']
-        })
-        self.expected.append({
-            'group_id': assignments['group_id'],
-            'project_id': assignments['project_id'],
-            'role_id': assignments['role_id']
-        })
-        self.expected.append({
-            'group_id': assignments['group_id'],
-            'domain_id': assignments['domain_id'],
-            'role_id': assignments['role_id']
-        })
-        self.expected.append({
-            'group_id': assignments['group_id'],
-            'system': 'all',
-            'role_id': assignments['role_id']
-        })
+        self.expected = [
+            ra
+            for ra in self.expected
+            if ra['role_id'] == assignments['role_id']
+        ]
+        self.expected.append(
+            {
+                'user_id': assignments['user_id'],
+                'project_id': assignments['project_id'],
+                'role_id': assignments['role_id'],
+            }
+        )
+        self.expected.append(
+            {
+                'user_id': assignments['user_id'],
+                'domain_id': assignments['domain_id'],
+                'role_id': assignments['role_id'],
+            }
+        )
+        self.expected.append(
+            {
+                'user_id': assignments['user_id'],
+                'system': 'all',
+                'role_id': assignments['role_id'],
+            }
+        )
+        self.expected.append(
+            {
+                'group_id': assignments['group_id'],
+                'project_id': assignments['project_id'],
+                'role_id': assignments['role_id'],
+            }
+        )
+        self.expected.append(
+            {
+                'group_id': assignments['group_id'],
+                'domain_id': assignments['domain_id'],
+                'role_id': assignments['role_id'],
+            }
+        )
+        self.expected.append(
+            {
+                'group_id': assignments['group_id'],
+                'system': 'all',
+                'role_id': assignments['role_id'],
+            }
+        )
 
         role_id = assignments['role_id']
 
         with self.test_client() as c:
             r = c.get(
                 '/v3/role_assignments?role.id=%s&include_names=True' % role_id,
-                headers=self.headers
+                headers=self.headers,
             )
             self.assertEqual(
                 len(self.expected), len(r.json['role_assignments'])
@@ -438,12 +490,12 @@ class _SystemUserTests(object):
             {
                 'user_id': assignments['user_id'],
                 'project_id': assignments['project_id'],
-                'role_id': assignments['role_id']
+                'role_id': assignments['role_id'],
             },
             {
                 'group_id': assignments['group_id'],
                 'project_id': assignments['project_id'],
-                'role_id': assignments['role_id']
+                'role_id': assignments['role_id'],
             },
         ]
 
@@ -451,7 +503,7 @@ class _SystemUserTests(object):
             qs = (assignments['project_id'], assignments['role_id'])
             r = c.get(
                 '/v3/role_assignments?scope.project.id=%s&role.id=%s' % qs,
-                headers=self.headers
+                headers=self.headers,
             )
             self.assertEqual(len(expected), len(r.json['role_assignments']))
             actual = self._extract_role_assignments_from_response_body(r)
@@ -464,12 +516,12 @@ class _SystemUserTests(object):
             {
                 'user_id': assignments['user_id'],
                 'domain_id': assignments['domain_id'],
-                'role_id': assignments['role_id']
+                'role_id': assignments['role_id'],
             },
             {
                 'group_id': assignments['group_id'],
                 'domain_id': assignments['domain_id'],
-                'role_id': assignments['role_id']
+                'role_id': assignments['role_id'],
             },
         ]
         qs = (assignments['domain_id'], assignments['role_id'])
@@ -477,7 +529,7 @@ class _SystemUserTests(object):
         with self.test_client() as c:
             r = c.get(
                 '/v3/role_assignments?scope.domain.id=%s&role.id=%s' % qs,
-                headers=self.headers
+                headers=self.headers,
             )
             self.assertEqual(len(expected), len(r.json['role_assignments']))
             actual = self._extract_role_assignments_from_response_body(r)
@@ -486,24 +538,31 @@ class _SystemUserTests(object):
 
     def test_user_can_filter_role_assignments_by_system_and_role(self):
         assignments = self._setup_test_role_assignments()
-        self.expected = [ra for ra in self.expected
-                         if ra['role_id'] == assignments['role_id']]
-        self.expected.append({
-            'user_id': assignments['user_id'],
-            'system': 'all',
-            'role_id': assignments['role_id']
-        })
-        self.expected.append({
-            'group_id': assignments['group_id'],
-            'system': 'all',
-            'role_id': assignments['role_id']
-        })
+        self.expected = [
+            ra
+            for ra in self.expected
+            if ra['role_id'] == assignments['role_id']
+        ]
+        self.expected.append(
+            {
+                'user_id': assignments['user_id'],
+                'system': 'all',
+                'role_id': assignments['role_id'],
+            }
+        )
+        self.expected.append(
+            {
+                'group_id': assignments['group_id'],
+                'system': 'all',
+                'role_id': assignments['role_id'],
+            }
+        )
         role_id = assignments['role_id']
 
         with self.test_client() as c:
             r = c.get(
                 '/v3/role_assignments?scope.system=all&role.id=%s' % role_id,
-                headers=self.headers
+                headers=self.headers,
             )
             self.assertEqual(
                 len(self.expected), len(r.json['role_assignments'])
@@ -518,25 +577,25 @@ class _SystemUserTests(object):
             {
                 'user_id': assignments['user_id'],
                 'project_id': assignments['project_id'],
-                'role_id': assignments['role_id']
+                'role_id': assignments['role_id'],
             },
             {
                 'user_id': assignments['user_id'],
                 'domain_id': assignments['domain_id'],
-                'role_id': assignments['role_id']
+                'role_id': assignments['role_id'],
             },
             {
                 'user_id': assignments['user_id'],
                 'system': 'all',
-                'role_id': assignments['role_id']
-            }
+                'role_id': assignments['role_id'],
+            },
         ]
         qs = (assignments['user_id'], assignments['role_id'])
 
         with self.test_client() as c:
             r = c.get(
                 '/v3/role_assignments?user.id=%s&role.id=%s' % qs,
-                headers=self.headers
+                headers=self.headers,
             )
             self.assertEqual(len(expected), len(r.json['role_assignments']))
             actual = self._extract_role_assignments_from_response_body(r)
@@ -549,25 +608,25 @@ class _SystemUserTests(object):
             {
                 'group_id': assignments['group_id'],
                 'project_id': assignments['project_id'],
-                'role_id': assignments['role_id']
+                'role_id': assignments['role_id'],
             },
             {
                 'group_id': assignments['group_id'],
                 'domain_id': assignments['domain_id'],
-                'role_id': assignments['role_id']
+                'role_id': assignments['role_id'],
             },
             {
                 'group_id': assignments['group_id'],
                 'system': 'all',
-                'role_id': assignments['role_id']
-            }
+                'role_id': assignments['role_id'],
+            },
         ]
 
         with self.test_client() as c:
             qs = (assignments['group_id'], assignments['role_id'])
             r = c.get(
                 '/v3/role_assignments?group.id=%s&role.id=%s' % qs,
-                headers=self.headers
+                headers=self.headers,
             )
             self.assertEqual(len(expected), len(r.json['role_assignments']))
             actual = self._extract_role_assignments_from_response_body(r)
@@ -580,7 +639,7 @@ class _SystemUserTests(object):
             {
                 'user_id': assignments['user_id'],
                 'project_id': assignments['project_id'],
-                'role_id': assignments['role_id']
+                'role_id': assignments['role_id'],
             }
         ]
         qs = (assignments['project_id'], assignments['user_id'])
@@ -588,7 +647,7 @@ class _SystemUserTests(object):
         with self.test_client() as c:
             r = c.get(
                 '/v3/role_assignments?scope.project.id=%s&user.id=%s' % qs,
-                headers=self.headers
+                headers=self.headers,
             )
             self.assertEqual(len(expected), len(r.json['role_assignments']))
             actual = self._extract_role_assignments_from_response_body(r)
@@ -601,7 +660,7 @@ class _SystemUserTests(object):
             {
                 'group_id': assignments['group_id'],
                 'project_id': assignments['project_id'],
-                'role_id': assignments['role_id']
+                'role_id': assignments['role_id'],
             }
         ]
         qs = (assignments['project_id'], assignments['group_id'])
@@ -609,7 +668,7 @@ class _SystemUserTests(object):
         with self.test_client() as c:
             r = c.get(
                 '/v3/role_assignments?scope.project.id=%s&group.id=%s' % qs,
-                headers=self.headers
+                headers=self.headers,
             )
             self.assertEqual(len(expected), len(r.json['role_assignments']))
             actual = self._extract_role_assignments_from_response_body(r)
@@ -622,7 +681,7 @@ class _SystemUserTests(object):
             {
                 'user_id': assignments['user_id'],
                 'domain_id': assignments['domain_id'],
-                'role_id': assignments['role_id']
+                'role_id': assignments['role_id'],
             }
         ]
         qs = (assignments['domain_id'], assignments['user_id'])
@@ -630,7 +689,7 @@ class _SystemUserTests(object):
         with self.test_client() as c:
             r = c.get(
                 '/v3/role_assignments?scope.domain.id=%s&user.id=%s' % qs,
-                headers=self.headers
+                headers=self.headers,
             )
             self.assertEqual(len(expected), len(r.json['role_assignments']))
             actual = self._extract_role_assignments_from_response_body(r)
@@ -643,7 +702,7 @@ class _SystemUserTests(object):
             {
                 'group_id': assignments['group_id'],
                 'domain_id': assignments['domain_id'],
-                'role_id': assignments['role_id']
+                'role_id': assignments['role_id'],
             }
         ]
         qs = (assignments['domain_id'], assignments['group_id'])
@@ -651,7 +710,7 @@ class _SystemUserTests(object):
         with self.test_client() as c:
             r = c.get(
                 '/v3/role_assignments?scope.domain.id=%s&group.id=%s' % qs,
-                headers=self.headers
+                headers=self.headers,
             )
             self.assertEqual(len(expected), len(r.json['role_assignments']))
             actual = self._extract_role_assignments_from_response_body(r)
@@ -665,36 +724,40 @@ class _SystemUserTests(object):
         )
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id,
-                                 parent_id=assignments['project_id'])
+            unit.new_project_ref(
+                domain_id=CONF.identity.default_domain_id,
+                parent_id=assignments['project_id'],
+            ),
         )
         PROVIDERS.assignment_api.create_grant(
             assignments['role_id'],
             user_id=user['id'],
-            project_id=project['id']
+            project_id=project['id'],
         )
         expected = [
             {
                 'user_id': assignments['user_id'],
                 'project_id': assignments['project_id'],
-                'role_id': assignments['role_id']
+                'role_id': assignments['role_id'],
             },
             {
                 'group_id': assignments['group_id'],
                 'project_id': assignments['project_id'],
-                'role_id': assignments['role_id']
+                'role_id': assignments['role_id'],
             },
             {
                 'user_id': user['id'],
                 'project_id': project['id'],
-                'role_id': assignments['role_id']
-            }
+                'role_id': assignments['role_id'],
+            },
         ]
         with self.test_client() as c:
             r = c.get(
-                ('/v3/role_assignments?scope.project.id=%s&include_subtree' %
-                 assignments['project_id']),
-                headers=self.headers
+                (
+                    '/v3/role_assignments?scope.project.id=%s&include_subtree'
+                    % assignments['project_id']
+                ),
+                headers=self.headers,
             )
             self.assertEqual(len(expected), len(r.json['role_assignments']))
             actual = self._extract_role_assignments_from_response_body(r)
@@ -720,8 +783,7 @@ class _DomainUserTests(object):
         )
 
         project = PROVIDERS.resource_api.create_project(
-            uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=self.domain_id)
+            uuid.uuid4().hex, unit.new_project_ref(domain_id=self.domain_id)
         )
 
         # create a user+project role assignment.
@@ -755,26 +817,34 @@ class _DomainUserTests(object):
         self._setup_test_role_assignments()
         domain_assignments = self._setup_test_role_assignments_for_domain()
 
-        self.expected.append({
-            'user_id': domain_assignments['user_id'],
-            'domain_id': self.domain_id,
-            'role_id': domain_assignments['role_id']
-        })
-        self.expected.append({
-            'user_id': domain_assignments['user_id'],
-            'project_id': domain_assignments['project_id'],
-            'role_id': domain_assignments['role_id']
-        })
-        self.expected.append({
-            'group_id': domain_assignments['group_id'],
-            'domain_id': self.domain_id,
-            'role_id': domain_assignments['role_id']
-        })
-        self.expected.append({
-            'group_id': domain_assignments['group_id'],
-            'project_id': domain_assignments['project_id'],
-            'role_id': domain_assignments['role_id']
-        })
+        self.expected.append(
+            {
+                'user_id': domain_assignments['user_id'],
+                'domain_id': self.domain_id,
+                'role_id': domain_assignments['role_id'],
+            }
+        )
+        self.expected.append(
+            {
+                'user_id': domain_assignments['user_id'],
+                'project_id': domain_assignments['project_id'],
+                'role_id': domain_assignments['role_id'],
+            }
+        )
+        self.expected.append(
+            {
+                'group_id': domain_assignments['group_id'],
+                'domain_id': self.domain_id,
+                'role_id': domain_assignments['role_id'],
+            }
+        )
+        self.expected.append(
+            {
+                'group_id': domain_assignments['group_id'],
+                'project_id': domain_assignments['project_id'],
+                'role_id': domain_assignments['role_id'],
+            }
+        )
 
         with self.test_client() as c:
             r = c.get('/v3/role_assignments', headers=self.headers)
@@ -793,13 +863,13 @@ class _DomainUserTests(object):
             {
                 'user_id': domain_assignments['user_id'],
                 'project_id': domain_assignments['project_id'],
-                'role_id': domain_assignments['role_id']
+                'role_id': domain_assignments['role_id'],
             },
             {
                 'group_id': domain_assignments['group_id'],
                 'project_id': domain_assignments['project_id'],
-                'role_id': domain_assignments['role_id']
-            }
+                'role_id': domain_assignments['role_id'],
+            },
         ]
 
         project_id = domain_assignments['project_id']
@@ -807,7 +877,7 @@ class _DomainUserTests(object):
         with self.test_client() as c:
             r = c.get(
                 '/v3/role_assignments?scope.project.id=%s' % project_id,
-                headers=self.headers
+                headers=self.headers,
             )
             self.assertEqual(len(expected), len(r.json['role_assignments']))
             actual = self._extract_role_assignments_from_response_body(r)
@@ -821,21 +891,25 @@ class _DomainUserTests(object):
         self._setup_test_role_assignments()
         domain_assignments = self._setup_test_role_assignments_for_domain()
 
-        self.expected.append({
-            'user_id': domain_assignments['user_id'],
-            'domain_id': self.domain_id,
-            'role_id': domain_assignments['role_id']
-        })
-        self.expected.append({
-            'group_id': domain_assignments['group_id'],
-            'domain_id': self.domain_id,
-            'role_id': domain_assignments['role_id']
-        })
+        self.expected.append(
+            {
+                'user_id': domain_assignments['user_id'],
+                'domain_id': self.domain_id,
+                'role_id': domain_assignments['role_id'],
+            }
+        )
+        self.expected.append(
+            {
+                'group_id': domain_assignments['group_id'],
+                'domain_id': self.domain_id,
+                'role_id': domain_assignments['role_id'],
+            }
+        )
 
         with self.test_client() as c:
             r = c.get(
                 '/v3/role_assignments?scope.domain.id=%s' % self.domain_id,
-                headers=self.headers
+                headers=self.headers,
             )
             self.assertEqual(
                 len(self.expected), len(r.json['role_assignments'])
@@ -852,13 +926,13 @@ class _DomainUserTests(object):
             {
                 'user_id': domain_assignments['user_id'],
                 'domain_id': self.domain_id,
-                'role_id': domain_assignments['role_id']
+                'role_id': domain_assignments['role_id'],
             },
             {
                 'user_id': domain_assignments['user_id'],
                 'project_id': domain_assignments['project_id'],
-                'role_id': domain_assignments['role_id']
-            }
+                'role_id': domain_assignments['role_id'],
+            },
         ]
 
         user_id = domain_assignments['user_id']
@@ -866,7 +940,7 @@ class _DomainUserTests(object):
         with self.test_client() as c:
             r = c.get(
                 '/v3/role_assignments?user.id=%s' % user_id,
-                headers=self.headers
+                headers=self.headers,
             )
             self.assertEqual(len(expected), len(r.json['role_assignments']))
             actual = self._extract_role_assignments_from_response_body(r)
@@ -881,13 +955,13 @@ class _DomainUserTests(object):
             {
                 'group_id': domain_assignments['group_id'],
                 'domain_id': self.domain_id,
-                'role_id': domain_assignments['role_id']
+                'role_id': domain_assignments['role_id'],
             },
             {
                 'group_id': domain_assignments['group_id'],
                 'project_id': domain_assignments['project_id'],
-                'role_id': domain_assignments['role_id']
-            }
+                'role_id': domain_assignments['role_id'],
+            },
         ]
 
         group_id = domain_assignments['group_id']
@@ -895,7 +969,7 @@ class _DomainUserTests(object):
         with self.test_client() as c:
             r = c.get(
                 '/v3/role_assignments?group.id=%s' % group_id,
-                headers=self.headers
+                headers=self.headers,
             )
             self.assertEqual(len(expected), len(r.json['role_assignments']))
             actual = self._extract_role_assignments_from_response_body(r)
@@ -908,8 +982,7 @@ class _DomainUserTests(object):
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/role_assignments?scope.system=all',
-                headers=self.headers
+                '/v3/role_assignments?scope.system=all', headers=self.headers
             )
             self.assertEqual(0, len(r.json['role_assignments']))
 
@@ -919,7 +992,7 @@ class _DomainUserTests(object):
         with self.test_client() as c:
             r = c.get(
                 '/v3/role_assignments?scope.domain.id=%s' % domain,
-                headers=self.headers
+                headers=self.headers,
             )
             self.assertEqual([], r.json['role_assignments'])
 
@@ -934,7 +1007,7 @@ class _DomainUserTests(object):
         with self.test_client() as c:
             r = c.get(
                 '/v3/role_assignments?scope.project.id=%s' % project_id,
-                headers=self.headers
+                headers=self.headers,
             )
             self.assertEqual(0, len(r.json['role_assignments']))
 
@@ -950,7 +1023,7 @@ class _DomainUserTests(object):
         with self.test_client() as c:
             r = c.get(
                 '/v3/role_assignments?user.id=%s' % user_id,
-                headers=self.headers
+                headers=self.headers,
             )
             self.assertEqual(0, len(r.json['role_assignments']))
 
@@ -978,36 +1051,40 @@ class _DomainUserTests(object):
         )
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=self.domain_id,
-                                 parent_id=domain_assignments['project_id'])
+            unit.new_project_ref(
+                domain_id=self.domain_id,
+                parent_id=domain_assignments['project_id'],
+            ),
         )
         PROVIDERS.assignment_api.create_grant(
             assignments['role_id'],
             user_id=user['id'],
-            project_id=project['id']
+            project_id=project['id'],
         )
         expected = [
             {
                 'user_id': domain_assignments['user_id'],
                 'project_id': domain_assignments['project_id'],
-                'role_id': assignments['role_id']
+                'role_id': assignments['role_id'],
             },
             {
                 'group_id': domain_assignments['group_id'],
                 'project_id': domain_assignments['project_id'],
-                'role_id': assignments['role_id']
+                'role_id': assignments['role_id'],
             },
             {
                 'user_id': user['id'],
                 'project_id': project['id'],
-                'role_id': assignments['role_id']
-            }
+                'role_id': assignments['role_id'],
+            },
         ]
         with self.test_client() as c:
             r = c.get(
-                ('/v3/role_assignments?scope.project.id=%s&include_subtree' %
-                 domain_assignments['project_id']),
-                headers=self.headers
+                (
+                    '/v3/role_assignments?scope.project.id=%s&include_subtree'
+                    % domain_assignments['project_id']
+                ),
+                headers=self.headers,
             )
             self.assertEqual(len(expected), len(r.json['role_assignments']))
             actual = self._extract_role_assignments_from_response_body(r)
@@ -1018,10 +1095,12 @@ class _DomainUserTests(object):
         assignments = self._setup_test_role_assignments()
         with self.test_client() as c:
             c.get(
-                ('/v3/role_assignments?scope.project.id=%s&include_subtree' %
-                 assignments['project_id']),
+                (
+                    '/v3/role_assignments?scope.project.id=%s&include_subtree'
+                    % assignments['project_id']
+                ),
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
 
@@ -1030,8 +1109,9 @@ class _ProjectUserTests(object):
     def test_user_cannot_list_all_assignments_in_their_project(self):
         with self.test_client() as c:
             c.get(
-                '/v3/role_assignments', headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/role_assignments',
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_filter_role_assignments_by_user_of_project(self):
@@ -1042,7 +1122,7 @@ class _ProjectUserTests(object):
             c.get(
                 '/v3/role_assignments?user.id=%s' % user_id,
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_filter_role_assignments_by_group_of_project(self):
@@ -1053,7 +1133,7 @@ class _ProjectUserTests(object):
             c.get(
                 '/v3/role_assignments?group.id=%s' % group_id,
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_filter_role_assignments_by_system(self):
@@ -1061,30 +1141,27 @@ class _ProjectUserTests(object):
             c.get(
                 '/v3/role_assignments?scope.system=all',
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_filter_role_assignments_by_domain(self):
         with self.test_client() as c:
             c.get(
-                '/v3/role_assignments?scope.domain.id=%s'
-                % self.domain_id,
+                '/v3/role_assignments?scope.domain.id=%s' % self.domain_id,
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_filter_role_assignments_by_other_project(self):
         project1 = PROVIDERS.resource_api.create_project(
-            uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=self.domain_id)
+            uuid.uuid4().hex, unit.new_project_ref(domain_id=self.domain_id)
         )
 
         with self.test_client() as c:
             c.get(
-                '/v3/role_assignments?scope.project.id=%s'
-                % project1,
+                '/v3/role_assignments?scope.project.id=%s' % project1,
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_filter_role_assignments_by_other_project_user(self):
@@ -1099,7 +1176,7 @@ class _ProjectUserTests(object):
             c.get(
                 '/v3/role_assignments?user.id=%s' % user_id,
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_filter_role_assignments_by_other_project_group(self):
@@ -1114,7 +1191,7 @@ class _ProjectUserTests(object):
             c.get(
                 '/v3/role_assignments?group.id=%s' % group_id,
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
 
@@ -1125,27 +1202,32 @@ class _ProjectReaderMemberTests(object):
         )
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=self.domain_id,
-                                 parent_id=self.project_id)
+            unit.new_project_ref(
+                domain_id=self.domain_id, parent_id=self.project_id
+            ),
         )
         PROVIDERS.assignment_api.create_grant(
             self.bootstrapper.reader_role_id,
             user_id=user['id'],
-            project_id=project['id']
+            project_id=project['id'],
         )
         with self.test_client() as c:
             c.get(
-                ('/v3/role_assignments?scope.project.id=%s&include_subtree' %
-                 self.project_id),
+                (
+                    '/v3/role_assignments?scope.project.id=%s&include_subtree'
+                    % self.project_id
+                ),
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
 
-class SystemReaderTests(base_classes.TestCaseWithBootstrap,
-                        common_auth.AuthTestMixin,
-                        _AssignmentTestUtilities,
-                        _SystemUserTests):
+class SystemReaderTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _AssignmentTestUtilities,
+    _SystemUserTests,
+):
 
     def setUp(self):
         super(SystemReaderTests, self).setUp()
@@ -1156,9 +1238,7 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
         system_reader = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
         )
-        self.user_id = PROVIDERS.identity_api.create_user(
-            system_reader
-        )['id']
+        self.user_id = PROVIDERS.identity_api.create_user(system_reader)['id']
         PROVIDERS.assignment_api.create_system_grant_for_user(
             self.user_id, self.bootstrapper.reader_role_id
         )
@@ -1167,13 +1247,14 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
             {
                 'user_id': self.user_id,
                 'system': 'all',
-                'role_id': self.bootstrapper.reader_role_id
+                'role_id': self.bootstrapper.reader_role_id,
             }
         ]
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=system_reader['password'],
-            system=True
+            user_id=self.user_id,
+            password=system_reader['password'],
+            system=True,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -1184,10 +1265,12 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class SystemMemberTests(base_classes.TestCaseWithBootstrap,
-                        common_auth.AuthTestMixin,
-                        _AssignmentTestUtilities,
-                        _SystemUserTests):
+class SystemMemberTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _AssignmentTestUtilities,
+    _SystemUserTests,
+):
 
     def setUp(self):
         super(SystemMemberTests, self).setUp()
@@ -1198,9 +1281,7 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
         system_member = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
         )
-        self.user_id = PROVIDERS.identity_api.create_user(
-            system_member
-        )['id']
+        self.user_id = PROVIDERS.identity_api.create_user(system_member)['id']
         PROVIDERS.assignment_api.create_system_grant_for_user(
             self.user_id, self.bootstrapper.member_role_id
         )
@@ -1209,13 +1290,14 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
             {
                 'user_id': self.user_id,
                 'system': 'all',
-                'role_id': self.bootstrapper.member_role_id
+                'role_id': self.bootstrapper.member_role_id,
             }
         ]
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=system_member['password'],
-            system=True
+            user_id=self.user_id,
+            password=system_member['password'],
+            system=True,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -1226,10 +1308,12 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class SystemAdminTests(base_classes.TestCaseWithBootstrap,
-                       common_auth.AuthTestMixin,
-                       _AssignmentTestUtilities,
-                       _SystemUserTests):
+class SystemAdminTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _AssignmentTestUtilities,
+    _SystemUserTests,
+):
 
     def setUp(self):
         super(SystemAdminTests, self).setUp()
@@ -1241,8 +1325,9 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
         self.expected = []
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=self.bootstrapper.admin_password,
-            system=True
+            user_id=self.user_id,
+            password=self.bootstrapper.admin_password,
+            system=True,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -1253,10 +1338,12 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class DomainReaderTests(base_classes.TestCaseWithBootstrap,
-                        common_auth.AuthTestMixin,
-                        _AssignmentTestUtilities,
-                        _DomainUserTests):
+class DomainReaderTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _AssignmentTestUtilities,
+    _DomainUserTests,
+):
 
     def setUp(self):
         super(DomainReaderTests, self).setUp()
@@ -1271,19 +1358,22 @@ class DomainReaderTests(base_classes.TestCaseWithBootstrap,
         domain_reader = unit.new_user_ref(domain_id=self.domain_id)
         self.user_id = PROVIDERS.identity_api.create_user(domain_reader)['id']
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.reader_role_id, user_id=self.user_id,
-            domain_id=self.domain_id
+            self.bootstrapper.reader_role_id,
+            user_id=self.user_id,
+            domain_id=self.domain_id,
         )
         self.expected = [
             # assignment of the user running the test case
             {
                 'user_id': self.user_id,
                 'domain_id': self.domain_id,
-                'role_id': self.bootstrapper.reader_role_id
-            }]
+                'role_id': self.bootstrapper.reader_role_id,
+            }
+        ]
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=domain_reader['password'],
+            user_id=self.user_id,
+            password=domain_reader['password'],
             domain_id=self.domain_id,
         )
 
@@ -1295,10 +1385,12 @@ class DomainReaderTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class DomainMemberTests(base_classes.TestCaseWithBootstrap,
-                        common_auth.AuthTestMixin,
-                        _AssignmentTestUtilities,
-                        _DomainUserTests):
+class DomainMemberTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _AssignmentTestUtilities,
+    _DomainUserTests,
+):
 
     def setUp(self):
         super(DomainMemberTests, self).setUp()
@@ -1313,20 +1405,23 @@ class DomainMemberTests(base_classes.TestCaseWithBootstrap,
         domain_user = unit.new_user_ref(domain_id=self.domain_id)
         self.user_id = PROVIDERS.identity_api.create_user(domain_user)['id']
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.member_role_id, user_id=self.user_id,
-            domain_id=self.domain_id
+            self.bootstrapper.member_role_id,
+            user_id=self.user_id,
+            domain_id=self.domain_id,
         )
         self.expected = [
             # assignment of the user running the test case
             {
                 'user_id': self.user_id,
                 'domain_id': self.domain_id,
-                'role_id': self.bootstrapper.member_role_id
-            }]
+                'role_id': self.bootstrapper.member_role_id,
+            }
+        ]
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=domain_user['password'],
-            domain_id=self.domain_id
+            user_id=self.user_id,
+            password=domain_user['password'],
+            domain_id=self.domain_id,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -1337,10 +1432,12 @@ class DomainMemberTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class DomainAdminTests(base_classes.TestCaseWithBootstrap,
-                       common_auth.AuthTestMixin,
-                       _AssignmentTestUtilities,
-                       _DomainUserTests):
+class DomainAdminTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _AssignmentTestUtilities,
+    _DomainUserTests,
+):
 
     def _override_policy(self):
         # TODO(lbragstad): Remove this once the deprecated policies in
@@ -1358,7 +1455,7 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
                 ),
                 'identity:list_role_assignments_for_tree': (
                     rp.SYSTEM_READER_OR_PROJECT_DOMAIN_READER_OR_PROJECT_ADMIN
-                )
+                ),
             }
             f.write(jsonutils.dumps(overridden_policies))
 
@@ -1382,19 +1479,22 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
         domain_admin = unit.new_user_ref(domain_id=self.domain_id)
         self.user_id = PROVIDERS.identity_api.create_user(domain_admin)['id']
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.admin_role_id, user_id=self.user_id,
-            domain_id=self.domain_id
+            self.bootstrapper.admin_role_id,
+            user_id=self.user_id,
+            domain_id=self.domain_id,
         )
         self.expected = [
             # assignment of the user running the test case
             {
                 'user_id': self.user_id,
                 'domain_id': self.domain_id,
-                'role_id': self.bootstrapper.admin_role_id
-            }]
+                'role_id': self.bootstrapper.admin_role_id,
+            }
+        ]
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=domain_admin['password'],
+            user_id=self.user_id,
+            password=domain_admin['password'],
             domain_id=self.domain_id,
         )
 
@@ -1406,11 +1506,13 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class ProjectReaderTests(base_classes.TestCaseWithBootstrap,
-                         common_auth.AuthTestMixin,
-                         _AssignmentTestUtilities,
-                         _ProjectUserTests,
-                         _ProjectReaderMemberTests):
+class ProjectReaderTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _AssignmentTestUtilities,
+    _ProjectUserTests,
+    _ProjectReaderMemberTests,
+):
 
     def setUp(self):
         super(ProjectReaderTests, self).setUp()
@@ -1430,8 +1532,9 @@ class ProjectReaderTests(base_classes.TestCaseWithBootstrap,
         project_reader = unit.new_user_ref(domain_id=self.domain_id)
         self.user_id = PROVIDERS.identity_api.create_user(project_reader)['id']
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.reader_role_id, user_id=self.user_id,
-            project_id=self.project_id
+            self.bootstrapper.reader_role_id,
+            user_id=self.user_id,
+            project_id=self.project_id,
         )
 
         self.expected = [
@@ -1439,11 +1542,13 @@ class ProjectReaderTests(base_classes.TestCaseWithBootstrap,
             {
                 'user_id': self.user_id,
                 'project_id': self.project_id,
-                'role_id': self.bootstrapper.reader_role_id
-            }]
+                'role_id': self.bootstrapper.reader_role_id,
+            }
+        ]
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=project_reader['password'],
+            user_id=self.user_id,
+            password=project_reader['password'],
             project_id=self.project_id,
         )
 
@@ -1455,11 +1560,13 @@ class ProjectReaderTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class ProjectMemberTests(base_classes.TestCaseWithBootstrap,
-                         common_auth.AuthTestMixin,
-                         _AssignmentTestUtilities,
-                         _ProjectUserTests,
-                         _ProjectReaderMemberTests):
+class ProjectMemberTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _AssignmentTestUtilities,
+    _ProjectUserTests,
+    _ProjectReaderMemberTests,
+):
 
     def setUp(self):
         super(ProjectMemberTests, self).setUp()
@@ -1479,8 +1586,9 @@ class ProjectMemberTests(base_classes.TestCaseWithBootstrap,
         project_member = unit.new_user_ref(domain_id=self.domain_id)
         self.user_id = PROVIDERS.identity_api.create_user(project_member)['id']
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.member_role_id, user_id=self.user_id,
-            project_id=self.project_id
+            self.bootstrapper.member_role_id,
+            user_id=self.user_id,
+            project_id=self.project_id,
         )
 
         self.expected = [
@@ -1488,11 +1596,13 @@ class ProjectMemberTests(base_classes.TestCaseWithBootstrap,
             {
                 'user_id': self.user_id,
                 'project_id': self.project_id,
-                'role_id': self.bootstrapper.member_role_id
-            }]
+                'role_id': self.bootstrapper.member_role_id,
+            }
+        ]
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=project_member['password'],
+            user_id=self.user_id,
+            password=project_member['password'],
             project_id=self.project_id,
         )
 
@@ -1504,10 +1614,12 @@ class ProjectMemberTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class ProjectAdminTests(base_classes.TestCaseWithBootstrap,
-                        common_auth.AuthTestMixin,
-                        _AssignmentTestUtilities,
-                        _ProjectUserTests):
+class ProjectAdminTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _AssignmentTestUtilities,
+    _ProjectUserTests,
+):
 
     def setUp(self):
         super(ProjectAdminTests, self).setUp()
@@ -1534,8 +1646,9 @@ class ProjectAdminTests(base_classes.TestCaseWithBootstrap,
         self.project_id = project['id']
 
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.admin_role_id, user_id=self.user_id,
-            project_id=self.project_id
+            self.bootstrapper.admin_role_id,
+            user_id=self.user_id,
+            project_id=self.project_id,
         )
 
         self.expected = [
@@ -1543,13 +1656,14 @@ class ProjectAdminTests(base_classes.TestCaseWithBootstrap,
             {
                 'user_id': self.user_id,
                 'project_id': self.project_id,
-                'role_id': self.bootstrapper.admin_role_id
-            }]
+                'role_id': self.bootstrapper.admin_role_id,
+            }
+        ]
 
         auth = self.build_authentication_request(
             user_id=self.user_id,
             password=self.bootstrapper.admin_password,
-            project_id=self.project_id
+            project_id=self.project_id,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -1575,7 +1689,7 @@ class ProjectAdminTests(base_classes.TestCaseWithBootstrap,
                 ),
                 'identity:list_role_assignments_for_tree': (
                     rp.SYSTEM_READER_OR_PROJECT_DOMAIN_READER_OR_PROJECT_ADMIN
-                )
+                ),
             }
             f.write(jsonutils.dumps(overridden_policies))
 
@@ -1585,25 +1699,30 @@ class ProjectAdminTests(base_classes.TestCaseWithBootstrap,
         )
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=self.domain_id,
-                                 parent_id=self.project_id)
+            unit.new_project_ref(
+                domain_id=self.domain_id, parent_id=self.project_id
+            ),
         )
         PROVIDERS.assignment_api.create_grant(
             self.bootstrapper.reader_role_id,
             user_id=user['id'],
-            project_id=project['id']
+            project_id=project['id'],
         )
         expected = copy.copy(self.expected)
-        expected.append({
-            'project_id': project['id'],
-            'user_id': user['id'],
-            'role_id': self.bootstrapper.reader_role_id
-        })
+        expected.append(
+            {
+                'project_id': project['id'],
+                'user_id': user['id'],
+                'role_id': self.bootstrapper.reader_role_id,
+            }
+        )
         with self.test_client() as c:
             r = c.get(
-                ('/v3/role_assignments?scope.project.id=%s&include_subtree' %
-                 self.project_id),
-                headers=self.headers
+                (
+                    '/v3/role_assignments?scope.project.id=%s&include_subtree'
+                    % self.project_id
+                ),
+                headers=self.headers,
             )
             self.assertEqual(len(expected), len(r.json['role_assignments']))
             actual = self._extract_role_assignments_from_response_body(r)
@@ -1615,18 +1734,19 @@ class ProjectAdminTests(base_classes.TestCaseWithBootstrap,
             unit.new_user_ref(domain_id=self.domain_id)
         )
         project = PROVIDERS.resource_api.create_project(
-            uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=self.domain_id)
+            uuid.uuid4().hex, unit.new_project_ref(domain_id=self.domain_id)
         )
         PROVIDERS.assignment_api.create_grant(
             self.bootstrapper.reader_role_id,
             user_id=user['id'],
-            project_id=project['id']
+            project_id=project['id'],
         )
         with self.test_client() as c:
             c.get(
-                ('/v3/role_assignments?scope.project.id=%s&include_subtree' %
-                 project['id']),
+                (
+                    '/v3/role_assignments?scope.project.id=%s&include_subtree'
+                    % project['id']
+                ),
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )

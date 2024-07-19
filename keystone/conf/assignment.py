@@ -18,26 +18,29 @@ from keystone.conf import utils
 driver = cfg.StrOpt(
     'driver',
     default='sql',
-    help=utils.fmt("""
+    help=utils.fmt(
+        """
 Entry point for the assignment backend driver (where role assignments are
 stored) in the `keystone.assignment` namespace. Only a SQL driver is supplied
 by keystone itself. Unless you are writing proprietary drivers for keystone,
 you do not need to set this option.
-"""))
+"""
+    ),
+)
 
 prohibited_implied_role = cfg.ListOpt(
     'prohibited_implied_role',
     default=['admin'],
-    help=utils.fmt("""
+    help=utils.fmt(
+        """
 A list of role names which are prohibited from being an implied role.
-"""))
+"""
+    ),
+)
 
 
 GROUP_NAME = __name__.split('.')[-1]
-ALL_OPTS = [
-    driver,
-    prohibited_implied_role
-]
+ALL_OPTS = [driver, prohibited_implied_role]
 
 
 def register_opts(conf):

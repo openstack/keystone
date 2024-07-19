@@ -56,8 +56,13 @@ class PolicyFileTestCase(unit.TestCase):
         with open(self.tmpfilename, "w") as policyfile:
             policyfile.write("""{"example:test": ["false:false"]}""")
         policy._ENFORCER._enforcer.clear()
-        self.assertRaises(exception.ForbiddenAction, policy.enforce,
-                          empty_credentials, action, self.target)
+        self.assertRaises(
+            exception.ForbiddenAction,
+            policy.enforce,
+            empty_credentials,
+            action,
+            self.target,
+        )
 
 
 class PolicyTestCase(unit.TestCase):
@@ -68,8 +73,10 @@ class PolicyTestCase(unit.TestCase):
             "example:allowed": [],
             "example:denied": [["false:false"]],
             "example:get_http": [["http:http://www.example.com"]],
-            "example:my_file": [["role:compute_admin"],
-                                ["project_id:%(project_id)s"]],
+            "example:my_file": [
+                ["role:compute_admin"],
+                ["project_id:%(project_id)s"],
+            ],
             "example:early_and_fail": [["false:false", "rule:true"]],
             "example:early_or_success": [["rule:true"], ["false:false"]],
             "example:lowercase_admin": [["role:admin"], ["role:sysadmin"]],
@@ -87,13 +94,23 @@ class PolicyTestCase(unit.TestCase):
 
     def test_enforce_nonexistent_action_throws(self):
         action = "example:noexist"
-        self.assertRaises(exception.ForbiddenAction, policy.enforce,
-                          self.credentials, action, self.target)
+        self.assertRaises(
+            exception.ForbiddenAction,
+            policy.enforce,
+            self.credentials,
+            action,
+            self.target,
+        )
 
     def test_enforce_bad_action_throws(self):
         action = "example:denied"
-        self.assertRaises(exception.ForbiddenAction, policy.enforce,
-                          self.credentials, action, self.target)
+        self.assertRaises(
+            exception.ForbiddenAction,
+            policy.enforce,
+            self.credentials,
+            action,
+            self.target,
+        )
 
     def test_enforce_good_action(self):
         action = "example:allowed"
@@ -105,13 +122,23 @@ class PolicyTestCase(unit.TestCase):
         credentials = {'project_id': 'fake', 'roles': []}
         action = "example:my_file"
         policy.enforce(credentials, action, target_mine)
-        self.assertRaises(exception.ForbiddenAction, policy.enforce,
-                          credentials, action, target_not_mine)
+        self.assertRaises(
+            exception.ForbiddenAction,
+            policy.enforce,
+            credentials,
+            action,
+            target_not_mine,
+        )
 
     def test_early_AND_enforcement(self):
         action = "example:early_and_fail"
-        self.assertRaises(exception.ForbiddenAction, policy.enforce,
-                          self.credentials, action, self.target)
+        self.assertRaises(
+            exception.ForbiddenAction,
+            policy.enforce,
+            self.credentials,
+            action,
+            self.target,
+        )
 
     def test_early_OR_enforcement(self):
         action = "example:early_or_success"
@@ -132,9 +159,7 @@ class PolicyScopeTypesEnforcementTestCase(unit.TestCase):
     def setUp(self):
         super(PolicyScopeTypesEnforcementTestCase, self).setUp()
         rule = common_policy.RuleDefault(
-            name='foo',
-            check_str='',
-            scope_types=['system']
+            name='foo', check_str='', scope_types=['system']
         )
         policy._ENFORCER._enforcer.register_default(rule)
         self.credentials = {}
@@ -144,8 +169,11 @@ class PolicyScopeTypesEnforcementTestCase(unit.TestCase):
     def test_forbidden_is_raised_if_enforce_scope_is_true(self):
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
         self.assertRaises(
-            exception.ForbiddenAction, policy.enforce, self.credentials,
-            self.action, self.target
+            exception.ForbiddenAction,
+            policy.enforce,
+            self.credentials,
+            self.action,
+            self.target,
         )
 
     def test_warning_message_is_logged_if_enforce_scope_is_false(self):
@@ -176,22 +204,31 @@ class PolicyJsonTestCase(unit.TestCase):
 
     def test_policies_loads(self):
         action = 'identity:list_projects'
-        target = {'user_id': uuid.uuid4().hex,
-                  'user.domain_id': uuid.uuid4().hex,
-                  'group.domain_id': uuid.uuid4().hex,
-                  'project.domain_id': uuid.uuid4().hex,
-                  'project_id': uuid.uuid4().hex,
-                  'domain_id': uuid.uuid4().hex}
-        credentials = {'username': uuid.uuid4().hex, 'token': uuid.uuid4().hex,
-                       'project_name': None, 'user_id': uuid.uuid4().hex,
-                       'roles': [u'admin'], 'is_admin': True,
-                       'is_admin_project': True, 'project_id': None,
-                       'domain_id': uuid.uuid4().hex}
+        target = {
+            'user_id': uuid.uuid4().hex,
+            'user.domain_id': uuid.uuid4().hex,
+            'group.domain_id': uuid.uuid4().hex,
+            'project.domain_id': uuid.uuid4().hex,
+            'project_id': uuid.uuid4().hex,
+            'domain_id': uuid.uuid4().hex,
+        }
+        credentials = {
+            'username': uuid.uuid4().hex,
+            'token': uuid.uuid4().hex,
+            'project_name': None,
+            'user_id': uuid.uuid4().hex,
+            'roles': [u'admin'],
+            'is_admin': True,
+            'is_admin_project': True,
+            'project_id': None,
+            'domain_id': uuid.uuid4().hex,
+        }
 
         # The enforcer is setup behind the scenes and registers the in code
         # default policies.
-        result = policy._ENFORCER._enforcer.enforce(action, target,
-                                                    credentials)
+        result = policy._ENFORCER._enforcer.enforce(
+            action, target, credentials
+        )
         self.assertTrue(result)
 
     def test_all_targets_documented(self):
@@ -199,17 +236,27 @@ class PolicyJsonTestCase(unit.TestCase):
 
         # These keys are in the policy.yaml but aren't targets.
         policy_rule_keys = [
-            'admin_or_owner', 'admin_or_token_subject', 'admin_required',
-            'owner', 'service_admin_or_token_subject', 'service_or_admin',
-            'service_role', 'token_subject', ]
+            'admin_or_owner',
+            'admin_or_token_subject',
+            'admin_required',
+            'owner',
+            'service_admin_or_token_subject',
+            'service_or_admin',
+            'service_role',
+            'token_subject',
+        ]
 
         def read_doc_targets():
             # Parse the doc/source/policy_mapping.rst file and return the
             # targets.
 
             doc_path = os.path.join(
-                unit.ROOTDIR, 'doc', 'source', 'getting-started',
-                'policy_mapping.rst')
+                unit.ROOTDIR,
+                'doc',
+                'source',
+                'getting-started',
+                'policy_mapping.rst',
+            )
             with open(doc_path) as doc_file:
                 for line in doc_file:
                     if line.startswith('Target'):
@@ -240,7 +287,7 @@ class GeneratePolicyFileTestCase(unit.TestCase):
         ret_val = subprocess.Popen(
             ['oslopolicy-policy-generator', '--namespace', 'keystone'],
             stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
+            stderr=subprocess.PIPE,
         )
         output = ret_val.communicate()
         self.assertEqual(ret_val.returncode, 0, output)

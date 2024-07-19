@@ -33,10 +33,13 @@ LOG = log.getLogger(__name__)
 PROVIDER_APIS = provider_api.ProviderAPIs
 
 
-_POSSIBLE_TARGET_ACTIONS = frozenset([
-    rule.name for
-    rule in policies.list_rules() if not rule.deprecated_for_removal
-])
+_POSSIBLE_TARGET_ACTIONS = frozenset(
+    [
+        rule.name
+        for rule in policies.list_rules()
+        if not rule.deprecated_for_removal
+    ]
+)
 _ENFORCEMENT_CHECK_ATTR = 'keystone:RBAC:enforcement_called'
 
 
@@ -64,35 +67,45 @@ class RBACEnforcer(object):
     def _check_deprecated_rule(self, action):
         def _name_is_changing(rule):
             deprecated_rule = rule.deprecated_rule
-            return (deprecated_rule and
-                    deprecated_rule.name != rule.name and
-                    deprecated_rule.name in self._enforcer.file_rules)
+            return (
+                deprecated_rule
+                and deprecated_rule.name != rule.name
+                and deprecated_rule.name in self._enforcer.file_rules
+            )
 
         def _check_str_is_changing(rule):
             deprecated_rule = rule.deprecated_rule
-            return (deprecated_rule and
-                    deprecated_rule.check_str != rule.check_str and
-                    rule.name not in self._enforcer.file_rules)
+            return (
+                deprecated_rule
+                and deprecated_rule.check_str != rule.check_str
+                and rule.name not in self._enforcer.file_rules
+            )
 
         def _is_deprecated_for_removal(rule):
-            return (rule.deprecated_for_removal and
-                    rule.name in self._enforcer.file_rules)
+            return (
+                rule.deprecated_for_removal
+                and rule.name in self._enforcer.file_rules
+            )
 
         def _emit_warning():
             if not self._enforcer._warning_emitted:
-                LOG.warning("Deprecated policy rules found. Use "
-                            "oslopolicy-policy-generator and "
-                            "oslopolicy-policy-upgrade to detect and resolve "
-                            "deprecated policies in your configuration.")
+                LOG.warning(
+                    "Deprecated policy rules found. Use "
+                    "oslopolicy-policy-generator and "
+                    "oslopolicy-policy-upgrade to detect and resolve "
+                    "deprecated policies in your configuration."
+                )
                 self._enforcer._warning_emitted = True
 
         registered_rule = self._enforcer.registered_rules.get(action)
 
         if not registered_rule:
             return
-        if (_name_is_changing(registered_rule) or
-                _check_str_is_changing(registered_rule) or
-                _is_deprecated_for_removal(registered_rule)):
+        if (
+            _name_is_changing(registered_rule)
+            or _check_str_is_changing(registered_rule)
+            or _is_deprecated_for_removal(registered_rule)
+        ):
             _emit_warning()
 
     def _enforce(self, credentials, action, target, do_raise=True):
@@ -118,12 +131,14 @@ class RBACEnforcer(object):
         # Add the exception arguments if asked to do a raise
         extra = {}
         if do_raise:
-            extra.update(exc=exception.ForbiddenAction, action=action,
-                         do_raise=do_raise)
+            extra.update(
+                exc=exception.ForbiddenAction, action=action, do_raise=do_raise
+            )
 
         try:
             result = self._enforcer.enforce(
-                rule=action, target=target, creds=credentials, **extra)
+                rule=action, target=target, creds=credentials, **extra
+            )
             self._check_deprecated_rule(action)
             return result
         except common_policy.InvalidScope:
@@ -160,13 +175,17 @@ class RBACEnforcer(object):
     def _extract_filter_values(filters):
         """Extract filter data from query params for RBAC enforcement."""
         filters = filters or []
-        target = {i: flask.request.args[i] for
-                  i in filters if i in flask.request.args}
+        target = {
+            i: flask.request.args[i]
+            for i in filters
+            if i in flask.request.args
+        }
         if target:
             if LOG.logger.getEffectiveLevel() <= log.DEBUG:
                 LOG.debug(
                     'RBAC: Adding query filter params (%s)',
-                    ', '.join(['%s=%s' % (k, v) for k, v in target.items()]))
+                    ', '.join(['%s=%s' % (k, v) for k, v in target.items()]),
+                )
         return target
 
     @staticmethod
@@ -181,14 +200,19 @@ class RBACEnforcer(object):
         :rtype: dict
         """
         ret_dict = {}
-        if ((member_target is not None and member_target_type is None) or
-                (member_target is None and member_target_type is not None)):
-            LOG.warning('RBAC: Unknown target type or target reference. '
-                        'Rejecting as unauthorized. '
-                        '(member_target_type=%(target_type)r, '
-                        'member_target=%(target_ref)r)',
-                        {'target_type': member_target_type,
-                         'target_ref': member_target})
+        if (member_target is not None and member_target_type is None) or (
+            member_target is None and member_target_type is not None
+        ):
+            LOG.warning(
+                'RBAC: Unknown target type or target reference. '
+                'Rejecting as unauthorized. '
+                '(member_target_type=%(target_type)r, '
+                'member_target=%(target_ref)r)',
+                {
+                    'target_type': member_target_type,
+                    'target_ref': member_target,
+                },
+            )
             # Fast exit.
             return ret_dict
 
@@ -206,7 +230,8 @@ class RBACEnforcer(object):
                 # should be more protection against something wonky
                 # here.
                 resource = flask.current_app.view_functions[
-                    flask.request.endpoint].view_class
+                    flask.request.endpoint
+                ].view_class
                 try:
                     member_name = getattr(resource, 'member_key', None)
                 except ValueError:
@@ -216,8 +241,7 @@ class RBACEnforcer(object):
                     # normal and acceptable. Set member_name to None as though
                     # it wasn't set.
                     member_name = None
-                func = getattr(
-                    resource, 'get_member_from_driver', None)
+                func = getattr(resource, 'get_member_from_driver', None)
                 if member_name is not None and callable(func):
                     key = '%s_id' % member_name
                     if key in (flask.request.view_args or {}):
@@ -251,17 +275,18 @@ class RBACEnforcer(object):
         target = 'token'
         subject_token = flask.request.headers.get('X-Subject-Token')
         access_rules_support = flask.request.headers.get(
-            authorization.ACCESS_RULES_HEADER)
+            authorization.ACCESS_RULES_HEADER
+        )
         if subject_token is not None:
-            allow_expired = (strutils.bool_from_string(
-                flask.request.args.get('allow_expired', False),
-                default=False))
+            allow_expired = strutils.bool_from_string(
+                flask.request.args.get('allow_expired', False), default=False
+            )
             if allow_expired:
                 window_seconds = CONF.token.allow_expired_window
             token = PROVIDER_APIS.token_provider_api.validate_token(
                 subject_token,
                 window_seconds=window_seconds,
-                access_rules_support=access_rules_support
+                access_rules_support=access_rules_support,
             )
             # TODO(morgan): Expand extracted data from the subject token.
             ret_dict[target] = {}
@@ -284,15 +309,21 @@ class RBACEnforcer(object):
     def _assert_is_authenticated(cls):
         ctx = cls._get_oslo_req_context()
         if ctx is None:
-            LOG.warning('RBAC: Error reading the request context generated by '
-                        'the Auth Middleware (there is no context). Rejecting '
-                        'request as unauthorized.')
+            LOG.warning(
+                'RBAC: Error reading the request context generated by '
+                'the Auth Middleware (there is no context). Rejecting '
+                'request as unauthorized.'
+            )
             raise exception.Unauthorized(
-                _('Internal error processing authentication and '
-                  'authorization.'))
+                _(
+                    'Internal error processing authentication and '
+                    'authorization.'
+                )
+            )
         if not ctx.authenticated:
             raise exception.Unauthorized(
-                _('auth_context did not decode anything useful'))
+                _('auth_context did not decode anything useful')
+            )
 
     @classmethod
     def _shared_admin_auth_token_set(cls):
@@ -300,9 +331,16 @@ class RBACEnforcer(object):
         return getattr(ctx, 'is_admin', False)
 
     @classmethod
-    def enforce_call(cls, enforcer=None, action=None, target_attr=None,
-                     member_target_type=None, member_target=None,
-                     filters=None, build_target=None):
+    def enforce_call(
+        cls,
+        enforcer=None,
+        action=None,
+        target_attr=None,
+        member_target_type=None,
+        member_target=None,
+        filters=None,
+        build_target=None,
+    ):
         """Enforce RBAC on the current request.
 
         This will do some legwork and then instantiate the Enforcer if an
@@ -354,11 +392,13 @@ class RBACEnforcer(object):
         # @policy_enforcer_action decorator was used.
         action = action or getattr(flask.g, cls.ACTION_STORE_ATTR, None)
         if action not in _POSSIBLE_TARGET_ACTIONS:
-            LOG.warning('RBAC: Unknown enforcement action name `%s`. '
-                        'Rejecting as Forbidden, this is a programming error '
-                        'and a bug should be filed with as much information '
-                        'about the request that caused this as possible.',
-                        action)
+            LOG.warning(
+                'RBAC: Unknown enforcement action name `%s`. '
+                'Rejecting as Forbidden, this is a programming error '
+                'and a bug should be filed with as much information '
+                'about the request that caused this as possible.',
+                action,
+            )
             # NOTE(morgan): While this is an internal error, a 500 is never
             # desirable, we have handled the case and the most appropriate
             # response here is to issue a 403 (FORBIDDEN) to any API calling
@@ -368,7 +408,9 @@ class RBACEnforcer(object):
             raise exception.Forbidden(
                 message=_(
                     'Internal RBAC enforcement error, invalid rule (action) '
-                    'name.'))
+                    'name.'
+                )
+            )
 
         # Mark flask.g as "enforce_call" has been called. This should occur
         # before anything except the "is this a valid action" check, ensuring
@@ -399,22 +441,29 @@ class RBACEnforcer(object):
         # Get the Target Data Set.
         if target_attr is None and build_target is None:
             try:
-                policy_dict.update(cls._extract_member_target_data(
-                    member_target_type, member_target))
+                policy_dict.update(
+                    cls._extract_member_target_data(
+                        member_target_type, member_target
+                    )
+                )
             except exception.NotFound:
                 # DEBUG LOG and bubble up the 404 error. This is expected
                 # behavior. This likely should be specific in each API. This
                 # should be revisited in the future and each API should make
                 # the explicit "existence" checks before enforcement.
-                LOG.debug('Extracting inferred target data resulted in '
-                          '"NOT FOUND (404)".')
+                LOG.debug(
+                    'Extracting inferred target data resulted in '
+                    '"NOT FOUND (404)".'
+                )
                 raise
             except Exception as e:  # nosec
                 # NOTE(morgan): Errors should never bubble up at this point,
                 # if there is an error getting the target, log it and move
                 # on. Raise an explicit 403, we have failed policy checks.
-                LOG.warning('Unable to extract inferred target data during '
-                            'enforcement')
+                LOG.warning(
+                    'Unable to extract inferred target data during '
+                    'enforcement'
+                )
                 LOG.debug(e, exc_info=True)
                 raise exception.ForbiddenAction(action=action)
 
@@ -422,11 +471,14 @@ class RBACEnforcer(object):
             subj_token_target_data = cls._extract_subject_token_target_data()
             if subj_token_target_data:
                 policy_dict.setdefault('target', {}).update(
-                    subj_token_target_data)
+                    subj_token_target_data
+                )
         else:
             if target_attr and build_target:
-                raise ValueError('Programming Error: A target_attr or '
-                                 'build_target must be provided, but not both')
+                raise ValueError(
+                    'Programming Error: A target_attr or '
+                    'build_target must be provided, but not both'
+                )
 
             policy_dict['target'] = target_attr or build_target()
 
@@ -443,25 +495,33 @@ class RBACEnforcer(object):
         if LOG.logger.getEffectiveLevel() <= log.DEBUG:
             # LOG the Args
             args_str = ', '.join(
-                ['%s=%s' % (k, v) for
-                 k, v in (flask.request.view_args or {}).items()])
+                [
+                    '%s=%s' % (k, v)
+                    for k, v in (flask.request.view_args or {}).items()
+                ]
+            )
             args_str = strutils.mask_password(args_str)
-            LOG.debug('RBAC: Authorizing `%(action)s(%(args)s)`',
-                      {'action': action, 'args': args_str})
+            LOG.debug(
+                'RBAC: Authorizing `%(action)s(%(args)s)`',
+                {'action': action, 'args': args_str},
+            )
 
         ctxt = cls._get_oslo_req_context()
         # Instantiate the enforcer object if needed.
         enforcer_obj = enforcer or cls()
         enforcer_obj._enforce(
-            credentials=ctxt, action=action, target=flattened)
+            credentials=ctxt, action=action, target=flattened
+        )
         LOG.debug('RBAC: Authorization granted')
 
     @classmethod
     def policy_enforcer_action(cls, action):
         """Decorator to set policy enforcement action name."""
         if action not in _POSSIBLE_TARGET_ACTIONS:
-            raise ValueError('PROGRAMMING ERROR: Action must reference a '
-                             'valid Keystone policy enforcement name.')
+            raise ValueError(
+                'PROGRAMMING ERROR: Action must reference a '
+                'valid Keystone policy enforcement name.'
+            )
 
         def wrapper(f):
             @functools.wraps(f)
@@ -470,7 +530,9 @@ class RBACEnforcer(object):
                 # later.
                 setattr(flask.g, cls.ACTION_STORE_ATTR, action)
                 return f(*args, **kwargs)
+
             return inner
+
         return wrapper
 
     @staticmethod

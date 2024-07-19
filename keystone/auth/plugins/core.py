@@ -28,8 +28,9 @@ CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 PROVIDERS = provider_api.ProviderAPIs
 _NOTIFY_OP = 'authenticate'
-_NOTIFY_EVENT = '{service}.{event}'.format(service=notifications.SERVICE,
-                                           event=_NOTIFY_OP)
+_NOTIFY_EVENT = '{service}.{event}'.format(
+    service=notifications.SERVICE, event=_NOTIFY_OP
+)
 
 
 def construct_method_map_from_config():
@@ -115,8 +116,8 @@ class BaseUserInfo(provider_api.ProviderAPIMixin, object):
     def _assert_domain_is_enabled(self, domain_ref):
         try:
             PROVIDERS.resource_api.assert_domain_enabled(
-                domain_id=domain_ref['id'],
-                domain=domain_ref)
+                domain_id=domain_ref['id'], domain=domain_ref
+            )
         except AssertionError as e:
             LOG.warning(e)
             raise exception.Unauthorized from e
@@ -124,8 +125,8 @@ class BaseUserInfo(provider_api.ProviderAPIMixin, object):
     def _assert_user_is_enabled(self, user_ref):
         try:
             PROVIDERS.identity_api.assert_user_enabled(
-                user_id=user_ref['id'],
-                user=user_ref)
+                user_id=user_ref['id'], user=user_ref
+            )
         except AssertionError as e:
             LOG.warning(e)
             raise exception.Unauthorized from e
@@ -134,12 +135,14 @@ class BaseUserInfo(provider_api.ProviderAPIMixin, object):
         domain_id = domain_info.get('id')
         domain_name = domain_info.get('name')
         if not domain_id and not domain_name:
-            raise exception.ValidationError(attribute='id or name',
-                                            target='domain')
+            raise exception.ValidationError(
+                attribute='id or name', target='domain'
+            )
         try:
             if domain_name:
                 domain_ref = PROVIDERS.resource_api.get_domain_by_name(
-                    domain_name)
+                    domain_name
+                )
             else:
                 domain_ref = PROVIDERS.resource_api.get_domain(domain_id)
         except exception.DomainNotFound as e:
@@ -150,27 +153,32 @@ class BaseUserInfo(provider_api.ProviderAPIMixin, object):
 
     def _validate_and_normalize_auth_data(self, auth_payload):
         if 'user' not in auth_payload:
-            raise exception.ValidationError(attribute='user',
-                                            target=self.METHOD_NAME)
+            raise exception.ValidationError(
+                attribute='user', target=self.METHOD_NAME
+            )
         user_info = auth_payload['user']
         user_id = user_info.get('id')
         user_name = user_info.get('name')
         domain_ref = {}
         if not user_id and not user_name:
-            raise exception.ValidationError(attribute='id or name',
-                                            target='user')
+            raise exception.ValidationError(
+                attribute='id or name', target='user'
+            )
         try:
             if user_name:
                 if 'domain' not in user_info:
-                    raise exception.ValidationError(attribute='domain',
-                                                    target='user')
+                    raise exception.ValidationError(
+                        attribute='domain', target='user'
+                    )
                 domain_ref = self._lookup_domain(user_info['domain'])
                 user_ref = PROVIDERS.identity_api.get_user_by_name(
-                    user_name, domain_ref['id'])
+                    user_name, domain_ref['id']
+                )
             else:
                 user_ref = PROVIDERS.identity_api.get_user(user_id)
                 domain_ref = PROVIDERS.resource_api.get_domain(
-                    user_ref['domain_id'])
+                    user_ref['domain_id']
+                )
                 self._assert_domain_is_enabled(domain_ref)
         except exception.UserNotFound as e:
             LOG.warning(e)
@@ -196,7 +204,8 @@ class BaseUserInfo(provider_api.ProviderAPIMixin, object):
                 outcome=taxonomy.OUTCOME_FAILURE,
                 target=resource.Resource(typeURI=taxonomy.ACCOUNT_USER),
                 event_type=_NOTIFY_EVENT,
-                reason=audit_reason)
+                reason=audit_reason,
+            )
             raise exception.Unauthorized(e)
         self._assert_user_is_enabled(user_ref)
         self.user_ref = user_ref
@@ -212,7 +221,8 @@ class UserAuthInfo(BaseUserInfo):
 
     def _validate_and_normalize_auth_data(self, auth_payload):
         super(UserAuthInfo, self)._validate_and_normalize_auth_data(
-            auth_payload)
+            auth_payload
+        )
         user_info = auth_payload['user']
         self.password = user_info.get('password')
 
@@ -225,7 +235,8 @@ class TOTPUserInfo(BaseUserInfo):
 
     def _validate_and_normalize_auth_data(self, auth_payload):
         super(TOTPUserInfo, self)._validate_and_normalize_auth_data(
-            auth_payload)
+            auth_payload
+        )
         user_info = auth_payload['user']
         self.passcode = user_info.get('passcode')
 
@@ -240,23 +251,28 @@ class AppCredInfo(BaseUserInfo):
         app_cred_api = PROVIDERS.application_credential_api
         if auth_payload.get('id'):
             app_cred = app_cred_api.get_application_credential(
-                auth_payload['id'])
+                auth_payload['id']
+            )
             self.user_id = app_cred['user_id']
             if not auth_payload.get('user'):
                 auth_payload['user'] = {}
                 auth_payload['user']['id'] = self.user_id
             super(AppCredInfo, self)._validate_and_normalize_auth_data(
-                auth_payload)
+                auth_payload
+            )
         elif auth_payload.get('name'):
             super(AppCredInfo, self)._validate_and_normalize_auth_data(
-                auth_payload)
+                auth_payload
+            )
             hints = driver_hints.Hints()
             hints.add_filter('name', auth_payload['name'])
             app_cred = app_cred_api.list_application_credentials(
-                self.user_id, hints)[0]
+                self.user_id, hints
+            )[0]
             auth_payload['id'] = app_cred['id']
         else:
-            raise exception.ValidationError(attribute='id or name',
-                                            target='application credential')
+            raise exception.ValidationError(
+                attribute='id or name', target='application credential'
+            )
         self.id = auth_payload['id']
         self.secret = auth_payload.get('secret')

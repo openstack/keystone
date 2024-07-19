@@ -24,11 +24,15 @@ from keystone import exception
 class CredentialModel(sql.ModelBase, sql.ModelDictMixinWithExtras):
     __tablename__ = 'credential'
     attributes = [
-        'id', 'user_id', 'project_id', 'encrypted_blob', 'type', 'key_hash'
+        'id',
+        'user_id',
+        'project_id',
+        'encrypted_blob',
+        'type',
+        'key_hash',
     ]
     id = sql.Column(sql.String(64), primary_key=True)
-    user_id = sql.Column(sql.String(64),
-                         nullable=False)
+    user_id = sql.Column(sql.String(64), nullable=False)
     project_id = sql.Column(sql.String(64))
     _encrypted_blob = sql.Column('encrypted_blob', sql.Text(), nullable=False)
     type = sql.Column(sql.String(255), nullable=False)
@@ -64,8 +68,9 @@ class Credential(base.CredentialDriverBase):
     def list_credentials(self, hints):
         with sql.session_for_read() as session:
             credentials = session.query(CredentialModel)
-            credentials = sql.filter_limit_query(CredentialModel,
-                                                 credentials, hints)
+            credentials = sql.filter_limit_query(
+                CredentialModel, credentials, hints
+            )
             return [s.to_dict() for s in credentials]
 
     def list_credentials_for_user(self, user_id, type=None):

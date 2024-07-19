@@ -48,8 +48,9 @@ class Base(base.AuthMethodHandler, metaclass=abc.ABCMeta):
             raise exception.Unauthorized(msg)
 
         response_data['user_id'] = user_ref['id']
-        return base.AuthHandlerResponse(status=True, response_body=None,
-                                        response_data=response_data)
+        return base.AuthHandlerResponse(
+            status=True, response_body=None, response_data=response_data
+        )
 
     @abc.abstractmethod
     def _authenticate(self):
@@ -64,8 +65,8 @@ class DefaultDomain(Base):
     def _authenticate(self):
         """Use remote_user to look up the user in the identity backend."""
         return PROVIDERS.identity_api.get_user_by_name(
-            flask.request.remote_user,
-            CONF.identity.default_domain_id)
+            flask.request.remote_user, CONF.identity.default_domain_id
+        )
 
 
 class Domain(Base):
@@ -83,7 +84,8 @@ class Domain(Base):
             domain_id = CONF.identity.default_domain_id
 
         return PROVIDERS.identity_api.get_user_by_name(
-            flask.request.remote_user, domain_id)
+            flask.request.remote_user, domain_id
+        )
 
 
 class KerberosDomain(Domain):

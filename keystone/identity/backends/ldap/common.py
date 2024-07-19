@@ -35,16 +35,19 @@ from keystone.i18n import _
 LOG = log.getLogger(__name__)
 
 LDAP_VALUES = {'TRUE': True, 'FALSE': False}
-LDAP_SCOPES = {'one': ldap.SCOPE_ONELEVEL,
-               'sub': ldap.SCOPE_SUBTREE}
-LDAP_DEREF = {'always': ldap.DEREF_ALWAYS,
-              'default': None,
-              'finding': ldap.DEREF_FINDING,
-              'never': ldap.DEREF_NEVER,
-              'searching': ldap.DEREF_SEARCHING}
-LDAP_TLS_CERTS = {'never': ldap.OPT_X_TLS_NEVER,
-                  'demand': ldap.OPT_X_TLS_DEMAND,
-                  'allow': ldap.OPT_X_TLS_ALLOW}
+LDAP_SCOPES = {'one': ldap.SCOPE_ONELEVEL, 'sub': ldap.SCOPE_SUBTREE}
+LDAP_DEREF = {
+    'always': ldap.DEREF_ALWAYS,
+    'default': None,
+    'finding': ldap.DEREF_FINDING,
+    'never': ldap.DEREF_NEVER,
+    'searching': ldap.DEREF_SEARCHING,
+}
+LDAP_TLS_CERTS = {
+    'never': ldap.OPT_X_TLS_NEVER,
+    'demand': ldap.OPT_X_TLS_DEMAND,
+    'allow': ldap.OPT_X_TLS_ALLOW,
+}
 
 
 # RFC 4511 (The LDAP Protocol) defines a list containing only the OID '1.1' to
@@ -74,9 +77,9 @@ def utf8_encode(value):
         return value
     else:
         value_cls_name = reflection.get_class_name(
-            value, fully_qualified=False)
-        raise TypeError("value must be basestring, "
-                        "not %s" % value_cls_name)
+            value, fully_qualified=False
+        )
+        raise TypeError("value must be basestring, " "not %s" % value_cls_name)
 
 
 _utf8_decoder = codecs.getdecoder('utf-8')
@@ -187,8 +190,10 @@ def convert_ldap_result(ldap_result):
                 LOG.debug('Unable to decode value for attribute %s', kind)
         py_result.append((dn, ldap_attrs))
     if at_least_one_referral:
-        LOG.debug('Referrals were returned and ignored. Enable referral '
-                  'chasing in keystone.conf via [ldap] chase_referrals')
+        LOG.debug(
+            'Referrals were returned and ignored. Enable referral '
+            'chasing in keystone.conf via [ldap] chase_referrals'
+        )
 
     return py_result
 
@@ -207,21 +212,29 @@ def parse_deref(opt):
     try:
         return LDAP_DEREF[opt]
     except KeyError:
-        raise ValueError(_('Invalid LDAP deref option: %(option)s. '
-                           'Choose one of: %(options)s') %
-                         {'option': opt,
-                          'options': ', '.join(LDAP_DEREF.keys()), })
+        raise ValueError(
+            _(
+                'Invalid LDAP deref option: %(option)s. '
+                'Choose one of: %(options)s'
+            )
+            % {
+                'option': opt,
+                'options': ', '.join(LDAP_DEREF.keys()),
+            }
+        )
 
 
 def parse_tls_cert(opt):
     try:
         return LDAP_TLS_CERTS[opt]
     except KeyError:
-        raise ValueError(_(
-            'Invalid LDAP TLS certs option: %(option)s. '
-            'Choose one of: %(options)s') % {
-                'option': opt,
-                'options': ', '.join(LDAP_TLS_CERTS.keys())})
+        raise ValueError(
+            _(
+                'Invalid LDAP TLS certs option: %(option)s. '
+                'Choose one of: %(options)s'
+            )
+            % {'option': opt, 'options': ', '.join(LDAP_TLS_CERTS.keys())}
+        )
 
 
 def ldap_scope(scope):
@@ -229,9 +242,9 @@ def ldap_scope(scope):
         return LDAP_SCOPES[scope]
     except KeyError:
         raise ValueError(
-            _('Invalid LDAP scope: %(scope)s. Choose one of: %(options)s') % {
-                'scope': scope,
-                'options': ', '.join(LDAP_SCOPES.keys())})
+            _('Invalid LDAP scope: %(scope)s. Choose one of: %(options)s')
+            % {'scope': scope, 'options': ', '.join(LDAP_SCOPES.keys())}
+        )
 
 
 def prep_case_insensitive(value):
@@ -337,7 +350,7 @@ def dn_startswith(descendant_dn, dn):
         return False
 
     # Use the last len(dn) RDNs.
-    return is_dn_equal(descendant_dn[-len(dn):], dn)
+    return is_dn_equal(descendant_dn[-len(dn) :], dn)
 
 
 class LDAPHandler(object, metaclass=abc.ABCMeta):
@@ -441,12 +454,25 @@ class LDAPHandler(object, metaclass=abc.ABCMeta):
         self.conn = conn
 
     @abc.abstractmethod
-    def connect(self, url, page_size=0, alias_dereferencing=None,
-                use_tls=False, tls_cacertfile=None, tls_cacertdir=None,
-                tls_req_cert=ldap.OPT_X_TLS_DEMAND, chase_referrals=None,
-                debug_level=None, conn_timeout=None, use_pool=None,
-                pool_size=None, pool_retry_max=None, pool_retry_delay=None,
-                pool_conn_timeout=None, pool_conn_lifetime=None):
+    def connect(
+        self,
+        url,
+        page_size=0,
+        alias_dereferencing=None,
+        use_tls=False,
+        tls_cacertfile=None,
+        tls_cacertdir=None,
+        tls_req_cert=ldap.OPT_X_TLS_DEMAND,
+        chase_referrals=None,
+        debug_level=None,
+        conn_timeout=None,
+        use_pool=None,
+        pool_size=None,
+        pool_retry_max=None,
+        pool_retry_delay=None,
+        pool_conn_timeout=None,
+        pool_conn_lifetime=None,
+    ):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
@@ -458,8 +484,9 @@ class LDAPHandler(object, metaclass=abc.ABCMeta):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def simple_bind_s(self, who='', cred='',
-                      serverctrls=None, clientctrls=None):
+    def simple_bind_s(
+        self, who='', cred='', serverctrls=None, clientctrls=None
+    ):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
@@ -471,20 +498,35 @@ class LDAPHandler(object, metaclass=abc.ABCMeta):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def search_s(self, base, scope,
-                 filterstr='(objectClass=*)', attrlist=None, attrsonly=0):
+    def search_s(
+        self,
+        base,
+        scope,
+        filterstr='(objectClass=*)',
+        attrlist=None,
+        attrsonly=0,
+    ):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def search_ext(self, base, scope,
-                   filterstr='(objectClass=*)', attrlist=None, attrsonly=0,
-                   serverctrls=None, clientctrls=None,
-                   timeout=-1, sizelimit=0):
+    def search_ext(
+        self,
+        base,
+        scope,
+        filterstr='(objectClass=*)',
+        attrlist=None,
+        attrsonly=0,
+        serverctrls=None,
+        clientctrls=None,
+        timeout=-1,
+        sizelimit=0,
+    ):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def result3(self, msgid=ldap.RES_ANY, all=1, timeout=None,
-                resp_ctrl_classes=None):
+    def result3(
+        self, msgid=ldap.RES_ANY, all=1, timeout=None, resp_ctrl_classes=None
+    ):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
@@ -508,20 +550,35 @@ class PythonLDAPHandler(LDAPHandler):
 
     """
 
-    def connect(self, url, page_size=0, alias_dereferencing=None,
-                use_tls=False, tls_cacertfile=None, tls_cacertdir=None,
-                tls_req_cert=ldap.OPT_X_TLS_DEMAND, chase_referrals=None,
-                debug_level=None, conn_timeout=None, use_pool=None,
-                pool_size=None, pool_retry_max=None, pool_retry_delay=None,
-                pool_conn_timeout=None, pool_conn_lifetime=None):
+    def connect(
+        self,
+        url,
+        page_size=0,
+        alias_dereferencing=None,
+        use_tls=False,
+        tls_cacertfile=None,
+        tls_cacertdir=None,
+        tls_req_cert=ldap.OPT_X_TLS_DEMAND,
+        chase_referrals=None,
+        debug_level=None,
+        conn_timeout=None,
+        use_pool=None,
+        pool_size=None,
+        pool_retry_max=None,
+        pool_retry_delay=None,
+        pool_conn_timeout=None,
+        pool_conn_lifetime=None,
+    ):
 
-        _common_ldap_initialization(url=url,
-                                    use_tls=use_tls,
-                                    tls_cacertfile=tls_cacertfile,
-                                    tls_cacertdir=tls_cacertdir,
-                                    tls_req_cert=tls_req_cert,
-                                    debug_level=debug_level,
-                                    timeout=conn_timeout)
+        _common_ldap_initialization(
+            url=url,
+            use_tls=use_tls,
+            tls_cacertfile=tls_cacertfile,
+            tls_cacertdir=tls_cacertdir,
+            tls_req_cert=tls_req_cert,
+            debug_level=debug_level,
+            timeout=conn_timeout,
+        )
 
         self.conn = ldap.initialize(url)
         self.conn.protocol_version = ldap.VERSION3
@@ -542,8 +599,9 @@ class PythonLDAPHandler(LDAPHandler):
     def get_option(self, option):
         return self.conn.get_option(option)
 
-    def simple_bind_s(self, who='', cred='',
-                      serverctrls=None, clientctrls=None):
+    def simple_bind_s(
+        self, who='', cred='', serverctrls=None, clientctrls=None
+    ):
         return self.conn.simple_bind_s(who, cred, serverctrls, clientctrls)
 
     def unbind_s(self):
@@ -552,22 +610,43 @@ class PythonLDAPHandler(LDAPHandler):
     def add_s(self, dn, modlist):
         return self.conn.add_s(dn, modlist)
 
-    def search_s(self, base, scope,
-                 filterstr='(objectClass=*)', attrlist=None, attrsonly=0):
-        return self.conn.search_s(base, scope, filterstr,
-                                  attrlist, attrsonly)
+    def search_s(
+        self,
+        base,
+        scope,
+        filterstr='(objectClass=*)',
+        attrlist=None,
+        attrsonly=0,
+    ):
+        return self.conn.search_s(base, scope, filterstr, attrlist, attrsonly)
 
-    def search_ext(self, base, scope,
-                   filterstr='(objectClass=*)', attrlist=None, attrsonly=0,
-                   serverctrls=None, clientctrls=None,
-                   timeout=-1, sizelimit=0):
-        return self.conn.search_ext(base, scope,
-                                    filterstr, attrlist, attrsonly,
-                                    serverctrls, clientctrls,
-                                    timeout, sizelimit)
+    def search_ext(
+        self,
+        base,
+        scope,
+        filterstr='(objectClass=*)',
+        attrlist=None,
+        attrsonly=0,
+        serverctrls=None,
+        clientctrls=None,
+        timeout=-1,
+        sizelimit=0,
+    ):
+        return self.conn.search_ext(
+            base,
+            scope,
+            filterstr,
+            attrlist,
+            attrsonly,
+            serverctrls,
+            clientctrls,
+            timeout,
+            sizelimit,
+        )
 
-    def result3(self, msgid=ldap.RES_ANY, all=1, timeout=None,
-                resp_ctrl_classes=None):
+    def result3(
+        self, msgid=ldap.RES_ANY, all=1, timeout=None, resp_ctrl_classes=None
+    ):
         # The resp_ctrl_classes parameter is a recent addition to the
         # API. It defaults to None. We do not anticipate using it.
         # To run with older versions of python-ldap we do not pass it.
@@ -577,15 +656,26 @@ class PythonLDAPHandler(LDAPHandler):
         return self.conn.modify_s(dn, modlist)
 
 
-def _common_ldap_initialization(url, use_tls=False, tls_cacertfile=None,
-                                tls_cacertdir=None, tls_req_cert=None,
-                                debug_level=None, timeout=None):
+def _common_ldap_initialization(
+    url,
+    use_tls=False,
+    tls_cacertfile=None,
+    tls_cacertdir=None,
+    tls_req_cert=None,
+    debug_level=None,
+    timeout=None,
+):
     """LDAP initialization for PythonLDAPHandler and PooledLDAPHandler."""
     LOG.debug('LDAP init: url=%s', url)
-    LOG.debug('LDAP init: use_tls=%s tls_cacertfile=%s tls_cacertdir=%s '
-              'tls_req_cert=%s tls_avail=%s',
-              use_tls, tls_cacertfile, tls_cacertdir,
-              tls_req_cert, ldap.TLS_AVAIL)
+    LOG.debug(
+        'LDAP init: use_tls=%s tls_cacertfile=%s tls_cacertdir=%s '
+        'tls_req_cert=%s tls_avail=%s',
+        use_tls,
+        tls_cacertfile,
+        tls_cacertdir,
+        tls_req_cert,
+        ldap.TLS_AVAIL,
+    )
 
     if debug_level is not None:
         ldap.set_option(ldap.OPT_DEBUG_LEVEL, debug_level)
@@ -602,12 +692,18 @@ def _common_ldap_initialization(url, use_tls=False, tls_cacertfile=None,
     # The certificate trust options apply for both LDAPS and TLS.
     if use_tls or using_ldaps:
         if not ldap.TLS_AVAIL:
-            raise ValueError(_('Invalid LDAP TLS_AVAIL option: %s. TLS '
-                               'not available') % ldap.TLS_AVAIL)
+            raise ValueError(
+                _('Invalid LDAP TLS_AVAIL option: %s. TLS ' 'not available')
+                % ldap.TLS_AVAIL
+            )
         if not tls_cacertfile and not tls_cacertdir:
-            raise ValueError(_('You need to set tls_cacertfile or '
-                               'tls_cacertdir if use_tls is true or '
-                               'url uses ldaps: scheme.'))
+            raise ValueError(
+                _(
+                    'You need to set tls_cacertfile or '
+                    'tls_cacertdir if use_tls is true or '
+                    'url uses ldaps: scheme.'
+                )
+            )
 
         if tls_cacertfile:
             # NOTE(topol)
@@ -617,9 +713,10 @@ def _common_ldap_initialization(url, use_tls=False, tls_cacertfile=None,
             # works but these values are ignored when setting them on the
             # connection
             if not os.path.isfile(tls_cacertfile):
-                raise IOError(_("tls_cacertfile %s not found "
-                                "or is not a file") %
-                              tls_cacertfile)
+                raise IOError(
+                    _("tls_cacertfile %s not found " "or is not a file")
+                    % tls_cacertfile
+                )
             ldap.set_option(ldap.OPT_X_TLS_CACERTFILE, tls_cacertfile)
         elif tls_cacertdir:
             # NOTE(topol)
@@ -629,15 +726,17 @@ def _common_ldap_initialization(url, use_tls=False, tls_cacertfile=None,
             # works but these values are ignored when setting them on the
             # connection
             if not os.path.isdir(tls_cacertdir):
-                raise IOError(_("tls_cacertdir %s not found "
-                                "or is not a directory") %
-                              tls_cacertdir)
+                raise IOError(
+                    _("tls_cacertdir %s not found " "or is not a directory")
+                    % tls_cacertdir
+                )
             ldap.set_option(ldap.OPT_X_TLS_CACERTDIR, tls_cacertdir)
         if tls_req_cert in list(LDAP_TLS_CERTS.values()):
             ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, tls_req_cert)
         else:
-            LOG.debug('LDAP TLS: invalid TLS_REQUIRE_CERT Option=%s',
-                      tls_req_cert)
+            LOG.debug(
+                'LDAP TLS: invalid TLS_REQUIRE_CERT Option=%s', tls_req_cert
+            )
 
 
 class AsynchronousMessage(object):
@@ -678,11 +777,13 @@ def use_conn_pool(func):
     This adds connection object to decorated API as next argument after self.
 
     """
+
     def wrapper(self, *args, **kwargs):
         # assert isinstance(self, PooledLDAPHandler)
         with self._get_pool_connection() as conn:
             self._apply_options(conn)
             return func(self, conn, *args, **kwargs)
+
     return wrapper
 
 
@@ -730,20 +831,35 @@ class PooledLDAPHandler(LDAPHandler):
         self.use_auth_pool = use_auth_pool
         self.conn_pool = None
 
-    def connect(self, url, page_size=0, alias_dereferencing=None,
-                use_tls=False, tls_cacertfile=None, tls_cacertdir=None,
-                tls_req_cert=ldap.OPT_X_TLS_DEMAND, chase_referrals=None,
-                debug_level=None, conn_timeout=None, use_pool=None,
-                pool_size=None, pool_retry_max=None, pool_retry_delay=None,
-                pool_conn_timeout=None, pool_conn_lifetime=None):
+    def connect(
+        self,
+        url,
+        page_size=0,
+        alias_dereferencing=None,
+        use_tls=False,
+        tls_cacertfile=None,
+        tls_cacertdir=None,
+        tls_req_cert=ldap.OPT_X_TLS_DEMAND,
+        chase_referrals=None,
+        debug_level=None,
+        conn_timeout=None,
+        use_pool=None,
+        pool_size=None,
+        pool_retry_max=None,
+        pool_retry_delay=None,
+        pool_conn_timeout=None,
+        pool_conn_lifetime=None,
+    ):
 
-        _common_ldap_initialization(url=url,
-                                    use_tls=use_tls,
-                                    tls_cacertfile=tls_cacertfile,
-                                    tls_cacertdir=tls_cacertdir,
-                                    tls_req_cert=tls_req_cert,
-                                    debug_level=debug_level,
-                                    timeout=pool_conn_timeout)
+        _common_ldap_initialization(
+            url=url,
+            use_tls=use_tls,
+            tls_cacertfile=tls_cacertfile,
+            tls_cacertdir=tls_cacertdir,
+            tls_req_cert=tls_req_cert,
+            debug_level=debug_level,
+            timeout=pool_conn_timeout,
+        )
 
         self.page_size = page_size
 
@@ -769,7 +885,8 @@ class PooledLDAPHandler(LDAPHandler):
                 timeout=pool_conn_timeout,
                 connector_cls=self.Connector,
                 use_tls=use_tls,
-                max_lifetime=pool_conn_lifetime)
+                max_lifetime=pool_conn_lifetime,
+            )
             self.connection_pools[pool_url] = self.conn_pool
 
     def set_option(self, option, invalue):
@@ -794,8 +911,9 @@ class PooledLDAPHandler(LDAPHandler):
     def _get_pool_connection(self):
         return self.conn_pool.connection(self.who, self.cred)
 
-    def simple_bind_s(self, who='', cred='',
-                      serverctrls=None, clientctrls=None):
+    def simple_bind_s(
+        self, who='', cred='', serverctrls=None, clientctrls=None
+    ):
         # Not using use_conn_pool decorator here as this API takes cred as
         # input.
         self.who = who
@@ -814,15 +932,29 @@ class PooledLDAPHandler(LDAPHandler):
         return conn.add_s(dn, modlist)
 
     @use_conn_pool
-    def search_s(self, conn, base, scope,
-                 filterstr='(objectClass=*)', attrlist=None, attrsonly=0):
-        return conn.search_s(base, scope, filterstr, attrlist,
-                             attrsonly)
+    def search_s(
+        self,
+        conn,
+        base,
+        scope,
+        filterstr='(objectClass=*)',
+        attrlist=None,
+        attrsonly=0,
+    ):
+        return conn.search_s(base, scope, filterstr, attrlist, attrsonly)
 
-    def search_ext(self, base, scope,
-                   filterstr='(objectClass=*)', attrlist=None, attrsonly=0,
-                   serverctrls=None, clientctrls=None,
-                   timeout=-1, sizelimit=0):
+    def search_ext(
+        self,
+        base,
+        scope,
+        filterstr='(objectClass=*)',
+        attrlist=None,
+        attrsonly=0,
+        serverctrls=None,
+        clientctrls=None,
+        timeout=-1,
+        sizelimit=0,
+    ):
         """Return an AsynchronousMessage instance, it asynchronous API.
 
         The AsynchronousMessage instance can be safely used in a call to
@@ -839,17 +971,23 @@ class PooledLDAPHandler(LDAPHandler):
         conn_ctxt = self._get_pool_connection()
         conn = conn_ctxt.__enter__()
         try:
-            msgid = conn.search_ext(base, scope,
-                                    filterstr, attrlist, attrsonly,
-                                    serverctrls, clientctrls,
-                                    timeout, sizelimit)
+            msgid = conn.search_ext(
+                base,
+                scope,
+                filterstr,
+                attrlist,
+                attrsonly,
+                serverctrls,
+                clientctrls,
+                timeout,
+                sizelimit,
+            )
         except Exception:
             conn_ctxt.__exit__(*sys.exc_info())
             raise
         return AsynchronousMessage(msgid, conn, conn_ctxt)
 
-    def result3(self, message, all=1, timeout=None,
-                resp_ctrl_classes=None):
+    def result3(self, message, all=1, timeout=None, resp_ctrl_classes=None):
         """Wait for and return the result to an asynchronous message.
 
         This method returns the result of an operation previously initiated by
@@ -930,24 +1068,44 @@ class KeystoneLDAPHandler(LDAPHandler):
         # Disable the pagination from now on
         self.page_size = 0
 
-    def connect(self, url, page_size=0, alias_dereferencing=None,
-                use_tls=False, tls_cacertfile=None, tls_cacertdir=None,
-                tls_req_cert=ldap.OPT_X_TLS_DEMAND, chase_referrals=None,
-                debug_level=None, conn_timeout=None, use_pool=None,
-                pool_size=None, pool_retry_max=None, pool_retry_delay=None,
-                pool_conn_timeout=None, pool_conn_lifetime=None):
+    def connect(
+        self,
+        url,
+        page_size=0,
+        alias_dereferencing=None,
+        use_tls=False,
+        tls_cacertfile=None,
+        tls_cacertdir=None,
+        tls_req_cert=ldap.OPT_X_TLS_DEMAND,
+        chase_referrals=None,
+        debug_level=None,
+        conn_timeout=None,
+        use_pool=None,
+        pool_size=None,
+        pool_retry_max=None,
+        pool_retry_delay=None,
+        pool_conn_timeout=None,
+        pool_conn_lifetime=None,
+    ):
         self.page_size = page_size
-        return self.conn.connect(url, page_size, alias_dereferencing,
-                                 use_tls, tls_cacertfile, tls_cacertdir,
-                                 tls_req_cert, chase_referrals,
-                                 debug_level=debug_level,
-                                 conn_timeout=conn_timeout,
-                                 use_pool=use_pool,
-                                 pool_size=pool_size,
-                                 pool_retry_max=pool_retry_max,
-                                 pool_retry_delay=pool_retry_delay,
-                                 pool_conn_timeout=pool_conn_timeout,
-                                 pool_conn_lifetime=pool_conn_lifetime)
+        return self.conn.connect(
+            url,
+            page_size,
+            alias_dereferencing,
+            use_tls,
+            tls_cacertfile,
+            tls_cacertdir,
+            tls_req_cert,
+            chase_referrals,
+            debug_level=debug_level,
+            conn_timeout=conn_timeout,
+            use_pool=use_pool,
+            pool_size=pool_size,
+            pool_retry_max=pool_retry_max,
+            pool_retry_delay=pool_retry_delay,
+            pool_conn_timeout=pool_conn_timeout,
+            pool_conn_lifetime=pool_conn_lifetime,
+        )
 
     def set_option(self, option, invalue):
         return self.conn.set_option(option, invalue)
@@ -955,48 +1113,66 @@ class KeystoneLDAPHandler(LDAPHandler):
     def get_option(self, option):
         return self.conn.get_option(option)
 
-    def simple_bind_s(self, who='', cred='',
-                      serverctrls=None, clientctrls=None):
+    def simple_bind_s(
+        self, who='', cred='', serverctrls=None, clientctrls=None
+    ):
         LOG.debug('LDAP bind: who=%s', who)
-        return self.conn.simple_bind_s(who, cred,
-                                       serverctrls=serverctrls,
-                                       clientctrls=clientctrls)
+        return self.conn.simple_bind_s(
+            who, cred, serverctrls=serverctrls, clientctrls=clientctrls
+        )
 
     def unbind_s(self):
         LOG.debug('LDAP unbind')
         return self.conn.unbind_s()
 
     def add_s(self, dn, modlist):
-        ldap_attrs = [(kind, [py2ldap(x) for x in safe_iter(values)])
-                      for kind, values in modlist]
-        logging_attrs = [(kind, values
-                         if kind != 'userPassword'
-                         else ['****'])
-                         for kind, values in ldap_attrs]
-        LOG.debug('LDAP add: dn=%s attrs=%s',
-                  dn, logging_attrs)
-        ldap_attrs_utf8 = [(kind, [utf8_encode(x) for x in safe_iter(values)])
-                           for kind, values in ldap_attrs]
+        ldap_attrs = [
+            (kind, [py2ldap(x) for x in safe_iter(values)])
+            for kind, values in modlist
+        ]
+        logging_attrs = [
+            (kind, values if kind != 'userPassword' else ['****'])
+            for kind, values in ldap_attrs
+        ]
+        LOG.debug('LDAP add: dn=%s attrs=%s', dn, logging_attrs)
+        ldap_attrs_utf8 = [
+            (kind, [utf8_encode(x) for x in safe_iter(values)])
+            for kind, values in ldap_attrs
+        ]
         return self.conn.add_s(dn, ldap_attrs_utf8)
 
-    def search_s(self, base, scope,
-                 filterstr='(objectClass=*)', attrlist=None, attrsonly=0):
+    def search_s(
+        self,
+        base,
+        scope,
+        filterstr='(objectClass=*)',
+        attrlist=None,
+        attrsonly=0,
+    ):
         # NOTE(morganfainberg): Remove "None" singletons from this list, which
         # allows us to set mapped attributes to "None" as defaults in config.
         # Without this filtering, the ldap query would raise a TypeError since
         # attrlist is expected to be an iterable of strings.
         if attrlist is not None:
             attrlist = [attr for attr in attrlist if attr is not None]
-        LOG.debug('LDAP search: base=%s scope=%s filterstr=%s '
-                  'attrs=%s attrsonly=%s',
-                  base, scope, filterstr, attrlist, attrsonly)
+        LOG.debug(
+            'LDAP search: base=%s scope=%s filterstr=%s '
+            'attrs=%s attrsonly=%s',
+            base,
+            scope,
+            filterstr,
+            attrlist,
+            attrsonly,
+        )
         if self.page_size:
-            ldap_result = self._paged_search_s(base, scope,
-                                               filterstr, attrlist)
+            ldap_result = self._paged_search_s(
+                base, scope, filterstr, attrlist
+            )
         else:
             try:
-                ldap_result = self.conn.search_s(base, scope, filterstr,
-                                                 attrlist, attrsonly)
+                ldap_result = self.conn.search_s(
+                    base, scope, filterstr, attrlist, attrsonly
+                )
             except ldap.SIZELIMIT_EXCEEDED:
                 raise exception.LDAPSizeLimitExceeded()
 
@@ -1004,21 +1180,45 @@ class KeystoneLDAPHandler(LDAPHandler):
 
         return py_result
 
-    def search_ext(self, base, scope,
-                   filterstr='(objectClass=*)', attrlist=None, attrsonly=0,
-                   serverctrls=None, clientctrls=None,
-                   timeout=-1, sizelimit=0):
+    def search_ext(
+        self,
+        base,
+        scope,
+        filterstr='(objectClass=*)',
+        attrlist=None,
+        attrsonly=0,
+        serverctrls=None,
+        clientctrls=None,
+        timeout=-1,
+        sizelimit=0,
+    ):
         if attrlist is not None:
             attrlist = [attr for attr in attrlist if attr is not None]
-        LOG.debug('LDAP search_ext: base=%s scope=%s filterstr=%s '
-                  'attrs=%s attrsonly=%s '
-                  'serverctrls=%s clientctrls=%s timeout=%s sizelimit=%s',
-                  base, scope, filterstr, attrlist, attrsonly,
-                  serverctrls, clientctrls, timeout, sizelimit)
-        return self.conn.search_ext(base, scope,
-                                    filterstr, attrlist, attrsonly,
-                                    serverctrls, clientctrls,
-                                    timeout, sizelimit)
+        LOG.debug(
+            'LDAP search_ext: base=%s scope=%s filterstr=%s '
+            'attrs=%s attrsonly=%s '
+            'serverctrls=%s clientctrls=%s timeout=%s sizelimit=%s',
+            base,
+            scope,
+            filterstr,
+            attrlist,
+            attrsonly,
+            serverctrls,
+            clientctrls,
+            timeout,
+            sizelimit,
+        )
+        return self.conn.search_ext(
+            base,
+            scope,
+            filterstr,
+            attrlist,
+            attrsonly,
+            serverctrls,
+            clientctrls,
+            timeout,
+            sizelimit,
+        )
 
     def _paged_search_s(self, base, scope, filterstr, attrlist=None):
         res = []
@@ -1031,28 +1231,25 @@ class KeystoneLDAPHandler(LDAPHandler):
             lc = ldap.controls.SimplePagedResultsControl(
                 controlType=ldap.LDAP_CONTROL_PAGE_OID,
                 criticality=True,
-                controlValue=(self.page_size, ''))
+                controlValue=(self.page_size, ''),
+            )
             page_ctrl_oid = ldap.LDAP_CONTROL_PAGE_OID
         else:
             lc = ldap.controls.libldap.SimplePagedResultsControl(
-                criticality=True,
-                size=self.page_size,
-                cookie='')
+                criticality=True, size=self.page_size, cookie=''
+            )
             page_ctrl_oid = ldap.controls.SimplePagedResultsControl.controlType
 
-        message = self.conn.search_ext(base,
-                                       scope,
-                                       filterstr,
-                                       attrlist,
-                                       serverctrls=[lc])
+        message = self.conn.search_ext(
+            base, scope, filterstr, attrlist, serverctrls=[lc]
+        )
         # Endless loop request pages on ldap server until it has no data
         while True:
             # Request to the ldap server a page with 'page_size' entries
             rtype, rdata, rmsgid, serverctrls = self.conn.result3(message)
             # Receive the data
             res.extend(rdata)
-            pctrls = [c for c in serverctrls
-                      if c.controlType == page_ctrl_oid]
+            pctrls = [c for c in serverctrls if c.controlType == page_ctrl_oid]
             if pctrls:
                 # LDAP server supports pagination
                 if use_old_paging_api:
@@ -1064,29 +1261,36 @@ class KeystoneLDAPHandler(LDAPHandler):
                 if cookie:
                     # There is more data still on the server
                     # so we request another page
-                    message = self.conn.search_ext(base,
-                                                   scope,
-                                                   filterstr,
-                                                   attrlist,
-                                                   serverctrls=[lc])
+                    message = self.conn.search_ext(
+                        base, scope, filterstr, attrlist, serverctrls=[lc]
+                    )
                 else:
                     # Exit condition no more data on server
                     break
             else:
-                LOG.warning('LDAP Server does not support paging. '
-                            'Disable paging in keystone.conf to '
-                            'avoid this message.')
+                LOG.warning(
+                    'LDAP Server does not support paging. '
+                    'Disable paging in keystone.conf to '
+                    'avoid this message.'
+                )
                 self._disable_paging()
                 break
         return res
 
-    def result3(self, msgid=ldap.RES_ANY, all=1, timeout=None,
-                resp_ctrl_classes=None):
+    def result3(
+        self, msgid=ldap.RES_ANY, all=1, timeout=None, resp_ctrl_classes=None
+    ):
         ldap_result = self.conn.result3(msgid, all, timeout, resp_ctrl_classes)
 
-        LOG.debug('LDAP result3: msgid=%s all=%s timeout=%s '
-                  'resp_ctrl_classes=%s ldap_result=%s',
-                  msgid, all, timeout, resp_ctrl_classes, ldap_result)
+        LOG.debug(
+            'LDAP result3: msgid=%s all=%s timeout=%s '
+            'resp_ctrl_classes=%s ldap_result=%s',
+            msgid,
+            all,
+            timeout,
+            resp_ctrl_classes,
+            ldap_result,
+        )
 
         # ldap_result returned from result3 is a tuple of
         # (rtype, rdata, rmsgid, serverctrls). We don't need use of these,
@@ -1097,20 +1301,36 @@ class KeystoneLDAPHandler(LDAPHandler):
 
     def modify_s(self, dn, modlist):
         ldap_modlist = [
-            (op, kind, (None if values is None
-                        else [py2ldap(x) for x in safe_iter(values)]))
-            for op, kind, values in modlist]
+            (
+                op,
+                kind,
+                (
+                    None
+                    if values is None
+                    else [py2ldap(x) for x in safe_iter(values)]
+                ),
+            )
+            for op, kind, values in modlist
+        ]
 
-        logging_modlist = [(op, kind, (values if kind != 'userPassword'
-                           else ['****']))
-                           for op, kind, values in ldap_modlist]
-        LOG.debug('LDAP modify: dn=%s modlist=%s',
-                  dn, logging_modlist)
+        logging_modlist = [
+            (op, kind, (values if kind != 'userPassword' else ['****']))
+            for op, kind, values in ldap_modlist
+        ]
+        LOG.debug('LDAP modify: dn=%s modlist=%s', dn, logging_modlist)
 
         ldap_modlist_utf8 = [
-            (op, kind, (None if values is None
-                        else [utf8_encode(x) for x in safe_iter(values)]))
-            for op, kind, values in ldap_modlist]
+            (
+                op,
+                kind,
+                (
+                    None
+                    if values is None
+                    else [utf8_encode(x) for x in safe_iter(values)]
+                ),
+            )
+            for op, kind, values in ldap_modlist
+        ]
         return self.conn.modify_s(dn, ldap_modlist_utf8)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -1202,30 +1422,35 @@ class BaseLdap(object):
         self.auth_pool_conn_lifetime = conf.ldap.auth_pool_connection_lifetime
 
         if self.options_name is not None:
-            self.tree_dn = (
-                getattr(conf.ldap, '%s_tree_dn' % self.options_name)
-                or '%s,%s' % (self.DEFAULT_OU, conf.ldap.suffix))
+            self.tree_dn = getattr(
+                conf.ldap, '%s_tree_dn' % self.options_name
+            ) or '%s,%s' % (self.DEFAULT_OU, conf.ldap.suffix)
 
             idatt = '%s_id_attribute' % self.options_name
             self.id_attr = getattr(conf.ldap, idatt) or self.DEFAULT_ID_ATTR
 
             objclass = '%s_objectclass' % self.options_name
-            self.object_class = (getattr(conf.ldap, objclass)
-                                 or self.DEFAULT_OBJECTCLASS)
+            self.object_class = (
+                getattr(conf.ldap, objclass) or self.DEFAULT_OBJECTCLASS
+            )
 
             for k, v in self.attribute_options_names.items():
                 v = '%s_%s_attribute' % (self.options_name, v)
                 self.attribute_mapping[k] = getattr(conf.ldap, v)
 
-            attr_mapping_opt = ('%s_additional_attribute_mapping' %
-                                self.options_name)
-            attr_mapping = (getattr(conf.ldap, attr_mapping_opt)
-                            or self.DEFAULT_EXTRA_ATTR_MAPPING)
+            attr_mapping_opt = (
+                '%s_additional_attribute_mapping' % self.options_name
+            )
+            attr_mapping = (
+                getattr(conf.ldap, attr_mapping_opt)
+                or self.DEFAULT_EXTRA_ATTR_MAPPING
+            )
             self.extra_attr_mapping = self._parse_extra_attrs(attr_mapping)
 
             ldap_filter = '%s_filter' % self.options_name
-            self.ldap_filter = getattr(conf.ldap,
-                                       ldap_filter) or self.DEFAULT_FILTER
+            self.ldap_filter = (
+                getattr(conf.ldap, ldap_filter) or self.DEFAULT_FILTER
+            )
 
             member_attribute = '%s_member_attribute' % self.options_name
             self.member_attribute = getattr(conf.ldap, member_attribute, None)
@@ -1254,7 +1479,8 @@ class BaseLdap(object):
                 LOG.warning(
                     'Invalid additional attribute mapping: "%s". '
                     'Format must be <ldap_attribute>:<keystone_attribute>',
-                    item)
+                    item,
+                )
                 continue
             mapping[ldap_attr] = attr_map
         return mapping
@@ -1271,8 +1497,9 @@ class BaseLdap(object):
                 pool_size = self.auth_pool_size
                 pool_conn_lifetime = self.auth_pool_conn_lifetime
 
-        conn = _get_connection(self.LDAP_URL, use_pool,
-                               use_auth_pool=end_user_auth)
+        conn = _get_connection(
+            self.LDAP_URL, use_pool, use_auth_pool=end_user_auth
+        )
 
         conn = KeystoneLDAPHandler(conn=conn)
 
@@ -1280,22 +1507,24 @@ class BaseLdap(object):
         # exist. If that is the case, the bind attempt will
         # fail with a server down exception.
         try:
-            conn.connect(self.LDAP_URL,
-                         page_size=self.page_size,
-                         alias_dereferencing=self.alias_dereferencing,
-                         use_tls=self.use_tls,
-                         tls_cacertfile=self.tls_cacertfile,
-                         tls_cacertdir=self.tls_cacertdir,
-                         tls_req_cert=self.tls_req_cert,
-                         chase_referrals=self.chase_referrals,
-                         debug_level=self.debug_level,
-                         conn_timeout=self.conn_timeout,
-                         use_pool=use_pool,
-                         pool_size=pool_size,
-                         pool_retry_max=self.pool_retry_max,
-                         pool_retry_delay=self.pool_retry_delay,
-                         pool_conn_timeout=self.pool_conn_timeout,
-                         pool_conn_lifetime=pool_conn_lifetime)
+            conn.connect(
+                self.LDAP_URL,
+                page_size=self.page_size,
+                alias_dereferencing=self.alias_dereferencing,
+                use_tls=self.use_tls,
+                tls_cacertfile=self.tls_cacertfile,
+                tls_cacertdir=self.tls_cacertdir,
+                tls_req_cert=self.tls_req_cert,
+                chase_referrals=self.chase_referrals,
+                debug_level=self.debug_level,
+                conn_timeout=self.conn_timeout,
+                use_pool=use_pool,
+                pool_size=pool_size,
+                pool_retry_max=self.pool_retry_max,
+                pool_retry_delay=self.pool_retry_delay,
+                pool_conn_timeout=self.pool_conn_timeout,
+                pool_conn_lifetime=pool_conn_lifetime,
+            )
 
             if user is None:
                 user = self.LDAP_USER
@@ -1314,27 +1543,30 @@ class BaseLdap(object):
         except ldap.INVALID_CREDENTIALS:
             raise exception.LDAPInvalidCredentialsError()
         except ldap.SERVER_DOWN:
-            raise exception.LDAPServerConnectionError(
-                url=self.LDAP_URL)
+            raise exception.LDAPServerConnectionError(url=self.LDAP_URL)
 
     def _id_to_dn_string(self, object_id):
-        return u'%s=%s,%s' % (self.id_attr,
-                              ldap.dn.escape_dn_chars(
-                                  str(object_id)),
-                              self.tree_dn)
+        return u'%s=%s,%s' % (
+            self.id_attr,
+            ldap.dn.escape_dn_chars(str(object_id)),
+            self.tree_dn,
+        )
 
     def _id_to_dn(self, object_id):
         if self.LDAP_SCOPE == ldap.SCOPE_ONELEVEL:
             return self._id_to_dn_string(object_id)
         with self.get_connection() as conn:
             search_result = conn.search_s(
-                self.tree_dn, self.LDAP_SCOPE,
-                u'(&(%(id_attr)s=%(id)s)(objectclass=%(objclass)s))' %
-                {'id_attr': self.id_attr,
-                 'id': ldap.filter.escape_filter_chars(
-                     str(object_id)),
-                 'objclass': self.object_class},
-                attrlist=DN_ONLY)
+                self.tree_dn,
+                self.LDAP_SCOPE,
+                u'(&(%(id_attr)s=%(id)s)(objectclass=%(objclass)s))'
+                % {
+                    'id_attr': self.id_attr,
+                    'id': ldap.filter.escape_filter_chars(str(object_id)),
+                    'objclass': self.object_class,
+                },
+                attrlist=DN_ONLY,
+            )
         if search_result:
             dn, attrs = search_result[0]
             return dn
@@ -1356,21 +1588,25 @@ class BaseLdap(object):
                 try:
                     id_list = search_result[0][1][self.id_attr]
                 except KeyError:
-                    message = ('ID attribute %(id_attr)s not found in LDAP '
-                               'object %(dn)s.') % ({'id_attr': self.id_attr,
-                                                     'dn': search_result})
+                    message = (
+                        'ID attribute %(id_attr)s not found in LDAP '
+                        'object %(dn)s.'
+                    ) % ({'id_attr': self.id_attr, 'dn': search_result})
                     LOG.warning(message)
                     raise exception.NotFound(message=message)
                 if len(id_list) > 1:
-                    message = ('In order to keep backward compatibility, in '
-                               'the case of multivalued ids, we are '
-                               'returning the first id %(id_attr)s in the '
-                               'DN.') % ({'id_attr': id_list[0]})
+                    message = (
+                        'In order to keep backward compatibility, in '
+                        'the case of multivalued ids, we are '
+                        'returning the first id %(id_attr)s in the '
+                        'DN.'
+                    ) % ({'id_attr': id_list[0]})
                     LOG.warning(message)
                 return id_list[0]
             else:
                 message = _('DN attribute %(dn)s not found in LDAP') % (
-                    {'dn': dn})
+                    {'dn': dn}
+                )
                 raise exception.NotFound(message=message)
 
     def _ldap_res_to_model(self, res):
@@ -1383,9 +1619,9 @@ class BaseLdap(object):
 
         id_attrs = lower_res.get(self.id_attr.lower())
         if not id_attrs:
-            message = _('ID attribute %(id_attr)s not found in LDAP '
-                        'object %(dn)s') % ({'id_attr': self.id_attr,
-                                             'dn': res[0]})
+            message = _(
+                'ID attribute %(id_attr)s not found in LDAP ' 'object %(dn)s'
+            ) % ({'id_attr': self.id_attr, 'dn': res[0]})
             raise exception.NotFound(message=message)
         if len(id_attrs) > 1:
             # FIXME(gyee): if this is a multi-value attribute and it has
@@ -1393,10 +1629,11 @@ class BaseLdap(object):
             # logic here so it does not potentially break existing
             # deployments. We need to fix our read-write LDAP logic so
             # it does not get the ID from DN.
-            message = ('ID attribute %(id_attr)s for LDAP object %(dn)s '
-                       'has multiple values and therefore cannot be used '
-                       'as an ID. Will get the ID from DN instead') % (
-                           {'id_attr': self.id_attr, 'dn': res[0]})
+            message = (
+                'ID attribute %(id_attr)s for LDAP object %(dn)s '
+                'has multiple values and therefore cannot be used '
+                'as an ID. Will get the ID from DN instead'
+            ) % ({'id_attr': self.id_attr, 'dn': res[0]})
             LOG.warning(message)
             id_val = self._dn_to_id(res[0])
         else:
@@ -1433,8 +1670,11 @@ class BaseLdap(object):
                     try:
                         value = value.decode('utf-8')
                     except UnicodeDecodeError:
-                        LOG.error("Error decoding value %r (object id %r).",
-                                  value, res[0])
+                        LOG.error(
+                            "Error decoding value %r (object id %r).",
+                            value,
+                            res[0],
+                        )
                         raise
                 obj[k] = value
 
@@ -1448,9 +1688,10 @@ class BaseLdap(object):
                 # Didn't find it so it's unique, good.
                 pass
             else:
-                raise exception.Conflict(type=self.options_name,
-                                         details=_('Duplicate name, %s.') %
-                                         values['name'])
+                raise exception.Conflict(
+                    type=self.options_name,
+                    details=_('Duplicate name, %s.') % values['name'],
+                )
 
         if values.get('id') is not None:
             try:
@@ -1459,9 +1700,10 @@ class BaseLdap(object):
                 # Didn't find it, so it's unique, good.
                 pass
             else:
-                raise exception.Conflict(type=self.options_name,
-                                         details=_('Duplicate ID, %s.') %
-                                         values['id'])
+                raise exception.Conflict(
+                    type=self.options_name,
+                    details=_('Duplicate ID, %s.') % values['id'],
+                )
 
     def create(self, values):
         self.affirm_unique(values)
@@ -1478,9 +1720,11 @@ class BaseLdap(object):
                 attr_type = self.attribute_mapping.get(k, k)
                 if attr_type is not None:
                     attrs.append((attr_type, [v]))
-                extra_attrs = [attr for attr, name
-                               in self.extra_attr_mapping.items()
-                               if name == k]
+                extra_attrs = [
+                    attr
+                    for attr, name in self.extra_attr_mapping.items()
+                    if name == k
+                ]
                 for attr in extra_attrs:
                     attrs.append((attr, [v]))
 
@@ -1499,12 +1743,14 @@ class BaseLdap(object):
 
         # To ensure that ldap attribute value is not empty in ldap config.
         if not attr:
-            attr_name = ('%s_%s_attribute' %
-                         (self.options_name,
-                          self.attribute_options_names[ldap_attr_name]))
-            raise ValueError('"%(attr)s" is not a valid value for'
-                             ' "%(attr_name)s"' % {'attr': attr,
-                                                   'attr_name': attr_name})
+            attr_name = '%s_%s_attribute' % (
+                self.options_name,
+                self.attribute_options_names[ldap_attr_name],
+            )
+            raise ValueError(
+                '"%(attr)s" is not a valid value for'
+                ' "%(attr_name)s"' % {'attr': attr, 'attr_name': attr_name}
+            )
 
         # consider attr = "cn" and
         # ldap_result = [{'uid': ['fake_id1']}, , 'cN': ["name"]}]
@@ -1536,23 +1782,31 @@ class BaseLdap(object):
         return result
 
     def _ldap_get(self, object_id, ldap_filter=None):
-        query = (u'(&(%(id_attr)s=%(id)s)'
-                 u'%(filter)s'
-                 u'(objectClass=%(object_class)s))'
-                 % {'id_attr': self.id_attr,
-                    'id': ldap.filter.escape_filter_chars(
-                        str(object_id)),
-                    'filter': (ldap_filter or self.ldap_filter or ''),
-                    'object_class': self.object_class})
+        query = (
+            u'(&(%(id_attr)s=%(id)s)'
+            u'%(filter)s'
+            u'(objectClass=%(object_class)s))'
+            % {
+                'id_attr': self.id_attr,
+                'id': ldap.filter.escape_filter_chars(str(object_id)),
+                'filter': (ldap_filter or self.ldap_filter or ''),
+                'object_class': self.object_class,
+            }
+        )
         with self.get_connection() as conn:
             try:
-                attrs = list(set(([self.id_attr] +
-                                  list(self.attribute_mapping.values()) +
-                                  list(self.extra_attr_mapping.keys()))))
-                res = conn.search_s(self.tree_dn,
-                                    self.LDAP_SCOPE,
-                                    query,
-                                    attrs)
+                attrs = list(
+                    set(
+                        (
+                            [self.id_attr]
+                            + list(self.attribute_mapping.values())
+                            + list(self.extra_attr_mapping.keys())
+                        )
+                    )
+                )
+                res = conn.search_s(
+                    self.tree_dn, self.LDAP_SCOPE, query, attrs
+                )
             except ldap.NO_SUCH_OBJECT:
                 return None
 
@@ -1572,11 +1826,11 @@ class BaseLdap(object):
         with self.get_connection() as conn:
             try:
                 control = ldap.controls.libldap.SimplePagedResultsControl(
-                    criticality=True,
-                    size=sizelimit,
-                    cookie='')
-                msgid = conn.search_ext(base, scope, filterstr, attrlist,
-                                        serverctrls=[control])
+                    criticality=True, size=sizelimit, cookie=''
+                )
+                msgid = conn.search_ext(
+                    base, scope, filterstr, attrlist, serverctrls=[control]
+                )
                 rdata = conn.result3(msgid)
                 return rdata
             except ldap.NO_SUCH_OBJECT:
@@ -1587,25 +1841,29 @@ class BaseLdap(object):
         query = u'(&%s(objectClass=%s)(%s=*))' % (
             ldap_filter or self.ldap_filter or '',
             self.object_class,
-            self.id_attr)
+            self.id_attr,
+        )
         sizelimit = 0
-        attrs = list(set(([self.id_attr] +
-                          list(self.attribute_mapping.values()) +
-                          list(self.extra_attr_mapping.keys()))))
+        attrs = list(
+            set(
+                (
+                    [self.id_attr]
+                    + list(self.attribute_mapping.values())
+                    + list(self.extra_attr_mapping.keys())
+                )
+            )
+        )
         if hints.limit:
             sizelimit = hints.limit['limit']
-            res = self._ldap_get_limited(self.tree_dn,
-                                         self.LDAP_SCOPE,
-                                         query,
-                                         attrs,
-                                         sizelimit)
+            res = self._ldap_get_limited(
+                self.tree_dn, self.LDAP_SCOPE, query, attrs, sizelimit
+            )
         else:
             with self.get_connection() as conn:
                 try:
-                    res = conn.search_s(self.tree_dn,
-                                        self.LDAP_SCOPE,
-                                        query,
-                                        attrs)
+                    res = conn.search_s(
+                        self.tree_dn, self.LDAP_SCOPE, query, attrs
+                    )
                 except ldap.NO_SUCH_OBJECT:
                     return []
         # TODO(prashkre): add functional testing for missing name attribute
@@ -1617,8 +1875,9 @@ class BaseLdap(object):
         # compared to explicit filtering by 'name' through ldap result.
         return self._filter_ldap_result_by_attr(res, 'name')
 
-    def _ldap_get_list(self, search_base, scope, query_params=None,
-                       attrlist=None):
+    def _ldap_get_list(
+        self, search_base, scope, query_params=None, attrlist=None
+    ):
         query = u'(objectClass=%s)' % self.object_class
         if query_params:
 
@@ -1626,9 +1885,10 @@ class BaseLdap(object):
                 val_esc = ldap.filter.escape_filter_chars(value)
                 return '(%s=%s)' % (attrname, val_esc)
 
-            query = (u'(&%s%s)' %
-                     (query, ''.join([calc_filter(k, v) for k, v in
-                                      query_params.items()])))
+            query = u'(&%s%s)' % (
+                query,
+                ''.join([calc_filter(k, v) for k, v in query_params.items()]),
+            )
         with self.get_connection() as conn:
             return conn.search_s(search_base, scope, query, attrlist)
 
@@ -1640,9 +1900,10 @@ class BaseLdap(object):
             return self._ldap_res_to_model(res)
 
     def get_by_name(self, name, ldap_filter=None):
-        query = (u'(%s=%s)' % (self.attribute_mapping['name'],
-                               ldap.filter.escape_filter_chars(
-                                   str(name))))
+        query = u'(%s=%s)' % (
+            self.attribute_mapping['name'],
+            ldap.filter.escape_filter_chars(str(name)),
+        )
         res = self.get_all(query)
         try:
             return res[0]
@@ -1651,8 +1912,10 @@ class BaseLdap(object):
 
     def get_all(self, ldap_filter=None, hints=None):
         hints = hints or driver_hints.Hints()
-        return [self._ldap_res_to_model(x)
-                for x in self._ldap_get_all(hints, ldap_filter)]
+        return [
+            self._ldap_res_to_model(x)
+            for x in self._ldap_get_all(hints, ldap_filter)
+        ]
 
     def update(self, object_id, values, old_obj=None):
         if old_obj is None:
@@ -1668,8 +1931,10 @@ class BaseLdap(object):
 
                 # Handle 'enabled' specially since can't disable if ignored.
                 if k == 'enabled' and (not v):
-                    action = _("Disabling an entity where the 'enable' "
-                               "attribute is ignored by configuration.")
+                    action = _(
+                        "Disabling an entity where the 'enable' "
+                        "attribute is ignored by configuration."
+                    )
                     raise exception.ForbiddenAction(action=action)
 
                 continue
@@ -1679,15 +1944,21 @@ class BaseLdap(object):
                 continue
 
             if k in self.immutable_attrs:
-                msg = (_("Cannot change %(option_name)s %(attr)s") %
-                       {'option_name': self.options_name, 'attr': k})
+                msg = _("Cannot change %(option_name)s %(attr)s") % {
+                    'option_name': self.options_name,
+                    'attr': k,
+                }
                 raise exception.ValidationError(msg)
 
             if v is None:
                 if old_obj.get(k) is not None:
-                    modlist.append((ldap.MOD_DELETE,
-                                    self.attribute_mapping.get(k, k),
-                                    None))
+                    modlist.append(
+                        (
+                            ldap.MOD_DELETE,
+                            self.attribute_mapping.get(k, k),
+                            None,
+                        )
+                    )
                 continue
 
             current_value = old_obj.get(k)
@@ -1722,11 +1993,14 @@ class BaseLdap(object):
                 mod = (ldap.MOD_ADD, self.member_attribute, member_dn)
                 conn.modify_s(member_list_dn, [mod])
             except ldap.TYPE_OR_VALUE_EXISTS:
-                raise exception.Conflict(_('Member %(member)s '
-                                           'is already a member'
-                                           ' of group %(group)s') % {
-                                               'member': member_dn,
-                                               'group': member_list_dn})
+                raise exception.Conflict(
+                    _(
+                        'Member %(member)s '
+                        'is already a member'
+                        ' of group %(group)s'
+                    )
+                    % {'member': member_dn, 'group': member_list_dn}
+                )
             except ldap.NO_SUCH_OBJECT:
                 raise self._not_found(member_list_dn)
 
@@ -1743,6 +2017,7 @@ class BaseLdap(object):
         :returns query: LDAP query, updated with any filters satisfied
 
         """
+
         def build_filter(filter_):
             """Build a filter for the query.
 
@@ -1778,17 +2053,25 @@ class BaseLdap(object):
             # booleans (this is related to bug #1411478).
 
             if filter_['comparator'] == 'equals':
-                query_term = (u'(%(attr)s=%(val)s)'
-                              % {'attr': ldap_attr, 'val': val_esc})
+                query_term = u'(%(attr)s=%(val)s)' % {
+                    'attr': ldap_attr,
+                    'val': val_esc,
+                }
             elif filter_['comparator'] == 'contains':
-                query_term = (u'(%(attr)s=*%(val)s*)'
-                              % {'attr': ldap_attr, 'val': val_esc})
+                query_term = u'(%(attr)s=*%(val)s*)' % {
+                    'attr': ldap_attr,
+                    'val': val_esc,
+                }
             elif filter_['comparator'] == 'startswith':
-                query_term = (u'(%(attr)s=%(val)s*)'
-                              % {'attr': ldap_attr, 'val': val_esc})
+                query_term = u'(%(attr)s=%(val)s*)' % {
+                    'attr': ldap_attr,
+                    'val': val_esc,
+                }
             elif filter_['comparator'] == 'endswith':
-                query_term = (u'(%(attr)s=*%(val)s)'
-                              % {'attr': ldap_attr, 'val': val_esc})
+                query_term = u'(%(attr)s=*%(val)s)' % {
+                    'attr': ldap_attr,
+                    'val': val_esc,
+                }
             else:
                 # It's a filter we don't understand, so let the caller
                 # work out if they need to do something with it.
@@ -1854,8 +2137,9 @@ class EnabledEmuMixIn(BaseLdap):
         enabled_emulation_dn = '%s_enabled_emulation_dn' % self.options_name
         self.enabled_emulation_dn = getattr(conf.ldap, enabled_emulation_dn)
 
-        use_group_config = ('%s_enabled_emulation_use_group_config' %
-                            self.options_name)
+        use_group_config = (
+            '%s_enabled_emulation_use_group_config' % self.options_name
+        )
         self.use_group_config = getattr(conf.ldap, use_group_config)
 
         if not self.use_group_config:
@@ -1877,8 +2161,7 @@ class EnabledEmuMixIn(BaseLdap):
             # Extract the attribute name and value from the configured DN.
             naming_dn = ldap.dn.str2dn(self.enabled_emulation_dn)
             naming_rdn = naming_dn[0][0]
-            naming_attr = (naming_rdn[0],
-                           naming_rdn[1])
+            naming_attr = (naming_rdn[0], naming_rdn[1])
         self.enabled_emulation_naming_attr = naming_attr
 
     def _id_to_member_attribute_value(self, object_id):
@@ -1892,12 +2175,17 @@ class EnabledEmuMixIn(BaseLdap):
         return self._is_member_enabled(member_attr_val, conn)
 
     def _is_member_enabled(self, member_attr_val, conn):
-        query = '(%s=%s)' % (self.member_attribute,
-                             ldap.filter.escape_filter_chars(member_attr_val))
+        query = '(%s=%s)' % (
+            self.member_attribute,
+            ldap.filter.escape_filter_chars(member_attr_val),
+        )
         try:
-            enabled_value = conn.search_s(self.enabled_emulation_dn,
-                                          ldap.SCOPE_BASE,
-                                          query, attrlist=DN_ONLY)
+            enabled_value = conn.search_s(
+                self.enabled_emulation_dn,
+                ldap.SCOPE_BASE,
+                query,
+                attrlist=DN_ONLY,
+            )
         except ldap.NO_SUCH_OBJECT:
             return False
         else:
@@ -1907,23 +2195,22 @@ class EnabledEmuMixIn(BaseLdap):
         member_attr_val = self._id_to_member_attribute_value(object_id)
         with self.get_connection() as conn:
             if not self._is_member_enabled(member_attr_val, conn):
-                modlist = [(ldap.MOD_ADD,
-                            self.member_attribute,
-                            [member_attr_val])]
+                modlist = [
+                    (ldap.MOD_ADD, self.member_attribute, [member_attr_val])
+                ]
                 try:
                     conn.modify_s(self.enabled_emulation_dn, modlist)
                 except ldap.NO_SUCH_OBJECT:
-                    attr_list = [('objectClass', [self.group_objectclass]),
-                                 (self.member_attribute,
-                                  [member_attr_val]),
-                                 self.enabled_emulation_naming_attr]
+                    attr_list = [
+                        ('objectClass', [self.group_objectclass]),
+                        (self.member_attribute, [member_attr_val]),
+                        self.enabled_emulation_naming_attr,
+                    ]
                     conn.add_s(self.enabled_emulation_dn, attr_list)
 
     def _remove_enabled(self, object_id):
         member_attr_val = self._id_to_member_attribute_value(object_id)
-        modlist = [(ldap.MOD_DELETE,
-                    self.member_attribute,
-                    [member_attr_val])]
+        modlist = [(ldap.MOD_DELETE, self.member_attribute, [member_attr_val])]
         with self.get_connection() as conn:
             try:
                 conn.modify_s(self.enabled_emulation_dn, modlist)
@@ -1946,8 +2233,10 @@ class EnabledEmuMixIn(BaseLdap):
     def get(self, object_id, ldap_filter=None):
         with self.get_connection() as conn:
             ref = super(EnabledEmuMixIn, self).get(object_id, ldap_filter)
-            if ('enabled' not in self.attribute_ignore and
-                    self.enabled_emulation):
+            if (
+                'enabled' not in self.attribute_ignore
+                and self.enabled_emulation
+            ):
                 ref['enabled'] = self._is_id_enabled(object_id, conn)
             return ref
 
@@ -1955,13 +2244,16 @@ class EnabledEmuMixIn(BaseLdap):
         hints = hints or driver_hints.Hints()
         if 'enabled' not in self.attribute_ignore and self.enabled_emulation:
             # had to copy BaseLdap.get_all here to ldap_filter by DN
-            obj_list = [self._ldap_res_to_model(x)
-                        for x in self._ldap_get_all(hints, ldap_filter)
-                        if x[0] != self.enabled_emulation_dn]
+            obj_list = [
+                self._ldap_res_to_model(x)
+                for x in self._ldap_get_all(hints, ldap_filter)
+                if x[0] != self.enabled_emulation_dn
+            ]
             with self.get_connection() as conn:
                 for obj_ref in obj_list:
                     obj_ref['enabled'] = self._is_id_enabled(
-                        obj_ref['id'], conn)
+                        obj_ref['id'], conn
+                    )
             return obj_list
         else:
             return super(EnabledEmuMixIn, self).get_all(ldap_filter, hints)
@@ -1980,4 +2272,5 @@ class EnabledEmuMixIn(BaseLdap):
             return ref
         else:
             return super(EnabledEmuMixIn, self).update(
-                object_id, values, old_obj)
+                object_id, values, old_obj
+            )

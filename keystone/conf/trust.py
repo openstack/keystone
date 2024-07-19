@@ -18,29 +18,38 @@ from keystone.conf import utils
 allow_redelegation = cfg.BoolOpt(
     'allow_redelegation',
     default=False,
-    help=utils.fmt("""
+    help=utils.fmt(
+        """
 Allows authorization to be redelegated from one user to another, effectively
 chaining trusts together. When disabled, the `remaining_uses` attribute of a
 trust is constrained to be zero.
-"""))
+"""
+    ),
+)
 
 max_redelegation_count = cfg.IntOpt(
     'max_redelegation_count',
     default=3,
-    help=utils.fmt("""
+    help=utils.fmt(
+        """
 Maximum number of times that authorization can be redelegated from one user to
 another in a chain of trusts. This number may be reduced further for a specific
 trust.
-"""))
+"""
+    ),
+)
 
 driver = cfg.StrOpt(
     'driver',
     default='sql',
-    help=utils.fmt("""
+    help=utils.fmt(
+        """
 Entry point for the trust backend driver in the `keystone.trust` namespace.
 Keystone only provides a `sql` driver, so there is no reason to change this
 unless you are providing a custom entry point.
-"""))
+"""
+    ),
+)
 
 
 GROUP_NAME = __name__.split('.')[-1]

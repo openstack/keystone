@@ -18,7 +18,7 @@ _name_properties = {
     'type': 'string',
     'minLength': 1,
     'maxLength': 64,
-    'pattern': r'[\S]+'
+    'pattern': r'[\S]+',
 }
 
 _project_tag_name_properties = {
@@ -29,7 +29,7 @@ _project_tag_name_properties = {
     # guidelines as set by the API-WG, which matches anything that
     # does not contain a '/' or ','.
     # https://specs.openstack.org/openstack/api-wg/guidelines/tags.html
-    'pattern': '^[^,/]*$'
+    'pattern': '^[^,/]*$',
 }
 
 _project_tags_list_properties = {
@@ -37,7 +37,7 @@ _project_tags_list_properties = {
     'items': _project_tag_name_properties,
     'required': [],
     'maxItems': 80,
-    'uniqueItems': True
+    'uniqueItems': True,
 }
 
 _project_properties = {
@@ -49,7 +49,7 @@ _project_properties = {
     'parent_id': validation.nullable(parameter_types.id_string),
     'name': _name_properties,
     'tags': _project_tags_list_properties,
-    'options': ro.PROJECT_OPTIONS_REGISTRY.json_schema
+    'options': ro.PROJECT_OPTIONS_REGISTRY.json_schema,
 }
 
 # This is for updating a single project tag via the URL
@@ -65,7 +65,7 @@ project_create = {
     # project creation according to the Identity V3 API. We should think
     # about using the maxProperties validator here, and in update.
     'required': ['name'],
-    'additionalProperties': True
+    'additionalProperties': True,
 }
 
 project_update = {
@@ -73,14 +73,14 @@ project_update = {
     'properties': _project_properties,
     # NOTE(lbragstad): Make sure at least one property is being updated
     'minProperties': 1,
-    'additionalProperties': True
+    'additionalProperties': True,
 }
 
 _domain_properties = {
     'description': validation.nullable(parameter_types.description),
     'enabled': parameter_types.boolean,
     'name': _name_properties,
-    'tags': project_tags_update
+    'tags': project_tags_update,
 }
 
 domain_create = {
@@ -90,12 +90,12 @@ domain_create = {
     # the current implementation in assignment.controller:DomainV3 requires a
     # name for the domain.
     'required': ['name'],
-    'additionalProperties': True
+    'additionalProperties': True,
 }
 
 domain_update = {
     'type': 'object',
     'properties': _domain_properties,
     'minProperties': 1,
-    'additionalProperties': True
+    'additionalProperties': True,
 }

@@ -77,9 +77,7 @@ class Manager(manager.Manager):
             )
         else:
             encrypted_blob, key_hash = (
-                PROVIDERS.credential_provider_api.encrypt(
-                    credential['blob']
-                )
+                PROVIDERS.credential_provider_api.encrypt(credential['blob'])
             )
         credential_copy['encrypted_blob'] = encrypted_blob
         credential_copy['key_hash'] = key_hash
@@ -91,8 +89,7 @@ class Manager(manager.Manager):
         if user_limit >= 0:
             cred_count = len(self.list_credentials_for_user(user_id))
             if cred_count >= user_limit:
-                raise exception.CredentialLimitExceeded(
-                    limit=user_limit)
+                raise exception.CredentialLimitExceeded(limit=user_limit)
 
     @manager.response_truncated
     def list_credentials(self, hints=None):
@@ -123,30 +120,24 @@ class Manager(manager.Manager):
     def _get_credential(self, credential_id):
         return self.driver.get_credential(credential_id)
 
-    def create_credential(self, credential_id, credential,
-                          initiator=None):
+    def create_credential(self, credential_id, credential, initiator=None):
         """Create a credential."""
         credential_copy = self._encrypt_credential(credential)
         user_id = credential_copy['user_id']
         self._assert_limit_not_exceeded(user_id)
         ref = self.driver.create_credential(credential_id, credential_copy)
         if MEMOIZE.should_cache(ref):
-            self._get_credential.set(ref,
-                                     credential_copy,
-                                     credential_id)
-            self._list_credentials_for_user.invalidate(self,
-                                                       ref['user_id'],
-                                                       ref['type'])
-            self._list_credentials_for_user.invalidate(self,
-                                                       ref['user_id'],
-                                                       None)
+            self._get_credential.set(ref, credential_copy, credential_id)
+            self._list_credentials_for_user.invalidate(
+                self, ref['user_id'], ref['type']
+            )
+            self._list_credentials_for_user.invalidate(
+                self, ref['user_id'], None
+            )
         ref.pop('key_hash', None)
         ref.pop('encrypted_blob', None)
         ref['blob'] = credential['blob']
-        notifications.Audit.created(
-            self._CRED,
-            credential_id,
-            initiator)
+        notifications.Audit.created(self._CRED, credential_id, initiator)
         return ref
 
     def _validate_credential_update(self, credential_id, credential):
@@ -154,12 +145,14 @@ class Manager(manager.Manager):
         # update, check the case where a non-ec2 credential changes its type
         # to be "ec2", but has no associated "project_id", either in the
         # request or already set in the database
-        if (credential.get('type', '').lower() == 'ec2' and
-                not credential.get('project_id')):
+        if credential.get('type', '').lower() == 'ec2' and not credential.get(
+            'project_id'
+        ):
             existing_cred = self.get_credential(credential_id)
             if not existing_cred['project_id']:
-                raise exception.ValidationError(attribute='project_id',
-                                                target='credential')
+                raise exception.ValidationError(
+                    attribute='project_id', target='credential'
+                )
 
     def update_credential(self, credential_id, credential):
         """Update an existing credential."""
@@ -173,12 +166,12 @@ class Manager(manager.Manager):
         ref = self.driver.update_credential(credential_id, credential_copy)
         if MEMOIZE.should_cache(ref):
             self._get_credential.set(ref, self, credential_id)
-            self._list_credentials_for_user.invalidate(self,
-                                                       ref['user_id'],
-                                                       ref['type'])
-            self._list_credentials_for_user.invalidate(self,
-                                                       ref['user_id'],
-                                                       None)
+            self._list_credentials_for_user.invalidate(
+                self, ref['user_id'], ref['type']
+            )
+            self._list_credentials_for_user.invalidate(
+                self, ref['user_id'], None
+            )
         ref.pop('key_hash', None)
         ref.pop('encrypted_blob', None)
         # If the update request contains a `blob` attribute - we should return
@@ -190,20 +183,16 @@ class Manager(manager.Manager):
             ref['blob'] = existing_blob
         return ref
 
-    def delete_credential(self, credential_id,
-                          initiator=None):
+    def delete_credential(self, credential_id, initiator=None):
         """Delete a credential."""
         cred = self.get_credential(credential_id)
         self.driver.delete_credential(credential_id)
         self._get_credential.invalidate(self, credential_id)
-        self._list_credentials_for_user.invalidate(self,
-                                                   cred['user_id'],
-                                                   cred['type'])
-        self._list_credentials_for_user.invalidate(self,
-                                                   cred['user_id'],
-                                                   None)
-        notifications.Audit.deleted(
-            self._CRED, credential_id, initiator)
+        self._list_credentials_for_user.invalidate(
+            self, cred['user_id'], cred['type']
+        )
+        self._list_credentials_for_user.invalidate(self, cred['user_id'], None)
+        notifications.Audit.deleted(self._CRED, credential_id, initiator)
 
     def delete_credentials_for_project(self, project_id):
         """Delete all credentials for a project."""
@@ -214,12 +203,12 @@ class Manager(manager.Manager):
         self.driver.delete_credentials_for_project(project_id)
         for cred in creds:
             self._get_credential.invalidate(self, cred['id'])
-            self._list_credentials_for_user.invalidate(self,
-                                                       cred['user_id'],
-                                                       cred['type'])
-            self._list_credentials_for_user.invalidate(self,
-                                                       cred['user_id'],
-                                                       None)
+            self._list_credentials_for_user.invalidate(
+                self, cred['user_id'], cred['type']
+            )
+            self._list_credentials_for_user.invalidate(
+                self, cred['user_id'], None
+            )
 
     def delete_credentials_for_user(self, user_id):
         """Delete all credentials for a user."""
@@ -227,9 +216,9 @@ class Manager(manager.Manager):
         self.driver.delete_credentials_for_user(user_id)
         for cred in creds:
             self._get_credential.invalidate(self, cred['id'])
-            self._list_credentials_for_user.invalidate(self,
-                                                       user_id,
-                                                       cred['type'])
-            self._list_credentials_for_user.invalidate(self,
-                                                       cred['user_id'],
-                                                       None)
+            self._list_credentials_for_user.invalidate(
+                self, user_id, cred['type']
+            )
+            self._list_credentials_for_user.invalidate(
+                self, cred['user_id'], None
+            )

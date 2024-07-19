@@ -22,74 +22,108 @@ from keystone.common import json_home
 # OS-EC2 "extension"
 os_ec2_resource_rel_func = functools.partial(
     json_home.build_v3_extension_resource_relation,
-    extension_name='OS-EC2', extension_version='1.0')
+    extension_name='OS-EC2',
+    extension_version='1.0',
+)
 
 # s3token "extension"
 s3_token_resource_rel_func = functools.partial(
     json_home.build_v3_extension_resource_relation,
-    extension_name='s3tokens', extension_version='1.0')
+    extension_name='s3tokens',
+    extension_version='1.0',
+)
 
 # OS-EP-FILTER "extension"
 os_ep_filter_resource_rel_func = functools.partial(
     json_home.build_v3_extension_resource_relation,
-    extension_name='OS-EP-FILTER', extension_version='1.0')
+    extension_name='OS-EP-FILTER',
+    extension_version='1.0',
+)
 os_ep_filter_parameter_rel_func = functools.partial(
     json_home.build_v3_extension_parameter_relation,
-    extension_name='OS-EP-FILTER', extension_version='1.0')
+    extension_name='OS-EP-FILTER',
+    extension_version='1.0',
+)
 
 # OS-OAUTH1 "extension"
 os_oauth1_resource_rel_func = functools.partial(
     json_home.build_v3_extension_resource_relation,
-    extension_name='OS-OAUTH1', extension_version='1.0')
+    extension_name='OS-OAUTH1',
+    extension_version='1.0',
+)
 os_oauth1_parameter_rel_func = functools.partial(
     json_home.build_v3_extension_parameter_relation,
-    extension_name='OS-OAUTH1', extension_version='1.0')
+    extension_name='OS-OAUTH1',
+    extension_version='1.0',
+)
 
 # OS-OAUTH2 "extension"
 os_oauth2_resource_rel_func = functools.partial(
     json_home.build_v3_extension_resource_relation,
-    extension_name='OS-OAUTH2', extension_version='1.0')
+    extension_name='OS-OAUTH2',
+    extension_version='1.0',
+)
 os_oauth2_parameter_rel_func = functools.partial(
     json_home.build_v3_extension_parameter_relation,
-    extension_name='OS-OAUTH2', extension_version='1.0')
+    extension_name='OS-OAUTH2',
+    extension_version='1.0',
+)
 
 # OS-REVOKE "extension"
 os_revoke_resource_rel_func = functools.partial(
     json_home.build_v3_extension_resource_relation,
-    extension_name='OS-REVOKE', extension_version='1.0')
+    extension_name='OS-REVOKE',
+    extension_version='1.0',
+)
 
 # OS-SIMPLE-CERT "extension"
 os_simple_cert_resource_rel_func = functools.partial(
     json_home.build_v3_extension_resource_relation,
-    extension_name='OS-SIMPLE-CERT', extension_version='1.0')
+    extension_name='OS-SIMPLE-CERT',
+    extension_version='1.0',
+)
 
 # OS-TRUST "extension"
 os_trust_resource_rel_func = functools.partial(
-    json_home.build_v3_extension_resource_relation, extension_name='OS-TRUST',
-    extension_version='1.0')
+    json_home.build_v3_extension_resource_relation,
+    extension_name='OS-TRUST',
+    extension_version='1.0',
+)
 os_trust_parameter_rel_func = functools.partial(
-    json_home.build_v3_extension_parameter_relation, extension_name='OS-TRUST',
-    extension_version='1.0')
+    json_home.build_v3_extension_parameter_relation,
+    extension_name='OS-TRUST',
+    extension_version='1.0',
+)
 
 # OS-ENDPOINT-POLICY "extension"
 os_endpoint_policy_resource_rel_func = functools.partial(
     json_home.build_v3_extension_resource_relation,
-    extension_name='OS-ENDPOINT-POLICY', extension_version='1.0')
+    extension_name='OS-ENDPOINT-POLICY',
+    extension_version='1.0',
+)
 
 # OS-FEDERATION "extension"
 os_federation_resource_rel_func = functools.partial(
     json_home.build_v3_extension_resource_relation,
-    extension_name='OS-FEDERATION', extension_version='1.0')
+    extension_name='OS-FEDERATION',
+    extension_version='1.0',
+)
 os_federation_parameter_rel_func = functools.partial(
     json_home.build_v3_extension_parameter_relation,
-    extension_name='OS-FEDERATION', extension_version='1.0')
+    extension_name='OS-FEDERATION',
+    extension_version='1.0',
+)
 
 # OS-INHERIT "extension"
 os_inherit_resource_rel_func = functools.partial(
     json_home.build_v3_extension_resource_relation,
-    extension_name='OS-INHERIT', extension_version='1.0')
+    extension_name='OS-INHERIT',
+    extension_version='1.0',
+)
 
 # OS-PKI (revoked) "extension"
 os_pki_resource_rel_func = functools.partial(
     json_home.build_v3_extension_resource_relation,
-    extension_name='OS-PKI', extension_version='1.0')
+    extension_name='OS-PKI',
+    extension_version='1.0',
+)

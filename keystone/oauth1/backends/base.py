@@ -151,8 +151,9 @@ class Oauth1DriverBase(object, metaclass=abc.ABCMeta):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def create_request_token(self, consumer_id, requested_project,
-                             request_token_duration):
+    def create_request_token(
+        self, consumer_id, requested_project, request_token_duration
+    ):
         """Create request token.
 
         :param consumer_id: the id of the consumer

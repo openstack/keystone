@@ -16,13 +16,9 @@ from keystone.common.validation import parameter_types
 
 basic_property_id = {
     'type': 'object',
-    'properties': {
-        'id': {
-            'type': 'string'
-        }
-    },
+    'properties': {'id': {'type': 'string'}},
     'required': ['id'],
-    'additionalProperties': False
+    'additionalProperties': False,
 }
 
 saml_create = {
@@ -32,24 +28,20 @@ saml_create = {
             'type': 'object',
             'properties': {
                 'token': basic_property_id,
-                'methods': {
-                    'type': 'array'
-                }
+                'methods': {'type': 'array'},
             },
             'required': ['token'],
-            'additionalProperties': False
+            'additionalProperties': False,
         },
         'scope': {
             'type': 'object',
-            'properties': {
-                'service_provider': basic_property_id
-            },
+            'properties': {'service_provider': basic_property_id},
             'required': ['service_provider'],
-            'additionalProperties': False
+            'additionalProperties': False,
         },
     },
     'required': ['identity', 'scope'],
-    'additionalProperties': False
+    'additionalProperties': False,
 }
 
 _service_provider_properties = {
@@ -59,7 +51,7 @@ _service_provider_properties = {
     'sp_url': parameter_types.url,
     'description': validation.nullable(parameter_types.description),
     'enabled': parameter_types.boolean,
-    'relay_state_prefix': validation.nullable(parameter_types.description)
+    'relay_state_prefix': validation.nullable(parameter_types.description),
 }
 
 service_provider_create = {
@@ -67,7 +59,7 @@ service_provider_create = {
     'properties': _service_provider_properties,
     # NOTE(rodrigods): 'id' is not required since it is passed in the URL
     'required': ['auth_url', 'sp_url'],
-    'additionalProperties': False
+    'additionalProperties': False,
 }
 
 service_provider_update = {
@@ -75,7 +67,7 @@ service_provider_update = {
     'properties': _service_provider_properties,
     # Make sure at least one property is being updated
     'minProperties': 1,
-    'additionalProperties': False
+    'additionalProperties': False,
 }
 
 _identity_provider_properties_create = {
@@ -85,11 +77,9 @@ _identity_provider_properties_create = {
     'authorization_ttl': validation.nullable(parameter_types.integer_min0),
     'remote_ids': {
         'type': ['array', 'null'],
-        'items': {
-            'type': 'string'
-        },
-        'uniqueItems': True
-    }
+        'items': {'type': 'string'},
+        'uniqueItems': True,
+    },
 }
 
 _identity_provider_properties_update = {
@@ -98,17 +88,15 @@ _identity_provider_properties_update = {
     'authorization_ttl': validation.nullable(parameter_types.integer_min0),
     'remote_ids': {
         'type': ['array', 'null'],
-        'items': {
-            'type': 'string'
-        },
-        'uniqueItems': True
-    }
+        'items': {'type': 'string'},
+        'uniqueItems': True,
+    },
 }
 
 identity_provider_create = {
     'type': 'object',
     'properties': _identity_provider_properties_create,
-    'additionalProperties': False
+    'additionalProperties': False,
 }
 
 identity_provider_update = {
@@ -116,7 +104,7 @@ identity_provider_update = {
     'properties': _identity_provider_properties_update,
     # Make sure at least one property is being updated
     'minProperties': 1,
-    'additionalProperties': False
+    'additionalProperties': False,
 }
 
 _remote_id_attribute_properties = {
@@ -126,19 +114,19 @@ _remote_id_attribute_properties = {
 
 _protocol_properties = {
     'mapping_id': parameter_types.mapping_id_string,
-    'remote_id_attribute': _remote_id_attribute_properties
+    'remote_id_attribute': _remote_id_attribute_properties,
 }
 
 protocol_create = {
     'type': 'object',
     'properties': _protocol_properties,
     'required': ['mapping_id'],
-    'additionalProperties': False
+    'additionalProperties': False,
 }
 
 protocol_update = {
     'type': 'object',
     'properties': _protocol_properties,
     'minProperties': 1,
-    'additionalProperties': False
+    'additionalProperties': False,
 }

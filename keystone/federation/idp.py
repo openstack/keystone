@@ -27,6 +27,7 @@ from saml2 import saml
 from saml2 import samlp
 from saml2.schema import soapenv
 from saml2 import sigver
+
 xmldsig = importutils.try_import("saml2.xmldsig")
 if not xmldsig:
     xmldsig = importutils.try_import("xmldsig")
@@ -47,9 +48,18 @@ class SAMLGenerator(object):
     def __init__(self):
         self.assertion_id = uuid.uuid4().hex
 
-    def samlize_token(self, issuer, recipient, user, user_domain_name, roles,
-                      project, project_domain_name, groups,
-                      expires_in=None):
+    def samlize_token(
+        self,
+        issuer,
+        recipient,
+        user,
+        user_domain_name,
+        roles,
+        project,
+        project_domain_name,
+        groups,
+        expires_in=None,
+    ):
         """Convert Keystone attributes to a SAML assertion.
 
         :param issuer: URL of the issuing party
@@ -80,19 +90,24 @@ class SAMLGenerator(object):
         saml_issuer = self._create_issuer(issuer)
         subject = self._create_subject(user, expiration_time, recipient)
         attribute_statement = self._create_attribute_statement(
-            user, user_domain_name, roles, project, project_domain_name,
-            groups)
+            user, user_domain_name, roles, project, project_domain_name, groups
+        )
         authn_statement = self._create_authn_statement(issuer, expiration_time)
         signature = self._create_signature()
 
-        assertion = self._create_assertion(saml_issuer, signature,
-                                           subject, authn_statement,
-                                           attribute_statement)
+        assertion = self._create_assertion(
+            saml_issuer,
+            signature,
+            subject,
+            authn_statement,
+            attribute_statement,
+        )
 
         assertion = _sign_assertion(assertion)
 
-        response = self._create_response(saml_issuer, status, assertion,
-                                         recipient)
+        response = self._create_response(
+            saml_issuer, status, assertion, recipient
+        )
         return response
 
     def _determine_expiration_time(self, expires_in):
@@ -166,9 +181,15 @@ class SAMLGenerator(object):
         subject.name_id = name_id
         return subject
 
-    def _create_attribute_statement(self, user, user_domain_name, roles,
-                                    project, project_domain_name,
-                                    groups):
+    def _create_attribute_statement(
+        self,
+        user,
+        user_domain_name,
+        roles,
+        project,
+        project_domain_name,
+        groups,
+    ):
         """Create an object that represents a SAML AttributeStatement.
 
         <ns0:AttributeStatement>
@@ -208,6 +229,7 @@ class SAMLGenerator(object):
         :returns: XML <AttributeStatement> object
 
         """
+
         def _build_attribute(attribute_name, attribute_values):
             attribute = saml.Attribute()
             attribute.name = attribute_name
@@ -223,9 +245,11 @@ class SAMLGenerator(object):
         roles_attribute = _build_attribute('openstack_roles', roles)
         project_attribute = _build_attribute('openstack_project', [project])
         project_domain_attribute = _build_attribute(
-            'openstack_project_domain', [project_domain_name])
+            'openstack_project_domain', [project_domain_name]
+        )
         user_domain_attribute = _build_attribute(
-            'openstack_user_domain', [user_domain_name])
+            'openstack_user_domain', [user_domain_name]
+        )
 
         attribute_statement = saml.AttributeStatement()
         attribute_statement.attribute.append(user_attribute)
@@ -235,8 +259,7 @@ class SAMLGenerator(object):
         attribute_statement.attribute.append(user_domain_attribute)
 
         if groups:
-            groups_attribute = _build_attribute(
-                'openstack_groups', groups)
+            groups_attribute = _build_attribute('openstack_groups', groups)
             attribute_statement.attribute.append(groups_attribute)
         return attribute_statement
 
@@ -277,8 +300,9 @@ class SAMLGenerator(object):
 
         return authn_statement
 
-    def _create_assertion(self, issuer, signature, subject, authn_statement,
-                          attribute_statement):
+    def _create_assertion(
+        self, issuer, signature, subject, authn_statement, attribute_statement
+    ):
         """Create an object that represents a SAML Assertion.
 
         <ns0:Assertion
@@ -372,11 +396,13 @@ class SAMLGenerator(object):
         else:  # < 7.1.0
             canonicalization_method.algorithm = xmldsig.ALG_EXC_C14N
         signature_method = xmldsig.SignatureMethod(
-            algorithm=xmldsig.SIG_RSA_SHA1)
+            algorithm=xmldsig.SIG_RSA_SHA1
+        )
 
         transforms = xmldsig.Transforms()
         envelope_transform = xmldsig.Transform(
-            algorithm=xmldsig.TRANSFORM_ENVELOPED)
+            algorithm=xmldsig.TRANSFORM_ENVELOPED
+        )
 
         # TODO(stephenfin): Drop when we remove support for pysaml < 7.1.0
         if hasattr(xmldsig, 'TRANSFORM_C14N'):  # >= 7.1.0
@@ -424,23 +450,24 @@ def _verify_assertion_binary_is_installed():
         # the binary exists, though. We just want to make sure it's actually
         # installed and if an `CalledProcessError` isn't thrown, it is.
         subprocess.check_output(  # nosec : The contents of this command are
-                                  # coming from either the default
-                                  # configuration value for
-                                  # CONF.saml.xmlsec1_binary or an operator
-                                  # supplied location for that binary. In
-                                  # either case, it is safe to assume this
-                                  # input is coming from a trusted source and
-                                  # not a possible attacker (over the API).
+            # coming from either the default
+            # configuration value for
+            # CONF.saml.xmlsec1_binary or an operator
+            # supplied location for that binary. In
+            # either case, it is safe to assume this
+            # input is coming from a trusted source and
+            # not a possible attacker (over the API).
             ['/usr/bin/which', CONF.saml.xmlsec1_binary]
         )
     except subprocess.CalledProcessError:
         msg = (
             'Unable to locate %(binary)s binary on the system. Check to make '
-            'sure it is installed.') % {'binary': CONF.saml.xmlsec1_binary}
+            'sure it is installed.'
+        ) % {'binary': CONF.saml.xmlsec1_binary}
         tr_msg = _(
             'Unable to locate %(binary)s binary on the system. Check to '
-            'make sure it is installed.') % {
-            'binary': CONF.saml.xmlsec1_binary}
+            'make sure it is installed.'
+        ) % {'binary': CONF.saml.xmlsec1_binary}
         LOG.error(msg)
         raise exception.SAMLSigningError(reason=tr_msg)
 
@@ -470,8 +497,9 @@ def _sign_assertion(assertion):
         if ',' in getattr(CONF.saml, option, ''):
             raise exception.UnexpectedError(
                 'The configuration value in `keystone.conf [saml] %s` cannot '
-                'contain a comma (`,`). Please fix your configuration.' %
-                option)
+                'contain a comma (`,`). Please fix your configuration.'
+                % option
+            )
 
     # xmlsec1 --sign --privkey-pem privkey,cert --id-attr:ID <tag> <file>
     certificates = '%(idp_private_key)s,%(idp_public_key)s' % {
@@ -487,36 +515,49 @@ def _sign_assertion(assertion):
     _verify_assertion_binary_is_installed()
 
     command_list = [
-        CONF.saml.xmlsec1_binary, '--sign', '--privkey-pem', certificates,
-        '--id-attr:ID', 'Assertion']
+        CONF.saml.xmlsec1_binary,
+        '--sign',
+        '--privkey-pem',
+        certificates,
+        '--id-attr:ID',
+        'Assertion',
+    ]
 
     file_path = None
     try:
         # NOTE(gyee): need to make the namespace prefixes explicit so
         # they won't get reassigned when we wrap the assertion into
         # SAML2 response
-        file_path = fileutils.write_to_tempfile(assertion.to_string(
-            nspair={'saml': saml2.NAMESPACE,
-                    'xmldsig': xmldsig.NAMESPACE}))
+        file_path = fileutils.write_to_tempfile(
+            assertion.to_string(
+                nspair={'saml': saml2.NAMESPACE, 'xmldsig': xmldsig.NAMESPACE}
+            )
+        )
         command_list.append(file_path)
-        stdout = subprocess.check_output(command_list,  # nosec : The contents
-                                         # of the command list are coming from
-                                         # a trusted source because the
-                                         # executable and arguments all either
-                                         # come from the config file or are
-                                         # hardcoded. The command list is
-                                         # initialized earlier in this function
-                                         # to a list and it's still a list at
-                                         # this point in the function. There is
-                                         # no opportunity for an attacker to
-                                         # attempt command injection via string
-                                         # parsing.
-                                         stderr=subprocess.STDOUT)
+        stdout = subprocess.check_output(
+            command_list,  # nosec : The contents
+            # of the command list are coming from
+            # a trusted source because the
+            # executable and arguments all either
+            # come from the config file or are
+            # hardcoded. The command list is
+            # initialized earlier in this function
+            # to a list and it's still a list at
+            # this point in the function. There is
+            # no opportunity for an attacker to
+            # attempt command injection via string
+            # parsing.
+            stderr=subprocess.STDOUT,
+        )
     except Exception as e:
         msg = 'Error when signing assertion, reason: %(reason)s%(output)s'
-        LOG.error(msg,
-                  {'reason': e,
-                   'output': ' ' + e.output if hasattr(e, 'output') else ''})
+        LOG.error(
+            msg,
+            {
+                'reason': e,
+                'output': ' ' + e.output if hasattr(e, 'output') else '',
+            },
+        )
         raise exception.SAMLSigningError(reason=e)
     finally:
         try:
@@ -544,8 +585,7 @@ class MetadataGenerator(object):
         """
         self._ensure_required_values_present()
         entity_descriptor = self._create_entity_descriptor()
-        entity_descriptor.idpsso_descriptor = (
-            self._create_idp_sso_descriptor())
+        entity_descriptor.idpsso_descriptor = self._create_idp_sso_descriptor()
         return entity_descriptor
 
     def _create_entity_descriptor(self):
@@ -559,12 +599,14 @@ class MetadataGenerator(object):
             try:
                 return sigver.read_cert_from_file(CONF.saml.certfile, 'pem')
             except (IOError, sigver.CertificateError) as e:
-                msg = ('Cannot open certificate %(cert_file)s.'
-                       'Reason: %(reason)s') % {
-                    'cert_file': CONF.saml.certfile, 'reason': e}
-                tr_msg = _('Cannot open certificate %(cert_file)s.'
-                           'Reason: %(reason)s') % {
-                    'cert_file': CONF.saml.certfile, 'reason': e}
+                msg = (
+                    'Cannot open certificate %(cert_file)s.'
+                    'Reason: %(reason)s'
+                ) % {'cert_file': CONF.saml.certfile, 'reason': e}
+                tr_msg = _(
+                    'Cannot open certificate %(cert_file)s.'
+                    'Reason: %(reason)s'
+                ) % {'cert_file': CONF.saml.certfile, 'reason': e}
                 LOG.error(msg)
                 raise IOError(tr_msg)
 
@@ -575,27 +617,33 @@ class MetadataGenerator(object):
                     x509_data=xmldsig.X509Data(
                         x509_certificate=xmldsig.X509Certificate(text=cert)
                     )
-                ), use='signing'
+                ),
+                use='signing',
             )
 
         def single_sign_on_service():
             idp_sso_endpoint = CONF.saml.idp_sso_endpoint
             return md.SingleSignOnService(
-                binding=saml2.BINDING_URI,
-                location=idp_sso_endpoint)
+                binding=saml2.BINDING_URI, location=idp_sso_endpoint
+            )
 
         def organization():
-            name = md.OrganizationName(lang=CONF.saml.idp_lang,
-                                       text=CONF.saml.idp_organization_name)
+            name = md.OrganizationName(
+                lang=CONF.saml.idp_lang, text=CONF.saml.idp_organization_name
+            )
             display_name = md.OrganizationDisplayName(
                 lang=CONF.saml.idp_lang,
-                text=CONF.saml.idp_organization_display_name)
-            url = md.OrganizationURL(lang=CONF.saml.idp_lang,
-                                     text=CONF.saml.idp_organization_url)
+                text=CONF.saml.idp_organization_display_name,
+            )
+            url = md.OrganizationURL(
+                lang=CONF.saml.idp_lang, text=CONF.saml.idp_organization_url
+            )
 
             return md.Organization(
                 organization_display_name=display_name,
-                organization_url=url, organization_name=name)
+                organization_url=url,
+                organization_name=name,
+            )
 
         def contact_person():
             company = md.Company(text=CONF.saml.idp_contact_company)
@@ -603,13 +651,18 @@ class MetadataGenerator(object):
             surname = md.SurName(text=CONF.saml.idp_contact_surname)
             email = md.EmailAddress(text=CONF.saml.idp_contact_email)
             telephone = md.TelephoneNumber(
-                text=CONF.saml.idp_contact_telephone)
+                text=CONF.saml.idp_contact_telephone
+            )
             contact_type = CONF.saml.idp_contact_type
 
             return md.ContactPerson(
-                company=company, given_name=given_name, sur_name=surname,
-                email_address=email, telephone_number=telephone,
-                contact_type=contact_type)
+                company=company,
+                given_name=given_name,
+                sur_name=surname,
+                email_address=email,
+                telephone_number=telephone,
+                contact_type=contact_type,
+            )
 
         def name_id_format():
             return md.NameIDFormat(text=saml.NAMEID_FORMAT_TRANSIENT)
@@ -637,12 +690,14 @@ class MetadataGenerator(object):
     def _check_contact_person_values(self):
         """Determine if contact information is included in metadata."""
         # Check if we should include contact information
-        params = [CONF.saml.idp_contact_company,
-                  CONF.saml.idp_contact_name,
-                  CONF.saml.idp_contact_surname,
-                  CONF.saml.idp_contact_email,
-                  CONF.saml.idp_contact_telephone,
-                  CONF.saml.idp_contact_type]
+        params = [
+            CONF.saml.idp_contact_company,
+            CONF.saml.idp_contact_name,
+            CONF.saml.idp_contact_surname,
+            CONF.saml.idp_contact_email,
+            CONF.saml.idp_contact_telephone,
+            CONF.saml.idp_contact_type,
+        ]
         for value in params:
             if value is None:
                 return False
@@ -651,9 +706,11 @@ class MetadataGenerator(object):
 
     def _check_organization_values(self):
         """Determine if organization information is included in metadata."""
-        params = [CONF.saml.idp_organization_name,
-                  CONF.saml.idp_organization_display_name,
-                  CONF.saml.idp_organization_url]
+        params = [
+            CONF.saml.idp_organization_name,
+            CONF.saml.idp_organization_display_name,
+            CONF.saml.idp_organization_url,
+        ]
         for value in params:
             if value is None:
                 return False
@@ -673,16 +730,18 @@ class ECPGenerator(object):
 
     def _create_header(self, relay_state_prefix):
         relay_state_text = relay_state_prefix + uuid.uuid4().hex
-        relay_state = ecp.RelayState(actor=client_base.ACTOR,
-                                     must_understand='1',
-                                     text=relay_state_text)
+        relay_state = ecp.RelayState(
+            actor=client_base.ACTOR, must_understand='1', text=relay_state_text
+        )
         header = soapenv.Header()
-        header.extension_elements = (
-            [saml2.element_to_extension_element(relay_state)])
+        header.extension_elements = [
+            saml2.element_to_extension_element(relay_state)
+        ]
         return header
 
     def _create_body(self, saml_assertion):
         body = soapenv.Body()
-        body.extension_elements = (
-            [saml2.element_to_extension_element(saml_assertion)])
+        body.extension_elements = [
+            saml2.element_to_extension_element(saml_assertion)
+        ]
         return body

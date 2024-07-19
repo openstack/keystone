@@ -42,15 +42,23 @@ class Provider(base.Provider):
 
         if not os.path.exists(private_key):
             subs = {'private_key': private_key}
-            raise SystemExit(_(
-                '%(private_key)s does not exist. You can generate a key pair '
-                'using `keystone-manage create_jws_keypair`.') % subs)
+            raise SystemExit(
+                _(
+                    '%(private_key)s does not exist. You can generate a key pair '
+                    'using `keystone-manage create_jws_keypair`.'
+                )
+                % subs
+            )
         if not os.path.exists(public_key_repo):
             subs = {'public_key_repo': public_key_repo}
-            raise SystemExit(_(
-                '%(public_key_repo)s does not exist. Please make sure the '
-                'directory exists and is readable by the process running '
-                'keystone.') % subs)
+            raise SystemExit(
+                _(
+                    '%(public_key_repo)s does not exist. Please make sure the '
+                    'directory exists and is readable by the process running '
+                    'keystone.'
+                )
+                % subs
+            )
         if len(os.listdir(public_key_repo)) == 0:
             subs = {'public_key_repo': public_key_repo}
             msg = _(
@@ -63,9 +71,14 @@ class Provider(base.Provider):
 
     def generate_id_and_issued_at(self, token):
         return self.token_formatter.create_token(
-            token.user_id, token.expires_at, token.audit_ids, token.methods,
-            system=token.system, domain_id=token.domain_id,
-            project_id=token.project_id, trust_id=token.trust_id,
+            token.user_id,
+            token.expires_at,
+            token.audit_ids,
+            token.methods,
+            system=token.system,
+            domain_id=token.domain_id,
+            project_id=token.project_id,
+            trust_id=token.trust_id,
             federated_group_ids=token.federated_groups,
             identity_provider_id=token.identity_provider_id,
             protocol_id=token.protocol_id,
@@ -103,12 +116,23 @@ class JWSFormatter(object):
                 keys.append(f.read())
         return keys
 
-    def create_token(self, user_id, expires_at, audit_ids, methods,
-                     system=None, domain_id=None, project_id=None,
-                     trust_id=None, federated_group_ids=None,
-                     identity_provider_id=None, protocol_id=None,
-                     access_token_id=None, app_cred_id=None,
-                     thumbprint=None):
+    def create_token(
+        self,
+        user_id,
+        expires_at,
+        audit_ids,
+        methods,
+        system=None,
+        domain_id=None,
+        project_id=None,
+        trust_id=None,
+        federated_group_ids=None,
+        identity_provider_id=None,
+        protocol_id=None,
+        access_token_id=None,
+        app_cred_id=None,
+        thumbprint=None,
+    ):
 
         issued_at = utils.isotime(subsecond=True)
         issued_at_int = self._convert_time_string_to_int(issued_at)
@@ -143,9 +167,7 @@ class JWSFormatter(object):
                 payload.pop(k)
 
         token_id = jwt.encode(
-            payload,
-            self.private_key,
-            algorithm=JWSFormatter.algorithm
+            payload, self.private_key, algorithm=JWSFormatter.algorithm
         )
         return token_id, issued_at
 
@@ -173,9 +195,21 @@ class JWSFormatter(object):
         expires_at = self._convert_time_int_to_string(expires_at_int)
 
         return (
-            user_id, methods, audit_ids, system, domain_id, project_id,
-            trust_id, federated_group_ids, identity_provider_id, protocol_id,
-            access_token_id, app_cred_id, thumbprint, issued_at, expires_at,
+            user_id,
+            methods,
+            audit_ids,
+            system,
+            domain_id,
+            project_id,
+            trust_id,
+            federated_group_ids,
+            identity_provider_id,
+            protocol_id,
+            access_token_id,
+            app_cred_id,
+            thumbprint,
+            issued_at,
+            expires_at,
         )
 
     def _decode_token_from_id(self, token_id):
@@ -184,11 +218,13 @@ class JWSFormatter(object):
         for public_key in self.public_keys:
             try:
                 return jwt.decode(
-                    token_id, public_key, algorithms=JWSFormatter.algorithm,
-                    options=options
+                    token_id,
+                    public_key,
+                    algorithms=JWSFormatter.algorithm,
+                    options=options,
                 )
             except (jwt.InvalidSignatureError, jwt.DecodeError):
-                pass    # nosec: We want to exhaustively try all public keys
+                pass  # nosec: We want to exhaustively try all public keys
         raise exception.TokenNotFound(token_id=token_id)
 
     def _convert_time_string_to_int(self, time_str):

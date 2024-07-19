@@ -20,8 +20,9 @@ from keystone.tests import unit
 class FormatUrlTests(unit.BaseTestCase):
 
     def test_successful_formatting(self):
-        url_template = ('http://server:9090/'
-                        '$(tenant_id)s/$(user_id)s/$(project_id)s')
+        url_template = (
+            'http://server:9090/' '$(tenant_id)s/$(user_id)s/$(project_id)s'
+        )
         project_id = uuid.uuid4().hex
         values = {'tenant_id': 'A', 'user_id': 'B', 'project_id': project_id}
         actual_url = utils.format_url(url_template, values)
@@ -30,29 +31,34 @@ class FormatUrlTests(unit.BaseTestCase):
         self.assertEqual(expected_url, actual_url)
 
     def test_raises_malformed_on_missing_key(self):
-        self.assertRaises(exception.MalformedEndpoint,
-                          utils.format_url,
-                          "http://server:9090/$(tenant_id)s",
-                          {})
+        self.assertRaises(
+            exception.MalformedEndpoint,
+            utils.format_url,
+            "http://server:9090/$(tenant_id)s",
+            {},
+        )
 
     def test_raises_malformed_on_wrong_type(self):
-        self.assertRaises(exception.MalformedEndpoint,
-                          utils.format_url,
-                          "http://server:9090/$(tenant_id)d",
-                          {"tenant_id": 'A'})
+        self.assertRaises(
+            exception.MalformedEndpoint,
+            utils.format_url,
+            "http://server:9090/$(tenant_id)d",
+            {"tenant_id": 'A'},
+        )
 
     def test_raises_malformed_on_incomplete_format(self):
-        self.assertRaises(exception.MalformedEndpoint,
-                          utils.format_url,
-                          "http://server:9090/$(tenant_id)",
-                          {"tenant_id": 'A'})
+        self.assertRaises(
+            exception.MalformedEndpoint,
+            utils.format_url,
+            "http://server:9090/$(tenant_id)",
+            {"tenant_id": 'A'},
+        )
 
     def test_formatting_a_non_string(self):
         def _test(url_template):
-            self.assertRaises(exception.MalformedEndpoint,
-                              utils.format_url,
-                              url_template,
-                              {})
+            self.assertRaises(
+                exception.MalformedEndpoint, utils.format_url, url_template, {}
+            )
 
         _test(None)
         _test(object())
@@ -61,13 +67,13 @@ class FormatUrlTests(unit.BaseTestCase):
         # If the url template contains a substitution that's not in the allowed
         # list then MalformedEndpoint is raised.
         # For example, admin_token isn't allowed.
-        url_template = ('http://server:9090/'
-                        '$(project_id)s/$(user_id)s/$(admin_token)s')
+        url_template = (
+            'http://server:9090/' '$(project_id)s/$(user_id)s/$(admin_token)s'
+        )
         values = {'user_id': 'B', 'admin_token': 'C'}
-        self.assertRaises(exception.MalformedEndpoint,
-                          utils.format_url,
-                          url_template,
-                          values)
+        self.assertRaises(
+            exception.MalformedEndpoint, utils.format_url, url_template, values
+        )
 
     def test_substitution_with_allowed_tenant_keyerror(self):
         # No value of 'tenant_id' is passed into url_template.
@@ -76,11 +82,13 @@ class FormatUrlTests(unit.BaseTestCase):
         # This is intentional behavior since we don't want to skip
         # all the later endpoints once there is an URL of endpoint
         # trying to replace 'tenant_id' with None.
-        url_template = ('http://server:9090/'
-                        '$(tenant_id)s/$(user_id)s')
+        url_template = 'http://server:9090/' '$(tenant_id)s/$(user_id)s'
         values = {'user_id': 'B'}
-        self.assertIsNone(utils.format_url(url_template, values,
-                          silent_keyerror_failures=['tenant_id']))
+        self.assertIsNone(
+            utils.format_url(
+                url_template, values, silent_keyerror_failures=['tenant_id']
+            )
+        )
 
     def test_substitution_with_allowed_project_keyerror(self):
         # No value of 'project_id' is passed into url_template.
@@ -89,8 +97,10 @@ class FormatUrlTests(unit.BaseTestCase):
         # This is intentional behavior since we don't want to skip
         # all the later endpoints once there is an URL of endpoint
         # trying to replace 'project_id' with None.
-        url_template = ('http://server:9090/'
-                        '$(project_id)s/$(user_id)s')
+        url_template = 'http://server:9090/' '$(project_id)s/$(user_id)s'
         values = {'user_id': 'B'}
-        self.assertIsNone(utils.format_url(url_template, values,
-                          silent_keyerror_failures=['project_id']))
+        self.assertIsNone(
+            utils.format_url(
+                url_template, values, silent_keyerror_failures=['project_id']
+            )
+        )

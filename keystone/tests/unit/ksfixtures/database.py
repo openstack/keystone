@@ -32,25 +32,26 @@ def run_once(f):
     The decorated function is assumed to have a one parameter.
 
     """
+
     @functools.wraps(f)
     def wrapper():
         if not wrapper.already_ran:
             f()
             wrapper.already_ran = True
+
     wrapper.already_ran = False
     return wrapper
 
 
 # NOTE(I159): Every execution all the options will be cleared. The method must
 # be called at the every fixture initialization.
-def initialize_sql_session(connection_str=unit.IN_MEM_DB_CONN_STRING,
-                           enforce_sqlite_fks=True):
+def initialize_sql_session(
+    connection_str=unit.IN_MEM_DB_CONN_STRING, enforce_sqlite_fks=True
+):
     # Make sure the DB is located in the correct location, in this case set
     # the default value, as this should be able to be overridden in some
     # test cases.
-    db_options.set_defaults(
-        CONF,
-        connection=connection_str)
+    db_options.set_defaults(CONF, connection=connection_str)
 
     # Enable the  Sqlite FKs for global engine by default.
     facade = enginefacade.writer
@@ -77,19 +78,19 @@ def _load_sqlalchemy_models():
     the test run avoids this problem.
 
     """
-    keystone_root = os.path.normpath(os.path.join(
-        os.path.dirname(__file__), '..', '..', '..'))
+    keystone_root = os.path.normpath(
+        os.path.join(os.path.dirname(__file__), '..', '..', '..')
+    )
     for root, dirs, files in os.walk(keystone_root):
         # NOTE(morganfainberg): Slice the keystone_root off the root to ensure
         # we do not end up with a module name like:
         # Users.home.openstack.keystone.assignment.backends.sql
-        root = root[len(keystone_root):]
+        root = root[len(keystone_root) :]
         if root.endswith('backends') and 'sql.py' in files:
             # The root will be prefixed with an instance of os.sep, which will
             # make the root after replacement '.<root>', the 'keystone' part
             # of the module path is always added to the front
-            module_root = ('keystone.%s' %
-                           root.replace(os.sep, '.').lstrip('.'))
+            module_root = 'keystone.%s' % root.replace(os.sep, '.').lstrip('.')
             module_components = module_root.split('.')
             module_without_backends = ''
             for x in range(0, len(module_components) - 1):

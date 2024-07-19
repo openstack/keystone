@@ -50,9 +50,8 @@ class TestFernetTokenProvider(unit.TestCase):
     def test_invalid_token_raises_token_not_found(self):
         token_id = uuid.uuid4().hex
         self.assertRaises(
-            exception.TokenNotFound,
-            self.provider.validate_token,
-            token_id)
+            exception.TokenNotFound, self.provider.validate_token, token_id
+        )
 
     def test_log_warning_when_token_exceeds_max_token_size_default(self):
         self.logging = self.useFixture(fixtures.FakeLogger(level=log.INFO))
@@ -61,7 +60,8 @@ class TestFernetTokenProvider(unit.TestCase):
         token.user_id = '0123456789abcdef0123456789abcdef0123456789abcdef'
         token.project_id = '0123456789abcdef0123456789abcdef0123456789abcdef'
         token.expires_at = utils.isotime(
-            provider.default_expire_time(), subsecond=True)
+            provider.default_expire_time(), subsecond=True
+        )
         token.methods = ['password']
         token.audit_id = provider.random_urlsafe_str()
         token_id, issued_at = self.provider.generate_id_and_issued_at(token)
@@ -79,7 +79,8 @@ class TestFernetTokenProvider(unit.TestCase):
         token.user_id = '0123456789abcdef0123456789abcdef0123456789abcdef'
         token.project_id = '0123456789abcdef0123456789abcdef0123456789abcdef'
         token.expires_at = utils.isotime(
-            provider.default_expire_time(), subsecond=True)
+            provider.default_expire_time(), subsecond=True
+        )
         token.methods = ['password']
         token.audit_id = provider.random_urlsafe_str()
         token_id, issued_at = self.provider.generate_id_and_issued_at(token)
@@ -97,7 +98,8 @@ class TestFernetTokenProvider(unit.TestCase):
         token.user_id = '0123456789abcdef0123456789abcdef0123456789abcdef'
         token.project_id = '0123456789abcdef0123456789abcdef0123456789abcdef'
         token.expires_at = utils.isotime(
-            provider.default_expire_time(), subsecond=True)
+            provider.default_expire_time(), subsecond=True
+        )
         token.methods = ['password']
         token.audit_id = provider.random_urlsafe_str()
         token_id, issued_at = self.provider.generate_id_and_issued_at(token)
@@ -114,7 +116,8 @@ class TestValidate(unit.TestCase):
         self.useFixture(database.Database())
         self.load_backends()
         PROVIDERS.resource_api.create_domain(
-            default_fixtures.ROOT_DOMAIN['id'], default_fixtures.ROOT_DOMAIN)
+            default_fixtures.ROOT_DOMAIN['id'], default_fixtures.ROOT_DOMAIN
+        )
 
     def config_overrides(self):
         super(TestValidate, self).config_overrides()
@@ -134,7 +137,8 @@ class TestValidate(unit.TestCase):
 
         method_names = ['password']
         token = PROVIDERS.token_provider_api.issue_token(
-            user_ref['id'], method_names)
+            user_ref['id'], method_names
+        )
 
         token = PROVIDERS.token_provider_api.validate_token(token.id)
         self.assertIsInstance(token.audit_ids, list)
@@ -166,7 +170,7 @@ class TestValidate(unit.TestCase):
         idp_ref = {
             'id': idp_id,
             'description': uuid.uuid4().hex,
-            'enabled': True
+            'enabled': True,
         }
         self.federation_api.create_idp(idp_id, idp_ref)
         protocol = uuid.uuid4().hex
@@ -179,7 +183,8 @@ class TestValidate(unit.TestCase):
         }
         auth_context = auth.core.AuthContext(**auth_context_params)
         token = PROVIDERS.token_provider_api.issue_token(
-            user_ref['id'], method_names, auth_context=auth_context)
+            user_ref['id'], method_names, auth_context=auth_context
+        )
 
         token = PROVIDERS.token_provider_api.validate_token(token.id)
 
@@ -195,7 +200,9 @@ class TestValidate(unit.TestCase):
         # Check the user fields in the token result when use validate_v3_token
         # when the token has federated info.
 
-        group_ids = [uuid.uuid4().hex, ]
+        group_ids = [
+            uuid.uuid4().hex,
+        ]
         self._test_validate_v3_token_federted_info(group_ids)
 
     def test_validate_v3_token_federated_info_empty_group(self):
@@ -227,18 +234,27 @@ class TestValidate(unit.TestCase):
         role_ref = PROVIDERS.role_api.create_role(role_ref['id'], role_ref)
 
         PROVIDERS.assignment_api.create_grant(
-            role_ref['id'], user_id=user_ref['id'],
-            project_id=project_ref['id'])
+            role_ref['id'],
+            user_id=user_ref['id'],
+            project_id=project_ref['id'],
+        )
 
         PROVIDERS.assignment_api.create_grant(
-            role_ref['id'], user_id=trustor_user_ref['id'],
-            project_id=project_ref['id'])
+            role_ref['id'],
+            user_id=trustor_user_ref['id'],
+            project_id=project_ref['id'],
+        )
 
         trustor_user_id = trustor_user_ref['id']
         trustee_user_id = user_ref['id']
         trust_ref = unit.new_trust_ref(
-            trustor_user_id, trustee_user_id, project_id=project_ref['id'],
-            role_ids=[role_ref['id'], ])
+            trustor_user_id,
+            trustee_user_id,
+            project_id=project_ref['id'],
+            role_ids=[
+                role_ref['id'],
+            ],
+        )
         trust_ref = PROVIDERS.trust_api.create_trust(
             trust_ref['id'], trust_ref, trust_ref['roles']
         )
@@ -246,8 +262,11 @@ class TestValidate(unit.TestCase):
         method_names = ['password']
 
         token = PROVIDERS.token_provider_api.issue_token(
-            user_ref['id'], method_names, project_id=project_ref['id'],
-            trust_id=trust_ref['id'])
+            user_ref['id'],
+            method_names,
+            project_id=project_ref['id'],
+            trust_id=trust_ref['id'],
+        )
 
         token = PROVIDERS.token_provider_api.validate_token(token.id)
         self.assertEqual(trust_ref['id'], token.trust_id)
@@ -263,7 +282,7 @@ class TestValidate(unit.TestCase):
         self.assertRaises(
             exception.TokenNotFound,
             PROVIDERS.token_provider_api.validate_token,
-            token_id
+            token_id,
         )
 
 
@@ -291,7 +310,8 @@ class TestTokenFormatter(unit.TestCase):
             self.assertFalse(encoded_str_without_padding.endswith('='))
             encoded_str_with_padding_restored = (
                 token_formatters.TokenFormatter.restore_padding(
-                    encoded_str_without_padding)
+                    encoded_str_without_padding
+                )
             )
             self.assertEqual(encoded_string, encoded_str_with_padding_restored)
 
@@ -313,12 +333,26 @@ class TestTokenFormatter(unit.TestCase):
             methods=exp_methods,
             federated_group_ids=exp_federated_group_ids,
             identity_provider_id=exp_idp_id,
-            protocol_id=exp_protocol_id)
+            protocol_id=exp_protocol_id,
+        )
 
-        (user_id, methods, audit_ids, system, domain_id, project_id, trust_id,
-         federated_group_ids, identity_provider_id, protocol_id,
-         access_token_id, app_cred_id, thumbprint, issued_at,
-         expires_at) = token_formatter.validate_token(token)
+        (
+            user_id,
+            methods,
+            audit_ids,
+            system,
+            domain_id,
+            project_id,
+            trust_id,
+            federated_group_ids,
+            identity_provider_id,
+            protocol_id,
+            access_token_id,
+            app_cred_id,
+            thumbprint,
+            issued_at,
+            expires_at,
+        ) = token_formatter.validate_token(token)
 
         self.assertEqual(exp_user_id, user_id)
         self.assertTrue(isinstance(user_id, str))
@@ -348,12 +382,26 @@ class TestTokenFormatter(unit.TestCase):
             federated_group_ids=exp_federated_group_ids,
             identity_provider_id=exp_idp_id,
             protocol_id=exp_protocol_id,
-            project_id=exp_project_id)
+            project_id=exp_project_id,
+        )
 
-        (user_id, methods, audit_ids, system, domain_id, project_id, trust_id,
-         federated_group_ids, identity_provider_id, protocol_id,
-         access_token_id, app_cred_id, thumbprint, issued_at,
-         expires_at) = token_formatter.validate_token(token)
+        (
+            user_id,
+            methods,
+            audit_ids,
+            system,
+            domain_id,
+            project_id,
+            trust_id,
+            federated_group_ids,
+            identity_provider_id,
+            protocol_id,
+            access_token_id,
+            app_cred_id,
+            thumbprint,
+            issued_at,
+            expires_at,
+        ) = token_formatter.validate_token(token)
 
         self.assertEqual(exp_user_id, user_id)
         self.assertTrue(isinstance(user_id, str))
@@ -377,8 +425,9 @@ class TestPayloads(unit.TestCase):
         # the granularity of timestamp string is microseconds and it's only the
         # last digit in the representation that's different, so use a delta
         # just above nanoseconds.
-        return self.assertCloseEnoughForGovernmentWork(exp_time, actual_time,
-                                                       delta=1e-05)
+        return self.assertCloseEnoughForGovernmentWork(
+            exp_time, actual_time, delta=1e-05
+        )
 
     def test_strings_can_be_converted_to_bytes(self):
         s = provider.random_urlsafe_str()
@@ -394,10 +443,12 @@ class TestPayloads(unit.TestCase):
         uuid_obj = uuid.UUID(expected_hex_uuid)
         expected_uuid_in_bytes = uuid_obj.bytes
         actual_uuid_in_bytes = payload_cls.convert_uuid_hex_to_bytes(
-            expected_hex_uuid)
+            expected_hex_uuid
+        )
         self.assertEqual(expected_uuid_in_bytes, actual_uuid_in_bytes)
         actual_hex_uuid = payload_cls.convert_uuid_bytes_to_hex(
-            expected_uuid_in_bytes)
+            expected_uuid_in_bytes
+        )
         self.assertEqual(expected_hex_uuid, actual_hex_uuid)
 
     def test_time_string_to_float_conversions(self):
@@ -406,8 +457,9 @@ class TestPayloads(unit.TestCase):
         original_time_str = utils.isotime(subsecond=True)
         time_obj = timeutils.parse_isotime(original_time_str)
         expected_time_float = (
-            (timeutils.normalize_time(time_obj) -
-             datetime.datetime.utcfromtimestamp(0)).total_seconds())
+            timeutils.normalize_time(time_obj)
+            - datetime.datetime.utcfromtimestamp(0)
+        ).total_seconds()
 
         # NOTE(lbragstad): The token expiration time for Fernet tokens is
         # passed in the payload of the token. This is different from the token
@@ -416,7 +468,8 @@ class TestPayloads(unit.TestCase):
         self.assertIsInstance(expected_time_float, float)
 
         actual_time_float = payload_cls._convert_time_string_to_float(
-            original_time_str)
+            original_time_str
+        )
         self.assertIsInstance(actual_time_float, float)
         self.assertEqual(expected_time_float, actual_time_float)
 
@@ -427,7 +480,8 @@ class TestPayloads(unit.TestCase):
         expected_time_str = utils.isotime(time_object, subsecond=True)
 
         actual_time_str = payload_cls._convert_float_to_time_string(
-            actual_time_float)
+            actual_time_float
+        )
         self.assertEqual(expected_time_str, actual_time_str)
 
     def test_convert_or_decode_uuid_bytes(self):
@@ -438,8 +492,7 @@ class TestPayloads(unit.TestCase):
         expected_uuid_in_bytes = uuid_obj.bytes
 
         actual_hex_uuid = payload_cls._convert_or_decode(
-            is_stored_as_bytes=True,
-            value=expected_uuid_in_bytes
+            is_stored_as_bytes=True, value=expected_uuid_in_bytes
         )
 
         self.assertEqual(expected_hex_uuid, actual_hex_uuid)
@@ -450,8 +503,7 @@ class TestPayloads(unit.TestCase):
         expected_hex_uuid = uuid.uuid4().hex
 
         actual_hex_uuid = payload_cls._convert_or_decode(
-            is_stored_as_bytes=False,
-            value=expected_hex_uuid.encode('utf-8')
+            is_stored_as_bytes=False, value=expected_hex_uuid.encode('utf-8')
         )
 
         self.assertEqual(expected_hex_uuid, actual_hex_uuid)
@@ -462,22 +514,33 @@ class TestPayloads(unit.TestCase):
         expected_hex_uuid = uuid.uuid4().hex
 
         actual_hex_uuid = payload_cls._convert_or_decode(
-            is_stored_as_bytes=False,
-            value=expected_hex_uuid
+            is_stored_as_bytes=False, value=expected_hex_uuid
         )
 
         self.assertEqual(expected_hex_uuid, actual_hex_uuid)
 
-    def _test_payload(self, payload_class, exp_user_id=None, exp_methods=None,
-                      exp_system=None, exp_project_id=None, exp_domain_id=None,
-                      exp_trust_id=None, exp_federated_group_ids=None,
-                      exp_identity_provider_id=None, exp_protocol_id=None,
-                      exp_access_token_id=None, exp_app_cred_id=None,
-                      encode_ids=False, exp_thumbprint=None):
+    def _test_payload(
+        self,
+        payload_class,
+        exp_user_id=None,
+        exp_methods=None,
+        exp_system=None,
+        exp_project_id=None,
+        exp_domain_id=None,
+        exp_trust_id=None,
+        exp_federated_group_ids=None,
+        exp_identity_provider_id=None,
+        exp_protocol_id=None,
+        exp_access_token_id=None,
+        exp_app_cred_id=None,
+        encode_ids=False,
+        exp_thumbprint=None,
+    ):
         def _encode_id(value):
             if value is not None and str(value) and encode_ids:
                 return value.encode('utf-8')
             return value
+
         exp_user_id = exp_user_id or uuid.uuid4().hex
         exp_methods = exp_methods or ['password']
         exp_expires_at = utils.isotime(timeutils.utcnow(), subsecond=True)
@@ -497,13 +560,25 @@ class TestPayloads(unit.TestCase):
             exp_protocol_id,
             _encode_id(exp_access_token_id),
             _encode_id(exp_app_cred_id),
-            exp_thumbprint)
+            exp_thumbprint,
+        )
 
-        (user_id, methods, system, project_id,
-         domain_id, expires_at, audit_ids,
-         trust_id, federated_group_ids, identity_provider_id, protocol_id,
-         access_token_id, app_cred_id,
-         thumbprint) = payload_class.disassemble(payload)
+        (
+            user_id,
+            methods,
+            system,
+            project_id,
+            domain_id,
+            expires_at,
+            audit_ids,
+            trust_id,
+            federated_group_ids,
+            identity_provider_id,
+            protocol_id,
+            access_token_id,
+            app_cred_id,
+            thumbprint,
+        ) = payload_class.disassemble(payload)
 
         self.assertEqual(exp_user_id, user_id)
         self.assertEqual(exp_methods, methods)
@@ -523,133 +598,172 @@ class TestPayloads(unit.TestCase):
         self._test_payload(token_formatters.UnscopedPayload)
 
     def test_system_scoped_payload(self):
-        self._test_payload(token_formatters.SystemScopedPayload,
-                           exp_system='all')
+        self._test_payload(
+            token_formatters.SystemScopedPayload, exp_system='all'
+        )
 
     def test_project_scoped_payload(self):
-        self._test_payload(token_formatters.ProjectScopedPayload,
-                           exp_project_id=uuid.uuid4().hex)
+        self._test_payload(
+            token_formatters.ProjectScopedPayload,
+            exp_project_id=uuid.uuid4().hex,
+        )
 
     def test_domain_scoped_payload(self):
-        self._test_payload(token_formatters.DomainScopedPayload,
-                           exp_domain_id=uuid.uuid4().hex)
+        self._test_payload(
+            token_formatters.DomainScopedPayload,
+            exp_domain_id=uuid.uuid4().hex,
+        )
 
     def test_domain_scoped_payload_with_default_domain(self):
-        self._test_payload(token_formatters.DomainScopedPayload,
-                           exp_domain_id=CONF.identity.default_domain_id)
+        self._test_payload(
+            token_formatters.DomainScopedPayload,
+            exp_domain_id=CONF.identity.default_domain_id,
+        )
 
     def test_trust_scoped_payload(self):
-        self._test_payload(token_formatters.TrustScopedPayload,
-                           exp_project_id=uuid.uuid4().hex,
-                           exp_trust_id=uuid.uuid4().hex)
+        self._test_payload(
+            token_formatters.TrustScopedPayload,
+            exp_project_id=uuid.uuid4().hex,
+            exp_trust_id=uuid.uuid4().hex,
+        )
 
     def test_unscoped_payload_with_non_uuid_user_id(self):
-        self._test_payload(token_formatters.UnscopedPayload,
-                           exp_user_id='someNonUuidUserId')
+        self._test_payload(
+            token_formatters.UnscopedPayload, exp_user_id='someNonUuidUserId'
+        )
 
     def test_unscoped_payload_with_16_char_non_uuid_user_id(self):
-        self._test_payload(token_formatters.UnscopedPayload,
-                           exp_user_id='0123456789abcdef')
+        self._test_payload(
+            token_formatters.UnscopedPayload, exp_user_id='0123456789abcdef'
+        )
 
     def test_project_scoped_payload_with_non_uuid_ids(self):
-        self._test_payload(token_formatters.ProjectScopedPayload,
-                           exp_user_id='someNonUuidUserId',
-                           exp_project_id='someNonUuidProjectId')
+        self._test_payload(
+            token_formatters.ProjectScopedPayload,
+            exp_user_id='someNonUuidUserId',
+            exp_project_id='someNonUuidProjectId',
+        )
 
     def test_project_scoped_payload_with_16_char_non_uuid_ids(self):
-        self._test_payload(token_formatters.ProjectScopedPayload,
-                           exp_user_id='0123456789abcdef',
-                           exp_project_id='0123456789abcdef')
+        self._test_payload(
+            token_formatters.ProjectScopedPayload,
+            exp_user_id='0123456789abcdef',
+            exp_project_id='0123456789abcdef',
+        )
 
     def test_project_scoped_payload_with_binary_encoded_ids(self):
-        self._test_payload(token_formatters.ProjectScopedPayload,
-                           exp_user_id='someNonUuidUserId',
-                           exp_project_id='someNonUuidProjectId',
-                           encode_ids=True)
+        self._test_payload(
+            token_formatters.ProjectScopedPayload,
+            exp_user_id='someNonUuidUserId',
+            exp_project_id='someNonUuidProjectId',
+            encode_ids=True,
+        )
 
     def test_domain_scoped_payload_with_non_uuid_user_id(self):
-        self._test_payload(token_formatters.DomainScopedPayload,
-                           exp_user_id='nonUuidUserId',
-                           exp_domain_id=uuid.uuid4().hex)
+        self._test_payload(
+            token_formatters.DomainScopedPayload,
+            exp_user_id='nonUuidUserId',
+            exp_domain_id=uuid.uuid4().hex,
+        )
 
     def test_domain_scoped_payload_with_16_char_non_uuid_user_id(self):
-        self._test_payload(token_formatters.DomainScopedPayload,
-                           exp_user_id='0123456789abcdef',
-                           exp_domain_id=uuid.uuid4().hex)
+        self._test_payload(
+            token_formatters.DomainScopedPayload,
+            exp_user_id='0123456789abcdef',
+            exp_domain_id=uuid.uuid4().hex,
+        )
 
     def test_trust_scoped_payload_with_non_uuid_ids(self):
-        self._test_payload(token_formatters.TrustScopedPayload,
-                           exp_user_id='someNonUuidUserId',
-                           exp_project_id='someNonUuidProjectId',
-                           exp_trust_id=uuid.uuid4().hex)
+        self._test_payload(
+            token_formatters.TrustScopedPayload,
+            exp_user_id='someNonUuidUserId',
+            exp_project_id='someNonUuidProjectId',
+            exp_trust_id=uuid.uuid4().hex,
+        )
 
     def test_trust_scoped_payload_with_16_char_non_uuid_ids(self):
-        self._test_payload(token_formatters.TrustScopedPayload,
-                           exp_user_id='0123456789abcdef',
-                           exp_project_id='0123456789abcdef',
-                           exp_trust_id=uuid.uuid4().hex)
+        self._test_payload(
+            token_formatters.TrustScopedPayload,
+            exp_user_id='0123456789abcdef',
+            exp_project_id='0123456789abcdef',
+            exp_trust_id=uuid.uuid4().hex,
+        )
 
     def _test_federated_payload_with_ids(self, exp_user_id, exp_group_id):
         exp_federated_group_ids = [{'id': exp_group_id}]
         exp_idp_id = uuid.uuid4().hex
         exp_protocol_id = uuid.uuid4().hex
 
-        self._test_payload(token_formatters.FederatedUnscopedPayload,
-                           exp_user_id=exp_user_id,
-                           exp_federated_group_ids=exp_federated_group_ids,
-                           exp_identity_provider_id=exp_idp_id,
-                           exp_protocol_id=exp_protocol_id)
+        self._test_payload(
+            token_formatters.FederatedUnscopedPayload,
+            exp_user_id=exp_user_id,
+            exp_federated_group_ids=exp_federated_group_ids,
+            exp_identity_provider_id=exp_idp_id,
+            exp_protocol_id=exp_protocol_id,
+        )
 
     def test_federated_payload_with_non_uuid_ids(self):
-        self._test_federated_payload_with_ids('someNonUuidUserId',
-                                              'someNonUuidGroupId')
+        self._test_federated_payload_with_ids(
+            'someNonUuidUserId', 'someNonUuidGroupId'
+        )
 
     def test_federated_payload_with_16_char_non_uuid_ids(self):
-        self._test_federated_payload_with_ids('0123456789abcdef',
-                                              '0123456789abcdef')
+        self._test_federated_payload_with_ids(
+            '0123456789abcdef', '0123456789abcdef'
+        )
 
     def test_federated_project_scoped_payload(self):
         exp_federated_group_ids = [{'id': 'someNonUuidGroupId'}]
         exp_idp_id = uuid.uuid4().hex
         exp_protocol_id = uuid.uuid4().hex
 
-        self._test_payload(token_formatters.FederatedProjectScopedPayload,
-                           exp_user_id='someNonUuidUserId',
-                           exp_methods=['token'],
-                           exp_project_id=uuid.uuid4().hex,
-                           exp_federated_group_ids=exp_federated_group_ids,
-                           exp_identity_provider_id=exp_idp_id,
-                           exp_protocol_id=exp_protocol_id)
+        self._test_payload(
+            token_formatters.FederatedProjectScopedPayload,
+            exp_user_id='someNonUuidUserId',
+            exp_methods=['token'],
+            exp_project_id=uuid.uuid4().hex,
+            exp_federated_group_ids=exp_federated_group_ids,
+            exp_identity_provider_id=exp_idp_id,
+            exp_protocol_id=exp_protocol_id,
+        )
 
     def test_federated_domain_scoped_payload(self):
         exp_federated_group_ids = [{'id': 'someNonUuidGroupId'}]
         exp_idp_id = uuid.uuid4().hex
         exp_protocol_id = uuid.uuid4().hex
 
-        self._test_payload(token_formatters.FederatedDomainScopedPayload,
-                           exp_user_id='someNonUuidUserId',
-                           exp_methods=['token'],
-                           exp_domain_id=uuid.uuid4().hex,
-                           exp_federated_group_ids=exp_federated_group_ids,
-                           exp_identity_provider_id=exp_idp_id,
-                           exp_protocol_id=exp_protocol_id)
+        self._test_payload(
+            token_formatters.FederatedDomainScopedPayload,
+            exp_user_id='someNonUuidUserId',
+            exp_methods=['token'],
+            exp_domain_id=uuid.uuid4().hex,
+            exp_federated_group_ids=exp_federated_group_ids,
+            exp_identity_provider_id=exp_idp_id,
+            exp_protocol_id=exp_protocol_id,
+        )
 
     def test_oauth_scoped_payload(self):
-        self._test_payload(token_formatters.OauthScopedPayload,
-                           exp_project_id=uuid.uuid4().hex,
-                           exp_access_token_id=uuid.uuid4().hex)
+        self._test_payload(
+            token_formatters.OauthScopedPayload,
+            exp_project_id=uuid.uuid4().hex,
+            exp_access_token_id=uuid.uuid4().hex,
+        )
 
     def test_app_cred_scoped_payload_with_non_uuid_ids(self):
-        self._test_payload(token_formatters.ApplicationCredentialScopedPayload,
-                           exp_user_id='someNonUuidUserId',
-                           exp_project_id='someNonUuidProjectId',
-                           exp_app_cred_id='someNonUuidAppCredId')
+        self._test_payload(
+            token_formatters.ApplicationCredentialScopedPayload,
+            exp_user_id='someNonUuidUserId',
+            exp_project_id='someNonUuidProjectId',
+            exp_app_cred_id='someNonUuidAppCredId',
+        )
 
     def test_app_cred_scoped_payload_with_16_char_non_uuid_ids(self):
-        self._test_payload(token_formatters.ApplicationCredentialScopedPayload,
-                           exp_user_id='0123456789abcdef',
-                           exp_project_id='0123456789abcdef',
-                           exp_app_cred_id='0123456789abcdef')
+        self._test_payload(
+            token_formatters.ApplicationCredentialScopedPayload,
+            exp_user_id='0123456789abcdef',
+            exp_project_id='0123456789abcdef',
+            exp_app_cred_id='0123456789abcdef',
+        )
 
 
 class TestFernetKeyRotation(unit.TestCase):
@@ -664,7 +778,8 @@ class TestFernetKeyRotation(unit.TestCase):
     def keys(self):
         """Key files converted to numbers."""
         return sorted(
-            int(x) for x in os.listdir(CONF.fernet_tokens.key_repository))
+            int(x) for x in os.listdir(CONF.fernet_tokens.key_repository)
+        )
 
     @property
     def key_repository_size(self):
@@ -687,7 +802,7 @@ class TestFernetKeyRotation(unit.TestCase):
         key_utils = fernet_utils.FernetUtils(
             CONF.fernet_tokens.key_repository,
             CONF.fernet_tokens.max_active_keys,
-            'fernet_tokens'
+            'fernet_tokens',
         )
         keys = key_utils.load_keys()
 
@@ -728,8 +843,9 @@ class TestFernetKeyRotation(unit.TestCase):
         # Simulate every rotation strategy up to "rotating once a week while
         # maintaining a year's worth of keys."
         for max_active_keys in range(min_active_keys, 52 + 1):
-            self.config_fixture.config(group='fernet_tokens',
-                                       max_active_keys=max_active_keys)
+            self.config_fixture.config(
+                group='fernet_tokens', max_active_keys=max_active_keys
+            )
 
             # Ensure that resetting the key repository always results in 2
             # active keys.
@@ -737,7 +853,7 @@ class TestFernetKeyRotation(unit.TestCase):
                 ksfixtures.KeyRepository(
                     self.config_fixture,
                     'fernet_tokens',
-                    CONF.fernet_tokens.max_active_keys
+                    CONF.fernet_tokens.max_active_keys,
                 )
             )
 
@@ -755,7 +871,7 @@ class TestFernetKeyRotation(unit.TestCase):
             key_utils = fernet_utils.FernetUtils(
                 CONF.fernet_tokens.key_repository,
                 CONF.fernet_tokens.max_active_keys,
-                'fernet_tokens'
+                'fernet_tokens',
             )
             for rotation in range(max_active_keys - min_active_keys):
                 key_utils.rotate_keys()
@@ -773,7 +889,7 @@ class TestFernetKeyRotation(unit.TestCase):
             key_utils = fernet_utils.FernetUtils(
                 CONF.fernet_tokens.key_repository,
                 CONF.fernet_tokens.max_active_keys,
-                'fernet_tokens'
+                'fernet_tokens',
             )
             for rotation in range(10):
                 key_utils.rotate_keys()
@@ -791,7 +907,7 @@ class TestFernetKeyRotation(unit.TestCase):
         key_utils = fernet_utils.FernetUtils(
             CONF.fernet_tokens.key_repository,
             CONF.fernet_tokens.max_active_keys,
-            'fernet_tokens'
+            'fernet_tokens',
         )
 
         # Simulate the disk full situation
@@ -828,7 +944,7 @@ class TestFernetKeyRotation(unit.TestCase):
         key_utils = fernet_utils.FernetUtils(
             CONF.fernet_tokens.key_repository,
             CONF.fernet_tokens.max_active_keys,
-            'fernet_tokens'
+            'fernet_tokens',
         )
         # Rotate the keys to overwrite the empty file
         key_utils.rotate_keys()
@@ -844,7 +960,7 @@ class TestFernetKeyRotation(unit.TestCase):
         key_utils = fernet_utils.FernetUtils(
             CONF.fernet_tokens.key_repository,
             CONF.fernet_tokens.max_active_keys,
-            'fernet_tokens'
+            'fernet_tokens',
         )
         key_utils.rotate_keys()
         self.assertTrue(os.path.isfile(evil_file))
@@ -871,7 +987,7 @@ class TestLoadKeys(unit.TestCase):
         key_utils = fernet_utils.FernetUtils(
             CONF.fernet_tokens.key_repository,
             CONF.fernet_tokens.max_active_keys,
-            'fernet_tokens'
+            'fernet_tokens',
         )
         keys = key_utils.load_keys()
         self.assertEqual(2, len(keys))
@@ -884,7 +1000,7 @@ class TestLoadKeys(unit.TestCase):
         key_utils = fernet_utils.FernetUtils(
             CONF.fernet_tokens.key_repository,
             CONF.fernet_tokens.max_active_keys,
-            'fernet_tokens'
+            'fernet_tokens',
         )
         keys = key_utils.load_keys()
         self.assertEqual(2, len(keys))

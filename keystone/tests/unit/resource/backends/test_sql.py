@@ -17,8 +17,9 @@ from keystone.tests.unit.ksfixtures import database
 from keystone.tests.unit.resource import test_backends
 
 
-class TestSqlResourceDriver(unit.BaseTestCase,
-                            test_backends.ResourceDriverTests):
+class TestSqlResourceDriver(
+    unit.BaseTestCase, test_backends.ResourceDriverTests
+):
     def setUp(self):
         super(TestSqlResourceDriver, self).setUp()
         self.useFixture(database.Database())
@@ -26,5 +27,4 @@ class TestSqlResourceDriver(unit.BaseTestCase,
         root_domain = default_fixtures.ROOT_DOMAIN
         root_domain['domain_id'] = root_domain['id']
         root_domain['is_domain'] = True
-        self.driver.create_project(root_domain['id'],
-                                   root_domain)
+        self.driver.create_project(root_domain['id'], root_domain)

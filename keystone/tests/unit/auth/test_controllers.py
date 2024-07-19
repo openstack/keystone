@@ -37,21 +37,28 @@ class TestLoadAuthMethod(unit.BaseTestCase):
 
         # Setup stevedore.DriverManager to return a driver for the plugin
         extension_ = extension.Extension(
-            plugin_name, entry_point=mock.sentinel.entry_point,
+            plugin_name,
+            entry_point=mock.sentinel.entry_point,
             plugin=mock.sentinel.plugin,
-            obj=mock.sentinel.driver)
+            obj=mock.sentinel.driver,
+        )
         auth_plugin_namespace = 'keystone.auth.%s' % method
         fake_driver_manager = stevedore.DriverManager.make_test_instance(
-            extension_, namespace=auth_plugin_namespace)
+            extension_, namespace=auth_plugin_namespace
+        )
 
-        driver_manager_mock = self.useFixture(fixtures.MockPatchObject(
-            stevedore, 'DriverManager', return_value=fake_driver_manager)).mock
+        driver_manager_mock = self.useFixture(
+            fixtures.MockPatchObject(
+                stevedore, 'DriverManager', return_value=fake_driver_manager
+            )
+        ).mock
 
         driver = core.load_auth_method(method)
 
         self.assertEqual(auth_plugin_namespace, fake_driver_manager.namespace)
         driver_manager_mock.assert_called_once_with(
-            auth_plugin_namespace, plugin_name, invoke_on_load=True)
+            auth_plugin_namespace, plugin_name, invoke_on_load=True
+        )
         self.assertIs(mock.sentinel.driver, driver)
 
     def test_entrypoint_fails(self):
@@ -65,7 +72,10 @@ class TestLoadAuthMethod(unit.BaseTestCase):
 
         # stevedore.DriverManager raises RuntimeError if it can't load the
         # driver.
-        self.useFixture(fixtures.MockPatchObject(
-            stevedore, 'DriverManager', side_effect=RuntimeError))
+        self.useFixture(
+            fixtures.MockPatchObject(
+                stevedore, 'DriverManager', side_effect=RuntimeError
+            )
+        )
 
         self.assertRaises(RuntimeError, core.load_auth_method, method)

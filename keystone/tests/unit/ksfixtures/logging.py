@@ -75,7 +75,8 @@ class StandardLogging(fixtures.Fixture):
         # Collect logs
         fs = '%(asctime)s %(levelname)s [%(name)s] %(message)s'
         self.logger = self.useFixture(
-            fixtures.FakeLogger(format=fs, level=None))
+            fixtures.FakeLogger(format=fs, level=None)
+        )
         # TODO(sdague): why can't we send level through the fake
         # logger? Tests prove that it breaks, but it's worth getting
         # to the bottom of.
@@ -88,13 +89,15 @@ class StandardLogging(fixtures.Fixture):
             handler.setLevel(std_logging.DEBUG)
 
             # Don't log every single DB migration step
-            std_logging.getLogger(
-                'migrate.versioning.api').setLevel(std_logging.WARNING)
+            std_logging.getLogger('migrate.versioning.api').setLevel(
+                std_logging.WARNING
+            )
             # Or alembic for model comparisons.
             std_logging.getLogger('alembic').setLevel(std_logging.WARNING)
             # Or oslo_db provisioning steps
             std_logging.getLogger('oslo_db.sqlalchemy').setLevel(
-                std_logging.WARNING)
+                std_logging.WARNING
+            )
 
         # At times we end up calling back into main() functions in
         # testing. This has the possibility of calling logging.setup
@@ -105,7 +108,8 @@ class StandardLogging(fixtures.Fixture):
             pass
 
         self.useFixture(
-            fixtures.MonkeyPatch('oslo_log.log.setup', fake_logging_setup))
+            fixtures.MonkeyPatch('oslo_log.log.setup', fake_logging_setup)
+        )
 
     def delete_stored_logs(self):
         # NOTE(gibi): this depends on the internals of the fixtures.FakeLogger.

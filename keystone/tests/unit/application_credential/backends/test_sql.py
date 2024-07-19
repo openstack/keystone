@@ -23,39 +23,48 @@ PROVIDERS = provider_api.ProviderAPIs
 
 class SQLModelTestCase(core_sql.BaseBackendSqlModels):
     def test_application_credential_model(self):
-        cols = (('internal_id', sql.Integer, None),
-                ('id', sql.String, 64),
-                ('name', sql.String, 255),
-                ('secret_hash', sql.String, 255),
-                ('description', sql.Text, None),
-                ('user_id', sql.String, 64),
-                ('project_id', sql.String, 64),
-                ('system', sql.String, 64),
-                ('expires_at', sql.DateTimeInt, None))
+        cols = (
+            ('internal_id', sql.Integer, None),
+            ('id', sql.String, 64),
+            ('name', sql.String, 255),
+            ('secret_hash', sql.String, 255),
+            ('description', sql.Text, None),
+            ('user_id', sql.String, 64),
+            ('project_id', sql.String, 64),
+            ('system', sql.String, 64),
+            ('expires_at', sql.DateTimeInt, None),
+        )
         self.assertExpectedSchema('application_credential', cols)
 
     def test_application_credential_role_model(self):
-        cols = (('application_credential_id', sql.Integer, None),
-                ('role_id', sql.String, 64))
+        cols = (
+            ('application_credential_id', sql.Integer, None),
+            ('role_id', sql.String, 64),
+        )
         self.assertExpectedSchema('application_credential_role', cols)
 
     def test_access_rule_model(self):
-        cols = (('id', sql.Integer, None),
-                ('external_id', sql.String, 64),
-                ('user_id', sql.String, 64),
-                ('service', sql.String, 64),
-                ('path', sql.String, 128),
-                ('method', sql.String, 16))
+        cols = (
+            ('id', sql.Integer, None),
+            ('external_id', sql.String, 64),
+            ('user_id', sql.String, 64),
+            ('service', sql.String, 64),
+            ('path', sql.String, 128),
+            ('method', sql.String, 16),
+        )
         self.assertExpectedSchema('access_rule', cols)
 
     def test_application_credential_access_rule_model(self):
-        cols = (('application_credential_id', sql.Integer, None),
-                ('access_rule_id', sql.Integer, None))
+        cols = (
+            ('application_credential_id', sql.Integer, None),
+            ('access_rule_id', sql.Integer, None),
+        )
         self.assertExpectedSchema('application_credential_access_rule', cols)
 
 
-class SQLDriverTestCase(core_sql.BaseBackendSqlTests,
-                        test_backends.ApplicationCredentialTests):
+class SQLDriverTestCase(
+    core_sql.BaseBackendSqlTests, test_backends.ApplicationCredentialTests
+):
     def setUp(self):
         self.useFixture(database.Database())
         self.driver = sql_driver.ApplicationCredential()

@@ -37,36 +37,42 @@ class _SystemUserImpliedRoleTests(object):
     """Common default functionality for all system users."""
 
     def test_user_can_list_implied_roles(self):
-        PROVIDERS.role_api.create_implied_role(self.prior_role_id,
-                                               self.implied_role_id)
+        PROVIDERS.role_api.create_implied_role(
+            self.prior_role_id, self.implied_role_id
+        )
 
         with self.test_client() as c:
-            r = c.get('/v3/roles/%s/implies' % self.prior_role_id,
-                      headers=self.headers)
+            r = c.get(
+                '/v3/roles/%s/implies' % self.prior_role_id,
+                headers=self.headers,
+            )
             self.assertEqual(1, len(r.json['role_inference']['implies']))
 
     def test_user_can_get_an_implied_role(self):
-        PROVIDERS.role_api.create_implied_role(self.prior_role_id,
-                                               self.implied_role_id)
+        PROVIDERS.role_api.create_implied_role(
+            self.prior_role_id, self.implied_role_id
+        )
 
         with self.test_client() as c:
             c.get(
-                '/v3/roles/%s/implies/%s' % (
-                    self.prior_role_id, self.implied_role_id),
-                headers=self.headers)
-            c.head(
-                '/v3/roles/%s/implies/%s' % (
-                    self.prior_role_id, self.implied_role_id),
+                '/v3/roles/%s/implies/%s'
+                % (self.prior_role_id, self.implied_role_id),
                 headers=self.headers,
-                expected_status_code=http.client.NO_CONTENT)
+            )
+            c.head(
+                '/v3/roles/%s/implies/%s'
+                % (self.prior_role_id, self.implied_role_id),
+                headers=self.headers,
+                expected_status_code=http.client.NO_CONTENT,
+            )
 
     def test_user_can_list_role_inference_rules(self):
-        PROVIDERS.role_api.create_implied_role(self.prior_role_id,
-                                               self.implied_role_id)
+        PROVIDERS.role_api.create_implied_role(
+            self.prior_role_id, self.implied_role_id
+        )
 
         with self.test_client() as c:
-            r = c.get('/v3/role_inferences',
-                      headers=self.headers)
+            r = c.get('/v3/role_inferences', headers=self.headers)
             # There should be three role inferences: two from the defaults and
             # one from the test setup
             self.assertEqual(3, len(r.json['role_inferences']))
@@ -78,30 +84,33 @@ class _SystemReaderAndMemberImpliedRoleTests(object):
     def test_user_cannot_create_implied_roles(self):
         with self.test_client() as c:
             c.put(
-                '/v3/roles/%s/implies/%s' % (
-                    self.prior_role_id, self.implied_role_id),
+                '/v3/roles/%s/implies/%s'
+                % (self.prior_role_id, self.implied_role_id),
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_implied_roles(self):
-        PROVIDERS.role_api.create_implied_role(self.prior_role_id,
-                                               self.implied_role_id)
+        PROVIDERS.role_api.create_implied_role(
+            self.prior_role_id, self.implied_role_id
+        )
 
         with self.test_client() as c:
             c.delete(
-                '/v3/roles/%s/implies/%s' % (
-                    self.prior_role_id, self.implied_role_id),
+                '/v3/roles/%s/implies/%s'
+                % (self.prior_role_id, self.implied_role_id),
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
 
-class SystemReaderTests(base_classes.TestCaseWithBootstrap,
-                        common_auth.AuthTestMixin,
-                        _ImpliedRolesSetupMixin,
-                        _SystemUserImpliedRoleTests,
-                        _SystemReaderAndMemberImpliedRoleTests):
+class SystemReaderTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _ImpliedRolesSetupMixin,
+    _SystemUserImpliedRoleTests,
+    _SystemReaderAndMemberImpliedRoleTests,
+):
 
     def setUp(self):
         super(SystemReaderTests, self).setUp()
@@ -114,16 +123,15 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
         system_reader = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
         )
-        self.user_id = PROVIDERS.identity_api.create_user(
-            system_reader
-        )['id']
+        self.user_id = PROVIDERS.identity_api.create_user(system_reader)['id']
         PROVIDERS.assignment_api.create_system_grant_for_user(
             self.user_id, self.bootstrapper.reader_role_id
         )
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=system_reader['password'],
-            system=True
+            user_id=self.user_id,
+            password=system_reader['password'],
+            system=True,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -134,11 +142,13 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class SystemMemberTests(base_classes.TestCaseWithBootstrap,
-                        common_auth.AuthTestMixin,
-                        _ImpliedRolesSetupMixin,
-                        _SystemUserImpliedRoleTests,
-                        _SystemReaderAndMemberImpliedRoleTests):
+class SystemMemberTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _ImpliedRolesSetupMixin,
+    _SystemUserImpliedRoleTests,
+    _SystemReaderAndMemberImpliedRoleTests,
+):
 
     def setUp(self):
         super(SystemMemberTests, self).setUp()
@@ -151,16 +161,15 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
         system_member = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
         )
-        self.user_id = PROVIDERS.identity_api.create_user(
-            system_member
-        )['id']
+        self.user_id = PROVIDERS.identity_api.create_user(system_member)['id']
         PROVIDERS.assignment_api.create_system_grant_for_user(
             self.user_id, self.bootstrapper.member_role_id
         )
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=system_member['password'],
-            system=True
+            user_id=self.user_id,
+            password=system_member['password'],
+            system=True,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -171,10 +180,12 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class SystemAdminTests(base_classes.TestCaseWithBootstrap,
-                       common_auth.AuthTestMixin,
-                       _ImpliedRolesSetupMixin,
-                       _SystemUserImpliedRoleTests):
+class SystemAdminTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _ImpliedRolesSetupMixin,
+    _SystemUserImpliedRoleTests,
+):
 
     def setUp(self):
         super(SystemAdminTests, self).setUp()
@@ -190,7 +201,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
         auth = self.build_authentication_request(
             user_id=self.user_id,
             password=self.bootstrapper.admin_password,
-            system=True
+            system=True,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -203,19 +214,20 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
     def test_user_can_create_implied_roles(self):
         with self.test_client() as c:
             c.put(
-                '/v3/roles/%s/implies/%s' % (
-                    self.prior_role_id, self.implied_role_id),
+                '/v3/roles/%s/implies/%s'
+                % (self.prior_role_id, self.implied_role_id),
                 headers=self.headers,
-                expected_status_code=http.client.CREATED
+                expected_status_code=http.client.CREATED,
             )
 
     def test_user_can_delete_implied_roles(self):
-        PROVIDERS.role_api.create_implied_role(self.prior_role_id,
-                                               self.implied_role_id)
+        PROVIDERS.role_api.create_implied_role(
+            self.prior_role_id, self.implied_role_id
+        )
 
         with self.test_client() as c:
             c.delete(
-                '/v3/roles/%s/implies/%s' % (
-                    self.prior_role_id, self.implied_role_id),
-                headers=self.headers
+                '/v3/roles/%s/implies/%s'
+                % (self.prior_role_id, self.implied_role_id),
+                headers=self.headers,
             )

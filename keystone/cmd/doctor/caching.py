@@ -44,10 +44,7 @@ def symptom_connection_to_memcached():
     as dead. Please ensure `keystone.conf [cache] memcache_servers` is
     configured properly.
     """
-    memcached_drivers = [
-        'dogpile.cache.memcached',
-        'oslo_cache.memcache_pool'
-    ]
+    memcached_drivers = ['dogpile.cache.memcached', 'oslo_cache.memcache_pool']
     if CONF.cache.enabled and CONF.cache.backend in memcached_drivers:
         cache.configure_cache()
         cache_stats = cache.CACHE_REGION.actual_backend.client.get_stats()

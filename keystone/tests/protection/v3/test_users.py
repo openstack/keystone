@@ -52,8 +52,9 @@ class _SystemUserTests(object):
     def test_user_cannot_get_non_existent_user_not_found(self):
         with self.test_client() as c:
             c.get(
-                '/v3/users/%s' % uuid.uuid4().hex, headers=self.headers,
-                expected_status_code=http.client.NOT_FOUND
+                '/v3/users/%s' % uuid.uuid4().hex,
+                headers=self.headers,
+                expected_status_code=http.client.NOT_FOUND,
             )
 
     def test_user_can_list_users(self):
@@ -81,14 +82,16 @@ class _SystemMemberAndReaderUserTests(object):
         create = {
             'user': {
                 'name': uuid.uuid4().hex,
-                'domain': CONF.identity.default_domain_id
+                'domain': CONF.identity.default_domain_id,
             }
         }
 
         with self.test_client() as c:
             c.post(
-                '/v3/users', json=create, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/users',
+                json=create,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_update_users(self):
@@ -100,8 +103,10 @@ class _SystemMemberAndReaderUserTests(object):
             update = {'user': {'email': uuid.uuid4().hex}}
 
             c.patch(
-                '/v3/users/%s' % user['id'], json=update, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/users/%s' % user['id'],
+                json=update,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_update_non_existent_user_forbidden(self):
@@ -112,8 +117,10 @@ class _SystemMemberAndReaderUserTests(object):
         update = {'user': {'email': uuid.uuid4().hex}}
         with self.test_client() as c:
             c.patch(
-                '/v3/users/%s' % user['id'], json=update, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/users/%s' % user['id'],
+                json=update,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_users(self):
@@ -123,15 +130,17 @@ class _SystemMemberAndReaderUserTests(object):
 
         with self.test_client() as c:
             c.delete(
-                '/v3/users/%s' % user['id'], headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/users/%s' % user['id'],
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_non_existent_user_forbidden(self):
         with self.test_client() as c:
             c.delete(
-                '/v3/users/%s' % uuid.uuid4().hex, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/users/%s' % uuid.uuid4().hex,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
 
@@ -158,8 +167,9 @@ class _DomainUserTests(object):
 
         with self.test_client() as c:
             c.get(
-                '/v3/users/%s' % user['id'], headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/users/%s' % user['id'],
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_can_list_users_within_domain(self):
@@ -198,16 +208,15 @@ class _DomainMemberAndReaderUserTests(object):
 
     def test_user_cannot_create_users_within_domain(self):
         create = {
-            'user': {
-                'domain_id': self.domain_id,
-                'name': uuid.uuid4().hex
-            }
+            'user': {'domain_id': self.domain_id, 'name': uuid.uuid4().hex}
         }
 
         with self.test_client() as c:
             c.post(
-                '/v3/users', json=create, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/users',
+                json=create,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_create_users_in_other_domain(self):
@@ -216,16 +225,15 @@ class _DomainMemberAndReaderUserTests(object):
         )
 
         create = {
-            'user': {
-                'domain_id': domain['id'],
-                'name': uuid.uuid4().hex
-            }
+            'user': {'domain_id': domain['id'], 'name': uuid.uuid4().hex}
         }
 
         with self.test_client() as c:
             c.post(
-                '/v3/users', json=create, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/users',
+                json=create,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_update_users_within_domain(self):
@@ -236,8 +244,10 @@ class _DomainMemberAndReaderUserTests(object):
         update = {'user': {'email': uuid.uuid4().hex}}
         with self.test_client() as c:
             c.patch(
-                '/v3/users/%s' % user['id'], json=update, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/users/%s' % user['id'],
+                json=update,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_update_users_in_other_domain(self):
@@ -251,8 +261,10 @@ class _DomainMemberAndReaderUserTests(object):
         update = {'user': {'email': uuid.uuid4().hex}}
         with self.test_client() as c:
             c.patch(
-                '/v3/users/%s' % user['id'], json=update, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/users/%s' % user['id'],
+                json=update,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_update_non_existent_user_forbidden(self):
@@ -263,8 +275,10 @@ class _DomainMemberAndReaderUserTests(object):
         update = {'user': {'email': uuid.uuid4().hex}}
         with self.test_client() as c:
             c.patch(
-                '/v3/users/%s' % user['id'], json=update, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/users/%s' % user['id'],
+                json=update,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_users_within_domain(self):
@@ -274,8 +288,9 @@ class _DomainMemberAndReaderUserTests(object):
 
         with self.test_client() as c:
             c.delete(
-                '/v3/users/%s' % user['id'], headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/users/%s' % user['id'],
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_users_in_other_domain(self):
@@ -288,15 +303,17 @@ class _DomainMemberAndReaderUserTests(object):
 
         with self.test_client() as c:
             c.delete(
-                '/v3/users/%s' % user['id'], headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/users/%s' % user['id'],
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_non_existent_user_forbidden(self):
         with self.test_client() as c:
             c.delete(
-                '/v3/users/%s' % uuid.uuid4().hex, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/users/%s' % uuid.uuid4().hex,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
 
@@ -310,8 +327,9 @@ class _ProjectUserTests(object):
 
         with self.test_client() as c:
             c.get(
-                '/v3/users/%s' % user['id'], headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/users/%s' % user['id'],
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_get_users_in_other_domains(self):
@@ -324,15 +342,17 @@ class _ProjectUserTests(object):
 
         with self.test_client() as c:
             c.get(
-                '/v3/users/%s' % user['id'], headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/users/%s' % user['id'],
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_get_non_existent_user_forbidden(self):
         with self.test_client() as c:
             c.get(
-                '/v3/users/%s' % uuid.uuid4().hex, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/users/%s' % uuid.uuid4().hex,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_list_users_within_domain(self):
@@ -340,7 +360,7 @@ class _ProjectUserTests(object):
             c.get(
                 '/v3/users?domain_id=%s' % self.domain_id,
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_list_users_in_other_domains(self):
@@ -355,21 +375,20 @@ class _ProjectUserTests(object):
             c.get(
                 '/v3/users?domain_id=%s' % domain['id'],
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_create_users_within_domain(self):
         create = {
-            'user': {
-                'domain_id': self.domain_id,
-                'name': uuid.uuid4().hex
-            }
+            'user': {'domain_id': self.domain_id, 'name': uuid.uuid4().hex}
         }
 
         with self.test_client() as c:
             c.post(
-                '/v3/users', json=create, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/users',
+                json=create,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_create_users_in_other_domains(self):
@@ -378,16 +397,15 @@ class _ProjectUserTests(object):
         )
 
         create = {
-            'user': {
-                'domain_id': domain['id'],
-                'name': uuid.uuid4().hex
-            }
+            'user': {'domain_id': domain['id'], 'name': uuid.uuid4().hex}
         }
 
         with self.test_client() as c:
             c.post(
-                '/v3/users', json=create, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/users',
+                json=create,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_update_users_within_domain(self):
@@ -398,8 +416,10 @@ class _ProjectUserTests(object):
         update = {'user': {'email': uuid.uuid4().hex}}
         with self.test_client() as c:
             c.patch(
-                '/v3/users/%s' % user['id'], json=update, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/users/%s' % user['id'],
+                json=update,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_update_users_in_other_domain(self):
@@ -413,17 +433,20 @@ class _ProjectUserTests(object):
         update = {'user': {'email': uuid.uuid4().hex}}
         with self.test_client() as c:
             c.patch(
-                '/v3/users/%s' % user['id'], json=update, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/users/%s' % user['id'],
+                json=update,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_update_non_existent_user_forbidden(self):
         update = {'user': {'email': uuid.uuid4().hex}}
         with self.test_client() as c:
             c.patch(
-                '/v3/users/%s' % uuid.uuid4().hex, json=update,
+                '/v3/users/%s' % uuid.uuid4().hex,
+                json=update,
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_users_within_domain(self):
@@ -433,8 +456,9 @@ class _ProjectUserTests(object):
 
         with self.test_client() as c:
             c.delete(
-                '/v3/users/%s' % user['id'], headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/users/%s' % user['id'],
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_users_in_other_domains(self):
@@ -447,23 +471,27 @@ class _ProjectUserTests(object):
 
         with self.test_client() as c:
             c.delete(
-                '/v3/users/%s' % user['id'], headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/users/%s' % user['id'],
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_non_existent_user_forbidden(self):
         with self.test_client() as c:
             c.delete(
-                '/v3/users/%s' % uuid.uuid4().hex, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/users/%s' % uuid.uuid4().hex,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
 
-class SystemReaderTests(base_classes.TestCaseWithBootstrap,
-                        common_auth.AuthTestMixin,
-                        _CommonUserTests,
-                        _SystemUserTests,
-                        _SystemMemberAndReaderUserTests):
+class SystemReaderTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _CommonUserTests,
+    _SystemUserTests,
+    _SystemMemberAndReaderUserTests,
+):
 
     def setUp(self):
         super(SystemReaderTests, self).setUp()
@@ -474,16 +502,15 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
         system_reader = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
         )
-        self.user_id = PROVIDERS.identity_api.create_user(
-            system_reader
-        )['id']
+        self.user_id = PROVIDERS.identity_api.create_user(system_reader)['id']
         PROVIDERS.assignment_api.create_system_grant_for_user(
             self.user_id, self.bootstrapper.reader_role_id
         )
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=system_reader['password'],
-            system=True
+            user_id=self.user_id,
+            password=system_reader['password'],
+            system=True,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -494,11 +521,13 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class SystemMemberTests(base_classes.TestCaseWithBootstrap,
-                        common_auth.AuthTestMixin,
-                        _CommonUserTests,
-                        _SystemUserTests,
-                        _SystemMemberAndReaderUserTests):
+class SystemMemberTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _CommonUserTests,
+    _SystemUserTests,
+    _SystemMemberAndReaderUserTests,
+):
 
     def setUp(self):
         super(SystemMemberTests, self).setUp()
@@ -509,16 +538,15 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
         system_member = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
         )
-        self.user_id = PROVIDERS.identity_api.create_user(
-            system_member
-        )['id']
+        self.user_id = PROVIDERS.identity_api.create_user(system_member)['id']
         PROVIDERS.assignment_api.create_system_grant_for_user(
             self.user_id, self.bootstrapper.member_role_id
         )
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=system_member['password'],
-            system=True
+            user_id=self.user_id,
+            password=system_member['password'],
+            system=True,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -529,10 +557,12 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class SystemAdminTests(base_classes.TestCaseWithBootstrap,
-                       common_auth.AuthTestMixin,
-                       _CommonUserTests,
-                       _SystemUserTests):
+class SystemAdminTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _CommonUserTests,
+    _SystemUserTests,
+):
 
     def setUp(self):
         super(SystemAdminTests, self).setUp()
@@ -544,7 +574,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
         auth = self.build_authentication_request(
             user_id=self.user_id,
             password=self.bootstrapper.admin_password,
-            system=True
+            system=True,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -558,7 +588,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
         create = {
             'user': {
                 'name': uuid.uuid4().hex,
-                'domain': CONF.identity.default_domain_id
+                'domain': CONF.identity.default_domain_id,
             }
         }
 
@@ -580,9 +610,10 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
         update = {'user': {'email': uuid.uuid4().hex}}
         with self.test_client() as c:
             c.patch(
-                '/v3/users/%s' % uuid.uuid4().hex, json=update,
+                '/v3/users/%s' % uuid.uuid4().hex,
+                json=update,
                 headers=self.headers,
-                expected_status_code=http.client.NOT_FOUND
+                expected_status_code=http.client.NOT_FOUND,
             )
 
     def test_user_can_delete_users(self):
@@ -596,16 +627,19 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
     def test_user_cannot_delete_non_existent_user_not_found(self):
         with self.test_client() as c:
             c.delete(
-                '/v3/users/%s' % uuid.uuid4().hex, headers=self.headers,
-                expected_status_code=http.client.NOT_FOUND
+                '/v3/users/%s' % uuid.uuid4().hex,
+                headers=self.headers,
+                expected_status_code=http.client.NOT_FOUND,
             )
 
 
-class DomainReaderTests(base_classes.TestCaseWithBootstrap,
-                        common_auth.AuthTestMixin,
-                        _CommonUserTests,
-                        _DomainUserTests,
-                        _DomainMemberAndReaderUserTests):
+class DomainReaderTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _CommonUserTests,
+    _DomainUserTests,
+    _DomainMemberAndReaderUserTests,
+):
 
     def setUp(self):
         super(DomainReaderTests, self).setUp()
@@ -620,12 +654,14 @@ class DomainReaderTests(base_classes.TestCaseWithBootstrap,
         domain_reader = unit.new_user_ref(domain_id=self.domain_id)
         self.user_id = PROVIDERS.identity_api.create_user(domain_reader)['id']
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.reader_role_id, user_id=self.user_id,
-            domain_id=self.domain_id
+            self.bootstrapper.reader_role_id,
+            user_id=self.user_id,
+            domain_id=self.domain_id,
         )
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=domain_reader['password'],
+            user_id=self.user_id,
+            password=domain_reader['password'],
             domain_id=self.domain_id,
         )
 
@@ -637,11 +673,13 @@ class DomainReaderTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class DomainMemberTests(base_classes.TestCaseWithBootstrap,
-                        common_auth.AuthTestMixin,
-                        _CommonUserTests,
-                        _DomainUserTests,
-                        _DomainMemberAndReaderUserTests):
+class DomainMemberTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _CommonUserTests,
+    _DomainUserTests,
+    _DomainMemberAndReaderUserTests,
+):
 
     def setUp(self):
         super(DomainMemberTests, self).setUp()
@@ -656,13 +694,15 @@ class DomainMemberTests(base_classes.TestCaseWithBootstrap,
         domain_user = unit.new_user_ref(domain_id=self.domain_id)
         self.user_id = PROVIDERS.identity_api.create_user(domain_user)['id']
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.member_role_id, user_id=self.user_id,
-            domain_id=self.domain_id
+            self.bootstrapper.member_role_id,
+            user_id=self.user_id,
+            domain_id=self.domain_id,
         )
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=domain_user['password'],
-            domain_id=self.domain_id
+            user_id=self.user_id,
+            password=domain_user['password'],
+            domain_id=self.domain_id,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -673,10 +713,12 @@ class DomainMemberTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class DomainAdminTests(base_classes.TestCaseWithBootstrap,
-                       common_auth.AuthTestMixin,
-                       _CommonUserTests,
-                       _DomainUserTests):
+class DomainAdminTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _CommonUserTests,
+    _DomainUserTests,
+):
 
     def setUp(self):
         super(DomainAdminTests, self).setUp()
@@ -700,12 +742,14 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
         domain_admin = unit.new_user_ref(domain_id=self.domain_id)
         self.user_id = PROVIDERS.identity_api.create_user(domain_admin)['id']
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.admin_role_id, user_id=self.user_id,
-            domain_id=self.domain_id
+            self.bootstrapper.admin_role_id,
+            user_id=self.user_id,
+            domain_id=self.domain_id,
         )
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=domain_admin['password'],
+            user_id=self.user_id,
+            password=domain_admin['password'],
             domain_id=self.domain_id,
         )
 
@@ -731,16 +775,13 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
                 'identity:list_users': up.SYSTEM_READER_OR_DOMAIN_READER,
                 'identity:create_user': up.SYSTEM_ADMIN_OR_DOMAIN_ADMIN,
                 'identity:update_user': up.SYSTEM_ADMIN_OR_DOMAIN_ADMIN,
-                'identity:delete_user': up.SYSTEM_ADMIN_OR_DOMAIN_ADMIN
+                'identity:delete_user': up.SYSTEM_ADMIN_OR_DOMAIN_ADMIN,
             }
             f.write(jsonutils.dumps(overridden_policies))
 
     def test_user_can_create_users_within_domain(self):
         create = {
-            'user': {
-                'domain_id': self.domain_id,
-                'name': uuid.uuid4().hex
-            }
+            'user': {'domain_id': self.domain_id, 'name': uuid.uuid4().hex}
         }
 
         with self.test_client() as c:
@@ -756,16 +797,15 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
         )
 
         create = {
-            'user': {
-                'domain-id': domain['id'],
-                'name': uuid.uuid4().hex
-            }
+            'user': {'domain-id': domain['id'], 'name': uuid.uuid4().hex}
         }
 
         with self.test_client() as c:
             c.post(
-                '/v3/users', json=create, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/users',
+                json=create,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_create_users_in_other_domain(self):
@@ -774,16 +814,15 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
         )
 
         create = {
-            'user': {
-                'domain_id': domain['id'],
-                'name': uuid.uuid4().hex
-            }
+            'user': {'domain_id': domain['id'], 'name': uuid.uuid4().hex}
         }
 
         with self.test_client() as c:
             c.post(
-                '/v3/users', json=create, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/users',
+                json=create,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_can_update_users_within_domain(self):
@@ -828,17 +867,20 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
         update = {'user': {'email': uuid.uuid4().hex}}
         with self.test_client() as c:
             c.patch(
-                '/v3/users/%s' % user['id'], json=update, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/users/%s' % user['id'],
+                json=update,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_update_non_existent_user_forbidden(self):
         update = {'user': {'email': uuid.uuid4().hex}}
         with self.test_client() as c:
             c.patch(
-                '/v3/users/%s' % uuid.uuid4().hex, json=update,
+                '/v3/users/%s' % uuid.uuid4().hex,
+                json=update,
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_can_delete_users_within_domain(self):
@@ -847,9 +889,7 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
         )
 
         with self.test_client() as c:
-            c.delete(
-                '/v3/users/%s' % user['id'], headers=self.headers
-            )
+            c.delete('/v3/users/%s' % user['id'], headers=self.headers)
 
     def test_user_cannot_delete_users_in_other_domain(self):
         domain = PROVIDERS.resource_api.create_domain(
@@ -861,22 +901,26 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
 
         with self.test_client() as c:
             c.delete(
-                '/v3/users/%s' % user['id'], headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/users/%s' % user['id'],
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_non_existent_user_forbidden(self):
         with self.test_client() as c:
             c.delete(
-                '/v3/users/%s' % uuid.uuid4().hex, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/users/%s' % uuid.uuid4().hex,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
 
-class ProjectReaderTests(base_classes.TestCaseWithBootstrap,
-                         common_auth.AuthTestMixin,
-                         _CommonUserTests,
-                         _ProjectUserTests):
+class ProjectReaderTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _CommonUserTests,
+    _ProjectUserTests,
+):
 
     def setUp(self):
         super(ProjectReaderTests, self).setUp()
@@ -896,12 +940,14 @@ class ProjectReaderTests(base_classes.TestCaseWithBootstrap,
         project_reader = unit.new_user_ref(domain_id=self.domain_id)
         self.user_id = PROVIDERS.identity_api.create_user(project_reader)['id']
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.reader_role_id, user_id=self.user_id,
-            project_id=self.project_id
+            self.bootstrapper.reader_role_id,
+            user_id=self.user_id,
+            project_id=self.project_id,
         )
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=project_reader['password'],
+            user_id=self.user_id,
+            password=project_reader['password'],
             project_id=self.project_id,
         )
 
@@ -913,10 +959,12 @@ class ProjectReaderTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class ProjectMemberTests(base_classes.TestCaseWithBootstrap,
-                         common_auth.AuthTestMixin,
-                         _CommonUserTests,
-                         _ProjectUserTests):
+class ProjectMemberTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _CommonUserTests,
+    _ProjectUserTests,
+):
 
     def setUp(self):
         super(ProjectMemberTests, self).setUp()
@@ -936,12 +984,14 @@ class ProjectMemberTests(base_classes.TestCaseWithBootstrap,
         project_member = unit.new_user_ref(domain_id=self.domain_id)
         self.user_id = PROVIDERS.identity_api.create_user(project_member)['id']
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.member_role_id, user_id=self.user_id,
-            project_id=self.project_id
+            self.bootstrapper.member_role_id,
+            user_id=self.user_id,
+            project_id=self.project_id,
         )
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=project_member['password'],
+            user_id=self.user_id,
+            password=project_member['password'],
             project_id=self.project_id,
         )
 
@@ -953,10 +1003,12 @@ class ProjectMemberTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class ProjectAdminTests(base_classes.TestCaseWithBootstrap,
-                        common_auth.AuthTestMixin,
-                        _CommonUserTests,
-                        _ProjectUserTests):
+class ProjectAdminTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _CommonUserTests,
+    _ProjectUserTests,
+):
 
     def setUp(self):
         super(ProjectAdminTests, self).setUp()
@@ -982,7 +1034,7 @@ class ProjectAdminTests(base_classes.TestCaseWithBootstrap,
         auth = self.build_authentication_request(
             user_id=self.user_id,
             password=self.bootstrapper.admin_password,
-            project_id=self.bootstrapper.project_id
+            project_id=self.bootstrapper.project_id,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -1007,6 +1059,6 @@ class ProjectAdminTests(base_classes.TestCaseWithBootstrap,
                 'identity:list_users': up.SYSTEM_READER_OR_DOMAIN_READER,
                 'identity:create_user': up.SYSTEM_ADMIN_OR_DOMAIN_ADMIN,
                 'identity:update_user': up.SYSTEM_ADMIN_OR_DOMAIN_ADMIN,
-                'identity:delete_user': up.SYSTEM_ADMIN_OR_DOMAIN_ADMIN
+                'identity:delete_user': up.SYSTEM_ADMIN_OR_DOMAIN_ADMIN,
             }
             f.write(jsonutils.dumps(overridden_policies))

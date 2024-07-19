@@ -84,13 +84,17 @@ class TokenModel(object):
 
     def __repr__(self):
         """Return string representation of TokenModel."""
-        desc = ('<%(type)s (audit_id=%(audit_id)s, '
-                'audit_chain_id=%(audit_ids)s) at %(loc)s>')
+        desc = (
+            '<%(type)s (audit_id=%(audit_id)s, '
+            'audit_chain_id=%(audit_ids)s) at %(loc)s>'
+        )
         self_cls_name = reflection.get_class_name(self, fully_qualified=False)
-        return desc % {'type': self_cls_name,
-                       'audit_id': self.audit_id,
-                       'audit_ids': self.audit_ids,
-                       'loc': hex(id(self))}
+        return desc % {
+            'type': self_cls_name,
+            'audit_id': self.audit_id,
+            'audit_ids': self.audit_ids,
+            'loc': hex(id(self)),
+        }
 
     @property
     def audit_ids(self):
@@ -121,8 +125,12 @@ class TokenModel(object):
     @property
     def unscoped(self):
         return not any(
-            [self.system_scoped, self.domain_scoped, self.project_scoped,
-             self.trust_scoped]
+            [
+                self.system_scoped,
+                self.domain_scoped,
+                self.project_scoped,
+                self.trust_scoped,
+            ]
         )
 
     @property
@@ -297,21 +305,17 @@ class TokenModel(object):
         # because the user ID of the original trustor helps us determine scope
         # in the redelegated context.
         if self.trust.get('redelegated_trust_id'):
-            trust_chain = PROVIDERS.trust_api.get_trust_pedigree(
-                self.trust_id
-            )
+            trust_chain = PROVIDERS.trust_api.get_trust_pedigree(self.trust_id)
             original_trustor_id = trust_chain[-1]['trustor_user_id']
         else:
             original_trustor_id = self.trustor['id']
 
-        trust_roles = [
-            {'role_id': role['id']} for role in self.trust['roles']
-        ]
-        effective_trust_roles = (
-            PROVIDERS.assignment_api.add_implied_roles(trust_roles)
+        trust_roles = [{'role_id': role['id']} for role in self.trust['roles']]
+        effective_trust_roles = PROVIDERS.assignment_api.add_implied_roles(
+            trust_roles
         )
-        effective_trust_role_ids = (
-            set([r['role_id'] for r in effective_trust_roles])
+        effective_trust_role_ids = set(
+            [r['role_id'] for r in effective_trust_roles]
         )
 
         current_effective_trustor_roles = (
@@ -326,8 +330,7 @@ class TokenModel(object):
                 if role['domain_id'] is None:
                     roles.append(role)
             else:
-                raise exception.Forbidden(
-                    _('Trustee has no delegated roles.'))
+                raise exception.Forbidden(_('Trustee has no delegated roles.'))
 
         return roles
 
@@ -335,7 +338,8 @@ class TokenModel(object):
         roles = []
         access_token_roles = self.access_token['role_ids']
         access_token_roles = [
-            {'role_id': r} for r in jsonutils.loads(access_token_roles)]
+            {'role_id': r} for r in jsonutils.loads(access_token_roles)
+        ]
         effective_access_token_roles = (
             PROVIDERS.assignment_api.add_implied_roles(access_token_roles)
         )
@@ -354,9 +358,7 @@ class TokenModel(object):
         )
         for group_id in group_ids:
             group_roles = (
-                PROVIDERS.assignment_api.list_system_grants_for_group(
-                    group_id
-                )
+                PROVIDERS.assignment_api.list_system_grants_for_group(group_id)
             )
             for role in group_roles:
                 federated_roles.append(role)
@@ -403,10 +405,8 @@ class TokenModel(object):
 
     def _get_domain_roles(self):
         roles = []
-        domain_roles = (
-            PROVIDERS.assignment_api.get_roles_for_user_and_domain(
-                self.user_id, self.domain_id
-            )
+        domain_roles = PROVIDERS.assignment_api.get_roles_for_user_and_domain(
+            self.user_id, self.domain_id
         )
         for role_id in domain_roles:
             role = PROVIDERS.role_api.get_role(role_id)
@@ -434,7 +434,8 @@ class TokenModel(object):
             user_id=self.user_id,
             project_id=self.project_id,
             domain_id=self.domain_id,
-            effective=True)
+            effective=True,
+        )
         user_roles = list(set([x['role_id'] for x in assignment_list]))
 
         for role in app_cred_roles:
@@ -468,17 +469,23 @@ class TokenModel(object):
 
     def _validate_token_resources(self):
         if self.project and not self.project.get('enabled'):
-            msg = ('Unable to validate token because project %(id)s is '
-                   'disabled') % {'id': self.project_id}
-            tr_msg = _('Unable to validate token because project %(id)s is '
-                       'disabled') % {'id': self.project_id}
+            msg = (
+                'Unable to validate token because project %(id)s is '
+                'disabled'
+            ) % {'id': self.project_id}
+            tr_msg = _(
+                'Unable to validate token because project %(id)s is '
+                'disabled'
+            ) % {'id': self.project_id}
             LOG.warning(msg)
             raise exception.ProjectNotFound(tr_msg)
         if self.project and not self.project_domain.get('enabled'):
-            msg = ('Unable to validate token because domain %(id)s is '
-                   'disabled') % {'id': self.project_domain['id']}
-            tr_msg = _('Unable to validate token because domain %(id)s is '
-                       'disabled') % {'id': self.project_domain['id']}
+            msg = (
+                'Unable to validate token because domain %(id)s is ' 'disabled'
+            ) % {'id': self.project_domain['id']}
+            tr_msg = _(
+                'Unable to validate token because domain %(id)s is ' 'disabled'
+            ) % {'id': self.project_domain['id']}
             LOG.warning(msg)
             raise exception.DomainNotFound(tr_msg)
 
@@ -500,26 +507,28 @@ class TokenModel(object):
                 raise exception.TokenNotFound(_('Trustee domain is disabled.'))
 
             try:
-                PROVIDERS.identity_api.assert_user_enabled(
-                    self.trustor['id']
-                )
+                PROVIDERS.identity_api.assert_user_enabled(self.trustor['id'])
             except AssertionError:
                 raise exception.Forbidden(_('Trustor is disabled.'))
 
         if not self.user_domain.get('enabled'):
-            msg = ('Unable to validate token because domain %(id)s is '
-                   'disabled') % {'id': self.user_domain['id']}
-            tr_msg = _('Unable to validate token because domain %(id)s is '
-                       'disabled') % {'id': self.user_domain['id']}
+            msg = (
+                'Unable to validate token because domain %(id)s is ' 'disabled'
+            ) % {'id': self.user_domain['id']}
+            tr_msg = _(
+                'Unable to validate token because domain %(id)s is ' 'disabled'
+            ) % {'id': self.user_domain['id']}
             LOG.warning(msg)
             raise exception.DomainNotFound(tr_msg)
 
     def _validate_system_scope(self):
         if self.system_scoped and not self.roles:
-            msg = ('User %(user_id)s has no access to the system'
-                   ) % {'user_id': self.user_id}
-            tr_msg = _('User %(user_id)s has no access to the system'
-                       ) % {'user_id': self.user_id}
+            msg = ('User %(user_id)s has no access to the system') % {
+                'user_id': self.user_id
+            }
+            tr_msg = _('User %(user_id)s has no access to the system') % {
+                'user_id': self.user_id
+            }
             LOG.debug(msg)
             raise exception.Unauthorized(tr_msg)
 
@@ -552,8 +561,8 @@ class TokenModel(object):
             effective_trust_roles = PROVIDERS.assignment_api.add_implied_roles(
                 refs
             )
-            effective_trust_role_ids = (
-                set([r['role_id'] for r in effective_trust_roles])
+            effective_trust_role_ids = set(
+                [r['role_id'] for r in effective_trust_roles]
             )
             current_effective_trustor_roles = (
                 PROVIDERS.assignment_api.get_roles_for_trustor_and_project(
@@ -570,7 +579,8 @@ class TokenModel(object):
                         trust_roles.append(role)
                 else:
                     raise exception.Forbidden(
-                        _('Trustee has no delegated roles.'))
+                        _('Trustee has no delegated roles.')
+                    )
 
     def mint(self, token_id, issued_at):
         """Set the ``id`` and ``issued_at`` attributes of a token.

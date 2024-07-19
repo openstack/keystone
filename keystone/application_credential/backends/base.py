@@ -81,8 +81,9 @@ class ApplicationCredentialDriverBase(object, metaclass=abc.ABCMeta):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def delete_application_credentials_for_user_on_project(self, user_id,
-                                                           project_id):
+    def delete_application_credentials_for_user_on_project(
+        self, user_id, project_id
+    ):
         """Delete all application credentials for a user on a given project.
 
         :param str user_id: ID of a user to whose application credentials

@@ -72,8 +72,12 @@ def _generate_totp_passcodes(secret, included_previous_windows=0):
     # HMAC-SHA1 when generating the TOTP, which is currently not insecure but
     # will still trigger when scanned by bandit.
     totp = crypto_totp.TOTP(
-        decoded, PASSCODE_LENGTH, hashes.SHA1(), PASSCODE_TIME_PERIOD,  # nosec
-        backend=default_backend())
+        decoded,
+        PASSCODE_LENGTH,
+        hashes.SHA1(),  # nosec
+        PASSCODE_TIME_PERIOD,
+        backend=default_backend(),
+    )
 
     passcode_ts = timeutils.utcnow_ts(microsecond=True)
     passcodes = [totp.generate(passcode_ts).decode('utf-8')]
@@ -95,22 +99,29 @@ class TOTP(base.AuthMethodHandler):
         auth_passcode = auth_payload.get('user').get('passcode')
 
         credentials = PROVIDERS.credential_api.list_credentials_for_user(
-            user_info.user_id, type='totp')
+            user_info.user_id, type='totp'
+        )
 
         valid_passcode = False
         for credential in credentials:
             try:
                 generated_passcodes = _generate_totp_passcodes(
-                    credential['blob'], CONF.totp.included_previous_windows)
+                    credential['blob'], CONF.totp.included_previous_windows
+                )
                 if auth_passcode in generated_passcodes:
                     valid_passcode = True
                     break
             except (ValueError, KeyError):
-                LOG.debug('No TOTP match; credential id: %s, user_id: %s',
-                          credential['id'], user_info.user_id)
-            except (TypeError):
-                LOG.debug('Base32 decode failed for TOTP credential %s',
-                          credential['id'])
+                LOG.debug(
+                    'No TOTP match; credential id: %s, user_id: %s',
+                    credential['id'],
+                    user_info.user_id,
+                )
+            except TypeError:
+                LOG.debug(
+                    'Base32 decode failed for TOTP credential %s',
+                    credential['id'],
+                )
 
         if not valid_passcode:
             # authentication failed because of invalid username or passcode
@@ -119,5 +130,6 @@ class TOTP(base.AuthMethodHandler):
 
         response_data['user_id'] = user_info.user_id
 
-        return base.AuthHandlerResponse(status=True, response_body=None,
-                                        response_data=response_data)
+        return base.AuthHandlerResponse(
+            status=True, response_body=None, response_data=response_data
+        )

@@ -33,18 +33,21 @@ def _build_enforcement_target(allow_non_existing=False):
     if flask.request.view_args:
         if flask.request.view_args.get('role_id'):
             target['role'] = PROVIDERS.role_api.get_role(
-                flask.request.view_args['role_id'])
+                flask.request.view_args['role_id']
+            )
         if flask.request.view_args.get('user_id'):
             try:
                 target['user'] = PROVIDERS.identity_api.get_user(
-                    flask.request.view_args['user_id'])
+                    flask.request.view_args['user_id']
+                )
             except exception.UserNotFound:
                 if not allow_non_existing:
                     raise
         else:
             try:
                 target['group'] = PROVIDERS.identity_api.get_group(
-                    flask.request.view_args.get('group_id'))
+                    flask.request.view_args.get('group_id')
+                )
             except exception.GroupNotFound:
                 if not allow_non_existing:
                     raise
@@ -57,11 +60,14 @@ class SystemUsersListResource(flask_restful.Resource):
 
         GET/HEAD /system/users/{user_id}/roles
         """
-        ENFORCER.enforce_call(action='identity:list_system_grants_for_user',
-                              build_target=_build_enforcement_target)
+        ENFORCER.enforce_call(
+            action='identity:list_system_grants_for_user',
+            build_target=_build_enforcement_target,
+        )
         refs = PROVIDERS.assignment_api.list_system_grants_for_user(user_id)
         return ks_flask.ResourceBase.wrap_collection(
-            refs, collection_name='roles')
+            refs, collection_name='roles'
+        )
 
 
 class SystemUsersResource(flask_restful.Resource):
@@ -70,8 +76,10 @@ class SystemUsersResource(flask_restful.Resource):
 
         GET/HEAD /system/users/{user_id}/roles/{role_id}
         """
-        ENFORCER.enforce_call(action='identity:check_system_grant_for_user',
-                              build_target=_build_enforcement_target)
+        ENFORCER.enforce_call(
+            action='identity:check_system_grant_for_user',
+            build_target=_build_enforcement_target,
+        )
         PROVIDERS.assignment_api.check_system_grant_for_user(user_id, role_id)
         return None, http.client.NO_CONTENT
 
@@ -80,8 +88,10 @@ class SystemUsersResource(flask_restful.Resource):
 
         PUT /system/users/{user_id}/roles/{role_id}
         """
-        ENFORCER.enforce_call(action='identity:create_system_grant_for_user',
-                              build_target=_build_enforcement_target)
+        ENFORCER.enforce_call(
+            action='identity:create_system_grant_for_user',
+            build_target=_build_enforcement_target,
+        )
         PROVIDERS.assignment_api.create_system_grant_for_user(user_id, role_id)
         return None, http.client.NO_CONTENT
 
@@ -93,8 +103,9 @@ class SystemUsersResource(flask_restful.Resource):
         ENFORCER.enforce_call(
             action='identity:revoke_system_grant_for_user',
             build_target=functools.partial(
-                _build_enforcement_target,
-                allow_non_existing=True))
+                _build_enforcement_target, allow_non_existing=True
+            ),
+        )
         PROVIDERS.assignment_api.delete_system_grant_for_user(user_id, role_id)
         return None, http.client.NO_CONTENT
 
@@ -105,11 +116,14 @@ class SystemGroupsRolesListResource(flask_restful.Resource):
 
         GET/HEAD /system/groups/{group_id}/roles
         """
-        ENFORCER.enforce_call(action='identity:list_system_grants_for_group',
-                              build_target=_build_enforcement_target)
+        ENFORCER.enforce_call(
+            action='identity:list_system_grants_for_group',
+            build_target=_build_enforcement_target,
+        )
         refs = PROVIDERS.assignment_api.list_system_grants_for_group(group_id)
         return ks_flask.ResourceBase.wrap_collection(
-            refs, collection_name='roles')
+            refs, collection_name='roles'
+        )
 
 
 class SystemGroupsRolestResource(flask_restful.Resource):
@@ -118,10 +132,13 @@ class SystemGroupsRolestResource(flask_restful.Resource):
 
         GET/HEAD /system/groups/{group_id}/roles/{role_id}
         """
-        ENFORCER.enforce_call(action='identity:check_system_grant_for_group',
-                              build_target=_build_enforcement_target)
+        ENFORCER.enforce_call(
+            action='identity:check_system_grant_for_group',
+            build_target=_build_enforcement_target,
+        )
         PROVIDERS.assignment_api.check_system_grant_for_group(
-            group_id, role_id)
+            group_id, role_id
+        )
         return None, http.client.NO_CONTENT
 
     def put(self, group_id, role_id):
@@ -129,10 +146,13 @@ class SystemGroupsRolestResource(flask_restful.Resource):
 
         PUT /system/groups/{group_id}/roles/{role_id}
         """
-        ENFORCER.enforce_call(action='identity:create_system_grant_for_group',
-                              build_target=_build_enforcement_target)
+        ENFORCER.enforce_call(
+            action='identity:create_system_grant_for_group',
+            build_target=_build_enforcement_target,
+        )
         PROVIDERS.assignment_api.create_system_grant_for_group(
-            group_id, role_id)
+            group_id, role_id
+        )
         return None, http.client.NO_CONTENT
 
     def delete(self, group_id, role_id):
@@ -143,10 +163,12 @@ class SystemGroupsRolestResource(flask_restful.Resource):
         ENFORCER.enforce_call(
             action='identity:revoke_system_grant_for_group',
             build_target=functools.partial(
-                _build_enforcement_target,
-                allow_non_existing=True))
+                _build_enforcement_target, allow_non_existing=True
+            ),
+        )
         PROVIDERS.assignment_api.delete_system_grant_for_group(
-            group_id, role_id)
+            group_id, role_id
+        )
         return None, http.client.NO_CONTENT
 
 
@@ -160,7 +182,8 @@ class SystemAPI(ks_flask.APIBase):
             url='/system/users/<string:user_id>/roles',
             resource_kwargs={},
             rel='system_user_roles',
-            path_vars={'user_id': json_home.Parameters.USER_ID}),
+            path_vars={'user_id': json_home.Parameters.USER_ID},
+        ),
         ks_flask.construct_resource_map(
             resource=SystemUsersResource,
             url='/system/users/<string:user_id>/roles/<string:role_id>',
@@ -168,13 +191,16 @@ class SystemAPI(ks_flask.APIBase):
             rel='system_user_role',
             path_vars={
                 'role_id': json_home.Parameters.ROLE_ID,
-                'user_id': json_home.Parameters.USER_ID}),
+                'user_id': json_home.Parameters.USER_ID,
+            },
+        ),
         ks_flask.construct_resource_map(
             resource=SystemGroupsRolesListResource,
             url='/system/groups/<string:group_id>/roles',
             resource_kwargs={},
             rel='system_group_roles',
-            path_vars={'group_id': json_home.Parameters.GROUP_ID}),
+            path_vars={'group_id': json_home.Parameters.GROUP_ID},
+        ),
         ks_flask.construct_resource_map(
             resource=SystemGroupsRolestResource,
             url='/system/groups/<string:group_id>/roles/<string:role_id>',
@@ -182,7 +208,9 @@ class SystemAPI(ks_flask.APIBase):
             rel='system_group_role',
             path_vars={
                 'role_id': json_home.Parameters.ROLE_ID,
-                'group_id': json_home.Parameters.GROUP_ID})
+                'group_id': json_home.Parameters.GROUP_ID,
+            },
+        ),
     ]
 
 

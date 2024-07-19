@@ -71,16 +71,22 @@ class CatalogTests(object):
 
         # delete
         PROVIDERS.catalog_api.delete_region(parent_region_id)
-        self.assertRaises(exception.RegionNotFound,
-                          PROVIDERS.catalog_api.delete_region,
-                          parent_region_id)
-        self.assertRaises(exception.RegionNotFound,
-                          PROVIDERS.catalog_api.get_region,
-                          parent_region_id)
+        self.assertRaises(
+            exception.RegionNotFound,
+            PROVIDERS.catalog_api.delete_region,
+            parent_region_id,
+        )
+        self.assertRaises(
+            exception.RegionNotFound,
+            PROVIDERS.catalog_api.get_region,
+            parent_region_id,
+        )
         # Ensure the child is also gone...
-        self.assertRaises(exception.RegionNotFound,
-                          PROVIDERS.catalog_api.get_region,
-                          region_id)
+        self.assertRaises(
+            exception.RegionNotFound,
+            PROVIDERS.catalog_api.get_region,
+            region_id,
+        )
 
     def _create_region_with_parent_id(self, parent_id=None):
         new_region = unit.new_region_ref(parent_region_id=parent_id)
@@ -113,27 +119,30 @@ class CatalogTests(object):
         PROVIDERS.catalog_api.driver.update_region(region_id, updated_region)
         self.assertLessEqual(
             new_region.items(),
-            PROVIDERS.catalog_api.get_region(region_id).items()
+            PROVIDERS.catalog_api.get_region(region_id).items(),
         )
         PROVIDERS.catalog_api.get_region.invalidate(
             PROVIDERS.catalog_api, region_id
         )
         self.assertLessEqual(
             updated_region.items(),
-            PROVIDERS.catalog_api.get_region(region_id).items()
+            PROVIDERS.catalog_api.get_region(region_id).items(),
         )
         # delete the region
         PROVIDERS.catalog_api.driver.delete_region(region_id)
         # still get the old region
         self.assertLessEqual(
             updated_region.items(),
-            PROVIDERS.catalog_api.get_region(region_id).items()
+            PROVIDERS.catalog_api.get_region(region_id).items(),
         )
         PROVIDERS.catalog_api.get_region.invalidate(
             PROVIDERS.catalog_api, region_id
         )
-        self.assertRaises(exception.RegionNotFound,
-                          PROVIDERS.catalog_api.get_region, region_id)
+        self.assertRaises(
+            exception.RegionNotFound,
+            PROVIDERS.catalog_api.get_region,
+            region_id,
+        )
 
     @unit.skip_if_cache_disabled('catalog')
     def test_invalidate_cache_when_updating_region(self):
@@ -150,8 +159,9 @@ class CatalogTests(object):
 
         # assert that we can get the new region
         current_region = PROVIDERS.catalog_api.get_region(region_id)
-        self.assertEqual(new_description['description'],
-                         current_region['description'])
+        self.assertEqual(
+            new_description['description'], current_region['description']
+        )
 
     def test_update_region_extras(self):
         new_region = unit.new_region_ref()
@@ -159,64 +169,75 @@ class CatalogTests(object):
         PROVIDERS.catalog_api.create_region(new_region)
 
         email = 'keystone@openstack.org'
-        new_ref = {'description': uuid.uuid4().hex,
-                   'email': email}
+        new_ref = {'description': uuid.uuid4().hex, 'email': email}
         PROVIDERS.catalog_api.update_region(region_id, new_ref)
 
         current_region = PROVIDERS.catalog_api.get_region(region_id)
-        self.assertEqual(email,
-                         current_region['email'])
+        self.assertEqual(email, current_region['email'])
 
     def test_create_region_with_duplicate_id(self):
         new_region = unit.new_region_ref()
         PROVIDERS.catalog_api.create_region(new_region)
         # Create region again with duplicate id
-        self.assertRaises(exception.Conflict,
-                          PROVIDERS.catalog_api.create_region,
-                          new_region)
+        self.assertRaises(
+            exception.Conflict, PROVIDERS.catalog_api.create_region, new_region
+        )
 
     def test_get_region_returns_not_found(self):
-        self.assertRaises(exception.RegionNotFound,
-                          PROVIDERS.catalog_api.get_region,
-                          uuid.uuid4().hex)
+        self.assertRaises(
+            exception.RegionNotFound,
+            PROVIDERS.catalog_api.get_region,
+            uuid.uuid4().hex,
+        )
 
     def test_delete_region_returns_not_found(self):
-        self.assertRaises(exception.RegionNotFound,
-                          PROVIDERS.catalog_api.delete_region,
-                          uuid.uuid4().hex)
+        self.assertRaises(
+            exception.RegionNotFound,
+            PROVIDERS.catalog_api.delete_region,
+            uuid.uuid4().hex,
+        )
 
     def test_create_region_invalid_parent_region_returns_not_found(self):
         new_region = unit.new_region_ref(parent_region_id=uuid.uuid4().hex)
-        self.assertRaises(exception.RegionNotFound,
-                          PROVIDERS.catalog_api.create_region,
-                          new_region)
+        self.assertRaises(
+            exception.RegionNotFound,
+            PROVIDERS.catalog_api.create_region,
+            new_region,
+        )
 
     def test_avoid_creating_circular_references_in_regions_update(self):
         region_one = self._create_region_with_parent_id()
 
         # self circle: region_one->region_one
-        self.assertRaises(exception.CircularRegionHierarchyError,
-                          PROVIDERS.catalog_api.update_region,
-                          region_one['id'],
-                          {'parent_region_id': region_one['id']})
+        self.assertRaises(
+            exception.CircularRegionHierarchyError,
+            PROVIDERS.catalog_api.update_region,
+            region_one['id'],
+            {'parent_region_id': region_one['id']},
+        )
 
         # region_one->region_two->region_one
         region_two = self._create_region_with_parent_id(region_one['id'])
-        self.assertRaises(exception.CircularRegionHierarchyError,
-                          PROVIDERS.catalog_api.update_region,
-                          region_one['id'],
-                          {'parent_region_id': region_two['id']})
+        self.assertRaises(
+            exception.CircularRegionHierarchyError,
+            PROVIDERS.catalog_api.update_region,
+            region_one['id'],
+            {'parent_region_id': region_two['id']},
+        )
 
         # region_one region_two->region_three->region_four->region_two
         region_three = self._create_region_with_parent_id(region_two['id'])
         region_four = self._create_region_with_parent_id(region_three['id'])
-        self.assertRaises(exception.CircularRegionHierarchyError,
-                          PROVIDERS.catalog_api.update_region,
-                          region_two['id'],
-                          {'parent_region_id': region_four['id']})
+        self.assertRaises(
+            exception.CircularRegionHierarchyError,
+            PROVIDERS.catalog_api.update_region,
+            region_two['id'],
+            {'parent_region_id': region_four['id']},
+        )
 
-    @mock.patch.object(base.CatalogDriverBase,
-                       "_ensure_no_circle_in_hierarchical_regions")
+    @mock.patch.object(
+        base.CatalogDriverBase, "_ensure_no_circle_in_hierarchical_regions"
+    )
     def test_circular_regions_can_be_deleted(self, mock_ensure_on_circle):
         # turn off the enforcement so that cycles can be created for the test
         mock_ensure_on_circle.return_value = None
@@ -225,44 +246,56 @@ class CatalogTests(object):
 
         # self circle: region_one->region_one
         PROVIDERS.catalog_api.update_region(
-            region_one['id'],
-            {'parent_region_id': region_one['id']})
+            region_one['id'], {'parent_region_id': region_one['id']}
+        )
         PROVIDERS.catalog_api.delete_region(region_one['id'])
-        self.assertRaises(exception.RegionNotFound,
-                          PROVIDERS.catalog_api.get_region,
-                          region_one['id'])
+        self.assertRaises(
+            exception.RegionNotFound,
+            PROVIDERS.catalog_api.get_region,
+            region_one['id'],
+        )
 
         # region_one->region_two->region_one
         region_one = self._create_region_with_parent_id()
         region_two = self._create_region_with_parent_id(region_one['id'])
         PROVIDERS.catalog_api.update_region(
-            region_one['id'],
-            {'parent_region_id': region_two['id']})
+            region_one['id'], {'parent_region_id': region_two['id']}
+        )
         PROVIDERS.catalog_api.delete_region(region_one['id'])
-        self.assertRaises(exception.RegionNotFound,
-                          PROVIDERS.catalog_api.get_region,
-                          region_one['id'])
-        self.assertRaises(exception.RegionNotFound,
-                          PROVIDERS.catalog_api.get_region,
-                          region_two['id'])
+        self.assertRaises(
+            exception.RegionNotFound,
+            PROVIDERS.catalog_api.get_region,
+            region_one['id'],
+        )
+        self.assertRaises(
+            exception.RegionNotFound,
+            PROVIDERS.catalog_api.get_region,
+            region_two['id'],
+        )
 
         # region_one->region_two->region_three->region_one
         region_one = self._create_region_with_parent_id()
         region_two = self._create_region_with_parent_id(region_one['id'])
         region_three = self._create_region_with_parent_id(region_two['id'])
         PROVIDERS.catalog_api.update_region(
-            region_one['id'],
-            {'parent_region_id': region_three['id']})
+            region_one['id'], {'parent_region_id': region_three['id']}
+        )
         PROVIDERS.catalog_api.delete_region(region_two['id'])
-        self.assertRaises(exception.RegionNotFound,
-                          PROVIDERS.catalog_api.get_region,
-                          region_two['id'])
-        self.assertRaises(exception.RegionNotFound,
-                          PROVIDERS.catalog_api.get_region,
-                          region_one['id'])
-        self.assertRaises(exception.RegionNotFound,
-                          PROVIDERS.catalog_api.get_region,
-                          region_three['id'])
+        self.assertRaises(
+            exception.RegionNotFound,
+            PROVIDERS.catalog_api.get_region,
+            region_two['id'],
+        )
+        self.assertRaises(
+            exception.RegionNotFound,
+            PROVIDERS.catalog_api.get_region,
+            region_one['id'],
+        )
+        self.assertRaises(
+            exception.RegionNotFound,
+            PROVIDERS.catalog_api.get_region,
+            region_three['id'],
+        )
 
     def test_service_crud(self):
         # create
@@ -286,12 +319,16 @@ class CatalogTests(object):
 
         # delete
         PROVIDERS.catalog_api.delete_service(service_id)
-        self.assertRaises(exception.ServiceNotFound,
-                          PROVIDERS.catalog_api.delete_service,
-                          service_id)
-        self.assertRaises(exception.ServiceNotFound,
-                          PROVIDERS.catalog_api.get_service,
-                          service_id)
+        self.assertRaises(
+            exception.ServiceNotFound,
+            PROVIDERS.catalog_api.delete_service,
+            service_id,
+        )
+        self.assertRaises(
+            exception.ServiceNotFound,
+            PROVIDERS.catalog_api.get_service,
+            service_id,
+        )
 
     def _create_random_service(self):
         new_service = unit.new_service_ref()
@@ -347,31 +384,35 @@ class CatalogTests(object):
         )
         self.assertLessEqual(
             new_service.items(),
-            PROVIDERS.catalog_api.get_service(service_id).items()
+            PROVIDERS.catalog_api.get_service(service_id).items(),
         )
         PROVIDERS.catalog_api.get_service.invalidate(
             PROVIDERS.catalog_api, service_id
         )
         self.assertLessEqual(
             updated_service.items(),
-            PROVIDERS.catalog_api.get_service(service_id).items()
+            PROVIDERS.catalog_api.get_service(service_id).items(),
         )
 
         # delete bypassing catalog api
         PROVIDERS.catalog_api.driver.delete_service(service_id)
         self.assertLessEqual(
             updated_service.items(),
-            PROVIDERS.catalog_api.get_service(service_id).items()
+            PROVIDERS.catalog_api.get_service(service_id).items(),
         )
         PROVIDERS.catalog_api.get_service.invalidate(
             PROVIDERS.catalog_api, service_id
         )
-        self.assertRaises(exception.ServiceNotFound,
-                          PROVIDERS.catalog_api.delete_service,
-                          service_id)
-        self.assertRaises(exception.ServiceNotFound,
-                          PROVIDERS.catalog_api.get_service,
-                          service_id)
+        self.assertRaises(
+            exception.ServiceNotFound,
+            PROVIDERS.catalog_api.delete_service,
+            service_id,
+        )
+        self.assertRaises(
+            exception.ServiceNotFound,
+            PROVIDERS.catalog_api.get_service,
+            service_id,
+        )
 
     @unit.skip_if_cache_disabled('catalog')
     def test_invalidate_cache_when_updating_service(self):
@@ -396,26 +437,32 @@ class CatalogTests(object):
         PROVIDERS.catalog_api.create_service(service['id'], service)
 
         # create an endpoint attached to the service
-        endpoint = unit.new_endpoint_ref(service_id=service['id'],
-                                         region_id=None)
+        endpoint = unit.new_endpoint_ref(
+            service_id=service['id'], region_id=None
+        )
         PROVIDERS.catalog_api.create_endpoint(endpoint['id'], endpoint)
 
         # deleting the service should also delete the endpoint
         PROVIDERS.catalog_api.delete_service(service['id'])
-        self.assertRaises(exception.EndpointNotFound,
-                          PROVIDERS.catalog_api.get_endpoint,
-                          endpoint['id'])
-        self.assertRaises(exception.EndpointNotFound,
-                          PROVIDERS.catalog_api.delete_endpoint,
-                          endpoint['id'])
+        self.assertRaises(
+            exception.EndpointNotFound,
+            PROVIDERS.catalog_api.get_endpoint,
+            endpoint['id'],
+        )
+        self.assertRaises(
+            exception.EndpointNotFound,
+            PROVIDERS.catalog_api.delete_endpoint,
+            endpoint['id'],
+        )
 
     def test_cache_layer_delete_service_with_endpoint(self):
         service = unit.new_service_ref()
         PROVIDERS.catalog_api.create_service(service['id'], service)
 
         # create an endpoint attached to the service
-        endpoint = unit.new_endpoint_ref(service_id=service['id'],
-                                         region_id=None)
+        endpoint = unit.new_endpoint_ref(
+            service_id=service['id'], region_id=None
+        )
         PROVIDERS.catalog_api.create_endpoint(endpoint['id'], endpoint)
         # cache the result
         PROVIDERS.catalog_api.get_service(service['id'])
@@ -424,108 +471,144 @@ class CatalogTests(object):
         PROVIDERS.catalog_api.driver.delete_service(service['id'])
         self.assertLessEqual(
             endpoint.items(),
-            PROVIDERS.catalog_api.get_endpoint(endpoint['id']).items())
+            PROVIDERS.catalog_api.get_endpoint(endpoint['id']).items(),
+        )
         self.assertLessEqual(
             service.items(),
-            PROVIDERS.catalog_api.get_service(service['id']).items())
+            PROVIDERS.catalog_api.get_service(service['id']).items(),
+        )
         PROVIDERS.catalog_api.get_endpoint.invalidate(
             PROVIDERS.catalog_api, endpoint['id']
         )
-        self.assertRaises(exception.EndpointNotFound,
-                          PROVIDERS.catalog_api.get_endpoint,
-                          endpoint['id'])
-        self.assertRaises(exception.EndpointNotFound,
-                          PROVIDERS.catalog_api.delete_endpoint,
-                          endpoint['id'])
+        self.assertRaises(
+            exception.EndpointNotFound,
+            PROVIDERS.catalog_api.get_endpoint,
+            endpoint['id'],
+        )
+        self.assertRaises(
+            exception.EndpointNotFound,
+            PROVIDERS.catalog_api.delete_endpoint,
+            endpoint['id'],
+        )
         # multiple endpoints associated with a service
-        second_endpoint = unit.new_endpoint_ref(service_id=service['id'],
-                                                region_id=None)
+        second_endpoint = unit.new_endpoint_ref(
+            service_id=service['id'], region_id=None
+        )
         PROVIDERS.catalog_api.create_service(service['id'], service)
         PROVIDERS.catalog_api.create_endpoint(endpoint['id'], endpoint)
         PROVIDERS.catalog_api.create_endpoint(
             second_endpoint['id'], second_endpoint
         )
         PROVIDERS.catalog_api.delete_service(service['id'])
-        self.assertRaises(exception.EndpointNotFound,
-                          PROVIDERS.catalog_api.get_endpoint,
-                          endpoint['id'])
-        self.assertRaises(exception.EndpointNotFound,
-                          PROVIDERS.catalog_api.delete_endpoint,
-                          endpoint['id'])
-        self.assertRaises(exception.EndpointNotFound,
-                          PROVIDERS.catalog_api.get_endpoint,
-                          second_endpoint['id'])
-        self.assertRaises(exception.EndpointNotFound,
-                          PROVIDERS.catalog_api.delete_endpoint,
-                          second_endpoint['id'])
+        self.assertRaises(
+            exception.EndpointNotFound,
+            PROVIDERS.catalog_api.get_endpoint,
+            endpoint['id'],
+        )
+        self.assertRaises(
+            exception.EndpointNotFound,
+            PROVIDERS.catalog_api.delete_endpoint,
+            endpoint['id'],
+        )
+        self.assertRaises(
+            exception.EndpointNotFound,
+            PROVIDERS.catalog_api.get_endpoint,
+            second_endpoint['id'],
+        )
+        self.assertRaises(
+            exception.EndpointNotFound,
+            PROVIDERS.catalog_api.delete_endpoint,
+            second_endpoint['id'],
+        )
 
     def test_get_service_returns_not_found(self):
-        self.assertRaises(exception.ServiceNotFound,
-                          PROVIDERS.catalog_api.get_service,
-                          uuid.uuid4().hex)
+        self.assertRaises(
+            exception.ServiceNotFound,
+            PROVIDERS.catalog_api.get_service,
+            uuid.uuid4().hex,
+        )
 
     def test_delete_service_returns_not_found(self):
-        self.assertRaises(exception.ServiceNotFound,
-                          PROVIDERS.catalog_api.delete_service,
-                          uuid.uuid4().hex)
+        self.assertRaises(
+            exception.ServiceNotFound,
+            PROVIDERS.catalog_api.delete_service,
+            uuid.uuid4().hex,
+        )
 
     def test_create_endpoint_nonexistent_service(self):
-        endpoint = unit.new_endpoint_ref(service_id=uuid.uuid4().hex,
-                                         region_id=None)
-        self.assertRaises(exception.ValidationError,
-                          PROVIDERS.catalog_api.create_endpoint,
-                          endpoint['id'],
-                          endpoint)
+        endpoint = unit.new_endpoint_ref(
+            service_id=uuid.uuid4().hex, region_id=None
+        )
+        self.assertRaises(
+            exception.ValidationError,
+            PROVIDERS.catalog_api.create_endpoint,
+            endpoint['id'],
+            endpoint,
+        )
 
     def test_update_endpoint_nonexistent_service(self):
         dummy_service, enabled_endpoint, dummy_disabled_endpoint = (
-            self._create_endpoints())
+            self._create_endpoints()
+        )
         new_endpoint = unit.new_endpoint_ref(service_id=uuid.uuid4().hex)
-        self.assertRaises(exception.ValidationError,
-                          PROVIDERS.catalog_api.update_endpoint,
-                          enabled_endpoint['id'],
-                          new_endpoint)
+        self.assertRaises(
+            exception.ValidationError,
+            PROVIDERS.catalog_api.update_endpoint,
+            enabled_endpoint['id'],
+            new_endpoint,
+        )
 
     def test_create_endpoint_nonexistent_region(self):
         service = unit.new_service_ref()
         PROVIDERS.catalog_api.create_service(service['id'], service)
 
         endpoint = unit.new_endpoint_ref(service_id=service['id'])
-        self.assertRaises(exception.ValidationError,
-                          PROVIDERS.catalog_api.create_endpoint,
-                          endpoint['id'],
-                          endpoint)
+        self.assertRaises(
+            exception.ValidationError,
+            PROVIDERS.catalog_api.create_endpoint,
+            endpoint['id'],
+            endpoint,
+        )
 
     def test_update_endpoint_nonexistent_region(self):
         dummy_service, enabled_endpoint, dummy_disabled_endpoint = (
-            self._create_endpoints())
+            self._create_endpoints()
+        )
         new_endpoint = unit.new_endpoint_ref(service_id=uuid.uuid4().hex)
-        self.assertRaises(exception.ValidationError,
-                          PROVIDERS.catalog_api.update_endpoint,
-                          enabled_endpoint['id'],
-                          new_endpoint)
+        self.assertRaises(
+            exception.ValidationError,
+            PROVIDERS.catalog_api.update_endpoint,
+            enabled_endpoint['id'],
+            new_endpoint,
+        )
 
     def test_get_endpoint_returns_not_found(self):
-        self.assertRaises(exception.EndpointNotFound,
-                          PROVIDERS.catalog_api.get_endpoint,
-                          uuid.uuid4().hex)
+        self.assertRaises(
+            exception.EndpointNotFound,
+            PROVIDERS.catalog_api.get_endpoint,
+            uuid.uuid4().hex,
+        )
 
     def test_delete_endpoint_returns_not_found(self):
-        self.assertRaises(exception.EndpointNotFound,
-                          PROVIDERS.catalog_api.delete_endpoint,
-                          uuid.uuid4().hex)
+        self.assertRaises(
+            exception.EndpointNotFound,
+            PROVIDERS.catalog_api.delete_endpoint,
+            uuid.uuid4().hex,
+        )
 
     def test_create_endpoint(self):
         service = unit.new_service_ref()
         PROVIDERS.catalog_api.create_service(service['id'], service)
 
-        endpoint = unit.new_endpoint_ref(service_id=service['id'],
-                                         region_id=None)
+        endpoint = unit.new_endpoint_ref(
+            service_id=service['id'], region_id=None
+        )
         PROVIDERS.catalog_api.create_endpoint(endpoint['id'], endpoint.copy())
 
     def test_update_endpoint(self):
         dummy_service_ref, endpoint_ref, dummy_disabled_endpoint_ref = (
-            self._create_endpoints())
+            self._create_endpoints()
+        )
         res = PROVIDERS.catalog_api.update_endpoint(
             endpoint_ref['id'], {'interface': 'private'}
         )
@@ -548,7 +631,8 @@ class CatalogTests(object):
                 service_id=service_id,
                 region_id=region,
                 url='http://localhost/%s' % uuid.uuid4().hex,
-                **kwargs)
+                **kwargs
+            )
 
             PROVIDERS.catalog_api.create_endpoint(ref['id'], ref)
             return ref
@@ -564,7 +648,8 @@ class CatalogTests(object):
         # Create endpoints
         enabled_endpoint_ref = create_endpoint(service_id, region['id'])
         disabled_endpoint_ref = create_endpoint(
-            service_id, region['id'], enabled=False, interface='internal')
+            service_id, region['id'], enabled=False, interface='internal'
+        )
 
         return service_ref, enabled_endpoint_ref, disabled_endpoint_ref
 
@@ -574,9 +659,9 @@ class CatalogTests(object):
 
         expected_ids = set([uuid.uuid4().hex for _ in range(3)])
         for endpoint_id in expected_ids:
-            endpoint = unit.new_endpoint_ref(service_id=service['id'],
-                                             id=endpoint_id,
-                                             region_id=None)
+            endpoint = unit.new_endpoint_ref(
+                service_id=service['id'], id=endpoint_id, region_id=None
+            )
             PROVIDERS.catalog_api.create_endpoint(endpoint['id'], endpoint)
 
         endpoints = PROVIDERS.catalog_api.list_endpoints()
@@ -603,8 +688,9 @@ class CatalogTests(object):
         PROVIDERS.catalog_api.create_service(service['id'], service)
 
         # create an endpoint attached to the service
-        endpoint = unit.new_endpoint_ref(service_id=service['id'],
-                                         region_id=None)
+        endpoint = unit.new_endpoint_ref(
+            service_id=service['id'], region_id=None
+        )
         PROVIDERS.catalog_api.create_endpoint(endpoint['id'], endpoint)
 
         # cache the endpoint

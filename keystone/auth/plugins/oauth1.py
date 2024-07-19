@@ -36,7 +36,8 @@ class OAuth(base.AuthMethodHandler):
 
         if not access_token_id:
             raise exception.ValidationError(
-                attribute='oauth_token', target='request')
+                attribute='oauth_token', target='request'
+            )
 
         acc_token = PROVIDERS.oauth_api.get_access_token(access_token_id)
 
@@ -44,20 +45,22 @@ class OAuth(base.AuthMethodHandler):
         if expires_at:
             now = timeutils.utcnow()
             expires = timeutils.normalize_time(
-                timeutils.parse_isotime(expires_at))
+                timeutils.parse_isotime(expires_at)
+            )
             if now > expires:
                 raise exception.Unauthorized(_('Access token is expired'))
 
         url = ks_flask.base_url(path=flask.request.path)
         access_verifier = oauth.ResourceEndpoint(
             request_validator=validator.OAuthValidator(),
-            token_generator=oauth.token_generator)
+            token_generator=oauth.token_generator,
+        )
         result, request = access_verifier.validate_protected_resource_request(
             url,
             http_method='POST',
             body=flask.request.args,
             headers=dict(flask.request.headers),
-            realms=None
+            realms=None,
         )
         if not result:
             msg = _('Could not validate the access token')
@@ -66,5 +69,6 @@ class OAuth(base.AuthMethodHandler):
         response_data['access_token_id'] = access_token_id
         response_data['project_id'] = acc_token['project_id']
 
-        return base.AuthHandlerResponse(status=True, response_body=None,
-                                        response_data=response_data)
+        return base.AuthHandlerResponse(
+            status=True, response_body=None, response_data=response_data
+        )

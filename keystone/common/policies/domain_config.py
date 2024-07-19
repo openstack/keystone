@@ -23,35 +23,35 @@ deprecated_get_domain_config = policy.DeprecatedRule(
     name=base.IDENTITY % 'get_domain_config',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.TRAIN
+    deprecated_since=versionutils.deprecated.TRAIN,
 )
 
 deprecated_get_domain_config_default = policy.DeprecatedRule(
     name=base.IDENTITY % 'get_domain_config_default',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.TRAIN
+    deprecated_since=versionutils.deprecated.TRAIN,
 )
 
 deprecated_create_domain_config = policy.DeprecatedRule(
     name=base.IDENTITY % 'create_domain_config',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.TRAIN
+    deprecated_since=versionutils.deprecated.TRAIN,
 )
 
 deprecated_update_domain_config = policy.DeprecatedRule(
     name=base.IDENTITY % 'update_domain_config',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.TRAIN
+    deprecated_since=versionutils.deprecated.TRAIN,
 )
 
 deprecated_delete_domain_config = policy.DeprecatedRule(
     name=base.IDENTITY % 'delete_domain_config',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.TRAIN
+    deprecated_since=versionutils.deprecated.TRAIN,
 )
 
 
@@ -62,45 +62,38 @@ domain_config_policies = [
         scope_types=['system', 'project'],
         description='Create domain configuration.',
         operations=[
-            {
-                'path': '/v3/domains/{domain_id}/config',
-                'method': 'PUT'
-            }
+            {'path': '/v3/domains/{domain_id}/config', 'method': 'PUT'}
         ],
-        deprecated_rule=deprecated_create_domain_config
+        deprecated_rule=deprecated_create_domain_config,
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_domain_config',
         check_str=base.RULE_ADMIN_OR_SYSTEM_READER,
         scope_types=['system', 'project'],
-        description=('Get the entire domain configuration for a domain, an '
-                     'option group within a domain, or a specific '
-                     'configuration option within a group for a domain.'),
+        description=(
+            'Get the entire domain configuration for a domain, an '
+            'option group within a domain, or a specific '
+            'configuration option within a group for a domain.'
+        ),
         operations=[
+            {'path': '/v3/domains/{domain_id}/config', 'method': 'GET'},
+            {'path': '/v3/domains/{domain_id}/config', 'method': 'HEAD'},
             {
-                'path': '/v3/domains/{domain_id}/config',
-                'method': 'GET'
-            },
-            {
-                'path': '/v3/domains/{domain_id}/config',
-                'method': 'HEAD'
+                'path': '/v3/domains/{domain_id}/config/{group}',
+                'method': 'GET',
             },
             {
                 'path': '/v3/domains/{domain_id}/config/{group}',
-                'method': 'GET'
-            },
-            {
-                'path': '/v3/domains/{domain_id}/config/{group}',
-                'method': 'HEAD'
+                'method': 'HEAD',
             },
             {
                 'path': '/v3/domains/{domain_id}/config/{group}/{option}',
-                'method': 'GET'
+                'method': 'GET',
             },
             {
                 'path': '/v3/domains/{domain_id}/config/{group}/{option}',
-                'method': 'HEAD'
-            }
+                'method': 'HEAD',
+            },
         ],
         deprecated_rule=deprecated_get_domain_config,
     ),
@@ -110,48 +103,53 @@ domain_config_policies = [
         # This should be accessible to anyone with a valid token, regardless of
         # system-scope or project-scope.
         scope_types=['system', 'domain', 'project'],
-        description=('Get security compliance domain configuration for '
-                     'either a domain or a specific option in a domain.'),
+        description=(
+            'Get security compliance domain configuration for '
+            'either a domain or a specific option in a domain.'
+        ),
         operations=[
             {
                 'path': '/v3/domains/{domain_id}/config/security_compliance',
-                'method': 'GET'
+                'method': 'GET',
             },
             {
                 'path': '/v3/domains/{domain_id}/config/security_compliance',
-                'method': 'HEAD'
+                'method': 'HEAD',
             },
             {
-                'path': ('/v3/domains/{domain_id}/config/'
-                         'security_compliance/{option}'),
-                'method': 'GET'
+                'path': (
+                    '/v3/domains/{domain_id}/config/'
+                    'security_compliance/{option}'
+                ),
+                'method': 'GET',
             },
             {
-                'path': ('/v3/domains/{domain_id}/config/'
-                         'security_compliance/{option}'),
-                'method': 'HEAD'
-            }
+                'path': (
+                    '/v3/domains/{domain_id}/config/'
+                    'security_compliance/{option}'
+                ),
+                'method': 'HEAD',
+            },
         ],
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_domain_config',
         check_str=base.RULE_ADMIN_REQUIRED,
         scope_types=['system', 'project'],
-        description=('Update domain configuration for either a domain, '
-                     'specific group or a specific option in a group.'),
+        description=(
+            'Update domain configuration for either a domain, '
+            'specific group or a specific option in a group.'
+        ),
         operations=[
-            {
-                'path': '/v3/domains/{domain_id}/config',
-                'method': 'PATCH'
-            },
+            {'path': '/v3/domains/{domain_id}/config', 'method': 'PATCH'},
             {
                 'path': '/v3/domains/{domain_id}/config/{group}',
-                'method': 'PATCH'
+                'method': 'PATCH',
             },
             {
                 'path': '/v3/domains/{domain_id}/config/{group}/{option}',
-                'method': 'PATCH'
-            }
+                'method': 'PATCH',
+            },
         ],
         deprecated_rule=deprecated_update_domain_config,
     ),
@@ -159,21 +157,20 @@ domain_config_policies = [
         name=base.IDENTITY % 'delete_domain_config',
         check_str=base.RULE_ADMIN_REQUIRED,
         scope_types=['system', 'project'],
-        description=('Delete domain configuration for either a domain, '
-                     'specific group or a specific option in a group.'),
+        description=(
+            'Delete domain configuration for either a domain, '
+            'specific group or a specific option in a group.'
+        ),
         operations=[
-            {
-                'path': '/v3/domains/{domain_id}/config',
-                'method': 'DELETE'
-            },
+            {'path': '/v3/domains/{domain_id}/config', 'method': 'DELETE'},
             {
                 'path': '/v3/domains/{domain_id}/config/{group}',
-                'method': 'DELETE'
+                'method': 'DELETE',
             },
             {
                 'path': '/v3/domains/{domain_id}/config/{group}/{option}',
-                'method': 'DELETE'
-            }
+                'method': 'DELETE',
+            },
         ],
         deprecated_rule=deprecated_delete_domain_config,
     ),
@@ -181,36 +178,26 @@ domain_config_policies = [
         name=base.IDENTITY % 'get_domain_config_default',
         check_str=base.RULE_ADMIN_OR_SYSTEM_READER,
         scope_types=['system', 'project'],
-        description=('Get domain configuration default for either a domain, '
-                     'specific group or a specific option in a group.'),
+        description=(
+            'Get domain configuration default for either a domain, '
+            'specific group or a specific option in a group.'
+        ),
         operations=[
+            {'path': '/v3/domains/config/default', 'method': 'GET'},
+            {'path': '/v3/domains/config/default', 'method': 'HEAD'},
+            {'path': '/v3/domains/config/{group}/default', 'method': 'GET'},
+            {'path': '/v3/domains/config/{group}/default', 'method': 'HEAD'},
             {
-                'path': '/v3/domains/config/default',
-                'method': 'GET'
-            },
-            {
-                'path': '/v3/domains/config/default',
-                'method': 'HEAD'
-            },
-            {
-                'path': '/v3/domains/config/{group}/default',
-                'method': 'GET'
-            },
-            {
-                'path': '/v3/domains/config/{group}/default',
-                'method': 'HEAD'
+                'path': '/v3/domains/config/{group}/{option}/default',
+                'method': 'GET',
             },
             {
                 'path': '/v3/domains/config/{group}/{option}/default',
-                'method': 'GET'
+                'method': 'HEAD',
             },
-            {
-                'path': '/v3/domains/config/{group}/{option}/default',
-                'method': 'HEAD'
-            }
         ],
         deprecated_rule=deprecated_get_domain_config_default,
-    )
+    ),
 ]
 
 

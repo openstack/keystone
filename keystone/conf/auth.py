@@ -19,34 +19,44 @@ from keystone.conf import utils
 methods = cfg.ListOpt(
     'methods',
     default=constants._DEFAULT_AUTH_METHODS,
-    help=utils.fmt("""
+    help=utils.fmt(
+        """
 Allowed authentication methods. Note: You should disable the `external` auth
 method if you are currently using federation. External auth and federation
 both use the REMOTE_USER variable. Since both the mapped and external plugin
 are being invoked to validate attributes in the request environment, it can
 cause conflicts.
-"""))
+"""
+    ),
+)
 
 password = cfg.StrOpt(  # nosec : This is the name of the plugin, not
-    'password',         # a password that needs to be protected.
-    help=utils.fmt("""
+    'password',  # a password that needs to be protected.
+    help=utils.fmt(
+        """
 Entry point for the password auth plugin module in the `keystone.auth.password`
 namespace. You do not need to set this unless you are overriding keystone's own
 password authentication plugin.
-"""))
+"""
+    ),
+)
 
 token = cfg.StrOpt(
     'token',
-    help=utils.fmt("""
+    help=utils.fmt(
+        """
 Entry point for the token auth plugin module in the `keystone.auth.token`
 namespace. You do not need to set this unless you are overriding keystone's own
 token authentication plugin.
-"""))
+"""
+    ),
+)
 
 # deals with REMOTE_USER authentication
 external = cfg.StrOpt(
     'external',
-    help=utils.fmt("""
+    help=utils.fmt(
+        """
 Entry point for the external (`REMOTE_USER`) auth plugin module in the
 `keystone.auth.external` namespace. Supplied drivers are `DefaultDomain` and
 `Domain`. The default driver is `DefaultDomain`, which assumes that all users
@@ -58,32 +68,43 @@ then the default domain will be used instead). You do not need to set this
 unless you are taking advantage of "external authentication", where the
 application server (such as Apache) is handling authentication instead of
 keystone.
-"""))
+"""
+    ),
+)
 
 oauth1 = cfg.StrOpt(
     'oauth1',
-    help=utils.fmt("""
+    help=utils.fmt(
+        """
 Entry point for the OAuth 1.0a auth plugin module in the `keystone.auth.oauth1`
 namespace. You do not need to set this unless you are overriding keystone's own
 `oauth1` authentication plugin.
-"""))
+"""
+    ),
+)
 
 mapped = cfg.StrOpt(
     'mapped',
-    help=utils.fmt("""
+    help=utils.fmt(
+        """
 Entry point for the mapped auth plugin module in the `keystone.auth.mapped`
 namespace. You do not need to set this unless you are overriding keystone's own
 `mapped` authentication plugin.
-"""))
+"""
+    ),
+)
 
 application_credential = cfg.StrOpt(
     'application_credential',
-    help=utils.fmt("""
+    help=utils.fmt(
+        """
 Entry point for the application_credential auth plugin module in the
 `keystone.auth.application_credential` namespace. You do not need to set this
 unless you are overriding keystone's own `application_credential`
 authentication plugin.
-"""))
+"""
+    ),
+)
 
 
 GROUP_NAME = __name__.split('.')[-1]

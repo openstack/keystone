@@ -34,68 +34,32 @@ MAPPING_SMALL = {
     "rules": [
         {
             "local": [
-                {
-                    "group": {
-                        "id": EMPLOYEE_GROUP_ID
-                    }
-                },
-                {
-                    "user": {
-                        "name": "{0}"
-                    }
-                }
+                {"group": {"id": EMPLOYEE_GROUP_ID}},
+                {"user": {"name": "{0}"}},
             ],
             "remote": [
-                {
-                    "type": "UserName"
-                },
+                {"type": "UserName"},
                 {
                     "type": "orgPersonType",
-                    "not_any_of": [
-                        "Contractor",
-                        "SubContractor"
-                    ]
+                    "not_any_of": ["Contractor", "SubContractor"],
                 },
-                {
-                    "type": "LastName",
-                    "any_one_of": [
-                        "Bo"
-                    ]
-                }
-            ]
+                {"type": "LastName", "any_one_of": ["Bo"]},
+            ],
         },
         {
             "local": [
-                {
-                    "group": {
-                        "id": CONTRACTOR_GROUP_ID
-                    }
-                },
-                {
-                    "user": {
-                        "name": "{0}"
-                    }
-                }
+                {"group": {"id": CONTRACTOR_GROUP_ID}},
+                {"user": {"name": "{0}"}},
             ],
             "remote": [
-                {
-                    "type": "UserName"
-                },
+                {"type": "UserName"},
                 {
                     "type": "orgPersonType",
-                    "any_one_of": [
-                        "Contractor",
-                        "SubContractor"
-                    ]
+                    "any_one_of": ["Contractor", "SubContractor"],
                 },
-                {
-                    "type": "FirstName",
-                    "any_one_of": [
-                        "Jill"
-                    ]
-                }
-            ]
-        }
+                {"type": "FirstName", "any_one_of": ["Jill"]},
+            ],
+        },
     ]
 }
 
@@ -108,117 +72,60 @@ MAPPING_LARGE = {
         {
             "local": [
                 {
-                    "user": {
-                        "name": "{0} {1}",
-                        "email": "{2}"
-                    },
-                    "group": {
-                        "id": EMPLOYEE_GROUP_ID
-                    }
+                    "user": {"name": "{0} {1}", "email": "{2}"},
+                    "group": {"id": EMPLOYEE_GROUP_ID},
                 }
             ],
             "remote": [
-                {
-                    "type": "FirstName"
-                },
-                {
-                    "type": "LastName"
-                },
-                {
-                    "type": "Email"
-                },
+                {"type": "FirstName"},
+                {"type": "LastName"},
+                {"type": "Email"},
                 {
                     "type": "orgPersonType",
-                    "any_one_of": [
-                        "Admin",
-                        "Big Cheese"
-                    ]
-                }
-            ]
+                    "any_one_of": ["Admin", "Big Cheese"],
+                },
+            ],
         },
         {
-            "local": [
-                {
-                    "user": {
-                        "name": "{0}",
-                        "email": "{1}"
-                    }
-                }
-            ],
+            "local": [{"user": {"name": "{0}", "email": "{1}"}}],
             "remote": [
-                {
-                    "type": "UserName"
-                },
-                {
-                    "type": "Email"
-                },
+                {"type": "UserName"},
+                {"type": "Email"},
                 {
                     "type": "orgPersonType",
                     "not_any_of": [
                         "Admin",
                         "Employee",
                         "Contractor",
-                        "Tester"
-                    ]
-                }
-            ]
+                        "Tester",
+                    ],
+                },
+            ],
         },
         {
             "local": [
-                {
-                    "group": {
-                        "id": TESTER_GROUP_ID
-                    }
-                },
-                {
-                    "group": {
-                        "id": DEVELOPER_GROUP_ID
-                    }
-                },
-                {
-                    "user": {
-                        "name": "{0}"
-                    }
-                }
+                {"group": {"id": TESTER_GROUP_ID}},
+                {"group": {"id": DEVELOPER_GROUP_ID}},
+                {"user": {"name": "{0}"}},
             ],
             "remote": [
-                {
-                    "type": "UserName"
-                },
-                {
-                    "type": "orgPersonType",
-                    "any_one_of": [
-                        "Tester"
-                    ]
-                },
+                {"type": "UserName"},
+                {"type": "orgPersonType", "any_one_of": ["Tester"]},
                 {
                     "type": "Email",
-                    "any_one_of": [
-                        ".*@example.com$"
-                    ],
-                    "regex": True
-                }
-            ]
-        }
+                    "any_one_of": [".*@example.com$"],
+                    "regex": True,
+                },
+            ],
+        },
     ]
 }
 
 MAPPING_BAD_REQ = {
     "rules": [
         {
-            "local": [
-                {
-                    "user": "name"
-                }
-            ],
-            "remote": [
-                {
-                    "type": "UserName",
-                    "bad_requirement": [
-                        "Young"
-                    ]
-                }
-            ]
+            "local": [{"user": "name"}],
+            "remote": [{"type": "UserName", "bad_requirement": ["Young"]}],
         }
     ]
 }
@@ -226,110 +133,44 @@ MAPPING_BAD_REQ = {
 MAPPING_BAD_VALUE = {
     "rules": [
         {
-            "local": [
-                {
-                    "user": "name"
-                }
-            ],
-            "remote": [
-                {
-                    "type": "UserName",
-                    "any_one_of": "should_be_list"
-                }
-            ]
+            "local": [{"user": "name"}],
+            "remote": [{"type": "UserName", "any_one_of": "should_be_list"}],
         }
     ]
 }
 
-MAPPING_NO_RULES = {
-    'rules': []
-}
+MAPPING_NO_RULES = {'rules': []}
 
-MAPPING_NO_REMOTE = {
-    "rules": [
-        {
-            "local": [
-                {
-                    "user": "name"
-                }
-            ],
-            "remote": []
-        }
-    ]
-}
+MAPPING_NO_REMOTE = {"rules": [{"local": [{"user": "name"}], "remote": []}]}
 
 MAPPING_MISSING_LOCAL = {
     "rules": [
-        {
-            "remote": [
-                {
-                    "type": "UserName",
-                    "any_one_of": "should_be_list"
-                }
-            ]
-        }
+        {"remote": [{"type": "UserName", "any_one_of": "should_be_list"}]}
     ]
 }
 
 MAPPING_WRONG_TYPE = {
     "rules": [
-        {
-            "local": [
-                {
-                    "user": "{1}"
-                }
-            ],
-            "remote": [
-                {
-                    "not_type": "UserName"
-                }
-            ]
-        }
+        {"local": [{"user": "{1}"}], "remote": [{"not_type": "UserName"}]}
     ]
 }
 
 MAPPING_MISSING_TYPE = {
-    "rules": [
-        {
-            "local": [
-                {
-                    "user": "{1}"
-                }
-            ],
-            "remote": [
-                {}
-            ]
-        }
-    ]
+    "rules": [{"local": [{"user": "{1}"}], "remote": [{}]}]
 }
 
 MAPPING_EXTRA_REMOTE_PROPS_NOT_ANY_OF = {
     "rules": [
         {
-            "local": [
-                {
-                    "group": {
-                        "id": "0cd5e9"
-                    }
-                },
-                {
-                    "user": {
-                        "name": "{0}"
-                    }
-                }
-            ],
+            "local": [{"group": {"id": "0cd5e9"}}, {"user": {"name": "{0}"}}],
             "remote": [
-                {
-                    "type": "UserName"
-                },
+                {"type": "UserName"},
                 {
                     "type": "orgPersonType",
-                    "not_any_of": [
-                        "SubContractor"
-                    ],
-                    "invalid_type": "xyz"
-                }
-            ]
+                    "not_any_of": ["SubContractor"],
+                    "invalid_type": "xyz",
+                },
+            ],
         }
     ]
 }
@@ -337,30 +178,15 @@ MAPPING_EXTRA_REMOTE_PROPS_NOT_ANY_OF = {
 MAPPING_EXTRA_REMOTE_PROPS_ANY_ONE_OF = {
     "rules": [
         {
-            "local": [
-                {
-                    "group": {
-                        "id": "0cd5e9"
-                    }
-                },
-                {
-                    "user": {
-                        "name": "{0}"
-                    }
-                }
-            ],
+            "local": [{"group": {"id": "0cd5e9"}}, {"user": {"name": "{0}"}}],
             "remote": [
-                {
-                    "type": "UserName"
-                },
+                {"type": "UserName"},
                 {
                     "type": "orgPersonType",
-                    "any_one_of": [
-                        "SubContractor"
-                    ],
-                    "invalid_type": "xyz"
-                }
-            ]
+                    "any_one_of": ["SubContractor"],
+                    "invalid_type": "xyz",
+                },
+            ],
         }
     ]
 }
@@ -368,27 +194,11 @@ MAPPING_EXTRA_REMOTE_PROPS_ANY_ONE_OF = {
 MAPPING_EXTRA_REMOTE_PROPS_JUST_TYPE = {
     "rules": [
         {
-            "local": [
-                {
-                    "group": {
-                        "id": "0cd5e9"
-                    }
-                },
-                {
-                    "user": {
-                        "name": "{0}"
-                    }
-                }
-            ],
+            "local": [{"group": {"id": "0cd5e9"}}, {"user": {"name": "{0}"}}],
             "remote": [
-                {
-                    "type": "UserName"
-                },
-                {
-                    "type": "orgPersonType",
-                    "invalid_type": "xyz"
-                }
-            ]
+                {"type": "UserName"},
+                {"type": "orgPersonType", "invalid_type": "xyz"},
+            ],
         }
     ]
 }
@@ -396,32 +206,14 @@ MAPPING_EXTRA_REMOTE_PROPS_JUST_TYPE = {
 MAPPING_EXTRA_RULES_PROPS = {
     "rules": [
         {
-            "local": [
-                {
-                    "group": {
-                        "id": "0cd5e9"
-                    }
-                },
-                {
-                    "user": {
-                        "name": "{0}"
-                    }
-                }
-            ],
+            "local": [{"group": {"id": "0cd5e9"}}, {"user": {"name": "{0}"}}],
             "invalid_type": {
                 "id": "xyz",
             },
             "remote": [
-                {
-                    "type": "UserName"
-                },
-                {
-                    "type": "orgPersonType",
-                    "not_any_of": [
-                        "SubContractor"
-                    ]
-                }
-            ]
+                {"type": "UserName"},
+                {"type": "orgPersonType", "not_any_of": ["SubContractor"]},
+            ],
         }
     ]
 }
@@ -436,30 +228,18 @@ MAPPING_TESTER_REGEX = {
                     }
                 }
             ],
-            "remote": [
-                {
-                    "type": "UserName"
-                }
-            ]
+            "remote": [{"type": "UserName"}],
         },
         {
-            "local": [
-                {
-                    "group": {
-                        "id": TESTER_GROUP_ID
-                    }
-                }
-            ],
+            "local": [{"group": {"id": TESTER_GROUP_ID}}],
             "remote": [
                 {
                     "type": "orgPersonType",
-                    "any_one_of": [
-                        ".*Tester*"
-                    ],
-                    "regex": True
+                    "any_one_of": [".*Tester*"],
+                    "regex": True,
                 }
-            ]
-        }
+            ],
+        },
     ]
 }
 
@@ -472,22 +252,10 @@ MAPPING_DIRECT_MAPPING_THROUGH_KEYWORD = {
                     "user": {
                         "name": "{0}",
                     }
-
                 },
-                {
-                    "group": {
-                        "id": TESTER_GROUP_ID
-                    }
-                }
+                {"group": {"id": TESTER_GROUP_ID}},
             ],
-            "remote": [
-                {
-                    "type": "UserName",
-                    "any_one_of": [
-                        "bwilliams"
-                    ]
-                }
-            ]
+            "remote": [{"type": "UserName", "any_one_of": ["bwilliams"]}],
         }
     ]
 }
@@ -500,35 +268,26 @@ MAPPING_DEVELOPER_REGEX = {
                     "user": {
                         "name": "{0}",
                     },
-                    "group": {
-                        "id": DEVELOPER_GROUP_ID
-                    }
+                    "group": {"id": DEVELOPER_GROUP_ID},
                 }
             ],
             "remote": [
-                {
-                    "type": "UserName"
-                },
+                {"type": "UserName"},
                 {
                     "type": "orgPersonType",
-                    "any_one_of": [
-                        "Developer"
-                    ],
+                    "any_one_of": ["Developer"],
                 },
                 {
                     "type": "Email",
-                    "not_any_of": [
-                        ".*@example.org$"
-                    ],
-                    "regex": True
-                }
-            ]
+                    "not_any_of": [".*@example.org$"],
+                    "regex": True,
+                },
+            ],
         }
     ]
 }
 
 MAPPING_GROUP_NAMES = {
-
     "rules": [
         {
             "local": [
@@ -538,57 +297,39 @@ MAPPING_GROUP_NAMES = {
                     }
                 }
             ],
-            "remote": [
-                {
-                    "type": "UserName"
-                }
-            ]
+            "remote": [{"type": "UserName"}],
         },
         {
             "local": [
                 {
                     "group": {
                         "name": DEVELOPER_GROUP_NAME,
-                        "domain": {
-                            "name": DEVELOPER_GROUP_DOMAIN_NAME
-                        }
+                        "domain": {"name": DEVELOPER_GROUP_DOMAIN_NAME},
                     }
                 }
             ],
             "remote": [
                 {
                     "type": "orgPersonType",
-                    "any_one_of": [
-                        "Employee"
-                    ],
+                    "any_one_of": ["Employee"],
                 }
-            ]
+            ],
         },
         {
             "local": [
                 {
                     "group": {
                         "name": TESTER_GROUP_NAME,
-                        "domain": {
-                            "id": DEVELOPER_GROUP_DOMAIN_ID
-                        }
+                        "domain": {"id": DEVELOPER_GROUP_DOMAIN_ID},
                     }
                 }
             ],
-            "remote": [
-                {
-                    "type": "orgPersonType",
-                    "any_one_of": [
-                        "BuildingX"
-                    ]
-                }
-            ]
+            "remote": [{"type": "orgPersonType", "any_one_of": ["BuildingX"]}],
         },
     ]
 }
 
 MAPPING_GROUP_NAME_WITHOUT_DOMAIN = {
-
     "rules": [
         {
             "local": [
@@ -601,65 +342,49 @@ MAPPING_GROUP_NAME_WITHOUT_DOMAIN = {
             "remote": [
                 {
                     "type": "orgPersonType",
-                    "any_one_of": [
-                        "Employee"
-                    ],
+                    "any_one_of": ["Employee"],
                 }
-            ]
+            ],
         },
     ]
 }
 
 MAPPING_GROUP_ID_WITH_DOMAIN = {
-
     "rules": [
         {
             "local": [
                 {
                     "group": {
                         "id": EMPLOYEE_GROUP_ID,
-                        "domain": {
-                            "id": DEVELOPER_GROUP_DOMAIN_ID
-                        }
+                        "domain": {"id": DEVELOPER_GROUP_DOMAIN_ID},
                     }
                 }
             ],
             "remote": [
                 {
                     "type": "orgPersonType",
-                    "any_one_of": [
-                        "Employee"
-                    ],
+                    "any_one_of": ["Employee"],
                 }
-            ]
+            ],
         },
     ]
 }
 
 MAPPING_BAD_GROUP = {
-
     "rules": [
         {
-            "local": [
-                {
-                    "group": {
-                    }
-                }
-            ],
+            "local": [{"group": {}}],
             "remote": [
                 {
                     "type": "orgPersonType",
-                    "any_one_of": [
-                        "Employee"
-                    ],
+                    "any_one_of": ["Employee"],
                 }
-            ]
+            ],
         },
     ]
 }
 
 MAPPING_BAD_DOMAIN = {
-
     "rules": [
         {
             "local": [
@@ -668,19 +393,17 @@ MAPPING_BAD_DOMAIN = {
                         "id": EMPLOYEE_GROUP_ID,
                         "domain": {
                             "id": DEVELOPER_GROUP_DOMAIN_ID,
-                            "badkey": "badvalue"
-                        }
+                            "badkey": "badvalue",
+                        },
                     }
                 }
             ],
             "remote": [
                 {
                     "type": "orgPersonType",
-                    "any_one_of": [
-                        "Employee"
-                    ],
+                    "any_one_of": ["Employee"],
                 }
-            ]
+            ],
         },
     ]
 }
@@ -692,24 +415,15 @@ MAPPING_EPHEMERAL_USER = {
                 {
                     "user": {
                         "name": "{0}",
-                        "domain": {
-                            "id": FEDERATED_DOMAIN
-                        },
-                        "type": "ephemeral"
+                        "domain": {"id": FEDERATED_DOMAIN},
+                        "type": "ephemeral",
                     }
                 }
             ],
             "remote": [
-                {
-                    "type": "UserName"
-                },
-                {
-                    "type": "UserName",
-                    "any_one_of": [
-                        "tbo"
-                    ]
-                }
-            ]
+                {"type": "UserName"},
+                {"type": "UserName", "any_one_of": ["tbo"]},
+            ],
         }
     ]
 }
@@ -721,21 +435,15 @@ MAPPING_EPHEMERAL_USER_REMOTE_DOMAIN = {
                 {
                     "user": {
                         "name": "{0}",
-                        "domain": {
-                            "name": "{1}"
-                        },
-                        "type": "ephemeral"
+                        "domain": {"name": "{1}"},
+                        "type": "ephemeral",
                     }
                 }
             ],
             "remote": [
-                {
-                    "type": "UserName"
-                },
-                {
-                    "type": "OIDC-openstack-user-domain"
-                },
-            ]
+                {"type": "UserName"},
+                {"type": "OIDC-openstack-user-domain"},
+            ],
         }
     ]
 }
@@ -746,27 +454,14 @@ MAPPING_GROUPS_WHITELIST = {
             "remote": [
                 {
                     "type": "orgPersonType",
-                    "whitelist": [
-                        "Developer", "Contractor"
-                    ]
+                    "whitelist": ["Developer", "Contractor"],
                 },
-                {
-                    "type": "UserName"
-                }
+                {"type": "UserName"},
             ],
             "local": [
-                {
-                    "groups": "{0}",
-                    "domain": {
-                        "id": DEVELOPER_GROUP_DOMAIN_ID
-                    }
-                },
-                {
-                    "user": {
-                        "name": "{1}"
-                    }
-                }
-            ]
+                {"groups": "{0}", "domain": {"id": DEVELOPER_GROUP_DOMAIN_ID}},
+                {"user": {"name": "{1}"}},
+            ],
         }
     ]
 }
@@ -778,24 +473,15 @@ MAPPING_EPHEMERAL_USER_LOCAL_DOMAIN = {
                 {
                     "user": {
                         "name": "{0}",
-                        "domain": {
-                            "id": LOCAL_DOMAIN
-                        },
-                        "type": "ephemeral"
+                        "domain": {"id": LOCAL_DOMAIN},
+                        "type": "ephemeral",
                     }
                 }
             ],
             "remote": [
-                {
-                    "type": "UserName"
-                },
-                {
-                    "type": "UserName",
-                    "any_one_of": [
-                        "jsmith"
-                    ]
-                }
-            ]
+                {"type": "UserName"},
+                {"type": "UserName", "any_one_of": ["jsmith"]},
+            ],
         }
     ]
 }
@@ -806,16 +492,14 @@ MAPPING_GROUPS_WHITELIST_MISSING_DOMAIN = {
             "remote": [
                 {
                     "type": "orgPersonType",
-                    "whitelist": [
-                        "Developer", "Contractor"
-                    ]
+                    "whitelist": ["Developer", "Contractor"],
                 },
             ],
             "local": [
                 {
                     "groups": "{0}",
                 }
-            ]
+            ],
         }
     ]
 }
@@ -827,24 +511,15 @@ MAPPING_LOCAL_USER_LOCAL_DOMAIN = {
                 {
                     "user": {
                         "name": "{0}",
-                        "domain": {
-                            "id": LOCAL_DOMAIN
-                        },
-                        "type": "local"
+                        "domain": {"id": LOCAL_DOMAIN},
+                        "type": "local",
                     }
                 }
             ],
             "remote": [
-                {
-                    "type": "UserName"
-                },
-                {
-                    "type": "UserName",
-                    "any_one_of": [
-                        "jsmith"
-                    ]
-                }
-            ]
+                {"type": "UserName"},
+                {"type": "UserName", "any_one_of": ["jsmith"]},
+            ],
         }
     ]
 }
@@ -855,30 +530,19 @@ MAPPING_GROUPS_BLACKLIST_MULTIPLES = {
             "remote": [
                 {
                     "type": "orgPersonType",
-                    "blacklist": [
-                        "Developer", "Manager"
-                    ]
+                    "blacklist": ["Developer", "Manager"],
                 },
-                {
-                    "type": "Thing"  # this could be variable length!
-                },
-                {
-                    "type": "UserName"
-                },
+                {"type": "Thing"},  # this could be variable length!
+                {"type": "UserName"},
             ],
             "local": [
-                {
-                    "groups": "{0}",
-                    "domain": {
-                        "id": DEVELOPER_GROUP_DOMAIN_ID
-                    }
-                },
+                {"groups": "{0}", "domain": {"id": DEVELOPER_GROUP_DOMAIN_ID}},
                 {
                     "user": {
                         "name": "{2}",
                     }
-                }
-            ]
+                },
+            ],
         }
     ]
 }
@@ -888,27 +552,14 @@ MAPPING_GROUPS_BLACKLIST = {
             "remote": [
                 {
                     "type": "orgPersonType",
-                    "blacklist": [
-                        "Developer", "Manager"
-                    ]
+                    "blacklist": ["Developer", "Manager"],
                 },
-                {
-                    "type": "UserName"
-                }
+                {"type": "UserName"},
             ],
             "local": [
-                {
-                    "groups": "{0}",
-                    "domain": {
-                        "id": DEVELOPER_GROUP_DOMAIN_ID
-                    }
-                },
-                {
-                    "user": {
-                        "name": "{1}"
-                    }
-                }
-            ]
+                {"groups": "{0}", "domain": {"id": DEVELOPER_GROUP_DOMAIN_ID}},
+                {"user": {"name": "{1}"}},
+            ],
         }
     ]
 }
@@ -919,20 +570,13 @@ MAPPING_GROUPS_BLACKLIST_REGEX = {
             "remote": [
                 {
                     "type": "orgPersonType",
-                    "blacklist": [
-                        ".*Employee$"
-                    ],
-                    "regex": True
+                    "blacklist": [".*Employee$"],
+                    "regex": True,
                 },
             ],
             "local": [
-                {
-                    "groups": "{0}",
-                    "domain": {
-                        "id": FEDERATED_DOMAIN
-                    }
-                },
-            ]
+                {"groups": "{0}", "domain": {"id": FEDERATED_DOMAIN}},
+            ],
         }
     ]
 }
@@ -943,20 +587,13 @@ MAPPING_GROUPS_WHITELIST_REGEX = {
             "remote": [
                 {
                     "type": "orgPersonType",
-                    "whitelist": [
-                        ".*Employee$"
-                    ],
-                    "regex": True
+                    "whitelist": [".*Employee$"],
+                    "regex": True,
                 },
             ],
             "local": [
-                {
-                    "groups": "{0}",
-                    "domain": {
-                        "id": FEDERATED_DOMAIN
-                    }
-                },
-            ]
+                {"groups": "{0}", "domain": {"id": FEDERATED_DOMAIN}},
+            ],
         }
     ]
 }
@@ -966,24 +603,11 @@ MAPPING_GROUPS_WHITELIST_REGEX = {
 MAPPING_USER_IDS = {
     "rules": [
         {
-            "local": [
-                {
-                    "user": {
-                        "name": "{0}"
-                    }
-                }
-            ],
+            "local": [{"user": {"name": "{0}"}}],
             "remote": [
-                {
-                    "type": "UserName"
-                },
-                {
-                    "type": "UserName",
-                    "any_one_of": [
-                        "jsmith"
-                    ]
-                }
-            ]
+                {"type": "UserName"},
+                {"type": "UserName", "any_one_of": ["jsmith"]},
+            ],
         },
         {
             "local": [
@@ -991,43 +615,21 @@ MAPPING_USER_IDS = {
                     "user": {
                         "name": "{0}",
                         "id": "abc123@example.com",
-                        "domain": {
-                            "id": "federated"
-                        }
+                        "domain": {"id": "federated"},
                     }
                 }
             ],
             "remote": [
-                {
-                    "type": "UserName"
-                },
-                {
-                    "type": "UserName",
-                    "any_one_of": [
-                        "tbo"
-                    ]
-                }
-            ]
+                {"type": "UserName"},
+                {"type": "UserName", "any_one_of": ["tbo"]},
+            ],
         },
         {
-            "local": [
-                {
-                    "user": {
-                        "id": "{0}"
-                    }
-                }
-            ],
+            "local": [{"user": {"id": "{0}"}}],
             "remote": [
-                {
-                    "type": "UserName"
-                },
-                {
-                    "type": "UserName",
-                    "any_one_of": [
-                        "bob"
-                    ]
-                }
-            ]
+                {"type": "UserName"},
+                {"type": "UserName", "any_one_of": ["bob"]},
+            ],
         },
         {
             "local": [
@@ -1035,24 +637,15 @@ MAPPING_USER_IDS = {
                     "user": {
                         "id": "abc123@example.com",
                         "name": "{0}",
-                        "domain": {
-                            "id": "federated"
-                        }
+                        "domain": {"id": "federated"},
                     }
                 }
             ],
             "remote": [
-                {
-                    "type": "UserName"
-                },
-                {
-                    "type": "UserName",
-                    "any_one_of": [
-                        "bwilliams"
-                    ]
-                }
-            ]
-        }
+                {"type": "UserName"},
+                {"type": "UserName", "any_one_of": ["bwilliams"]},
+            ],
+        },
     ]
 }
 
@@ -1062,16 +655,14 @@ MAPPING_GROUPS_BLACKLIST_MISSING_DOMAIN = {
             "remote": [
                 {
                     "type": "orgPersonType",
-                    "blacklist": [
-                        "Developer", "Manager"
-                    ]
+                    "blacklist": ["Developer", "Manager"],
                 },
             ],
             "local": [
                 {
                     "groups": "{0}",
                 },
-            ]
+            ],
         }
     ]
 }
@@ -1082,22 +673,13 @@ MAPPING_GROUPS_WHITELIST_AND_BLACKLIST = {
             "remote": [
                 {
                     "type": "orgPersonType",
-                    "blacklist": [
-                        "Employee"
-                    ],
-                    "whitelist": [
-                        "Contractor"
-                    ]
+                    "blacklist": ["Employee"],
+                    "whitelist": ["Contractor"],
                 },
             ],
             "local": [
-                {
-                    "groups": "{0}",
-                    "domain": {
-                        "id": DEVELOPER_GROUP_DOMAIN_ID
-                    }
-                },
-            ]
+                {"groups": "{0}", "domain": {"id": DEVELOPER_GROUP_DOMAIN_ID}},
+            ],
         }
     ]
 }
@@ -1111,21 +693,15 @@ MAPPING_WITH_USERNAME_AND_DOMAINNAME = {
                 {
                     'user': {
                         'name': '{0}',
-                        'domain': {
-                            'name': '{1}'
-                        },
-                        'type': 'local'
+                        'domain': {'name': '{1}'},
+                        'type': 'local',
                     }
                 }
             ],
             'remote': [
-                {
-                    'type': 'SSL_CLIENT_USER_NAME'
-                },
-                {
-                    'type': 'SSL_CLIENT_DOMAIN_NAME'
-                }
-            ]
+                {'type': 'SSL_CLIENT_USER_NAME'},
+                {'type': 'SSL_CLIENT_DOMAIN_NAME'},
+            ],
         }
     ]
 }
@@ -1139,21 +715,15 @@ MAPPING_WITH_USERID_AND_DOMAINNAME = {
                 {
                     'user': {
                         'id': '{0}',
-                        'domain': {
-                            'name': '{1}'
-                        },
-                        'type': 'local'
+                        'domain': {'name': '{1}'},
+                        'type': 'local',
                     }
                 }
             ],
             'remote': [
-                {
-                    'type': 'SSL_CLIENT_USER_ID'
-                },
-                {
-                    'type': 'SSL_CLIENT_DOMAIN_NAME'
-                }
-            ]
+                {'type': 'SSL_CLIENT_USER_ID'},
+                {'type': 'SSL_CLIENT_DOMAIN_NAME'},
+            ],
         }
     ]
 }
@@ -1167,21 +737,15 @@ MAPPING_WITH_USERNAME_AND_DOMAINID = {
                 {
                     'user': {
                         'name': '{0}',
-                        'domain': {
-                            'id': '{1}'
-                        },
-                        'type': 'local'
+                        'domain': {'id': '{1}'},
+                        'type': 'local',
                     }
                 }
             ],
             'remote': [
-                {
-                    'type': 'SSL_CLIENT_USER_NAME'
-                },
-                {
-                    'type': 'SSL_CLIENT_DOMAIN_ID'
-                }
-            ]
+                {'type': 'SSL_CLIENT_USER_NAME'},
+                {'type': 'SSL_CLIENT_DOMAIN_ID'},
+            ],
         }
     ]
 }
@@ -1195,21 +759,15 @@ MAPPING_WITH_USERID_AND_DOMAINID = {
                 {
                     'user': {
                         'id': '{0}',
-                        'domain': {
-                            'id': '{1}'
-                        },
-                        'type': 'local'
+                        'domain': {'id': '{1}'},
+                        'type': 'local',
                     }
                 }
             ],
             'remote': [
-                {
-                    'type': 'SSL_CLIENT_USER_ID'
-                },
-                {
-                    'type': 'SSL_CLIENT_DOMAIN_ID'
-                }
-            ]
+                {'type': 'SSL_CLIENT_USER_ID'},
+                {'type': 'SSL_CLIENT_DOMAIN_ID'},
+            ],
         }
     ]
 }
@@ -1218,21 +776,8 @@ MAPPING_WITH_USERID_AND_DOMAINID = {
 MAPPING_WITH_DOMAINID_ONLY = {
     'rules': [
         {
-            'local': [
-                {
-                    'user': {
-                        'domain': {
-                            'id': '{0}'
-                        },
-                        'type': 'local'
-                    }
-                }
-            ],
-            'remote': [
-                {
-                    'type': 'SSL_CLIENT_DOMAIN_ID'
-                }
-            ]
+            'local': [{'user': {'domain': {'id': '{0}'}, 'type': 'local'}}],
+            'remote': [{'type': 'SSL_CLIENT_DOMAIN_ID'}],
         }
     ]
 }
@@ -1241,34 +786,18 @@ MAPPING_GROUPS_IDS_WHITELIST = {
     "rules": [
         {
             "local": [
-                {
-                    "user": {
-                        "name": "{0}"
-                    }
-                },
-                {
-                    "group_ids": "{1}"
-                },
-                {
-                    "group": {
-                        "id": "{2}"
-                    }
-                }
+                {"user": {"name": "{0}"}},
+                {"group_ids": "{1}"},
+                {"group": {"id": "{2}"}},
             ],
             "remote": [
-                {
-                    "type": "name"
-                },
+                {"type": "name"},
                 {
                     "type": "group_ids",
-                    "whitelist": [
-                        "abc123", "ghi789", "321cba"
-                    ]
+                    "whitelist": ["abc123", "ghi789", "321cba"],
                 },
-                {
-                    "type": "group"
-                }
-            ]
+                {"type": "group"},
+            ],
         }
     ]
 }
@@ -1277,34 +806,15 @@ MAPPING_GROUPS_IDS_BLACKLIST = {
     "rules": [
         {
             "local": [
-                {
-                    "user": {
-                        "name": "{0}"
-                    }
-                },
-                {
-                    "group_ids": "{1}"
-                },
-                {
-                    "group": {
-                        "id": "{2}"
-                    }
-                }
+                {"user": {"name": "{0}"}},
+                {"group_ids": "{1}"},
+                {"group": {"id": "{2}"}},
             ],
             "remote": [
-                {
-                    "type": "name"
-                },
-                {
-                    "type": "group_ids",
-                    "blacklist": [
-                        "def456"
-                    ]
-                },
-                {
-                    "type": "group"
-                }
-            ]
+                {"type": "name"},
+                {"type": "group_ids", "blacklist": ["def456"]},
+                {"type": "group"},
+            ],
         }
     ]
 }
@@ -1313,21 +823,8 @@ MAPPING_GROUPS_IDS_BLACKLIST = {
 MAPPING_WITH_DOMAINNAME_ONLY = {
     'rules': [
         {
-            'local': [
-                {
-                    'user': {
-                        'domain': {
-                            'name': '{0}'
-                        },
-                        'type': 'local'
-                    }
-                }
-            ],
-            'remote': [
-                {
-                    'type': 'SSL_CLIENT_DOMAIN_NAME'
-                }
-            ]
+            'local': [{'user': {'domain': {'name': '{0}'}, 'type': 'local'}}],
+            'remote': [{'type': 'SSL_CLIENT_DOMAIN_NAME'}],
         }
     ]
 }
@@ -1336,19 +833,8 @@ MAPPING_WITH_DOMAINNAME_ONLY = {
 MAPPING_WITH_USERNAME_ONLY = {
     'rules': [
         {
-            'local': [
-                {
-                    'user': {
-                        'name': '{0}',
-                        'type': 'local'
-                    }
-                }
-            ],
-            'remote': [
-                {
-                    'type': 'SSL_CLIENT_USER_NAME'
-                }
-            ]
+            'local': [{'user': {'name': '{0}', 'type': 'local'}}],
+            'remote': [{'type': 'SSL_CLIENT_USER_NAME'}],
         }
     ]
 }
@@ -1357,19 +843,8 @@ MAPPING_WITH_USERNAME_ONLY = {
 MAPPING_WITH_USERID_ONLY = {
     'rules': [
         {
-            'local': [
-                {
-                    'user': {
-                        'id': '{0}',
-                        'type': 'local'
-                    }
-                }
-            ],
-            'remote': [
-                {
-                    'type': 'SSL_CLIENT_USER_ID'
-                }
-            ]
+            'local': [{'user': {'id': '{0}', 'type': 'local'}}],
+            'remote': [{'type': 'SSL_CLIENT_USER_ID'}],
         }
     ]
 }
@@ -1379,20 +854,11 @@ MAPPING_FOR_EPHEMERAL_USER = {
         {
             'local': [
                 {
-                    'user': {
-                        'name': '{0}',
-                        'type': 'ephemeral'
-                    },
-                    'group': {
-                        'id': 'dummy'
-                    }
+                    'user': {'name': '{0}', 'type': 'ephemeral'},
+                    'group': {'id': 'dummy'},
                 }
             ],
-            'remote': [
-                {
-                    'type': 'SSL_CLIENT_USER_NAME'
-                }
-            ]
+            'remote': [{'type': 'SSL_CLIENT_USER_NAME'}],
         }
     ]
 }
@@ -1402,23 +868,11 @@ MAPPING_FOR_EPHEMERAL_USER_AND_GROUP_DOMAIN_NAME = {
         {
             'local': [
                 {
-                    'user': {
-                        'name': '{0}',
-                        'type': 'ephemeral'
-                    },
-                    'group': {
-                        'name': 'dummy',
-                        'domain': {
-                            'name': 'dummy'
-                        }
-                    }
+                    'user': {'name': '{0}', 'type': 'ephemeral'},
+                    'group': {'name': 'dummy', 'domain': {'name': 'dummy'}},
                 }
             ],
-            'remote': [
-                {
-                    'type': 'SSL_CLIENT_USER_NAME'
-                }
-            ]
+            'remote': [{'type': 'SSL_CLIENT_USER_NAME'}],
         }
     ]
 }
@@ -1426,21 +880,8 @@ MAPPING_FOR_EPHEMERAL_USER_AND_GROUP_DOMAIN_NAME = {
 MAPPING_FOR_DEFAULT_EPHEMERAL_USER = {
     'rules': [
         {
-            'local': [
-                {
-                    'user': {
-                        'name': '{0}'
-                    },
-                    'group': {
-                        'id': 'dummy'
-                    }
-                }
-            ],
-            'remote': [
-                {
-                    'type': 'SSL_CLIENT_USER_NAME'
-                }
-            ]
+            'local': [{'user': {'name': '{0}'}, 'group': {'id': 'dummy'}}],
+            'remote': [{'type': 'SSL_CLIENT_USER_NAME'}],
         }
     ]
 }
@@ -1448,38 +889,22 @@ MAPPING_FOR_DEFAULT_EPHEMERAL_USER = {
 MAPPING_GROUPS_WHITELIST_PASS_THROUGH = {
     "rules": [
         {
-            "remote": [
-                {
-                    "type": "UserName"
-                }
-            ],
+            "remote": [{"type": "UserName"}],
             "local": [
                 {
                     "user": {
                         "name": "{0}",
-                        "domain": {
-                            "id": DEVELOPER_GROUP_DOMAIN_ID
-                        }
+                        "domain": {"id": DEVELOPER_GROUP_DOMAIN_ID},
                     }
-                }
-            ]
-        },
-        {
-            "remote": [
-                {
-                    "type": "orgPersonType",
-                    "whitelist": ['Developer']
                 }
             ],
+        },
+        {
+            "remote": [{"type": "orgPersonType", "whitelist": ['Developer']}],
             "local": [
-                {
-                    "groups": "{0}",
-                    "domain": {
-                        "id": DEVELOPER_GROUP_DOMAIN_ID
-                    }
-                }
-            ]
-        }
+                {"groups": "{0}", "domain": {"id": DEVELOPER_GROUP_DOMAIN_ID}}
+            ],
+        },
     ]
 }
 
@@ -1488,18 +913,11 @@ MAPPING_BAD_LOCAL_SETUP = {
         {
             "local": [
                 {
-                    "user": {
-                        "name": "{0}",
-                        "domain": {"id": "default"}
-                    },
-                    "whatisthis": "local"
+                    "user": {"name": "{0}", "domain": {"id": "default"}},
+                    "whatisthis": "local",
                 }
             ],
-            "remote": [
-                {
-                    "type": "UserName"
-                }
-            ]
+            "remote": [{"type": "UserName"}],
         }
     ]
 }
@@ -1507,29 +925,12 @@ MAPPING_BAD_LOCAL_SETUP = {
 MAPPING_BAD_LOCAL_TYPE_USER_IN_ASSERTION = {
     "rules": [
         {
-            "local": [
-                {
-                    "user": {
-                        "name": "{0}",
-                        "groups": "{1}"
-                    }
-                }
-            ],
+            "local": [{"user": {"name": "{0}", "groups": "{1}"}}],
             "remote": [
-                {
-                    "type": "openstack_user"
-                },
-                {
-                    "type": "openstack_groups"
-
-                },
-                {
-                    "type": "openstack_roles",
-                    "any_one_of": [
-                        "Admin"
-                    ]
-                }
-            ]
+                {"type": "openstack_user"},
+                {"type": "openstack_groups"},
+                {"type": "openstack_roles", "any_one_of": ["Admin"]},
+            ],
         },
     ]
 }
@@ -1544,24 +945,12 @@ MAPPING_GROUPS_WITH_EMAIL = {
                 {
                     "type": "userEmail",
                 },
-                {
-                    "type": "UserName"
-                }
+                {"type": "UserName"},
             ],
             "local": [
-                {
-                    "groups": "{0}",
-                    "domain": {
-                        "id": DEVELOPER_GROUP_DOMAIN_ID
-                    }
-                },
-                {
-                    "user": {
-                        "name": "{2}",
-                        "email": "{1}"
-                    }
-                }
-            ]
+                {"groups": "{0}", "domain": {"id": DEVELOPER_GROUP_DOMAIN_ID}},
+                {"user": {"name": "{2}", "email": "{1}"}},
+            ],
         }
     ]
 }
@@ -1570,27 +959,11 @@ MAPPING_GROUPS_WITH_EMAIL = {
 MAPPING_GROUPS_DOMAIN_OF_USER = {
     "rules": [
         {
-            "local":
-            [
-                {
-                    "user":
-                        {
-                            "name": "{0}"
-                        }
-                },
-                {
-                    "groups": "{1}"
-                }
+            "local": [{"user": {"name": "{0}"}}, {"groups": "{1}"}],
+            "remote": [
+                {"type": "openstack_user"},
+                {"type": "openstack_groups"},
             ],
-            "remote":
-            [
-                {
-                    "type": "openstack_user"
-                },
-                {
-                    "type": "openstack_groups"
-                }
-            ]
         }
     ]
 }
@@ -1600,7 +973,7 @@ EMPLOYEE_ASSERTION = {
     'UserName': 'tbo',
     'FirstName': 'Tim',
     'LastName': 'Bo',
-    'orgPersonType': 'Employee;BuildingX'
+    'orgPersonType': 'Employee;BuildingX',
 }
 
 EMPLOYEE_PARTTIME_ASSERTION = {
@@ -1608,7 +981,7 @@ EMPLOYEE_PARTTIME_ASSERTION = {
     'UserName': 'tbo',
     'FirstName': 'Tim',
     'LastName': 'Bo',
-    'orgPersonType': 'Employee;PartTimeEmployee;Manager'
+    'orgPersonType': 'Employee;PartTimeEmployee;Manager',
 }
 
 EMPLOYEE_ASSERTION_MULTIPLE_GROUPS = {
@@ -1617,7 +990,7 @@ EMPLOYEE_ASSERTION_MULTIPLE_GROUPS = {
     'FirstName': 'Tim',
     'LastName': 'Bo',
     'orgPersonType': 'Developer;Manager;Contractor',
-    'Thing': 'yes!;maybe!;no!!'
+    'Thing': 'yes!;maybe!;no!!',
 }
 
 EMPLOYEE_ASSERTION_PREFIXED = {
@@ -1625,7 +998,7 @@ EMPLOYEE_ASSERTION_PREFIXED = {
     'PREFIX_UserName': 'tbo',
     'PREFIX_FirstName': 'Tim',
     'PREFIX_LastName': 'Bo',
-    'PREFIX_orgPersonType': 'SuperEmployee;BuildingX'
+    'PREFIX_orgPersonType': 'SuperEmployee;BuildingX',
 }
 
 CONTRACTOR_ASSERTION = {
@@ -1633,7 +1006,7 @@ CONTRACTOR_ASSERTION = {
     'UserName': 'jsmith',
     'FirstName': 'Jill',
     'LastName': 'Smith',
-    'orgPersonType': 'Contractor;Non-Dev'
+    'orgPersonType': 'Contractor;Non-Dev',
 }
 
 ADMIN_ASSERTION = {
@@ -1641,7 +1014,7 @@ ADMIN_ASSERTION = {
     'UserName': 'bob',
     'FirstName': 'Bob',
     'LastName': 'Thompson',
-    'orgPersonType': 'Admin;Chief'
+    'orgPersonType': 'Admin;Chief',
 }
 
 CUSTOMER_ASSERTION = {
@@ -1649,7 +1022,7 @@ CUSTOMER_ASSERTION = {
     'UserName': 'bwilliams',
     'FirstName': 'Beth',
     'LastName': 'Williams',
-    'orgPersonType': 'Customer'
+    'orgPersonType': 'Customer',
 }
 
 ANOTHER_CUSTOMER_ASSERTION = {
@@ -1657,7 +1030,7 @@ ANOTHER_CUSTOMER_ASSERTION = {
     'UserName': 'markcol',
     'FirstName': 'Mark',
     'LastName': 'Collins',
-    'orgPersonType': 'Managers;CEO;CTO'
+    'orgPersonType': 'Managers;CEO;CTO',
 }
 
 TESTER_ASSERTION = {
@@ -1665,12 +1038,12 @@ TESTER_ASSERTION = {
     'UserName': 'testacct',
     'FirstName': 'Test',
     'LastName': 'Account',
-    'orgPersonType': 'MadeupGroup;Tester;GroupX'
+    'orgPersonType': 'MadeupGroup;Tester;GroupX',
 }
 
 ANOTHER_TESTER_ASSERTION = {
     'Email': 'testacct@example.com',
-    'UserName': 'IamTester'
+    'UserName': 'IamTester',
 }
 
 BAD_TESTER_ASSERTION = {
@@ -1678,7 +1051,7 @@ BAD_TESTER_ASSERTION = {
     'UserName': 'Evil',
     'FirstName': 'Test',
     'LastName': 'Account',
-    'orgPersonType': 'Tester'
+    'orgPersonType': 'Tester',
 }
 
 BAD_DEVELOPER_ASSERTION = {
@@ -1686,7 +1059,7 @@ BAD_DEVELOPER_ASSERTION = {
     'UserName': 'Evil',
     'FirstName': 'Develop',
     'LastName': 'Account',
-    'orgPersonType': 'Developer'
+    'orgPersonType': 'Developer',
 }
 
 MALFORMED_TESTER_ASSERTION = {
@@ -1697,7 +1070,7 @@ MALFORMED_TESTER_ASSERTION = {
     'orgPersonType': 'Tester',
     'object': object(),
     'dictionary': dict(zip('teststring', range(10))),
-    'tuple': tuple(range(5))
+    'tuple': tuple(range(5)),
 }
 
 DEVELOPER_ASSERTION = {
@@ -1705,46 +1078,43 @@ DEVELOPER_ASSERTION = {
     'UserName': 'developacct',
     'FirstName': 'Develop',
     'LastName': 'Account',
-    'orgPersonType': 'Developer'
+    'orgPersonType': 'Developer',
 }
 
 CONTRACTOR_MALFORMED_ASSERTION = {
     'UserName': 'user',
     'FirstName': object(),
-    'orgPersonType': 'Contractor'
+    'orgPersonType': 'Contractor',
 }
 
-LOCAL_USER_ASSERTION = {
-    'UserName': 'marek',
-    'UserType': 'random'
-}
+LOCAL_USER_ASSERTION = {'UserName': 'marek', 'UserType': 'random'}
 
 ANOTHER_LOCAL_USER_ASSERTION = {
     'UserName': 'marek',
-    'Position': 'DirectorGeneral'
+    'Position': 'DirectorGeneral',
 }
 
 USER_NO_GROUPS_ASSERTION = {
     'Email': 'nogroupsuser1@example.org',
     'UserName': 'nogroupsuser1',
-    'orgPersonType': 'NoGroupsOrg'
+    'orgPersonType': 'NoGroupsOrg',
 }
 
 UNMATCHED_GROUP_ASSERTION = {
     'REMOTE_USER': 'Any Momoose',
-    'REMOTE_USER_GROUPS': 'EXISTS;NO_EXISTS'
+    'REMOTE_USER_GROUPS': 'EXISTS;NO_EXISTS',
 }
 
 GROUP_IDS_ASSERTION = {
     'name': 'opilotte',
     'group_ids': 'abc123;def456;ghi789',
-    'group': 'klm012'
+    'group': 'klm012',
 }
 
 GROUP_IDS_ASSERTION_ONLY_ONE_GROUP = {
     'name': 'opilotte',
     'group_ids': '321cba',
-    'group': '210mlk'
+    'group': '210mlk',
 }
 
 UNICODE_NAME_ASSERTION = {
@@ -1752,19 +1122,19 @@ UNICODE_NAME_ASSERTION = {
     'PFX_UserName': 'jonkare',
     'PFX_FirstName': 'Jon Kåre',
     'PFX_LastName': 'Hellån',
-    'PFX_orgPersonType': 'Admin;Chief'
+    'PFX_orgPersonType': 'Admin;Chief',
 }
 
 GROUPS_ASSERTION_ONLY_ONE_GROUP = {
     'userEmail': 'jill@example.com',
     'UserName': 'jsmith',
-    'groups': 'ALL USERS'
+    'groups': 'ALL USERS',
 }
 
 GROUPS_ASSERTION_ONLY_ONE_NUMERICAL_GROUP = {
     'userEmail': 'jill@example.com',
     'UserName': 'jsmith',
-    'groups': '1234'
+    'groups': '1234',
 }
 
 GROUPS_DOMAIN_ASSERTION = {
@@ -1772,12 +1142,12 @@ GROUPS_DOMAIN_ASSERTION = {
     'openstack_user_domain': 'default',
     'openstack_roles': 'Admin',
     'openstack_groups': 'JSON:{"name":"group1","domain":{"name":"xxx"}};'
-                        'JSON:{"name":"group2","domain":{"name":"yyy"}}'
+    'JSON:{"name":"group2","domain":{"name":"yyy"}}',
 }
 
 USER_WITH_DOMAIN_ASSERTION = {
     'UserName': 'marek',
-    'OIDC-openstack-user-domain': 'user_domain'
+    'OIDC-openstack-user-domain': 'user_domain',
 }
 
 MAPPING_UNICODE = {
@@ -1785,33 +1155,19 @@ MAPPING_UNICODE = {
         {
             "local": [
                 {
-                    "user": {
-                        "name": "{0} {1}",
-                        "email": "{2}"
-                    },
-                    "group": {
-                        "id": EMPLOYEE_GROUP_ID
-                    }
+                    "user": {"name": "{0} {1}", "email": "{2}"},
+                    "group": {"id": EMPLOYEE_GROUP_ID},
                 }
             ],
             "remote": [
-                {
-                    "type": "PFX_FirstName"
-                },
-                {
-                    "type": "PFX_LastName"
-                },
-                {
-                    "type": "PFX_Email"
-                },
+                {"type": "PFX_FirstName"},
+                {"type": "PFX_LastName"},
+                {"type": "PFX_Email"},
                 {
                     "type": "PFX_orgPersonType",
-                    "any_one_of": [
-                        "Admin",
-                        "Big Cheese"
-                    ]
-                }
-            ]
+                    "any_one_of": ["Admin", "Big Cheese"],
+                },
+            ],
         },
     ],
 }
@@ -1820,36 +1176,28 @@ MAPPING_PROJECTS = {
     "rules": [
         {
             "local": [
-                {
-                    "user": {
-                        "name": "{0}"
-                    }
-                },
+                {"user": {"name": "{0}"}},
                 {
                     "projects": [
-                        {"name": "Production",
-                         "roles": [{"name": "observer"}]},
-                        {"name": "Staging",
-                         "roles": [{"name": "member"}]},
-                        {"name": "Project for {0}",
-                         "roles": [{"name": "admin"}]},
+                        {
+                            "name": "Production",
+                            "roles": [{"name": "observer"}],
+                        },
+                        {"name": "Staging", "roles": [{"name": "member"}]},
+                        {
+                            "name": "Project for {0}",
+                            "roles": [{"name": "admin"}],
+                        },
                     ],
-                }
+                },
             ],
             "remote": [
-                {
-                    "type": "UserName"
-                },
+                {"type": "UserName"},
                 {
                     "type": "Email",
                 },
-                {
-                    "type": "orgPersonType",
-                    "any_one_of": [
-                        "Employee"
-                    ]
-                }
-            ]
+                {"type": "orgPersonType", "any_one_of": ["Employee"]},
+            ],
         }
     ]
 }
@@ -1859,9 +1207,7 @@ MAPPING_PROJECTS_WITHOUT_ROLES = {
         {
             "local": [
                 {
-                    "user": {
-                        "name": "{0}"
-                    },
+                    "user": {"name": "{0}"},
                     "projects": [
                         {"name": "a"},
                         {"name": "b"},
@@ -1869,11 +1215,7 @@ MAPPING_PROJECTS_WITHOUT_ROLES = {
                     ],
                 }
             ],
-            "remote": [
-                {
-                    "type": "UserName"
-                }
-            ]
+            "remote": [{"type": "UserName"}],
         },
     ]
 }
@@ -1883,23 +1225,18 @@ MAPPING_PROJECTS_WITHOUT_NAME = {
         {
             "local": [
                 {
-                    "user": {
-                        "name": "{0}"
-                    },
+                    "user": {"name": "{0}"},
                     "projects": [
                         {"roles": [{"name": "observer"}]},
-                        {"name": "Staging",
-                         "roles": [{"name": "member"}]},
-                        {"name": "Project for {0}",
-                         "roles": [{"name": "admin"}]},
-                    ]
+                        {"name": "Staging", "roles": [{"name": "member"}]},
+                        {
+                            "name": "Project for {0}",
+                            "roles": [{"name": "admin"}],
+                        },
+                    ],
                 }
             ],
-            "remote": [
-                {
-                    "type": "UserName"
-                }
-            ]
+            "remote": [{"type": "UserName"}],
         },
     ]
 }

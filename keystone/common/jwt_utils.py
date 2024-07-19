@@ -29,7 +29,7 @@ def create_jws_keypair(private_key_path, public_key_path):
             private_key.private_bytes(
                 encoding=serialization.Encoding.PEM,
                 format=serialization.PrivateFormat.PKCS8,
-                encryption_algorithm=serialization.NoEncryption()
+                encryption_algorithm=serialization.NoEncryption(),
             )
         )
 
@@ -38,6 +38,6 @@ def create_jws_keypair(private_key_path, public_key_path):
         f.write(
             public_key.public_bytes(
                 encoding=serialization.Encoding.PEM,
-                format=serialization.PublicFormat.SubjectPublicKeyInfo
+                format=serialization.PublicFormat.SubjectPublicKeyInfo,
             )
         )

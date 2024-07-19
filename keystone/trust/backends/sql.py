@@ -29,13 +29,24 @@ MAXIMUM_CONSUME_ATTEMPTS = 10
 
 class TrustModel(sql.ModelBase, sql.ModelDictMixinWithExtras):
     __tablename__ = 'trust'
-    attributes = ['id', 'trustor_user_id', 'trustee_user_id',
-                  'project_id', 'impersonation', 'expires_at',
-                  'remaining_uses', 'deleted_at', 'redelegated_trust_id',
-                  'redelegation_count']
+    attributes = [
+        'id',
+        'trustor_user_id',
+        'trustee_user_id',
+        'project_id',
+        'impersonation',
+        'expires_at',
+        'remaining_uses',
+        'deleted_at',
+        'redelegated_trust_id',
+        'redelegation_count',
+    ]
     id = sql.Column(sql.String(64), primary_key=True)
     # user id of owner
-    trustor_user_id = sql.Column(sql.String(64), nullable=False,)
+    trustor_user_id = sql.Column(
+        sql.String(64),
+        nullable=False,
+    )
     # user_id of user allowed to consume this preauth
     trustee_user_id = sql.Column(sql.String(64), nullable=False)
     project_id = sql.Column(sql.String(64))
@@ -47,10 +58,16 @@ class TrustModel(sql.ModelBase, sql.ModelDictMixinWithExtras):
     redelegated_trust_id = sql.Column(sql.String(64), nullable=True)
     redelegation_count = sql.Column(sql.Integer, nullable=True)
     extra = sql.Column(sql.JsonBlob())
-    __table_args__ = (sql.UniqueConstraint(
-                      'trustor_user_id', 'trustee_user_id', 'project_id',
-                      'impersonation', 'expires_at',
-                      name='duplicate_trust_constraint'),)
+    __table_args__ = (
+        sql.UniqueConstraint(
+            'trustor_user_id',
+            'trustee_user_id',
+            'project_id',
+            'impersonation',
+            'expires_at',
+            name='duplicate_trust_constraint',
+        ),
+    )
 
     @hybrid_property
     def expires_at(self):
@@ -99,9 +116,12 @@ class Trust(base.TrustDriverBase):
         for attempt in range(MAXIMUM_CONSUME_ATTEMPTS):
             with sql.session_for_write() as session:
                 try:
-                    query_result = (session.query(TrustModel.remaining_uses).
-                                    filter_by(id=trust_id).
-                                    filter_by(deleted_at=None).one())
+                    query_result = (
+                        session.query(TrustModel.remaining_uses)
+                        .filter_by(id=trust_id)
+                        .filter_by(deleted_at=None)
+                        .one()
+                    )
                 except sql.NotFound:
                     raise exception.TrustNotFound(trust_id=trust_id)
 
@@ -115,12 +135,15 @@ class Trust(base.TrustDriverBase):
                     # to ensure we only ever update a trust that has the
                     # expected number of remaining uses.
                     rows_affected = (
-                        session.query(TrustModel).
-                        filter_by(id=trust_id).
-                        filter_by(deleted_at=None).
-                        filter_by(remaining_uses=remaining_uses).
-                        update({'remaining_uses': (remaining_uses - 1)},
-                               synchronize_session=False))
+                        session.query(TrustModel)
+                        .filter_by(id=trust_id)
+                        .filter_by(deleted_at=None)
+                        .filter_by(remaining_uses=remaining_uses)
+                        .update(
+                            {'remaining_uses': (remaining_uses - 1)},
+                            synchronize_session=False,
+                        )
+                    )
                     if rows_affected == 1:
                         # Successfully consumed a single limited-use trust.
                         # Since trust_id is the PK on the Trust table, there is
@@ -166,20 +189,26 @@ class Trust(base.TrustDriverBase):
 
     def list_trusts_for_trustee(self, trustee_user_id):
         with sql.session_for_read() as session:
-            trusts = (session.query(TrustModel).
-                      filter_by(deleted_at=None).
-                      filter_by(trustee_user_id=trustee_user_id))
+            trusts = (
+                session.query(TrustModel)
+                .filter_by(deleted_at=None)
+                .filter_by(trustee_user_id=trustee_user_id)
+            )
             return [trust_ref.to_dict() for trust_ref in trusts]
 
-    def list_trusts_for_trustor(self, trustor_user_id,
-                                redelegated_trust_id=None):
+    def list_trusts_for_trustor(
+        self, trustor_user_id, redelegated_trust_id=None
+    ):
         with sql.session_for_read() as session:
-            trusts = (session.query(TrustModel).
-                      filter_by(deleted_at=None).
-                      filter_by(trustor_user_id=trustor_user_id))
+            trusts = (
+                session.query(TrustModel)
+                .filter_by(deleted_at=None)
+                .filter_by(trustor_user_id=trustor_user_id)
+            )
             if redelegated_trust_id:
                 trusts = trusts.filter_by(
-                    redelegated_trust_id=redelegated_trust_id)
+                    redelegated_trust_id=redelegated_trust_id
+                )
             return [trust_ref.to_dict() for trust_ref in trusts]
 
     @sql.handle_conflicts(conflict_type='trust')
@@ -197,17 +226,24 @@ class Trust(base.TrustDriverBase):
             for trust_ref in trusts:
                 trust_ref.deleted_at = timeutils.utcnow()
 
-    def flush_expired_and_soft_deleted_trusts(self, project_id=None,
-                                              trustor_user_id=None,
-                                              trustee_user_id=None,
-                                              date=None):
+    def flush_expired_and_soft_deleted_trusts(
+        self,
+        project_id=None,
+        trustor_user_id=None,
+        trustee_user_id=None,
+        date=None,
+    ):
         with sql.session_for_write() as session:
             query = session.query(TrustModel)
-            query = query.\
-                filter(sqlalchemy.or_(TrustModel.deleted_at.isnot(None),
-                                      sqlalchemy.and_(
-                                          TrustModel.expires_at.isnot(None),
-                                          TrustModel.expires_at < date)))
+            query = query.filter(
+                sqlalchemy.or_(
+                    TrustModel.deleted_at.isnot(None),
+                    sqlalchemy.and_(
+                        TrustModel.expires_at.isnot(None),
+                        TrustModel.expires_at < date,
+                    ),
+                )
+            )
             if project_id:
                 query = query.filter_by(project_id=project_id)
             if trustor_user_id:

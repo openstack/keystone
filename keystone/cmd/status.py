@@ -44,7 +44,7 @@ class Checks(upgradecheck.UpgradeCommands):
             'identity:delete_trust',
             'identity:get_trust',
             'identity:list_roles_for_trust',
-            'identity:get_role_for_trust'
+            'identity:get_role_for_trust',
         ]
         failed_rules = []
         for rule in rules:
@@ -59,17 +59,22 @@ class Checks(upgradecheck.UpgradeCommands):
                 "these rules to be fully permissive as hardcoded enforcement "
                 "will be removed. To correct this issue, either stop "
                 "overriding these rules in config to accept the defaults, or "
-                "explicitly set check strings that are not empty." %
-                "\", \"".join(failed_rules)
+                "explicitly set check strings that are not empty."
+                % "\", \"".join(failed_rules),
             )
         return upgradecheck.Result(
-            upgradecheck.Code.SUCCESS, 'Trust policies are safe.')
+            upgradecheck.Code.SUCCESS, 'Trust policies are safe.'
+        )
 
     def check_default_roles_are_immutable(self):
         hints = driver_hints.Hints()
         hints.add_filter('domain_id', None)  # Only check global roles
         roles = PROVIDERS.role_api.list_roles(hints=hints)
-        default_roles = ('admin', 'member', 'reader',)
+        default_roles = (
+            'admin',
+            'member',
+            'reader',
+        )
         failed_roles = []
         for role in [r for r in roles if r['name'] in default_roles]:
             if not role.get('options', {}).get('immutable'):
@@ -77,18 +82,25 @@ class Checks(upgradecheck.UpgradeCommands):
         if any(failed_roles):
             return upgradecheck.Result(
                 upgradecheck.Code.FAILURE,
-                "Roles are not immutable: %s" % ", ".join(failed_roles)
+                "Roles are not immutable: %s" % ", ".join(failed_roles),
             )
         return upgradecheck.Result(
-            upgradecheck.Code.SUCCESS, "Default roles are immutable.")
+            upgradecheck.Code.SUCCESS, "Default roles are immutable."
+        )
 
     _upgrade_checks = (
-        ("Check trust policies are not empty",
-         check_trust_policies_are_not_empty),
-        ("Check default roles are immutable",
-         check_default_roles_are_immutable),
-        ("Policy File JSON to YAML Migration",
-         (common_checks.check_policy_json, {'conf': CONF})),
+        (
+            "Check trust policies are not empty",
+            check_trust_policies_are_not_empty,
+        ),
+        (
+            "Check default roles are immutable",
+            check_default_roles_are_immutable,
+        ),
+        (
+            "Policy File JSON to YAML Migration",
+            (common_checks.check_policy_json, {'conf': CONF}),
+        ),
     )
 
 

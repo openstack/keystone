@@ -32,11 +32,12 @@ token_revocation_policies = [
         # for consistency with other policies.
         scope_types=['system', 'project'],
         description='List revoked PKI tokens.',
-        operations=[{'path': '/v3/auth/tokens/OS-PKI/revoked',
-                     'method': 'GET'}],
+        operations=[
+            {'path': '/v3/auth/tokens/OS-PKI/revoked', 'method': 'GET'}
+        ],
         deprecated_for_removal=True,
         deprecated_since=versionutils.deprecated.TRAIN,
-        deprecated_reason=DEPRECATED_REASON
+        deprecated_reason=DEPRECATED_REASON,
     )
 ]
 

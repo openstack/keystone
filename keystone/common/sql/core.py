@@ -74,9 +74,7 @@ Unicode = sql.Unicode
 
 def initialize():
     """Initialize the module."""
-    db_options.set_defaults(
-        CONF,
-        connection="sqlite:///keystone.db")
+    db_options.set_defaults(CONF, connection="sqlite:///keystone.db")
     # Configure OSprofiler options
     profiler.set_defaults(CONF, enabled=False, trace_sqlalchemy=False)
 
@@ -93,6 +91,7 @@ def initialize_decorator(init):
     definition.
 
     """
+
     def initialize(self, *args, **kwargs):
         cls = type(self)
         for k, v in kwargs.items():
@@ -105,9 +104,11 @@ def initialize_decorator(init):
                             v = str(v)
                         if column.type.length and column.type.length < len(v):
                             raise exception.StringLengthExceeded(
-                                string=v, type=k, length=column.type.length)
+                                string=v, type=k, length=column.type.length
+                            )
 
         init(self, *args, **kwargs)
+
     return initialize
 
 
@@ -159,8 +160,12 @@ class DateTimeInt(sql_types.TypeDecorator):
             return value
         else:
             if not isinstance(value, datetime.datetime):
-                raise ValueError(_('Programming Error: value to be stored '
-                                   'must be a datetime object.'))
+                raise ValueError(
+                    _(
+                        'Programming Error: value to be stored '
+                        'must be a datetime object.'
+                    )
+                )
             value = timeutils.normalize_time(value)
             value = value.replace(tzinfo=datetime.timezone.utc)
             # NOTE(morgan): We are casting this to an int, and ensuring we
@@ -179,8 +184,9 @@ class DateTimeInt(sql_types.TypeDecorator):
             # NOTE(morgan): Explictly use timezone "datetime.timezone.utc" to
             # ensure we are not adjusting the actual datetime object from what
             # we stored.
-            dt_obj = datetime.datetime.fromtimestamp(value,
-                                                     tz=datetime.timezone.utc)
+            dt_obj = datetime.datetime.fromtimestamp(
+                value, tz=datetime.timezone.utc
+            )
             # Return non-tz aware datetime object (as keystone expects)
             return timeutils.normalize_time(dt_obj)
 
@@ -195,11 +201,13 @@ class ModelDictMixinWithExtras(models.ModelBase):
     """
 
     attributes = []
-    _msg = ('Programming Error: Model does not have an "extra" column. '
-            'Unless the model already has an "extra" column and has '
-            'existed in a previous released version of keystone with '
-            'the extra column included, the model should use '
-            '"ModelDictMixin" instead.')
+    _msg = (
+        'Programming Error: Model does not have an "extra" column. '
+        'Unless the model already has an "extra" column and has '
+        'existed in a previous released version of keystone with '
+        'the extra column included, the model should use '
+        '"ModelDictMixin" instead.'
+    )
 
     @classmethod
     def from_dict(cls, d):
@@ -210,8 +218,11 @@ class ModelDictMixinWithExtras(models.ModelBase):
             # programmers NOT end users.
             raise AttributeError(cls._msg)  # no qa
 
-        new_d['extra'] = {k: new_d.pop(k) for k in d.keys()
-                          if k not in cls.attributes and k != 'extra'}
+        new_d['extra'] = {
+            k: new_d.pop(k)
+            for k in d.keys()
+            if k not in cls.attributes and k != 'extra'
+        }
 
         return cls(**new_d)
 
@@ -292,6 +303,7 @@ def _get_context():
         # NOTE(dims): Delay the `threading.local` import to allow for
         # eventlet/gevent monkeypatching to happen
         import threading
+
         _CONTEXT = threading.local()
     return _CONTEXT
 
@@ -375,6 +387,7 @@ def _filter(model, query, hints):
     :returns: query updated with any filters satisfied
 
     """
+
     def inexact_filter(model, query, filter_, satisfied_filters):
         """Apply an inexact filter to a query.
 
@@ -443,11 +456,11 @@ def _filter(model, query, hints):
             if filter_['name'] not in model.attributes:
                 continue
             if filter_['comparator'] == 'equals':
-                query = exact_filter(model, query, filter_,
-                                     satisfied_filters)
+                query = exact_filter(model, query, filter_, satisfied_filters)
             else:
-                query = inexact_filter(model, query, filter_,
-                                       satisfied_filters)
+                query = inexact_filter(
+                    model, query, filter_, satisfied_filters
+                )
 
         # Remove satisfied filters, then the caller will know remaining filters
         for filter_ in satisfied_filters:
@@ -531,8 +544,10 @@ def handle_conflicts(conflict_type='object'):
                 # LOG the exception for debug purposes, do not send the
                 # exception details out with the raised Conflict exception
                 # as it can contain raw SQL.
-                LOG.debug(_conflict_msg, {'conflict_type': conflict_type,
-                                          'details': e})
+                LOG.debug(
+                    _conflict_msg,
+                    {'conflict_type': conflict_type, 'details': e},
+                )
                 name = None
                 field = None
                 domain_id = None
@@ -553,16 +568,17 @@ def handle_conflicts(conflict_type='object'):
                             domain_id = arg['domain_id']
                 msg = _('Duplicate entry')
                 if name and domain_id:
-                    msg = _('Duplicate entry found with %(field)s %(name)s '
-                            'at domain ID %(domain_id)s') % {
-                        'field': field, 'name': name, 'domain_id': domain_id}
+                    msg = _(
+                        'Duplicate entry found with %(field)s %(name)s '
+                        'at domain ID %(domain_id)s'
+                    ) % {'field': field, 'name': name, 'domain_id': domain_id}
                 elif name:
-                    msg = _('Duplicate entry found with %(field)s '
-                            '%(name)s') % {'field': field, 'name': name}
+                    msg = _(
+                        'Duplicate entry found with %(field)s ' '%(name)s'
+                    ) % {'field': field, 'name': name}
                 elif domain_id:
-                    msg = (_('Duplicate entry at domain ID %s') % domain_id)
-                raise exception.Conflict(type=conflict_type,
-                                         details=msg)
+                    msg = _('Duplicate entry at domain ID %s') % domain_id
+                raise exception.Conflict(type=conflict_type, details=msg)
             except db_exception.DBError as e:
                 # TODO(blk-u): inspecting inner_exception breaks encapsulation;
                 # oslo_db should provide exception we need.
@@ -570,17 +586,24 @@ def handle_conflicts(conflict_type='object'):
                     # LOG the exception for debug purposes, do not send the
                     # exception details out with the raised Conflict exception
                     # as it can contain raw SQL.
-                    LOG.debug(_conflict_msg, {'conflict_type': conflict_type,
-                                              'details': e})
+                    LOG.debug(
+                        _conflict_msg,
+                        {'conflict_type': conflict_type, 'details': e},
+                    )
                     # NOTE(morganfainberg): This is really a case where the SQL
                     # failed to store the data. This is not something that the
                     # user has done wrong. Example would be a ForeignKey is
                     # missing; the code that is executed before reaching the
                     # SQL writing to the DB should catch the issue.
                     raise exception.UnexpectedError(
-                        _('An unexpected error occurred when trying to '
-                          'store %s') % conflict_type)
+                        _(
+                            'An unexpected error occurred when trying to '
+                            'store %s'
+                        )
+                        % conflict_type
+                    )
                 raise
 
         return wrapper
+
     return decorator

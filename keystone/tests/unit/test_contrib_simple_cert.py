@@ -24,10 +24,12 @@ class BaseTestCase(test_v3.RestfulTestCase):
 class TestSimpleCert(BaseTestCase):
 
     def request_cert(self, path):
-        self.request(app=self.public_app,
-                     method='GET',
-                     path=path,
-                     expected_status=http.client.GONE)
+        self.request(
+            app=self.public_app,
+            method='GET',
+            path=path,
+            expected_status=http.client.GONE,
+        )
 
     def test_ca_cert(self):
         self.request_cert(self.CA_PATH)

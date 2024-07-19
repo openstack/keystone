@@ -65,23 +65,28 @@ class CredentialResource(ks_flask.ResourceBase):
             blob = jsonutils.loads(ref.get('blob'))
         except (ValueError, TabError):
             raise exception.ValidationError(
-                message=_('Invalid blob in credential'))
+                message=_('Invalid blob in credential')
+            )
         if not blob or not isinstance(blob, dict):
-            raise exception.ValidationError(attribute='blob',
-                                            target='credential')
+            raise exception.ValidationError(
+                attribute='blob', target='credential'
+            )
         if blob.get('access') is None:
-            raise exception.ValidationError(attribute='access',
-                                            target='credential')
+            raise exception.ValidationError(
+                attribute='access', target='credential'
+            )
         return blob
 
     def _assign_unique_id(
-            self, ref, trust_id=None, app_cred_id=None, access_token_id=None):
+        self, ref, trust_id=None, app_cred_id=None, access_token_id=None
+    ):
         # Generates an assigns a unique identifier to a credential reference.
         if ref.get('type', '').lower() == 'ec2':
             blob = self._validate_blob_json(ref)
             ref = ref.copy()
             ref['id'] = hashlib.sha256(
-                blob['access'].encode('utf8')).hexdigest()
+                blob['access'].encode('utf8')
+            ).hexdigest()
             # update the blob with the trust_id or app_cred_id, so credentials
             # created with a trust- or app cred-scoped token will result in
             # trust- or app cred-scoped tokens when authentication via
@@ -105,8 +110,11 @@ class CredentialResource(ks_flask.ResourceBase):
             target = {'credential': {'user_id': self.oslo_context.user_id}}
         else:
             target = None
-        ENFORCER.enforce_call(action='identity:list_credentials',
-                              filters=filters, target_attr=target)
+        ENFORCER.enforce_call(
+            action='identity:list_credentials',
+            filters=filters,
+            target_attr=target,
+        )
         hints = self.build_driver_hints(filters)
         refs = PROVIDERS.credential_api.list_credentials(hints)
         # If the request was filtered, make sure to return only the
@@ -122,7 +130,7 @@ class CredentialResource(ks_flask.ResourceBase):
                 cred = PROVIDERS.credential_api.get_credential(ref['id'])
                 ENFORCER.enforce_call(
                     action='identity:get_credential',
-                    target_attr={'credential': cred}
+                    target_attr={'credential': cred},
                 )
                 filtered_refs.append(ref)
             except exception.Forbidden:
@@ -134,7 +142,7 @@ class CredentialResource(ks_flask.ResourceBase):
     def _get_credential(self, credential_id):
         ENFORCER.enforce_call(
             action='identity:get_credential',
-            build_target=_build_target_enforcement
+            build_target=_build_target_enforcement,
         )
         credential = PROVIDERS.credential_api.get_credential(credential_id)
         return self.wrap_member(self._blob_to_json(credential))
@@ -158,15 +166,20 @@ class CredentialResource(ks_flask.ResourceBase):
         validation.lazy_validate(schema.credential_create, credential)
         trust_id = getattr(self.oslo_context, 'trust_id', None)
         app_cred_id = getattr(
-            self.auth_context['token'], 'application_credential_id', None)
+            self.auth_context['token'], 'application_credential_id', None
+        )
         access_token_id = getattr(
-            self.auth_context['token'], 'access_token_id', None)
+            self.auth_context['token'], 'access_token_id', None
+        )
         ref = self._assign_unique_id(
             self._normalize_dict(credential),
-            trust_id=trust_id, app_cred_id=app_cred_id,
-            access_token_id=access_token_id)
+            trust_id=trust_id,
+            app_cred_id=app_cred_id,
+            access_token_id=access_token_id,
+        )
         ref = PROVIDERS.credential_api.create_credential(
-            ref['id'], ref, initiator=self.audit_initiator)
+            ref['id'], ref, initiator=self.audit_initiator
+        )
         return self.wrap_member(ref), http.client.CREATED
 
     def _validate_blob_update_keys(self, credential, ref):
@@ -176,8 +189,12 @@ class CredentialResource(ks_flask.ResourceBase):
             if isinstance(old_blob, str):
                 old_blob = jsonutils.loads(old_blob)
             # if there was a scope set, prevent changing it or unsetting it
-            for key in ['trust_id', 'app_cred_id', 'access_token_id',
-                        'access_id']:
+            for key in [
+                'trust_id',
+                'app_cred_id',
+                'access_token_id',
+                'access_id',
+            ]:
                 if old_blob.get(key) != new_blob.get(key):
                     message = _('%s can not be updated for credential') % key
                     raise exception.ValidationError(message=message)
@@ -186,7 +203,7 @@ class CredentialResource(ks_flask.ResourceBase):
         # Update Credential
         ENFORCER.enforce_call(
             action='identity:update_credential',
-            build_target=_build_target_enforcement
+            build_target=_build_target_enforcement,
         )
         current = PROVIDERS.credential_api.get_credential(credential_id)
 
@@ -200,19 +217,23 @@ class CredentialResource(ks_flask.ResourceBase):
             action='identity:update_credential', target_attr=target
         )
         ref = PROVIDERS.credential_api.update_credential(
-            credential_id, credential)
+            credential_id, credential
+        )
         return self.wrap_member(ref)
 
     def delete(self, credential_id):
         # Delete credentials
         ENFORCER.enforce_call(
             action='identity:delete_credential',
-            build_target=_build_target_enforcement
+            build_target=_build_target_enforcement,
         )
 
-        return (PROVIDERS.credential_api.delete_credential(
-            credential_id, initiator=self.audit_initiator),
-            http.client.NO_CONTENT)
+        return (
+            PROVIDERS.credential_api.delete_credential(
+                credential_id, initiator=self.audit_initiator
+            ),
+            http.client.NO_CONTENT,
+        )
 
 
 class CredentialAPI(ks_flask.APIBase):

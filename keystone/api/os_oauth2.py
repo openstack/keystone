@@ -42,7 +42,8 @@ class AccessTokenResource(ks_flask.ResourceBase):
         raise exception.OAuth2OtherError(
             int(http.client.METHOD_NOT_ALLOWED),
             http.client.responses[http.client.METHOD_NOT_ALLOWED],
-            _('The method is not allowed for the requested URL.'))
+            _('The method is not allowed for the requested URL.'),
+        )
 
     @ks_flask.unenforced_api
     def get(self):
@@ -80,18 +81,22 @@ class AccessTokenResource(ks_flask.ResourceBase):
             error = exception.OAuth2InvalidRequest(
                 int(http.client.BAD_REQUEST),
                 http.client.responses[http.client.BAD_REQUEST],
-                _('The parameter grant_type is required.'))
-            LOG.info('Get OAuth2.0 Access Token API: '
-                     f'{error.message_format}')
+                _('The parameter grant_type is required.'),
+            )
+            LOG.info(
+                'Get OAuth2.0 Access Token API: ' f'{error.message_format}'
+            )
             raise error
         if grant_type != 'client_credentials':
             error = exception.OAuth2UnsupportedGrantType(
                 int(http.client.BAD_REQUEST),
                 http.client.responses[http.client.BAD_REQUEST],
-                _('The parameter grant_type %s is not supported.'
-                  ) % grant_type)
-            LOG.info('Get OAuth2.0 Access Token API: '
-                     f'{error.message_format}')
+                _('The parameter grant_type %s is not supported.')
+                % grant_type,
+            )
+            LOG.info(
+                'Get OAuth2.0 Access Token API: ' f'{error.message_format}'
+            )
             raise error
 
         auth_method = ''
@@ -107,9 +112,12 @@ class AccessTokenResource(ks_flask.ResourceBase):
             error = exception.OAuth2InvalidClient(
                 int(http.client.UNAUTHORIZED),
                 http.client.responses[http.client.UNAUTHORIZED],
-                _('Client authentication failed.'))
-            LOG.info('Get OAuth2.0 Access Token API: '
-                     'failed to get a client_id from the request.')
+                _('Client authentication failed.'),
+            )
+            LOG.info(
+                'Get OAuth2.0 Access Token API: '
+                'failed to get a client_id from the request.'
+            )
             raise error
         if client_cert:
             auth_method = 'tls_client_auth'
@@ -125,9 +133,12 @@ class AccessTokenResource(ks_flask.ResourceBase):
         error = exception.OAuth2InvalidClient(
             int(http.client.UNAUTHORIZED),
             http.client.responses[http.client.UNAUTHORIZED],
-            _('Client authentication failed.'))
-        LOG.info('Get OAuth2.0 Access Token API: '
-                 'failed to get client credentials from the request.')
+            _('Client authentication failed.'),
+        )
+        LOG.info(
+            'Get OAuth2.0 Access Token API: '
+            'failed to get client credentials from the request.'
+        )
         raise error
 
     def _client_secret_basic(self, client_id, client_secret):
@@ -137,8 +148,8 @@ class AccessTokenResource(ks_flask.ResourceBase):
                 'methods': ['application_credential'],
                 'application_credential': {
                     'id': client_id,
-                    'secret': client_secret
-                }
+                    'secret': client_secret,
+                },
             }
         }
         try:
@@ -146,32 +157,37 @@ class AccessTokenResource(ks_flask.ResourceBase):
         except exception.Error as error:
             if error.code == 401:
                 error = exception.OAuth2InvalidClient(
-                    error.code, error.title,
-                    str(error))
+                    error.code, error.title, str(error)
+                )
             elif error.code == 400:
                 error = exception.OAuth2InvalidRequest(
-                    error.code, error.title,
-                    str(error))
+                    error.code, error.title, str(error)
+                )
             else:
                 error = exception.OAuth2OtherError(
-                    error.code, error.title,
+                    error.code,
+                    error.title,
                     'An unknown error occurred and failed to get an OAuth2.0 '
-                    'access token.')
+                    'access token.',
+                )
             LOG.exception(error)
             raise error
         except Exception as error:
             error = exception.OAuth2OtherError(
                 int(http.client.INTERNAL_SERVER_ERROR),
                 http.client.responses[http.client.INTERNAL_SERVER_ERROR],
-                str(error))
+                str(error),
+            )
             LOG.exception(error)
             raise error
 
-        resp = make_response({
-            'access_token': token.id,
-            'token_type': 'Bearer',
-            'expires_in': CONF.token.expiration
-        })
+        resp = make_response(
+            {
+                'access_token': token.id,
+                'token_type': 'Bearer',
+                'expires_in': CONF.token.expiration,
+            }
+        )
         resp.status = '200 OK'
         return resp
 
@@ -183,14 +199,18 @@ class AccessTokenResource(ks_flask.ResourceBase):
             error = exception.OAuth2InvalidClient(
                 int(http.client.UNAUTHORIZED),
                 http.client.responses[http.client.UNAUTHORIZED],
-                _('Client authentication failed.'))
-            LOG.info('Get OAuth2.0 Access Token API: '
-                     'mapping id %s is not found. ',
-                     mapping_id)
+                _('Client authentication failed.'),
+            )
+            LOG.info(
+                'Get OAuth2.0 Access Token API: '
+                'mapping id %s is not found. ',
+                mapping_id,
+            )
             raise error
 
         rule_processor = federation_utils.RuleProcessor(
-            mapping.get('id'), mapping.get('rules'))
+            mapping.get('id'), mapping.get('rules')
+        )
         try:
             mapped_properties = rule_processor.process(cert_dn)
         except exception.Error as error:
@@ -198,24 +218,32 @@ class AccessTokenResource(ks_flask.ResourceBase):
             error = exception.OAuth2InvalidClient(
                 int(http.client.UNAUTHORIZED),
                 http.client.responses[http.client.UNAUTHORIZED],
-                _('Client authentication failed.'))
-            LOG.info('Get OAuth2.0 Access Token API: '
-                     'mapping rule process failed. '
-                     'mapping_id: %s, rules: %s, data: %s.',
-                     mapping_id, mapping.get('rules'),
-                     jsonutils.dumps(cert_dn))
+                _('Client authentication failed.'),
+            )
+            LOG.info(
+                'Get OAuth2.0 Access Token API: '
+                'mapping rule process failed. '
+                'mapping_id: %s, rules: %s, data: %s.',
+                mapping_id,
+                mapping.get('rules'),
+                jsonutils.dumps(cert_dn),
+            )
             raise error
         except Exception as error:
             LOG.exception(error)
             error = exception.OAuth2OtherError(
                 int(http.client.INTERNAL_SERVER_ERROR),
                 http.client.responses[http.client.INTERNAL_SERVER_ERROR],
-                str(error))
-            LOG.info('Get OAuth2.0 Access Token API: '
-                     'mapping rule process failed. '
-                     'mapping_id: %s, rules: %s, data: %s.',
-                     mapping_id, mapping.get('rules'),
-                     jsonutils.dumps(cert_dn))
+                str(error),
+            )
+            LOG.info(
+                'Get OAuth2.0 Access Token API: '
+                'mapping rule process failed. '
+                'mapping_id: %s, rules: %s, data: %s.',
+                mapping_id,
+                mapping.get('rules'),
+                jsonutils.dumps(cert_dn),
+            )
             raise error
 
         mapping_user = mapped_properties.get('user', {})
@@ -229,50 +257,77 @@ class AccessTokenResource(ks_flask.ResourceBase):
             error = exception.OAuth2InvalidClient(
                 int(http.client.UNAUTHORIZED),
                 http.client.responses[http.client.UNAUTHORIZED],
-                _('Client authentication failed.'))
-            LOG.info('Get OAuth2.0 Access Token API: %s check failed. '
-                     'DN value: %s, DB value: %s.',
-                     'user name', mapping_user_name, user.get('name'))
+                _('Client authentication failed.'),
+            )
+            LOG.info(
+                'Get OAuth2.0 Access Token API: %s check failed. '
+                'DN value: %s, DB value: %s.',
+                'user name',
+                mapping_user_name,
+                user.get('name'),
+            )
             raise error
         if mapping_user_id and mapping_user_id != user.get('id'):
             error = exception.OAuth2InvalidClient(
                 int(http.client.UNAUTHORIZED),
                 http.client.responses[http.client.UNAUTHORIZED],
-                _('Client authentication failed.'))
-            LOG.info('Get OAuth2.0 Access Token API: %s check failed. '
-                     'DN value: %s, DB value: %s.',
-                     'user id', mapping_user_id, user.get('id'))
+                _('Client authentication failed.'),
+            )
+            LOG.info(
+                'Get OAuth2.0 Access Token API: %s check failed. '
+                'DN value: %s, DB value: %s.',
+                'user id',
+                mapping_user_id,
+                user.get('id'),
+            )
             raise error
         if mapping_user_email and mapping_user_email != user.get('email'):
             error = exception.OAuth2InvalidClient(
                 int(http.client.UNAUTHORIZED),
                 http.client.responses[http.client.UNAUTHORIZED],
-                _('Client authentication failed.'))
-            LOG.info('Get OAuth2.0 Access Token API: %s check failed. '
-                     'DN value: %s, DB value: %s.',
-                     'user email', mapping_user_email, user.get('email'))
+                _('Client authentication failed.'),
+            )
+            LOG.info(
+                'Get OAuth2.0 Access Token API: %s check failed. '
+                'DN value: %s, DB value: %s.',
+                'user email',
+                mapping_user_email,
+                user.get('email'),
+            )
             raise error
-        if (mapping_user_domain_id and
-                mapping_user_domain_id != user_domain.get('id')):
+        if (
+            mapping_user_domain_id
+            and mapping_user_domain_id != user_domain.get('id')
+        ):
             error = exception.OAuth2InvalidClient(
                 int(http.client.UNAUTHORIZED),
                 http.client.responses[http.client.UNAUTHORIZED],
-                _('Client authentication failed.'))
-            LOG.info('Get OAuth2.0 Access Token API: %s check failed. '
-                     'DN value: %s, DB value: %s.',
-                     'user domain id', mapping_user_domain_id,
-                     user_domain.get('id'))
+                _('Client authentication failed.'),
+            )
+            LOG.info(
+                'Get OAuth2.0 Access Token API: %s check failed. '
+                'DN value: %s, DB value: %s.',
+                'user domain id',
+                mapping_user_domain_id,
+                user_domain.get('id'),
+            )
             raise error
-        if (mapping_user_domain_name and
-                mapping_user_domain_name != user_domain.get('name')):
+        if (
+            mapping_user_domain_name
+            and mapping_user_domain_name != user_domain.get('name')
+        ):
             error = exception.OAuth2InvalidClient(
                 int(http.client.UNAUTHORIZED),
                 http.client.responses[http.client.UNAUTHORIZED],
-                _('Client authentication failed.'))
-            LOG.info('Get OAuth2.0 Access Token API: %s check failed. '
-                     'DN value: %s, DB value: %s.',
-                     'user domain name', mapping_user_domain_name,
-                     user_domain.get('name'))
+                _('Client authentication failed.'),
+            )
+            LOG.info(
+                'Get OAuth2.0 Access Token API: %s check failed. '
+                'DN value: %s, DB value: %s.',
+                'user domain name',
+                mapping_user_domain_name,
+                user_domain.get('name'),
+            )
             raise error
 
     def _tls_client_auth(self, client_id, client_cert):
@@ -283,9 +338,12 @@ class AccessTokenResource(ks_flask.ResourceBase):
             error = exception.OAuth2InvalidClient(
                 int(http.client.UNAUTHORIZED),
                 http.client.responses[http.client.UNAUTHORIZED],
-                _('Client authentication failed.'))
-            LOG.info('Get OAuth2.0 Access Token API: '
-                     'failed to get the subject DN from the certificate.')
+                _('Client authentication failed.'),
+            )
+            LOG.info(
+                'Get OAuth2.0 Access Token API: '
+                'failed to get the subject DN from the certificate.'
+            )
             raise error
         try:
             cert_issuer_dn = utils.get_certificate_issuer_dn(client_cert)
@@ -293,17 +351,22 @@ class AccessTokenResource(ks_flask.ResourceBase):
             error = exception.OAuth2InvalidClient(
                 int(http.client.UNAUTHORIZED),
                 http.client.responses[http.client.UNAUTHORIZED],
-                _('Client authentication failed.'))
-            LOG.info('Get OAuth2.0 Access Token API: '
-                     'failed to get the issuer DN from the certificate.')
+                _('Client authentication failed.'),
+            )
+            LOG.info(
+                'Get OAuth2.0 Access Token API: '
+                'failed to get the issuer DN from the certificate.'
+            )
             raise error
         client_cert_dn = {}
         for key in cert_subject_dn:
-            client_cert_dn['SSL_CLIENT_SUBJECT_DN_%s' %
-                           key.upper()] = cert_subject_dn.get(key)
+            client_cert_dn['SSL_CLIENT_SUBJECT_DN_%s' % key.upper()] = (
+                cert_subject_dn.get(key)
+            )
         for key in cert_issuer_dn:
-            client_cert_dn['SSL_CLIENT_ISSUER_DN_%s' %
-                           key.upper()] = cert_issuer_dn.get(key)
+            client_cert_dn['SSL_CLIENT_ISSUER_DN_%s' % key.upper()] = (
+                cert_issuer_dn.get(key)
+            )
 
         try:
             user = PROVIDERS.identity_api.get_user(client_id)
@@ -311,24 +374,29 @@ class AccessTokenResource(ks_flask.ResourceBase):
             error = exception.OAuth2InvalidClient(
                 int(http.client.UNAUTHORIZED),
                 http.client.responses[http.client.UNAUTHORIZED],
-                _('Client authentication failed.'))
-            LOG.info('Get OAuth2.0 Access Token API: '
-                     'the user does not exist. user id: %s.',
-                     client_id)
+                _('Client authentication failed.'),
+            )
+            LOG.info(
+                'Get OAuth2.0 Access Token API: '
+                'the user does not exist. user id: %s.',
+                client_id,
+            )
             raise error
         project_id = user.get('default_project_id')
         if not project_id:
             error = exception.OAuth2InvalidClient(
                 int(http.client.UNAUTHORIZED),
                 http.client.responses[http.client.UNAUTHORIZED],
-                _('Client authentication failed.'))
-            LOG.info('Get OAuth2.0 Access Token API: '
-                     'the user does not have default project. user id: %s.',
-                     client_id)
+                _('Client authentication failed.'),
+            )
+            LOG.info(
+                'Get OAuth2.0 Access Token API: '
+                'the user does not have default project. user id: %s.',
+                client_id,
+            )
             raise error
 
-        user_domain = PROVIDERS.resource_api.get_domain(
-            user.get('domain_id'))
+        user_domain = PROVIDERS.resource_api.get_domain(user.get('domain_id'))
         self._check_mapped_properties(client_cert_dn, user, user_domain)
         thumbprint = utils.get_certificate_thumbprint(client_cert)
         LOG.debug(f'The mTLS certificate thumbprint: {thumbprint}')
@@ -337,37 +405,42 @@ class AccessTokenResource(ks_flask.ResourceBase):
                 user_id=client_id,
                 method_names=['oauth2_credential'],
                 project_id=project_id,
-                thumbprint=thumbprint
+                thumbprint=thumbprint,
             )
         except exception.Error as error:
             if error.code == 401:
                 error = exception.OAuth2InvalidClient(
-                    error.code, error.title,
-                    str(error))
+                    error.code, error.title, str(error)
+                )
             elif error.code == 400:
                 error = exception.OAuth2InvalidRequest(
-                    error.code, error.title,
-                    str(error))
+                    error.code, error.title, str(error)
+                )
             else:
                 error = exception.OAuth2OtherError(
-                    error.code, error.title,
+                    error.code,
+                    error.title,
                     'An unknown error occurred and failed to get an OAuth2.0 '
-                    'access token.')
+                    'access token.',
+                )
             LOG.exception(error)
             raise error
         except Exception as error:
             error = exception.OAuth2OtherError(
                 int(http.client.INTERNAL_SERVER_ERROR),
                 http.client.responses[http.client.INTERNAL_SERVER_ERROR],
-                str(error))
+                str(error),
+            )
             LOG.exception(error)
             raise error
 
-        resp = make_response({
-            'access_token': token.id,
-            'token_type': 'Bearer',
-            'expires_in': CONF.token.expiration
-        })
+        resp = make_response(
+            {
+                'access_token': token.id,
+                'token_type': 'Bearer',
+                'expires_in': CONF.token.expiration,
+            }
+        )
         resp.status = '200 OK'
         return resp
 
@@ -383,8 +456,9 @@ class OSAuth2API(ks_flask.APIBase):
             url='/token',
             rel='token',
             resource_kwargs={},
-            resource_relation_func=_build_resource_relation
-        )]
+            resource_relation_func=_build_resource_relation,
+        )
+    ]
 
 
 APIs = (OSAuth2API,)

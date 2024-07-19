@@ -38,8 +38,7 @@ class OAuthValidator(provider_api.ProviderAPIMixin, oauth1.RequestValidator):
 
     def _check_token(self, token):
         # generic token verification when they're obtained from a uuid hex
-        return (set(token) <= self.safe_characters and
-                len(token) == 32)
+        return set(token) <= self.safe_characters and len(token) == 32
 
     def check_client_key(self, client_key):
         return self._check_token(client_key)
@@ -55,8 +54,10 @@ class OAuthValidator(provider_api.ProviderAPIMixin, oauth1.RequestValidator):
         return set(nonce) <= self.safe_characters
 
     def check_verifier(self, verifier):
-        return (all(i in base.VERIFIER_CHARS for i in verifier) and
-                len(verifier) == 8)
+        return (
+            all(i in base.VERIFIER_CHARS for i in verifier)
+            and len(verifier) == 8
+        )
 
     def get_client_secret(self, client_key, request):
         client = PROVIDERS.oauth_api.get_consumer_with_secret(client_key)
@@ -142,13 +143,15 @@ class OAuthValidator(provider_api.ProviderAPIMixin, oauth1.RequestValidator):
         except exception.NotFound:
             return False
 
-    def validate_timestamp_and_nonce(self,
-                                     client_key,
-                                     timestamp,
-                                     nonce,
-                                     request,
-                                     request_token=None,
-                                     access_token=None):
+    def validate_timestamp_and_nonce(
+        self,
+        client_key,
+        timestamp,
+        nonce,
+        request,
+        request_token=None,
+        access_token=None,
+    ):
         return True
 
     def validate_redirect_uri(self, client_key, redirect_uri, request):
@@ -159,12 +162,9 @@ class OAuthValidator(provider_api.ProviderAPIMixin, oauth1.RequestValidator):
         # realms are not used
         return True
 
-    def validate_realms(self,
-                        client_key,
-                        token,
-                        request,
-                        uri=None,
-                        realms=None):
+    def validate_realms(
+        self, client_key, token, request, uri=None, realms=None
+    ):
         return True
 
     def validate_verifier(self, client_key, token, verifier, request):
@@ -186,22 +186,24 @@ class OAuthValidator(provider_api.ProviderAPIMixin, oauth1.RequestValidator):
     # implemented. The real implementation logic is in the backend.
     def save_access_token(self, token, request):
         pass
-#        token_duration = CONF.oauth1.request_token_duration
-#        request_token_id = request.client_key
-#        self.oauth_api.create_access_token(request_token_id,
-#                                           token_duration,
-#                                           token["oauth_token"],
-#                                           token["oauth_token_secret"])
+
+    #        token_duration = CONF.oauth1.request_token_duration
+    #        request_token_id = request.client_key
+    #        self.oauth_api.create_access_token(request_token_id,
+    #                                           token_duration,
+    #                                           token["oauth_token"],
+    #                                           token["oauth_token_secret"])
 
     def save_request_token(self, token, request):
         pass
-#        project_id = request.headers.get('Requested-Project-Id')
-#        token_duration = CONF.oauth1.request_token_duration
-#        self.oauth_api.create_request_token(request.client_key,
-#                                            project_id,
-#                                            token_duration,
-#                                            token["oauth_token"],
-#                                            token["oauth_token_secret"])
+
+    #        project_id = request.headers.get('Requested-Project-Id')
+    #        token_duration = CONF.oauth1.request_token_duration
+    #        self.oauth_api.create_request_token(request.client_key,
+    #                                            project_id,
+    #                                            token_duration,
+    #                                            token["oauth_token"],
+    #                                            token["oauth_token_secret"])
 
     def save_verifier(self, token, verifier, request):
         """Associate an authorization verifier with a request token.

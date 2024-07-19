@@ -31,14 +31,15 @@ def _get_versions_list(identity_url):
         'id': 'v3.14',
         'status': 'stable',
         'updated': '2020-04-07T00:00:00Z',
-        'links': [{
-            'rel': 'self',
-            'href': identity_url,
-        }],
-        'media-types': [{
-            'base': 'application/json',
-            'type': MEDIA_TYPE_JSON % 'v3'
-        }]
+        'links': [
+            {
+                'rel': 'self',
+                'href': identity_url,
+            }
+        ],
+        'media-types': [
+            {'base': 'application/json', 'type': MEDIA_TYPE_JSON % 'v3'}
+        ],
     }
     return versions
 
@@ -53,7 +54,8 @@ def v3_mime_type_best_match():
         return MimeTypes.JSON
 
     return request.accept_mimetypes.best_match(
-        [MimeTypes.JSON, MimeTypes.JSON_HOME])
+        [MimeTypes.JSON, MimeTypes.JSON_HOME]
+    )
 
 
 @_DISCOVERY_BLUEPRINT.route('/')
@@ -63,8 +65,10 @@ def get_versions():
         # understand the JSON-Home document.
         v3_json_home = json_home.JsonHomeResources.resources()
         json_home.translate_urls(v3_json_home, '/v3')
-        return flask.Response(response=jsonutils.dumps(v3_json_home),
-                              mimetype=MimeTypes.JSON_HOME)
+        return flask.Response(
+            response=jsonutils.dumps(v3_json_home),
+            mimetype=MimeTypes.JSON_HOME,
+        )
     else:
         identity_url = '%s/' % ks_flask.base_url()
         versions = _get_versions_list(identity_url)
@@ -76,10 +80,11 @@ def get_versions():
 
         response = flask.Response(
             response=jsonutils.dumps(
-                {'versions': {
-                    'values': list(versions.values())}}),
+                {'versions': {'values': list(versions.values())}}
+            ),
             mimetype=MimeTypes.JSON,
-            status=http.client.MULTIPLE_CHOICES)
+            status=http.client.MULTIPLE_CHOICES,
+        )
         response.headers['Location'] = preferred_location
         return response
 
@@ -90,14 +95,16 @@ def get_version_v3():
         # RENDER JSON-Home form, we have a clever client who will
         # understand the JSON-Home document.
         content = json_home.JsonHomeResources.resources()
-        return flask.Response(response=jsonutils.dumps(content),
-                              mimetype=MimeTypes.JSON_HOME)
+        return flask.Response(
+            response=jsonutils.dumps(content), mimetype=MimeTypes.JSON_HOME
+        )
     else:
         identity_url = '%s/' % ks_flask.base_url()
         versions = _get_versions_list(identity_url)
         return flask.Response(
             response=jsonutils.dumps({'version': versions['v3']}),
-            mimetype=MimeTypes.JSON)
+            mimetype=MimeTypes.JSON,
+        )
 
 
 class DiscoveryAPI(object):

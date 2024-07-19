@@ -89,18 +89,27 @@ def validate_oauth_params(query_string):
         if 'error' in params_fitered:
             msg = (
                 'Validation failed with errors: %(error)s, detail '
-                'message is: %(desc)s.') % {
-                    'error': params_fitered['error'],
-                    'desc': params_fitered['error_description']}
-            tr_msg = _('Validation failed with errors: %(error)s, detail '
-                       'message is: %(desc)s.') % {
+                'message is: %(desc)s.'
+            ) % {
                 'error': params_fitered['error'],
-                'desc': params_fitered['error_description']}
+                'desc': params_fitered['error_description'],
+            }
+            tr_msg = _(
+                'Validation failed with errors: %(error)s, detail '
+                'message is: %(desc)s.'
+            ) % {
+                'error': params_fitered['error'],
+                'desc': params_fitered['error_description'],
+            }
         else:
-            msg = ('Unknown parameters found,'
-                   'please provide only oauth parameters.')
-            tr_msg = _('Unknown parameters found,'
-                       'please provide only oauth parameters.')
+            msg = (
+                'Unknown parameters found,'
+                'please provide only oauth parameters.'
+            )
+            tr_msg = _(
+                'Unknown parameters found,'
+                'please provide only oauth parameters.'
+            )
         LOG.warning(msg)
         raise exception.ValidationError(message=tr_msg)
 
@@ -140,23 +149,31 @@ class Manager(manager.Manager):
         notifications.Audit.deleted(self._CONSUMER, consumer_id, initiator)
         return ret
 
-    def create_access_token(self, request_id, access_token_duration,
-                            initiator=None):
-        ret = self.driver.create_access_token(request_id,
-                                              access_token_duration)
+    def create_access_token(
+        self, request_id, access_token_duration, initiator=None
+    ):
+        ret = self.driver.create_access_token(
+            request_id, access_token_duration
+        )
         notifications.Audit.created(self._ACCESS_TOKEN, ret['id'], initiator)
         return ret
 
     def delete_access_token(self, user_id, access_token_id, initiator=None):
         ret = self.driver.delete_access_token(user_id, access_token_id)
-        notifications.Audit.deleted(self._ACCESS_TOKEN, access_token_id,
-                                    initiator)
+        notifications.Audit.deleted(
+            self._ACCESS_TOKEN, access_token_id, initiator
+        )
         return ret
 
-    def create_request_token(self, consumer_id, requested_project,
-                             request_token_duration, initiator=None):
+    def create_request_token(
+        self,
+        consumer_id,
+        requested_project,
+        request_token_duration,
+        initiator=None,
+    ):
         ret = self.driver.create_request_token(
-            consumer_id, requested_project, request_token_duration)
-        notifications.Audit.created(self._REQUEST_TOKEN, ret['id'],
-                                    initiator)
+            consumer_id, requested_project, request_token_duration
+        )
+        notifications.Audit.created(self._REQUEST_TOKEN, ret['id'], initiator)
         return ret

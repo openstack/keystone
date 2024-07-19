@@ -46,7 +46,7 @@ class ReceiptModel(object):
 
     def __repr__(self):
         """Return string representation of KeystoneReceipt."""
-        desc = ('<%(type)s at %(loc)s>')
+        desc = '<%(type)s at %(loc)s>'
         self_cls_name = reflection.get_class_name(self, fully_qualified=False)
         return desc % {'type': self_cls_name, 'loc': hex(id(self))}
 
@@ -90,9 +90,11 @@ class ReceiptModel(object):
     def required_methods(self):
         if not self.__required_methods:
             mfa_rules = self.user['options'].get(
-                ro.MFA_RULES_OPT.option_name, [])
+                ro.MFA_RULES_OPT.option_name, []
+            )
             rules = core.UserMFARulesValidator._parse_rule_structure(
-                mfa_rules, self.user_id)
+                mfa_rules, self.user_id
+            )
             methods = set(self.methods)
             active_methods = set(core.AUTH_METHODS.keys())
 

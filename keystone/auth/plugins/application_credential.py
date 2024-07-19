@@ -26,16 +26,19 @@ class ApplicationCredential(base.AuthMethodHandler):
     def authenticate(self, auth_payload):
         """Authenticate an application."""
         response_data = {}
-        app_cred_info = auth_plugins.AppCredInfo.create(auth_payload,
-                                                        METHOD_NAME)
+        app_cred_info = auth_plugins.AppCredInfo.create(
+            auth_payload, METHOD_NAME
+        )
 
         try:
             PROVIDERS.application_credential_api.authenticate(
                 application_credential_id=app_cred_info.id,
-                secret=app_cred_info.secret)
+                secret=app_cred_info.secret,
+            )
         except AssertionError as e:
             raise exception.Unauthorized(e)
         response_data['user_id'] = app_cred_info.user_id
 
-        return base.AuthHandlerResponse(status=True, response_body=None,
-                                        response_data=response_data)
+        return base.AuthHandlerResponse(
+            status=True, response_body=None, response_data=response_data
+        )

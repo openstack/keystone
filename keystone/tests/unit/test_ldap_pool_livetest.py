@@ -28,8 +28,10 @@ CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
 
 
-class LiveLDAPPoolIdentity(test_backend_ldap_pool.LdapPoolCommonTestMixin,
-                           test_ldap_livetest.LiveLDAPIdentity):
+class LiveLDAPPoolIdentity(
+    test_backend_ldap_pool.LdapPoolCommonTestMixin,
+    test_ldap_livetest.LiveLDAPIdentity,
+):
     """Executes existing LDAP live test with pooled LDAP handler.
 
     Also executes common pool specific tests via Mixin class.
@@ -49,10 +51,12 @@ class LiveLDAPPoolIdentity(test_backend_ldap_pool.LdapPoolCommonTestMixin,
 
     def test_assert_connector_used_not_fake_ldap_pool(self):
         handler = ldap_common._get_connection(CONF.ldap.url, use_pool=True)
-        self.assertNotEqual(type(handler.Connector),
-                            type(fakeldap.FakeLdapPool))
-        self.assertEqual(type(ldappool.StateConnector),
-                         type(handler.Connector))
+        self.assertNotEqual(
+            type(handler.Connector), type(fakeldap.FakeLdapPool)
+        )
+        self.assertEqual(
+            type(ldappool.StateConnector), type(handler.Connector)
+        )
 
     def test_async_search_and_result3(self):
         self.config_fixture.config(group='ldap', page_size=1)
@@ -98,27 +102,32 @@ class LiveLDAPPoolIdentity(test_backend_ldap_pool.LdapPoolCommonTestMixin,
 
         self.test_password_change_with_pool()
 
-        self.assertRaises(AssertionError,
-                          PROVIDERS.identity_api.authenticate,
-                          context={},
-                          user_id=self.user_sna['id'],
-                          password=old_password)
+        self.assertRaises(
+            AssertionError,
+            PROVIDERS.identity_api.authenticate,
+            context={},
+            user_id=self.user_sna['id'],
+            password=old_password,
+        )
 
     def _create_user_and_authenticate(self, password):
-        user = unit.create_user(PROVIDERS.identity_api,
-                                CONF.identity.default_domain_id,
-                                password=password)
+        user = unit.create_user(
+            PROVIDERS.identity_api,
+            CONF.identity.default_domain_id,
+            password=password,
+        )
 
         with self.make_request():
             PROVIDERS.identity_api.authenticate(
-                user_id=user['id'],
-                password=password)
+                user_id=user['id'], password=password
+            )
 
         return PROVIDERS.identity_api.get_user(user['id'])
 
     def _get_auth_conn_pool_cm(self):
         pool_url = (
-            ldap_common.PooledLDAPHandler.auth_pool_prefix + CONF.ldap.url)
+            ldap_common.PooledLDAPHandler.auth_pool_prefix + CONF.ldap.url
+        )
         return self.conn_pools[pool_url]
 
     def _do_password_change_for_one_user(self, password, new_password):
@@ -167,12 +176,14 @@ class LiveLDAPPoolIdentity(test_backend_ldap_pool.LdapPoolCommonTestMixin,
         return user3
 
     def test_password_change_with_auth_pool_enabled_long_lifetime(self):
-        self.config_fixture.config(group='ldap',
-                                   auth_pool_connection_lifetime=600)
+        self.config_fixture.config(
+            group='ldap', auth_pool_connection_lifetime=600
+        )
         old_password = 'my_password'
         new_password = 'new_password'
-        user = self._do_password_change_for_one_user(old_password,
-                                                     new_password)
+        user = self._do_password_change_for_one_user(
+            old_password, new_password
+        )
         user.pop('password')
 
         # with long connection lifetime auth_pool can bind to old password
@@ -181,21 +192,27 @@ class LiveLDAPPoolIdentity(test_backend_ldap_pool.LdapPoolCommonTestMixin,
         # This can happen in multiple concurrent connections case only.
         with self.make_request():
             user_ref = PROVIDERS.identity_api.authenticate(
-                user_id=user['id'], password=old_password)
+                user_id=user['id'], password=old_password
+            )
 
         self.assertDictEqual(user, user_ref)
 
     def test_password_change_with_auth_pool_enabled_no_lifetime(self):
-        self.config_fixture.config(group='ldap',
-                                   auth_pool_connection_lifetime=0)
+        self.config_fixture.config(
+            group='ldap', auth_pool_connection_lifetime=0
+        )
 
         old_password = 'my_password'
         new_password = 'new_password'
-        user = self._do_password_change_for_one_user(old_password,
-                                                     new_password)
+        user = self._do_password_change_for_one_user(
+            old_password, new_password
+        )
         # now as connection lifetime is zero, so authentication
         # with old password will always fail.
-        self.assertRaises(AssertionError,
-                          PROVIDERS.identity_api.authenticate,
-                          context={}, user_id=user['id'],
-                          password=old_password)
+        self.assertRaises(
+            AssertionError,
+            PROVIDERS.identity_api.authenticate,
+            context={},
+            user_id=user['id'],
+            password=old_password,
+        )

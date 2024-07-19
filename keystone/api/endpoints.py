@@ -43,7 +43,8 @@ class EndpointResource(ks_flask.ResourceBase):
     collection_key = 'endpoints'
     member_key = 'endpoint'
     get_member_from_driver = PROVIDERS.deferred_provider_lookup(
-        api='catalog_api', method='get_endpoint')
+        api='catalog_api', method='get_endpoint'
+    )
 
     @staticmethod
     def _validate_endpoint_region(endpoint):
@@ -54,8 +55,10 @@ class EndpointResource(ks_flask.ResourceBase):
         then for backward compatibility, we will auto-create the region.
 
         """
-        if (endpoint.get('region_id') is None and
-                endpoint.get('region') is not None):
+        if (
+            endpoint.get('region_id') is None
+            and endpoint.get('region') is not None
+        ):
             # To maintain backward compatibility with clients that are
             # using the v3 API in the same way as they used the v2 API,
             # create the endpoint region, if that region does not exist
@@ -66,22 +69,26 @@ class EndpointResource(ks_flask.ResourceBase):
             except exception.RegionNotFound:
                 region = dict(id=endpoint['region_id'])
                 PROVIDERS.catalog_api.create_region(
-                    region, initiator=notifications.build_audit_initiator())
+                    region, initiator=notifications.build_audit_initiator()
+                )
         return endpoint
 
     def _get_endpoint(self, endpoint_id):
         ENFORCER.enforce_call(action='identity:get_endpoint')
-        return self.wrap_member(_filter_endpoint(
-            PROVIDERS.catalog_api.get_endpoint(endpoint_id)))
+        return self.wrap_member(
+            _filter_endpoint(PROVIDERS.catalog_api.get_endpoint(endpoint_id))
+        )
 
     def _list_endpoints(self):
         filters = ['interface', 'service_id', 'region_id']
-        ENFORCER.enforce_call(action='identity:list_endpoints',
-                              filters=filters)
+        ENFORCER.enforce_call(
+            action='identity:list_endpoints', filters=filters
+        )
         hints = self.build_driver_hints(filters)
         refs = PROVIDERS.catalog_api.list_endpoints(hints=hints)
-        return self.wrap_collection([_filter_endpoint(r) for r in refs],
-                                    hints=hints)
+        return self.wrap_collection(
+            [_filter_endpoint(r) for r in refs], hints=hints
+        )
 
     def get(self, endpoint_id=None):
         if endpoint_id is not None:
@@ -96,7 +103,8 @@ class EndpointResource(ks_flask.ResourceBase):
         endpoint = self._assign_unique_id(self._normalize_dict(endpoint))
         endpoint = self._validate_endpoint_region(endpoint)
         ref = PROVIDERS.catalog_api.create_endpoint(
-            endpoint['id'], endpoint, initiator=self.audit_initiator)
+            endpoint['id'], endpoint, initiator=self.audit_initiator
+        )
         return self.wrap_member(_filter_endpoint(ref)), http.client.CREATED
 
     def patch(self, endpoint_id):
@@ -106,13 +114,15 @@ class EndpointResource(ks_flask.ResourceBase):
         self._require_matching_id(endpoint)
         endpoint = self._validate_endpoint_region(endpoint)
         ref = PROVIDERS.catalog_api.update_endpoint(
-            endpoint_id, endpoint, initiator=self.audit_initiator)
+            endpoint_id, endpoint, initiator=self.audit_initiator
+        )
         return self.wrap_member(_filter_endpoint(ref))
 
     def delete(self, endpoint_id):
         ENFORCER.enforce_call(action='identity:delete_endpoint')
-        PROVIDERS.catalog_api.delete_endpoint(endpoint_id,
-                                              initiator=self.audit_initiator)
+        PROVIDERS.catalog_api.delete_endpoint(
+            endpoint_id, initiator=self.audit_initiator
+        )
         return None, http.client.NO_CONTENT
 
 
@@ -121,9 +131,11 @@ class EndpointPolicyEndpointResource(flask_restful.Resource):
         ENFORCER.enforce_call(action='identity:get_policy_for_endpoint')
         PROVIDERS.catalog_api.get_endpoint(endpoint_id)
         ref = PROVIDERS.endpoint_policy_api.get_policy_for_endpoint(
-            endpoint_id)
+            endpoint_id
+        )
         return ks_flask.ResourceBase.wrap_member(
-            ref, collection_name='endpoints', member_name='policy')
+            ref, collection_name='endpoints', member_name='policy'
+        )
 
 
 class EndpointAPI(ks_flask.APIBase):
@@ -137,7 +149,8 @@ class EndpointAPI(ks_flask.APIBase):
             resource_kwargs={},
             rel='endpoint_policy',
             resource_relation_func=_resource_rel_func,
-            path_vars={'endpoint_id': json_home.Parameters.ENDPOINT_ID})
+            path_vars={'endpoint_id': json_home.Parameters.ENDPOINT_ID},
+        )
     ]
 
 

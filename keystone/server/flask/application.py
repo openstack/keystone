@@ -38,6 +38,7 @@ LOG = log.getLogger(__name__)
 
 def fail_gracefully(f):
     """Log exceptions and aborts."""
+
     @functools.wraps(f)
     def wrapper(*args, **kw):
         try:
@@ -68,7 +69,8 @@ def _best_match_language():
     if not flask.request.accept_languages:
         return None
     return flask.request.accept_languages.best_match(
-        oslo_i18n.get_available_languages('keystone'))
+        oslo_i18n.get_available_languages('keystone')
+    )
 
 
 def _handle_keystone_exception(error):
@@ -85,7 +87,8 @@ def _handle_keystone_exception(error):
     if isinstance(error, exception.Unauthorized):
         LOG.warning(
             "Authorization failed. %(exception)s from %(remote_addr)s",
-            {'exception': error, 'remote_addr': flask.request.remote_addr})
+            {'exception': error, 'remote_addr': flask.request.remote_addr},
+        )
     else:
         LOG.exception(str(error))
 
@@ -98,10 +101,7 @@ def _handle_keystone_exception(error):
         message = str(message)
 
     body = dict(
-        error={
-            'code': error.code,
-            'title': error.title,
-            'message': message}
+        error={'code': error.code, 'title': error.title, 'message': message}
     )
 
     if isinstance(error, exception.AuthPluginException):
@@ -131,8 +131,10 @@ def _handle_unknown_keystone_exception(error):
 @fail_gracefully
 def application_factory(name='public'):
     if name not in ('admin', 'public'):
-        raise RuntimeError('Application name (for base_url lookup) must be '
-                           'either `admin` or `public`.')
+        raise RuntimeError(
+            'Application name (for base_url lookup) must be '
+            'either `admin` or `public`.'
+        )
 
     app = flask.Flask(name)
 
@@ -160,7 +162,8 @@ def application_factory(name='public'):
     # NOTE(morgan): Configure the Flask Environment for our needs.
     app.config.update(
         # We want to bubble up Flask Exceptions (for now)
-        PROPAGATE_EXCEPTIONS=True)
+        PROPAGATE_EXCEPTIONS=True
+    )
 
     for api in keystone.api.__apis__:
         for api_bp in api.APIs:
@@ -168,12 +171,13 @@ def application_factory(name='public'):
 
     # Load in Healthcheck and map it to /healthcheck
     hc_app = healthcheck.Healthcheck.app_factory(
-        {}, oslo_config_project='keystone')
+        {}, oslo_config_project='keystone'
+    )
 
     # Use the simple form of the dispatch middleware, no extra logic needed
     # for legacy dispatching. This is to mount /healthcheck at a consistent
     # place
     app.wsgi_app = wsgi_dispatcher.DispatcherMiddleware(
-        app.wsgi_app,
-        {'/healthcheck': hc_app})
+        app.wsgi_app, {'/healthcheck': hc_app}
+    )
     return app

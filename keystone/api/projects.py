@@ -50,7 +50,8 @@ class ProjectResource(ks_flask.ResourceBase):
     collection_key = 'projects'
     member_key = 'project'
     get_member_from_driver = PROVIDERS.deferred_provider_lookup(
-        api='resource_api', method='get_project')
+        api='resource_api', method='get_project'
+    )
 
     def _expand_project_ref(self, ref):
         parents_as_list = self.query_filter_is_true('parents_as_list')
@@ -63,21 +64,25 @@ class ProjectResource(ks_flask.ResourceBase):
 
         # parents_as_list and parents_as_ids are mutually exclusive
         if parents_as_list and parents_as_ids:
-            msg = _('Cannot use parents_as_list and parents_as_ids query '
-                    'params at the same time.')
+            msg = _(
+                'Cannot use parents_as_list and parents_as_ids query '
+                'params at the same time.'
+            )
             raise exception.ValidationError(msg)
 
         # subtree_as_list and subtree_as_ids are mutually exclusive
         if subtree_as_list and subtree_as_ids:
-            msg = _('Cannot use subtree_as_list and subtree_as_ids query '
-                    'params at the same time.')
+            msg = _(
+                'Cannot use subtree_as_list and subtree_as_ids query '
+                'params at the same time.'
+            )
             raise exception.ValidationError(msg)
 
         if parents_as_list:
             parents = PROVIDERS.resource_api.list_project_parents(
-                ref['id'], self.oslo_context.user_id, include_limits)
-            ref['parents'] = [self.wrap_member(p)
-                              for p in parents]
+                ref['id'], self.oslo_context.user_id, include_limits
+            )
+            ref['parents'] = [self.wrap_member(p) for p in parents]
         elif parents_as_ids:
             ref['parents'] = PROVIDERS.resource_api.get_project_parents_as_ids(
                 ref
@@ -85,9 +90,9 @@ class ProjectResource(ks_flask.ResourceBase):
 
         if subtree_as_list:
             subtree = PROVIDERS.resource_api.list_projects_in_subtree(
-                ref['id'], self.oslo_context.user_id, include_limits)
-            ref['subtree'] = [self.wrap_member(p)
-                              for p in subtree]
+                ref['id'], self.oslo_context.user_id, include_limits
+            )
+            ref['subtree'] = [self.wrap_member(p) for p in subtree]
         elif subtree_as_ids:
             ref['subtree'] = (
                 PROVIDERS.resource_api.get_projects_in_subtree_as_ids(
@@ -102,7 +107,7 @@ class ProjectResource(ks_flask.ResourceBase):
         """
         ENFORCER.enforce_call(
             action='identity:get_project',
-            build_target=_build_project_target_enforcement
+            build_target=_build_project_target_enforcement,
         )
         project = PROVIDERS.resource_api.get_project(project_id)
         self._expand_project_ref(project)
@@ -117,9 +122,11 @@ class ProjectResource(ks_flask.ResourceBase):
         target = None
         if self.oslo_context.domain_id:
             target = {'domain_id': self.oslo_context.domain_id}
-        ENFORCER.enforce_call(action='identity:list_projects',
-                              filters=filters,
-                              target_attr=target)
+        ENFORCER.enforce_call(
+            action='identity:list_projects',
+            filters=filters,
+            target_attr=target,
+        )
         hints = self.build_driver_hints(filters)
 
         # If 'is_domain' has not been included as a query, we default it to
@@ -174,9 +181,8 @@ class ProjectResource(ks_flask.ResourceBase):
         project = self._normalize_dict(project)
         try:
             ref = PROVIDERS.resource_api.create_project(
-                project['id'],
-                project,
-                initiator=self.audit_initiator)
+                project['id'], project, initiator=self.audit_initiator
+            )
         except (exception.DomainNotFound, exception.ProjectNotFound) as e:
             raise exception.ValidationError(e)
         return self.wrap_member(ref), http.client.CREATED
@@ -188,15 +194,14 @@ class ProjectResource(ks_flask.ResourceBase):
         """
         ENFORCER.enforce_call(
             action='identity:update_project',
-            build_target=_build_project_target_enforcement
+            build_target=_build_project_target_enforcement,
         )
         project = self.request_body_json.get('project', {})
         validation.lazy_validate(schema.project_update, project)
         self._require_matching_id(project)
         ref = PROVIDERS.resource_api.update_project(
-            project_id,
-            project,
-            initiator=self.audit_initiator)
+            project_id, project, initiator=self.audit_initiator
+        )
         return self.wrap_member(ref)
 
     def delete(self, project_id):
@@ -206,11 +211,11 @@ class ProjectResource(ks_flask.ResourceBase):
         """
         ENFORCER.enforce_call(
             action='identity:delete_project',
-            build_target=_build_project_target_enforcement
+            build_target=_build_project_target_enforcement,
         )
         PROVIDERS.resource_api.delete_project(
-            project_id,
-            initiator=self.audit_initiator)
+            project_id, initiator=self.audit_initiator
+        )
         return None, http.client.NO_CONTENT
 
 
@@ -218,7 +223,8 @@ class _ProjectTagResourceBase(ks_flask.ResourceBase):
     collection_key = 'projects'
     member_key = 'tags'
     get_member_from_driver = PROVIDERS.deferred_provider_lookup(
-        api='resource_api', method='get_project_tag')
+        api='resource_api', method='get_project_tag'
+    )
 
     @classmethod
     def wrap_member(cls, ref, collection_name=None, member_name=None):
@@ -226,7 +232,7 @@ class _ProjectTagResourceBase(ks_flask.ResourceBase):
         # NOTE(gagehugo): Overriding this due to how the common controller
         # expects the ref to have an id, which for tags it does not.
         new_ref = {'links': {'self': ks_flask.full_url()}}
-        new_ref[member_name] = (ref or [])
+        new_ref[member_name] = ref or []
         return new_ref
 
 
@@ -238,7 +244,7 @@ class ProjectTagsResource(_ProjectTagResourceBase):
         """
         ENFORCER.enforce_call(
             action='identity:list_project_tags',
-            build_target=_build_project_target_enforcement
+            build_target=_build_project_target_enforcement,
         )
         ref = PROVIDERS.resource_api.list_project_tags(project_id)
         return self.wrap_member(ref)
@@ -250,12 +256,13 @@ class ProjectTagsResource(_ProjectTagResourceBase):
         """
         ENFORCER.enforce_call(
             action='identity:update_project_tags',
-            build_target=_build_project_target_enforcement
+            build_target=_build_project_target_enforcement,
         )
         tags = self.request_body_json.get('tags', {})
         validation.lazy_validate(schema.project_tags_update, tags)
         ref = PROVIDERS.resource_api.update_project_tags(
-            project_id, tags, initiator=self.audit_initiator)
+            project_id, tags, initiator=self.audit_initiator
+        )
         return self.wrap_member(ref)
 
     def delete(self, project_id):
@@ -265,7 +272,7 @@ class ProjectTagsResource(_ProjectTagResourceBase):
         """
         ENFORCER.enforce_call(
             action='identity:delete_project_tags',
-            build_target=_build_project_target_enforcement
+            build_target=_build_project_target_enforcement,
         )
         PROVIDERS.resource_api.update_project_tags(project_id, [])
         return None, http.client.NO_CONTENT
@@ -291,7 +298,7 @@ class ProjectTagResource(_ProjectTagResourceBase):
         """
         ENFORCER.enforce_call(
             action='identity:create_project_tag',
-            build_target=_build_project_target_enforcement
+            build_target=_build_project_target_enforcement,
         )
         validation.lazy_validate(schema.project_tag_create, value)
         # Check if we will exceed the max number of tags on this project
@@ -299,9 +306,7 @@ class ProjectTagResource(_ProjectTagResourceBase):
         tags.append(value)
         validation.lazy_validate(schema.project_tags_update, tags)
         PROVIDERS.resource_api.create_project_tag(
-            project_id,
-            value,
-            initiator=self.audit_initiator
+            project_id, value, initiator=self.audit_initiator
         )
         url = '/'.join((ks_flask.base_url(), project_id, 'tags', value))
         response = flask.make_response('', http.client.CREATED)
@@ -315,7 +320,7 @@ class ProjectTagResource(_ProjectTagResourceBase):
         """
         ENFORCER.enforce_call(
             action='identity:delete_project_tag',
-            build_target=_build_project_target_enforcement
+            build_target=_build_project_target_enforcement,
         )
         PROVIDERS.resource_api.delete_project_tag(project_id, value)
         return None, http.client.NO_CONTENT
@@ -325,17 +330,22 @@ class _ProjectGrantResourceBase(ks_flask.ResourceBase):
     collection_key = 'roles'
     member_key = 'role'
     get_member_from_driver = PROVIDERS.deferred_provider_lookup(
-        api='role_api', method='get_role')
+        api='role_api', method='get_role'
+    )
 
     @staticmethod
     def _check_if_inherited():
         return flask.request.path.endswith('/inherited_to_projects')
 
     @staticmethod
-    def _build_enforcement_target_attr(role_id=None, user_id=None,
-                                       group_id=None, domain_id=None,
-                                       project_id=None,
-                                       allow_non_existing=False):
+    def _build_enforcement_target_attr(
+        role_id=None,
+        user_id=None,
+        group_id=None,
+        domain_id=None,
+        project_id=None,
+        allow_non_existing=False,
+    ):
         ref = {}
         if role_id:
             ref['role'] = PROVIDERS.role_api.get_role(role_id)
@@ -368,13 +378,19 @@ class ProjectUserGrantResource(_ProjectGrantResourceBase):
         ENFORCER.enforce_call(
             action='identity:check_grant',
             build_target=functools.partial(
-                self._build_enforcement_target_attr, role_id=role_id,
-                project_id=project_id, user_id=user_id)
+                self._build_enforcement_target_attr,
+                role_id=role_id,
+                project_id=project_id,
+                user_id=user_id,
+            ),
         )
         inherited = self._check_if_inherited()
         PROVIDERS.assignment_api.get_grant(
-            role_id=role_id, user_id=user_id, project_id=project_id,
-            inherited_to_projects=inherited)
+            role_id=role_id,
+            user_id=user_id,
+            project_id=project_id,
+            inherited_to_projects=inherited,
+        )
         return None, http.client.NO_CONTENT
 
     def put(self, project_id, user_id, role_id):
@@ -386,12 +402,19 @@ class ProjectUserGrantResource(_ProjectGrantResourceBase):
             action='identity:create_grant',
             build_target=functools.partial(
                 self._build_enforcement_target_attr,
-                role_id=role_id, project_id=project_id, user_id=user_id)
+                role_id=role_id,
+                project_id=project_id,
+                user_id=user_id,
+            ),
         )
         inherited = self._check_if_inherited()
         PROVIDERS.assignment_api.create_grant(
-            role_id=role_id, user_id=user_id, project_id=project_id,
-            inherited_to_projects=inherited, initiator=self.audit_initiator)
+            role_id=role_id,
+            user_id=user_id,
+            project_id=project_id,
+            inherited_to_projects=inherited,
+            initiator=self.audit_initiator,
+        )
         return None, http.client.NO_CONTENT
 
     def delete(self, project_id, user_id, role_id):
@@ -403,13 +426,20 @@ class ProjectUserGrantResource(_ProjectGrantResourceBase):
             action='identity:revoke_grant',
             build_target=functools.partial(
                 self._build_enforcement_target_attr,
-                role_id=role_id, user_id=user_id, project_id=project_id,
-                allow_non_existing=True)
+                role_id=role_id,
+                user_id=user_id,
+                project_id=project_id,
+                allow_non_existing=True,
+            ),
         )
         inherited = self._check_if_inherited()
         PROVIDERS.assignment_api.delete_grant(
-            role_id=role_id, user_id=user_id, project_id=project_id,
-            inherited_to_projects=inherited, initiator=self.audit_initiator)
+            role_id=role_id,
+            user_id=user_id,
+            project_id=project_id,
+            inherited_to_projects=inherited,
+            initiator=self.audit_initiator,
+        )
         return None, http.client.NO_CONTENT
 
 
@@ -423,12 +453,16 @@ class ProjectUserListGrantResource(_ProjectGrantResourceBase):
             action='identity:list_grants',
             build_target=functools.partial(
                 self._build_enforcement_target_attr,
-                project_id=project_id, user_id=user_id)
+                project_id=project_id,
+                user_id=user_id,
+            ),
         )
         inherited = self._check_if_inherited()
         refs = PROVIDERS.assignment_api.list_grants(
-            user_id=user_id, project_id=project_id,
-            inherited_to_projects=inherited)
+            user_id=user_id,
+            project_id=project_id,
+            inherited_to_projects=inherited,
+        )
         return self.wrap_collection(refs)
 
 
@@ -441,13 +475,19 @@ class ProjectGroupGrantResource(_ProjectGrantResourceBase):
         ENFORCER.enforce_call(
             action='identity:check_grant',
             build_target=functools.partial(
-                self._build_enforcement_target_attr, role_id=role_id,
-                project_id=project_id, group_id=group_id)
+                self._build_enforcement_target_attr,
+                role_id=role_id,
+                project_id=project_id,
+                group_id=group_id,
+            ),
         )
         inherited = self._check_if_inherited()
         PROVIDERS.assignment_api.get_grant(
-            role_id=role_id, group_id=group_id, project_id=project_id,
-            inherited_to_projects=inherited)
+            role_id=role_id,
+            group_id=group_id,
+            project_id=project_id,
+            inherited_to_projects=inherited,
+        )
         return None, http.client.NO_CONTENT
 
     def put(self, project_id, group_id, role_id):
@@ -459,12 +499,19 @@ class ProjectGroupGrantResource(_ProjectGrantResourceBase):
             action='identity:create_grant',
             build_target=functools.partial(
                 self._build_enforcement_target_attr,
-                role_id=role_id, project_id=project_id, group_id=group_id)
+                role_id=role_id,
+                project_id=project_id,
+                group_id=group_id,
+            ),
         )
         inherited = self._check_if_inherited()
         PROVIDERS.assignment_api.create_grant(
-            role_id=role_id, group_id=group_id, project_id=project_id,
-            inherited_to_projects=inherited, initiator=self.audit_initiator)
+            role_id=role_id,
+            group_id=group_id,
+            project_id=project_id,
+            inherited_to_projects=inherited,
+            initiator=self.audit_initiator,
+        )
         return None, http.client.NO_CONTENT
 
     def delete(self, project_id, group_id, role_id):
@@ -476,13 +523,20 @@ class ProjectGroupGrantResource(_ProjectGrantResourceBase):
             action='identity:revoke_grant',
             build_target=functools.partial(
                 self._build_enforcement_target_attr,
-                role_id=role_id, group_id=group_id, project_id=project_id,
-                allow_non_existing=True)
+                role_id=role_id,
+                group_id=group_id,
+                project_id=project_id,
+                allow_non_existing=True,
+            ),
         )
         inherited = self._check_if_inherited()
         PROVIDERS.assignment_api.delete_grant(
-            role_id=role_id, group_id=group_id, project_id=project_id,
-            inherited_to_projects=inherited, initiator=self.audit_initiator)
+            role_id=role_id,
+            group_id=group_id,
+            project_id=project_id,
+            inherited_to_projects=inherited,
+            initiator=self.audit_initiator,
+        )
         return None, http.client.NO_CONTENT
 
 
@@ -496,12 +550,16 @@ class ProjectGroupListGrantResource(_ProjectGrantResourceBase):
             action='identity:list_grants',
             build_target=functools.partial(
                 self._build_enforcement_target_attr,
-                project_id=project_id, group_id=group_id)
+                project_id=project_id,
+                group_id=group_id,
+            ),
         )
         inherited = self._check_if_inherited()
         refs = PROVIDERS.assignment_api.list_grants(
-            group_id=group_id, project_id=project_id,
-            inherited_to_projects=inherited)
+            group_id=group_id,
+            project_id=project_id,
+            inherited_to_projects=inherited,
+        )
         return self.wrap_collection(refs)
 
 
@@ -515,8 +573,7 @@ class ProjectAPI(ks_flask.APIBase):
             url='/projects/<string:project_id>/tags',
             resource_kwargs={},
             rel='project_tags',
-            path_vars={
-                'project_id': json_home.Parameters.PROJECT_ID}
+            path_vars={'project_id': json_home.Parameters.PROJECT_ID},
         ),
         ks_flask.construct_resource_map(
             resource=ProjectTagResource,
@@ -525,18 +582,21 @@ class ProjectAPI(ks_flask.APIBase):
             rel='project_tags',
             path_vars={
                 'project_id': json_home.Parameters.PROJECT_ID,
-                'value': json_home.Parameters.TAG_VALUE}
+                'value': json_home.Parameters.TAG_VALUE,
+            },
         ),
         ks_flask.construct_resource_map(
             resource=ProjectUserGrantResource,
-            url=('/projects/<string:project_id>/users/<string:user_id>/'
-                 'roles/<string:role_id>'),
+            url=(
+                '/projects/<string:project_id>/users/<string:user_id>/'
+                'roles/<string:role_id>'
+            ),
             resource_kwargs={},
             rel='project_user_role',
             path_vars={
                 'project_id': json_home.Parameters.PROJECT_ID,
                 'user_id': json_home.Parameters.USER_ID,
-                'role_id': json_home.Parameters.ROLE_ID
+                'role_id': json_home.Parameters.ROLE_ID,
             },
         ),
         ks_flask.construct_resource_map(
@@ -546,19 +606,21 @@ class ProjectAPI(ks_flask.APIBase):
             rel='project_user_roles',
             path_vars={
                 'project_id': json_home.Parameters.PROJECT_ID,
-                'user_id': json_home.Parameters.USER_ID
-            }
+                'user_id': json_home.Parameters.USER_ID,
+            },
         ),
         ks_flask.construct_resource_map(
             resource=ProjectGroupGrantResource,
-            url=('/projects/<string:project_id>/groups/<string:group_id>/'
-                 'roles/<string:role_id>'),
+            url=(
+                '/projects/<string:project_id>/groups/<string:group_id>/'
+                'roles/<string:role_id>'
+            ),
             resource_kwargs={},
             rel='project_group_role',
             path_vars={
                 'project_id': json_home.Parameters.PROJECT_ID,
                 'group_id': json_home.Parameters.GROUP_ID,
-                'role_id': json_home.Parameters.ROLE_ID
+                'role_id': json_home.Parameters.ROLE_ID,
             },
         ),
         ks_flask.construct_resource_map(
@@ -568,7 +630,7 @@ class ProjectAPI(ks_flask.APIBase):
             rel='project_group_roles',
             path_vars={
                 'project_id': json_home.Parameters.PROJECT_ID,
-                'group_id': json_home.Parameters.GROUP_ID
+                'group_id': json_home.Parameters.GROUP_ID,
             },
         ),
     ]

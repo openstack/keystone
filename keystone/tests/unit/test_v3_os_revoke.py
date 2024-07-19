@@ -55,19 +55,28 @@ class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
     def assertReportedEventMatchesRecorded(self, event, sample, before_time):
         after_time = timeutils.utcnow()
         event_issued_before = timeutils.normalize_time(
-            timeutils.parse_isotime(event['issued_before']))
+            timeutils.parse_isotime(event['issued_before'])
+        )
         self.assertLessEqual(
-            before_time, event_issued_before,
-            'invalid event issued_before time; %s is not later than %s.' % (
+            before_time,
+            event_issued_before,
+            'invalid event issued_before time; %s is not later than %s.'
+            % (
                 utils.isotime(event_issued_before, subsecond=True),
-                utils.isotime(before_time, subsecond=True)))
+                utils.isotime(before_time, subsecond=True),
+            ),
+        )
         self.assertLessEqual(
-            event_issued_before, after_time,
-            'invalid event issued_before time; %s is not earlier than %s.' % (
+            event_issued_before,
+            after_time,
+            'invalid event issued_before time; %s is not earlier than %s.'
+            % (
                 utils.isotime(event_issued_before, subsecond=True),
-                utils.isotime(after_time, subsecond=True)))
-        del (event['issued_before'])
-        del (event['revoked_at'])
+                utils.isotime(after_time, subsecond=True),
+            ),
+        )
+        del event['issued_before']
+        del event['revoked_at']
         self.assertEqual(sample, event)
 
     def test_revoked_list_self_url(self):
@@ -93,7 +102,8 @@ class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
         sample['project_id'] = str(project_id)
         before_time = timeutils.utcnow().replace(microsecond=0)
         PROVIDERS.revoke_api.revoke(
-            revoke_model.RevokeEvent(project_id=project_id))
+            revoke_model.RevokeEvent(project_id=project_id)
+        )
 
         resp = self.get('/OS-REVOKE/events')
         events = resp.json_body['events']
@@ -106,7 +116,8 @@ class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
         sample['domain_id'] = str(domain_id)
         before_time = timeutils.utcnow().replace(microsecond=0)
         PROVIDERS.revoke_api.revoke(
-            revoke_model.RevokeEvent(domain_id=domain_id))
+            revoke_model.RevokeEvent(domain_id=domain_id)
+        )
 
         resp = self.get('/OS-REVOKE/events')
         events = resp.json_body['events']
@@ -114,8 +125,10 @@ class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
         self.assertReportedEventMatchesRecorded(events[0], sample, before_time)
 
     def test_list_since_invalid(self):
-        self.get('/OS-REVOKE/events?since=blah',
-                 expected_status=http.client.BAD_REQUEST)
+        self.get(
+            '/OS-REVOKE/events?since=blah',
+            expected_status=http.client.BAD_REQUEST,
+        )
 
     def test_list_since_valid(self):
         resp = self.get('/OS-REVOKE/events?since=2013-02-27T18:30:59.999999Z')
@@ -128,7 +141,8 @@ class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
         sample['domain_id'] = str(domain_id)
 
         PROVIDERS.revoke_api.revoke(
-            revoke_model.RevokeEvent(domain_id=domain_id))
+            revoke_model.RevokeEvent(domain_id=domain_id)
+        )
 
         resp = self.get('/OS-REVOKE/events')
         events = resp.json_body['events']
@@ -144,7 +158,8 @@ class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
             revoked_at = timeutils.utcnow()
             # Given or not, `revoked_at` will always be set in the backend.
             PROVIDERS.revoke_api.revoke(
-                revoke_model.RevokeEvent(revoked_at=revoked_at))
+                revoke_model.RevokeEvent(revoked_at=revoked_at)
+            )
 
             frozen_datetime.tick(delta=datetime.timedelta(seconds=1))
 
@@ -152,8 +167,9 @@ class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
             events = resp.json_body['events']
             self.assertThat(events, matchers.HasLength(1))
             # Strip off the microseconds from `revoked_at`.
-            self.assertTimestampEqual(utils.isotime(revoked_at),
-                                      events[0]['revoked_at'])
+            self.assertTimestampEqual(
+                utils.isotime(revoked_at), events[0]['revoked_at']
+            )
 
     def test_access_token_id_not_in_event(self):
         ref = {'description': uuid.uuid4().hex}
@@ -171,8 +187,9 @@ class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
         self.assertNotIn('OS-OAUTH1:access_token_id', event)
 
     def test_retries_on_deadlock(self):
-        patcher = mock.patch('sqlalchemy.orm.query.Query.delete',
-                             autospec=True)
+        patcher = mock.patch(
+            'sqlalchemy.orm.query.Query.delete', autospec=True
+        )
 
         # NOTE(mnikolaenko): raise 2 deadlocks and back to normal work of
         # method. Two attempts is enough to check that retry decorator works.
@@ -196,8 +213,9 @@ class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
         sql_delete_mock.side_effect = side_effect
 
         try:
-            PROVIDERS.revoke_api.revoke(revoke_model.RevokeEvent(
-                user_id=uuid.uuid4().hex))
+            PROVIDERS.revoke_api.revoke(
+                revoke_model.RevokeEvent(user_id=uuid.uuid4().hex)
+            )
         finally:
             if side_effect.patched:
                 patcher.stop()

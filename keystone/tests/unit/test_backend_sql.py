@@ -138,9 +138,7 @@ class DataTypeRoundTrips(SqlTests):
             datetime_value = datetime.datetime(2019, 5, 15, 10, 17, 55)
             val = session.scalar(
                 sqlalchemy.select(
-                    sqlalchemy.literal(
-                        datetime_value, type_=core.DateTimeInt
-                    ),
+                    sqlalchemy.literal(datetime_value, type_=core.DateTimeInt),
                 )
             )
 
@@ -156,7 +154,7 @@ class DataTypeRoundTrips(SqlTests):
                         sqlalchemy.literal(
                             datetime_value, type_=core.DateTimeInt
                         ),
-                        sqlalchemy.Integer
+                        sqlalchemy.Integer,
                     ),
                 )
             )
@@ -226,135 +224,156 @@ class SqlModels(SqlTests):
                 if column.default:
                     default = column.default.arg
                 actual_schema.append((column.name, type(column.type), default))
-            elif (hasattr(column.type, 'length') and
-                    not isinstance(column.type, sql.Enum)):
+            elif hasattr(column.type, 'length') and not isinstance(
+                column.type, sql.Enum
+            ):
                 # NOTE(dstanek): Even though sql.Enum columns have a length
                 # set we don't want to catch them here. Maybe in the future
                 # we'll check to see that they contain a list of the correct
                 # possible values.
-                actual_schema.append((column.name,
-                                      type(column.type),
-                                      column.type.length))
+                actual_schema.append(
+                    (column.name, type(column.type), column.type.length)
+                )
             else:
                 actual_schema.append((column.name, type(column.type), None))
 
         self.assertCountEqual(expected_schema, actual_schema)
 
     def test_user_model(self):
-        cols = (('id', sql.String, 64),
-                ('domain_id', sql.String, 64),
-                ('default_project_id', sql.String, 64),
-                ('enabled', sql.Boolean, None),
-                ('extra', sql.JsonBlob, None),
-                ('created_at', sql.DateTime, None),
-                ('last_active_at', sqlalchemy.Date, None))
+        cols = (
+            ('id', sql.String, 64),
+            ('domain_id', sql.String, 64),
+            ('default_project_id', sql.String, 64),
+            ('enabled', sql.Boolean, None),
+            ('extra', sql.JsonBlob, None),
+            ('created_at', sql.DateTime, None),
+            ('last_active_at', sqlalchemy.Date, None),
+        )
         self.assertExpectedSchema('user', cols)
 
     def test_local_user_model(self):
-        cols = (('id', sql.Integer, None),
-                ('user_id', sql.String, 64),
-                ('name', sql.String, 255),
-                ('domain_id', sql.String, 64),
-                ('failed_auth_count', sql.Integer, None),
-                ('failed_auth_at', sql.DateTime, None))
+        cols = (
+            ('id', sql.Integer, None),
+            ('user_id', sql.String, 64),
+            ('name', sql.String, 255),
+            ('domain_id', sql.String, 64),
+            ('failed_auth_count', sql.Integer, None),
+            ('failed_auth_at', sql.DateTime, None),
+        )
         self.assertExpectedSchema('local_user', cols)
 
     def test_password_model(self):
-        cols = (('id', sql.Integer, None),
-                ('local_user_id', sql.Integer, None),
-                ('password_hash', sql.String, 255),
-                ('created_at', sql.DateTime, None),
-                ('expires_at', sql.DateTime, None),
-                ('created_at_int', sql.DateTimeInt, None),
-                ('expires_at_int', sql.DateTimeInt, None),
-                ('self_service', sql.Boolean, False))
+        cols = (
+            ('id', sql.Integer, None),
+            ('local_user_id', sql.Integer, None),
+            ('password_hash', sql.String, 255),
+            ('created_at', sql.DateTime, None),
+            ('expires_at', sql.DateTime, None),
+            ('created_at_int', sql.DateTimeInt, None),
+            ('expires_at_int', sql.DateTimeInt, None),
+            ('self_service', sql.Boolean, False),
+        )
         self.assertExpectedSchema('password', cols)
 
     def test_federated_user_model(self):
-        cols = (('id', sql.Integer, None),
-                ('user_id', sql.String, 64),
-                ('idp_id', sql.String, 64),
-                ('protocol_id', sql.String, 64),
-                ('unique_id', sql.String, 255),
-                ('display_name', sql.String, 255))
+        cols = (
+            ('id', sql.Integer, None),
+            ('user_id', sql.String, 64),
+            ('idp_id', sql.String, 64),
+            ('protocol_id', sql.String, 64),
+            ('unique_id', sql.String, 255),
+            ('display_name', sql.String, 255),
+        )
         self.assertExpectedSchema('federated_user', cols)
 
     def test_nonlocal_user_model(self):
-        cols = (('domain_id', sql.String, 64),
-                ('name', sql.String, 255),
-                ('user_id', sql.String, 64))
+        cols = (
+            ('domain_id', sql.String, 64),
+            ('name', sql.String, 255),
+            ('user_id', sql.String, 64),
+        )
         self.assertExpectedSchema('nonlocal_user', cols)
 
     def test_group_model(self):
-        cols = (('id', sql.String, 64),
-                ('name', sql.String, 64),
-                ('description', sql.Text, None),
-                ('domain_id', sql.String, 64),
-                ('extra', sql.JsonBlob, None))
+        cols = (
+            ('id', sql.String, 64),
+            ('name', sql.String, 64),
+            ('description', sql.Text, None),
+            ('domain_id', sql.String, 64),
+            ('extra', sql.JsonBlob, None),
+        )
         self.assertExpectedSchema('group', cols)
 
     def test_project_model(self):
-        cols = (('id', sql.String, 64),
-                ('name', sql.String, 64),
-                ('description', sql.Text, None),
-                ('domain_id', sql.String, 64),
-                ('enabled', sql.Boolean, None),
-                ('extra', sql.JsonBlob, None),
-                ('parent_id', sql.String, 64),
-                ('is_domain', sql.Boolean, False))
+        cols = (
+            ('id', sql.String, 64),
+            ('name', sql.String, 64),
+            ('description', sql.Text, None),
+            ('domain_id', sql.String, 64),
+            ('enabled', sql.Boolean, None),
+            ('extra', sql.JsonBlob, None),
+            ('parent_id', sql.String, 64),
+            ('is_domain', sql.Boolean, False),
+        )
         self.assertExpectedSchema('project', cols)
 
     def test_role_assignment_model(self):
-        cols = (('type', sql.Enum, None),
-                ('actor_id', sql.String, 64),
-                ('target_id', sql.String, 64),
-                ('role_id', sql.String, 64),
-                ('inherited', sql.Boolean, False))
+        cols = (
+            ('type', sql.Enum, None),
+            ('actor_id', sql.String, 64),
+            ('target_id', sql.String, 64),
+            ('role_id', sql.String, 64),
+            ('inherited', sql.Boolean, False),
+        )
         self.assertExpectedSchema('assignment', cols)
 
     def test_user_group_membership(self):
-        cols = (('group_id', sql.String, 64),
-                ('user_id', sql.String, 64))
+        cols = (('group_id', sql.String, 64), ('user_id', sql.String, 64))
         self.assertExpectedSchema('user_group_membership', cols)
 
     def test_revocation_event_model(self):
-        cols = (('id', sql.Integer, None),
-                ('domain_id', sql.String, 64),
-                ('project_id', sql.String, 64),
-                ('user_id', sql.String, 64),
-                ('role_id', sql.String, 64),
-                ('trust_id', sql.String, 64),
-                ('consumer_id', sql.String, 64),
-                ('access_token_id', sql.String, 64),
-                ('issued_before', sql.DateTime, None),
-                ('expires_at', sql.DateTime, None),
-                ('revoked_at', sql.DateTime, None),
-                ('audit_id', sql.String, 32),
-                ('audit_chain_id', sql.String, 32))
+        cols = (
+            ('id', sql.Integer, None),
+            ('domain_id', sql.String, 64),
+            ('project_id', sql.String, 64),
+            ('user_id', sql.String, 64),
+            ('role_id', sql.String, 64),
+            ('trust_id', sql.String, 64),
+            ('consumer_id', sql.String, 64),
+            ('access_token_id', sql.String, 64),
+            ('issued_before', sql.DateTime, None),
+            ('expires_at', sql.DateTime, None),
+            ('revoked_at', sql.DateTime, None),
+            ('audit_id', sql.String, 32),
+            ('audit_chain_id', sql.String, 32),
+        )
         self.assertExpectedSchema('revocation_event', cols)
 
     def test_project_tags_model(self):
-        cols = (('project_id', sql.String, 64),
-                ('name', sql.Unicode, 255))
+        cols = (('project_id', sql.String, 64), ('name', sql.Unicode, 255))
         self.assertExpectedSchema('project_tag', cols)
 
 
-class SqlIdentity(SqlTests,
-                  identity_tests.IdentityTests,
-                  assignment_tests.AssignmentTests,
-                  assignment_tests.SystemAssignmentTests,
-                  resource_tests.ResourceTests):
+class SqlIdentity(
+    SqlTests,
+    identity_tests.IdentityTests,
+    assignment_tests.AssignmentTests,
+    assignment_tests.SystemAssignmentTests,
+    resource_tests.ResourceTests,
+):
     def test_password_hashed(self):
         with sql.session_for_read() as session:
             user_ref = PROVIDERS.identity_api._get_user(
                 session, self.user_foo['id']
             )
-            self.assertNotEqual(self.user_foo['password'],
-                                user_ref['password'])
+            self.assertNotEqual(
+                self.user_foo['password'], user_ref['password']
+            )
 
     def test_create_user_with_null_password(self):
         user_dict = unit.new_user_ref(
-            domain_id=CONF.identity.default_domain_id)
+            domain_id=CONF.identity.default_domain_id
+        )
         user_dict["password"] = None
         new_user_dict = PROVIDERS.identity_api.create_user(user_dict)
         with sql.session_for_read() as session:
@@ -365,7 +384,8 @@ class SqlIdentity(SqlTests,
 
     def test_update_user_with_null_password(self):
         user_dict = unit.new_user_ref(
-            domain_id=CONF.identity.default_domain_id)
+            domain_id=CONF.identity.default_domain_id
+        )
         self.assertTrue(user_dict['password'])
         new_user_dict = PROVIDERS.identity_api.create_user(user_dict)
         new_user_dict["password"] = None
@@ -387,9 +407,11 @@ class SqlIdentity(SqlTests,
             user['id'], self.project_bar['id'], role_member['id']
         )
         PROVIDERS.identity_api.delete_user(user['id'])
-        self.assertRaises(exception.UserNotFound,
-                          PROVIDERS.assignment_api.list_projects_for_user,
-                          user['id'])
+        self.assertRaises(
+            exception.UserNotFound,
+            PROVIDERS.assignment_api.list_projects_for_user,
+            user['id'],
+        )
 
     def test_create_user_case_sensitivity(self):
         # user name case sensitivity is down to the fact that it is marked as
@@ -397,8 +419,10 @@ class SqlIdentity(SqlTests,
         # LDAP.
 
         # create a ref with a lowercase name
-        ref = unit.new_user_ref(name=uuid.uuid4().hex.lower(),
-                                domain_id=CONF.identity.default_domain_id)
+        ref = unit.new_user_ref(
+            name=uuid.uuid4().hex.lower(),
+            domain_id=CONF.identity.default_domain_id,
+        )
         ref = PROVIDERS.identity_api.create_user(ref)
 
         # assign a new ID with the same name, but this time in uppercase
@@ -444,7 +468,8 @@ class SqlIdentity(SqlTests,
         arbitrary_key = uuid.uuid4().hex
         arbitrary_value = uuid.uuid4().hex
         project = unit.new_project_ref(
-            domain_id=CONF.identity.default_domain_id)
+            domain_id=CONF.identity.default_domain_id
+        )
         project[arbitrary_key] = arbitrary_value
         ref = PROVIDERS.resource_api.create_project(project['id'], project)
         self.assertEqual(arbitrary_value, ref[arbitrary_key])
@@ -511,12 +536,14 @@ class SqlIdentity(SqlTests,
         )
         self.assertEqual(0, len(user_domains))
         PROVIDERS.assignment_api.create_grant(
-            user_id=user['id'], domain_id=test_domain1['id'],
-            role_id=self.role_member['id']
+            user_id=user['id'],
+            domain_id=test_domain1['id'],
+            role_id=self.role_member['id'],
         )
         PROVIDERS.assignment_api.create_grant(
-            user_id=user['id'], domain_id=test_domain2['id'],
-            role_id=self.role_member['id']
+            user_id=user['id'],
+            domain_id=test_domain2['id'],
+            role_id=self.role_member['id'],
         )
         user_domains = PROVIDERS.assignment_api.list_domains_for_user(
             user['id']
@@ -548,16 +575,19 @@ class SqlIdentity(SqlTests,
 
         # Create 3 grants, one user grant, the other two as group grants
         PROVIDERS.assignment_api.create_grant(
-            user_id=user['id'], domain_id=test_domain1['id'],
-            role_id=self.role_member['id']
+            user_id=user['id'],
+            domain_id=test_domain1['id'],
+            role_id=self.role_member['id'],
         )
         PROVIDERS.assignment_api.create_grant(
-            group_id=group1['id'], domain_id=test_domain2['id'],
-            role_id=self.role_admin['id']
+            group_id=group1['id'],
+            domain_id=test_domain2['id'],
+            role_id=self.role_admin['id'],
         )
         PROVIDERS.assignment_api.create_grant(
-            group_id=group2['id'], domain_id=test_domain3['id'],
-            role_id=self.role_admin['id']
+            group_id=group2['id'],
+            domain_id=test_domain3['id'],
+            role_id=self.role_admin['id'],
         )
         user_domains = PROVIDERS.assignment_api.list_domains_for_user(
             user['id']
@@ -590,12 +620,16 @@ class SqlIdentity(SqlTests,
         # Create a grant on each domain, one user grant, one group grant,
         # both inherited.
         PROVIDERS.assignment_api.create_grant(
-            user_id=user['id'], domain_id=domain1['id'], role_id=role['id'],
-            inherited_to_projects=True
+            user_id=user['id'],
+            domain_id=domain1['id'],
+            role_id=role['id'],
+            inherited_to_projects=True,
         )
         PROVIDERS.assignment_api.create_grant(
-            group_id=group['id'], domain_id=domain2['id'], role_id=role['id'],
-            inherited_to_projects=True
+            group_id=group['id'],
+            domain_id=domain2['id'],
+            role_id=role['id'],
+            inherited_to_projects=True,
         )
 
         user_domains = PROVIDERS.assignment_api.list_domains_for_user(
@@ -621,7 +655,8 @@ class SqlIdentity(SqlTests,
 
         for x in range(0, USER_COUNT):
             group_refs = PROVIDERS.identity_api.list_groups_for_user(
-                test_users[x]['id'])
+                test_users[x]['id']
+            )
             self.assertEqual(0, len(group_refs))
 
         for x in range(0, GROUP_COUNT):
@@ -634,18 +669,21 @@ class SqlIdentity(SqlTests,
             # add the user to the group and ensure that the
             # group count increases by one for each
             group_refs = PROVIDERS.identity_api.list_groups_for_user(
-                positive_user['id'])
+                positive_user['id']
+            )
             self.assertEqual(before_count, len(group_refs))
             PROVIDERS.identity_api.add_user_to_group(
-                positive_user['id'],
-                new_group['id'])
+                positive_user['id'], new_group['id']
+            )
             group_refs = PROVIDERS.identity_api.list_groups_for_user(
-                positive_user['id'])
+                positive_user['id']
+            )
             self.assertEqual(after_count, len(group_refs))
 
             # Make sure the group count for the unrelated user did not change
             group_refs = PROVIDERS.identity_api.list_groups_for_user(
-                negative_user['id'])
+                negative_user['id']
+            )
             self.assertEqual(0, len(group_refs))
 
         # remove the user from each group and ensure that
@@ -654,25 +692,29 @@ class SqlIdentity(SqlTests,
             before_count = GROUP_COUNT - x
             after_count = GROUP_COUNT - x - 1
             group_refs = PROVIDERS.identity_api.list_groups_for_user(
-                positive_user['id'])
+                positive_user['id']
+            )
             self.assertEqual(before_count, len(group_refs))
             PROVIDERS.identity_api.remove_user_from_group(
-                positive_user['id'],
-                test_groups[x]['id'])
+                positive_user['id'], test_groups[x]['id']
+            )
             group_refs = PROVIDERS.identity_api.list_groups_for_user(
-                positive_user['id'])
+                positive_user['id']
+            )
             self.assertEqual(after_count, len(group_refs))
             # Make sure the group count for the unrelated user
             # did not change
             group_refs = PROVIDERS.identity_api.list_groups_for_user(
-                negative_user['id'])
+                negative_user['id']
+            )
             self.assertEqual(0, len(group_refs))
 
     def test_add_user_to_group_expiring_mapped(self):
         self._build_fed_resource()
         domain = self._get_domain_fixture()
-        self.config_fixture.config(group='federation',
-                                   default_authorization_ttl=5)
+        self.config_fixture.config(
+            group='federation', default_authorization_ttl=5
+        )
         time = datetime.datetime.utcnow()
         tick = datetime.timedelta(minutes=5)
 
@@ -689,25 +731,35 @@ class SqlIdentity(SqlTests,
 
         with freezegun.freeze_time(time - tick) as frozen_time:
             user = PROVIDERS.identity_api.shadow_federated_user(
-                fed_dict['idp_id'], fed_dict['protocol_id'],
-                fed_dict, group_ids=[new_group['id']])
+                fed_dict['idp_id'],
+                fed_dict['protocol_id'],
+                fed_dict,
+                group_ids=[new_group['id']],
+            )
 
             PROVIDERS.identity_api.check_user_in_group(
-                user['id'], new_group['id'])
+                user['id'], new_group['id']
+            )
 
             # Expiration
             frozen_time.tick(tick)
-            self.assertRaises(exception.NotFound,
-                              PROVIDERS.identity_api.check_user_in_group,
-                              user['id'],
-                              new_group['id'])
+            self.assertRaises(
+                exception.NotFound,
+                PROVIDERS.identity_api.check_user_in_group,
+                user['id'],
+                new_group['id'],
+            )
 
             # Renewal
             PROVIDERS.identity_api.shadow_federated_user(
-                fed_dict['idp_id'], fed_dict['protocol_id'], fed_dict,
-                group_ids=[new_group['id']])
-            PROVIDERS.identity_api.check_user_in_group(user['id'],
-                                                       new_group['id'])
+                fed_dict['idp_id'],
+                fed_dict['protocol_id'],
+                fed_dict,
+                group_ids=[new_group['id']],
+            )
+            PROVIDERS.identity_api.check_user_in_group(
+                user['id'], new_group['id']
+            )
 
     def test_add_user_to_group_expiring(self):
         self._build_fed_resource()
@@ -727,38 +779,49 @@ class SqlIdentity(SqlTests,
 
         with freezegun.freeze_time(time - tick) as frozen_time:
             PROVIDERS.shadow_users_api.add_user_to_group_expires(
-                new_user['id'], new_group['id'])
+                new_user['id'], new_group['id']
+            )
 
-            self.config_fixture.config(group='federation',
-                                       default_authorization_ttl=0)
-            self.assertRaises(exception.NotFound,
-                              PROVIDERS.identity_api.check_user_in_group,
-                              new_user['id'],
-                              new_group['id'])
+            self.config_fixture.config(
+                group='federation', default_authorization_ttl=0
+            )
+            self.assertRaises(
+                exception.NotFound,
+                PROVIDERS.identity_api.check_user_in_group,
+                new_user['id'],
+                new_group['id'],
+            )
 
-            self.config_fixture.config(group='federation',
-                                       default_authorization_ttl=5)
-            PROVIDERS.identity_api.check_user_in_group(new_user['id'],
-                                                       new_group['id'])
+            self.config_fixture.config(
+                group='federation', default_authorization_ttl=5
+            )
+            PROVIDERS.identity_api.check_user_in_group(
+                new_user['id'], new_group['id']
+            )
 
             # Expiration
             frozen_time.tick(tick)
-            self.assertRaises(exception.NotFound,
-                              PROVIDERS.identity_api.check_user_in_group,
-                              new_user['id'],
-                              new_group['id'])
+            self.assertRaises(
+                exception.NotFound,
+                PROVIDERS.identity_api.check_user_in_group,
+                new_user['id'],
+                new_group['id'],
+            )
 
             # Renewal
             PROVIDERS.shadow_users_api.add_user_to_group_expires(
-                new_user['id'], new_group['id'])
-            PROVIDERS.identity_api.check_user_in_group(new_user['id'],
-                                                       new_group['id'])
+                new_user['id'], new_group['id']
+            )
+            PROVIDERS.identity_api.check_user_in_group(
+                new_user['id'], new_group['id']
+            )
 
     def test_add_user_to_group_expiring_list(self):
         self._build_fed_resource()
         domain = self._get_domain_fixture()
-        self.config_fixture.config(group='federation',
-                                   default_authorization_ttl=5)
+        self.config_fixture.config(
+            group='federation', default_authorization_ttl=5
+        )
         time = datetime.datetime.utcnow()
         tick = datetime.timedelta(minutes=5)
 
@@ -774,19 +837,24 @@ class SqlIdentity(SqlTests,
             domain['id'], fed_dict
         )
 
-        PROVIDERS.identity_api.add_user_to_group(new_user['id'],
-                                                 new_group['id'])
-        PROVIDERS.identity_api.check_user_in_group(new_user['id'],
-                                                   new_group['id'])
+        PROVIDERS.identity_api.add_user_to_group(
+            new_user['id'], new_group['id']
+        )
+        PROVIDERS.identity_api.check_user_in_group(
+            new_user['id'], new_group['id']
+        )
 
         with freezegun.freeze_time(time - tick) as frozen_time:
             PROVIDERS.shadow_users_api.add_user_to_group_expires(
-                new_user['id'], exp_new_group['id'])
-            PROVIDERS.identity_api.check_user_in_group(new_user['id'],
-                                                       new_group['id'])
+                new_user['id'], exp_new_group['id']
+            )
+            PROVIDERS.identity_api.check_user_in_group(
+                new_user['id'], new_group['id']
+            )
 
             groups = PROVIDERS.identity_api.list_groups_for_user(
-                new_user['id'])
+                new_user['id']
+            )
             self.assertEqual(len(groups), 2)
             for group in groups:
                 if group.get('membership_expires_at'):
@@ -794,7 +862,8 @@ class SqlIdentity(SqlTests,
 
             frozen_time.tick(tick)
             groups = PROVIDERS.identity_api.list_groups_for_user(
-                new_user['id'])
+                new_user['id']
+            )
             self.assertEqual(len(groups), 1)
 
     def test_storing_null_domain_id_in_project_ref(self):
@@ -808,7 +877,8 @@ class SqlIdentity(SqlTests,
 
         """
         spoiler_project = unit.new_project_ref(
-            domain_id=CONF.identity.default_domain_id)
+            domain_id=CONF.identity.default_domain_id
+        )
         PROVIDERS.resource_api.create_project(
             spoiler_project['id'], spoiler_project
         )
@@ -847,9 +917,11 @@ class SqlIdentity(SqlTests,
         project['enabled'] = False
         PROVIDERS.resource_api.update_project(project['id'], project)
         PROVIDERS.resource_api.delete_project(project['id'])
-        self.assertRaises(exception.ProjectNotFound,
-                          PROVIDERS.resource_api.get_project,
-                          project['id'])
+        self.assertRaises(
+            exception.ProjectNotFound,
+            PROVIDERS.resource_api.get_project,
+            project['id'],
+        )
 
     def test_hidden_project_domain_root_is_really_hidden(self):
         """Ensure we cannot access the hidden root of all project domains.
@@ -860,55 +932,64 @@ class SqlIdentity(SqlTests,
         specify their own ID for a new entity.
 
         """
+
         def _exercise_project_api(ref_id):
             driver = PROVIDERS.resource_api.driver
-            self.assertRaises(exception.ProjectNotFound,
-                              driver.get_project,
-                              ref_id)
+            self.assertRaises(
+                exception.ProjectNotFound, driver.get_project, ref_id
+            )
 
-            self.assertRaises(exception.ProjectNotFound,
-                              driver.get_project_by_name,
-                              resource.NULL_DOMAIN_ID,
-                              ref_id)
+            self.assertRaises(
+                exception.ProjectNotFound,
+                driver.get_project_by_name,
+                resource.NULL_DOMAIN_ID,
+                ref_id,
+            )
 
-            project_ids = [x['id'] for x in
-                           driver.list_projects(driver_hints.Hints())]
+            project_ids = [
+                x['id'] for x in driver.list_projects(driver_hints.Hints())
+            ]
             self.assertNotIn(ref_id, project_ids)
 
             projects = driver.list_projects_from_ids([ref_id])
             self.assertThat(projects, matchers.HasLength(0))
 
-            project_ids = [x for x in
-                           driver.list_project_ids_from_domain_ids([ref_id])]
+            project_ids = [
+                x for x in driver.list_project_ids_from_domain_ids([ref_id])
+            ]
             self.assertNotIn(ref_id, project_ids)
 
-            self.assertRaises(exception.DomainNotFound,
-                              driver.list_projects_in_domain,
-                              ref_id)
+            self.assertRaises(
+                exception.DomainNotFound,
+                driver.list_projects_in_domain,
+                ref_id,
+            )
 
             project_ids = [
-                x['id'] for x in
-                driver.list_projects_acting_as_domain(driver_hints.Hints())]
+                x['id']
+                for x in driver.list_projects_acting_as_domain(
+                    driver_hints.Hints()
+                )
+            ]
             self.assertNotIn(ref_id, project_ids)
 
             projects = driver.list_projects_in_subtree(ref_id)
             self.assertThat(projects, matchers.HasLength(0))
 
-            self.assertRaises(exception.ProjectNotFound,
-                              driver.list_project_parents,
-                              ref_id)
+            self.assertRaises(
+                exception.ProjectNotFound, driver.list_project_parents, ref_id
+            )
 
             # A non-existing project just returns True from the driver
             self.assertTrue(driver.is_leaf_project(ref_id))
 
-            self.assertRaises(exception.ProjectNotFound,
-                              driver.update_project,
-                              ref_id,
-                              {})
+            self.assertRaises(
+                exception.ProjectNotFound, driver.update_project, ref_id, {}
+            )
 
-            self.assertRaises(exception.ProjectNotFound,
-                              driver.delete_project,
-                              ref_id)
+            self.assertRaises(
+                exception.ProjectNotFound, driver.delete_project, ref_id
+            )
 
             # Deleting list of projects that includes a non-existing project
             # should be silent. The root domain <<keystone.domain.root>> can't
@@ -940,8 +1021,9 @@ class SqlIdentity(SqlTests,
                 self.calls += 1
 
         counter = CallCounter()
-        sqlalchemy.event.listen(sqlalchemy.orm.query.Query, 'before_compile',
-                                counter.query_counter)
+        sqlalchemy.event.listen(
+            sqlalchemy.orm.query.Query, 'before_compile', counter.query_counter
+        )
 
         first_call_users = PROVIDERS.identity_api.list_users()
         first_call_counter = counter.calls
@@ -966,11 +1048,13 @@ class SqlIdentity(SqlTests,
         #       |
         #   project_2
         project_1 = unit.new_project_ref(
-            domain_id=CONF.identity.default_domain_id)
+            domain_id=CONF.identity.default_domain_id
+        )
         PROVIDERS.resource_api.create_project(project_1['id'], project_1)
         project_2 = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id,
-            parent_id=project_1['id'])
+            parent_id=project_1['id'],
+        )
         PROVIDERS.resource_api.create_project(project_2['id'], project_2)
 
         # if max_depth is None or >= current project depth, return nothing.
@@ -981,9 +1065,11 @@ class SqlIdentity(SqlTests,
         resp = PROVIDERS.resource_api.check_project_depth(max_depth=4)
         self.assertIsNone(resp)
         # if max_depth < current project depth, raise LimitTreeExceedError
-        self.assertRaises(exception.LimitTreeExceedError,
-                          PROVIDERS.resource_api.check_project_depth,
-                          2)
+        self.assertRaises(
+            exception.LimitTreeExceedError,
+            PROVIDERS.resource_api.check_project_depth,
+            2,
+        )
 
     def test_update_user_with_stale_data_forces_retry(self):
         # Capture log output so we know oslo.db attempted a retry
@@ -991,7 +1077,8 @@ class SqlIdentity(SqlTests,
 
         # Create a new user
         user_dict = unit.new_user_ref(
-            domain_id=CONF.identity.default_domain_id)
+            domain_id=CONF.identity.default_domain_id
+        )
         new_user_dict = PROVIDERS.identity_api.create_user(user_dict)
 
         side_effects = [
@@ -1002,7 +1089,7 @@ class SqlIdentity(SqlTests,
             # The oslo.db library will retry the request, so the second
             # time this method is called let's return a valid session
             # object
-            sql.session_for_write()
+            sql.session_for_write(),
         ]
         with mock.patch('keystone.common.sql.session_for_write') as m:
             m.side_effect = side_effects
@@ -1012,7 +1099,8 @@ class SqlIdentity(SqlTests,
             # will succeed
             new_user_dict['email'] = uuid.uuid4().hex
             PROVIDERS.identity_api.update_user(
-                new_user_dict['id'], new_user_dict)
+                new_user_dict['id'], new_user_dict
+            )
 
         # Make sure oslo.db retried the update by checking the log output
         expected_log_message = (
@@ -1044,25 +1132,29 @@ class SqlCatalog(SqlTests, catalog_tests.CatalogTests):
         PROVIDERS.catalog_api.create_service(service['id'], service)
 
         malformed_url = "http://192.168.1.104:8774/v2/$(project)s"
-        endpoint = unit.new_endpoint_ref(service_id=service['id'],
-                                         url=malformed_url,
-                                         region_id=None)
+        endpoint = unit.new_endpoint_ref(
+            service_id=service['id'], url=malformed_url, region_id=None
+        )
         PROVIDERS.catalog_api.create_endpoint(endpoint['id'], endpoint.copy())
-        self.assertRaises(exception.ProjectNotFound,
-                          PROVIDERS.catalog_api.get_v3_catalog,
-                          'fake-user',
-                          'fake-project')
+        self.assertRaises(
+            exception.ProjectNotFound,
+            PROVIDERS.catalog_api.get_v3_catalog,
+            'fake-user',
+            'fake-project',
+        )
 
     def test_get_v3_catalog_with_empty_public_url(self):
         service = unit.new_service_ref()
         PROVIDERS.catalog_api.create_service(service['id'], service)
 
-        endpoint = unit.new_endpoint_ref(url='', service_id=service['id'],
-                                         region_id=None)
+        endpoint = unit.new_endpoint_ref(
+            url='', service_id=service['id'], region_id=None
+        )
         PROVIDERS.catalog_api.create_endpoint(endpoint['id'], endpoint.copy())
 
-        catalog = PROVIDERS.catalog_api.get_v3_catalog(self.user_foo['id'],
-                                                       self.project_bar['id'])
+        catalog = PROVIDERS.catalog_api.get_v3_catalog(
+            self.user_foo['id'], self.project_bar['id']
+        )
         catalog_endpoint = catalog[0]
         self.assertEqual(service['name'], catalog_endpoint['name'])
         self.assertEqual(service['id'], catalog_endpoint['id'])
@@ -1072,27 +1164,34 @@ class SqlCatalog(SqlTests, catalog_tests.CatalogTests):
         service = unit.new_service_ref()
         PROVIDERS.catalog_api.create_service(service['id'], service)
 
-        endpoint = unit.new_endpoint_ref(region_id=uuid.uuid4().hex,
-                                         service_id=service['id'])
+        endpoint = unit.new_endpoint_ref(
+            region_id=uuid.uuid4().hex, service_id=service['id']
+        )
 
-        self.assertRaises(exception.ValidationError,
-                          PROVIDERS.catalog_api.create_endpoint,
-                          endpoint['id'],
-                          endpoint.copy())
+        self.assertRaises(
+            exception.ValidationError,
+            PROVIDERS.catalog_api.create_endpoint,
+            endpoint['id'],
+            endpoint.copy(),
+        )
 
     def test_create_region_invalid_id(self):
         region = unit.new_region_ref(id='0' * 256)
 
-        self.assertRaises(exception.StringLengthExceeded,
-                          PROVIDERS.catalog_api.create_region,
-                          region)
+        self.assertRaises(
+            exception.StringLengthExceeded,
+            PROVIDERS.catalog_api.create_region,
+            region,
+        )
 
     def test_create_region_invalid_parent_id(self):
         region = unit.new_region_ref(parent_region_id='0' * 256)
 
-        self.assertRaises(exception.RegionNotFound,
-                          PROVIDERS.catalog_api.create_region,
-                          region)
+        self.assertRaises(
+            exception.RegionNotFound,
+            PROVIDERS.catalog_api.create_region,
+            region,
+        )
 
     def test_delete_region_with_endpoint(self):
         # create a region
@@ -1107,47 +1206,57 @@ class SqlCatalog(SqlTests, catalog_tests.CatalogTests):
         PROVIDERS.catalog_api.create_service(service['id'], service)
 
         # create an endpoint attached to the service and child region
-        child_endpoint = unit.new_endpoint_ref(region_id=child_region['id'],
-                                               service_id=service['id'])
+        child_endpoint = unit.new_endpoint_ref(
+            region_id=child_region['id'], service_id=service['id']
+        )
 
         PROVIDERS.catalog_api.create_endpoint(
             child_endpoint['id'], child_endpoint
         )
-        self.assertRaises(exception.RegionDeletionError,
-                          PROVIDERS.catalog_api.delete_region,
-                          child_region['id'])
+        self.assertRaises(
+            exception.RegionDeletionError,
+            PROVIDERS.catalog_api.delete_region,
+            child_region['id'],
+        )
 
         # create an endpoint attached to the service and parent region
-        endpoint = unit.new_endpoint_ref(region_id=region['id'],
-                                         service_id=service['id'])
+        endpoint = unit.new_endpoint_ref(
+            region_id=region['id'], service_id=service['id']
+        )
 
         PROVIDERS.catalog_api.create_endpoint(endpoint['id'], endpoint)
-        self.assertRaises(exception.RegionDeletionError,
-                          PROVIDERS.catalog_api.delete_region,
-                          region['id'])
+        self.assertRaises(
+            exception.RegionDeletionError,
+            PROVIDERS.catalog_api.delete_region,
+            region['id'],
+        )
 
     def test_v3_catalog_domain_scoped_token(self):
         # test the case that project_id is None.
         srv_1 = unit.new_service_ref()
         PROVIDERS.catalog_api.create_service(srv_1['id'], srv_1)
-        endpoint_1 = unit.new_endpoint_ref(service_id=srv_1['id'],
-                                           region_id=None)
+        endpoint_1 = unit.new_endpoint_ref(
+            service_id=srv_1['id'], region_id=None
+        )
         PROVIDERS.catalog_api.create_endpoint(endpoint_1['id'], endpoint_1)
 
         srv_2 = unit.new_service_ref()
         PROVIDERS.catalog_api.create_service(srv_2['id'], srv_2)
-        endpoint_2 = unit.new_endpoint_ref(service_id=srv_2['id'],
-                                           region_id=None)
+        endpoint_2 = unit.new_endpoint_ref(
+            service_id=srv_2['id'], region_id=None
+        )
         PROVIDERS.catalog_api.create_endpoint(endpoint_2['id'], endpoint_2)
 
-        self.config_fixture.config(group='endpoint_filter',
-                                   return_all_endpoints_if_no_filter=True)
+        self.config_fixture.config(
+            group='endpoint_filter', return_all_endpoints_if_no_filter=True
+        )
         catalog_ref = PROVIDERS.catalog_api.get_v3_catalog(
             uuid.uuid4().hex, None
         )
         self.assertThat(catalog_ref, matchers.HasLength(2))
-        self.config_fixture.config(group='endpoint_filter',
-                                   return_all_endpoints_if_no_filter=False)
+        self.config_fixture.config(
+            group='endpoint_filter', return_all_endpoints_if_no_filter=False
+        )
         catalog_ref = PROVIDERS.catalog_api.get_v3_catalog(
             uuid.uuid4().hex, None
         )
@@ -1156,16 +1265,18 @@ class SqlCatalog(SqlTests, catalog_tests.CatalogTests):
     def test_v3_catalog_endpoint_filter_enabled(self):
         srv_1 = unit.new_service_ref()
         PROVIDERS.catalog_api.create_service(srv_1['id'], srv_1)
-        endpoint_1 = unit.new_endpoint_ref(service_id=srv_1['id'],
-                                           region_id=None)
+        endpoint_1 = unit.new_endpoint_ref(
+            service_id=srv_1['id'], region_id=None
+        )
         PROVIDERS.catalog_api.create_endpoint(endpoint_1['id'], endpoint_1)
-        endpoint_2 = unit.new_endpoint_ref(service_id=srv_1['id'],
-                                           region_id=None)
+        endpoint_2 = unit.new_endpoint_ref(
+            service_id=srv_1['id'], region_id=None
+        )
         PROVIDERS.catalog_api.create_endpoint(endpoint_2['id'], endpoint_2)
         # create endpoint-project association.
         PROVIDERS.catalog_api.add_endpoint_to_project(
-            endpoint_1['id'],
-            self.project_bar['id'])
+            endpoint_1['id'], self.project_bar['id']
+        )
 
         catalog_ref = PROVIDERS.catalog_api.get_v3_catalog(
             uuid.uuid4().hex, self.project_bar['id']
@@ -1173,17 +1284,20 @@ class SqlCatalog(SqlTests, catalog_tests.CatalogTests):
         self.assertThat(catalog_ref, matchers.HasLength(1))
         self.assertThat(catalog_ref[0]['endpoints'], matchers.HasLength(1))
         # the endpoint is that defined in the endpoint-project association.
-        self.assertEqual(endpoint_1['id'],
-                         catalog_ref[0]['endpoints'][0]['id'])
+        self.assertEqual(
+            endpoint_1['id'], catalog_ref[0]['endpoints'][0]['id']
+        )
 
     def test_v3_catalog_endpoint_filter_disabled(self):
         # there is no endpoint-project association defined.
-        self.config_fixture.config(group='endpoint_filter',
-                                   return_all_endpoints_if_no_filter=True)
+        self.config_fixture.config(
+            group='endpoint_filter', return_all_endpoints_if_no_filter=True
+        )
         srv_1 = unit.new_service_ref()
         PROVIDERS.catalog_api.create_service(srv_1['id'], srv_1)
-        endpoint_1 = unit.new_endpoint_ref(service_id=srv_1['id'],
-                                           region_id=None)
+        endpoint_1 = unit.new_endpoint_ref(
+            service_id=srv_1['id'], region_id=None
+        )
         PROVIDERS.catalog_api.create_endpoint(endpoint_1['id'], endpoint_1)
 
         srv_2 = unit.new_service_ref()
@@ -1239,7 +1353,8 @@ class SqlFilterTests(SqlTests, identity_tests.FilterTests):
             DOMAIN1_ENTITIES = 3
             self.entity_list[entity] = self._create_test_data(entity, 2)
             self.domain1_entity_list[entity] = self._create_test_data(
-                entity, DOMAIN1_ENTITIES, self.domain1['id'])
+                entity, DOMAIN1_ENTITIES, self.domain1['id']
+            )
 
             # Should get back the DOMAIN1_ENTITIES in domain1
             hints = driver_hints.Hints()
@@ -1298,7 +1413,8 @@ class FakeTable(sql.ModelBase):
     @sql.handle_conflicts('keystone')
     def update(self):
         raise db_exception.DBError(
-            inner_exception=exc.IntegrityError('a', 'a', 'a'))
+            inner_exception=exc.IntegrityError('a', 'a', 'a')
+        )
 
     @sql.handle_conflicts('keystone')
     def lookup(self):
@@ -1308,8 +1424,9 @@ class FakeTable(sql.ModelBase):
 class SqlDecorators(unit.TestCase):
 
     def test_initialization_fail(self):
-        self.assertRaises(exception.StringLengthExceeded,
-                          FakeTable, col='a' * 64)
+        self.assertRaises(
+            exception.StringLengthExceeded, FakeTable, col='a' * 64
+        )
 
     def test_initialization(self):
         tt = FakeTable(col='a')
@@ -1329,23 +1446,25 @@ class SqlModuleInitialization(unit.TestCase):
     @mock.patch.object(options, 'set_defaults')
     def test_initialize_module(self, set_defaults, CONF):
         sql.initialize()
-        set_defaults.assert_called_with(CONF,
-                                        connection='sqlite:///keystone.db')
+        set_defaults.assert_called_with(
+            CONF, connection='sqlite:///keystone.db'
+        )
 
 
 class SqlCredential(SqlTests):
 
     def _create_credential_with_user_id(self, user_id=uuid.uuid4().hex):
-        credential = unit.new_credential_ref(user_id=user_id,
-                                             extra=uuid.uuid4().hex,
-                                             type=uuid.uuid4().hex)
+        credential = unit.new_credential_ref(
+            user_id=user_id, extra=uuid.uuid4().hex, type=uuid.uuid4().hex
+        )
         PROVIDERS.credential_api.create_credential(
             credential['id'], credential
         )
         return credential
 
-    def _validateCredentialList(self, retrieved_credentials,
-                                expected_credentials):
+    def _validateCredentialList(
+        self, retrieved_credentials, expected_credentials
+    ):
         self.assertEqual(len(expected_credentials), len(retrieved_credentials))
         retrived_ids = [c['id'] for c in retrieved_credentials]
         for cred in expected_credentials:
@@ -1358,14 +1477,13 @@ class SqlCredential(SqlTests):
             ksfixtures.KeyRepository(
                 self.config_fixture,
                 'credential',
-                credential_provider.MAX_ACTIVE_KEYS
+                credential_provider.MAX_ACTIVE_KEYS,
             )
         )
 
         self.credentials = []
         for _ in range(3):
-            self.credentials.append(
-                self._create_credential_with_user_id())
+            self.credentials.append(self._create_credential_with_user_id())
         self.user_credentials = []
         for _ in range(3):
             cred = self._create_credential_with_user_id(self.user_foo['id'])
@@ -1383,21 +1501,22 @@ class SqlCredential(SqlTests):
 
     def test_list_credentials_for_user(self):
         credentials = PROVIDERS.credential_api.list_credentials_for_user(
-            self.user_foo['id'])
+            self.user_foo['id']
+        )
         self._validateCredentialList(credentials, self.user_credentials)
 
     def test_list_credentials_for_user_and_type(self):
         cred = self.user_credentials[0]
         credentials = PROVIDERS.credential_api.list_credentials_for_user(
-            self.user_foo['id'], type=cred['type'])
+            self.user_foo['id'], type=cred['type']
+        )
         self._validateCredentialList(credentials, [cred])
 
     def test_create_credential_is_encrypted_when_stored(self):
         credential = unit.new_credential_ref(user_id=uuid.uuid4().hex)
         credential_id = credential['id']
         returned_credential = PROVIDERS.credential_api.create_credential(
-            credential_id,
-            credential
+            credential_id, credential
         )
 
         # Make sure the `blob` is *not* encrypted when returned from the
@@ -1411,8 +1530,7 @@ class SqlCredential(SqlTests):
         # Pull the credential directly from the backend, the `blob` should be
         # encrypted.
         self.assertNotEqual(
-            credential_from_backend['encrypted_blob'],
-            credential['blob']
+            credential_from_backend['encrypted_blob'], credential['blob']
         )
 
     def test_list_credentials_is_decrypted(self):
@@ -1420,8 +1538,7 @@ class SqlCredential(SqlTests):
         credential_id = credential['id']
 
         created_credential = PROVIDERS.credential_api.create_credential(
-            credential_id,
-            credential
+            credential_id, credential
         )
 
         # Pull the credential directly from the backend, the `blob` should be
@@ -1430,8 +1547,7 @@ class SqlCredential(SqlTests):
             PROVIDERS.credential_api.driver.get_credential(credential_id)
         )
         self.assertNotEqual(
-            credential_from_backend['encrypted_blob'],
-            credential['blob']
+            credential_from_backend['encrypted_blob'], credential['blob']
         )
 
         # Make sure the `blob` values listed from the API are not encrypted.
@@ -1481,14 +1597,24 @@ class SqlLimit(SqlTests, limit_tests.LimitTests):
         registered_limit_1 = unit.new_registered_limit_ref(
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', default_limit=10, id=uuid.uuid4().hex)
+            resource_name='volume',
+            default_limit=10,
+            id=uuid.uuid4().hex,
+        )
         registered_limit_2 = unit.new_registered_limit_ref(
             service_id=self.service_one['id'],
             region_id=self.region_two['id'],
-            resource_name='snapshot', default_limit=10, id=uuid.uuid4().hex)
+            resource_name='snapshot',
+            default_limit=10,
+            id=uuid.uuid4().hex,
+        )
         registered_limit_3 = unit.new_registered_limit_ref(
             service_id=self.service_one['id'],
             region_id=self.region_two['id'],
-            resource_name='backup', default_limit=10, id=uuid.uuid4().hex)
+            resource_name='backup',
+            default_limit=10,
+            id=uuid.uuid4().hex,
+        )
         PROVIDERS.unified_limit_api.create_registered_limits(
-            [registered_limit_1, registered_limit_2, registered_limit_3])
+            [registered_limit_1, registered_limit_2, registered_limit_3]
+        )

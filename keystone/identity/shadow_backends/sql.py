@@ -33,17 +33,15 @@ class ShadowUsers(base.ShadowUsersDriverBase):
     @sql.handle_conflicts(conflict_type='federated_user')
     def create_federated_user(self, domain_id, federated_dict, email=None):
 
-        local_entity = {'domain_id': domain_id,
-                        'local_id': federated_dict['unique_id'],
-                        'entity_type': 'user'}
+        local_entity = {
+            'domain_id': domain_id,
+            'local_id': federated_dict['unique_id'],
+            'entity_type': 'user',
+        }
 
         public_id = PROVIDERS.id_generator_api.generate_public_ID(local_entity)
 
-        user = {
-            'id': public_id,
-            'domain_id': domain_id,
-            'enabled': True
-        }
+        user = {'id': public_id, 'domain_id': domain_id, 'enabled': True}
         if email:
             user['email'] = email
         with sql.session_for_write() as session:
@@ -75,7 +73,8 @@ class ShadowUsers(base.ShadowUsersDriverBase):
                 m = model.FederatedUser(
                     idp_id=row.idp_id,
                     protocol_id=row.protocol_id,
-                    unique_id=row.unique_id)
+                    unique_id=row.unique_id,
+                )
                 fed_ref.append(m.to_dict())
             return base.federated_objects_to_list(fed_ref)
 
@@ -84,28 +83,35 @@ class ShadowUsers(base.ShadowUsersDriverBase):
         for filter_ in hints.filters:
             if filter_['name'] == 'idp_id':
                 statements.append(
-                    model.FederatedUser.idp_id == filter_['value'])
+                    model.FederatedUser.idp_id == filter_['value']
+                )
             if filter_['name'] == 'protocol_id':
                 statements.append(
-                    model.FederatedUser.protocol_id == filter_['value'])
+                    model.FederatedUser.protocol_id == filter_['value']
+                )
             if filter_['name'] == 'unique_id':
                 statements.append(
-                    model.FederatedUser.unique_id == filter_['value'])
+                    model.FederatedUser.unique_id == filter_['value']
+                )
 
         # Remove federated attributes to prevent redundancies from
         # sql.filter_limit_query which filters remaining hints
         hints.filters = [
-            x for x in hints.filters if x['name'] not in ('idp_id',
-                                                          'protocol_id',
-                                                          'unique_id')]
+            x
+            for x in hints.filters
+            if x['name'] not in ('idp_id', 'protocol_id', 'unique_id')
+        ]
         if statements:
             query = query.filter(sqlalchemy.and_(*statements))
         return query
 
     def get_federated_users(self, hints):
         with sql.session_for_read() as session:
-            query = session.query(model.User).outerjoin(
-                model.LocalUser).outerjoin(model.FederatedUser)
+            query = (
+                session.query(model.User)
+                .outerjoin(model.LocalUser)
+                .outerjoin(model.FederatedUser)
+            )
             query = query.filter(model.User.id == model.FederatedUser.user_id)
             query = self._update_query_with_federated_statements(hints, query)
             name_filter = None
@@ -113,8 +119,9 @@ class ShadowUsers(base.ShadowUsersDriverBase):
                 if filter_['name'] == 'name':
                     name_filter = filter_
                     query = query.filter(
-                        model.FederatedUser.display_name == name_filter[
-                            'value'])
+                        model.FederatedUser.display_name
+                        == name_filter['value']
+                    )
                     break
             if name_filter:
                 hints.filters.remove(name_filter)
@@ -145,8 +152,9 @@ class ShadowUsers(base.ShadowUsersDriverBase):
             query = session.query(model.User).outerjoin(model.LocalUser)
             query = query.join(model.FederatedUser)
             query = query.filter(model.FederatedUser.idp_id == idp_id)
-            query = query.filter(model.FederatedUser.protocol_id ==
-                                 protocol_id)
+            query = query.filter(
+                model.FederatedUser.protocol_id == protocol_id
+            )
             query = query.filter(model.FederatedUser.unique_id == unique_id)
             try:
                 user_ref = query.one()
@@ -162,16 +170,19 @@ class ShadowUsers(base.ShadowUsersDriverBase):
                     user_ref.last_active_at = datetime.datetime.utcnow().date()
 
     @sql.handle_conflicts(conflict_type='federated_user')
-    def update_federated_user_display_name(self, idp_id, protocol_id,
-                                           unique_id, display_name):
+    def update_federated_user_display_name(
+        self, idp_id, protocol_id, unique_id, display_name
+    ):
         with sql.session_for_write() as session:
             query = session.query(model.FederatedUser)
             query = query.filter(model.FederatedUser.idp_id == idp_id)
-            query = query.filter(model.FederatedUser.protocol_id ==
-                                 protocol_id)
+            query = query.filter(
+                model.FederatedUser.protocol_id == protocol_id
+            )
             query = query.filter(model.FederatedUser.unique_id == unique_id)
-            query = query.filter(model.FederatedUser.display_name !=
-                                 display_name)
+            query = query.filter(
+                model.FederatedUser.display_name != display_name
+            )
             query.update({'display_name': display_name})
             return
 
@@ -182,12 +193,11 @@ class ShadowUsers(base.ShadowUsersDriverBase):
         new_user_dict.pop('name', None)
         new_user_dict.pop('password', None)
         # create nonlocal_user dict
-        new_nonlocal_user_dict = {
-            'name': user_dict['name']
-        }
+        new_nonlocal_user_dict = {'name': user_dict['name']}
         with sql.session_for_write() as session:
             new_nonlocal_user_ref = model.NonLocalUser.from_dict(
-                new_nonlocal_user_dict)
+                new_nonlocal_user_dict
+            )
             new_user_ref = model.User.from_dict(new_user_dict)
             new_user_ref.created_at = datetime.datetime.utcnow()
             new_user_ref.nonlocal_user = new_nonlocal_user_ref
@@ -219,8 +229,9 @@ class ShadowUsers(base.ShadowUsersDriverBase):
     def list_federated_users_info(self, hints=None):
         with sql.session_for_read() as session:
             query = session.query(model.FederatedUser)
-            fed_user_refs = sql.filter_limit_query(model.FederatedUser, query,
-                                                   hints)
+            fed_user_refs = sql.filter_limit_query(
+                model.FederatedUser, query, hints
+            )
             return [x.to_dict() for x in fed_user_refs]
 
     def add_user_to_group_expires(self, user_id, group_id):
@@ -245,9 +256,11 @@ class ShadowUsers(base.ShadowUsersDriverBase):
             if membership:
                 membership.last_verified = datetime.datetime.utcnow()
             else:
-                session.add(model.ExpiringUserGroupMembership(
-                    user_id=user_id,
-                    group_id=group_id,
-                    idp_id=user.idp_id,
-                    last_verified=datetime.datetime.utcnow()
-                ))
+                session.add(
+                    model.ExpiringUserGroupMembership(
+                        user_id=user_id,
+                        group_id=group_id,
+                        idp_id=user.idp_id,
+                        last_verified=datetime.datetime.utcnow(),
+                    )
+                )

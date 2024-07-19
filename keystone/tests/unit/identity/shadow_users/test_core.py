@@ -27,8 +27,10 @@ class ShadowUsersCoreTests(object):
         )
 
         user = PROVIDERS.identity_api.shadow_federated_user(
-            self.federated_user['idp_id'], self.federated_user['protocol_id'],
-            federated_user1)
+            self.federated_user['idp_id'],
+            self.federated_user['protocol_id'],
+            federated_user1,
+        )
 
         self.assertIsNotNone(user['id'])
         self.assertEqual(7, len(user.keys()))
@@ -50,8 +52,10 @@ class ShadowUsersCoreTests(object):
 
         # introduce the user to keystone for the first time
         shadow_user1 = PROVIDERS.identity_api.shadow_federated_user(
-            self.federated_user['idp_id'], self.federated_user['protocol_id'],
-            federated_user1)
+            self.federated_user['idp_id'],
+            self.federated_user['protocol_id'],
+            federated_user1,
+        )
 
         self.assertEqual(federated_user1['display_name'], shadow_user1['name'])
 
@@ -65,8 +69,10 @@ class ShadowUsersCoreTests(object):
         )
 
         shadow_user2 = PROVIDERS.identity_api.shadow_federated_user(
-            self.federated_user['idp_id'], self.federated_user['protocol_id'],
-            federated_user2)
+            self.federated_user['idp_id'],
+            self.federated_user['protocol_id'],
+            federated_user2,
+        )
         self.assertEqual(federated_user2['display_name'], shadow_user2['name'])
         self.assertNotEqual(shadow_user1['name'], shadow_user2['name'])
 
@@ -80,8 +86,10 @@ class ShadowUsersCoreTests(object):
         )
 
         PROVIDERS.identity_api.shadow_federated_user(
-            federated_user1['idp_id'], federated_user1['protocol_id'],
-            federated_user1)
+            federated_user1['idp_id'],
+            federated_user1['protocol_id'],
+            federated_user1,
+        )
 
         hints = driver_hints.Hints()
         hints.add_filter('name', federated_user1['display_name'])
@@ -96,8 +104,10 @@ class ShadowUsersCoreTests(object):
         federated_user2['email'] = "some_id_2@mail.provider"
 
         PROVIDERS.identity_api.shadow_federated_user(
-            federated_user2['idp_id'], federated_user2['protocol_id'],
-            federated_user2)
+            federated_user2['idp_id'],
+            federated_user2['protocol_id'],
+            federated_user2,
+        )
 
         hints.add_filter('name', federated_user2['display_name'])
         users = PROVIDERS.identity_api.list_users(hints=hints)
@@ -106,8 +116,9 @@ class ShadowUsersCoreTests(object):
         self.assertEqual(1, len(users))
 
     @staticmethod
-    def normalize_federated_user_properties_for_test(federated_user,
-                                                     email=None):
+    def normalize_federated_user_properties_for_test(
+        federated_user, email=None
+    ):
         federated_user['email'] = email
         federated_user['id'] = federated_user['unique_id']
         federated_user['name'] = federated_user['display_name']

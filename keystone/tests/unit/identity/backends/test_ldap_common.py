@@ -210,7 +210,8 @@ class LDAPDeleteTreeTest(unit.TestCase):
         super(LDAPDeleteTreeTest, self).setUp()
 
         self.useFixture(
-            ldapdb.LDAPDatabase(dbclass=fakeldap.FakeLdapNoSubtreeDelete))
+            ldapdb.LDAPDatabase(dbclass=fakeldap.FakeLdapNoSubtreeDelete)
+        )
         self.useFixture(database.Database())
 
         self.load_backends()
@@ -247,13 +248,14 @@ class MultiURLTests(unit.TestCase):
 
     @mock.patch.object(common_ldap.KeystoneLDAPHandler, 'simple_bind_s')
     def test_multiple_urls_with_comma_randomized(self, mock_ldap_bind):
-        urls = ('ldap://localhost1,ldap://localhost2,'
-                'ldap://localhost3,ldap://localhost4,'
-                'ldap://localhost5,ldap://localhost6,'
-                'ldap://localhost7,ldap://localhost8,'
-                'ldap://localhost9,ldap://localhost0')
-        self.config_fixture.config(group='ldap', url=urls,
-                                   randomize_urls=True)
+        urls = (
+            'ldap://localhost1,ldap://localhost2,'
+            'ldap://localhost3,ldap://localhost4,'
+            'ldap://localhost5,ldap://localhost6,'
+            'ldap://localhost7,ldap://localhost8,'
+            'ldap://localhost9,ldap://localhost0'
+        )
+        self.config_fixture.config(group='ldap', url=urls, randomize_urls=True)
         base_ldap = common_ldap.BaseLdap(CONF)
         ldap_connection = base_ldap.get_connection()
 
@@ -261,16 +263,21 @@ class MultiURLTests(unit.TestCase):
         self.assertEqual(len(urls.split(',')), 10)
 
         # Check that the list is split into the same number of URIs
-        self.assertEqual(len(urls.split(',')),
-                         len(ldap_connection.conn.conn_pool.uri.split(',')))
+        self.assertEqual(
+            len(urls.split(',')),
+            len(ldap_connection.conn.conn_pool.uri.split(',')),
+        )
 
         # Check that the list is randomized
-        self.assertNotEqual(urls.split(','),
-                            ldap_connection.conn.conn_pool.uri.split(','))
+        self.assertNotEqual(
+            urls.split(','), ldap_connection.conn.conn_pool.uri.split(',')
+        )
 
         # Check that the list contains the same URIs
-        self.assertEqual(set(urls.split(',')),
-                         set(ldap_connection.conn.conn_pool.uri.split(',')))
+        self.assertEqual(
+            set(urls.split(',')),
+            set(ldap_connection.conn.conn_pool.uri.split(',')),
+        )
 
 
 class LDAPConnectionTimeoutTest(unit.TestCase):
@@ -280,14 +287,17 @@ class LDAPConnectionTimeoutTest(unit.TestCase):
     def test_connectivity_timeout_no_conn_pool(self, mock_ldap_bind):
         url = 'ldap://localhost'
         conn_timeout = 1  # 1 second
-        self.config_fixture.config(group='ldap',
-                                   url=url,
-                                   connection_timeout=conn_timeout,
-                                   use_pool=False)
+        self.config_fixture.config(
+            group='ldap',
+            url=url,
+            connection_timeout=conn_timeout,
+            use_pool=False,
+        )
         base_ldap = common_ldap.BaseLdap(CONF)
         ldap_connection = base_ldap.get_connection()
-        self.assertIsInstance(ldap_connection.conn,
-                              common_ldap.PythonLDAPHandler)
+        self.assertIsInstance(
+            ldap_connection.conn, common_ldap.PythonLDAPHandler
+        )
 
         # Ensure that the Network Timeout option is set.
         # Also ensure that the URL is set.
@@ -297,23 +307,27 @@ class LDAPConnectionTimeoutTest(unit.TestCase):
         # integration testing. If the LDAP option is set properly,
         # and we get back a valid connection URI then that should
         # suffice for this unit test.
-        self.assertEqual(conn_timeout,
-                         ldap.get_option(ldap.OPT_NETWORK_TIMEOUT))
+        self.assertEqual(
+            conn_timeout, ldap.get_option(ldap.OPT_NETWORK_TIMEOUT)
+        )
         self.assertEqual(url, ldap_connection.conn.conn._uri)
 
     @mock.patch.object(common_ldap.KeystoneLDAPHandler, 'simple_bind_s')
     def test_connectivity_timeout_with_conn_pool(self, mock_ldap_bind):
         url = 'ldap://localhost'
         conn_timeout = 1  # 1 second
-        self.config_fixture.config(group='ldap',
-                                   url=url,
-                                   pool_connection_timeout=conn_timeout,
-                                   use_pool=True,
-                                   pool_retry_max=1)
+        self.config_fixture.config(
+            group='ldap',
+            url=url,
+            pool_connection_timeout=conn_timeout,
+            use_pool=True,
+            pool_retry_max=1,
+        )
         base_ldap = common_ldap.BaseLdap(CONF)
         ldap_connection = base_ldap.get_connection()
-        self.assertIsInstance(ldap_connection.conn,
-                              common_ldap.PooledLDAPHandler)
+        self.assertIsInstance(
+            ldap_connection.conn, common_ldap.PooledLDAPHandler
+        )
 
         # Ensure that the Network Timeout option is set.
         # Also ensure that the URL is set.
@@ -323,8 +337,9 @@ class LDAPConnectionTimeoutTest(unit.TestCase):
         # integration testing. If the LDAP option is set properly,
         # and we get back a valid connection URI then that should
         # suffice for this unit test.
-        self.assertEqual(conn_timeout,
-                         ldap.get_option(ldap.OPT_NETWORK_TIMEOUT))
+        self.assertEqual(
+            conn_timeout, ldap.get_option(ldap.OPT_NETWORK_TIMEOUT)
+        )
         self.assertEqual(url, ldap_connection.conn.conn_pool.uri)
 
 
@@ -347,10 +362,12 @@ class SslTlsTest(unit.BaseTestCase):
         (handle, certfile) = tempfile.mkstemp()
         self.addCleanup(os.unlink, certfile)
         self.addCleanup(os.close, handle)
-        self.config_fixture.config(group='ldap',
-                                   url='ldap://localhost',
-                                   use_tls=True,
-                                   tls_cacertfile=certfile)
+        self.config_fixture.config(
+            group='ldap',
+            url='ldap://localhost',
+            use_tls=True,
+            tls_cacertfile=certfile,
+        )
 
         self._init_ldap_connection(CONF)
 
@@ -360,10 +377,12 @@ class SslTlsTest(unit.BaseTestCase):
     def test_certdir_trust_tls(self):
         # We need this to actually exist, so we create a tempdir.
         certdir = self.useFixture(fixtures.TempDir()).path
-        self.config_fixture.config(group='ldap',
-                                   url='ldap://localhost',
-                                   use_tls=True,
-                                   tls_cacertdir=certdir)
+        self.config_fixture.config(
+            group='ldap',
+            url='ldap://localhost',
+            use_tls=True,
+            tls_cacertdir=certdir,
+        )
 
         self._init_ldap_connection(CONF)
 
@@ -375,10 +394,12 @@ class SslTlsTest(unit.BaseTestCase):
         (handle, certfile) = tempfile.mkstemp()
         self.addCleanup(os.unlink, certfile)
         self.addCleanup(os.close, handle)
-        self.config_fixture.config(group='ldap',
-                                   url='ldaps://localhost',
-                                   use_tls=False,
-                                   tls_cacertfile=certfile)
+        self.config_fixture.config(
+            group='ldap',
+            url='ldaps://localhost',
+            use_tls=False,
+            tls_cacertfile=certfile,
+        )
 
         self._init_ldap_connection(CONF)
 
@@ -388,10 +409,12 @@ class SslTlsTest(unit.BaseTestCase):
     def test_certdir_trust_ldaps(self):
         # We need this to actually exist, so we create a tempdir.
         certdir = self.useFixture(fixtures.TempDir()).path
-        self.config_fixture.config(group='ldap',
-                                   url='ldaps://localhost',
-                                   use_tls=False,
-                                   tls_cacertdir=certdir)
+        self.config_fixture.config(
+            group='ldap',
+            url='ldaps://localhost',
+            use_tls=False,
+            tls_cacertdir=certdir,
+        )
 
         self._init_ldap_connection(CONF)
 
@@ -425,18 +448,18 @@ class LDAPPagedResultsTest(unit.TestCase):
     def test_paged_results_control_api(self, mock_result3, mock_search_ext):
         mock_result3.return_value = ('', [], 1, [])
 
-        self.config_fixture.config(group='ldap',
-                                   page_size=1)
+        self.config_fixture.config(group='ldap', page_size=1)
 
         conn = PROVIDERS.identity_api.user.get_connection()
-        conn._paged_search_s('dc=example,dc=test',
-                             ldap.SCOPE_SUBTREE,
-                             'objectclass=*',
-                             ['mail', 'userPassword'])
+        conn._paged_search_s(
+            'dc=example,dc=test',
+            ldap.SCOPE_SUBTREE,
+            'objectclass=*',
+            ['mail', 'userPassword'],
+        )
         # verify search_ext() args - attrlist is tricky due to ordering
         args, _ = mock_search_ext.call_args
-        self.assertEqual(
-            ('dc=example,dc=test', 2, 'objectclass=*'), args[0:3])
+        self.assertEqual(('dc=example,dc=test', 2, 'objectclass=*'), args[0:3])
         attrlist = sorted([attr for attr in args[3] if attr])
         self.assertEqual(['mail', 'userPassword'], attrlist)
 
@@ -445,15 +468,17 @@ class CommonLdapTestCase(unit.BaseTestCase):
     """These test cases call functions in keystone.common.ldap."""
 
     def test_binary_attribute_values(self):
-        result = [(
-            'cn=junk,dc=example,dc=com',
-            {
-                'cn': ['junk'],
-                'sn': [uuid.uuid4().hex],
-                'mail': [uuid.uuid4().hex],
-                'binary_attr': [b'\x00\xFF\x00\xFF']
-            }
-        ), ]
+        result = [
+            (
+                'cn=junk,dc=example,dc=com',
+                {
+                    'cn': ['junk'],
+                    'sn': [uuid.uuid4().hex],
+                    'mail': [uuid.uuid4().hex],
+                    'binary_attr': [b'\x00\xFF\x00\xFF'],
+                },
+            ),
+        ]
         py_result = common_ldap.convert_ldap_result(result)
         # The attribute containing the binary value should
         # not be present in the converted result.
@@ -475,22 +500,19 @@ class CommonLdapTestCase(unit.BaseTestCase):
         result_unicode = common_ldap.utf8_decode(value_unicode)
         self.assertEqual(value_unicode, result_unicode)
 
-        self.assertRaises(TypeError,
-                          common_ldap.utf8_encode,
-                          100)
+        self.assertRaises(TypeError, common_ldap.utf8_encode, 100)
 
         result_unicode = common_ldap.utf8_decode(100)
         self.assertEqual(u'100', result_unicode)
 
     def test_user_id_begins_with_0(self):
         user_id = '0123456'
-        result = [(
-            'cn=dummy,dc=example,dc=com',
-            {
-                'user_id': [user_id],
-                'enabled': ['TRUE']
-            }
-        ), ]
+        result = [
+            (
+                'cn=dummy,dc=example,dc=com',
+                {'user_id': [user_id], 'enabled': ['TRUE']},
+            ),
+        ]
         py_result = common_ldap.convert_ldap_result(result)
         # The user id should be 0123456, and the enabled
         # flag should be True
@@ -501,13 +523,12 @@ class CommonLdapTestCase(unit.BaseTestCase):
         user_id = '0123456'
         bitmask = '225'
         expected_bitmask = 225
-        result = [(
-            'cn=dummy,dc=example,dc=com',
-            {
-                'user_id': [user_id],
-                'enabled': [bitmask]
-            }
-        ), ]
+        result = [
+            (
+                'cn=dummy,dc=example,dc=com',
+                {'user_id': [user_id], 'enabled': [bitmask]},
+            ),
+        ]
         py_result = common_ldap.convert_ldap_result(result)
         # The user id should be 0123456, and the enabled
         # flag should be 225
@@ -518,13 +539,12 @@ class CommonLdapTestCase(unit.BaseTestCase):
         user_id = '0123456'
         bitmask = '0225'
         expected_bitmask = 225
-        result = [(
-            'cn=dummy,dc=example,dc=com',
-            {
-                'user_id': [user_id],
-                'enabled': [bitmask]
-            }
-        ), ]
+        result = [
+            (
+                'cn=dummy,dc=example,dc=com',
+                {'user_id': [user_id], 'enabled': [bitmask]},
+            ),
+        ]
         py_result = common_ldap.convert_ldap_result(result)
         # The user id should be 0123456, and the enabled
         # flag should be 225, the 0 is dropped.
@@ -532,31 +552,41 @@ class CommonLdapTestCase(unit.BaseTestCase):
         self.assertEqual(user_id, py_result[0][1]['user_id'][0])
 
     def test_user_id_and_user_name_with_boolean_string(self):
-        boolean_strings = ['TRUE', 'FALSE', 'true', 'false', 'True', 'False',
-                           'TrUe' 'FaLse']
+        boolean_strings = [
+            'TRUE',
+            'FALSE',
+            'true',
+            'false',
+            'True',
+            'False',
+            'TrUe' 'FaLse',
+        ]
         for user_name in boolean_strings:
             user_id = uuid.uuid4().hex
-            result = [(
-                'cn=dummy,dc=example,dc=com',
-                {
-                    'user_id': [user_id],
-                    'user_name': [user_name]
-                }
-            ), ]
+            result = [
+                (
+                    'cn=dummy,dc=example,dc=com',
+                    {'user_id': [user_id], 'user_name': [user_name]},
+                ),
+            ]
             py_result = common_ldap.convert_ldap_result(result)
             # The user name should still be a string value.
             self.assertEqual(user_name, py_result[0][1]['user_name'][0])
 
     def test_user_id_attribute_is_uuid_in_byte_form(self):
-        results = [(
-            'cn=alice,dc=example,dc=com',
-            {
-                'cn': [b'cn=alice'],
-                'objectGUID': [b'\xdd\xd8Rt\xee]bA\x8e(\xe39\x0b\xe1\xf8\xe8'],
-                'email': [uuid.uuid4().hex],
-                'sn': [uuid.uuid4().hex]
-            }
-        )]
+        results = [
+            (
+                'cn=alice,dc=example,dc=com',
+                {
+                    'cn': [b'cn=alice'],
+                    'objectGUID': [
+                        b'\xdd\xd8Rt\xee]bA\x8e(\xe39\x0b\xe1\xf8\xe8'
+                    ],
+                    'email': [uuid.uuid4().hex],
+                    'sn': [uuid.uuid4().hex],
+                },
+            )
+        ]
         py_result = common_ldap.convert_ldap_result(results)
         exp_object_guid = '7452d8dd-5dee-4162-8e28-e3390be1f8e8'
         self.assertEqual(exp_object_guid, py_result[0][1]['objectGUID'][0])
@@ -583,8 +613,9 @@ class LDAPFilterQueryCompositionTest(unit.BaseTestCase):
         # NOTE: doesn't have to be a real query, we just need to make sure the
         # same string is returned if there are no hints.
         query = uuid.uuid4().hex
-        self.assertEqual(query,
-                         self.base_ldap.filter_query(hints=hints, query=query))
+        self.assertEqual(
+            query, self.base_ldap.filter_query(hints=hints, query=query)
+        )
 
         # make sure the default query is an empty string
         self.assertEqual('', self.base_ldap.filter_query(hints=hints))
@@ -592,14 +623,19 @@ class LDAPFilterQueryCompositionTest(unit.BaseTestCase):
     def test_filter_with_empty_query_and_hints_set(self):
         hints = driver_hints.Hints()
         username = uuid.uuid4().hex
-        hints.add_filter(name=self.attribute_name,
-                         value=username,
-                         comparator='equals',
-                         case_sensitive=False)
+        hints.add_filter(
+            name=self.attribute_name,
+            value=username,
+            comparator='equals',
+            case_sensitive=False,
+        )
         expected_ldap_filter = '(&(%s=%s))' % (
-            self.filter_attribute_name, username)
-        self.assertEqual(expected_ldap_filter,
-                         self.base_ldap.filter_query(hints=hints))
+            self.filter_attribute_name,
+            username,
+        )
+        self.assertEqual(
+            expected_ldap_filter, self.base_ldap.filter_query(hints=hints)
+        )
 
     def test_filter_with_both_query_and_hints_set(self):
         hints = driver_hints.Hints()
@@ -608,24 +644,35 @@ class LDAPFilterQueryCompositionTest(unit.BaseTestCase):
         query = uuid.uuid4().hex
         username = uuid.uuid4().hex
         expected_result = '(&%(query)s(%(user_name_attr)s=%(username)s))' % (
-            {'query': query,
-             'user_name_attr': self.filter_attribute_name,
-             'username': username})
+            {
+                'query': query,
+                'user_name_attr': self.filter_attribute_name,
+                'username': username,
+            }
+        )
         hints.add_filter(self.attribute_name, username)
-        self.assertEqual(expected_result,
-                         self.base_ldap.filter_query(hints=hints, query=query))
+        self.assertEqual(
+            expected_result,
+            self.base_ldap.filter_query(hints=hints, query=query),
+        )
 
     def test_filter_with_hints_and_query_is_none(self):
         hints = driver_hints.Hints()
         username = uuid.uuid4().hex
-        hints.add_filter(name=self.attribute_name,
-                         value=username,
-                         comparator='equals',
-                         case_sensitive=False)
+        hints.add_filter(
+            name=self.attribute_name,
+            value=username,
+            comparator='equals',
+            case_sensitive=False,
+        )
         expected_ldap_filter = '(&(%s=%s))' % (
-            self.filter_attribute_name, username)
-        self.assertEqual(expected_ldap_filter,
-                         self.base_ldap.filter_query(hints=hints, query=None))
+            self.filter_attribute_name,
+            username,
+        )
+        self.assertEqual(
+            expected_ldap_filter,
+            self.base_ldap.filter_query(hints=hints, query=None),
+        )
 
 
 class LDAPSizeLimitTest(unit.TestCase):
@@ -653,7 +700,9 @@ class LDAPSizeLimitTest(unit.TestCase):
     def test_search_s_sizelimit_exceeded(self, mock_search_s):
         mock_search_s.side_effect = ldap.SIZELIMIT_EXCEEDED
         conn = PROVIDERS.identity_api.user.get_connection()
-        self.assertRaises(ks_exception.LDAPSizeLimitExceeded,
-                          conn.search_s,
-                          'dc=example,dc=test',
-                          ldap.SCOPE_SUBTREE)
+        self.assertRaises(
+            ks_exception.LDAPSizeLimitExceeded,
+            conn.search_s,
+            'dc=example,dc=test',
+            ldap.SCOPE_SUBTREE,
+        )

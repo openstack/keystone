@@ -21,17 +21,17 @@ SYSTEM_READER_OR_DOMAIN_READER_OR_USER = (
     'user_id:%(target.user.id)s'
 )
 ADMIN_OR_SYSTEM_READER_OR_DOMAIN_READER_OR_USER = (
-    '(' + base.RULE_ADMIN_REQUIRED + ') or ' +
-    SYSTEM_READER_OR_DOMAIN_READER_OR_USER
-
+    '('
+    + base.RULE_ADMIN_REQUIRED
+    + ') or '
+    + SYSTEM_READER_OR_DOMAIN_READER_OR_USER
 )
 
 SYSTEM_READER_OR_DOMAIN_READER = (
     '(' + base.SYSTEM_READER + ') or (' + base.DOMAIN_READER + ')'
 )
 ADMIN_OR_SYSTEM_READER_OR_DOMAIN_READER = (
-    '(' + base.RULE_ADMIN_REQUIRED + ') or ' +
-    SYSTEM_READER_OR_DOMAIN_READER
+    '(' + base.RULE_ADMIN_REQUIRED + ') or ' + SYSTEM_READER_OR_DOMAIN_READER
 )
 
 DEPRECATED_REASON = (
@@ -42,31 +42,31 @@ deprecated_get_user = policy.DeprecatedRule(
     name=base.IDENTITY % 'get_user',
     check_str=base.RULE_ADMIN_OR_OWNER,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.STEIN
+    deprecated_since=versionutils.deprecated.STEIN,
 )
 deprecated_list_users = policy.DeprecatedRule(
     name=base.IDENTITY % 'list_users',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.STEIN
+    deprecated_since=versionutils.deprecated.STEIN,
 )
 deprecated_create_user = policy.DeprecatedRule(
     name=base.IDENTITY % 'create_user',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.STEIN
+    deprecated_since=versionutils.deprecated.STEIN,
 )
 deprecated_update_user = policy.DeprecatedRule(
     name=base.IDENTITY % 'update_user',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.STEIN
+    deprecated_since=versionutils.deprecated.STEIN,
 )
 deprecated_delete_user = policy.DeprecatedRule(
     name=base.IDENTITY % 'delete_user',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.STEIN
+    deprecated_since=versionutils.deprecated.STEIN,
 )
 
 user_policies = [
@@ -75,21 +75,23 @@ user_policies = [
         check_str=ADMIN_OR_SYSTEM_READER_OR_DOMAIN_READER_OR_USER,
         scope_types=['system', 'domain', 'project'],
         description='Show user details.',
-        operations=[{'path': '/v3/users/{user_id}',
-                     'method': 'GET'},
-                    {'path': '/v3/users/{user_id}',
-                     'method': 'HEAD'}],
-        deprecated_rule=deprecated_get_user),
+        operations=[
+            {'path': '/v3/users/{user_id}', 'method': 'GET'},
+            {'path': '/v3/users/{user_id}', 'method': 'HEAD'},
+        ],
+        deprecated_rule=deprecated_get_user,
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_users',
         check_str=ADMIN_OR_SYSTEM_READER_OR_DOMAIN_READER,
         scope_types=['system', 'domain', 'project'],
         description='List users.',
-        operations=[{'path': '/v3/users',
-                     'method': 'GET'},
-                    {'path': '/v3/users',
-                     'method': 'HEAD'}],
-        deprecated_rule=deprecated_list_users),
+        operations=[
+            {'path': '/v3/users', 'method': 'GET'},
+            {'path': '/v3/users', 'method': 'HEAD'},
+        ],
+        deprecated_rule=deprecated_list_users,
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_projects_for_user',
         check_str='',
@@ -98,10 +100,11 @@ user_policies = [
         # apply to scope_types or its purpose. So long as the user is in the
         # system and has a valid token, they should be able to generate a list
         # of projects they have access to.
-        description=('List all projects a user has access to via role '
-                     'assignments.'),
-        operations=[{'path': ' /v3/auth/projects',
-                     'method': 'GET'}]),
+        description=(
+            'List all projects a user has access to via role ' 'assignments.'
+        ),
+        operations=[{'path': ' /v3/auth/projects', 'method': 'GET'}],
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_domains_for_user',
         check_str='',
@@ -110,34 +113,35 @@ user_policies = [
         # apply to scope_types or its purpose. So long as the user is in the
         # system and has a valid token, they should be able to generate a list
         # of domains they have access to.
-        description=('List all domains a user has access to via role '
-                     'assignments.'),
-        operations=[{'path': '/v3/auth/domains',
-                     'method': 'GET'}]),
+        description=(
+            'List all domains a user has access to via role ' 'assignments.'
+        ),
+        operations=[{'path': '/v3/auth/domains', 'method': 'GET'}],
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_user',
         check_str=base.RULE_ADMIN_REQUIRED,
         scope_types=['system', 'domain', 'project'],
         description='Create a user.',
-        operations=[{'path': '/v3/users',
-                     'method': 'POST'}],
-        deprecated_rule=deprecated_create_user),
+        operations=[{'path': '/v3/users', 'method': 'POST'}],
+        deprecated_rule=deprecated_create_user,
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_user',
         check_str=base.RULE_ADMIN_REQUIRED,
         scope_types=['system', 'domain', 'project'],
         description='Update a user, including administrative password resets.',
-        operations=[{'path': '/v3/users/{user_id}',
-                     'method': 'PATCH'}],
-        deprecated_rule=deprecated_update_user),
+        operations=[{'path': '/v3/users/{user_id}', 'method': 'PATCH'}],
+        deprecated_rule=deprecated_update_user,
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_user',
         check_str=base.RULE_ADMIN_REQUIRED,
         scope_types=['system', 'domain', 'project'],
         description='Delete a user.',
-        operations=[{'path': '/v3/users/{user_id}',
-                     'method': 'DELETE'}],
-        deprecated_rule=deprecated_delete_user)
+        operations=[{'path': '/v3/users/{user_id}', 'method': 'DELETE'}],
+        deprecated_rule=deprecated_delete_user,
+    ),
 ]
 
 

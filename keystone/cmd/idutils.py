@@ -51,13 +51,15 @@ class Identity(object):
                 'id': project_id,
                 'domain_id': self.default_domain_id,
                 'description': 'Bootstrap project for initializing the cloud.',
-                'name': self.project_name
+                'name': self.project_name,
             }
             PROVIDERS.resource_api.create_project(project_id, project)
             LOG.info('Created project %s', self.project_name)
         except exception.Conflict:
-            LOG.info('Project %s already exists, skipping creation.',
-                     self.project_name)
+            LOG.info(
+                'Project %s already exists, skipping creation.',
+                self.project_name,
+            )
             project = PROVIDERS.resource_api.get_project_by_name(
                 self.project_name, self.default_domain_id
             )
@@ -75,7 +77,8 @@ class Identity(object):
         PROVIDERS.resource_api.get_domain(domain_id)
 
         _self._assert_default_project_id_is_not_domain(
-            user_ref.get('default_project_id'))
+            user_ref.get('default_project_id')
+        )
 
         # For creating a user, the domain is in the object itself
         domain_id = user_ref['domain_id']
@@ -88,7 +91,8 @@ class Identity(object):
         ref = _self._create_user_with_federated_objects(user, driver)
         notifications.Audit.created(_self._USER, user['id'], initiator)
         return _self._set_domain_id_and_mapping(
-            ref, domain_id, driver, mapping.EntityType.USER)
+            ref, domain_id, driver, mapping.EntityType.USER
+        )
 
     def user_setup(self):
         # NOTE(morganfainberg): Do not create the user if it already exists.
@@ -96,12 +100,15 @@ class Identity(object):
             user = PROVIDERS.identity_api.get_user_by_name(
                 self.user_name, self.default_domain_id
             )
-            LOG.info('User %s already exists, skipping creation.',
-                     self.user_name)
+            LOG.info(
+                'User %s already exists, skipping creation.', self.user_name
+            )
 
             if self.user_id is not None and user['id'] != self.user_id:
-                msg = (f'user `{self.user_name}` already exists '
-                       f'with `{self.user_id}`')
+                msg = (
+                    f'user `{self.user_name}` already exists '
+                    f'with `{self.user_id}`'
+                )
                 raise exception.Conflict(type='user_id', details=msg)
 
             # If the user is not enabled, re-enable them. This also helps
@@ -128,9 +135,7 @@ class Identity(object):
             # or the user was previously disabled. This allows bootstrap to act
             # as a recovery tool, without having to create a new user.
             if update:
-                user = PROVIDERS.identity_api.update_user(
-                    user['id'], update
-                )
+                user = PROVIDERS.identity_api.update_user(user['id'], update)
                 LOG.info('Reset password for user %s.', self.user_name)
                 if not enabled and user['enabled']:
                     # Although we always try to enable the user, this log
@@ -143,7 +148,7 @@ class Identity(object):
                     'name': self.user_name,
                     'enabled': True,
                     'domain_id': self.default_domain_id,
-                    'password': self.user_password
+                    'password': self.user_password,
                 }
             )
             LOG.info('Created user %s', self.user_name)

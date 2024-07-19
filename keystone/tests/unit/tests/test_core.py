@@ -29,8 +29,9 @@ class BaseTestTestCase(unit.BaseTestCase):
 
     def test_unexpected_exit(self):
         # if a test calls sys.exit it raises rather than exiting.
-        self.assertThat(lambda: sys.exit(),
-                        matchers.raises(unit.UnexpectedExit))
+        self.assertThat(
+            lambda: sys.exit(), matchers.raises(unit.UnexpectedExit)
+        )
 
 
 class TestOverrideSkipping(unit.BaseTestCase):
@@ -63,8 +64,9 @@ class TestOverrideSkipping(unit.BaseTestCase):
         #                the way we expected
         observed_error = result.decorated.errors[0]
         observed_error_msg = observed_error[1]
-        expected_error_msg = ("'test_not_in_parent' is not a previously "
-                              "defined test method")
+        expected_error_msg = (
+            "'test_not_in_parent' is not a previously " "defined test method"
+        )
         self.assertIn(expected_error_msg, observed_error_msg)
 
 
@@ -75,14 +77,17 @@ class TestTestCase(unit.TestCase):
         # exception during testing.
         self.assertThat(
             lambda: LOG.warning('String %(p1)s %(p2)s', {'p1': 'something'}),
-            matchers.raises(KeyError))
+            matchers.raises(KeyError),
+        )
 
     def test_sa_warning(self):
         self.assertThat(
             lambda: warnings.warn('test sa warning error', exc.SAWarning),
-            matchers.raises(exc.SAWarning))
+            matchers.raises(exc.SAWarning),
+        )
 
     def test_deprecation_warnings_are_raised_as_exceptions_in_tests(self):
         self.assertThat(
             lambda: warnings.warn('this is deprecated', DeprecationWarning),
-            matchers.raises(DeprecationWarning))
+            matchers.raises(DeprecationWarning),
+        )

@@ -42,7 +42,8 @@ class TestProviderAPIRegistry(unit.BaseTestCase):
 
         class TestClass(object):
             descriptor = provider_api.ProviderAPIs.deferred_provider_lookup(
-                api=api_name, method='do_something')
+                api=api_name, method='do_something'
+            )
 
         test_instance = TestClass()
         # Accessing the descriptor will raise the known "attribute" error
@@ -62,7 +63,8 @@ class TestProviderAPIRegistry(unit.BaseTestCase):
         self.assertRaises(
             provider_api.DuplicateProviderError,
             self._create_manager_instance,
-            provides_api=test_manager._provides_api)
+            provides_api=test_manager._provides_api,
+        )
 
     def test_provider_api_mixin(self):
         test_manager = self._create_manager_instance()
@@ -71,13 +73,14 @@ class TestProviderAPIRegistry(unit.BaseTestCase):
             pass
 
         instance = Testing()
-        self.assertIs(test_manager, getattr(instance,
-                                            test_manager._provides_api))
+        self.assertIs(
+            test_manager, getattr(instance, test_manager._provides_api)
+        )
 
     def test_manager_api_reference(self):
         manager = self._create_manager_instance()
         second_manager = self._create_manager_instance()
-        self.assertIs(second_manager, getattr(manager,
-                                              second_manager._provides_api))
-        self.assertIs(manager, getattr(second_manager,
-                                       manager._provides_api))
+        self.assertIs(
+            second_manager, getattr(manager, second_manager._provides_api)
+        )
+        self.assertIs(manager, getattr(second_manager, manager._provides_api))

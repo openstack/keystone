@@ -28,11 +28,12 @@ def symptom_usability_of_Fernet_key_repository():
     fernet_utils = utils.FernetUtils(
         CONF.fernet_tokens.key_repository,
         CONF.fernet_tokens.max_active_keys,
-        'fernet_tokens'
+        'fernet_tokens',
     )
     return (
         'fernet' in CONF.token.provider
-        and not fernet_utils.validate_key_repository())
+        and not fernet_utils.validate_key_repository()
+    )
 
 
 def symptom_keys_in_Fernet_key_repository():
@@ -46,8 +47,6 @@ def symptom_keys_in_Fernet_key_repository():
     fernet_utils = utils.FernetUtils(
         CONF.fernet_tokens.key_repository,
         CONF.fernet_tokens.max_active_keys,
-        'fernet_tokens'
+        'fernet_tokens',
     )
-    return (
-        'fernet' in CONF.token.provider
-        and not fernet_utils.load_keys())
+    return 'fernet' in CONF.token.provider and not fernet_utils.load_keys()

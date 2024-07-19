@@ -88,7 +88,7 @@ conf_modules = [
     totp,
     trust,
     unified_limit,
-    wsgi
+    wsgi,
 ]
 
 
@@ -111,8 +111,10 @@ def set_default_for_default_log_levels():
     ]
 
     log.register_options(CONF)
-    log.set_defaults(default_log_levels=log.get_default_log_levels() +
-                     extra_log_level_defaults)
+    log.set_defaults(
+        default_log_levels=log.get_default_log_levels()
+        + extra_log_level_defaults
+    )
 
 
 def setup_logging():
@@ -138,25 +140,25 @@ def configure(conf=None):
 def set_external_opts_defaults():
     """Update default configuration options for oslo.middleware."""
     cors.set_defaults(
-        allow_headers=['X-Auth-Token',
-                       'X-Openstack-Request-Id',
-                       'X-Subject-Token',
-                       'X-Project-Id',
-                       'X-Project-Name',
-                       'X-Project-Domain-Id',
-                       'X-Project-Domain-Name',
-                       'X-Domain-Id',
-                       'X-Domain-Name',
-                       'Openstack-Auth-Receipt'],
-        expose_headers=['X-Auth-Token',
-                        'X-Openstack-Request-Id',
-                        'X-Subject-Token',
-                        'Openstack-Auth-Receipt'],
-        allow_methods=['GET',
-                       'PUT',
-                       'POST',
-                       'DELETE',
-                       'PATCH']
+        allow_headers=[
+            'X-Auth-Token',
+            'X-Openstack-Request-Id',
+            'X-Subject-Token',
+            'X-Project-Id',
+            'X-Project-Name',
+            'X-Project-Domain-Id',
+            'X-Project-Domain-Name',
+            'X-Domain-Id',
+            'X-Domain-Name',
+            'Openstack-Auth-Receipt',
+        ],
+        expose_headers=[
+            'X-Auth-Token',
+            'X-Openstack-Request-Id',
+            'X-Subject-Token',
+            'Openstack-Auth-Receipt',
+        ],
+        allow_methods=['GET', 'PUT', 'POST', 'DELETE', 'PATCH'],
     )
 
     # configure OSprofiler options

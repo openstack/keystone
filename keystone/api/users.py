@@ -43,7 +43,8 @@ PROVIDERS = provider_api.ProviderAPIs
 
 ACCESS_TOKEN_ID_PARAMETER_RELATION = (
     json_home_relations.os_oauth1_parameter_rel_func(
-        parameter_name='access_token_id')
+        parameter_name='access_token_id'
+    )
 )
 
 
@@ -56,11 +57,13 @@ def _convert_v3_to_ec2_credential(credential):
         blob = jsonutils.loads(credential['blob'])
     except TypeError:
         blob = credential['blob']
-    return {'user_id': credential.get('user_id'),
-            'tenant_id': credential.get('project_id'),
-            'access': blob.get('access'),
-            'secret': blob.get('secret'),
-            'trust_id': blob.get('trust_id')}
+    return {
+        'user_id': credential.get('user_id'),
+        'tenant_id': credential.get('project_id'),
+        'access': blob.get('access'),
+        'secret': blob.get('secret'),
+        'trust_id': blob.get('trust_id'),
+    }
 
 
 def _format_token_entity(entity):
@@ -73,12 +76,13 @@ def _format_token_entity(entity):
     if 'access_secret' in entity:
         formatted_entity.pop('access_secret')
 
-    url = ('/users/%(user_id)s/OS-OAUTH1/access_tokens/%(access_token_id)s'
-           '/roles' % {'user_id': user_id,
-                       'access_token_id': access_token_id})
+    url = (
+        '/users/%(user_id)s/OS-OAUTH1/access_tokens/%(access_token_id)s'
+        '/roles' % {'user_id': user_id, 'access_token_id': access_token_id}
+    )
 
     formatted_entity.setdefault('links', {})
-    formatted_entity['links']['roles'] = (ks_flask.base_url(url))
+    formatted_entity['links']['roles'] = ks_flask.base_url(url)
 
     return formatted_entity
 
@@ -86,9 +90,11 @@ def _format_token_entity(entity):
 def _check_unrestricted_application_credential(token):
     if 'application_credential' in token.methods:
         if not token.application_credential['unrestricted']:
-            action = _("Using method 'application_credential' is not "
-                       "allowed for managing additional application "
-                       "credentials.")
+            action = _(
+                "Using method 'application_credential' is not "
+                "allowed for managing additional application "
+                "credentials."
+            )
             raise ks_exception.ForbiddenAction(action=action)
 
 
@@ -117,7 +123,8 @@ def _build_enforcer_target_data_owner_and_user_id_match():
         if credential_id is not None:
             hashed_id = utils.hash_access_key(credential_id)
             ref['credential'] = PROVIDERS.credential_api.get_credential(
-                hashed_id)
+                hashed_id
+            )
     return ref
 
 
@@ -170,7 +177,8 @@ class UserResource(ks_flask.ResourceBase):
     collection_key = 'users'
     member_key = 'user'
     get_member_from_driver = PROVIDERS.deferred_provider_lookup(
-        api='identity_api', method='get_user')
+        api='identity_api', method='get_user'
+    )
 
     def get(self, user_id=None):
         """Get a user resource or list users.
@@ -189,7 +197,7 @@ class UserResource(ks_flask.ResourceBase):
         """
         ENFORCER.enforce_call(
             action='identity:get_user',
-            build_target=_build_user_target_enforcement
+            build_target=_build_user_target_enforcement,
         )
         ref = PROVIDERS.identity_api.get_user(user_id)
         return self.wrap_member(ref)
@@ -199,8 +207,15 @@ class UserResource(ks_flask.ResourceBase):
 
         GET/HEAD /v3/users
         """
-        filters = ('domain_id', 'enabled', 'idp_id', 'name', 'protocol_id',
-                   'unique_id', 'password_expires_at')
+        filters = (
+            'domain_id',
+            'enabled',
+            'idp_id',
+            'name',
+            'protocol_id',
+            'unique_id',
+            'password_expires_at',
+        )
         target = None
         if self.oslo_context.domain_id:
             target = {'domain_id': self.oslo_context.domain_id}
@@ -212,7 +227,8 @@ class UserResource(ks_flask.ResourceBase):
         if domain is None and self.oslo_context.domain_id:
             domain = self.oslo_context.domain_id
         refs = PROVIDERS.identity_api.list_users(
-            domain_scope=domain, hints=hints)
+            domain_scope=domain, hints=hints
+        )
 
         # If the user making the request used a domain-scoped token, let's make
         # sure we filter out users that are not in that domain. Otherwise, we'd
@@ -242,8 +258,8 @@ class UserResource(ks_flask.ResourceBase):
         user_data = self._normalize_dict(user_data)
         user_data = self._normalize_domain_id(user_data)
         ref = PROVIDERS.identity_api.create_user(
-            user_data,
-            initiator=self.audit_initiator)
+            user_data, initiator=self.audit_initiator
+        )
         return self.wrap_member(ref), http.client.CREATED
 
     def patch(self, user_id):
@@ -253,14 +269,15 @@ class UserResource(ks_flask.ResourceBase):
         """
         ENFORCER.enforce_call(
             action='identity:update_user',
-            build_target=_build_user_target_enforcement
+            build_target=_build_user_target_enforcement,
         )
         PROVIDERS.identity_api.get_user(user_id)
         user_data = self.request_body_json.get('user', {})
         validation.lazy_validate(schema.user_update, user_data)
         self._require_matching_id(user_data)
         ref = PROVIDERS.identity_api.update_user(
-            user_id, user_data, initiator=self.audit_initiator)
+            user_id, user_data, initiator=self.audit_initiator
+        )
         return self.wrap_member(ref)
 
     def delete(self, user_id):
@@ -270,10 +287,11 @@ class UserResource(ks_flask.ResourceBase):
         """
         ENFORCER.enforce_call(
             action='identity:delete_user',
-            build_target=_build_user_target_enforcement
+            build_target=_build_user_target_enforcement,
         )
         PROVIDERS.identity_api.delete_user(
-            user_id, initiator=self.audit_initiator)
+            user_id, initiator=self.audit_initiator
+        )
         return None, http.client.NO_CONTENT
 
 
@@ -293,7 +311,8 @@ class UserChangePasswordResource(ks_flask.ResourceBase):
                 user_id=user_id,
                 original_password=user_data['original_password'],
                 new_password=user_data['password'],
-                initiator=self.audit_initiator)
+                initiator=self.audit_initiator,
+            )
         except AssertionError as e:
             raise ks_exception.Unauthorized(
                 _('Error when changing user password: %s') % e
@@ -305,13 +324,16 @@ class UserProjectsResource(ks_flask.ResourceBase):
     collection_key = 'projects'
     member_key = 'project'
     get_member_from_driver = PROVIDERS.deferred_provider_lookup(
-        api='resource_api', method='get_project')
+        api='resource_api', method='get_project'
+    )
 
     def get(self, user_id):
         filters = ('domain_id', 'enabled', 'name')
-        ENFORCER.enforce_call(action='identity:list_user_projects',
-                              filters=filters,
-                              build_target=_build_user_target_enforcement)
+        ENFORCER.enforce_call(
+            action='identity:list_user_projects',
+            filters=filters,
+            build_target=_build_user_target_enforcement,
+        )
         hints = self.build_driver_hints(filters)
         refs = PROVIDERS.assignment_api.list_projects_for_user(user_id)
         return self.wrap_collection(refs, hints=hints)
@@ -321,7 +343,8 @@ class UserGroupsResource(ks_flask.ResourceBase):
     collection_key = 'groups'
     member_key = 'group'
     get_member_from_driver = PROVIDERS.deferred_provider_lookup(
-        api='identity_api', method='get_group')
+        api='identity_api', method='get_group'
+    )
 
     def get(self, user_id):
         """Get groups for a user.
@@ -330,12 +353,15 @@ class UserGroupsResource(ks_flask.ResourceBase):
         """
         filters = ('name',)
         hints = self.build_driver_hints(filters)
-        ENFORCER.enforce_call(action='identity:list_groups_for_user',
-                              build_target=_build_user_target_enforcement,
-                              filters=filters)
-        refs = PROVIDERS.identity_api.list_groups_for_user(user_id=user_id,
-                                                           hints=hints)
-        if (self.oslo_context.domain_id):
+        ENFORCER.enforce_call(
+            action='identity:list_groups_for_user',
+            build_target=_build_user_target_enforcement,
+            filters=filters,
+        )
+        refs = PROVIDERS.identity_api.list_groups_for_user(
+            user_id=user_id, hints=hints
+        )
+        if self.oslo_context.domain_id:
             filtered_refs = []
             for ref in refs:
                 if ref['domain_id'] == self.oslo_context.domain_id:
@@ -358,7 +384,8 @@ class _UserOSEC2CredBaseResource(ks_flask.ResourceBase):
 
         url = ks_flask.base_url(path) % {
             'user_id': ref['user_id'],
-            'credential_id': ref['access']}
+            'credential_id': ref['access'],
+        }
         ref.setdefault('links', {})
         ref['links']['self'] = url
 
@@ -372,10 +399,10 @@ class UserOSEC2CredentialsResourceListCreate(_UserOSEC2CredBaseResource):
         ENFORCER.enforce_call(action='identity:ec2_list_credentials')
         PROVIDERS.identity_api.get_user(user_id)
         credential_refs = PROVIDERS.credential_api.list_credentials_for_user(
-            user_id, type=CRED_TYPE_EC2)
+            user_id, type=CRED_TYPE_EC2
+        )
         collection_refs = [
-            _convert_v3_to_ec2_credential(cred)
-            for cred in credential_refs
+            _convert_v3_to_ec2_credential(cred) for cred in credential_refs
         ]
         return self.wrap_collection(collection_refs)
 
@@ -386,15 +413,16 @@ class UserOSEC2CredentialsResourceListCreate(_UserOSEC2CredBaseResource):
         """
         target = {}
         target['credential'] = {'user_id': user_id}
-        ENFORCER.enforce_call(action='identity:ec2_create_credential',
-                              target_attr=target)
+        ENFORCER.enforce_call(
+            action='identity:ec2_create_credential', target_attr=target
+        )
         PROVIDERS.identity_api.get_user(user_id)
         tenant_id = self.request_body_json.get('tenant_id')
         PROVIDERS.resource_api.get_project(tenant_id)
         blob = dict(
             access=uuid.uuid4().hex,
             secret=uuid.uuid4().hex,
-            trust_id=self.oslo_context.trust_id
+            trust_id=self.oslo_context.trust_id,
         )
         credential_id = utils.hash_access_key(blob['access'])
         cred_data = dict(
@@ -402,7 +430,7 @@ class UserOSEC2CredentialsResourceListCreate(_UserOSEC2CredBaseResource):
             project_id=tenant_id,
             blob=jsonutils.dumps(blob),
             id=credential_id,
-            type=CRED_TYPE_EC2
+            type=CRED_TYPE_EC2,
         )
         PROVIDERS.credential_api.create_credential(credential_id, cred_data)
         ref = _convert_v3_to_ec2_credential(cred_data)
@@ -415,7 +443,8 @@ class UserOSEC2CredentialsResourceGetDelete(_UserOSEC2CredBaseResource):
         cred = PROVIDERS.credential_api.get_credential(credential_id)
         if not cred or cred['type'] != CRED_TYPE_EC2:
             raise ks_exception.Unauthorized(
-                message=_('EC2 access key not found.'))
+                message=_('EC2 access key not found.')
+            )
         return _convert_v3_to_ec2_credential(cred)
 
     def get(self, user_id, credential_id):
@@ -425,8 +454,8 @@ class UserOSEC2CredentialsResourceGetDelete(_UserOSEC2CredBaseResource):
         """
         func = _build_enforcer_target_data_owner_and_user_id_match
         ENFORCER.enforce_call(
-            action='identity:ec2_get_credential',
-            build_target=func)
+            action='identity:ec2_get_credential', build_target=func
+        )
         PROVIDERS.identity_api.get_user(user_id)
         ec2_cred_id = utils.hash_access_key(credential_id)
         cred_data = self._get_cred_data(ec2_cred_id)
@@ -438,8 +467,9 @@ class UserOSEC2CredentialsResourceGetDelete(_UserOSEC2CredBaseResource):
         DELETE /users/{user_id}/credentials/OS-EC2/{credential_id}
         """
         func = _build_enforcer_target_data_owner_and_user_id_match
-        ENFORCER.enforce_call(action='identity:ec2_delete_credential',
-                              build_target=func)
+        ENFORCER.enforce_call(
+            action='identity:ec2_delete_credential', build_target=func
+        )
         PROVIDERS.identity_api.get_user(user_id)
         ec2_cred_id = utils.hash_access_key(credential_id)
         self._get_cred_data(ec2_cred_id)
@@ -473,10 +503,13 @@ class OAuth1ListAccessTokensResource(_OAuth1ResourceBase):
         ENFORCER.enforce_call(action='identity:list_access_tokens')
         if self.oslo_context.is_delegated_auth:
             raise ks_exception.Forbidden(
-                _('Cannot list request tokens with a token '
-                  'issued via delegation.'))
+                _(
+                    'Cannot list request tokens with a token '
+                    'issued via delegation.'
+                )
+            )
         refs = PROVIDERS.oauth_api.list_access_tokens(user_id)
-        formatted_refs = ([_format_token_entity(x) for x in refs])
+        formatted_refs = [_format_token_entity(x) for x in refs]
         return self.wrap_collection(formatted_refs)
 
 
@@ -500,7 +533,8 @@ class OAuth1AccessTokenCRUDResource(_OAuth1ResourceBase):
         """
         ENFORCER.enforce_call(
             action='identity:ec2_delete_credential',
-            build_target=_build_enforcer_target_data_owner_and_user_id_match)
+            build_target=_build_enforcer_target_data_owner_and_user_id_match,
+        )
         access_token = PROVIDERS.oauth_api.get_access_token(access_token_id)
         reason = (
             'Invalidating the token cache because an access token for '
@@ -511,7 +545,8 @@ class OAuth1AccessTokenCRUDResource(_OAuth1ResourceBase):
         )
         notifications.invalidate_token_cache_notification(reason)
         PROVIDERS.oauth_api.delete_access_token(
-            user_id, access_token_id, initiator=self.audit_initiator)
+            user_id, access_token_id, initiator=self.audit_initiator
+        )
         return None, http.client.NO_CONTENT
 
 
@@ -531,7 +566,7 @@ class OAuth1AccessTokenRoleListResource(ks_flask.ResourceBase):
             raise ks_exception.NotFound()
         authed_role_ids = access_token['role_ids']
         authed_role_ids = jsonutils.loads(authed_role_ids)
-        refs = ([_format_role_entity(x) for x in authed_role_ids])
+        refs = [_format_role_entity(x) for x in authed_role_ids]
         return self.wrap_collection(refs)
 
 
@@ -561,19 +596,21 @@ class OAuth1AccessTokenRoleResource(ks_flask.ResourceBase):
 class UserAppCredListCreateResource(ks_flask.ResourceBase):
     collection_key = 'application_credentials'
     member_key = 'application_credential'
-    _public_parameters = frozenset([
-        'id',
-        'name',
-        'description',
-        'expires_at',
-        'project_id',
-        'roles',
-        # secret is only exposed after create, it is not stored
-        'secret',
-        'links',
-        'unrestricted',
-        'access_rules'
-    ])
+    _public_parameters = frozenset(
+        [
+            'id',
+            'name',
+            'description',
+            'expires_at',
+            'project_id',
+            'roles',
+            # secret is only exposed after create, it is not stored
+            'secret',
+            'links',
+            'unrestricted',
+            'access_rules',
+        ]
+    )
 
     @staticmethod
     def _generate_secret():
@@ -591,8 +628,9 @@ class UserAppCredListCreateResource(ks_flask.ResourceBase):
             if role.get('id'):
                 roles.append(role)
             else:
-                roles.append(PROVIDERS.role_api.get_unique_role_by_name(
-                    role['name']))
+                roles.append(
+                    PROVIDERS.role_api.get_unique_role_by_name(role['name'])
+                )
         return roles
 
     def _get_roles(self, app_cred_data, token):
@@ -606,10 +644,13 @@ class UserAppCredListCreateResource(ks_flask.ResourceBase):
             token_roles = [r['id'] for r in token.roles]
             for role in roles:
                 if role['id'] not in token_roles:
-                    detail = _('Cannot create an application credential with '
-                               'unassigned role')
+                    detail = _(
+                        'Cannot create an application credential with '
+                        'unassigned role'
+                    )
                     raise ks_exception.ApplicationCredentialValidationError(
-                        detail=detail)
+                        detail=detail
+                    )
         else:
             roles = token.roles
         return roles
@@ -620,8 +661,9 @@ class UserAppCredListCreateResource(ks_flask.ResourceBase):
         GET/HEAD /v3/users/{user_id}/application_credentials
         """
         filters = ('name',)
-        ENFORCER.enforce_call(action='identity:list_application_credentials',
-                              filters=filters)
+        ENFORCER.enforce_call(
+            action='identity:list_application_credentials', filters=filters
+        )
         app_cred_api = PROVIDERS.application_credential_api
         hints = self.build_driver_hints(filters)
         refs = app_cred_api.list_application_credentials(user_id, hints=hints)
@@ -634,14 +676,17 @@ class UserAppCredListCreateResource(ks_flask.ResourceBase):
         """
         ENFORCER.enforce_call(action='identity:create_application_credential')
         app_cred_data = self.request_body_json.get(
-            'application_credential', {})
-        validation.lazy_validate(app_cred_schema.application_credential_create,
-                                 app_cred_data)
+            'application_credential', {}
+        )
+        validation.lazy_validate(
+            app_cred_schema.application_credential_create, app_cred_data
+        )
         token = self.auth_context['token']
         _check_unrestricted_application_credential(token)
         if self.oslo_context.user_id != user_id:
-            action = _('Cannot create an application credential for another '
-                       'user.')
+            action = _(
+                'Cannot create an application credential for another ' 'user.'
+            )
             raise ks_exception.ForbiddenAction(action=action)
         project_id = self.oslo_context.project_id
         app_cred_data = self._assign_unique_id(app_cred_data)
@@ -652,7 +697,8 @@ class UserAppCredListCreateResource(ks_flask.ResourceBase):
         app_cred_data['roles'] = self._get_roles(app_cred_data, token)
         if app_cred_data.get('expires_at'):
             app_cred_data['expires_at'] = utils.parse_expiration_date(
-                app_cred_data['expires_at'])
+                app_cred_data['expires_at']
+            )
         if app_cred_data.get('access_rules'):
             for access_rule in app_cred_data['access_rules']:
                 # If user provides an access rule by ID, it will be looked up
@@ -668,13 +714,15 @@ class UserAppCredListCreateResource(ks_flask.ResourceBase):
 
         try:
             ref = app_cred_api.create_application_credential(
-                app_cred_data, initiator=self.audit_initiator)
+                app_cred_data, initiator=self.audit_initiator
+            )
         except ks_exception.RoleAssignmentNotFound as e:
             # Raise a Bad Request, not a Not Found, in accordance with the
             # API-SIG recommendations:
             # https://specs.openstack.org/openstack/api-wg/guidelines/http.html#failure-code-clarifications
             raise ks_exception.ApplicationCredentialValidationError(
-                detail=str(e))
+                detail=str(e)
+            )
         return self.wrap_member(ref), http.client.CREATED
 
 
@@ -694,7 +742,8 @@ class UserAppCredGetDeleteResource(ks_flask.ResourceBase):
             target_attr=target,
         )
         ref = PROVIDERS.application_credential_api.get_application_credential(
-            application_credential_id)
+            application_credential_id
+        )
         return self.wrap_member(ref)
 
     def delete(self, user_id, application_credential_id):
@@ -705,13 +754,13 @@ class UserAppCredGetDeleteResource(ks_flask.ResourceBase):
         """
         target = _update_request_user_id_attribute()
         ENFORCER.enforce_call(
-            action='identity:delete_application_credential',
-            target_attr=target
+            action='identity:delete_application_credential', target_attr=target
         )
         token = self.auth_context['token']
         _check_unrestricted_application_credential(token)
         PROVIDERS.application_credential_api.delete_application_credential(
-            application_credential_id, initiator=self.audit_initiator)
+            application_credential_id, initiator=self.audit_initiator
+        )
         return None, http.client.NO_CONTENT
 
 
@@ -724,10 +773,16 @@ class UserAccessRuleListResource(ks_flask.ResourceBase):
 
         GET/HEAD /v3/users/{user_id}/access_rules
         """
-        filters = ('service', 'path', 'method',)
-        ENFORCER.enforce_call(action='identity:list_access_rules',
-                              filters=filters,
-                              build_target=_build_user_target_enforcement)
+        filters = (
+            'service',
+            'path',
+            'method',
+        )
+        ENFORCER.enforce_call(
+            action='identity:list_access_rules',
+            filters=filters,
+            build_target=_build_user_target_enforcement,
+        )
         app_cred_api = PROVIDERS.application_credential_api
         hints = self.build_driver_hints(filters)
         refs = app_cred_api.list_access_rules_for_user(user_id, hints=hints)
@@ -746,10 +801,11 @@ class UserAccessRuleGetDeleteResource(ks_flask.ResourceBase):
         """
         ENFORCER.enforce_call(
             action='identity:get_access_rule',
-            build_target=_build_user_target_enforcement
+            build_target=_build_user_target_enforcement,
         )
         ref = PROVIDERS.application_credential_api.get_access_rule(
-            access_rule_id)
+            access_rule_id
+        )
         return self.wrap_member(ref)
 
     def delete(self, user_id, access_rule_id):
@@ -759,10 +815,11 @@ class UserAccessRuleGetDeleteResource(ks_flask.ResourceBase):
         """
         ENFORCER.enforce_call(
             action='identity:delete_access_rule',
-            build_target=_build_user_target_enforcement
+            build_target=_build_user_target_enforcement,
         )
         PROVIDERS.application_credential_api.delete_access_rule(
-            access_rule_id, initiator=self.audit_initiator)
+            access_rule_id, initiator=self.audit_initiator
+        )
         return None, http.client.NO_CONTENT
 
 
@@ -776,21 +833,21 @@ class UserAPI(ks_flask.APIBase):
             url='/users/<string:user_id>/password',
             resource_kwargs={},
             rel='user_change_password',
-            path_vars={'user_id': json_home.Parameters.USER_ID}
+            path_vars={'user_id': json_home.Parameters.USER_ID},
         ),
         ks_flask.construct_resource_map(
             resource=UserGroupsResource,
             url='/users/<string:user_id>/groups',
             resource_kwargs={},
             rel='user_groups',
-            path_vars={'user_id': json_home.Parameters.USER_ID}
+            path_vars={'user_id': json_home.Parameters.USER_ID},
         ),
         ks_flask.construct_resource_map(
             resource=UserProjectsResource,
             url='/users/<string:user_id>/projects',
             resource_kwargs={},
             rel='user_projects',
-            path_vars={'user_id': json_home.Parameters.USER_ID}
+            path_vars={'user_id': json_home.Parameters.USER_ID},
         ),
         ks_flask.construct_resource_map(
             resource=UserOSEC2CredentialsResourceListCreate,
@@ -798,21 +855,27 @@ class UserAPI(ks_flask.APIBase):
             resource_kwargs={},
             rel='user_credentials',
             resource_relation_func=(
-                json_home_relations.os_ec2_resource_rel_func),
-            path_vars={'user_id': json_home.Parameters.USER_ID}
+                json_home_relations.os_ec2_resource_rel_func
+            ),
+            path_vars={'user_id': json_home.Parameters.USER_ID},
         ),
         ks_flask.construct_resource_map(
             resource=UserOSEC2CredentialsResourceGetDelete,
-            url=('/users/<string:user_id>/credentials/OS-EC2/'
-                 '<string:credential_id>'),
+            url=(
+                '/users/<string:user_id>/credentials/OS-EC2/'
+                '<string:credential_id>'
+            ),
             resource_kwargs={},
             rel='user_credential',
             resource_relation_func=(
-                json_home_relations.os_ec2_resource_rel_func),
+                json_home_relations.os_ec2_resource_rel_func
+            ),
             path_vars={
                 'credential_id': json_home.build_v3_parameter_relation(
-                    'credential_id'),
-                'user_id': json_home.Parameters.USER_ID}
+                    'credential_id'
+                ),
+                'user_id': json_home.Parameters.USER_ID,
+            },
         ),
         ks_flask.construct_resource_map(
             resource=OAuth1ListAccessTokensResource,
@@ -820,80 +883,99 @@ class UserAPI(ks_flask.APIBase):
             resource_kwargs={},
             rel='user_access_tokens',
             resource_relation_func=(
-                json_home_relations.os_oauth1_resource_rel_func),
-            path_vars={'user_id': json_home.Parameters.USER_ID}
+                json_home_relations.os_oauth1_resource_rel_func
+            ),
+            path_vars={'user_id': json_home.Parameters.USER_ID},
         ),
         ks_flask.construct_resource_map(
             resource=OAuth1AccessTokenCRUDResource,
-            url=('/users/<string:user_id>/OS-OAUTH1/'
-                 'access_tokens/<string:access_token_id>'),
+            url=(
+                '/users/<string:user_id>/OS-OAUTH1/'
+                'access_tokens/<string:access_token_id>'
+            ),
             resource_kwargs={},
             rel='user_access_token',
             resource_relation_func=(
-                json_home_relations.os_oauth1_resource_rel_func),
+                json_home_relations.os_oauth1_resource_rel_func
+            ),
             path_vars={
                 'access_token_id': ACCESS_TOKEN_ID_PARAMETER_RELATION,
-                'user_id': json_home.Parameters.USER_ID}
+                'user_id': json_home.Parameters.USER_ID,
+            },
         ),
         ks_flask.construct_resource_map(
             resource=OAuth1AccessTokenRoleListResource,
-            url=('/users/<string:user_id>/OS-OAUTH1/access_tokens/'
-                 '<string:access_token_id>/roles'),
+            url=(
+                '/users/<string:user_id>/OS-OAUTH1/access_tokens/'
+                '<string:access_token_id>/roles'
+            ),
             resource_kwargs={},
             rel='user_access_token_roles',
             resource_relation_func=(
-                json_home_relations.os_oauth1_resource_rel_func),
-            path_vars={'access_token_id': ACCESS_TOKEN_ID_PARAMETER_RELATION,
-                       'user_id': json_home.Parameters.USER_ID}
+                json_home_relations.os_oauth1_resource_rel_func
+            ),
+            path_vars={
+                'access_token_id': ACCESS_TOKEN_ID_PARAMETER_RELATION,
+                'user_id': json_home.Parameters.USER_ID,
+            },
         ),
         ks_flask.construct_resource_map(
             resource=OAuth1AccessTokenRoleResource,
-            url=('/users/<string:user_id>/OS-OAUTH1/access_tokens/'
-                 '<string:access_token_id>/roles/<string:role_id>'),
+            url=(
+                '/users/<string:user_id>/OS-OAUTH1/access_tokens/'
+                '<string:access_token_id>/roles/<string:role_id>'
+            ),
             resource_kwargs={},
             rel='user_access_token_role',
             resource_relation_func=(
-                json_home_relations.os_oauth1_resource_rel_func),
-            path_vars={'access_token_id': ACCESS_TOKEN_ID_PARAMETER_RELATION,
-                       'role_id': json_home.Parameters.ROLE_ID,
-                       'user_id': json_home.Parameters.USER_ID}
+                json_home_relations.os_oauth1_resource_rel_func
+            ),
+            path_vars={
+                'access_token_id': ACCESS_TOKEN_ID_PARAMETER_RELATION,
+                'role_id': json_home.Parameters.ROLE_ID,
+                'user_id': json_home.Parameters.USER_ID,
+            },
         ),
         ks_flask.construct_resource_map(
             resource=UserAppCredListCreateResource,
             url='/users/<string:user_id>/application_credentials',
             resource_kwargs={},
             rel='application_credentials',
-            path_vars={'user_id': json_home.Parameters.USER_ID}
+            path_vars={'user_id': json_home.Parameters.USER_ID},
         ),
         ks_flask.construct_resource_map(
             resource=UserAppCredGetDeleteResource,
-            url=('/users/<string:user_id>/application_credentials/'
-                 '<string:application_credential_id>'),
+            url=(
+                '/users/<string:user_id>/application_credentials/'
+                '<string:application_credential_id>'
+            ),
             resource_kwargs={},
             rel='application_credential',
             path_vars={
                 'user_id': json_home.Parameters.USER_ID,
-                'application_credential_id':
-                    json_home.Parameters.APPLICATION_CRED_ID}
+                'application_credential_id': json_home.Parameters.APPLICATION_CRED_ID,
+            },
         ),
         ks_flask.construct_resource_map(
             resource=UserAccessRuleListResource,
             url='/users/<string:user_id>/access_rules',
             resource_kwargs={},
             rel='access_rules',
-            path_vars={'user_id': json_home.Parameters.USER_ID}
+            path_vars={'user_id': json_home.Parameters.USER_ID},
         ),
         ks_flask.construct_resource_map(
             resource=UserAccessRuleGetDeleteResource,
-            url=('/users/<string:user_id>/access_rules/'
-                 '<string:access_rule_id>'),
+            url=(
+                '/users/<string:user_id>/access_rules/'
+                '<string:access_rule_id>'
+            ),
             resource_kwargs={},
             rel='access_rule',
             path_vars={
                 'user_id': json_home.Parameters.USER_ID,
-                'access_rule_id':
-                    json_home.Parameters.ACCESS_RULE_ID}
-        )
+                'access_rule_id': json_home.Parameters.ACCESS_RULE_ID,
+            },
+        ),
     ]
 
 

@@ -25,7 +25,9 @@ class TestTimeUtils(tests.BaseTestCase):
     def test_parsing_invalid_date_strings_raises_a_ValueError(self):
         example_date_str = ''
         simple_format = '%Y'
-        self.assertRaises(ValueError,
-                          datetime.datetime.strptime,
-                          example_date_str,
-                          simple_format)
+        self.assertRaises(
+            ValueError,
+            datetime.datetime.strptime,
+            example_date_str,
+            simple_format,
+        )

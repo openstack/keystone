@@ -35,8 +35,9 @@ PROVIDERS = provider_api.ProviderAPIs
 class UserPasswordCreatedAtIntTests(test_backend_sql.SqlTests):
     def config_overrides(self):
         super(UserPasswordCreatedAtIntTests, self).config_overrides()
-        self.config_fixture.config(group='security_compliance',
-                                   password_expires_days=1)
+        self.config_fixture.config(
+            group='security_compliance', password_expires_days=1
+        )
 
     def test_user_password_created_expired_at_int_matches_created_at(self):
         with sql.session_for_read() as session:
@@ -45,21 +46,30 @@ class UserPasswordCreatedAtIntTests(test_backend_sql.SqlTests):
             )
             self.assertIsNotNone(user_ref.password_ref._created_at)
             self.assertIsNotNone(user_ref.password_ref._expires_at)
-            self.assertEqual(user_ref.password_ref._created_at,
-                             user_ref.password_ref.created_at_int)
-            self.assertEqual(user_ref.password_ref._expires_at,
-                             user_ref.password_ref.expires_at_int)
-            self.assertEqual(user_ref.password_ref.created_at,
-                             user_ref.password_ref.created_at_int)
-            self.assertEqual(user_ref.password_ref.expires_at,
-                             user_ref.password_ref.expires_at_int)
+            self.assertEqual(
+                user_ref.password_ref._created_at,
+                user_ref.password_ref.created_at_int,
+            )
+            self.assertEqual(
+                user_ref.password_ref._expires_at,
+                user_ref.password_ref.expires_at_int,
+            )
+            self.assertEqual(
+                user_ref.password_ref.created_at,
+                user_ref.password_ref.created_at_int,
+            )
+            self.assertEqual(
+                user_ref.password_ref.expires_at,
+                user_ref.password_ref.expires_at_int,
+            )
 
 
 class UserPasswordHashingTestsNoCompat(test_backend_sql.SqlTests):
     def config_overrides(self):
         super(UserPasswordHashingTestsNoCompat, self).config_overrides()
-        self.config_fixture.config(group='identity',
-                                   password_hash_algorithm='scrypt')
+        self.config_fixture.config(
+            group='identity', password_hash_algorithm='scrypt'
+        )
 
     def test_configured_algorithm_used(self):
         with sql.session_for_read() as session:
@@ -68,7 +78,8 @@ class UserPasswordHashingTestsNoCompat(test_backend_sql.SqlTests):
             )
         self.assertEqual(
             passlib.hash.scrypt,
-            password_hashing._get_hasher_from_ident(user_ref.password))
+            password_hashing._get_hasher_from_ident(user_ref.password),
+        )
 
 
 class UserResourceOptionTests(test_backend_sql.SqlTests):
@@ -91,18 +102,22 @@ class UserResourceOptionTests(test_backend_sql.SqlTests):
         opt_value = uuid.uuid4().hex
         user['options'][self.option1.option_name] = opt_value
         new_ref = PROVIDERS.identity_api.update_user(user['id'], user)
-        self.assertEqual(opt_value,
-                         new_ref['options'][self.option1.option_name])
+        self.assertEqual(
+            opt_value, new_ref['options'][self.option1.option_name]
+        )
         raw_ref = self._get_user_ref(user['id'])
         self.assertIn(self.option1.option_id, raw_ref._resource_option_mapper)
         self.assertEqual(
             opt_value,
             raw_ref._resource_option_mapper[
-                self.option1.option_id].option_value)
+                self.option1.option_id
+            ].option_value,
+        )
         api_get_ref = PROVIDERS.identity_api.get_user(user['id'])
         # Ensure options are properly set in a .get_user call.
-        self.assertEqual(opt_value,
-                         api_get_ref['options'][self.option1.option_name])
+        self.assertEqual(
+            opt_value, api_get_ref['options'][self.option1.option_name]
+        )
 
     def test_user_add_update_delete_option_in_resource_option(self):
         user = self._create_user(self._get_user_dict())
@@ -113,14 +128,16 @@ class UserResourceOptionTests(test_backend_sql.SqlTests):
         # Update user to add the new value option
         user['options'][self.option1.option_name] = opt_value
         new_ref = PROVIDERS.identity_api.update_user(user['id'], user)
-        self.assertEqual(opt_value,
-                         new_ref['options'][self.option1.option_name])
+        self.assertEqual(
+            opt_value, new_ref['options'][self.option1.option_name]
+        )
 
         # Update the option Value and confirm it is updated
         user['options'][self.option1.option_name] = new_opt_value
         new_ref = PROVIDERS.identity_api.update_user(user['id'], user)
-        self.assertEqual(new_opt_value,
-                         new_ref['options'][self.option1.option_name])
+        self.assertEqual(
+            new_opt_value, new_ref['options'][self.option1.option_name]
+        )
 
         # Set the option value to None, meaning delete the option
         user['options'][self.option1.option_name] = None
@@ -136,8 +153,9 @@ class UserResourceOptionTests(test_backend_sql.SqlTests):
         # Update user to add the new value option
         user['options'][self.option1.option_name] = opt_value
         new_ref = PROVIDERS.identity_api.update_user(user['id'], user)
-        self.assertEqual(opt_value,
-                         new_ref['options'][self.option1.option_name])
+        self.assertEqual(
+            opt_value, new_ref['options'][self.option1.option_name]
+        )
 
         # Update the option value for option 2 and confirm it is updated and
         # option1's value remains the same. Option 1 is not specified in the
@@ -145,34 +163,44 @@ class UserResourceOptionTests(test_backend_sql.SqlTests):
         del user['options'][self.option1.option_name]
         user['options'][self.option2.option_name] = opt2_value
         new_ref = PROVIDERS.identity_api.update_user(user['id'], user)
-        self.assertEqual(opt_value,
-                         new_ref['options'][self.option1.option_name])
-        self.assertEqual(opt2_value,
-                         new_ref['options'][self.option2.option_name])
+        self.assertEqual(
+            opt_value, new_ref['options'][self.option1.option_name]
+        )
+        self.assertEqual(
+            opt2_value, new_ref['options'][self.option2.option_name]
+        )
         raw_ref = self._get_user_ref(user['id'])
         self.assertEqual(
             opt_value,
             raw_ref._resource_option_mapper[
-                self.option1.option_id].option_value)
+                self.option1.option_id
+            ].option_value,
+        )
         self.assertEqual(
             opt2_value,
             raw_ref._resource_option_mapper[
-                self.option2.option_id].option_value)
+                self.option2.option_id
+            ].option_value,
+        )
 
         # Set the option value to None, meaning delete the option, ensure
         # option 2 still remains and has the right value
         user['options'][self.option1.option_name] = None
         new_ref = PROVIDERS.identity_api.update_user(user['id'], user)
         self.assertNotIn(self.option1.option_name, new_ref['options'])
-        self.assertEqual(opt2_value,
-                         new_ref['options'][self.option2.option_name])
+        self.assertEqual(
+            opt2_value, new_ref['options'][self.option2.option_name]
+        )
         raw_ref = self._get_user_ref(user['id'])
-        self.assertNotIn(raw_ref._resource_option_mapper,
-                         self.option1.option_id)
+        self.assertNotIn(
+            raw_ref._resource_option_mapper, self.option1.option_id
+        )
         self.assertEqual(
             opt2_value,
             raw_ref._resource_option_mapper[
-                self.option2.option_id].option_value)
+                self.option2.option_id
+            ].option_value,
+        )
 
     def test_unregistered_resource_option_deleted(self):
         user = self._create_user(self._get_user_dict())
@@ -183,8 +211,9 @@ class UserResourceOptionTests(test_backend_sql.SqlTests):
         # Update user to add the new value option
         user['options'][self.option1.option_name] = opt_value
         new_ref = PROVIDERS.identity_api.update_user(user['id'], user)
-        self.assertEqual(opt_value,
-                         new_ref['options'][self.option1.option_name])
+        self.assertEqual(
+            opt_value, new_ref['options'][self.option1.option_name]
+        )
 
         # Update the option value for option 2 and confirm it is updated and
         # option1's value remains the same. Option 1 is not specified in the
@@ -192,19 +221,25 @@ class UserResourceOptionTests(test_backend_sql.SqlTests):
         del user['options'][self.option1.option_name]
         user['options'][self.option2.option_name] = opt2_value
         new_ref = PROVIDERS.identity_api.update_user(user['id'], user)
-        self.assertEqual(opt_value,
-                         new_ref['options'][self.option1.option_name])
-        self.assertEqual(opt2_value,
-                         new_ref['options'][self.option2.option_name])
+        self.assertEqual(
+            opt_value, new_ref['options'][self.option1.option_name]
+        )
+        self.assertEqual(
+            opt2_value, new_ref['options'][self.option2.option_name]
+        )
         raw_ref = self._get_user_ref(user['id'])
         self.assertEqual(
             opt_value,
             raw_ref._resource_option_mapper[
-                self.option1.option_id].option_value)
+                self.option1.option_id
+            ].option_value,
+        )
         self.assertEqual(
             opt2_value,
             raw_ref._resource_option_mapper[
-                self.option2.option_id].option_value)
+                self.option2.option_id
+            ].option_value,
+        )
 
         # clear registered options and only re-register option1, update user
         # and confirm option2 is gone from the ref and returned dict
@@ -213,15 +248,19 @@ class UserResourceOptionTests(test_backend_sql.SqlTests):
         user['name'] = uuid.uuid4().hex
         new_ref = PROVIDERS.identity_api.update_user(user['id'], user)
         self.assertNotIn(self.option2.option_name, new_ref['options'])
-        self.assertEqual(opt_value,
-                         new_ref['options'][self.option1.option_name])
+        self.assertEqual(
+            opt_value, new_ref['options'][self.option1.option_name]
+        )
         raw_ref = self._get_user_ref(user['id'])
-        self.assertNotIn(raw_ref._resource_option_mapper,
-                         self.option2.option_id)
+        self.assertNotIn(
+            raw_ref._resource_option_mapper, self.option2.option_id
+        )
         self.assertEqual(
             opt_value,
             raw_ref._resource_option_mapper[
-                self.option1.option_id].option_value)
+                self.option1.option_id
+            ].option_value,
+        )
 
     def _get_user_ref(self, user_id):
         with sql.session_for_read() as session:
@@ -239,7 +278,7 @@ class UserResourceOptionTests(test_backend_sql.SqlTests):
             'name': uuid.uuid4().hex,
             'domain_id': CONF.identity.default_domain_id,
             'enabled': True,
-            'password': uuid.uuid4().hex
+            'password': uuid.uuid4().hex,
         }
         return user
 
@@ -252,19 +291,22 @@ class DisableInactiveUserTests(test_backend_sql.SqlTests):
         self.max_inactive_days = 90
         self.config_fixture.config(
             group='security_compliance',
-            disable_user_account_days_inactive=self.max_inactive_days)
+            disable_user_account_days_inactive=self.max_inactive_days,
+        )
 
     def test_authenticate_user_disabled_due_to_inactivity(self):
         # create user and set last_active_at beyond the max
-        last_active_at = (
-            datetime.datetime.utcnow() -
-            datetime.timedelta(days=self.max_inactive_days + 1))
+        last_active_at = datetime.datetime.utcnow() - datetime.timedelta(
+            days=self.max_inactive_days + 1
+        )
         user = self._create_user(self.user_dict, last_active_at.date())
         with self.make_request():
-            self.assertRaises(exception.UserDisabled,
-                              PROVIDERS.identity_api.authenticate,
-                              user_id=user['id'],
-                              password=self.password)
+            self.assertRaises(
+                exception.UserDisabled,
+                PROVIDERS.identity_api.authenticate,
+                user_id=user['id'],
+                password=self.password,
+            )
             # verify that the user is actually disabled
             user = PROVIDERS.identity_api.get_user(user['id'])
             self.assertFalse(user['enabled'])
@@ -279,8 +321,9 @@ class DisableInactiveUserTests(test_backend_sql.SqlTests):
     def test_authenticate_user_not_disabled_due_to_inactivity(self):
         # create user and set last_active_at just below the max
         last_active_at = (
-            datetime.datetime.utcnow() -
-            datetime.timedelta(days=self.max_inactive_days - 1)).date()
+            datetime.datetime.utcnow()
+            - datetime.timedelta(days=self.max_inactive_days - 1)
+        ).date()
         user = self._create_user(self.user_dict, last_active_at)
         with self.make_request():
             user = PROVIDERS.identity_api.authenticate(
@@ -292,8 +335,9 @@ class DisableInactiveUserTests(test_backend_sql.SqlTests):
         user = PROVIDERS.identity_api.create_user(self.user_dict)
         # set last_active_at just beyond the max
         last_active_at = (
-            datetime.datetime.utcnow() -
-            datetime.timedelta(self.max_inactive_days + 1)).date()
+            datetime.datetime.utcnow()
+            - datetime.timedelta(self.max_inactive_days + 1)
+        ).date()
         self._update_user_last_active_at(user['id'], last_active_at)
         # get user and verify that the user is actually disabled
         user = PROVIDERS.identity_api.get_user(user['id'])
@@ -309,16 +353,18 @@ class DisableInactiveUserTests(test_backend_sql.SqlTests):
         self.assertTrue(user['enabled'])
         # set last_active_at just below the max
         last_active_at = (
-            datetime.datetime.utcnow() -
-            datetime.timedelta(self.max_inactive_days - 1)).date()
+            datetime.datetime.utcnow()
+            - datetime.timedelta(self.max_inactive_days - 1)
+        ).date()
         self._update_user_last_active_at(user['id'], last_active_at)
         # get user and verify that the user is still enabled
         user = PROVIDERS.identity_api.get_user(user['id'])
         self.assertTrue(user['enabled'])
 
     def test_enabled_after_create_update_user(self):
-        self.config_fixture.config(group='security_compliance',
-                                   disable_user_account_days_inactive=90)
+        self.config_fixture.config(
+            group='security_compliance', disable_user_account_days_inactive=90
+        )
         # create user without enabled; assert enabled
         del self.user_dict['enabled']
         user = PROVIDERS.identity_api.create_user(self.user_dict)
@@ -344,32 +390,31 @@ class DisableInactiveUserTests(test_backend_sql.SqlTests):
 
     def test_ignore_user_inactivity(self):
         self.user_dict['options'] = {'ignore_user_inactivity': True}
-        user = PROVIDERS.identity_api.create_user(
-            self.user_dict)
+        user = PROVIDERS.identity_api.create_user(self.user_dict)
         # set last_active_at just beyond the max
         last_active_at = (
-            datetime.datetime.utcnow() -
-            datetime.timedelta(self.max_inactive_days + 1)).date()
+            datetime.datetime.utcnow()
+            - datetime.timedelta(self.max_inactive_days + 1)
+        ).date()
         self._update_user_last_active_at(user['id'], last_active_at)
         # get user and verify that the user is not disabled
         user = PROVIDERS.identity_api.get_user(user['id'])
         self.assertTrue(user['enabled'])
 
     def test_ignore_user_inactivity_with_user_disabled(self):
-        user = PROVIDERS.identity_api.create_user(
-            self.user_dict)
+        user = PROVIDERS.identity_api.create_user(self.user_dict)
         # set last_active_at just beyond the max
         last_active_at = (
-            datetime.datetime.utcnow() -
-            datetime.timedelta(self.max_inactive_days + 1)).date()
+            datetime.datetime.utcnow()
+            - datetime.timedelta(self.max_inactive_days + 1)
+        ).date()
         self._update_user_last_active_at(user['id'], last_active_at)
         # get user and verify that the user is disabled
         user = PROVIDERS.identity_api.get_user(user['id'])
         self.assertFalse(user['enabled'])
         # update disabled user with ignore_user_inactivity to true
         user['options'] = {'ignore_user_inactivity': True}
-        user = PROVIDERS.identity_api.update_user(
-            user['id'], user)
+        user = PROVIDERS.identity_api.update_user(user['id'], user)
         # user is not enabled
         user = PROVIDERS.identity_api.get_user(user['id'])
         self.assertFalse(user['enabled'])
@@ -384,7 +429,7 @@ class DisableInactiveUserTests(test_backend_sql.SqlTests):
             'name': uuid.uuid4().hex,
             'domain_id': CONF.identity.default_domain_id,
             'enabled': True,
-            'password': password
+            'password': password,
         }
         return user
 
@@ -411,32 +456,42 @@ class PasswordHistoryValidationTests(test_backend_sql.SqlTests):
     def setUp(self):
         super(PasswordHistoryValidationTests, self).setUp()
         self.max_cnt = 3
-        self.config_fixture.config(group='security_compliance',
-                                   unique_last_password_count=self.max_cnt)
+        self.config_fixture.config(
+            group='security_compliance',
+            unique_last_password_count=self.max_cnt,
+        )
 
     def test_validate_password_history_with_invalid_password(self):
         password = uuid.uuid4().hex
         user = self._create_user(password)
         # Attempt to change to the same password
         with self.make_request():
-            self.assertRaises(exception.PasswordValidationError,
-                              PROVIDERS.identity_api.change_password,
-                              user_id=user['id'],
-                              original_password=password,
-                              new_password=password)
+            self.assertRaises(
+                exception.PasswordValidationError,
+                PROVIDERS.identity_api.change_password,
+                user_id=user['id'],
+                original_password=password,
+                new_password=password,
+            )
             # Attempt to change to a unique password
             new_password = uuid.uuid4().hex
             self.assertValidChangePassword(user['id'], password, new_password)
             # Attempt to change back to the initial password
-            self.assertRaises(exception.PasswordValidationError,
-                              PROVIDERS.identity_api.change_password,
-                              user_id=user['id'],
-                              original_password=new_password,
-                              new_password=password)
+            self.assertRaises(
+                exception.PasswordValidationError,
+                PROVIDERS.identity_api.change_password,
+                user_id=user['id'],
+                original_password=new_password,
+                new_password=password,
+            )
 
     def test_validate_password_history_with_valid_password(self):
-        passwords = [uuid.uuid4().hex, uuid.uuid4().hex, uuid.uuid4().hex,
-                     uuid.uuid4().hex]
+        passwords = [
+            uuid.uuid4().hex,
+            uuid.uuid4().hex,
+            uuid.uuid4().hex,
+            uuid.uuid4().hex,
+        ]
         user = self._create_user(passwords[0])
         self.assertValidChangePassword(user['id'], passwords[0], passwords[1])
         self.assertValidChangePassword(user['id'], passwords[1], passwords[2])
@@ -447,8 +502,9 @@ class PasswordHistoryValidationTests(test_backend_sql.SqlTests):
         self.assertValidChangePassword(user['id'], passwords[3], passwords[0])
 
     def test_validate_password_history_with_valid_password_only_once(self):
-        self.config_fixture.config(group='security_compliance',
-                                   unique_last_password_count=1)
+        self.config_fixture.config(
+            group='security_compliance', unique_last_password_count=1
+        )
         passwords = [uuid.uuid4().hex, uuid.uuid4().hex]
         user = self._create_user(passwords[0])
         self.assertValidChangePassword(user['id'], passwords[0], passwords[1])
@@ -467,15 +523,18 @@ class PasswordHistoryValidationTests(test_backend_sql.SqlTests):
         self.assertValidChangePassword(user['id'], passwords[0], passwords[1])
         # Attempt to update with a previous password
         with self.make_request():
-            self.assertRaises(exception.PasswordValidationError,
-                              PROVIDERS.identity_api.change_password,
-                              user_id=user['id'],
-                              original_password=passwords[1],
-                              new_password=passwords[0])
+            self.assertRaises(
+                exception.PasswordValidationError,
+                PROVIDERS.identity_api.change_password,
+                user_id=user['id'],
+                original_password=passwords[1],
+                new_password=passwords[0],
+            )
 
     def test_disable_password_history_and_repeat_same_password(self):
-        self.config_fixture.config(group='security_compliance',
-                                   unique_last_password_count=0)
+        self.config_fixture.config(
+            group='security_compliance', unique_last_password_count=0
+        )
         password = uuid.uuid4().hex
         user = self._create_user(password)
         # Repeatedly change password with the same password
@@ -510,28 +569,36 @@ class PasswordHistoryValidationTests(test_backend_sql.SqlTests):
         self._add_passwords_to_history(user, n=4)
         user_ref = self._get_user_ref(user['id'])
         self.assertEqual(
-            len(user_ref.local_user.passwords), (self.max_cnt + 1))
+            len(user_ref.local_user.passwords), (self.max_cnt + 1)
+        )
 
     def test_truncate_passwords_when_max_is_default(self):
         self.max_cnt = 1
         expected_length = self.max_cnt + 1
-        self.config_fixture.config(group='security_compliance',
-                                   unique_last_password_count=self.max_cnt)
+        self.config_fixture.config(
+            group='security_compliance',
+            unique_last_password_count=self.max_cnt,
+        )
         user = self._create_user(uuid.uuid4().hex)
         self._add_passwords_to_history(user, n=4)
         user_ref = self._get_user_ref(user['id'])
         self.assertEqual(len(user_ref.local_user.passwords), expected_length)
         # Start with multiple passwords and then change max_cnt to one
         self.max_cnt = 4
-        self.config_fixture.config(group='security_compliance',
-                                   unique_last_password_count=self.max_cnt)
+        self.config_fixture.config(
+            group='security_compliance',
+            unique_last_password_count=self.max_cnt,
+        )
         self._add_passwords_to_history(user, n=self.max_cnt)
         user_ref = self._get_user_ref(user['id'])
         self.assertEqual(
-            len(user_ref.local_user.passwords), (self.max_cnt + 1))
+            len(user_ref.local_user.passwords), (self.max_cnt + 1)
+        )
         self.max_cnt = 1
-        self.config_fixture.config(group='security_compliance',
-                                   unique_last_password_count=self.max_cnt)
+        self.config_fixture.config(
+            group='security_compliance',
+            unique_last_password_count=self.max_cnt,
+        )
         self._add_passwords_to_history(user, n=1)
         user_ref = self._get_user_ref(user['id'])
         self.assertEqual(len(user_ref.local_user.passwords), expected_length)
@@ -539,8 +606,10 @@ class PasswordHistoryValidationTests(test_backend_sql.SqlTests):
     def test_truncate_passwords_when_max_is_default_and_no_password(self):
         expected_length = 1
         self.max_cnt = 1
-        self.config_fixture.config(group='security_compliance',
-                                   unique_last_password_count=self.max_cnt)
+        self.config_fixture.config(
+            group='security_compliance',
+            unique_last_password_count=self.max_cnt,
+        )
         user = {
             'name': uuid.uuid4().hex,
             'domain_id': 'default',
@@ -556,15 +625,16 @@ class PasswordHistoryValidationTests(test_backend_sql.SqlTests):
             'name': uuid.uuid4().hex,
             'domain_id': 'default',
             'enabled': True,
-            'password': password
+            'password': password,
         }
         return PROVIDERS.identity_api.create_user(user)
 
     def assertValidChangePassword(self, user_id, password, new_password):
         with self.make_request():
             PROVIDERS.identity_api.change_password(
-                user_id=user_id, original_password=password,
-                new_password=new_password
+                user_id=user_id,
+                original_password=password,
+                new_password=new_password,
             )
             PROVIDERS.identity_api.authenticate(
                 user_id=user_id, password=new_password
@@ -584,39 +654,42 @@ class LockingOutUserTests(test_backend_sql.SqlTests):
     def setUp(self):
         super(LockingOutUserTests, self).setUp()
         self.config_fixture.config(
-            group='security_compliance',
-            lockout_failure_attempts=6)
+            group='security_compliance', lockout_failure_attempts=6
+        )
         self.config_fixture.config(
-            group='security_compliance',
-            lockout_duration=5)
+            group='security_compliance', lockout_duration=5
+        )
         # create user
         self.password = uuid.uuid4().hex
         user_dict = {
             'name': uuid.uuid4().hex,
             'domain_id': CONF.identity.default_domain_id,
             'enabled': True,
-            'password': self.password
+            'password': self.password,
         }
         self.user = PROVIDERS.identity_api.create_user(user_dict)
 
     def test_locking_out_user_after_max_failed_attempts(self):
         with self.make_request():
             # authenticate with wrong password
-            self.assertRaises(AssertionError,
-                              PROVIDERS.identity_api.authenticate,
-                              user_id=self.user['id'],
-                              password=uuid.uuid4().hex)
+            self.assertRaises(
+                AssertionError,
+                PROVIDERS.identity_api.authenticate,
+                user_id=self.user['id'],
+                password=uuid.uuid4().hex,
+            )
             # authenticate with correct password
             PROVIDERS.identity_api.authenticate(
-                user_id=self.user['id'],
-                password=self.password
+                user_id=self.user['id'], password=self.password
             )
             # test locking out user after max failed attempts
             self._fail_auth_repeatedly(self.user['id'])
-            self.assertRaises(exception.Unauthorized,
-                              PROVIDERS.identity_api.authenticate,
-                              user_id=self.user['id'],
-                              password=uuid.uuid4().hex)
+            self.assertRaises(
+                exception.Unauthorized,
+                PROVIDERS.identity_api.authenticate,
+                user_id=self.user['id'],
+                password=uuid.uuid4().hex,
+            )
 
     def test_lock_out_for_ignored_user(self):
         # mark the user as exempt from failed password attempts
@@ -628,30 +701,32 @@ class LockingOutUserTests(test_backend_sql.SqlTests):
         self._fail_auth_repeatedly(self.user['id'])
         # authenticate with wrong password, account should not be locked
         with self.make_request():
-            self.assertRaises(AssertionError,
-                              PROVIDERS.identity_api.authenticate,
-                              user_id=self.user['id'],
-                              password=uuid.uuid4().hex)
+            self.assertRaises(
+                AssertionError,
+                PROVIDERS.identity_api.authenticate,
+                user_id=self.user['id'],
+                password=uuid.uuid4().hex,
+            )
             # authenticate with correct password, account should not be locked
             PROVIDERS.identity_api.authenticate(
-                user_id=self.user['id'],
-                password=self.password
+                user_id=self.user['id'], password=self.password
             )
 
     def test_set_enabled_unlocks_user(self):
         with self.make_request():
             # lockout user
             self._fail_auth_repeatedly(self.user['id'])
-            self.assertRaises(exception.Unauthorized,
-                              PROVIDERS.identity_api.authenticate,
-                              user_id=self.user['id'],
-                              password=uuid.uuid4().hex)
+            self.assertRaises(
+                exception.Unauthorized,
+                PROVIDERS.identity_api.authenticate,
+                user_id=self.user['id'],
+                password=uuid.uuid4().hex,
+            )
             # set enabled, user should be unlocked
             self.user['enabled'] = True
             PROVIDERS.identity_api.update_user(self.user['id'], self.user)
             user_ret = PROVIDERS.identity_api.authenticate(
-                user_id=self.user['id'],
-                password=self.password
+                user_id=self.user['id'], password=self.password
             )
             self.assertTrue(user_ret['enabled'])
 
@@ -661,25 +736,31 @@ class LockingOutUserTests(test_backend_sql.SqlTests):
             with self.make_request():
                 # lockout user
                 self._fail_auth_repeatedly(self.user['id'])
-                self.assertRaises(exception.Unauthorized,
-                                  PROVIDERS.identity_api.authenticate,
-                                  user_id=self.user['id'],
-                                  password=uuid.uuid4().hex)
+                self.assertRaises(
+                    exception.Unauthorized,
+                    PROVIDERS.identity_api.authenticate,
+                    user_id=self.user['id'],
+                    password=uuid.uuid4().hex,
+                )
                 # freeze time past the duration, user should be unlocked and
                 # failed auth count should get reset
-                frozen_time.tick(delta=datetime.timedelta(
-                    seconds=CONF.security_compliance.lockout_duration + 1))
+                frozen_time.tick(
+                    delta=datetime.timedelta(
+                        seconds=CONF.security_compliance.lockout_duration + 1
+                    )
+                )
                 PROVIDERS.identity_api.authenticate(
-                    user_id=self.user['id'],
-                    password=self.password
+                    user_id=self.user['id'], password=self.password
                 )
                 # test failed auth count was reset by authenticating with the
                 # wrong password, should raise an assertion error and not
                 # account locked
-                self.assertRaises(AssertionError,
-                                  PROVIDERS.identity_api.authenticate,
-                                  user_id=self.user['id'],
-                                  password=uuid.uuid4().hex)
+                self.assertRaises(
+                    AssertionError,
+                    PROVIDERS.identity_api.authenticate,
+                    user_id=self.user['id'],
+                    password=uuid.uuid4().hex,
+                )
 
     def test_lockout_duration_failed_auth_cnt_resets(self):
         # freeze time
@@ -687,29 +768,38 @@ class LockingOutUserTests(test_backend_sql.SqlTests):
             with self.make_request():
                 # lockout user
                 self._fail_auth_repeatedly(self.user['id'])
-                self.assertRaises(exception.Unauthorized,
-                                  PROVIDERS.identity_api.authenticate,
-                                  user_id=self.user['id'],
-                                  password=uuid.uuid4().hex)
+                self.assertRaises(
+                    exception.Unauthorized,
+                    PROVIDERS.identity_api.authenticate,
+                    user_id=self.user['id'],
+                    password=uuid.uuid4().hex,
+                )
                 # freeze time past the duration, failed_auth_cnt should reset
-                frozen_time.tick(delta=datetime.timedelta(
-                    seconds=CONF.security_compliance.lockout_duration + 1))
+                frozen_time.tick(
+                    delta=datetime.timedelta(
+                        seconds=CONF.security_compliance.lockout_duration + 1
+                    )
+                )
                 # repeat failed auth the max times
                 self._fail_auth_repeatedly(self.user['id'])
                 # test user account is locked
-                self.assertRaises(exception.Unauthorized,
-                                  PROVIDERS.identity_api.authenticate,
-                                  user_id=self.user['id'],
-                                  password=uuid.uuid4().hex)
+                self.assertRaises(
+                    exception.Unauthorized,
+                    PROVIDERS.identity_api.authenticate,
+                    user_id=self.user['id'],
+                    password=uuid.uuid4().hex,
+                )
 
     def _fail_auth_repeatedly(self, user_id):
         wrong_password = uuid.uuid4().hex
         for _ in range(CONF.security_compliance.lockout_failure_attempts):
             with self.make_request():
-                self.assertRaises(AssertionError,
-                                  PROVIDERS.identity_api.authenticate,
-                                  user_id=user_id,
-                                  password=wrong_password)
+                self.assertRaises(
+                    AssertionError,
+                    PROVIDERS.identity_api.authenticate,
+                    user_id=user_id,
+                    password=wrong_password,
+                )
 
 
 class PasswordExpiresValidationTests(test_backend_sql.SqlTests):
@@ -718,30 +808,28 @@ class PasswordExpiresValidationTests(test_backend_sql.SqlTests):
         self.password = uuid.uuid4().hex
         self.user_dict = self._get_test_user_dict(self.password)
         self.config_fixture.config(
-            group='security_compliance',
-            password_expires_days=90)
+            group='security_compliance', password_expires_days=90
+        )
 
     def test_authenticate_with_expired_password(self):
         # set password created_at so that the password will expire
-        password_created_at = (
-            datetime.datetime.utcnow() -
-            datetime.timedelta(
-                days=CONF.security_compliance.password_expires_days + 1)
+        password_created_at = datetime.datetime.utcnow() - datetime.timedelta(
+            days=CONF.security_compliance.password_expires_days + 1
         )
         user = self._create_user(self.user_dict, password_created_at)
         # test password is expired
         with self.make_request():
-            self.assertRaises(exception.PasswordExpired,
-                              PROVIDERS.identity_api.authenticate,
-                              user_id=user['id'],
-                              password=self.password)
+            self.assertRaises(
+                exception.PasswordExpired,
+                PROVIDERS.identity_api.authenticate,
+                user_id=user['id'],
+                password=self.password,
+            )
 
     def test_authenticate_with_non_expired_password(self):
         # set password created_at so that the password will not expire
-        password_created_at = (
-            datetime.datetime.utcnow() -
-            datetime.timedelta(
-                days=CONF.security_compliance.password_expires_days - 1)
+        password_created_at = datetime.datetime.utcnow() - datetime.timedelta(
+            days=CONF.security_compliance.password_expires_days - 1
         )
         user = self._create_user(self.user_dict, password_created_at)
         # test password is not expired
@@ -753,26 +841,24 @@ class PasswordExpiresValidationTests(test_backend_sql.SqlTests):
     def test_authenticate_with_expired_password_for_ignore_user_option(self):
         # set user to have the 'ignore_password_expiry' option set to False
         self.user_dict.setdefault('options', {})[
-            iro.IGNORE_PASSWORD_EXPIRY_OPT.option_name] = False
+            iro.IGNORE_PASSWORD_EXPIRY_OPT.option_name
+        ] = False
         # set password created_at so that the password will expire
-        password_created_at = (
-            datetime.datetime.utcnow() -
-            datetime.timedelta(
-                days=CONF.security_compliance.password_expires_days + 1)
+        password_created_at = datetime.datetime.utcnow() - datetime.timedelta(
+            days=CONF.security_compliance.password_expires_days + 1
         )
         user = self._create_user(self.user_dict, password_created_at)
         with self.make_request():
-            self.assertRaises(exception.PasswordExpired,
-                              PROVIDERS.identity_api.authenticate,
-                              user_id=user['id'],
-                              password=self.password)
+            self.assertRaises(
+                exception.PasswordExpired,
+                PROVIDERS.identity_api.authenticate,
+                user_id=user['id'],
+                password=self.password,
+            )
 
             # update user to explicitly have the expiry option to True
-            user['options'][
-                iro.IGNORE_PASSWORD_EXPIRY_OPT.option_name] = True
-            user = PROVIDERS.identity_api.update_user(
-                user['id'], user
-            )
+            user['options'][iro.IGNORE_PASSWORD_EXPIRY_OPT.option_name] = True
+            user = PROVIDERS.identity_api.update_user(user['id'], user)
             # test password is not expired due to ignore option
             PROVIDERS.identity_api.authenticate(
                 user_id=user['id'], password=self.password
@@ -784,7 +870,7 @@ class PasswordExpiresValidationTests(test_backend_sql.SqlTests):
             'name': uuid.uuid4().hex,
             'domain_id': CONF.identity.default_domain_id,
             'enabled': True,
-            'password': password
+            'password': password,
         }
         return test_user_dict
 
@@ -797,7 +883,8 @@ class PasswordExpiresValidationTests(test_backend_sql.SqlTests):
             user_ref = session.get(model.User, user_dict['id'])
             user_ref.password_ref.created_at = password_created_at
             user_ref.password_ref.expires_at = (
-                user_ref._get_password_expires_at(password_created_at))
+                user_ref._get_password_expires_at(password_created_at)
+            )
             return base.filter_user(user_ref.to_dict())
 
 
@@ -805,65 +892,74 @@ class MinimumPasswordAgeTests(test_backend_sql.SqlTests):
     def setUp(self):
         super(MinimumPasswordAgeTests, self).setUp()
         self.config_fixture.config(
-            group='security_compliance',
-            minimum_password_age=1)
+            group='security_compliance', minimum_password_age=1
+        )
         self.initial_password = uuid.uuid4().hex
         self.user = self._create_new_user(self.initial_password)
 
     def test_user_cannot_change_password_before_min_age(self):
         # user can change password after create
         new_password = uuid.uuid4().hex
-        self.assertValidChangePassword(self.user['id'], self.initial_password,
-                                       new_password)
+        self.assertValidChangePassword(
+            self.user['id'], self.initial_password, new_password
+        )
         # user cannot change password before min age
         with self.make_request():
-            self.assertRaises(exception.PasswordAgeValidationError,
-                              PROVIDERS.identity_api.change_password,
-                              user_id=self.user['id'],
-                              original_password=new_password,
-                              new_password=uuid.uuid4().hex)
+            self.assertRaises(
+                exception.PasswordAgeValidationError,
+                PROVIDERS.identity_api.change_password,
+                user_id=self.user['id'],
+                original_password=new_password,
+                new_password=uuid.uuid4().hex,
+            )
 
     def test_user_can_change_password_after_min_age(self):
         # user can change password after create
         new_password = uuid.uuid4().hex
-        self.assertValidChangePassword(self.user['id'], self.initial_password,
-                                       new_password)
+        self.assertValidChangePassword(
+            self.user['id'], self.initial_password, new_password
+        )
         # set password_created_at so that the min password age has past
-        password_created_at = (
-            datetime.datetime.utcnow() -
-            datetime.timedelta(
-                days=CONF.security_compliance.minimum_password_age + 1))
+        password_created_at = datetime.datetime.utcnow() - datetime.timedelta(
+            days=CONF.security_compliance.minimum_password_age + 1
+        )
         self._update_password_created_at(self.user['id'], password_created_at)
         # user can change their password after min password age has past
-        self.assertValidChangePassword(self.user['id'], new_password,
-                                       uuid.uuid4().hex)
+        self.assertValidChangePassword(
+            self.user['id'], new_password, uuid.uuid4().hex
+        )
 
     def test_user_can_change_password_after_admin_reset(self):
         # user can change password after create
         new_password = uuid.uuid4().hex
-        self.assertValidChangePassword(self.user['id'], self.initial_password,
-                                       new_password)
+        self.assertValidChangePassword(
+            self.user['id'], self.initial_password, new_password
+        )
         # user cannot change password before min age
 
         with self.make_request():
-            self.assertRaises(exception.PasswordAgeValidationError,
-                              PROVIDERS.identity_api.change_password,
-                              user_id=self.user['id'],
-                              original_password=new_password,
-                              new_password=uuid.uuid4().hex)
+            self.assertRaises(
+                exception.PasswordAgeValidationError,
+                PROVIDERS.identity_api.change_password,
+                user_id=self.user['id'],
+                original_password=new_password,
+                new_password=uuid.uuid4().hex,
+            )
         # admin reset
         new_password = uuid.uuid4().hex
         self.user['password'] = new_password
         PROVIDERS.identity_api.update_user(self.user['id'], self.user)
         # user can change password after admin reset
-        self.assertValidChangePassword(self.user['id'], new_password,
-                                       uuid.uuid4().hex)
+        self.assertValidChangePassword(
+            self.user['id'], new_password, uuid.uuid4().hex
+        )
 
     def assertValidChangePassword(self, user_id, password, new_password):
         with self.make_request():
             PROVIDERS.identity_api.change_password(
-                user_id=user_id, original_password=password,
-                new_password=new_password
+                user_id=user_id,
+                original_password=password,
+                new_password=new_password,
             )
             PROVIDERS.identity_api.authenticate(
                 user_id=user_id, password=new_password
@@ -874,7 +970,7 @@ class MinimumPasswordAgeTests(test_backend_sql.SqlTests):
             'name': uuid.uuid4().hex,
             'domain_id': CONF.identity.default_domain_id,
             'enabled': True,
-            'password': password
+            'password': password,
         }
         return PROVIDERS.identity_api.create_user(user)
 
@@ -899,21 +995,24 @@ class ChangePasswordRequiredAfterFirstUse(test_backend_sql.SqlTests):
     def _create_user(self, password, change_password_upon_first_use):
         self.config_fixture.config(
             group='security_compliance',
-            change_password_upon_first_use=change_password_upon_first_use)
+            change_password_upon_first_use=change_password_upon_first_use,
+        )
         user_dict = {
             'name': uuid.uuid4().hex,
             'domain_id': CONF.identity.default_domain_id,
             'enabled': True,
-            'password': password
+            'password': password,
         }
         return PROVIDERS.identity_api.create_user(user_dict)
 
     def assertPasswordIsExpired(self, user_id, password):
         with self.make_request():
-            self.assertRaises(exception.PasswordExpired,
-                              PROVIDERS.identity_api.authenticate,
-                              user_id=user_id,
-                              password=password)
+            self.assertRaises(
+                exception.PasswordExpired,
+                PROVIDERS.identity_api.authenticate,
+                user_id=user_id,
+                password=password,
+            )
 
     def assertPasswordIsNotExpired(self, user_id, password):
         with self.make_request():
@@ -941,8 +1040,8 @@ class ChangePasswordRequiredAfterFirstUse(test_backend_sql.SqlTests):
         self.assertPasswordIsNotExpired(user['id'], initial_password)
         # enable change_password_upon_first_use
         self.config_fixture.config(
-            group='security_compliance',
-            change_password_upon_first_use=True)
+            group='security_compliance', change_password_upon_first_use=True
+        )
         # admin reset, password expired
         admin_password = uuid.uuid4().hex
         user['password'] = admin_password
@@ -974,8 +1073,8 @@ class ChangePasswordRequiredAfterFirstUse(test_backend_sql.SqlTests):
         self.assertPasswordIsNotExpired(user['id'], initial_password)
         # enable change_password_upon_first_use
         self.config_fixture.config(
-            group='security_compliance',
-            change_password_upon_first_use=True)
+            group='security_compliance', change_password_upon_first_use=True
+        )
         # ignore user and reset password, password not expired
         user['options'][iro.IGNORE_CHANGE_PASSWORD_OPT.option_name] = True
         admin_password = uuid.uuid4().hex

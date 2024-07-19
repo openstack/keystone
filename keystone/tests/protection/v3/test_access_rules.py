@@ -37,18 +37,23 @@ class _UserAccessRuleTests(object):
             'user_id': self.user_id,
             'project_id': self.project_id,
             'secret': uuid.uuid4().hex,
-            'access_rules': [{
-                'id': access_rule_id,
-                'service': uuid.uuid4().hex,
-                'path': uuid.uuid4().hex,
-                'method': uuid.uuid4().hex[16:]
-            }]
+            'access_rules': [
+                {
+                    'id': access_rule_id,
+                    'service': uuid.uuid4().hex,
+                    'path': uuid.uuid4().hex,
+                    'method': uuid.uuid4().hex[16:],
+                }
+            ],
         }
         PROVIDERS.application_credential_api.create_application_credential(
-            app_cred)
+            app_cred
+        )
         with self.test_client() as c:
             path = '/v3/users/%s/access_rules/%s' % (
-                self.user_id, app_cred['access_rules'][0]['id'])
+                self.user_id,
+                app_cred['access_rules'][0]['id'],
+            )
             c.get(path, headers=self.headers)
 
     def test_user_can_list_their_access_rules(self):
@@ -58,18 +63,23 @@ class _UserAccessRuleTests(object):
             'user_id': self.user_id,
             'project_id': self.project_id,
             'secret': uuid.uuid4().hex,
-            'access_rules': [{
-                'id': uuid.uuid4().hex,
-                'service': uuid.uuid4().hex,
-                'path': uuid.uuid4().hex,
-                'method': uuid.uuid4().hex[16:]
-            }]
+            'access_rules': [
+                {
+                    'id': uuid.uuid4().hex,
+                    'service': uuid.uuid4().hex,
+                    'path': uuid.uuid4().hex,
+                    'method': uuid.uuid4().hex[16:],
+                }
+            ],
         }
         PROVIDERS.application_credential_api.create_application_credential(
-            app_cred)
+            app_cred
+        )
         with self.test_client() as c:
-            r = c.get('/v3/users/%s/access_rules' % self.user_id,
-                      headers=self.headers)
+            r = c.get(
+                '/v3/users/%s/access_rules' % self.user_id,
+                headers=self.headers,
+            )
             self.assertEqual(len(r.json['access_rules']), 1)
 
     def test_user_can_delete_their_access_rules(self):
@@ -80,20 +90,26 @@ class _UserAccessRuleTests(object):
             'user_id': self.user_id,
             'project_id': self.project_id,
             'secret': uuid.uuid4().hex,
-            'access_rules': [{
-                'id': access_rule_id,
-                'service': uuid.uuid4().hex,
-                'path': uuid.uuid4().hex,
-                'method': uuid.uuid4().hex[16:]
-            }]
+            'access_rules': [
+                {
+                    'id': access_rule_id,
+                    'service': uuid.uuid4().hex,
+                    'path': uuid.uuid4().hex,
+                    'method': uuid.uuid4().hex[16:],
+                }
+            ],
         }
         PROVIDERS.application_credential_api.create_application_credential(
-            app_cred)
+            app_cred
+        )
         PROVIDERS.application_credential_api.delete_application_credential(
-            app_cred['id'])
+            app_cred['id']
+        )
         with self.test_client() as c:
             path = '/v3/users/%s/access_rules/%s' % (
-                self.user_id, access_rule_id)
+                self.user_id,
+                access_rule_id,
+            )
             c.delete(path, headers=self.headers)
 
 
@@ -108,8 +124,9 @@ class _ProjectUsersTests(object):
         )
         project = PROVIDERS.resource_api.create_project(project['id'], project)
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.member_role_id, user_id=user['id'],
-            project_id=project['id']
+            self.bootstrapper.member_role_id,
+            user_id=user['id'],
+            project_id=project['id'],
         )
 
         access_rule_id = uuid.uuid4().hex
@@ -119,30 +136,36 @@ class _ProjectUsersTests(object):
             'user_id': user['id'],
             'project_id': project['id'],
             'secret': uuid.uuid4().hex,
-            'access_rules': [{
-                'id': access_rule_id,
-                'service': uuid.uuid4().hex,
-                'path': uuid.uuid4().hex,
-                'method': uuid.uuid4().hex[16:]
-            }]
+            'access_rules': [
+                {
+                    'id': access_rule_id,
+                    'service': uuid.uuid4().hex,
+                    'path': uuid.uuid4().hex,
+                    'method': uuid.uuid4().hex[16:],
+                }
+            ],
         }
         PROVIDERS.application_credential_api.create_application_credential(
-            app_cred)
+            app_cred
+        )
         with self.test_client() as c:
             path = '/v3/users/%s/access_rules/%s' % (
-                user['id'], access_rule_id)
+                user['id'],
+                access_rule_id,
+            )
             c.get(
-                path, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                path,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_get_own_non_existent_access_rule_not_found(self):
         with self.test_client() as c:
             c.get(
-                '/v3/users/%s/access_rules/%s' % (
-                    self.user_id, uuid.uuid4().hex),
+                '/v3/users/%s/access_rules/%s'
+                % (self.user_id, uuid.uuid4().hex),
                 headers=self.headers,
-                expected_status_code=http.client.NOT_FOUND
+                expected_status_code=http.client.NOT_FOUND,
             )
 
     def test_cannot_get_non_existent_access_rule_other_user_forbidden(self):
@@ -150,10 +173,10 @@ class _ProjectUsersTests(object):
         user = PROVIDERS.identity_api.create_user(user)
         with self.test_client() as c:
             c.get(
-                '/v3/users/%s/access_rules/%s' % (
-                    user['id'], uuid.uuid4().hex),
+                '/v3/users/%s/access_rules/%s'
+                % (user['id'], uuid.uuid4().hex),
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_list_access_rules_for_other_users(self):
@@ -164,8 +187,9 @@ class _ProjectUsersTests(object):
         )
         project = PROVIDERS.resource_api.create_project(project['id'], project)
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.member_role_id, user_id=user['id'],
-            project_id=project['id']
+            self.bootstrapper.member_role_id,
+            user_id=user['id'],
+            project_id=project['id'],
         )
         app_cred = {
             'id': uuid.uuid4().hex,
@@ -173,20 +197,26 @@ class _ProjectUsersTests(object):
             'user_id': user['id'],
             'project_id': project['id'],
             'secret': uuid.uuid4().hex,
-            'access_rules': [{
-                'id': uuid.uuid4().hex,
-                'service': uuid.uuid4().hex,
-                'path': uuid.uuid4().hex,
-                'method': uuid.uuid4().hex[16:]
-            }]
+            'access_rules': [
+                {
+                    'id': uuid.uuid4().hex,
+                    'service': uuid.uuid4().hex,
+                    'path': uuid.uuid4().hex,
+                    'method': uuid.uuid4().hex[16:],
+                }
+            ],
         }
         PROVIDERS.application_credential_api.create_application_credential(
-            app_cred)
+            app_cred
+        )
 
         with self.test_client() as c:
             path = '/v3/users/%s/access_rules' % user['id']
-            c.get(path, headers=self.headers,
-                  expected_status_code=http.client.FORBIDDEN)
+            c.get(
+                path,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
+            )
 
     def test_user_cannot_delete_access_rules_for_others(self):
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
@@ -196,8 +226,9 @@ class _ProjectUsersTests(object):
         )
         project = PROVIDERS.resource_api.create_project(project['id'], project)
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.member_role_id, user_id=user['id'],
-            project_id=project['id']
+            self.bootstrapper.member_role_id,
+            user_id=user['id'],
+            project_id=project['id'],
         )
         access_rule_id = uuid.uuid4().hex
         app_cred = {
@@ -206,23 +237,30 @@ class _ProjectUsersTests(object):
             'user_id': user['id'],
             'project_id': project['id'],
             'secret': uuid.uuid4().hex,
-            'access_rules': [{
-                'id': access_rule_id,
-                'service': uuid.uuid4().hex,
-                'path': uuid.uuid4().hex,
-                'method': uuid.uuid4().hex[16:]
-            }]
+            'access_rules': [
+                {
+                    'id': access_rule_id,
+                    'service': uuid.uuid4().hex,
+                    'path': uuid.uuid4().hex,
+                    'method': uuid.uuid4().hex[16:],
+                }
+            ],
         }
         PROVIDERS.application_credential_api.create_application_credential(
-            app_cred)
+            app_cred
+        )
         PROVIDERS.application_credential_api.delete_application_credential(
-            app_cred['id'])
+            app_cred['id']
+        )
         with self.test_client() as c:
             path = '/v3/users/%s/access_rules/%s' % (
-                user['id'], access_rule_id)
+                user['id'],
+                access_rule_id,
+            )
             c.delete(
-                path, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                path,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_cannot_delete_non_existent_access_rule_other_user_forbidden(self):
@@ -230,10 +268,10 @@ class _ProjectUsersTests(object):
         user = PROVIDERS.identity_api.create_user(user)
         with self.test_client() as c:
             c.delete(
-                '/v3/users/%s/access_rules/%s' % (
-                    user['id'], uuid.uuid4().hex),
+                '/v3/users/%s/access_rules/%s'
+                % (user['id'], uuid.uuid4().hex),
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
 
@@ -248,8 +286,9 @@ class _SystemUserAccessRuleTests(object):
         )
         project = PROVIDERS.resource_api.create_project(project['id'], project)
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.member_role_id, user_id=user['id'],
-            project_id=project['id']
+            self.bootstrapper.member_role_id,
+            user_id=user['id'],
+            project_id=project['id'],
         )
 
         app_cred = {
@@ -258,19 +297,23 @@ class _SystemUserAccessRuleTests(object):
             'user_id': user['id'],
             'project_id': project['id'],
             'secret': uuid.uuid4().hex,
-            'access_rules': [{
-                'id': uuid.uuid4().hex,
-                'service': uuid.uuid4().hex,
-                'path': uuid.uuid4().hex,
-                'method': uuid.uuid4().hex[16:]
-            }]
+            'access_rules': [
+                {
+                    'id': uuid.uuid4().hex,
+                    'service': uuid.uuid4().hex,
+                    'path': uuid.uuid4().hex,
+                    'method': uuid.uuid4().hex[16:],
+                }
+            ],
         }
         PROVIDERS.application_credential_api.create_application_credential(
-            app_cred)
+            app_cred
+        )
 
         with self.test_client() as c:
-            r = c.get('/v3/users/%s/access_rules' % user['id'],
-                      headers=self.headers)
+            r = c.get(
+                '/v3/users/%s/access_rules' % user['id'], headers=self.headers
+            )
             self.assertEqual(1, len(r.json['access_rules']))
 
     def test_user_cannot_get_non_existent_access_rule_not_found(self):
@@ -278,16 +321,18 @@ class _SystemUserAccessRuleTests(object):
         user = PROVIDERS.identity_api.create_user(user)
         with self.test_client() as c:
             c.get(
-                '/v3/users/%s/access_rules/%s' % (
-                    user['id'], uuid.uuid4().hex),
+                '/v3/users/%s/access_rules/%s'
+                % (user['id'], uuid.uuid4().hex),
                 headers=self.headers,
-                expected_status_code=http.client.NOT_FOUND
+                expected_status_code=http.client.NOT_FOUND,
             )
 
 
-class SystemReaderTests(base_classes.TestCaseWithBootstrap,
-                        common_auth.AuthTestMixin,
-                        _SystemUserAccessRuleTests):
+class SystemReaderTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _SystemUserAccessRuleTests,
+):
 
     def setUp(self):
         super(SystemReaderTests, self).setUp()
@@ -298,16 +343,15 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
         system_reader = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
         )
-        self.user_id = PROVIDERS.identity_api.create_user(
-            system_reader
-        )['id']
+        self.user_id = PROVIDERS.identity_api.create_user(system_reader)['id']
         PROVIDERS.assignment_api.create_system_grant_for_user(
             self.user_id, self.bootstrapper.reader_role_id
         )
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=system_reader['password'],
-            system=True
+            user_id=self.user_id,
+            password=system_reader['password'],
+            system=True,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -325,8 +369,9 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
         )
         project = PROVIDERS.resource_api.create_project(project['id'], project)
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.member_role_id, user_id=user['id'],
-            project_id=project['id']
+            self.bootstrapper.member_role_id,
+            user_id=user['id'],
+            project_id=project['id'],
         )
 
         access_rule_id = uuid.uuid4().hex
@@ -336,23 +381,30 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
             'user_id': user['id'],
             'project_id': project['id'],
             'secret': uuid.uuid4().hex,
-            'access_rules': [{
-                'id': access_rule_id,
-                'service': uuid.uuid4().hex,
-                'path': uuid.uuid4().hex,
-                'method': uuid.uuid4().hex[16:]
-            }]
+            'access_rules': [
+                {
+                    'id': access_rule_id,
+                    'service': uuid.uuid4().hex,
+                    'path': uuid.uuid4().hex,
+                    'method': uuid.uuid4().hex[16:],
+                }
+            ],
         }
         PROVIDERS.application_credential_api.create_application_credential(
-            app_cred)
+            app_cred
+        )
         PROVIDERS.application_credential_api.delete_application_credential(
-            app_cred['id'])
+            app_cred['id']
+        )
         with self.test_client() as c:
             path = '/v3/users/%s/access_rules/%s' % (
-                user['id'], access_rule_id)
+                user['id'],
+                access_rule_id,
+            )
             c.delete(
-                path, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                path,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_non_existent_access_rule_forbidden(self):
@@ -360,16 +412,18 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
         user = PROVIDERS.identity_api.create_user(user)
         with self.test_client() as c:
             c.delete(
-                '/v3/users/%s/access_rules/%s' % (
-                    user['id'], uuid.uuid4().hex),
+                '/v3/users/%s/access_rules/%s'
+                % (user['id'], uuid.uuid4().hex),
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
 
-class SystemMemberTests(base_classes.TestCaseWithBootstrap,
-                        common_auth.AuthTestMixin,
-                        _SystemUserAccessRuleTests):
+class SystemMemberTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _SystemUserAccessRuleTests,
+):
 
     def setUp(self):
         super(SystemMemberTests, self).setUp()
@@ -380,16 +434,15 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
         system_member = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
         )
-        self.user_id = PROVIDERS.identity_api.create_user(
-            system_member
-        )['id']
+        self.user_id = PROVIDERS.identity_api.create_user(system_member)['id']
         PROVIDERS.assignment_api.create_system_grant_for_user(
             self.user_id, self.bootstrapper.member_role_id
         )
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=system_member['password'],
-            system=True
+            user_id=self.user_id,
+            password=system_member['password'],
+            system=True,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -407,8 +460,9 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
         )
         project = PROVIDERS.resource_api.create_project(project['id'], project)
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.member_role_id, user_id=user['id'],
-            project_id=project['id']
+            self.bootstrapper.member_role_id,
+            user_id=user['id'],
+            project_id=project['id'],
         )
 
         access_rule_id = uuid.uuid4().hex
@@ -418,31 +472,41 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
             'user_id': user['id'],
             'project_id': project['id'],
             'secret': uuid.uuid4().hex,
-            'access_rules': [{
-                'id': access_rule_id,
-                'service': uuid.uuid4().hex,
-                'path': uuid.uuid4().hex,
-                'method': uuid.uuid4().hex[16:]
-            }]
+            'access_rules': [
+                {
+                    'id': access_rule_id,
+                    'service': uuid.uuid4().hex,
+                    'path': uuid.uuid4().hex,
+                    'method': uuid.uuid4().hex[16:],
+                }
+            ],
         }
         PROVIDERS.application_credential_api.create_application_credential(
-            app_cred)
+            app_cred
+        )
         PROVIDERS.application_credential_api.delete_application_credential(
-            app_cred['id'])
+            app_cred['id']
+        )
         with self.test_client() as c:
             path = '/v3/users/%s/access_rules/%s' % (
-                user['id'], access_rule_id)
+                user['id'],
+                access_rule_id,
+            )
             c.delete(
-                path, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                path,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
         with self.test_client() as c:
             path = '/v3/users/%s/access_rules/%s' % (
-                user['id'], access_rule_id)
+                user['id'],
+                access_rule_id,
+            )
             c.delete(
-                path, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                path,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_non_existent_access_rule_forbidden(self):
@@ -450,16 +514,18 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
         user = PROVIDERS.identity_api.create_user(user)
         with self.test_client() as c:
             c.delete(
-                '/v3/users/%s/access_rules/%s' % (
-                    user['id'], uuid.uuid4().hex),
+                '/v3/users/%s/access_rules/%s'
+                % (user['id'], uuid.uuid4().hex),
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
 
-class SystemAdminTests(base_classes.TestCaseWithBootstrap,
-                       common_auth.AuthTestMixin,
-                       _SystemUserAccessRuleTests):
+class SystemAdminTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _SystemUserAccessRuleTests,
+):
 
     def setUp(self):
         super(SystemAdminTests, self).setUp()
@@ -473,7 +539,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
         auth = self.build_authentication_request(
             user_id=self.user_id,
             password=self.bootstrapper.admin_password,
-            system=True
+            system=True,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -491,8 +557,9 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
         )
         project = PROVIDERS.resource_api.create_project(project['id'], project)
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.member_role_id, user_id=user['id'],
-            project_id=project['id']
+            self.bootstrapper.member_role_id,
+            user_id=user['id'],
+            project_id=project['id'],
         )
         access_rule_id = uuid.uuid4().hex
         app_cred = {
@@ -501,21 +568,27 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
             'user_id': user['id'],
             'project_id': project['id'],
             'secret': uuid.uuid4().hex,
-            'access_rules': [{
-                'id': access_rule_id,
-                'service': uuid.uuid4().hex,
-                'path': uuid.uuid4().hex,
-                'method': uuid.uuid4().hex[16:]
-            }]
+            'access_rules': [
+                {
+                    'id': access_rule_id,
+                    'service': uuid.uuid4().hex,
+                    'path': uuid.uuid4().hex,
+                    'method': uuid.uuid4().hex[16:],
+                }
+            ],
         }
         PROVIDERS.application_credential_api.create_application_credential(
-            app_cred)
+            app_cred
+        )
         PROVIDERS.application_credential_api.delete_application_credential(
-            app_cred['id'])
+            app_cred['id']
+        )
 
         with self.test_client() as c:
             path = '/v3/users/%s/access_rules/%s' % (
-                user['id'], access_rule_id)
+                user['id'],
+                access_rule_id,
+            )
             c.delete(path, headers=self.headers)
 
     def test_user_cannot_delete_non_existent_access_rule_not_found(self):
@@ -523,17 +596,19 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
         user = PROVIDERS.identity_api.create_user(user)
         with self.test_client() as c:
             c.delete(
-                '/v3/users/%s/access_rules/%s' % (
-                    user['id'], uuid.uuid4().hex),
+                '/v3/users/%s/access_rules/%s'
+                % (user['id'], uuid.uuid4().hex),
                 headers=self.headers,
-                expected_status_code=http.client.NOT_FOUND
+                expected_status_code=http.client.NOT_FOUND,
             )
 
 
-class ProjectReaderTests(base_classes.TestCaseWithBootstrap,
-                         common_auth.AuthTestMixin,
-                         _UserAccessRuleTests,
-                         _ProjectUsersTests):
+class ProjectReaderTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _UserAccessRuleTests,
+    _ProjectUsersTests,
+):
 
     def setUp(self):
         super(ProjectReaderTests, self).setUp()
@@ -544,9 +619,7 @@ class ProjectReaderTests(base_classes.TestCaseWithBootstrap,
         project_reader = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
         )
-        self.user_id = PROVIDERS.identity_api.create_user(
-            project_reader
-        )['id']
+        self.user_id = PROVIDERS.identity_api.create_user(project_reader)['id']
         project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id
         )
@@ -554,14 +627,15 @@ class ProjectReaderTests(base_classes.TestCaseWithBootstrap,
             project['id'], project
         )['id']
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.reader_role_id, user_id=self.user_id,
-            project_id=self.project_id
+            self.bootstrapper.reader_role_id,
+            user_id=self.user_id,
+            project_id=self.project_id,
         )
 
         auth = self.build_authentication_request(
             user_id=self.user_id,
             password=project_reader['password'],
-            project_id=self.project_id
+            project_id=self.project_id,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -572,10 +646,12 @@ class ProjectReaderTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class ProjectMemberTests(base_classes.TestCaseWithBootstrap,
-                         common_auth.AuthTestMixin,
-                         _UserAccessRuleTests,
-                         _ProjectUsersTests):
+class ProjectMemberTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _UserAccessRuleTests,
+    _ProjectUsersTests,
+):
 
     def setUp(self):
         super(ProjectMemberTests, self).setUp()
@@ -586,9 +662,7 @@ class ProjectMemberTests(base_classes.TestCaseWithBootstrap,
         project_member = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
         )
-        self.user_id = PROVIDERS.identity_api.create_user(
-            project_member
-        )['id']
+        self.user_id = PROVIDERS.identity_api.create_user(project_member)['id']
         project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id
         )
@@ -596,14 +670,15 @@ class ProjectMemberTests(base_classes.TestCaseWithBootstrap,
             project['id'], project
         )['id']
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.member_role_id, user_id=self.user_id,
-            project_id=self.project_id
+            self.bootstrapper.member_role_id,
+            user_id=self.user_id,
+            project_id=self.project_id,
         )
 
         auth = self.build_authentication_request(
             user_id=self.user_id,
             password=project_member['password'],
-            project_id=self.project_id
+            project_id=self.project_id,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -614,10 +689,12 @@ class ProjectMemberTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class ProjectAdminTests(base_classes.TestCaseWithBootstrap,
-                        common_auth.AuthTestMixin,
-                        _UserAccessRuleTests,
-                        _ProjectUsersTests):
+class ProjectAdminTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _UserAccessRuleTests,
+    _ProjectUsersTests,
+):
 
     def setUp(self):
         super(ProjectAdminTests, self).setUp()
@@ -639,7 +716,7 @@ class ProjectAdminTests(base_classes.TestCaseWithBootstrap,
         auth = self.build_authentication_request(
             user_id=self.user_id,
             password=self.bootstrapper.admin_password,
-            project_id=self.project_id
+            project_id=self.project_id,
         )
 
         # Grab a token using the persona we're testing and prepare headers

@@ -18,18 +18,24 @@ from keystone.conf import utils
 driver = cfg.StrOpt(
     'driver',
     default='sql',
-    help=utils.fmt("""
+    help=utils.fmt(
+        """
 Entry point for the policy backend driver in the `keystone.policy` namespace.
 Supplied drivers are `rules` (which does not support any CRUD operations for
 the v3 policy API) and `sql`. Typically, there is no reason to set this option
 unless you are providing a custom entry point.
-"""))
+"""
+    ),
+)
 
 list_limit = cfg.IntOpt(
     'list_limit',
-    help=utils.fmt("""
+    help=utils.fmt(
+        """
 Maximum number of entities that will be returned in a policy collection.
-"""))
+"""
+    ),
+)
 
 
 GROUP_NAME = __name__.split('.')[-1]

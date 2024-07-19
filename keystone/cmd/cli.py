@@ -72,62 +72,109 @@ class BootStrap(BaseApp):
     @classmethod
     def add_argument_parser(cls, subparsers):
         parser = super(BootStrap, cls).add_argument_parser(subparsers)
-        parser.add_argument('--bootstrap-username', default='admin',
-                            metavar='OS_BOOTSTRAP_USERNAME',
-                            help=('The username of the initial keystone '
-                                  'user during bootstrap process.'))
+        parser.add_argument(
+            '--bootstrap-username',
+            default='admin',
+            metavar='OS_BOOTSTRAP_USERNAME',
+            help=(
+                'The username of the initial keystone '
+                'user during bootstrap process.'
+            ),
+        )
         # NOTE(morganfainberg): See below for ENV Variable that can be used
         # in lieu of the command-line arguments.
-        parser.add_argument('--bootstrap-password', default=None,
-                            metavar='OS_BOOTSTRAP_PASSWORD',
-                            help='The bootstrap user password')
-        parser.add_argument('--bootstrap-project-name', default='admin',
-                            metavar='OS_BOOTSTRAP_PROJECT_NAME',
-                            help=('The initial project created during the '
-                                  'keystone bootstrap process.'))
-        parser.add_argument('--bootstrap-role-name', default='admin',
-                            metavar='OS_BOOTSTRAP_ROLE_NAME',
-                            help=('The initial role-name created during the '
-                                  'keystone bootstrap process.'))
-        parser.add_argument('--bootstrap-service-name', default='keystone',
-                            metavar='OS_BOOTSTRAP_SERVICE_NAME',
-                            help=('The initial name for the initial identity '
-                                  'service created during the keystone '
-                                  'bootstrap process.'))
-        parser.add_argument('--bootstrap-admin-url',
-                            metavar='OS_BOOTSTRAP_ADMIN_URL',
-                            help=('The initial identity admin url created '
-                                  'during the keystone bootstrap process. '
-                                  'e.g. http://127.0.0.1:5000/v3'))
-        parser.add_argument('--bootstrap-public-url',
-                            metavar='OS_BOOTSTRAP_PUBLIC_URL',
-                            help=('The initial identity public url created '
-                                  'during the keystone bootstrap process. '
-                                  'e.g. http://127.0.0.1:5000/v3'))
-        parser.add_argument('--bootstrap-internal-url',
-                            metavar='OS_BOOTSTRAP_INTERNAL_URL',
-                            help=('The initial identity internal url created '
-                                  'during the keystone bootstrap process. '
-                                  'e.g. http://127.0.0.1:5000/v3'))
-        parser.add_argument('--bootstrap-region-id',
-                            metavar='OS_BOOTSTRAP_REGION_ID',
-                            help=('The initial region_id endpoints will be '
-                                  'placed in during the keystone bootstrap '
-                                  'process.'))
-        parser.add_argument('--immutable-roles',
-                            default=True,
-                            action='store_true',
-                            help=('Whether default roles (admin, member, and '
-                                  'reader) should be immutable. This is the '
-                                  'default.'))
-        parser.add_argument('--no-immutable-roles',
-                            default=False,
-                            action='store_true',
-                            help=('Whether default roles (admin, member, and '
-                                  'reader) should be immutable. Immutable '
-                                  'default roles is the default, use this '
-                                  'flag to opt out of immutable default '
-                                  'roles.'))
+        parser.add_argument(
+            '--bootstrap-password',
+            default=None,
+            metavar='OS_BOOTSTRAP_PASSWORD',
+            help='The bootstrap user password',
+        )
+        parser.add_argument(
+            '--bootstrap-project-name',
+            default='admin',
+            metavar='OS_BOOTSTRAP_PROJECT_NAME',
+            help=(
+                'The initial project created during the '
+                'keystone bootstrap process.'
+            ),
+        )
+        parser.add_argument(
+            '--bootstrap-role-name',
+            default='admin',
+            metavar='OS_BOOTSTRAP_ROLE_NAME',
+            help=(
+                'The initial role-name created during the '
+                'keystone bootstrap process.'
+            ),
+        )
+        parser.add_argument(
+            '--bootstrap-service-name',
+            default='keystone',
+            metavar='OS_BOOTSTRAP_SERVICE_NAME',
+            help=(
+                'The initial name for the initial identity '
+                'service created during the keystone '
+                'bootstrap process.'
+            ),
+        )
+        parser.add_argument(
+            '--bootstrap-admin-url',
+            metavar='OS_BOOTSTRAP_ADMIN_URL',
+            help=(
+                'The initial identity admin url created '
+                'during the keystone bootstrap process. '
+                'e.g. http://127.0.0.1:5000/v3'
+            ),
+        )
+        parser.add_argument(
+            '--bootstrap-public-url',
+            metavar='OS_BOOTSTRAP_PUBLIC_URL',
+            help=(
+                'The initial identity public url created '
+                'during the keystone bootstrap process. '
+                'e.g. http://127.0.0.1:5000/v3'
+            ),
+        )
+        parser.add_argument(
+            '--bootstrap-internal-url',
+            metavar='OS_BOOTSTRAP_INTERNAL_URL',
+            help=(
+                'The initial identity internal url created '
+                'during the keystone bootstrap process. '
+                'e.g. http://127.0.0.1:5000/v3'
+            ),
+        )
+        parser.add_argument(
+            '--bootstrap-region-id',
+            metavar='OS_BOOTSTRAP_REGION_ID',
+            help=(
+                'The initial region_id endpoints will be '
+                'placed in during the keystone bootstrap '
+                'process.'
+            ),
+        )
+        parser.add_argument(
+            '--immutable-roles',
+            default=True,
+            action='store_true',
+            help=(
+                'Whether default roles (admin, member, and '
+                'reader) should be immutable. This is the '
+                'default.'
+            ),
+        )
+        parser.add_argument(
+            '--no-immutable-roles',
+            default=False,
+            action='store_true',
+            help=(
+                'Whether default roles (admin, member, and '
+                'reader) should be immutable. Immutable '
+                'default roles is the default, use this '
+                'flag to opt out of immutable default '
+                'roles.'
+            ),
+        )
         return parser
 
     def do_bootstrap(self):
@@ -139,38 +186,51 @@ class BootStrap(BaseApp):
         deployment.
         """
         self.username = (
-            os.environ.get('OS_BOOTSTRAP_USERNAME') or
-            CONF.command.bootstrap_username)
+            os.environ.get('OS_BOOTSTRAP_USERNAME')
+            or CONF.command.bootstrap_username
+        )
         self.project_name = (
-            os.environ.get('OS_BOOTSTRAP_PROJECT_NAME') or
-            CONF.command.bootstrap_project_name)
+            os.environ.get('OS_BOOTSTRAP_PROJECT_NAME')
+            or CONF.command.bootstrap_project_name
+        )
         self.role_name = (
-            os.environ.get('OS_BOOTSTRAP_ROLE_NAME') or
-            CONF.command.bootstrap_role_name)
+            os.environ.get('OS_BOOTSTRAP_ROLE_NAME')
+            or CONF.command.bootstrap_role_name
+        )
         self.password = (
-            os.environ.get('OS_BOOTSTRAP_PASSWORD') or
-            CONF.command.bootstrap_password)
+            os.environ.get('OS_BOOTSTRAP_PASSWORD')
+            or CONF.command.bootstrap_password
+        )
         self.service_name = (
-            os.environ.get('OS_BOOTSTRAP_SERVICE_NAME') or
-            CONF.command.bootstrap_service_name)
+            os.environ.get('OS_BOOTSTRAP_SERVICE_NAME')
+            or CONF.command.bootstrap_service_name
+        )
         self.admin_url = (
-            os.environ.get('OS_BOOTSTRAP_ADMIN_URL') or
-            CONF.command.bootstrap_admin_url)
+            os.environ.get('OS_BOOTSTRAP_ADMIN_URL')
+            or CONF.command.bootstrap_admin_url
+        )
         self.public_url = (
-            os.environ.get('OS_BOOTSTRAP_PUBLIC_URL') or
-            CONF.command.bootstrap_public_url)
+            os.environ.get('OS_BOOTSTRAP_PUBLIC_URL')
+            or CONF.command.bootstrap_public_url
+        )
         self.internal_url = (
-            os.environ.get('OS_BOOTSTRAP_INTERNAL_URL') or
-            CONF.command.bootstrap_internal_url)
+            os.environ.get('OS_BOOTSTRAP_INTERNAL_URL')
+            or CONF.command.bootstrap_internal_url
+        )
         self.region_id = (
-            os.environ.get('OS_BOOTSTRAP_REGION_ID') or
-            CONF.command.bootstrap_region_id)
+            os.environ.get('OS_BOOTSTRAP_REGION_ID')
+            or CONF.command.bootstrap_region_id
+        )
         self.service_id = None
         self.endpoints = None
 
         if self.password is None:
-            print(_('ERROR: Either --bootstrap-password argument or '
-                    'OS_BOOTSTRAP_PASSWORD must be set.'))
+            print(
+                _(
+                    'ERROR: Either --bootstrap-password argument or '
+                    'OS_BOOTSTRAP_PASSWORD must be set.'
+                )
+            )
             sys.exit(1)
 
         self.bootstrapper.admin_password = self.password
@@ -213,12 +273,17 @@ class ProjectSetup(BaseApp):
     @classmethod
     def add_argument_parser(cls, subparsers):
         parser = super(ProjectSetup, cls).add_argument_parser(subparsers)
-        parser.add_argument('--project-name', default=None, required=True,
-                            help='The name of the keystone project being'
-                            ' created.')
-        parser.add_argument('--project-id', default=None,
-                            help='The UUID of the keystone project being'
-                            ' created.')
+        parser.add_argument(
+            '--project-name',
+            default=None,
+            required=True,
+            help='The name of the keystone project being' ' created.',
+        )
+        parser.add_argument(
+            '--project-id',
+            default=None,
+            help='The UUID of the keystone project being' ' created.',
+        )
         return parser
 
     def do_project_setup(self):
@@ -244,16 +309,24 @@ class UserSetup(BaseApp):
     @classmethod
     def add_argument_parser(cls, subparsers):
         parser = super(UserSetup, cls).add_argument_parser(subparsers)
-        parser.add_argument('--username', default=None, required=True,
-                            help='The username of the keystone user that'
-                            ' is being created.')
-        parser.add_argument('--user-password-plain', default=None,
-                            required=True,
-                            help='The plaintext password for the keystone'
-                            ' user that is being created.')
-        parser.add_argument('--user-id', default=None,
-                            help='The UUID of the keystone user being '
-                            'created.')
+        parser.add_argument(
+            '--username',
+            default=None,
+            required=True,
+            help='The username of the keystone user that' ' is being created.',
+        )
+        parser.add_argument(
+            '--user-password-plain',
+            default=None,
+            required=True,
+            help='The plaintext password for the keystone'
+            ' user that is being created.',
+        )
+        parser.add_argument(
+            '--user-id',
+            default=None,
+            help='The UUID of the keystone user being ' 'created.',
+        )
         return parser
 
     def do_user_setup(self):
@@ -369,22 +442,28 @@ class DbSync(BaseApp):
         heads = upgrades.get_current_heads()
 
         if (
-            upgrades.EXPAND_BRANCH not in heads or
-            heads[upgrades.EXPAND_BRANCH] != expand_version
+            upgrades.EXPAND_BRANCH not in heads
+            or heads[upgrades.EXPAND_BRANCH] != expand_version
         ):
-            LOG.info('Your database is not up to date. Your first step is '
-                     'to run `keystone-manage db_sync --expand`.')
+            LOG.info(
+                'Your database is not up to date. Your first step is '
+                'to run `keystone-manage db_sync --expand`.'
+            )
             status = 2
         elif (
-            upgrades.CONTRACT_BRANCH not in heads or
-            heads[upgrades.CONTRACT_BRANCH] != contract_version
+            upgrades.CONTRACT_BRANCH not in heads
+            or heads[upgrades.CONTRACT_BRANCH] != contract_version
         ):
-            LOG.info('Expand version is ahead of contract. Your next '
-                     'step is to run `keystone-manage db_sync --contract`.')
+            LOG.info(
+                'Expand version is ahead of contract. Your next '
+                'step is to run `keystone-manage db_sync --contract`.'
+            )
             status = 4
         else:
-            LOG.info('All db_sync commands are upgraded to the same '
-                     'version and up-to-date.')
+            LOG.info(
+                'All db_sync commands are upgraded to the same '
+                'version and up-to-date.'
+            )
 
         LOG.info(
             'Current repository versions:\n'
@@ -410,8 +489,7 @@ class DbSync(BaseApp):
         elif CONF.command.contract:
             upgrades.contract_schema()
         else:
-            upgrades.offline_sync_database_to_version(
-                CONF.command.version)
+            upgrades.offline_sync_database_to_version(CONF.command.version)
 
 
 class DbVersion(BaseApp):
@@ -429,9 +507,10 @@ class BasePermissionsSetup(BaseApp):
 
     @classmethod
     def add_argument_parser(cls, subparsers):
-        parser = super(BasePermissionsSetup,
-                       cls).add_argument_parser(subparsers)
-        running_as_root = (os.geteuid() == 0)
+        parser = super(BasePermissionsSetup, cls).add_argument_parser(
+            subparsers
+        )
+        running_as_root = os.geteuid() == 0
         parser.add_argument('--keystone-user', required=running_as_root)
         parser.add_argument('--keystone-group', required=running_as_root)
         return parser
@@ -459,27 +538,26 @@ class BasePermissionsSetup(BaseApp):
 
     @classmethod
     def initialize_fernet_repository(
-            cls, keystone_user_id, keystone_group_id, config_group=None):
+        cls, keystone_user_id, keystone_group_id, config_group=None
+    ):
         conf_group = getattr(CONF, config_group)
         futils = fernet_utils.FernetUtils(
-            conf_group.key_repository,
-            conf_group.max_active_keys,
-            config_group
+            conf_group.key_repository, conf_group.max_active_keys, config_group
         )
 
         futils.create_key_directory(keystone_user_id, keystone_group_id)
         if futils.validate_key_repository(requires_write=True):
             futils.initialize_key_repository(
-                keystone_user_id, keystone_group_id)
+                keystone_user_id, keystone_group_id
+            )
 
     @classmethod
     def rotate_fernet_repository(
-            cls, keystone_user_id, keystone_group_id, config_group=None):
+        cls, keystone_user_id, keystone_group_id, config_group=None
+    ):
         conf_group = getattr(CONF, config_group)
         futils = fernet_utils.FernetUtils(
-            conf_group.key_repository,
-            conf_group.max_active_keys,
-            config_group
+            conf_group.key_repository, conf_group.max_active_keys, config_group
         )
         if futils.validate_key_repository(requires_write=True):
             futils.rotate_keys(keystone_user_id, keystone_group_id)
@@ -500,14 +578,19 @@ class FernetSetup(BasePermissionsSetup):
     def main(cls):
         keystone_user_id, keystone_group_id = cls.get_user_group()
         cls.initialize_fernet_repository(
-            keystone_user_id, keystone_group_id, 'fernet_tokens')
+            keystone_user_id, keystone_group_id, 'fernet_tokens'
+        )
 
-        if (os.path.abspath(CONF.fernet_tokens.key_repository) !=
-                os.path.abspath(CONF.fernet_receipts.key_repository)):
+        if os.path.abspath(
+            CONF.fernet_tokens.key_repository
+        ) != os.path.abspath(CONF.fernet_receipts.key_repository):
             cls.initialize_fernet_repository(
-                keystone_user_id, keystone_group_id, 'fernet_receipts')
-        elif (CONF.fernet_tokens.max_active_keys !=
-                CONF.fernet_receipts.max_active_keys):
+                keystone_user_id, keystone_group_id, 'fernet_receipts'
+            )
+        elif (
+            CONF.fernet_tokens.max_active_keys
+            != CONF.fernet_receipts.max_active_keys
+        ):
             # WARNING(adriant): If the directories are the same,
             # 'max_active_keys' is ignored from fernet_receipts in favor of
             # fernet_tokens to avoid a potential mismatch. Only if the
@@ -545,11 +628,14 @@ class FernetRotate(BasePermissionsSetup):
     def main(cls):
         keystone_user_id, keystone_group_id = cls.get_user_group()
         cls.rotate_fernet_repository(
-            keystone_user_id, keystone_group_id, 'fernet_tokens')
-        if (os.path.abspath(CONF.fernet_tokens.key_repository) !=
-                os.path.abspath(CONF.fernet_receipts.key_repository)):
+            keystone_user_id, keystone_group_id, 'fernet_tokens'
+        )
+        if os.path.abspath(
+            CONF.fernet_tokens.key_repository
+        ) != os.path.abspath(CONF.fernet_receipts.key_repository):
             cls.rotate_fernet_repository(
-                keystone_user_id, keystone_group_id, 'fernet_receipts')
+                keystone_user_id, keystone_group_id, 'fernet_receipts'
+            )
 
 
 class CreateJWSKeyPair(BasePermissionsSetup):
@@ -568,8 +654,9 @@ class CreateJWSKeyPair(BasePermissionsSetup):
         parser = super(CreateJWSKeyPair, cls).add_argument_parser(subparsers)
 
         parser.add_argument(
-            '--force', action='store_true',
-            help=('Forcibly overwrite keys if they already exist')
+            '--force',
+            action='store_true',
+            help=('Forcibly overwrite keys if they already exist'),
         )
         return parser
 
@@ -580,11 +667,15 @@ class CreateJWSKeyPair(BasePermissionsSetup):
         public_key_path = os.path.join(current_directory, 'public.pem')
 
         if os.path.isfile(private_key_path) and not CONF.command.force:
-            raise SystemExit(_('Private key %(path)s already exists')
-                             % {'path': private_key_path})
+            raise SystemExit(
+                _('Private key %(path)s already exists')
+                % {'path': private_key_path}
+            )
         if os.path.isfile(public_key_path) and not CONF.command.force:
-            raise SystemExit(_('Public key %(path)s already exists')
-                             % {'path': public_key_path})
+            raise SystemExit(
+                _('Public key %(path)s already exists')
+                % {'path': public_key_path}
+            )
 
         jwt_utils.create_jws_keypair(private_key_path, public_key_path)
 
@@ -604,7 +695,8 @@ class TokenSetup(BasePermissionsSetup):
     def main(cls):
         keystone_user_id, keystone_group_id = cls.get_user_group()
         cls.initialize_fernet_repository(
-            keystone_user_id, keystone_group_id, 'fernet_tokens')
+            keystone_user_id, keystone_group_id, 'fernet_tokens'
+        )
 
 
 class TokenRotate(BasePermissionsSetup):
@@ -631,7 +723,8 @@ class TokenRotate(BasePermissionsSetup):
     def main(cls):
         keystone_user_id, keystone_group_id = cls.get_user_group()
         cls.rotate_fernet_repository(
-            keystone_user_id, keystone_group_id, 'fernet_tokens')
+            keystone_user_id, keystone_group_id, 'fernet_tokens'
+        )
 
 
 class ReceiptSetup(BasePermissionsSetup):
@@ -649,7 +742,8 @@ class ReceiptSetup(BasePermissionsSetup):
     def main(cls):
         keystone_user_id, keystone_group_id = cls.get_user_group()
         cls.initialize_fernet_repository(
-            keystone_user_id, keystone_group_id, 'fernet_receipts')
+            keystone_user_id, keystone_group_id, 'fernet_receipts'
+        )
 
 
 class ReceiptRotate(BasePermissionsSetup):
@@ -676,7 +770,8 @@ class ReceiptRotate(BasePermissionsSetup):
     def main(cls):
         keystone_user_id, keystone_group_id = cls.get_user_group()
         cls.rotate_fernet_repository(
-            keystone_user_id, keystone_group_id, 'fernet_receipts')
+            keystone_user_id, keystone_group_id, 'fernet_receipts'
+        )
 
 
 class CredentialSetup(BasePermissionsSetup):
@@ -695,15 +790,14 @@ class CredentialSetup(BasePermissionsSetup):
         futils = fernet_utils.FernetUtils(
             CONF.credential.key_repository,
             credential_fernet.MAX_ACTIVE_KEYS,
-            'credential'
+            'credential',
         )
 
         keystone_user_id, keystone_group_id = cls.get_user_group()
         futils.create_key_directory(keystone_user_id, keystone_group_id)
         if futils.validate_key_repository(requires_write=True):
             futils.initialize_key_repository(
-                keystone_user_id,
-                keystone_group_id
+                keystone_user_id, keystone_group_id
             )
 
 
@@ -755,11 +849,13 @@ class CredentialRotate(BasePermissionsSetup):
         )
         for credential in credentials:
             if credential['key_hash'] != primary_key_hash:
-                msg = _('Unable to rotate credential keys because not all '
-                        'credentials are encrypted with the primary key. '
-                        'Please make sure all credentials have been encrypted '
-                        'with the primary key using `keystone-manage '
-                        'credential_migrate`.')
+                msg = _(
+                    'Unable to rotate credential keys because not all '
+                    'credentials are encrypted with the primary key. '
+                    'Please make sure all credentials have been encrypted '
+                    'with the primary key using `keystone-manage '
+                    'credential_migrate`.'
+                )
                 raise SystemExit(msg)
 
     @classmethod
@@ -767,7 +863,7 @@ class CredentialRotate(BasePermissionsSetup):
         futils = fernet_utils.FernetUtils(
             CONF.credential.key_repository,
             credential_fernet.MAX_ACTIVE_KEYS,
-            'credential'
+            'credential',
         )
 
         keystone_user_id, keystone_group_id = cls.get_user_group()
@@ -816,10 +912,7 @@ class CredentialMigrate(BasePermissionsSetup):
                     credential['encrypted_blob']
                 )
                 cred = {'blob': decrypted_blob}
-                self.credential_api.update_credential(
-                    credential['id'],
-                    cred
-                )
+                self.credential_api.update_credential(credential['id'], cred)
 
     @classmethod
     def main(cls):
@@ -827,7 +920,7 @@ class CredentialMigrate(BasePermissionsSetup):
         futils = fernet_utils.FernetUtils(
             CONF.credential.key_repository,
             credential_fernet.MAX_ACTIVE_KEYS,
-            'credential'
+            'credential',
         )
         futils.validate_key_repository(requires_write=True)
         klass = cls()
@@ -843,25 +936,45 @@ class TrustFlush(BaseApp):
     def add_argument_parser(cls, subparsers):
         parser = super(TrustFlush, cls).add_argument_parser(subparsers)
 
-        parser.add_argument('--project-id', default=None,
-                            help=('The id of the project of which the '
-                                  'expired or non-expired soft-deleted '
-                                  'trusts is to be purged'))
-        parser.add_argument('--trustor-user-id', default=None,
-                            help=('The id of the trustor of which the '
-                                  'expired or non-expired soft-deleted '
-                                  'trusts is to be purged'))
-        parser.add_argument('--trustee-user-id', default=None,
-                            help=('The id of the trustee of which the '
-                                  'expired or non-expired soft-deleted '
-                                  'trusts is to be purged'))
-        parser.add_argument('--date', default=datetime.datetime.utcnow(),
-                            help=('The date of which the expired or '
-                                  'non-expired soft-deleted trusts older '
-                                  'than that will be purged. The format of '
-                                  'the date to be "DD-MM-YYYY". If no date '
-                                  'is supplied keystone-manage will use the '
-                                  'system clock time at runtime'))
+        parser.add_argument(
+            '--project-id',
+            default=None,
+            help=(
+                'The id of the project of which the '
+                'expired or non-expired soft-deleted '
+                'trusts is to be purged'
+            ),
+        )
+        parser.add_argument(
+            '--trustor-user-id',
+            default=None,
+            help=(
+                'The id of the trustor of which the '
+                'expired or non-expired soft-deleted '
+                'trusts is to be purged'
+            ),
+        )
+        parser.add_argument(
+            '--trustee-user-id',
+            default=None,
+            help=(
+                'The id of the trustee of which the '
+                'expired or non-expired soft-deleted '
+                'trusts is to be purged'
+            ),
+        )
+        parser.add_argument(
+            '--date',
+            default=datetime.datetime.utcnow(),
+            help=(
+                'The date of which the expired or '
+                'non-expired soft-deleted trusts older '
+                'than that will be purged. The format of '
+                'the date to be "DD-MM-YYYY". If no date '
+                'is supplied keystone-manage will use the '
+                'system clock time at runtime'
+            ),
+        )
         return parser
 
     @classmethod
@@ -872,19 +985,24 @@ class TrustFlush(BaseApp):
             if not isinstance(CONF.command.date, datetime.datetime):
                 try:
                     CONF.command.date = datetime.datetime.strptime(
-                        CONF.command.date, '%d-%m-%Y')
+                        CONF.command.date, '%d-%m-%Y'
+                    )
                 except KeyError:
-                    raise ValueError("'%s'Invalid input for date, should be "
-                                     "DD-MM-YYYY", CONF.command.date)
+                    raise ValueError(
+                        "'%s'Invalid input for date, should be " "DD-MM-YYYY",
+                        CONF.command.date,
+                    )
             else:
-                LOG.info("No date is supplied, keystone-manage will use the "
-                         "system clock time at runtime ")
+                LOG.info(
+                    "No date is supplied, keystone-manage will use the "
+                    "system clock time at runtime "
+                )
 
         trust_manager.flush_expired_and_soft_deleted_trusts(
             project_id=CONF.command.project_id,
             trustor_user_id=CONF.command.trustor_user_id,
             trustee_user_id=CONF.command.trustee_user_id,
-            date=CONF.command.date
+            date=CONF.command.date,
         )
 
 
@@ -896,20 +1014,33 @@ class MappingPurge(BaseApp):
     @classmethod
     def add_argument_parser(cls, subparsers):
         parser = super(MappingPurge, cls).add_argument_parser(subparsers)
-        parser.add_argument('--all', default=False, action='store_true',
-                            help=('Purge all mappings.'))
-        parser.add_argument('--domain-name', default=None,
-                            help=('Purge any mappings for the domain '
-                                  'specified.'))
-        parser.add_argument('--public-id', default=None,
-                            help=('Purge the mapping for the Public ID '
-                                  'specified.'))
-        parser.add_argument('--local-id', default=None,
-                            help=('Purge the mappings for the Local ID '
-                                  'specified.'))
-        parser.add_argument('--type', default=None, choices=['user', 'group'],
-                            help=('Purge any mappings for the type '
-                                  'specified.'))
+        parser.add_argument(
+            '--all',
+            default=False,
+            action='store_true',
+            help=('Purge all mappings.'),
+        )
+        parser.add_argument(
+            '--domain-name',
+            default=None,
+            help=('Purge any mappings for the domain ' 'specified.'),
+        )
+        parser.add_argument(
+            '--public-id',
+            default=None,
+            help=('Purge the mapping for the Public ID ' 'specified.'),
+        )
+        parser.add_argument(
+            '--local-id',
+            default=None,
+            help=('Purge the mappings for the Local ID ' 'specified.'),
+        )
+        parser.add_argument(
+            '--type',
+            default=None,
+            choices=['user', 'group'],
+            help=('Purge any mappings for the type ' 'specified.'),
+        )
         return parser
 
     @staticmethod
@@ -922,27 +1053,36 @@ class MappingPurge(BaseApp):
             # dangerous as a default.  So we use it in a slightly
             # unconventional way, where all parameters are optional, but you
             # must specify at least one.
-            if (CONF.command.all is False and
-                CONF.command.domain_name is None and
-                CONF.command.public_id is None and
-                CONF.command.local_id is None and
-                    CONF.command.type is None):
+            if (
+                CONF.command.all is False
+                and CONF.command.domain_name is None
+                and CONF.command.public_id is None
+                and CONF.command.local_id is None
+                and CONF.command.type is None
+            ):
                 raise ValueError(_('At least one option must be provided'))
 
-            if (CONF.command.all is True and
-                (CONF.command.domain_name is not None or
-                 CONF.command.public_id is not None or
-                 CONF.command.local_id is not None or
-                 CONF.command.type is not None)):
-                raise ValueError(_('--all option cannot be mixed with '
-                                   'other options'))
+            if CONF.command.all is True and (
+                CONF.command.domain_name is not None
+                or CONF.command.public_id is not None
+                or CONF.command.local_id is not None
+                or CONF.command.type is not None
+            ):
+                raise ValueError(
+                    _('--all option cannot be mixed with ' 'other options')
+                )
 
         def get_domain_id(name):
             try:
                 return resource_manager.get_domain_by_name(name)['id']
             except KeyError:
-                raise ValueError(_("Unknown domain '%(name)s' specified by "
-                                   "--domain-name") % {'name': name})
+                raise ValueError(
+                    _(
+                        "Unknown domain '%(name)s' specified by "
+                        "--domain-name"
+                    )
+                    % {'name': name}
+                )
 
         validate_options()
         drivers = backends.load_backends()
@@ -983,16 +1123,20 @@ def _domain_config_finder(conf_dir):
     LOG.info('Scanning %r for domain config files', conf_dir)
     for r, d, f in os.walk(conf_dir):
         for fname in f:
-            if (fname.startswith(DOMAIN_CONF_FHEAD) and
-                    fname.endswith(DOMAIN_CONF_FTAIL)):
+            if fname.startswith(DOMAIN_CONF_FHEAD) and fname.endswith(
+                DOMAIN_CONF_FTAIL
+            ):
                 if fname.count('.') >= 2:
-                    domain_name = fname[len(DOMAIN_CONF_FHEAD):
-                                        -len(DOMAIN_CONF_FTAIL)]
+                    domain_name = fname[
+                        len(DOMAIN_CONF_FHEAD) : -len(DOMAIN_CONF_FTAIL)
+                    ]
                     yield (os.path.join(r, fname), domain_name)
                     continue
 
-            LOG.warning('Ignoring file (%s) while scanning '
-                        'domain config directory', fname)
+            LOG.warning(
+                'Ignoring file (%s) while scanning ' 'domain config directory',
+                fname,
+            )
 
 
 class DomainConfigUploadFiles(object):
@@ -1018,16 +1162,22 @@ class DomainConfigUploadFiles(object):
         parameters are optional, but you must specify at least one.
 
         """
-        if (CONF.command.all is False and
-                CONF.command.domain_name is None):
-            print(_('At least one option must be provided, use either '
-                    '--all or --domain-name'))
+        if CONF.command.all is False and CONF.command.domain_name is None:
+            print(
+                _(
+                    'At least one option must be provided, use either '
+                    '--all or --domain-name'
+                )
+            )
             return False
 
-        if (CONF.command.all is True and
-                CONF.command.domain_name is not None):
-            print(_('The --all option cannot be used with '
-                    'the --domain-name option'))
+        if CONF.command.all is True and CONF.command.domain_name is not None:
+            print(
+                _(
+                    'The --all option cannot be used with '
+                    'the --domain-name option'
+                )
+            )
             return False
 
         return True
@@ -1041,21 +1191,27 @@ class DomainConfigUploadFiles(object):
 
         """
         try:
-            domain_ref = (
-                self.resource_manager.get_domain_by_name(domain_name))
+            domain_ref = self.resource_manager.get_domain_by_name(domain_name)
         except exception.DomainNotFound:
-            print(_('Invalid domain name: %(domain)s found in config file '
-                    'name: %(file)s - ignoring this file.') % {
-                        'domain': domain_name,
-                        'file': file_name})
+            print(
+                _(
+                    'Invalid domain name: %(domain)s found in config file '
+                    'name: %(file)s - ignoring this file.'
+                )
+                % {'domain': domain_name, 'file': file_name}
+            )
             return False
 
         if self.domain_config_manager.get_config_with_sensitive_info(
-                domain_ref['id']):
-            print(_('Domain: %(domain)s already has a configuration '
-                    'defined - ignoring file: %(file)s.') % {
-                        'domain': domain_name,
-                        'file': file_name})
+            domain_ref['id']
+        ):
+            print(
+                _(
+                    'Domain: %(domain)s already has a configuration '
+                    'defined - ignoring file: %(file)s.'
+                )
+                % {'domain': domain_name, 'file': file_name}
+            )
             return False
 
         sections = {}
@@ -1066,27 +1222,37 @@ class DomainConfigUploadFiles(object):
             # We explicitly don't try and differentiate the error cases, in
             # order to keep the code in this tool more robust as oslo.config
             # changes.
-            print(_('Error parsing configuration file for domain: %(domain)s, '
-                    'file: %(file)s.') % {
-                        'domain': domain_name,
-                        'file': file_name})
+            print(
+                _(
+                    'Error parsing configuration file for domain: %(domain)s, '
+                    'file: %(file)s.'
+                )
+                % {'domain': domain_name, 'file': file_name}
+            )
             return False
 
         try:
             for group in sections:
                 for option in sections[group]:
                     sections[group][option] = sections[group][option][0]
-            self.domain_config_manager.create_config(domain_ref['id'],
-                                                     sections)
+            self.domain_config_manager.create_config(
+                domain_ref['id'], sections
+            )
             return True
         except Exception as e:
-            msg = ('Error processing config file for domain: '
-                   '%(domain_name)s, file: %(filename)s, error: %(error)s')
-            LOG.error(msg,
-                      {'domain_name': domain_name,
-                       'filename': file_name,
-                       'error': e},
-                      exc_info=True)
+            msg = (
+                'Error processing config file for domain: '
+                '%(domain_name)s, file: %(filename)s, error: %(error)s'
+            )
+            LOG.error(
+                msg,
+                {
+                    'domain_name': domain_name,
+                    'filename': file_name,
+                    'error': e,
+                },
+                exc_info=True,
+            )
             return False
 
     def read_domain_configs_from_files(self):
@@ -1108,7 +1274,8 @@ class DomainConfigUploadFiles(object):
             # Request is to upload the configs for just one domain
             fname = DOMAIN_CONF_FHEAD + domain_name + DOMAIN_CONF_FTAIL
             if not self._upload_config_to_database(
-                    os.path.join(conf_dir, fname), domain_name):
+                os.path.join(conf_dir, fname), domain_name
+            ):
                 return False
             return True
 
@@ -1117,8 +1284,7 @@ class DomainConfigUploadFiles(object):
         for filename, domain_name in self._domain_config_finder(conf_dir):
             if self._upload_config_to_database(filename, domain_name):
                 success_cnt += 1
-                LOG.info('Successfully uploaded domain config %r',
-                         filename)
+                LOG.info('Successfully uploaded domain config %r', filename)
             else:
                 failure_cnt += 1
 
@@ -1136,8 +1302,12 @@ class DomainConfigUploadFiles(object):
         except Exception:
             # It is likely that there is some SQL or other backend error
             # related to set up
-            print(_('Unable to access the keystone database, please check it '
-                    'is configured correctly.'))
+            print(
+                _(
+                    'Unable to access the keystone database, please check it '
+                    'is configured correctly.'
+                )
+            )
             raise
 
         if not self.valid_options():
@@ -1155,16 +1325,23 @@ class DomainConfigUpload(BaseApp):
     @classmethod
     def add_argument_parser(cls, subparsers):
         parser = super(DomainConfigUpload, cls).add_argument_parser(subparsers)
-        parser.add_argument('--all', default=False, action='store_true',
-                            help='Upload contents of all domain specific '
-                                 'configuration files. Either use this option '
-                                 'or use the --domain-name option to choose a '
-                                 'specific domain.')
-        parser.add_argument('--domain-name', default=None,
-                            help='Upload contents of the specific '
-                                 'configuration file for the given domain. '
-                                 'Either use this option or use the --all '
-                                 'option to upload contents for all domains.')
+        parser.add_argument(
+            '--all',
+            default=False,
+            action='store_true',
+            help='Upload contents of all domain specific '
+            'configuration files. Either use this option '
+            'or use the --domain-name option to choose a '
+            'specific domain.',
+        )
+        parser.add_argument(
+            '--domain-name',
+            default=None,
+            help='Upload contents of the specific '
+            'configuration file for the given domain. '
+            'Either use this option or use the --all '
+            'option to upload contents for all domains.',
+        )
         return parser
 
     @staticmethod
@@ -1205,8 +1382,10 @@ class MappingEngineTester(BaseApp):
             with open(path, "rb") as file:
                 self.rules = jsonutils.load(file)
         except ValueError as e:
-            raise SystemExit(_('Error while parsing rules '
-                               '%(path)s: %(err)s') % {'path': path, 'err': e})
+            raise SystemExit(
+                _('Error while parsing rules ' '%(path)s: %(err)s')
+                % {'path': path, 'err': e}
+            )
 
     def read_assertion(self, path):
         self.assertion_pathname = path
@@ -1214,8 +1393,10 @@ class MappingEngineTester(BaseApp):
             with open(path) as file:
                 self.assertion = file.read().strip()
         except IOError as e:
-            raise SystemExit(_("Error while opening file "
-                               "%(path)s: %(err)s") % {'path': path, 'err': e})
+            raise SystemExit(
+                _("Error while opening file " "%(path)s: %(err)s")
+                % {'path': path, 'err': e}
+            )
 
         LOG.debug("Assertions loaded: [%s].", self.assertion)
 
@@ -1225,12 +1406,20 @@ class MappingEngineTester(BaseApp):
                 k, v = line.split(':', 1)
                 return k.strip(), v.strip()
             except ValueError:
-                msg = _("assertion file %(pathname)s at line %(line_num)d "
-                        "expected 'key: value' but found '%(line)s' "
-                        "see help for file format")
-                raise SystemExit(msg % {'pathname': self.assertion_pathname,
-                                        'line_num': line_num,
-                                        'line': line})
+                msg = _(
+                    "assertion file %(pathname)s at line %(line_num)d "
+                    "expected 'key: value' but found '%(line)s' "
+                    "see help for file format"
+                )
+                raise SystemExit(
+                    msg
+                    % {
+                        'pathname': self.assertion_pathname,
+                        'line_num': line_num,
+                        'line': line,
+                    }
+                )
+
         assertion = self.assertion.splitlines()
         assertion_dict = {}
         prefix = CONF.command.prefix
@@ -1267,16 +1456,19 @@ class MappingEngineTester(BaseApp):
 
         attribute_mapping = tester.rules.copy()
         if CONF.command.mapping_schema_version:
-            attribute_mapping[
-                'schema_version'] = CONF.command.mapping_schema_version
+            attribute_mapping['schema_version'] = (
+                CONF.command.mapping_schema_version
+            )
 
         if not attribute_mapping.get('schema_version'):
             default_schema_version = '1.0'
-            LOG.warning('No schema version defined in rules [%s]. Therefore,'
-                        'we will use the default as [%s].', attribute_mapping,
-                        default_schema_version)
-            attribute_mapping[
-                'schema_version'] = default_schema_version
+            LOG.warning(
+                'No schema version defined in rules [%s]. Therefore,'
+                'we will use the default as [%s].',
+                attribute_mapping,
+                default_schema_version,
+            )
+            attribute_mapping['schema_version'] = default_schema_version
 
         LOG.info("Validating Attribute mapping rules [%s].", attribute_mapping)
         mapping_engine.validate_mapping_structure(attribute_mapping)
@@ -1286,13 +1478,17 @@ class MappingEngineTester(BaseApp):
         tester.normalize_assertion()
 
         if CONF.command.engine_debug:
-            print("Using Rules:\n%s" % (
-                jsonutils.dumps(tester.rules, indent=2)))
-            print("Using Assertion:\n%s" % (
-                jsonutils.dumps(tester.assertion, indent=2)))
+            print(
+                "Using Rules:\n%s" % (jsonutils.dumps(tester.rules, indent=2))
+            )
+            print(
+                "Using Assertion:\n%s"
+                % (jsonutils.dumps(tester.assertion, indent=2))
+            )
 
-        rp = mapping_engine.RuleProcessor(tester.mapping_id,
-                                          tester.rules['rules'])
+        rp = mapping_engine.RuleProcessor(
+            tester.mapping_id, tester.rules['rules']
+        )
         mapped = rp.process(tester.assertion)
 
         LOG.info("Result of the attribute mapping processing.")
@@ -1300,41 +1496,66 @@ class MappingEngineTester(BaseApp):
 
     @classmethod
     def add_argument_parser(cls, subparsers):
-        parser = super(MappingEngineTester,
-                       cls).add_argument_parser(subparsers)
+        parser = super(MappingEngineTester, cls).add_argument_parser(
+            subparsers
+        )
 
         parser.formatter_class = argparse.RawTextHelpFormatter
-        parser.add_argument('--rules', default=None, required=True,
-                            help=("Path to the file with "
-                                  "rules to be executed. "
-                                  "Content must be\na proper JSON structure, "
-                                  "with a top-level key 'rules' and\n"
-                                  "corresponding value being a list."))
-        parser.add_argument('--input', default=None, required=True,
-                            help=("Path to the file with input attributes. "
-                                  "The content\nconsists of ':' separated "
-                                  "parameter names and their values.\nThere "
-                                  "is only one key-value pair per line. "
-                                  "A ';' in the\nvalue is a separator and "
-                                  "then a value is treated as a list.\n"
-                                  "Example:\n"
-                                  "\tEMAIL: me@example.com\n"
-                                  "\tLOGIN: me\n"
-                                  "\tGROUPS: group1;group2;group3"))
-        parser.add_argument('--prefix', default=None,
-                            help=("A prefix used for each environment "
-                                  "variable in the\nassertion. For example, "
-                                  "all environment variables may have\nthe "
-                                  "prefix ASDF_."))
-        parser.add_argument('--engine-debug',
-                            default=False, action="store_true",
-                            help=("Enable debug messages from the mapping "
-                                  "engine."))
-        parser.add_argument('--mapping-schema-version', default=None,
-                            required=False,
-                            help=("The override for the schema version of "
-                                  "the rules that are loaded in the 'rules' "
-                                  "option of the test CLI."))
+        parser.add_argument(
+            '--rules',
+            default=None,
+            required=True,
+            help=(
+                "Path to the file with "
+                "rules to be executed. "
+                "Content must be\na proper JSON structure, "
+                "with a top-level key 'rules' and\n"
+                "corresponding value being a list."
+            ),
+        )
+        parser.add_argument(
+            '--input',
+            default=None,
+            required=True,
+            help=(
+                "Path to the file with input attributes. "
+                "The content\nconsists of ':' separated "
+                "parameter names and their values.\nThere "
+                "is only one key-value pair per line. "
+                "A ';' in the\nvalue is a separator and "
+                "then a value is treated as a list.\n"
+                "Example:\n"
+                "\tEMAIL: me@example.com\n"
+                "\tLOGIN: me\n"
+                "\tGROUPS: group1;group2;group3"
+            ),
+        )
+        parser.add_argument(
+            '--prefix',
+            default=None,
+            help=(
+                "A prefix used for each environment "
+                "variable in the\nassertion. For example, "
+                "all environment variables may have\nthe "
+                "prefix ASDF_."
+            ),
+        )
+        parser.add_argument(
+            '--engine-debug',
+            default=False,
+            action="store_true",
+            help=("Enable debug messages from the mapping " "engine."),
+        )
+        parser.add_argument(
+            '--mapping-schema-version',
+            default=None,
+            required=False,
+            help=(
+                "The override for the schema version of "
+                "the rules that are loaded in the 'rules' "
+                "option of the test CLI."
+            ),
+        )
 
 
 class MappingPopulate(BaseApp):
@@ -1358,12 +1579,17 @@ class MappingPopulate(BaseApp):
 
     @classmethod
     def add_argument_parser(cls, subparsers):
-        parser = super(MappingPopulate, cls).add_argument_parser(
-            subparsers)
+        parser = super(MappingPopulate, cls).add_argument_parser(subparsers)
 
-        parser.add_argument('--domain-name', default=None, required=True,
-                            help=("Name of the domain configured to use "
-                                  "domain-specific backend"))
+        parser.add_argument(
+            '--domain-name',
+            default=None,
+            required=True,
+            help=(
+                "Name of the domain configured to use "
+                "domain-specific backend"
+            ),
+        )
         return parser
 
     @classmethod
@@ -1374,8 +1600,9 @@ class MappingPopulate(BaseApp):
         try:
             domain_id = cls.resource_api.get_domain_by_name(domain_name)['id']
         except exception.DomainNotFound:
-            print(_('Invalid domain name: %(domain)s') % {
-                'domain': domain_name})
+            print(
+                _('Invalid domain name: %(domain)s') % {'domain': domain_name}
+            )
             return False
         # We don't actually need to tackle id_mapping_api in order to get
         # entries there, because list_users does this anyway. That's why it
@@ -1405,7 +1632,7 @@ CMDS = [
     TokenRotate,
     TokenSetup,
     TrustFlush,
-    UserSetup
+    UserSetup,
 ]
 
 
@@ -1414,10 +1641,12 @@ def add_command_parsers(subparsers):
         cmd.add_argument_parser(subparsers)
 
 
-command_opt = cfg.SubCommandOpt('command',
-                                title='Commands',
-                                help='Available commands',
-                                handler=add_command_parsers)
+command_opt = cfg.SubCommandOpt(
+    'command',
+    title='Commands',
+    help='Available commands',
+    handler=add_command_parsers,
+)
 
 
 def main(argv=None, developer_config_file=None):
@@ -1451,11 +1680,13 @@ def main(argv=None, developer_config_file=None):
     # and is keystone specific. Only pass a list of arguments so that
     # oslo.config can determine configuration file locations based on user
     # provided arguments, if present.
-    CONF(args=argv[1:],
-         project='keystone',
-         version=pbr.version.VersionInfo('keystone').version_string(),
-         usage='%(prog)s [' + '|'.join([cmd.name for cmd in CMDS]) + ']',
-         default_config_files=developer_config_file)
+    CONF(
+        args=argv[1:],
+        project='keystone',
+        version=pbr.version.VersionInfo('keystone').version_string(),
+        usage='%(prog)s [' + '|'.join([cmd.name for cmd in CMDS]) + ']',
+        default_config_files=developer_config_file,
+    )
 
     if not CONF.default_config_files and not user_supplied_config_file:
         LOG.warning('Config file not found, using default configs.')

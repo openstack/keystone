@@ -34,15 +34,13 @@ def federated_objects_to_list(fed_ref):
     fed = {}
     for fed_dict in fed_ref:
         fed.setdefault(
-            fed_dict['idp_id'],
+            fed_dict['idp_id'], {'idp_id': fed_dict['idp_id'], 'protocols': []}
+        )['protocols'].append(
             {
-                'idp_id': fed_dict['idp_id'],
-                'protocols': []
+                'protocol_id': fed_dict['protocol_id'],
+                'unique_id': fed_dict['unique_id'],
             }
-        )['protocols'].append({
-            'protocol_id': fed_dict['protocol_id'],
-            'unique_id': fed_dict['unique_id']
-        })
+        )
 
     return list(fed.values())
 
@@ -100,8 +98,9 @@ class ShadowUsersDriverBase(object, metaclass=abc.ABCMeta):
         raise exception.NotImplemented()
 
     @abc.abstractmethod
-    def update_federated_user_display_name(self, idp_id, protocol_id,
-                                           unique_id, display_name):
+    def update_federated_user_display_name(
+        self, idp_id, protocol_id, unique_id, display_name
+    ):
         """Update federated user's display name if changed.
 
         :param idp_id: The identity provider ID

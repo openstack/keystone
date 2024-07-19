@@ -27,9 +27,14 @@ class FilterTests(object):
 
     # Provide support for checking if a batch of list items all
     # exist within a contiguous range in a total list
-    def _match_with_list(self, this_batch, total_list,
-                         batch_size=None,
-                         list_start=None, list_end=None):
+    def _match_with_list(
+        self,
+        this_batch,
+        total_list,
+        batch_size=None,
+        list_start=None,
+        list_end=None,
+    ):
         if batch_size is None:
             batch_size = len(this_batch)
         if list_start is None:
@@ -93,8 +98,7 @@ class FilterTests(object):
         return f
 
     def _create_one_entity(self, entity_type, domain_id, name):
-        new_entity = {'name': name,
-                      'domain_id': domain_id}
+        new_entity = {'name': name, 'domain_id': domain_id}
         if entity_type in ['user', 'group']:
             # The manager layer creates the ID for users and groups
             new_entity = self._create_entity(entity_type)(new_entity)
@@ -103,8 +107,9 @@ class FilterTests(object):
             self._create_entity(entity_type)(new_entity['id'], new_entity)
         return new_entity
 
-    def _create_test_data(self, entity_type, number, domain_id=None,
-                          name_dict=None):
+    def _create_test_data(
+        self, entity_type, number, domain_id=None, name_dict=None
+    ):
         """Create entity test data.
 
         :param entity_type: type of entity to create, e.g. 'user', group' etc.

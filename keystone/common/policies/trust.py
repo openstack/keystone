@@ -26,14 +26,29 @@ SYSTEM_ADMIN_OR_TRUSTOR = base.SYSTEM_ADMIN + ' or ' + RULE_TRUSTOR
 
 ADMIN_OR_TRUSTOR = base.RULE_ADMIN_REQUIRED + ' or ' + RULE_TRUSTOR
 ADMIN_OR_SYSTEM_READER_OR_TRUSTOR = (
-    '(' + base.RULE_ADMIN_REQUIRED + ') or ' +
-    '(' + SYSTEM_READER_OR_TRUSTOR + ')')
+    '('
+    + base.RULE_ADMIN_REQUIRED
+    + ') or '
+    + '('
+    + SYSTEM_READER_OR_TRUSTOR
+    + ')'
+)
 ADMIN_OR_SYSTEM_READER_OR_TRUSTEE = (
-    '(' + base.RULE_ADMIN_REQUIRED + ') or ' +
-    '(' + SYSTEM_READER_OR_TRUSTEE + ')')
+    '('
+    + base.RULE_ADMIN_REQUIRED
+    + ') or '
+    + '('
+    + SYSTEM_READER_OR_TRUSTEE
+    + ')'
+)
 ADMIN_OR_SYSTEM_READER_OR_TRUSTOR_OR_TRUSTEE = (
-    '(' + base.RULE_ADMIN_REQUIRED + ') or ' +
-    '(' + SYSTEM_READER_OR_TRUSTOR_OR_TRUSTEE + ')')
+    '('
+    + base.RULE_ADMIN_REQUIRED
+    + ') or '
+    + '('
+    + SYSTEM_READER_OR_TRUSTOR_OR_TRUSTEE
+    + ')'
+)
 
 DEPRECATED_REASON = (
     "The trust API is now aware of system scope and default roles."
@@ -43,31 +58,31 @@ deprecated_list_trusts = policy.DeprecatedRule(
     name=base.IDENTITY % 'list_trusts',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.TRAIN
+    deprecated_since=versionutils.deprecated.TRAIN,
 )
 deprecated_list_roles_for_trust = policy.DeprecatedRule(
     name=base.IDENTITY % 'list_roles_for_trust',
     check_str=RULE_TRUSTOR + ' or ' + RULE_TRUSTEE,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.TRAIN
+    deprecated_since=versionutils.deprecated.TRAIN,
 )
 deprecated_get_role_for_trust = policy.DeprecatedRule(
     name=base.IDENTITY % 'get_role_for_trust',
     check_str=RULE_TRUSTOR + ' or ' + RULE_TRUSTEE,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.TRAIN
+    deprecated_since=versionutils.deprecated.TRAIN,
 )
 deprecated_delete_trust = policy.DeprecatedRule(
     name=base.IDENTITY % 'delete_trust',
     check_str=RULE_TRUSTOR,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.TRAIN
+    deprecated_since=versionutils.deprecated.TRAIN,
 )
 deprecated_get_trust = policy.DeprecatedRule(
     name=base.IDENTITY % 'get_trust',
     check_str=RULE_TRUSTOR + ' or ' + RULE_TRUSTEE,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.TRAIN
+    deprecated_since=versionutils.deprecated.TRAIN,
 )
 
 trust_policies = [
@@ -79,78 +94,104 @@ trust_policies = [
         # useful. For now, this should be a project only operation.
         scope_types=['project'],
         description='Create trust.',
-        operations=[{'path': '/v3/OS-TRUST/trusts',
-                     'method': 'POST'}]),
+        operations=[{'path': '/v3/OS-TRUST/trusts', 'method': 'POST'}],
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_trusts',
         check_str=base.RULE_ADMIN_OR_SYSTEM_READER,
         scope_types=['system', 'project'],
         description='List trusts.',
-        operations=[{'path': '/v3/OS-TRUST/trusts',
-                     'method': 'GET'},
-                    {'path': '/v3/OS-TRUST/trusts',
-                     'method': 'HEAD'}],
-        deprecated_rule=deprecated_list_trusts),
+        operations=[
+            {'path': '/v3/OS-TRUST/trusts', 'method': 'GET'},
+            {'path': '/v3/OS-TRUST/trusts', 'method': 'HEAD'},
+        ],
+        deprecated_rule=deprecated_list_trusts,
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_trusts_for_trustor',
         check_str=ADMIN_OR_SYSTEM_READER_OR_TRUSTOR,
         scope_types=['system', 'project'],
         description='List trusts for trustor.',
-        operations=[{'path': '/v3/OS-TRUST/trusts?'
-                             'trustor_user_id={trustor_user_id}',
-                     'method': 'GET'},
-                    {'path': '/v3/OS-TRUST/trusts?'
-                             'trustor_user_id={trustor_user_id}',
-                     'method': 'HEAD'}]),
+        operations=[
+            {
+                'path': '/v3/OS-TRUST/trusts?'
+                'trustor_user_id={trustor_user_id}',
+                'method': 'GET',
+            },
+            {
+                'path': '/v3/OS-TRUST/trusts?'
+                'trustor_user_id={trustor_user_id}',
+                'method': 'HEAD',
+            },
+        ],
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_trusts_for_trustee',
         check_str=ADMIN_OR_SYSTEM_READER_OR_TRUSTEE,
         scope_types=['system', 'project'],
         description='List trusts for trustee.',
-        operations=[{'path': '/v3/OS-TRUST/trusts?'
-                             'trustee_user_id={trustee_user_id}',
-                     'method': 'GET'},
-                    {'path': '/v3/OS-TRUST/trusts?'
-                             'trustee_user_id={trustee_user_id}',
-                     'method': 'HEAD'}]),
+        operations=[
+            {
+                'path': '/v3/OS-TRUST/trusts?'
+                'trustee_user_id={trustee_user_id}',
+                'method': 'GET',
+            },
+            {
+                'path': '/v3/OS-TRUST/trusts?'
+                'trustee_user_id={trustee_user_id}',
+                'method': 'HEAD',
+            },
+        ],
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_roles_for_trust',
         check_str=ADMIN_OR_SYSTEM_READER_OR_TRUSTOR_OR_TRUSTEE,
         scope_types=['system', 'project'],
         description='List roles delegated by a trust.',
-        operations=[{'path': '/v3/OS-TRUST/trusts/{trust_id}/roles',
-                     'method': 'GET'},
-                    {'path': '/v3/OS-TRUST/trusts/{trust_id}/roles',
-                     'method': 'HEAD'}],
-        deprecated_rule=deprecated_list_roles_for_trust),
+        operations=[
+            {'path': '/v3/OS-TRUST/trusts/{trust_id}/roles', 'method': 'GET'},
+            {'path': '/v3/OS-TRUST/trusts/{trust_id}/roles', 'method': 'HEAD'},
+        ],
+        deprecated_rule=deprecated_list_roles_for_trust,
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_role_for_trust',
         check_str=ADMIN_OR_SYSTEM_READER_OR_TRUSTOR_OR_TRUSTEE,
         scope_types=['system', 'project'],
         description='Check if trust delegates a particular role.',
-        operations=[{'path': '/v3/OS-TRUST/trusts/{trust_id}/roles/{role_id}',
-                     'method': 'GET'},
-                    {'path': '/v3/OS-TRUST/trusts/{trust_id}/roles/{role_id}',
-                     'method': 'HEAD'}],
-        deprecated_rule=deprecated_get_role_for_trust),
+        operations=[
+            {
+                'path': '/v3/OS-TRUST/trusts/{trust_id}/roles/{role_id}',
+                'method': 'GET',
+            },
+            {
+                'path': '/v3/OS-TRUST/trusts/{trust_id}/roles/{role_id}',
+                'method': 'HEAD',
+            },
+        ],
+        deprecated_rule=deprecated_get_role_for_trust,
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_trust',
         check_str=ADMIN_OR_TRUSTOR,
         scope_types=['system', 'project'],
         description='Revoke trust.',
-        operations=[{'path': '/v3/OS-TRUST/trusts/{trust_id}',
-                     'method': 'DELETE'}],
-        deprecated_rule=deprecated_delete_trust),
+        operations=[
+            {'path': '/v3/OS-TRUST/trusts/{trust_id}', 'method': 'DELETE'}
+        ],
+        deprecated_rule=deprecated_delete_trust,
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_trust',
         check_str=ADMIN_OR_SYSTEM_READER_OR_TRUSTOR_OR_TRUSTEE,
         scope_types=['system', 'project'],
         description='Get trust.',
-        operations=[{'path': '/v3/OS-TRUST/trusts/{trust_id}',
-                     'method': 'GET'},
-                    {'path': '/v3/OS-TRUST/trusts/{trust_id}',
-                     'method': 'HEAD'}],
-        deprecated_rule=deprecated_get_trust)
+        operations=[
+            {'path': '/v3/OS-TRUST/trusts/{trust_id}', 'method': 'GET'},
+            {'path': '/v3/OS-TRUST/trusts/{trust_id}', 'method': 'HEAD'},
+        ],
+        deprecated_rule=deprecated_get_trust,
+    ),
 ]
 
 

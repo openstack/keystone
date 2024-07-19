@@ -49,16 +49,17 @@ class SqlCredential(SqlTests):
     def _create_credential_with_user_id(self, user_id=None):
         if not user_id:
             user_id = uuid.uuid4().hex
-        credential = unit.new_credential_ref(user_id=user_id,
-                                             extra=uuid.uuid4().hex,
-                                             type=uuid.uuid4().hex)
+        credential = unit.new_credential_ref(
+            user_id=user_id, extra=uuid.uuid4().hex, type=uuid.uuid4().hex
+        )
         PROVIDERS.credential_api.create_credential(
             credential['id'], credential
         )
         return credential
 
-    def _validate_credential_list(self, retrieved_credentials,
-                                  expected_credentials):
+    def _validate_credential_list(
+        self, retrieved_credentials, expected_credentials
+    ):
         self.assertEqual(len(expected_credentials), len(retrieved_credentials))
         retrieved_ids = [c['id'] for c in retrieved_credentials]
         for cred in expected_credentials:
@@ -70,7 +71,7 @@ class SqlCredential(SqlTests):
             ksfixtures.KeyRepository(
                 self.config_fixture,
                 'credential',
-                credential_provider.MAX_ACTIVE_KEYS
+                credential_provider.MAX_ACTIVE_KEYS,
             )
         )
         self.credentials = []
@@ -99,7 +100,7 @@ class SqlCredential(SqlTests):
             'id': uuid.uuid4().hex,
             'type': uuid.uuid4().hex,
             'hash': uuid.uuid4().hex,
-            'encrypted_blob': b'randomdata'
+            'encrypted_blob': b'randomdata',
         }
         ref = credential_sql.CredentialModel.from_dict(cred_dict)
         # Make sure CredentialModel is handing over a text string
@@ -110,6 +111,8 @@ class SqlCredential(SqlTests):
         config_fixture_ = self.user = self.useFixture(config_fixture.Config())
         config_fixture_.config(group='credential', user_limit=4)
         self._create_credential_with_user_id(self.user_foo['id'])
-        self.assertRaises(exception.CredentialLimitExceeded,
-                          self._create_credential_with_user_id,
-                          self.user_foo['id'])
+        self.assertRaises(
+            exception.CredentialLimitExceeded,
+            self._create_credential_with_user_id,
+            self.user_foo['id'],
+        )

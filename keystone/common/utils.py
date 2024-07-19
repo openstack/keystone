@@ -43,8 +43,12 @@ from keystone.i18n import _
 CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 WHITELISTED_PROPERTIES = [
-    'tenant_id', 'project_id', 'user_id',
-    'compute_host', 'public_endpoint', ]
+    'tenant_id',
+    'project_id',
+    'user_id',
+    'compute_host',
+    'public_endpoint',
+]
 
 
 # NOTE(stevermar): This UUID must stay the same, forever, across
@@ -53,7 +57,9 @@ WHITELISTED_PROPERTIES = [
 RESOURCE_ID_NAMESPACE = uuid.UUID('4332ecab-770b-4288-a680-b9aca3b1b153')
 
 # Compatibilty for password hashing functions.
-verify_length_and_trunc_password = password_hashing.verify_length_and_trunc_password  # noqa
+verify_length_and_trunc_password = (
+    password_hashing.verify_length_and_trunc_password
+)  # noqa
 hash_password = password_hashing.hash_password
 hash_user_password = password_hashing.hash_user_password
 check_password = password_hashing.check_password
@@ -75,8 +81,12 @@ def resource_uuid(value):
     except ValueError:
         if len(value) <= 64:
             return uuid.uuid5(RESOURCE_ID_NAMESPACE, value).hex
-        raise ValueError(_('Length of transformable resource id > 64, '
-                         'which is max allowed characters'))
+        raise ValueError(
+            _(
+                'Length of transformable resource id > 64, '
+                'which is max allowed characters'
+            )
+        )
 
 
 def flatten_dict(d, parent_key=''):
@@ -157,16 +167,19 @@ def setup_remote_pydev_debug():
             except ImportError:
                 import pydevd
 
-            pydevd.settrace(CONF.pydev_debug_host,
-                            port=CONF.pydev_debug_port,
-                            stdoutToServer=True,
-                            stderrToServer=True)
+            pydevd.settrace(
+                CONF.pydev_debug_host,
+                port=CONF.pydev_debug_port,
+                stdoutToServer=True,
+                stderrToServer=True,
+            )
             return True
         except Exception:
             LOG.exception(
                 'Error setting up the debug environment. Verify that the '
                 'option --debug-url has the format <host>:<port> and that a '
-                'debugger processes is listening on that port.')
+                'debugger processes is listening on that port.'
+            )
             raise
 
 
@@ -219,10 +232,11 @@ def get_unix_user(user=None):
     elif user is None:
         user_info = pwd.getpwuid(os.geteuid())
     else:
-        user_cls_name = reflection.get_class_name(user,
-                                                  fully_qualified=False)
-        raise TypeError('user must be string, int or None; not %s (%r)' %
-                        (user_cls_name, user))
+        user_cls_name = reflection.get_class_name(user, fully_qualified=False)
+        raise TypeError(
+            'user must be string, int or None; not %s (%r)'
+            % (user_cls_name, user)
+        )
 
     return user_info.pw_uid, user_info.pw_name
 
@@ -279,10 +293,13 @@ def get_unix_group(group=None):
     elif group is None:
         group_info = grp.getgrgid(os.getegid())
     else:
-        group_cls_name = reflection.get_class_name(group,
-                                                   fully_qualified=False)
-        raise TypeError('group must be string, int or None; not %s (%r)' %
-                        (group_cls_name, group))
+        group_cls_name = reflection.get_class_name(
+            group, fully_qualified=False
+        )
+        raise TypeError(
+            'group must be string, int or None; not %s (%r)'
+            % (group_cls_name, group)
+        )
 
     return group_info.gr_gid, group_info.gr_name
 
@@ -337,12 +354,14 @@ def isotime(at=None, subsecond=False):
     # NOTE(lbragstad): Datetime objects are immutable, so reassign the date we
     # are working with to itself as we drop microsecond precision.
     at = at.replace(microsecond=0)
-    st = at.strftime(_ISO8601_TIME_FORMAT
-                     if not subsecond
-                     else _ISO8601_TIME_FORMAT_SUBSECOND)
+    st = at.strftime(
+        _ISO8601_TIME_FORMAT
+        if not subsecond
+        else _ISO8601_TIME_FORMAT_SUBSECOND
+    )
     tz = at.tzinfo.tzname(None) if at.tzinfo else 'UTC'
     # Need to handle either iso8601 or python UTC format
-    st += ('Z' if tz in ['UTC', 'UTC+00:00'] else tz)
+    st += 'Z' if tz in ['UTC', 'UTC+00:00'] else tz
     return st
 
 
@@ -414,8 +433,8 @@ def format_url(url, substitutions, silent_keyerror_failures=None):
 
     """
     substitutions = WhiteListedItemFilter(
-        WHITELISTED_PROPERTIES,
-        substitutions)
+        WHITELISTED_PROPERTIES, substitutions
+    )
     allow_keyerror = silent_keyerror_failures or []
     try:
         result = url.replace('$(', '%(') % substitutions
@@ -431,13 +450,17 @@ def format_url(url, substitutions, silent_keyerror_failures=None):
         else:
             result = None
     except TypeError as e:
-        msg = ("Malformed endpoint '%(url)s'. The following type error "
-               "occurred during string substitution: %(typeerror)s")
+        msg = (
+            "Malformed endpoint '%(url)s'. The following type error "
+            "occurred during string substitution: %(typeerror)s"
+        )
         LOG.error(msg, {"url": url, "typeerror": e})
         raise exception.MalformedEndpoint(endpoint=url)
     except ValueError:
-        msg = ("Malformed endpoint %s - incomplete format "
-               "(are you missing a type notifier ?)")
+        msg = (
+            "Malformed endpoint %s - incomplete format "
+            "(are you missing a type notifier ?)"
+        )
         LOG.error(msg, url)
         raise exception.MalformedEndpoint(endpoint=url)
     return result
@@ -541,19 +564,19 @@ def create_directory(directory, keystone_user_id=None, keystone_group_id=None):
             LOG.error(
                 'Failed to create %s: either it already '
                 'exists or you don\'t have sufficient permissions to '
-                'create it', directory
+                'create it',
+                directory,
             )
 
         if keystone_user_id and keystone_group_id:
-            os.chown(
-                directory,
-                keystone_user_id,
-                keystone_group_id)
+            os.chown(directory, keystone_user_id, keystone_group_id)
         elif keystone_user_id or keystone_group_id:
             LOG.warning(
                 'Unable to change the ownership of key repository without '
                 'a keystone user ID and keystone group ID both being '
-                'provided: %s', directory)
+                'provided: %s',
+                directory,
+            )
 
 
 @contextlib.contextmanager

@@ -41,7 +41,7 @@ class PolicyResource(ks_flask.ResourceBase):
 
     @versionutils.deprecated(
         as_of=versionutils.deprecated.QUEENS,
-        what='identity:get_policy of the v3 Policy APIs'
+        what='identity:get_policy of the v3 Policy APIs',
     )
     def _get_policy(self, policy_id):
         ENFORCER.enforce_call(action='identity:get_policy')
@@ -50,7 +50,7 @@ class PolicyResource(ks_flask.ResourceBase):
 
     @versionutils.deprecated(
         as_of=versionutils.deprecated.QUEENS,
-        what='identity:list_policies of the v3 Policy APIs'
+        what='identity:list_policies of the v3 Policy APIs',
     )
     def _list_policies(self):
         ENFORCER.enforce_call(action='identity:list_policies')
@@ -61,7 +61,7 @@ class PolicyResource(ks_flask.ResourceBase):
 
     @versionutils.deprecated(
         as_of=versionutils.deprecated.QUEENS,
-        what='identity:create_policy of the v3 Policy APIs'
+        what='identity:create_policy of the v3 Policy APIs',
     )
     def post(self):
         ENFORCER.enforce_call(action='identity:create_policy')
@@ -76,7 +76,7 @@ class PolicyResource(ks_flask.ResourceBase):
 
     @versionutils.deprecated(
         as_of=versionutils.deprecated.QUEENS,
-        what='identity:update_policy of the v3 Policy APIs'
+        what='identity:update_policy of the v3 Policy APIs',
     )
     def patch(self, policy_id):
         ENFORCER.enforce_call(action='identity:update_policy')
@@ -90,7 +90,7 @@ class PolicyResource(ks_flask.ResourceBase):
 
     @versionutils.deprecated(
         as_of=versionutils.deprecated.QUEENS,
-        what='identity:delete_policy of the v3 Policy APIs'
+        what='identity:delete_policy of the v3 Policy APIs',
     )
     def delete(self, policy_id):
         ENFORCER.enforce_call(action='identity:delete_policy')
@@ -231,45 +231,51 @@ class PolicyAPI(ks_flask.APIBase):
             resource_kwargs={},
             rel='policy_endpoints',
             path_vars={'policy_id': json_home.Parameters.POLICY_ID},
-            resource_relation_func=_resource_rel_func
+            resource_relation_func=_resource_rel_func,
         ),
         ks_flask.construct_resource_map(
             resource=EndpointPolicyAssociations,
-            url=('/policies/<string:policy_id>/OS-ENDPOINT-POLICY/'
-                 'endpoints/<string:endpoint_id>'),
+            url=(
+                '/policies/<string:policy_id>/OS-ENDPOINT-POLICY/'
+                'endpoints/<string:endpoint_id>'
+            ),
             resource_kwargs={},
             rel='endpoint_policy_association',
             path_vars={
                 'policy_id': json_home.Parameters.POLICY_ID,
-                'endpoint_id': json_home.Parameters.ENDPOINT_ID
+                'endpoint_id': json_home.Parameters.ENDPOINT_ID,
             },
-            resource_relation_func=_resource_rel_func
+            resource_relation_func=_resource_rel_func,
         ),
         ks_flask.construct_resource_map(
             resource=ServicePolicyAssociations,
-            url=('/policies/<string:policy_id>/OS-ENDPOINT-POLICY/'
-                 'services/<string:service_id>'),
+            url=(
+                '/policies/<string:policy_id>/OS-ENDPOINT-POLICY/'
+                'services/<string:service_id>'
+            ),
             resource_kwargs={},
             rel='service_policy_association',
             path_vars={
                 'policy_id': json_home.Parameters.POLICY_ID,
-                'service_id': json_home.Parameters.SERVICE_ID
+                'service_id': json_home.Parameters.SERVICE_ID,
             },
-            resource_relation_func=_resource_rel_func
+            resource_relation_func=_resource_rel_func,
         ),
         ks_flask.construct_resource_map(
             resource=ServiceRegionPolicyAssociations,
-            url=('/policies/<string:policy_id>/OS-ENDPOINT-POLICY/'
-                 'services/<string:service_id>/regions/<string:region_id>'),
+            url=(
+                '/policies/<string:policy_id>/OS-ENDPOINT-POLICY/'
+                'services/<string:service_id>/regions/<string:region_id>'
+            ),
             resource_kwargs={},
             rel='region_and_service_policy_association',
             path_vars={
                 'policy_id': json_home.Parameters.POLICY_ID,
                 'service_id': json_home.Parameters.SERVICE_ID,
-                'region_id': json_home.Parameters.REGION_ID
+                'region_id': json_home.Parameters.REGION_ID,
             },
-            resource_relation_func=_resource_rel_func
-        )
+            resource_relation_func=_resource_rel_func,
+        ),
     ]
 
 

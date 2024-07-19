@@ -22,7 +22,8 @@ class RoleTable(sql.ModelBase, sql.ModelDictMixinWithExtras):
 
     def to_dict(self, include_extra_dict=False):
         d = super(RoleTable, self).to_dict(
-            include_extra_dict=include_extra_dict)
+            include_extra_dict=include_extra_dict
+        )
         if d['domain_id'] == base.NULL_DOMAIN_ID:
             d['domain_id'] = None
         # NOTE(notmorgan): Eventually it may make sense to drop the empty
@@ -56,8 +57,9 @@ class RoleTable(sql.ModelBase, sql.ModelDictMixinWithExtras):
     resource_options_registry = ro.ROLE_OPTIONS_REGISTRY
     id = sql.Column(sql.String(64), primary_key=True)
     name = sql.Column(sql.String(255), nullable=False)
-    domain_id = sql.Column(sql.String(64), nullable=False,
-                           server_default=base.NULL_DOMAIN_ID)
+    domain_id = sql.Column(
+        sql.String(64), nullable=False, server_default=base.NULL_DOMAIN_ID
+    )
     description = sql.Column(sql.String(255), nullable=True)
     extra = sql.Column(sql.JsonBlob())
     _resource_option_mapper = orm.relationship(
@@ -66,7 +68,7 @@ class RoleTable(sql.ModelBase, sql.ModelDictMixinWithExtras):
         cascade='all,delete,delete-orphan',
         lazy='subquery',
         backref='role',
-        collection_class=collections.attribute_mapped_collection('option_id')
+        collection_class=collections.attribute_mapped_collection('option_id'),
     )
     __table_args__ = (sql.UniqueConstraint('name', 'domain_id'),)
 
@@ -77,11 +79,13 @@ class ImpliedRoleTable(sql.ModelBase, sql.ModelDictMixin):
     prior_role_id = sql.Column(
         sql.String(64),
         sql.ForeignKey('role.id', ondelete="CASCADE"),
-        primary_key=True)
+        primary_key=True,
+    )
     implied_role_id = sql.Column(
         sql.String(64),
         sql.ForeignKey('role.id', ondelete="CASCADE"),
-        primary_key=True)
+        primary_key=True,
+    )
 
     @classmethod
     def from_dict(cls, dictionary):
@@ -102,11 +106,13 @@ class ImpliedRoleTable(sql.ModelBase, sql.ModelDictMixin):
 
 class RoleOption(sql.ModelBase):
     __tablename__ = 'role_option'
-    role_id = sql.Column(sql.String(64),
-                         sql.ForeignKey('role.id', ondelete='CASCADE'),
-                         nullable=False, primary_key=True)
-    option_id = sql.Column(sql.String(4), nullable=False,
-                           primary_key=True)
+    role_id = sql.Column(
+        sql.String(64),
+        sql.ForeignKey('role.id', ondelete='CASCADE'),
+        nullable=False,
+        primary_key=True,
+    )
+    option_id = sql.Column(sql.String(4), nullable=False, primary_key=True)
     option_value = sql.Column(sql.JsonBlob, nullable=True)
 
     def __init__(self, option_id, option_value):

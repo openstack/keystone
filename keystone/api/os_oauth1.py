@@ -46,7 +46,8 @@ _build_resource_relation = json_home_relations.os_oauth1_resource_rel_func
 _build_parameter_relation = json_home_relations.os_oauth1_parameter_rel_func
 
 _ACCESS_TOKEN_ID_PARAMETER_RELATION = _build_parameter_relation(
-    parameter_name='access_token_id')
+    parameter_name='access_token_id'
+)
 
 
 def _normalize_role_list(authorize_roles):
@@ -55,8 +56,9 @@ def _normalize_role_list(authorize_roles):
         if role.get('id'):
             roles.add(role['id'])
         else:
-            roles.add(PROVIDERS.role_api.get_unique_role_by_name(
-                role['name'])['id'])
+            roles.add(
+                PROVIDERS.role_api.get_unique_role_by_name(role['name'])['id']
+            )
     return roles
 
 
@@ -102,12 +104,14 @@ class ConsumerResource(ks_flask.ResourceBase):
     def post(self):
         ENFORCER.enforce_call(action='identity:create_consumer')
         consumer = (flask.request.get_json(force=True, silent=True) or {}).get(
-            'consumer', {})
+            'consumer', {}
+        )
         consumer = self._normalize_dict(consumer)
         validation.lazy_validate(schema.consumer_create, consumer)
         consumer = self._assign_unique_id(consumer)
         ref = PROVIDERS.oauth_api.create_consumer(
-            consumer, initiator=self.audit_initiator)
+            consumer, initiator=self.audit_initiator
+        )
         return self.wrap_member(ref), http.client.CREATED
 
     def delete(self, consumer_id):
@@ -116,23 +120,25 @@ class ConsumerResource(ks_flask.ResourceBase):
             'Invalidating token cache because consumer %(consumer_id)s has '
             'been deleted. Authorization for users with OAuth tokens will be '
             'recalculated and enforced accordingly the next time they '
-            'authenticate or validate a token.' %
-            {'consumer_id': consumer_id}
+            'authenticate or validate a token.' % {'consumer_id': consumer_id}
         )
         notifications.invalidate_token_cache_notification(reason)
         PROVIDERS.oauth_api.delete_consumer(
-            consumer_id, initiator=self.audit_initiator)
+            consumer_id, initiator=self.audit_initiator
+        )
         return None, http.client.NO_CONTENT
 
     def patch(self, consumer_id):
         ENFORCER.enforce_call(action='identity:update_consumer')
         consumer = (flask.request.get_json(force=True, silent=True) or {}).get(
-            'consumer', {})
+            'consumer', {}
+        )
         validation.lazy_validate(schema.consumer_update, consumer)
         consumer = self._normalize_dict(consumer)
         self._require_matching_id(consumer)
         ref = PROVIDERS.oauth_api.update_consumer(
-            consumer_id, consumer, initiator=self.audit_initiator)
+            consumer_id, consumer, initiator=self.audit_initiator
+        )
         return self.wrap_member(ref)
 
 
@@ -142,14 +148,17 @@ class RequestTokenResource(_OAuth1ResourceBase):
         oauth_headers = oauth1.get_oauth_headers(flask.request.headers)
         consumer_id = oauth_headers.get('oauth_consumer_key')
         requested_project_id = flask.request.headers.get(
-            'Requested-Project-Id')
+            'Requested-Project-Id'
+        )
 
         if not consumer_id:
             raise exception.ValidationError(
-                attribute='oauth_consumer_key', target='request')
+                attribute='oauth_consumer_key', target='request'
+            )
         if not requested_project_id:
             raise exception.ValidationError(
-                attribute='Requested-Project-Id', target='request')
+                attribute='Requested-Project-Id', target='request'
+            )
 
         # NOTE(stevemar): Ensure consumer and requested project exist
         PROVIDERS.resource_api.get_project(requested_project_id)
@@ -160,10 +169,14 @@ class RequestTokenResource(_OAuth1ResourceBase):
         req_headers.update(flask.request.headers)
         request_verifier = oauth1.RequestTokenEndpoint(
             request_validator=validator.OAuthValidator(),
-            token_generator=oauth1.token_generator)
+            token_generator=oauth1.token_generator,
+        )
         h, b, s = request_verifier.create_request_token_response(
-            url, http_method='POST', body=flask.request.args,
-            headers=req_headers)
+            url,
+            http_method='POST',
+            body=flask.request.args,
+            headers=req_headers,
+        )
         if not b:
             msg = _('Invalid signature')
             raise exception.Unauthorized(message=msg)
@@ -174,11 +187,13 @@ class RequestTokenResource(_OAuth1ResourceBase):
             consumer_id,
             requested_project_id,
             request_token_duration,
-            initiator=notifications.build_audit_initiator())
+            initiator=notifications.build_audit_initiator(),
+        )
 
-        result = ('oauth_token=%(key)s&oauth_token_secret=%(secret)s'
-                  % {'key': token_ref['id'],
-                     'secret': token_ref['request_secret']})
+        result = 'oauth_token=%(key)s&oauth_token_secret=%(secret)s' % {
+            'key': token_ref['id'],
+            'secret': token_ref['request_secret'],
+        }
 
         if CONF.oauth1.request_token_duration > 0:
             expiry_bit = '&oauth_expires_at=%s' % token_ref['expires_at']
@@ -199,35 +214,40 @@ class AccessTokenResource(_OAuth1ResourceBase):
 
         if not consumer_id:
             raise exception.ValidationError(
-                attribute='oauth_consumer_key', target='request')
+                attribute='oauth_consumer_key', target='request'
+            )
         if not request_token_id:
             raise exception.ValidationError(
-                attribute='oauth_token', target='request')
+                attribute='oauth_token', target='request'
+            )
         if not oauth_verifier:
             raise exception.ValidationError(
-                attribute='oauth_verifier', target='request')
+                attribute='oauth_verifier', target='request'
+            )
 
-        req_token = PROVIDERS.oauth_api.get_request_token(
-            request_token_id)
+        req_token = PROVIDERS.oauth_api.get_request_token(request_token_id)
 
         expires_at = req_token['expires_at']
         if expires_at:
             now = timeutils.utcnow()
             expires = timeutils.normalize_time(
-                timeutils.parse_isotime(expires_at))
+                timeutils.parse_isotime(expires_at)
+            )
             if now > expires:
                 raise exception.Unauthorized(_('Request token is expired'))
 
         url = _update_url_scheme()
         access_verifier = oauth1.AccessTokenEndpoint(
             request_validator=validator.OAuthValidator(),
-            token_generator=oauth1.token_generator)
+            token_generator=oauth1.token_generator,
+        )
         try:
             h, b, s = access_verifier.create_access_token_response(
                 url,
                 http_method='POST',
                 body=flask.request.args,
-                headers=dict(flask.request.headers))
+                headers=dict(flask.request.headers),
+            )
         except NotImplementedError:
             # Client key or request token validation failed, since keystone
             # does not yet support dummy client or dummy request token,
@@ -239,10 +259,14 @@ class AccessTokenResource(_OAuth1ResourceBase):
                 LOG.warning('Provided consumer does not exist.')
                 raise exception.Unauthorized(message=msg)
             if req_token['consumer_id'] != consumer_id:
-                msg = ('Provided consumer key does not match stored consumer '
-                       'key.')
-                tr_msg = _('Provided consumer key does not match stored '
-                           'consumer key.')
+                msg = (
+                    'Provided consumer key does not match stored consumer '
+                    'key.'
+                )
+                tr_msg = _(
+                    'Provided consumer key does not match stored '
+                    'consumer key.'
+                )
                 LOG.warning(msg)
                 raise exception.Unauthorized(message=tr_msg)
         # The response body is empty since either one of the following reasons
@@ -266,11 +290,13 @@ class AccessTokenResource(_OAuth1ResourceBase):
         token_ref = PROVIDERS.oauth_api.create_access_token(
             request_token_id,
             access_token_duration,
-            initiator=notifications.build_audit_initiator())
+            initiator=notifications.build_audit_initiator(),
+        )
 
-        result = ('oauth_token=%(key)s&oauth_token_secret=%(secret)s'
-                  % {'key': token_ref['id'],
-                     'secret': token_ref['access_secret']})
+        result = 'oauth_token=%(key)s&oauth_token_secret=%(secret)s' % {
+            'key': token_ref['id'],
+            'secret': token_ref['access_secret'],
+        }
 
         if CONF.oauth1.access_token_duration > 0:
             expiry_bit = '&oauth_expires_at=%s' % (token_ref['expires_at'])
@@ -285,13 +311,17 @@ class AuthorizeResource(_OAuth1ResourceBase):
     def put(self, request_token_id):
         ENFORCER.enforce_call(action='identity:authorize_request_token')
         roles = (flask.request.get_json(force=True, silent=True) or {}).get(
-            'roles', [])
+            'roles', []
+        )
         validation.lazy_validate(schema.request_token_authorize, roles)
         ctx = flask.request.environ[context.REQUEST_CONTEXT_ENV]
         if ctx.is_delegated_auth:
             raise exception.Forbidden(
-                _('Cannot authorize a request token with a token issued via '
-                  'delegation.'))
+                _(
+                    'Cannot authorize a request token with a token issued via '
+                    'delegation.'
+                )
+            )
 
         req_token = PROVIDERS.oauth_api.get_request_token(request_token_id)
 
@@ -299,7 +329,8 @@ class AuthorizeResource(_OAuth1ResourceBase):
         if expires_at:
             now = timeutils.utcnow()
             expires = timeutils.normalize_time(
-                timeutils.parse_isotime(expires_at))
+                timeutils.parse_isotime(expires_at)
+            )
             if now > expires:
                 raise exception.Unauthorized(_('Request token is expired'))
 
@@ -308,7 +339,8 @@ class AuthorizeResource(_OAuth1ResourceBase):
         # verify the authorizing user has the roles
         try:
             auth_context = flask.request.environ[
-                authorization.AUTH_CONTEXT_ENV]
+                authorization.AUTH_CONTEXT_ENV
+            ]
             user_token_ref = auth_context['token']
         except KeyError:
             LOG.warning("Couldn't find the auth context.")
@@ -317,7 +349,8 @@ class AuthorizeResource(_OAuth1ResourceBase):
         user_id = user_token_ref.user_id
         project_id = req_token['requested_project_id']
         user_roles = PROVIDERS.assignment_api.get_roles_for_user_and_project(
-            user_id, project_id)
+            user_id, project_id
+        )
         cred_set = set(user_roles)
 
         if not cred_set.issuperset(authed_roles):
@@ -329,7 +362,8 @@ class AuthorizeResource(_OAuth1ResourceBase):
 
         # finally authorize the token
         authed_token = PROVIDERS.oauth_api.authorize_request_token(
-            request_token_id, user_id, role_ids)
+            request_token_id, user_id, role_ids
+        )
 
         to_return = {'token': {'oauth_verifier': authed_token['verifier']}}
         return to_return
@@ -346,14 +380,14 @@ class OSAuth1API(ks_flask.APIBase):
             url='/request_token',
             resource_kwargs={},
             rel='request_tokens',
-            resource_relation_func=_build_resource_relation
+            resource_relation_func=_build_resource_relation,
         ),
         ks_flask.construct_resource_map(
             resource=AccessTokenResource,
             url='/access_token',
             rel='access_tokens',
             resource_kwargs={},
-            resource_relation_func=_build_resource_relation
+            resource_relation_func=_build_resource_relation,
         ),
         ks_flask.construct_resource_map(
             resource=AuthorizeResource,
@@ -363,8 +397,11 @@ class OSAuth1API(ks_flask.APIBase):
             resource_relation_func=_build_resource_relation,
             path_vars={
                 'request_token_id': _build_parameter_relation(
-                    parameter_name='request_token_id')
-            })]
+                    parameter_name='request_token_id'
+                )
+            },
+        ),
+    ]
 
 
 APIs = (OSAuth1API,)

@@ -21,12 +21,12 @@ _role_properties = {
         'type': 'object',
         'properties': {
             'id': parameter_types.id_string,
-            'name': parameter_types.name
+            'name': parameter_types.name,
         },
         'minProperties': 1,
         'maxProperties': 1,
-        'additionalProperties': False
-    }
+        'additionalProperties': False,
+    },
 }
 
 _access_rules_properties = {
@@ -38,36 +38,32 @@ _access_rules_properties = {
                 'type': 'string',
                 'minLength': 0,
                 'maxLength': 225,
-                'pattern': r'^\/.*'
+                'pattern': r'^\/.*',
             },
             'method': {
                 'type': 'string',
-                'pattern': r'^(POST|GET|HEAD|PATCH|PUT|DELETE)$'
+                'pattern': r'^(POST|GET|HEAD|PATCH|PUT|DELETE)$',
             },
             'service': parameter_types.id_string,
             'id': parameter_types.id_string,
         },
-        'additionalProperties': False
-    }
+        'additionalProperties': False,
+    },
 }
 
 _application_credential_properties = {
     'name': parameter_types.name,
     'description': validation.nullable(parameter_types.description),
-    'secret': {
-        'type': ['null', 'string']
-    },
-    'expires_at': {
-        'type': ['null', 'string']
-    },
+    'secret': {'type': ['null', 'string']},
+    'expires_at': {'type': ['null', 'string']},
     'roles': _role_properties,
     'unrestricted': parameter_types.boolean,
-    'access_rules': _access_rules_properties
+    'access_rules': _access_rules_properties,
 }
 
 application_credential_create = {
     'type': 'object',
     'properties': _application_credential_properties,
     'required': ['name'],
-    'additionalProperties': True
+    'additionalProperties': True,
 }

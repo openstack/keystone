@@ -38,8 +38,8 @@ MEMOIZE = cache.get_memoization_decorator(group='catalog')
 # entire cache region.
 COMPUTED_CATALOG_REGION = cache.create_region(name='computed catalog region')
 MEMOIZE_COMPUTED_CATALOG = cache.get_memoization_decorator(
-    group='catalog',
-    region=COMPUTED_CATALOG_REGION)
+    group='catalog', region=COMPUTED_CATALOG_REGION
+)
 
 
 class Manager(manager.Manager):
@@ -60,23 +60,31 @@ class Manager(manager.Manager):
     def __init__(self):
         super(Manager, self).__init__(CONF.catalog.driver)
         notifications.register_event_callback(
-            notifications.ACTIONS.deleted, 'project',
-            self._on_project_or_endpoint_delete)
+            notifications.ACTIONS.deleted,
+            'project',
+            self._on_project_or_endpoint_delete,
+        )
         notifications.register_event_callback(
-            notifications.ACTIONS.deleted, 'endpoint',
-            self._on_project_or_endpoint_delete)
+            notifications.ACTIONS.deleted,
+            'endpoint',
+            self._on_project_or_endpoint_delete,
+        )
 
-    def _on_project_or_endpoint_delete(self, service, resource_type, operation,
-                                       payload):
+    def _on_project_or_endpoint_delete(
+        self, service, resource_type, operation, payload
+    ):
         project_or_endpoint_id = payload['resource_info']
         if resource_type == 'project':
             PROVIDERS.catalog_api.delete_association_by_project(
-                project_or_endpoint_id)
+                project_or_endpoint_id
+            )
             PROVIDERS.catalog_api.delete_endpoint_group_association_by_project(
-                project_or_endpoint_id)
+                project_or_endpoint_id
+            )
         else:
             PROVIDERS.catalog_api.delete_association_by_endpoint(
-                project_or_endpoint_id)
+                project_or_endpoint_id
+            )
 
     def create_region(self, region_ref, initiator=None):
         # Check duplicate ID
@@ -183,16 +191,18 @@ class Manager(manager.Manager):
             if region_id is not None:
                 self.get_region(region_id)
         except exception.RegionNotFound:
-            raise exception.ValidationError(attribute='endpoint region_id',
-                                            target='region table')
+            raise exception.ValidationError(
+                attribute='endpoint region_id', target='region table'
+            )
 
     def _assert_service_exists(self, service_id):
         try:
             if service_id is not None:
                 self.get_service(service_id)
         except exception.ServiceNotFound:
-            raise exception.ValidationError(attribute='endpoint service_id',
-                                            target='service table')
+            raise exception.ValidationError(
+                attribute='endpoint service_id', target='service table'
+            )
 
     def create_endpoint(self, endpoint_id, endpoint_ref, initiator=None):
         self._assert_region_exists(endpoint_ref.get('region_id'))
@@ -247,19 +257,23 @@ class Manager(manager.Manager):
 
     def add_endpoint_group_to_project(self, endpoint_group_id, project_id):
         self.driver.add_endpoint_group_to_project(
-            endpoint_group_id, project_id)
+            endpoint_group_id, project_id
+        )
         COMPUTED_CATALOG_REGION.invalidate()
 
-    def remove_endpoint_group_from_project(self, endpoint_group_id,
-                                           project_id):
+    def remove_endpoint_group_from_project(
+        self, endpoint_group_id, project_id
+    ):
         self.driver.remove_endpoint_group_from_project(
-            endpoint_group_id, project_id)
+            endpoint_group_id, project_id
+        )
         COMPUTED_CATALOG_REGION.invalidate()
 
     def delete_endpoint_group_association_by_project(self, project_id):
         try:
             self.driver.delete_endpoint_group_association_by_project(
-                project_id)
+                project_id
+            )
         except exception.NotImplemented:
             # Some catalog drivers don't support this
             pass
@@ -270,8 +284,10 @@ class Manager(manager.Manager):
         PROVIDERS.resource_api.get_project(project_id)
         try:
             refs = self.list_endpoint_groups_for_project(project_id)
-            endpoint_groups = [self.get_endpoint_group(
-                ref['endpoint_group_id']) for ref in refs]
+            endpoint_groups = [
+                self.get_endpoint_group(ref['endpoint_group_id'])
+                for ref in refs
+            ]
             return endpoint_groups
         except exception.EndpointGroupNotFound:
             return []
@@ -307,15 +323,17 @@ class Manager(manager.Manager):
                 filtered_endpoints.update({ref['endpoint_id']: endpoint})
             except exception.EndpointNotFound:
                 # remove bad reference from association
-                self.remove_endpoint_from_project(ref['endpoint_id'],
-                                                  project_id)
+                self.remove_endpoint_from_project(
+                    ref['endpoint_id'], project_id
+                )
 
         # need to recover endpoint_groups associated with project
         # then for each endpoint group return the endpoints.
         endpoint_groups = self.get_endpoint_groups_for_project(project_id)
         for endpoint_group in endpoint_groups:
             endpoint_refs = self.get_endpoints_filtered_by_endpoint_group(
-                endpoint_group['id'])
+                endpoint_group['id']
+            )
             # now check if any endpoints for current endpoint group are not
             # contained in the list of filtered endpoints
             for endpoint_ref in endpoint_refs:

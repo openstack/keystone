@@ -34,11 +34,11 @@ class JWSKeyRepository(fixtures.Fixture):
         # set config to use temporary paths
         self.config_fixture.config(
             group=self.key_group,
-            jws_private_key_repository=private_key_directory
+            jws_private_key_repository=private_key_directory,
         )
         self.config_fixture.config(
             group=self.key_group,
-            jws_public_key_repository=public_key_directory
+            jws_public_key_repository=public_key_directory,
         )
 
         # create temporary repositories

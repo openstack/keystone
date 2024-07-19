@@ -29,11 +29,12 @@ class TestFederationProtocol(unit.TestCase):
         self.useFixture(database.Database())
         self.load_backends()
         PROVIDERS.resource_api.create_domain(
-            default_fixtures.ROOT_DOMAIN['id'], default_fixtures.ROOT_DOMAIN)
+            default_fixtures.ROOT_DOMAIN['id'], default_fixtures.ROOT_DOMAIN
+        )
         self.idp = {
             'id': uuid.uuid4().hex,
             'enabled': True,
-            'description': uuid.uuid4().hex
+            'description': uuid.uuid4().hex,
         }
         PROVIDERS.federation_api.create_idp(self.idp['id'], self.idp)
         self.mapping = mapping_fixtures.MAPPING_EPHEMERAL_USER
@@ -43,43 +44,38 @@ class TestFederationProtocol(unit.TestCase):
         )
 
     def test_create_protocol(self):
-        protocol = {
-            'id': uuid.uuid4().hex,
-            'mapping_id': self.mapping['id']
-        }
+        protocol = {'id': uuid.uuid4().hex, 'mapping_id': self.mapping['id']}
         protocol_ret = PROVIDERS.federation_api.create_protocol(
             self.idp['id'], protocol['id'], protocol
         )
         self.assertEqual(protocol['id'], protocol_ret['id'])
 
     def test_create_protocol_with_invalid_mapping_id(self):
-        protocol = {
-            'id': uuid.uuid4().hex,
-            'mapping_id': uuid.uuid4().hex
-        }
-        self.assertRaises(exception.ValidationError,
-                          PROVIDERS.federation_api.create_protocol,
-                          self.idp['id'],
-                          protocol['id'],
-                          protocol)
+        protocol = {'id': uuid.uuid4().hex, 'mapping_id': uuid.uuid4().hex}
+        self.assertRaises(
+            exception.ValidationError,
+            PROVIDERS.federation_api.create_protocol,
+            self.idp['id'],
+            protocol['id'],
+            protocol,
+        )
 
     def test_create_protocol_with_remote_id_attribute(self):
         protocol = {
             'id': uuid.uuid4().hex,
             'mapping_id': self.mapping['id'],
-            'remote_id_attribute': uuid.uuid4().hex
+            'remote_id_attribute': uuid.uuid4().hex,
         }
         protocol_ret = PROVIDERS.federation_api.create_protocol(
             self.idp['id'], protocol['id'], protocol
         )
-        self.assertEqual(protocol['remote_id_attribute'],
-                         protocol_ret['remote_id_attribute'])
+        self.assertEqual(
+            protocol['remote_id_attribute'],
+            protocol_ret['remote_id_attribute'],
+        )
 
     def test_update_protocol(self):
-        protocol = {
-            'id': uuid.uuid4().hex,
-            'mapping_id': self.mapping['id']
-        }
+        protocol = {'id': uuid.uuid4().hex, 'mapping_id': self.mapping['id']}
         protocol_ret = PROVIDERS.federation_api.create_protocol(
             self.idp['id'], protocol['id'], protocol
         )
@@ -95,26 +91,22 @@ class TestFederationProtocol(unit.TestCase):
         self.assertEqual(new_mapping['id'], protocol_ret['mapping_id'])
 
     def test_update_protocol_with_invalid_mapping_id(self):
-        protocol = {
-            'id': uuid.uuid4().hex,
-            'mapping_id': self.mapping['id']
-        }
+        protocol = {'id': uuid.uuid4().hex, 'mapping_id': self.mapping['id']}
         protocol_ret = PROVIDERS.federation_api.create_protocol(
             self.idp['id'], protocol['id'], protocol
         )
         self.assertEqual(protocol['id'], protocol_ret['id'])
         protocol['mapping_id'] = uuid.uuid4().hex
-        self.assertRaises(exception.ValidationError,
-                          PROVIDERS.federation_api.update_protocol,
-                          self.idp['id'],
-                          protocol['id'],
-                          protocol)
+        self.assertRaises(
+            exception.ValidationError,
+            PROVIDERS.federation_api.update_protocol,
+            self.idp['id'],
+            protocol['id'],
+            protocol,
+        )
 
     def test_update_protocol_with_remote_id_attribute(self):
-        protocol = {
-            'id': uuid.uuid4().hex,
-            'mapping_id': self.mapping['id']
-        }
+        protocol = {'id': uuid.uuid4().hex, 'mapping_id': self.mapping['id']}
         protocol_ret = PROVIDERS.federation_api.create_protocol(
             self.idp['id'], protocol['id'], protocol
         )
@@ -123,5 +115,7 @@ class TestFederationProtocol(unit.TestCase):
         protocol_ret = PROVIDERS.federation_api.update_protocol(
             self.idp['id'], protocol['id'], protocol
         )
-        self.assertEqual(protocol['remote_id_attribute'],
-                         protocol_ret['remote_id_attribute'])
+        self.assertEqual(
+            protocol['remote_id_attribute'],
+            protocol_ret['remote_id_attribute'],
+        )

@@ -56,7 +56,7 @@ def _override_policy(policy_file):
             ),
             'identity:delete_project_tags': (
                 pp.SYSTEM_ADMIN_OR_DOMAIN_ADMIN_OR_PROJECT_ADMIN
-            )
+            ),
         }
         f.write(jsonutils.dumps(overridden_policies))
 
@@ -65,7 +65,7 @@ class _SystemUserTests(object):
     def test_user_can_get_project_tag(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         tag = uuid.uuid4().hex
@@ -75,13 +75,13 @@ class _SystemUserTests(object):
             c.get(
                 '/v3/projects/%s/tags/%s' % (project['id'], tag),
                 headers=self.headers,
-                expected_status_code=http.client.NO_CONTENT
+                expected_status_code=http.client.NO_CONTENT,
             )
 
     def test_user_can_list_project_tags(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         tag = uuid.uuid4().hex
@@ -100,7 +100,7 @@ class _SystemMemberAndReaderTagTests(object):
     def test_user_cannot_create_project_tag(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         tag = uuid.uuid4().hex
@@ -109,13 +109,13 @@ class _SystemMemberAndReaderTagTests(object):
             c.put(
                 '/v3/projects/%s/tags/%s' % (project['id'], tag),
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_update_project_tag(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         tag = uuid.uuid4().hex
@@ -125,14 +125,16 @@ class _SystemMemberAndReaderTagTests(object):
 
         with self.test_client() as c:
             c.put(
-                '/v3/projects/%s/tags' % project['id'], headers=self.headers,
-                json=update, expected_status_code=http.client.FORBIDDEN
+                '/v3/projects/%s/tags' % project['id'],
+                headers=self.headers,
+                json=update,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_project_tag(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         tag = uuid.uuid4().hex
@@ -142,7 +144,7 @@ class _SystemMemberAndReaderTagTests(object):
             c.delete(
                 '/v3/projects/%s/tags/%s' % (project['id'], tag),
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
 
@@ -151,7 +153,7 @@ class _DomainAndProjectUserTagTests(object):
     def test_user_cannot_create_project_tag(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         tag = uuid.uuid4().hex
@@ -160,13 +162,13 @@ class _DomainAndProjectUserTagTests(object):
             c.put(
                 '/v3/projects/%s/tags/%s' % (project['id'], tag),
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_update_project_tag(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         tag = uuid.uuid4().hex
@@ -176,14 +178,16 @@ class _DomainAndProjectUserTagTests(object):
 
         with self.test_client() as c:
             c.put(
-                '/v3/projects/%s/tags' % project['id'], headers=self.headers,
-                json=update, expected_status_code=http.client.FORBIDDEN
+                '/v3/projects/%s/tags' % project['id'],
+                headers=self.headers,
+                json=update,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_project_tag(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         tag = uuid.uuid4().hex
@@ -193,14 +197,16 @@ class _DomainAndProjectUserTagTests(object):
             c.delete(
                 '/v3/projects/%s/tags/%s' % (project['id'], tag),
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
 
-class SystemReaderTests(base_classes.TestCaseWithBootstrap,
-                        common_auth.AuthTestMixin,
-                        _SystemUserTests,
-                        _SystemMemberAndReaderTagTests):
+class SystemReaderTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _SystemUserTests,
+    _SystemMemberAndReaderTagTests,
+):
 
     def setUp(self):
         super(SystemReaderTests, self).setUp()
@@ -211,16 +217,15 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
         system_reader = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
         )
-        self.user_id = PROVIDERS.identity_api.create_user(
-            system_reader
-        )['id']
+        self.user_id = PROVIDERS.identity_api.create_user(system_reader)['id']
         PROVIDERS.assignment_api.create_system_grant_for_user(
             self.user_id, self.bootstrapper.reader_role_id
         )
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=system_reader['password'],
-            system=True
+            user_id=self.user_id,
+            password=system_reader['password'],
+            system=True,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -231,10 +236,12 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class SystemMemberTests(base_classes.TestCaseWithBootstrap,
-                        common_auth.AuthTestMixin,
-                        _SystemUserTests,
-                        _SystemMemberAndReaderTagTests):
+class SystemMemberTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _SystemUserTests,
+    _SystemMemberAndReaderTagTests,
+):
 
     def setUp(self):
         super(SystemMemberTests, self).setUp()
@@ -245,16 +252,15 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
         system_member = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
         )
-        self.user_id = PROVIDERS.identity_api.create_user(
-            system_member
-        )['id']
+        self.user_id = PROVIDERS.identity_api.create_user(system_member)['id']
         PROVIDERS.assignment_api.create_system_grant_for_user(
             self.user_id, self.bootstrapper.member_role_id
         )
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=system_member['password'],
-            system=True
+            user_id=self.user_id,
+            password=system_member['password'],
+            system=True,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -265,9 +271,11 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class SystemAdminTests(base_classes.TestCaseWithBootstrap,
-                       common_auth.AuthTestMixin,
-                       _SystemUserTests):
+class SystemAdminTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _SystemUserTests,
+):
 
     def setUp(self):
         super(SystemAdminTests, self).setUp()
@@ -279,7 +287,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
         auth = self.build_authentication_request(
             user_id=self.user_id,
             password=self.bootstrapper.admin_password,
-            system=True
+            system=True,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -292,7 +300,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
     def test_user_can_create_project_tag(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         tag = uuid.uuid4().hex
@@ -301,13 +309,13 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
             c.put(
                 '/v3/projects/%s/tags/%s' % (project['id'], tag),
                 headers=self.headers,
-                expected_status_code=http.client.CREATED
+                expected_status_code=http.client.CREATED,
             )
 
     def test_user_can_update_project_tag(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         tag = uuid.uuid4().hex
@@ -317,15 +325,16 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
 
         with self.test_client() as c:
             c.put(
-                '/v3/projects/%s/tags' % project['id'], headers=self.headers,
+                '/v3/projects/%s/tags' % project['id'],
+                headers=self.headers,
                 json=update,
-                expected_status_code=http.client.OK
+                expected_status_code=http.client.OK,
             )
 
     def test_user_can_delete_project_tag(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         tag = uuid.uuid4().hex
@@ -334,7 +343,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.delete(
                 '/v3/projects/%s/tags/%s' % (project['id'], tag),
-                headers=self.headers
+                headers=self.headers,
             )
 
 
@@ -352,7 +361,7 @@ class _DomainUserTagTests(object):
             c.get(
                 '/v3/projects/%s/tags/%s' % (project['id'], tag),
                 headers=self.headers,
-                expected_status_code=http.client.NO_CONTENT
+                expected_status_code=http.client.NO_CONTENT,
             )
 
     def test_user_can_list_tags_for_project_in_domain(self):
@@ -373,7 +382,7 @@ class _DomainUserTagTests(object):
     def test_user_cannot_create_project_tag_outside_domain(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         tag = uuid.uuid4().hex
@@ -382,13 +391,13 @@ class _DomainUserTagTests(object):
             c.put(
                 '/v3/projects/%s/tags/%s' % (project['id'], tag),
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_update_project_tag_outside_domain(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         tag = uuid.uuid4().hex
@@ -399,14 +408,16 @@ class _DomainUserTagTests(object):
 
         with self.test_client() as c:
             c.put(
-                '/v3/projects/%s/tags' % project['id'], headers=self.headers,
-                json=update, expected_status_code=http.client.FORBIDDEN
+                '/v3/projects/%s/tags' % project['id'],
+                headers=self.headers,
+                json=update,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_project_tag_outside_domain(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         tag = uuid.uuid4().hex
@@ -416,13 +427,13 @@ class _DomainUserTagTests(object):
             c.delete(
                 '/v3/projects/%s/tags/%s' % (project['id'], tag),
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_get_tag_for_project_outside_domain(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         tag = uuid.uuid4().hex
@@ -432,13 +443,13 @@ class _DomainUserTagTests(object):
             c.get(
                 '/v3/projects/%s/tags/%s' % (project['id'], tag),
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_list_tags_for_project_outside_domain(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         tag = uuid.uuid4().hex
@@ -448,7 +459,7 @@ class _DomainUserTagTests(object):
             c.get(
                 '/v3/projects/%s/tags' % project['id'],
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
 
@@ -465,7 +476,7 @@ class _DomainMemberAndReaderTagTests(object):
             c.put(
                 '/v3/projects/%s/tags/%s' % (project['id'], tag),
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_update_project_tag_in_domain(self):
@@ -481,8 +492,10 @@ class _DomainMemberAndReaderTagTests(object):
 
         with self.test_client() as c:
             c.put(
-                '/v3/projects/%s/tags' % project['id'], headers=self.headers,
-                json=update, expected_status_code=http.client.FORBIDDEN
+                '/v3/projects/%s/tags' % project['id'],
+                headers=self.headers,
+                json=update,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_project_tag_in_domain(self):
@@ -497,13 +510,15 @@ class _DomainMemberAndReaderTagTests(object):
             c.delete(
                 '/v3/projects/%s/tags/%s' % (project['id'], tag),
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
 
-class DomainAdminUserTests(base_classes.TestCaseWithBootstrap,
-                           common_auth.AuthTestMixin,
-                           _DomainUserTagTests):
+class DomainAdminUserTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _DomainUserTagTests,
+):
 
     def setUp(self):
         super(DomainAdminUserTests, self).setUp()
@@ -527,12 +542,14 @@ class DomainAdminUserTests(base_classes.TestCaseWithBootstrap,
         domain_admin = unit.new_user_ref(domain_id=self.domain_id)
         self.user_id = PROVIDERS.identity_api.create_user(domain_admin)['id']
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.admin_role_id, user_id=self.user_id,
-            domain_id=self.domain_id
+            self.bootstrapper.admin_role_id,
+            user_id=self.user_id,
+            domain_id=self.domain_id,
         )
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=domain_admin['password'],
+            user_id=self.user_id,
+            password=domain_admin['password'],
             domain_id=self.domain_id,
         )
 
@@ -553,7 +570,8 @@ class DomainAdminUserTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.put(
                 '/v3/projects/%s/tags/%s' % (project['id'], tag),
-                headers=self.headers, expected_status_code=http.client.CREATED
+                headers=self.headers,
+                expected_status_code=http.client.CREATED,
             )
 
     def test_user_can_update_project_tag_in_domain(self):
@@ -569,8 +587,10 @@ class DomainAdminUserTests(base_classes.TestCaseWithBootstrap,
 
         with self.test_client() as c:
             r = c.put(
-                '/v3/projects/%s/tags' % project['id'], headers=self.headers,
-                json=update, expected_status_code=http.client.OK
+                '/v3/projects/%s/tags' % project['id'],
+                headers=self.headers,
+                json=update,
+                expected_status_code=http.client.OK,
             )
             self.assertTrue(len(r.json['tags']) == 1)
             self.assertEqual(new_tag, r.json['tags'][0])
@@ -586,14 +606,16 @@ class DomainAdminUserTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.delete(
                 '/v3/projects/%s/tags/%s' % (project['id'], tag),
-                headers=self.headers
+                headers=self.headers,
             )
 
 
-class DomainMemberUserTests(base_classes.TestCaseWithBootstrap,
-                            common_auth.AuthTestMixin,
-                            _DomainUserTagTests,
-                            _DomainMemberAndReaderTagTests):
+class DomainMemberUserTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _DomainUserTagTests,
+    _DomainMemberAndReaderTagTests,
+):
 
     def setUp(self):
         super(DomainMemberUserTests, self).setUp()
@@ -617,12 +639,14 @@ class DomainMemberUserTests(base_classes.TestCaseWithBootstrap,
         domain_admin = unit.new_user_ref(domain_id=self.domain_id)
         self.user_id = PROVIDERS.identity_api.create_user(domain_admin)['id']
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.member_role_id, user_id=self.user_id,
-            domain_id=self.domain_id
+            self.bootstrapper.member_role_id,
+            user_id=self.user_id,
+            domain_id=self.domain_id,
         )
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=domain_admin['password'],
+            user_id=self.user_id,
+            password=domain_admin['password'],
             domain_id=self.domain_id,
         )
 
@@ -634,10 +658,12 @@ class DomainMemberUserTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class DomainReaderUserTests(base_classes.TestCaseWithBootstrap,
-                            common_auth.AuthTestMixin,
-                            _DomainUserTagTests,
-                            _DomainMemberAndReaderTagTests):
+class DomainReaderUserTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _DomainUserTagTests,
+    _DomainMemberAndReaderTagTests,
+):
 
     def setUp(self):
         super(DomainReaderUserTests, self).setUp()
@@ -661,12 +687,14 @@ class DomainReaderUserTests(base_classes.TestCaseWithBootstrap,
         domain_admin = unit.new_user_ref(domain_id=self.domain_id)
         self.user_id = PROVIDERS.identity_api.create_user(domain_admin)['id']
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.reader_role_id, user_id=self.user_id,
-            domain_id=self.domain_id
+            self.bootstrapper.reader_role_id,
+            user_id=self.user_id,
+            domain_id=self.domain_id,
         )
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=domain_admin['password'],
+            user_id=self.user_id,
+            password=domain_admin['password'],
             domain_id=self.domain_id,
         )
 
@@ -688,7 +716,7 @@ class _ProjectUserTagTests(object):
             c.get(
                 '/v3/projects/%s/tags/%s' % (self.project_id, tag),
                 headers=self.headers,
-                expected_status_code=http.client.NO_CONTENT
+                expected_status_code=http.client.NO_CONTENT,
             )
 
     def test_user_can_list_tags_for_project(self):
@@ -705,7 +733,7 @@ class _ProjectUserTagTests(object):
     def test_user_cannot_create_tag_for_other_project(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         tag = uuid.uuid4().hex
@@ -714,13 +742,13 @@ class _ProjectUserTagTests(object):
             c.put(
                 '/v3/projects/%s/tags/%s' % (project['id'], tag),
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_update_tag_for_other_project(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         tag = uuid.uuid4().hex
@@ -730,14 +758,16 @@ class _ProjectUserTagTests(object):
 
         with self.test_client() as c:
             c.put(
-                '/v3/projects/%s/tags' % project['id'], headers=self.headers,
-                json=update, expected_status_code=http.client.FORBIDDEN
+                '/v3/projects/%s/tags' % project['id'],
+                headers=self.headers,
+                json=update,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_tag_for_other_project(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         tag = uuid.uuid4().hex
@@ -747,13 +777,13 @@ class _ProjectUserTagTests(object):
             c.delete(
                 '/v3/projects/%s/tags/%s' % (project['id'], tag),
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_get_tag_for_other_project(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         tag = uuid.uuid4().hex
@@ -763,13 +793,13 @@ class _ProjectUserTagTests(object):
             c.get(
                 '/v3/projects/%s/tags/%s' % (project['id'], tag),
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_list_tags_for_other_project(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         tag = uuid.uuid4().hex
@@ -779,7 +809,7 @@ class _ProjectUserTagTests(object):
             c.get(
                 '/v3/projects/%s/tags' % project['id'],
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
 
@@ -791,7 +821,7 @@ class _ProjectMemberAndReaderTagTests(object):
             c.put(
                 '/v3/projects/%s/tags/%s' % (self.project_id, tag),
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_update_project_tag(self):
@@ -802,8 +832,10 @@ class _ProjectMemberAndReaderTagTests(object):
 
         with self.test_client() as c:
             c.put(
-                '/v3/projects/%s/tags' % self.project_id, headers=self.headers,
-                json=update, expected_status_code=http.client.FORBIDDEN
+                '/v3/projects/%s/tags' % self.project_id,
+                headers=self.headers,
+                json=update,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_project_tag(self):
@@ -814,13 +846,15 @@ class _ProjectMemberAndReaderTagTests(object):
             c.delete(
                 '/v3/projects/%s/tags/%s' % (self.project_id, tag),
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
 
-class ProjectAdminTests(base_classes.TestCaseWithBootstrap,
-                        common_auth.AuthTestMixin,
-                        _ProjectUserTagTests):
+class ProjectAdminTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _ProjectUserTagTests,
+):
 
     def setUp(self):
         super(ProjectAdminTests, self).setUp()
@@ -838,14 +872,16 @@ class ProjectAdminTests(base_classes.TestCaseWithBootstrap,
 
         self.user_id = self.bootstrapper.admin_user_id
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.admin_role_id, user_id=self.user_id,
-            project_id=self.bootstrapper.project_id
+            self.bootstrapper.admin_role_id,
+            user_id=self.user_id,
+            project_id=self.bootstrapper.project_id,
         )
         self.project_id = self.bootstrapper.project_id
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=self.bootstrapper.admin_password,
-            project_id=self.bootstrapper.project_id
+            user_id=self.user_id,
+            password=self.bootstrapper.admin_password,
+            project_id=self.bootstrapper.project_id,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -860,7 +896,8 @@ class ProjectAdminTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.put(
                 '/v3/projects/%s/tags/%s' % (self.project_id, tag),
-                headers=self.headers, expected_status_code=http.client.CREATED
+                headers=self.headers,
+                expected_status_code=http.client.CREATED,
             )
 
     def test_user_can_update_project_tag(self):
@@ -871,8 +908,10 @@ class ProjectAdminTests(base_classes.TestCaseWithBootstrap,
 
         with self.test_client() as c:
             c.put(
-                '/v3/projects/%s/tags' % self.project_id, headers=self.headers,
-                json=update, expected_status_code=http.client.OK
+                '/v3/projects/%s/tags' % self.project_id,
+                headers=self.headers,
+                json=update,
+                expected_status_code=http.client.OK,
             )
 
     def test_user_can_delete_project_tag(self):
@@ -882,14 +921,16 @@ class ProjectAdminTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             c.delete(
                 '/v3/projects/%s/tags/%s' % (self.project_id, tag),
-                headers=self.headers
+                headers=self.headers,
             )
 
 
-class ProjectMemberTests(base_classes.TestCaseWithBootstrap,
-                         common_auth.AuthTestMixin,
-                         _ProjectUserTagTests,
-                         _ProjectMemberAndReaderTagTests):
+class ProjectMemberTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _ProjectUserTagTests,
+    _ProjectMemberAndReaderTagTests,
+):
 
     def setUp(self):
         super(ProjectMemberTests, self).setUp()
@@ -907,19 +948,21 @@ class ProjectMemberTests(base_classes.TestCaseWithBootstrap,
 
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
         self.project_id = project['id']
         self.user_id = self.bootstrapper.admin_user_id
 
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.member_role_id, user_id=self.user_id,
-            project_id=self.project_id
+            self.bootstrapper.member_role_id,
+            user_id=self.user_id,
+            project_id=self.project_id,
         )
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=self.bootstrapper.admin_password,
-            project_id=self.project_id
+            user_id=self.user_id,
+            password=self.bootstrapper.admin_password,
+            project_id=self.project_id,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -930,10 +973,12 @@ class ProjectMemberTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class ProjectReaderTests(base_classes.TestCaseWithBootstrap,
-                         common_auth.AuthTestMixin,
-                         _ProjectUserTagTests,
-                         _ProjectMemberAndReaderTagTests):
+class ProjectReaderTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _ProjectUserTagTests,
+    _ProjectMemberAndReaderTagTests,
+):
 
     def setUp(self):
         super(ProjectReaderTests, self).setUp()
@@ -951,19 +996,21 @@ class ProjectReaderTests(base_classes.TestCaseWithBootstrap,
 
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
         self.project_id = project['id']
         self.user_id = self.bootstrapper.admin_user_id
 
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.reader_role_id, user_id=self.user_id,
-            project_id=self.project_id
+            self.bootstrapper.reader_role_id,
+            user_id=self.user_id,
+            project_id=self.project_id,
         )
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=self.bootstrapper.admin_password,
-            project_id=self.project_id
+            user_id=self.user_id,
+            password=self.bootstrapper.admin_password,
+            project_id=self.project_id,
         )
 
         # Grab a token using the persona we're testing and prepare headers

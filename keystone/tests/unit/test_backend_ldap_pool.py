@@ -48,37 +48,42 @@ class LdapPoolCommonTestMixin(object):
 
     @mock.patch.object(common_ldap.KeystoneLDAPHandler, 'connect')
     @mock.patch.object(common_ldap.KeystoneLDAPHandler, 'simple_bind_s')
-    def test_handler_with_use_pool_not_enabled(self, bind_method,
-                                               connect_method):
+    def test_handler_with_use_pool_not_enabled(
+        self, bind_method, connect_method
+    ):
         self.config_fixture.config(group='ldap', use_pool=False)
         self.config_fixture.config(group='ldap', use_auth_pool=True)
         self.cleanup_pools()
 
         user_api = ldap.UserApi(CONF)
-        handler = user_api.get_connection(user=None, password=None,
-                                          end_user_auth=True)
+        handler = user_api.get_connection(
+            user=None, password=None, end_user_auth=True
+        )
         # use_auth_pool flag does not matter when use_pool is False
         # still handler is non pool version
         self.assertIsInstance(handler.conn, common_ldap.PythonLDAPHandler)
 
     @mock.patch.object(common_ldap.KeystoneLDAPHandler, 'connect')
     @mock.patch.object(common_ldap.KeystoneLDAPHandler, 'simple_bind_s')
-    def test_handler_with_end_user_auth_use_pool_not_enabled(self, bind_method,
-                                                             connect_method):
+    def test_handler_with_end_user_auth_use_pool_not_enabled(
+        self, bind_method, connect_method
+    ):
         # by default use_pool is enabled in test pool config
         # now disabling use_auth_pool flag to test handler instance
         self.config_fixture.config(group='ldap', use_auth_pool=False)
         self.cleanup_pools()
 
         user_api = ldap.UserApi(CONF)
-        handler = user_api.get_connection(user=None, password=None,
-                                          end_user_auth=True)
+        handler = user_api.get_connection(
+            user=None, password=None, end_user_auth=True
+        )
         self.assertIsInstance(handler.conn, common_ldap.PythonLDAPHandler)
 
         # For end_user_auth case, flag should not be false otherwise
         # it will use, admin connections ldap pool
-        handler = user_api.get_connection(user=None, password=None,
-                                          end_user_auth=False)
+        handler = user_api.get_connection(
+            user=None, password=None, end_user_auth=False
+        )
         self.assertIsInstance(handler.conn, common_ldap.PooledLDAPHandler)
 
     def test_pool_size_set(self):
@@ -107,8 +112,9 @@ class LdapPoolCommonTestMixin(object):
     def test_pool_timeout_set(self):
         # get related connection manager instance
         ldappool_cm = self.conn_pools[CONF.ldap.url]
-        self.assertEqual(CONF.ldap.pool_connection_timeout,
-                         ldappool_cm.timeout)
+        self.assertEqual(
+            CONF.ldap.pool_connection_timeout, ldappool_cm.timeout
+        )
 
     def test_pool_use_pool_set(self):
         # get related connection manager instance
@@ -118,8 +124,9 @@ class LdapPoolCommonTestMixin(object):
     def test_pool_connection_lifetime_set(self):
         # get related connection manager instance
         ldappool_cm = self.conn_pools[CONF.ldap.url]
-        self.assertEqual(CONF.ldap.pool_connection_lifetime,
-                         ldappool_cm.max_lifetime)
+        self.assertEqual(
+            CONF.ldap.pool_connection_lifetime, ldappool_cm.max_lifetime
+        )
 
     def test_max_connection_error_raised(self):
 
@@ -137,8 +144,9 @@ class LdapPoolCommonTestMixin(object):
                         _.unbind_s()
                         self.fail()
                 except Exception as ex:
-                    self.assertIsInstance(ex,
-                                          ldappool.MaxConnectionReachedError)
+                    self.assertIsInstance(
+                        ex, ldappool.MaxConnectionReachedError
+                    )
         ldappool_cm.size = CONF.ldap.pool_size
 
     def test_pool_size_expands_correctly(self):
@@ -190,8 +198,8 @@ class LdapPoolCommonTestMixin(object):
         # change
         with self.make_request():
             user_ref = PROVIDERS.identity_api.authenticate(
-                user_id=self.user_sna['id'],
-                password=self.user_sna['password'])
+                user_id=self.user_sna['id'], password=self.user_sna['password']
+            )
 
         self.user_sna.pop('password')
         self.user_sna['enabled'] = True
@@ -205,8 +213,8 @@ class LdapPoolCommonTestMixin(object):
         # connection pool
         with self.make_request():
             user_ref2 = PROVIDERS.identity_api.authenticate(
-                user_id=self.user_sna['id'],
-                password=new_password)
+                user_id=self.user_sna['id'], password=new_password
+            )
 
         user_ref.pop('password')
         self.assertUserDictEqual(user_ref, user_ref2)
@@ -215,10 +223,12 @@ class LdapPoolCommonTestMixin(object):
         # is only one connection in pool which get bind again with updated
         # password..so no old bind is maintained in this case.
         with self.make_request():
-            self.assertRaises(AssertionError,
-                              PROVIDERS.identity_api.authenticate,
-                              user_id=self.user_sna['id'],
-                              password=old_password)
+            self.assertRaises(
+                AssertionError,
+                PROVIDERS.identity_api.authenticate,
+                user_id=self.user_sna['id'],
+                password=old_password,
+            )
 
     @mock.patch.object(fakeldap.FakeLdap, 'search_ext')
     def test_search_ext_ensure_pool_connection_released(self, mock_search_ext):
@@ -231,6 +241,7 @@ class LdapPoolCommonTestMixin(object):
         test case intentionally throws an exception to ensure everything
         goes as expected when LDAP connection raises an exception.
         """
+
         class CustomDummyException(Exception):
             pass
 
@@ -257,8 +268,8 @@ class LdapPoolCommonTestMixin(object):
                     'dc=example,dc=test',
                     'dummy',
                     'objectclass=*',
-                    ['mail', 'userPassword']
-                )
+                    ['mail', 'userPassword'],
+                ),
             )
             # Pooled connection must not be evicted from the pool
             self.assertEqual(1, len(pool))
@@ -279,6 +290,7 @@ class LdapPoolCommonTestMixin(object):
         connection for AsynchronousMessage must be released back to the
         LDAP connection pool.
         """
+
         class CustomDummyException(Exception):
             pass
 
@@ -300,7 +312,7 @@ class LdapPoolCommonTestMixin(object):
                 'dc=example,dc=test',
                 'dummy',
                 'objectclass=*',
-                ['mail', 'userPassword']
+                ['mail', 'userPassword'],
             )
             # Connection is in use, must be already marked active
             self.assertTrue(msg.connection.active)
@@ -310,8 +322,7 @@ class LdapPoolCommonTestMixin(object):
             # scenario we expect LDAP connection to be made
             # available back to the pool.
             self.assertRaises(
-                CustomDummyException,
-                lambda: handler.result3(msg)
+                CustomDummyException, lambda: handler.result3(msg)
             )
             # Connection must be set inactive
             self.assertFalse(msg.connection.active)
@@ -320,14 +331,19 @@ class LdapPoolCommonTestMixin(object):
             self.assertEqual(mock_result3.call_count, i)
 
 
-class LDAPIdentity(LdapPoolCommonTestMixin,
-                   test_backend_ldap.LDAPIdentity,
-                   unit.TestCase):
+class LDAPIdentity(
+    LdapPoolCommonTestMixin, test_backend_ldap.LDAPIdentity, unit.TestCase
+):
     """Executes tests in existing base class with pooled LDAP handler."""
 
     def setUp(self):
-        self.useFixture(fixtures.MockPatchObject(
-            common_ldap.PooledLDAPHandler, 'Connector', fakeldap.FakeLdapPool))
+        self.useFixture(
+            fixtures.MockPatchObject(
+                common_ldap.PooledLDAPHandler,
+                'Connector',
+                fakeldap.FakeLdapPool,
+            )
+        )
         super(LDAPIdentity, self).setUp()
 
         self.addCleanup(self.cleanup_pools)

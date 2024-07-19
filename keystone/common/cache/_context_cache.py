@@ -55,8 +55,9 @@ class _ResponseCacheProxy(proxy.ProxyBackend):
             return api.NO_VALUE
 
         value = msgpackutils.loads(value)
-        return api.CachedValue(payload=value['payload'],
-                               metadata=value['metadata'])
+        return api.CachedValue(
+            payload=value['payload'], metadata=value['metadata']
+        )
 
     def _delete_local_cache(self, key):
         # On invalidate/delete remove the value from the local request cache
@@ -91,8 +92,9 @@ class _ResponseCacheProxy(proxy.ProxyBackend):
             if v is not api.NO_VALUE:
                 values[key] = v
         query_keys = set(keys).difference(set(values.keys()))
-        values.update(dict(
-            zip(query_keys, self.proxied.get_multi(query_keys))))
+        values.update(
+            dict(zip(query_keys, self.proxied.get_multi(query_keys)))
+        )
         return [values[k] for k in keys]
 
     def set_multi(self, mapping):

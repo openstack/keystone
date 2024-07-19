@@ -28,8 +28,9 @@ class BaseStyleCheck(unit.BaseTestCase):
 
     def get_checker(self):
         """Return the checker to be used for tests in this class."""
-        raise NotImplementedError('subclasses must provide '
-                                  'a real implementation')
+        raise NotImplementedError(
+            'subclasses must provide ' 'a real implementation'
+        )
 
     def get_fixture(self):
         return hacking_fixtures.HackingCode()
@@ -87,8 +88,9 @@ class TestTranslationChecks(BaseStyleCheck):
         actual_errors = (e[:3] for e in self.run_check(code))
         # adjust line numbers to make the fixture data more readable.
         import_lines = len(self.code_ex.shared_imports.split('\n')) - 1
-        actual_errors = [(e[0] - import_lines, e[1], e[2])
-                         for e in actual_errors]
+        actual_errors = [
+            (e[0] - import_lines, e[1], e[2]) for e in actual_errors
+        ]
         self.assertEqual(expected_errors or [], actual_errors)
 
     def test_for_translations(self):

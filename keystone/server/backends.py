@@ -48,16 +48,29 @@ def load_backends():
     cache.configure_cache(region=identity.ID_MAPPING_REGION)
     cache.configure_invalidation_region()
 
-    managers = [application_credential.Manager, assignment.Manager,
-                catalog.Manager, credential.Manager,
-                credential.provider.Manager, resource.DomainConfigManager,
-                endpoint_policy.Manager, federation.Manager,
-                identity.generator.Manager, identity.MappingManager,
-                identity.Manager, identity.ShadowUsersManager,
-                limit.Manager, oauth1.Manager, policy.Manager,
-                resource.Manager, revoke.Manager, assignment.RoleManager,
-                receipt.provider.Manager, trust.Manager,
-                token.provider.Manager]
+    managers = [
+        application_credential.Manager,
+        assignment.Manager,
+        catalog.Manager,
+        credential.Manager,
+        credential.provider.Manager,
+        resource.DomainConfigManager,
+        endpoint_policy.Manager,
+        federation.Manager,
+        identity.generator.Manager,
+        identity.MappingManager,
+        identity.Manager,
+        identity.ShadowUsersManager,
+        limit.Manager,
+        oauth1.Manager,
+        policy.Manager,
+        resource.Manager,
+        revoke.Manager,
+        assignment.RoleManager,
+        receipt.provider.Manager,
+        trust.Manager,
+        token.provider.Manager,
+    ]
 
     drivers = {d._provides_api: d() for d in managers}
 

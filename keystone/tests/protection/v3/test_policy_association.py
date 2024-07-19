@@ -41,13 +41,16 @@ class _SystemUserPoliciesAssociationTests(object):
         )
 
         PROVIDERS.endpoint_policy_api.create_policy_association(
-            policy['id'], endpoint['id'])
+            policy['id'], endpoint['id']
+        )
 
         with self.test_client() as c:
-            c.get('/v3/policies/%s/OS-ENDPOINT-POLICY/endpoints/%s'
-                  % (policy['id'], endpoint['id']),
-                  headers=self.headers,
-                  expected_status_code=http.client.NO_CONTENT)
+            c.get(
+                '/v3/policies/%s/OS-ENDPOINT-POLICY/endpoints/%s'
+                % (policy['id'], endpoint['id']),
+                headers=self.headers,
+                expected_status_code=http.client.NO_CONTENT,
+            )
 
     def test_user_can_check_policy_association_for_service(self):
         policy = unit.new_policy_ref()
@@ -58,13 +61,16 @@ class _SystemUserPoliciesAssociationTests(object):
         )
 
         PROVIDERS.endpoint_policy_api.create_policy_association(
-            policy['id'], service_id=service['id'])
+            policy['id'], service_id=service['id']
+        )
 
         with self.test_client() as c:
-            c.get('/v3/policies/%s/OS-ENDPOINT-POLICY/services/%s'
-                  % (policy['id'], service['id']),
-                  headers=self.headers,
-                  expected_status_code=http.client.NO_CONTENT)
+            c.get(
+                '/v3/policies/%s/OS-ENDPOINT-POLICY/services/%s'
+                % (policy['id'], service['id']),
+                headers=self.headers,
+                expected_status_code=http.client.NO_CONTENT,
+            )
 
     def test_user_can_check_policy_association_for_region_and_service(self):
         policy = unit.new_policy_ref()
@@ -81,10 +87,12 @@ class _SystemUserPoliciesAssociationTests(object):
         )
 
         with self.test_client() as c:
-            c.get('/v3/policies/%s/OS-ENDPOINT-POLICY/services/%s/regions/%s'
-                  % (policy['id'], service['id'], region['id']),
-                  headers=self.headers,
-                  expected_status_code=http.client.NO_CONTENT)
+            c.get(
+                '/v3/policies/%s/OS-ENDPOINT-POLICY/services/%s/regions/%s'
+                % (policy['id'], service['id'], region['id']),
+                headers=self.headers,
+                expected_status_code=http.client.NO_CONTENT,
+            )
 
     def test_user_can_get_policy_for_endpoint(self):
         policy = unit.new_policy_ref()
@@ -100,9 +108,11 @@ class _SystemUserPoliciesAssociationTests(object):
             policy['id'], endpoint['id']
         )
         with self.test_client() as c:
-            c.get('/v3/endpoints/%s/OS-ENDPOINT-POLICY/policy'
-                  % (endpoint['id']),
-                  headers=self.headers)
+            c.get(
+                '/v3/endpoints/%s/OS-ENDPOINT-POLICY/policy'
+                % (endpoint['id']),
+                headers=self.headers,
+            )
 
     def test_user_list_endpoints_for_policy(self):
         policy = unit.new_policy_ref()
@@ -118,9 +128,11 @@ class _SystemUserPoliciesAssociationTests(object):
             policy['id'], endpoint['id']
         )
         with self.test_client() as c:
-            r = c.get('/v3/policies/%s/OS-ENDPOINT-POLICY/endpoints'
-                      % (policy['id']),
-                      headers=self.headers)
+            r = c.get(
+                '/v3/policies/%s/OS-ENDPOINT-POLICY/endpoints'
+                % (policy['id']),
+                headers=self.headers,
+            )
             for endpoint_itr in r.json['endpoints']:
                 self.assertIn(endpoint['id'], endpoint_itr['id'])
 
@@ -143,7 +155,7 @@ class _SystemReaderAndMemberPoliciesAssociationTests(object):
                 '/v3/policies/%s/OS-ENDPOINT-POLICY/endpoints/%s'
                 % (policy['id'], endpoint['id']),
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_policy_association_for_endpoint(self):
@@ -162,7 +174,7 @@ class _SystemReaderAndMemberPoliciesAssociationTests(object):
                 '/v3/policies/%s/OS-ENDPOINT-POLICY/endpoints/%s'
                 % (policy['id'], endpoint['id']),
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_create_policy_association_for_service(self):
@@ -176,7 +188,7 @@ class _SystemReaderAndMemberPoliciesAssociationTests(object):
                 '/v3/policies/%s/OS-ENDPOINT-POLICY/services/%s'
                 % (policy['id'], service['id']),
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_policy_association_for_service(self):
@@ -191,7 +203,7 @@ class _SystemReaderAndMemberPoliciesAssociationTests(object):
                 '/v3/policies/%s/OS-ENDPOINT-POLICY/services/%s'
                 % (policy['id'], service['id']),
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_create_policy_assoc_for_region_and_service(self):
@@ -207,7 +219,7 @@ class _SystemReaderAndMemberPoliciesAssociationTests(object):
                 '/v3/policies/%s/OS-ENDPOINT-POLICY/services/%s/regions/%s'
                 % (policy['id'], service['id'], region['id']),
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_policy_assoc_for_region_and_service(self):
@@ -223,7 +235,7 @@ class _SystemReaderAndMemberPoliciesAssociationTests(object):
                 '/v3/policies/%s/OS-ENDPOINT-POLICY/services/%s/regions/%s'
                 % (policy['id'], service['id'], region['id']),
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
 
@@ -242,13 +254,16 @@ class _DomainAndProjectUserPolicyAssociationsTests(object):
         )
 
         PROVIDERS.endpoint_policy_api.create_policy_association(
-            policy['id'], endpoint['id'])
+            policy['id'], endpoint['id']
+        )
 
         with self.test_client() as c:
-            c.get('/v3/policies/%s/OS-ENDPOINT-POLICY/endpoints/%s'
-                  % (policy['id'], endpoint['id']),
-                  headers=self.headers,
-                  expected_status_code=http.client.FORBIDDEN)
+            c.get(
+                '/v3/policies/%s/OS-ENDPOINT-POLICY/endpoints/%s'
+                % (policy['id'], endpoint['id']),
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
+            )
 
     def test_user_cannot_check_policy_association_for_service(self):
         policy = unit.new_policy_ref()
@@ -259,13 +274,16 @@ class _DomainAndProjectUserPolicyAssociationsTests(object):
         )
 
         PROVIDERS.endpoint_policy_api.create_policy_association(
-            policy['id'], service_id=service['id'])
+            policy['id'], service_id=service['id']
+        )
 
         with self.test_client() as c:
-            c.get('/v3/policies/%s/OS-ENDPOINT-POLICY/services/%s'
-                  % (policy['id'], service['id']),
-                  headers=self.headers,
-                  expected_status_code=http.client.FORBIDDEN)
+            c.get(
+                '/v3/policies/%s/OS-ENDPOINT-POLICY/services/%s'
+                % (policy['id'], service['id']),
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
+            )
 
     def test_user_cannot_check_policy_association_for_region_and_service(self):
         policy = unit.new_policy_ref()
@@ -282,10 +300,12 @@ class _DomainAndProjectUserPolicyAssociationsTests(object):
         )
 
         with self.test_client() as c:
-            c.get('/v3/policies/%s/OS-ENDPOINT-POLICY/services/%s/regions/%s'
-                  % (policy['id'], service['id'], region['id']),
-                  headers=self.headers,
-                  expected_status_code=http.client.FORBIDDEN)
+            c.get(
+                '/v3/policies/%s/OS-ENDPOINT-POLICY/services/%s/regions/%s'
+                % (policy['id'], service['id'], region['id']),
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
+            )
 
     def test_user_cannot_get_policy_for_endpoint(self):
         policy = unit.new_policy_ref()
@@ -301,10 +321,12 @@ class _DomainAndProjectUserPolicyAssociationsTests(object):
             policy['id'], endpoint['id']
         )
         with self.test_client() as c:
-            c.get('/v3/endpoints/%s/OS-ENDPOINT-POLICY/policy'
-                  % (endpoint['id']),
-                  headers=self.headers,
-                  expected_status_code=http.client.FORBIDDEN)
+            c.get(
+                '/v3/endpoints/%s/OS-ENDPOINT-POLICY/policy'
+                % (endpoint['id']),
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
+            )
 
     def test_user_cannot_list_endpoints_for_policy(self):
         policy = unit.new_policy_ref()
@@ -320,10 +342,12 @@ class _DomainAndProjectUserPolicyAssociationsTests(object):
             policy['id'], endpoint['id']
         )
         with self.test_client() as c:
-            c.get('/v3/policies/%s/OS-ENDPOINT-POLICY/endpoints'
-                  % (policy['id']), headers=self.headers,
-                  expected_status_code=http.client.FORBIDDEN
-                  )
+            c.get(
+                '/v3/policies/%s/OS-ENDPOINT-POLICY/endpoints'
+                % (policy['id']),
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
+            )
 
     def test_user_cannot_create_policy_association_for_endpoint(self):
         policy = unit.new_policy_ref()
@@ -341,7 +365,7 @@ class _DomainAndProjectUserPolicyAssociationsTests(object):
                 '/v3/policies/%s/OS-ENDPOINT-POLICY/endpoints/%s'
                 % (policy['id'], endpoint['id']),
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_policy_association_for_endpoint(self):
@@ -360,7 +384,7 @@ class _DomainAndProjectUserPolicyAssociationsTests(object):
                 '/v3/policies/%s/OS-ENDPOINT-POLICY/endpoints/%s'
                 % (policy['id'], endpoint['id']),
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_create_policy_association_for_service(self):
@@ -374,7 +398,7 @@ class _DomainAndProjectUserPolicyAssociationsTests(object):
                 '/v3/policies/%s/OS-ENDPOINT-POLICY/services/%s'
                 % (policy['id'], service['id']),
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_policy_association_for_service(self):
@@ -389,7 +413,7 @@ class _DomainAndProjectUserPolicyAssociationsTests(object):
                 '/v3/policies/%s/OS-ENDPOINT-POLICY/services/%s'
                 % (policy['id'], service['id']),
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_create_policy_assoc_for_region_and_service(self):
@@ -405,7 +429,7 @@ class _DomainAndProjectUserPolicyAssociationsTests(object):
                 '/v3/policies/%s/OS-ENDPOINT-POLICY/services/%s/regions/%s'
                 % (policy['id'], service['id'], region['id']),
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_policy_assoc_for_region_and_service(self):
@@ -421,14 +445,16 @@ class _DomainAndProjectUserPolicyAssociationsTests(object):
                 '/v3/policies/%s/OS-ENDPOINT-POLICY/services/%s/regions/%s'
                 % (policy['id'], service['id'], region['id']),
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
 
-class SystemReaderTests(base_classes.TestCaseWithBootstrap,
-                        common_auth.AuthTestMixin,
-                        _SystemUserPoliciesAssociationTests,
-                        _SystemReaderAndMemberPoliciesAssociationTests):
+class SystemReaderTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _SystemUserPoliciesAssociationTests,
+    _SystemReaderAndMemberPoliciesAssociationTests,
+):
 
     def setUp(self):
         super(SystemReaderTests, self).setUp()
@@ -439,16 +465,15 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
         system_reader = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
         )
-        self.user_id = PROVIDERS.identity_api.create_user(
-            system_reader
-        )['id']
+        self.user_id = PROVIDERS.identity_api.create_user(system_reader)['id']
         PROVIDERS.assignment_api.create_system_grant_for_user(
             self.user_id, self.bootstrapper.reader_role_id
         )
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=system_reader['password'],
-            system=True
+            user_id=self.user_id,
+            password=system_reader['password'],
+            system=True,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -459,10 +484,12 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class SystemMemberTests(base_classes.TestCaseWithBootstrap,
-                        common_auth.AuthTestMixin,
-                        _SystemUserPoliciesAssociationTests,
-                        _SystemReaderAndMemberPoliciesAssociationTests):
+class SystemMemberTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _SystemUserPoliciesAssociationTests,
+    _SystemReaderAndMemberPoliciesAssociationTests,
+):
 
     def setUp(self):
         super(SystemMemberTests, self).setUp()
@@ -473,16 +500,15 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
         system_member = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
         )
-        self.user_id = PROVIDERS.identity_api.create_user(
-            system_member
-        )['id']
+        self.user_id = PROVIDERS.identity_api.create_user(system_member)['id']
         PROVIDERS.assignment_api.create_system_grant_for_user(
             self.user_id, self.bootstrapper.member_role_id
         )
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=system_member['password'],
-            system=True
+            user_id=self.user_id,
+            password=system_member['password'],
+            system=True,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -493,9 +519,11 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class SystemAdminTests(base_classes.TestCaseWithBootstrap,
-                       common_auth.AuthTestMixin,
-                       _SystemUserPoliciesAssociationTests):
+class SystemAdminTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _SystemUserPoliciesAssociationTests,
+):
 
     def setUp(self):
         super(SystemAdminTests, self).setUp()
@@ -509,7 +537,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
         auth = self.build_authentication_request(
             user_id=self.user_id,
             password=self.bootstrapper.admin_password,
-            system=True
+            system=True,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -535,7 +563,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
                 '/v3/policies/%s/OS-ENDPOINT-POLICY/endpoints/%s'
                 % (policy['id'], endpoint['id']),
                 headers=self.headers,
-                expected_status_code=http.client.NO_CONTENT
+                expected_status_code=http.client.NO_CONTENT,
             )
 
     def test_user_can_delete_policy_association_for_endpoint(self):
@@ -554,7 +582,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
                 '/v3/policies/%s/OS-ENDPOINT-POLICY/endpoints/%s'
                 % (policy['id'], endpoint['id']),
                 headers=self.headers,
-                expected_status_code=http.client.NO_CONTENT
+                expected_status_code=http.client.NO_CONTENT,
             )
 
     def test_user_can_create_policy_association_for_service(self):
@@ -568,7 +596,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
                 '/v3/policies/%s/OS-ENDPOINT-POLICY/services/%s'
                 % (policy['id'], service['id']),
                 headers=self.headers,
-                expected_status_code=http.client.NO_CONTENT
+                expected_status_code=http.client.NO_CONTENT,
             )
 
     def test_user_can_delete_policy_association_for_service(self):
@@ -583,7 +611,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
                 '/v3/policies/%s/OS-ENDPOINT-POLICY/services/%s'
                 % (policy['id'], service['id']),
                 headers=self.headers,
-                expected_status_code=http.client.NO_CONTENT
+                expected_status_code=http.client.NO_CONTENT,
             )
 
     def test_user_can_create_policy_association_for_region_and_service(self):
@@ -599,7 +627,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
                 '/v3/policies/%s/OS-ENDPOINT-POLICY/services/%s/regions/%s'
                 % (policy['id'], service['id'], region['id']),
                 headers=self.headers,
-                expected_status_code=http.client.NO_CONTENT
+                expected_status_code=http.client.NO_CONTENT,
             )
 
     def test_user_can_delete_policy_association_for_region_and_service(self):
@@ -615,13 +643,15 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
                 '/v3/policies/%s/OS-ENDPOINT-POLICY/services/%s/regions/%s'
                 % (policy['id'], service['id'], region['id']),
                 headers=self.headers,
-                expected_status_code=http.client.NO_CONTENT
+                expected_status_code=http.client.NO_CONTENT,
             )
 
 
-class DomainUserTests(base_classes.TestCaseWithBootstrap,
-                      common_auth.AuthTestMixin,
-                      _DomainAndProjectUserPolicyAssociationsTests):
+class DomainUserTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _DomainAndProjectUserPolicyAssociationsTests,
+):
 
     def setUp(self):
         super(DomainUserTests, self).setUp()
@@ -636,14 +666,15 @@ class DomainUserTests(base_classes.TestCaseWithBootstrap,
         domain_admin = unit.new_user_ref(domain_id=self.domain_id)
         self.user_id = PROVIDERS.identity_api.create_user(domain_admin)['id']
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.admin_role_id, user_id=self.user_id,
-            domain_id=self.domain_id
+            self.bootstrapper.admin_role_id,
+            user_id=self.user_id,
+            domain_id=self.domain_id,
         )
 
         auth = self.build_authentication_request(
             user_id=self.user_id,
             password=domain_admin['password'],
-            domain_id=self.domain_id
+            domain_id=self.domain_id,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -654,9 +685,11 @@ class DomainUserTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class ProjectUserTests(base_classes.TestCaseWithBootstrap,
-                       common_auth.AuthTestMixin,
-                       _DomainAndProjectUserPolicyAssociationsTests):
+class ProjectUserTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _DomainAndProjectUserPolicyAssociationsTests,
+):
 
     def setUp(self):
         super(ProjectUserTests, self).setUp()
@@ -668,7 +701,7 @@ class ProjectUserTests(base_classes.TestCaseWithBootstrap,
         auth = self.build_authentication_request(
             user_id=self.user_id,
             password=self.bootstrapper.admin_password,
-            project_id=self.bootstrapper.project_id
+            project_id=self.bootstrapper.project_id,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -680,9 +713,10 @@ class ProjectUserTests(base_classes.TestCaseWithBootstrap,
 
 
 class ProjectUserTestsWithoutEnforceScope(
-        base_classes.TestCaseWithBootstrap,
-        common_auth.AuthTestMixin,
-        _DomainAndProjectUserPolicyAssociationsTests):
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _DomainAndProjectUserPolicyAssociationsTests,
+):
 
     def setUp(self):
         super(ProjectUserTestsWithoutEnforceScope, self).setUp()
@@ -704,14 +738,15 @@ class ProjectUserTestsWithoutEnforceScope(
         )['id']
 
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.member_role_id, user_id=self.user_id,
-            project_id=self.project_id
+            self.bootstrapper.member_role_id,
+            user_id=self.user_id,
+            project_id=self.project_id,
         )
 
         auth = self.build_authentication_request(
             user_id=self.user_id,
             password=user['password'],
-            project_id=self.project_id
+            project_id=self.project_id,
         )
 
         # Grab a token using the persona we're testing and prepare headers

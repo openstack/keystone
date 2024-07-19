@@ -39,9 +39,7 @@ class TestJWSProvider(unit.TestCase):
     def test_invalid_token_raises_token_not_found(self):
         token_id = uuid.uuid4().hex
         self.assertRaises(
-            exception.TokenNotFound,
-            self.provider.validate_token,
-            token_id
+            exception.TokenNotFound, self.provider.validate_token, token_id
         )
 
     def test_non_existent_private_key_raises_system_exception(self):
@@ -84,20 +82,16 @@ class TestJWSProvider(unit.TestCase):
         # create additional public keys
         for _ in range(2):
             private_key_path = os.path.join(
-                CONF.jwt_tokens.jws_private_key_repository,
-                uuid.uuid4().hex
+                CONF.jwt_tokens.jws_private_key_repository, uuid.uuid4().hex
             )
             pub_key_path = os.path.join(
-                CONF.jwt_tokens.jws_public_key_repository,
-                uuid.uuid4().hex
+                CONF.jwt_tokens.jws_public_key_repository, uuid.uuid4().hex
             )
             jwt_utils.create_jws_keypair(private_key_path, pub_key_path)
 
         # validate token and ensure it returns a 404
         self.assertRaises(
-            exception.TokenNotFound,
-            self.provider.validate_token,
-            token_id
+            exception.TokenNotFound, self.provider.validate_token, token_id
         )
 
     def test_verify_token_with_multiple_public_keys_present(self):
@@ -112,12 +106,10 @@ class TestJWSProvider(unit.TestCase):
 
         for _ in range(2):
             private_key_path = os.path.join(
-                CONF.jwt_tokens.jws_private_key_repository,
-                uuid.uuid4().hex
+                CONF.jwt_tokens.jws_private_key_repository, uuid.uuid4().hex
             )
             pub_key_path = os.path.join(
-                CONF.jwt_tokens.jws_public_key_repository,
-                uuid.uuid4().hex
+                CONF.jwt_tokens.jws_public_key_repository, uuid.uuid4().hex
             )
             jwt_utils.create_jws_keypair(private_key_path, pub_key_path)
 

@@ -20,8 +20,7 @@ SYSTEM_READER_OR_DOMAIN_READER = (
     '(role:reader and domain_id:%(target.domain_id)s)'
 )
 ADMIN_OR_SYSTEM_READER_OR_DOMAIN_READER = (
-    '(' + base.RULE_ADMIN_REQUIRED + ') or ' +
-    SYSTEM_READER_OR_DOMAIN_READER
+    '(' + base.RULE_ADMIN_REQUIRED + ') or ' + SYSTEM_READER_OR_DOMAIN_READER
 )
 
 SYSTEM_READER_OR_PROJECT_DOMAIN_READER_OR_PROJECT_ADMIN = (
@@ -38,13 +37,13 @@ deprecated_list_role_assignments = policy.DeprecatedRule(
     name=base.IDENTITY % 'list_role_assignments',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.STEIN
+    deprecated_since=versionutils.deprecated.STEIN,
 )
 deprecated_list_role_assignments_for_tree = policy.DeprecatedRule(
     name=base.IDENTITY % 'list_role_assignments_for_tree',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.TRAIN
+    deprecated_since=versionutils.deprecated.TRAIN,
 )
 
 
@@ -54,23 +53,26 @@ role_assignment_policies = [
         check_str=ADMIN_OR_SYSTEM_READER_OR_DOMAIN_READER,
         scope_types=['system', 'domain', 'project'],
         description='List role assignments.',
-        operations=[{'path': '/v3/role_assignments',
-                     'method': 'GET'},
-                    {'path': '/v3/role_assignments',
-                     'method': 'HEAD'}],
-        deprecated_rule=deprecated_list_role_assignments),
+        operations=[
+            {'path': '/v3/role_assignments', 'method': 'GET'},
+            {'path': '/v3/role_assignments', 'method': 'HEAD'},
+        ],
+        deprecated_rule=deprecated_list_role_assignments,
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_role_assignments_for_tree',
         check_str=ADMIN_OR_SYSTEM_READER_OR_DOMAIN_READER,
         scope_types=['system', 'domain', 'project'],
-        description=('List all role assignments for a given tree of '
-                     'hierarchical projects.'),
-        operations=[{'path': '/v3/role_assignments?include_subtree',
-                     'method': 'GET'},
-                    {'path': '/v3/role_assignments?include_subtree',
-                     'method': 'HEAD'}],
-        deprecated_rule=deprecated_list_role_assignments_for_tree),
-
+        description=(
+            'List all role assignments for a given tree of '
+            'hierarchical projects.'
+        ),
+        operations=[
+            {'path': '/v3/role_assignments?include_subtree', 'method': 'GET'},
+            {'path': '/v3/role_assignments?include_subtree', 'method': 'HEAD'},
+        ],
+        deprecated_rule=deprecated_list_role_assignments_for_tree,
+    ),
 ]
 
 

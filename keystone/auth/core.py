@@ -75,9 +75,9 @@ class AuthContext(dict):
     """
 
     # identity attributes need to be reconciled among the auth plugins
-    IDENTITY_ATTRIBUTES = frozenset(['user_id', 'project_id',
-                                     'access_token_id', 'domain_id',
-                                     'expires_at'])
+    IDENTITY_ATTRIBUTES = frozenset(
+        ['user_id', 'project_id', 'access_token_id', 'domain_id', 'expires_at']
+    )
 
     def __setitem__(self, key, val):
         """Override __setitem__ to prevent conflicting values."""
@@ -87,20 +87,21 @@ class AuthContext(dict):
                 # special treatment for 'expires_at', we are going to take
                 # the earliest expiration instead.
                 if existing_val != val:
-                    LOG.info('"expires_at" has conflicting values '
-                             '%(existing)s and %(new)s.  Will use the '
-                             'earliest value.',
-                             {'existing': existing_val, 'new': val})
+                    LOG.info(
+                        '"expires_at" has conflicting values '
+                        '%(existing)s and %(new)s.  Will use the '
+                        'earliest value.',
+                        {'existing': existing_val, 'new': val},
+                    )
                 if existing_val is None or val is None:
                     val = existing_val or val
                 else:
                     val = min(existing_val, val)
             elif existing_val != val:
-                msg = _('Unable to reconcile identity attribute %(attribute)s '
-                        'as it has conflicting values %(new)s and %(old)s') % (
-                            {'attribute': key,
-                             'new': val,
-                             'old': existing_val})
+                msg = _(
+                    'Unable to reconcile identity attribute %(attribute)s '
+                    'as it has conflicting values %(new)s and %(old)s'
+                ) % ({'attribute': key, 'new': val, 'old': existing_val})
                 raise exception.Unauthorized(msg)
         return super(AuthContext, self).__setitem__(key, val)
 
@@ -141,8 +142,8 @@ class AuthInfo(provider_api.ProviderAPIMixin, object):
         # ensure the project is enabled
         try:
             PROVIDERS.resource_api.assert_project_enabled(
-                project_id=project_ref['id'],
-                project=project_ref)
+                project_id=project_ref['id'], project=project_ref
+            )
         except AssertionError as e:
             LOG.warning(e)
             raise exception.Unauthorized from e
@@ -150,8 +151,8 @@ class AuthInfo(provider_api.ProviderAPIMixin, object):
     def _assert_domain_is_enabled(self, domain_ref):
         try:
             PROVIDERS.resource_api.assert_domain_enabled(
-                domain_id=domain_ref['id'],
-                domain=domain_ref)
+                domain_id=domain_ref['id'], domain=domain_ref
+            )
         except AssertionError as e:
             LOG.warning(e)
             raise exception.Unauthorized from e
@@ -161,15 +162,19 @@ class AuthInfo(provider_api.ProviderAPIMixin, object):
         domain_name = domain_info.get('name')
         try:
             if domain_name:
-                if (CONF.resource.domain_name_url_safe == 'strict' and
-                        utils.is_not_url_safe(domain_name)):
+                if (
+                    CONF.resource.domain_name_url_safe == 'strict'
+                    and utils.is_not_url_safe(domain_name)
+                ):
                     msg = 'Domain name cannot contain reserved characters.'
-                    tr_msg = _('Domain name cannot contain reserved '
-                               'characters.')
+                    tr_msg = _(
+                        'Domain name cannot contain reserved ' 'characters.'
+                    )
                     LOG.warning(msg)
                     raise exception.Unauthorized(message=tr_msg)
                 domain_ref = PROVIDERS.resource_api.get_domain_by_name(
-                    domain_name)
+                    domain_name
+                )
             else:
                 domain_ref = PROVIDERS.resource_api.get_domain(domain_id)
         except exception.DomainNotFound as e:
@@ -183,19 +188,24 @@ class AuthInfo(provider_api.ProviderAPIMixin, object):
         project_name = project_info.get('name')
         try:
             if project_name:
-                if (CONF.resource.project_name_url_safe == 'strict' and
-                        utils.is_not_url_safe(project_name)):
+                if (
+                    CONF.resource.project_name_url_safe == 'strict'
+                    and utils.is_not_url_safe(project_name)
+                ):
                     msg = 'Project name cannot contain reserved characters.'
-                    tr_msg = _('Project name cannot contain reserved '
-                               'characters.')
+                    tr_msg = _(
+                        'Project name cannot contain reserved ' 'characters.'
+                    )
                     LOG.warning(msg)
                     raise exception.Unauthorized(message=tr_msg)
                 if 'domain' not in project_info:
-                    raise exception.ValidationError(attribute='domain',
-                                                    target='project')
+                    raise exception.ValidationError(
+                        attribute='domain', target='project'
+                    )
                 domain_ref = self._lookup_domain(project_info['domain'])
                 project_ref = PROVIDERS.resource_api.get_project_by_name(
-                    project_name, domain_ref['id'])
+                    project_name, domain_ref['id']
+                )
             else:
                 project_ref = PROVIDERS.resource_api.get_project(project_id)
                 domain_id = project_ref['domain_id']
@@ -214,8 +224,9 @@ class AuthInfo(provider_api.ProviderAPIMixin, object):
     def _lookup_trust(self, trust_info):
         trust_id = trust_info.get('id')
         if not trust_id:
-            raise exception.ValidationError(attribute='trust_id',
-                                            target='trust')
+            raise exception.ValidationError(
+                attribute='trust_id', target='trust'
+            )
         trust = PROVIDERS.trust_api.get_trust(trust_id)
         return trust
 
@@ -228,25 +239,28 @@ class AuthInfo(provider_api.ProviderAPIMixin, object):
             return get_app_cred(app_cred_id)
         name = app_cred_info.get('name')
         if not name:
-            raise exception.ValidationError(attribute='name or ID',
-                                            target='application credential')
+            raise exception.ValidationError(
+                attribute='name or ID', target='application credential'
+            )
         user = app_cred_info.get('user')
         if not user:
-            raise exception.ValidationError(attribute='user',
-                                            target='application credential')
+            raise exception.ValidationError(
+                attribute='user', target='application credential'
+            )
         user_id = user.get('id')
         if not user_id:
             if 'domain' not in user:
-                raise exception.ValidationError(attribute='domain',
-                                                target='user')
+                raise exception.ValidationError(
+                    attribute='domain', target='user'
+                )
             domain_ref = self._lookup_domain(user['domain'])
             user_id = PROVIDERS.identity_api.get_user_by_name(
-                user['name'], domain_ref['id'])['id']
+                user['name'], domain_ref['id']
+            )['id']
         hints = driver_hints.Hints()
         hints.add_filter('name', name)
         app_cred_api = PROVIDERS.application_credential_api
-        app_creds = app_cred_api.list_application_credentials(
-            user_id, hints)
+        app_creds = app_cred_api.list_application_credentials(user_id, hints)
         if len(app_creds) != 1:
             message = "Could not find application credential: %s" % name
             tr_message = _("Could not find application credential: %s") % name
@@ -267,17 +281,26 @@ class AuthInfo(provider_api.ProviderAPIMixin, object):
                 if 'scope' in self.auth:
                     detail = "Application credentials cannot request a scope."
                     raise exception.ApplicationCredentialAuthError(
-                        detail=detail)
+                        detail=detail
+                    )
                 self._set_scope_from_app_cred(
-                    self.auth['identity']['application_credential'])
+                    self.auth['identity']['application_credential']
+                )
                 return
         if 'scope' not in self.auth:
             return
-        if sum(['project' in self.auth['scope'],
-                'domain' in self.auth['scope'],
-                'unscoped' in self.auth['scope'],
-                'system' in self.auth['scope'],
-                'OS-TRUST:trust' in self.auth['scope']]) != 1:
+        if (
+            sum(
+                [
+                    'project' in self.auth['scope'],
+                    'domain' in self.auth['scope'],
+                    'unscoped' in self.auth['scope'],
+                    'system' in self.auth['scope'],
+                    'OS-TRUST:trust' in self.auth['scope'],
+                ]
+            )
+            != 1
+        ):
             msg = 'system, project, domain, OS-TRUST:trust or unscoped'
             raise exception.ValidationError(attribute=msg, target='scope')
         if 'system' in self.auth['scope']:
@@ -294,13 +317,19 @@ class AuthInfo(provider_api.ProviderAPIMixin, object):
             self._scope_data = (domain_ref['id'], None, None, None, None)
         elif 'OS-TRUST:trust' in self.auth['scope']:
             trust_ref = self._lookup_trust(
-                self.auth['scope']['OS-TRUST:trust'])
+                self.auth['scope']['OS-TRUST:trust']
+            )
             # TODO(ayoung): when trusts support domains, fill in domain data
             if trust_ref.get('project_id') is not None:
                 project_ref = self._lookup_project(
-                    {'id': trust_ref['project_id']})
+                    {'id': trust_ref['project_id']}
+                )
                 self._scope_data = (
-                    None, project_ref['id'], trust_ref, None, None
+                    None,
+                    project_ref['id'],
+                    trust_ref,
+                    None,
+                    None,
                 )
 
             else:
@@ -310,8 +339,9 @@ class AuthInfo(provider_api.ProviderAPIMixin, object):
         # make sure all the method data/payload are provided
         for method_name in self.get_method_names():
             if method_name not in self.auth['identity']:
-                raise exception.ValidationError(attribute=method_name,
-                                                target='identity')
+                raise exception.ValidationError(
+                    attribute=method_name, target='identity'
+                )
 
         # make sure auth method is supported
         for method_name in self.get_method_names():
@@ -327,8 +357,9 @@ class AuthInfo(provider_api.ProviderAPIMixin, object):
         """
         # make sure "auth" exist
         if not self.auth:
-            raise exception.ValidationError(attribute='auth',
-                                            target='request body')
+            raise exception.ValidationError(
+                attribute='auth', target='request body'
+            )
 
         # NOTE(chioleong): Tokenless auth does not provide auth methods,
         # we only care about using this method to validate the scope
@@ -360,8 +391,9 @@ class AuthInfo(provider_api.ProviderAPIMixin, object):
 
         """
         if method not in self.auth['identity']['methods']:
-            raise exception.ValidationError(attribute=method,
-                                            target='identity')
+            raise exception.ValidationError(
+                attribute=method, target='identity'
+            )
         return self.auth['identity'][method]
 
     def get_scope(self):
@@ -386,8 +418,14 @@ class AuthInfo(provider_api.ProviderAPIMixin, object):
         """
         return self._scope_data
 
-    def set_scope(self, domain_id=None, project_id=None, trust=None,
-                  unscoped=None, system=None):
+    def set_scope(
+        self,
+        domain_id=None,
+        project_id=None,
+        trust=None,
+        unscoped=None,
+        system=None,
+    ):
         """Set scope information."""
         if domain_id and project_id:
             msg = _('Scoping to both domain and project is not allowed')
@@ -430,16 +468,21 @@ class UserMFARulesValidator(provider_api.ProviderAPIMixin, object):
         user_ref = PROVIDERS.identity_api.get_user(user_id)
         mfa_rules = user_ref['options'].get(ro.MFA_RULES_OPT.option_name, [])
         mfa_rules_enabled = user_ref['options'].get(
-            ro.MFA_ENABLED_OPT.option_name, True)
+            ro.MFA_ENABLED_OPT.option_name, True
+        )
         rules = cls._parse_rule_structure(mfa_rules, user_ref['id'])
 
         if not rules or not mfa_rules_enabled:
             # return quickly if the rules are disabled for the user or not set
-            LOG.debug('MFA Rules not processed for user `%(user_id)s`. '
-                      'Rule list: `%(rules)s` (Enabled: `%(enabled)s`).',
-                      {'user_id': user_id,
-                       'rules': mfa_rules,
-                       'enabled': mfa_rules_enabled})
+            LOG.debug(
+                'MFA Rules not processed for user `%(user_id)s`. '
+                'Rule list: `%(rules)s` (Enabled: `%(enabled)s`).',
+                {
+                    'user_id': user_id,
+                    'rules': mfa_rules,
+                    'enabled': mfa_rules_enabled,
+                },
+            )
             return True
 
         for r in rules:
@@ -451,20 +494,24 @@ class UserMFARulesValidator(provider_api.ProviderAPIMixin, object):
             r_set = set(r).intersection(cls._auth_methods())
             if set(auth_methods).issuperset(r_set):
                 # Rule Matches no need to continue, return here.
-                LOG.debug('Auth methods for user `%(user_id)s`, `%(methods)s` '
-                          'matched MFA rule `%(rule)s`. Loaded '
-                          'auth_methods: `%(loaded)s`',
-                          {'user_id': user_id,
-                           'rule': list(r_set),
-                           'methods': auth_methods,
-                           'loaded': cls._auth_methods()})
+                LOG.debug(
+                    'Auth methods for user `%(user_id)s`, `%(methods)s` '
+                    'matched MFA rule `%(rule)s`. Loaded '
+                    'auth_methods: `%(loaded)s`',
+                    {
+                        'user_id': user_id,
+                        'rule': list(r_set),
+                        'methods': auth_methods,
+                        'loaded': cls._auth_methods(),
+                    },
+                )
                 return True
 
-        LOG.debug('Auth methods for user `%(user_id)s`, `%(methods)s` did not '
-                  'match a MFA rule in `%(rules)s`.',
-                  {'user_id': user_id,
-                   'methods': auth_methods,
-                   'rules': rules})
+        LOG.debug(
+            'Auth methods for user `%(user_id)s`, `%(methods)s` did not '
+            'match a MFA rule in `%(rules)s`.',
+            {'user_id': user_id, 'methods': auth_methods, 'rules': rules},
+        )
         return False
 
     @staticmethod
@@ -488,9 +535,11 @@ class UserMFARulesValidator(provider_api.ProviderAPIMixin, object):
         # processing.
         rule_set = []
         if not isinstance(rules, list):
-            LOG.error('Corrupt rule data structure for user %(user_id)s, '
-                      'no rules loaded.',
-                      {'user_id': user_id})
+            LOG.error(
+                'Corrupt rule data structure for user %(user_id)s, '
+                'no rules loaded.',
+                {'user_id': user_id},
+            )
             # Corrupt Data means no rules. Auth success > MFA rules in this
             # case.
             return rule_set
@@ -502,9 +551,11 @@ class UserMFARulesValidator(provider_api.ProviderAPIMixin, object):
             if not isinstance(r_list, list):
                 # Rule was not a list, it is invalid, drop the rule from
                 # being considered.
-                LOG.info('Ignoring Rule %(type)r; rule must be a list of '
-                         'strings.',
-                         {'type': type(r_list)})
+                LOG.info(
+                    'Ignoring Rule %(type)r; rule must be a list of '
+                    'strings.',
+                    {'type': type(r_list)},
+                )
                 continue
 
             if r_list:
@@ -514,9 +565,11 @@ class UserMFARulesValidator(provider_api.ProviderAPIMixin, object):
                     if not isinstance(item, str):
                         # Rules may only contain strings for method names
                         # Reject a rule with non-string values
-                        LOG.info('Ignoring Rule %(rule)r; rule contains '
-                                 'non-string values.',
-                                 {'rule': r_list})
+                        LOG.info(
+                            'Ignoring Rule %(rule)r; rule contains '
+                            'non-string values.',
+                            {'rule': r_list},
+                        )
                         # Rule is known to be bad, drop it from consideration.
                         _ok_rule = False
                         break

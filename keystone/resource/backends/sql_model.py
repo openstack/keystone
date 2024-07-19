@@ -28,8 +28,7 @@ class Project(sql.ModelBase, sql.ModelDictMixinWithExtras):
     # to represent null, as defined in NULL_DOMAIN_ID above.
 
     def to_dict(self, include_extra_dict=False):
-        d = super(Project, self).to_dict(
-            include_extra_dict=include_extra_dict)
+        d = super(Project, self).to_dict(include_extra_dict=include_extra_dict)
         if d['domain_id'] == base.NULL_DOMAIN_ID:
             d['domain_id'] = None
         # NOTE(notmorgan): Eventually it may make sense to drop the empty
@@ -55,26 +54,36 @@ class Project(sql.ModelBase, sql.ModelDictMixinWithExtras):
         return project_obj
 
     __tablename__ = 'project'
-    attributes = ['id', 'name', 'domain_id', 'description', 'enabled',
-                  'parent_id', 'is_domain', 'tags']
+    attributes = [
+        'id',
+        'name',
+        'domain_id',
+        'description',
+        'enabled',
+        'parent_id',
+        'is_domain',
+        'tags',
+    ]
     resource_options_registry = ro.PROJECT_OPTIONS_REGISTRY
     id = sql.Column(sql.String(64), primary_key=True)
     name = sql.Column(sql.String(64), nullable=False)
-    domain_id = sql.Column(sql.String(64), sql.ForeignKey('project.id'),
-                           nullable=False)
+    domain_id = sql.Column(
+        sql.String(64), sql.ForeignKey('project.id'), nullable=False
+    )
     description = sql.Column(sql.Text())
     enabled = sql.Column(sql.Boolean)
     extra = sql.Column(sql.JsonBlob())
     parent_id = sql.Column(sql.String(64), sql.ForeignKey('project.id'))
-    is_domain = sql.Column(sql.Boolean, default=False, nullable=False,
-                           server_default='0')
+    is_domain = sql.Column(
+        sql.Boolean, default=False, nullable=False, server_default='0'
+    )
     _tags = orm.relationship(
         'ProjectTag',
         single_parent=True,
         lazy='subquery',
         cascade='all,delete-orphan',
         backref='project',
-        primaryjoin='and_(ProjectTag.project_id==Project.id)'
+        primaryjoin='and_(ProjectTag.project_id==Project.id)',
     )
     _resource_option_mapper = orm.relationship(
         'ProjectOption',
@@ -82,7 +91,7 @@ class Project(sql.ModelBase, sql.ModelDictMixinWithExtras):
         cascade='all,delete,delete-orphan',
         lazy='subquery',
         backref='project',
-        collection_class=collections.attribute_mapped_collection('option_id')
+        collection_class=collections.attribute_mapped_collection('option_id'),
     )
 
     # Unique constraint across two columns to create the separation
@@ -115,18 +124,23 @@ class ProjectTag(sql.ModelBase, sql.ModelDictMixin):
     __tablename__ = 'project_tag'
     attributes = ['project_id', 'name']
     project_id = sql.Column(
-        sql.String(64), sql.ForeignKey('project.id', ondelete='CASCADE'),
-        nullable=False, primary_key=True)
+        sql.String(64),
+        sql.ForeignKey('project.id', ondelete='CASCADE'),
+        nullable=False,
+        primary_key=True,
+    )
     name = sql.Column(sql.Unicode(255), nullable=False, primary_key=True)
 
 
 class ProjectOption(sql.ModelBase):
     __tablename__ = 'project_option'
-    project_id = sql.Column(sql.String(64),
-                            sql.ForeignKey('project.id', ondelete='CASCADE'),
-                            nullable=False, primary_key=True)
-    option_id = sql.Column(sql.String(4), nullable=False,
-                           primary_key=True)
+    project_id = sql.Column(
+        sql.String(64),
+        sql.ForeignKey('project.id', ondelete='CASCADE'),
+        nullable=False,
+        primary_key=True,
+    )
+    option_id = sql.Column(sql.String(4), nullable=False, primary_key=True)
     option_value = sql.Column(sql.JsonBlob, nullable=True)
 
     def __init__(self, option_id, option_value):

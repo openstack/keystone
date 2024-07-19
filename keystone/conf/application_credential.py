@@ -18,37 +18,49 @@ from keystone.conf import utils
 driver = cfg.StrOpt(
     'driver',
     default='sql',
-    help=utils.fmt("""
+    help=utils.fmt(
+        """
 Entry point for the application credential backend driver in the
 `keystone.application_credential` namespace.  Keystone only provides a `sql`
 driver, so there is no reason to change this unless you are providing a custom
 entry point.
-"""))
+"""
+    ),
+)
 
 caching = cfg.BoolOpt(
     'caching',
     default=True,
-    help=utils.fmt("""
+    help=utils.fmt(
+        """
 Toggle for application credential caching. This has no effect unless global
 caching is enabled.
-"""))
+"""
+    ),
+)
 
 cache_time = cfg.IntOpt(
     'cache_time',
-    help=utils.fmt("""
+    help=utils.fmt(
+        """
 Time to cache application credential data in seconds. This has no effect
 unless global caching is enabled.
-"""))
+"""
+    ),
+)
 
 user_limit = cfg.IntOpt(
     'user_limit',
     default=-1,
-    help=utils.fmt("""
+    help=utils.fmt(
+        """
 Maximum number of application credentials a user is permitted to create. A
 value of -1 means unlimited. If a limit is not set, users are permitted to
 create application credentials at will, which could lead to bloat in the
 keystone database or open keystone to a DoS attack.
-"""))
+"""
+    ),
+)
 
 
 GROUP_NAME = __name__.split('.')[-1]

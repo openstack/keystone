@@ -17,14 +17,18 @@ from keystone.server import flask as ks_flask
 
 
 def build_response(error):
-    response = flask.make_response((
-        {
-            'error': error.error_title,
-            'error_description': error.message_format
-        },
-        f"{error.code} {error.title}"))
+    response = flask.make_response(
+        (
+            {
+                'error': error.error_title,
+                'error_description': error.message_format,
+            },
+            f"{error.code} {error.title}",
+        )
+    )
 
     if error.code == 401:
-        response.headers['WWW-Authenticate'] = \
+        response.headers['WWW-Authenticate'] = (
             'Keystone uri="%s"' % ks_flask.base_url()
+        )
     return response

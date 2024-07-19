@@ -42,8 +42,8 @@ MAX_ACTIVE_KEYS = 3
 
 def get_multi_fernet_keys():
     key_utils = fernet_utils.FernetUtils(
-        CONF.credential.key_repository, MAX_ACTIVE_KEYS,
-        'credential')
+        CONF.credential.key_repository, MAX_ACTIVE_KEYS, 'credential'
+    )
     keys = key_utils.load_keys(use_null_key=True)
 
     fernet_keys = [fernet.Fernet(key) for key in keys]
@@ -77,12 +77,14 @@ class Provider(core.Provider):
                 'Encrypting credentials with the null key. Please properly '
                 'encrypt credentials using `keystone-manage credential_setup`,'
                 ' `keystone-manage credential_migrate`, and `keystone-manage '
-                'credential_rotate`')
+                'credential_rotate`'
+            )
 
         try:
             return (
                 crypto.encrypt(credential.encode('utf-8')),
-                primary_key_hash(keys))
+                primary_key_hash(keys),
+            )
         except (TypeError, ValueError) as e:
             msg = 'Credential could not be encrypted: %s' % str(e)
             tr_msg = _('Credential could not be encrypted: %s') % str(e)
@@ -96,7 +98,8 @@ class Provider(core.Provider):
         :returns: a decrypted credential
         """
         key_utils = fernet_utils.FernetUtils(
-            CONF.credential.key_repository, MAX_ACTIVE_KEYS, 'credential')
+            CONF.credential.key_repository, MAX_ACTIVE_KEYS, 'credential'
+        )
         keys = key_utils.load_keys(use_null_key=True)
         fernet_keys = [fernet.Fernet(key) for key in keys]
         crypto = fernet.MultiFernet(fernet_keys)
@@ -106,9 +109,13 @@ class Provider(core.Provider):
                 credential = credential.encode('utf-8')
             return crypto.decrypt(credential).decode('utf-8')
         except (fernet.InvalidToken, TypeError, ValueError):
-            msg = ('Credential could not be decrypted. Please contact the '
-                   'administrator')
-            tr_msg = _('Credential could not be decrypted. Please contact the '
-                       'administrator')
+            msg = (
+                'Credential could not be decrypted. Please contact the '
+                'administrator'
+            )
+            tr_msg = _(
+                'Credential could not be decrypted. Please contact the '
+                'administrator'
+            )
             LOG.error(msg)
             raise exception.CredentialEncryptionError(tr_msg)

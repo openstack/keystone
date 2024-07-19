@@ -78,7 +78,8 @@ class HackingCode(fixtures.Fixture):
             (28, 26, 'K001'),
             (29, 21, 'K001'),
             (32, 10, 'K001'),
-        ]}
+        ],
+    }
 
     # NOTE(browne): This is gross, but in Python 3.4 and earlier, the ast
     # module returns the incorrect col_offset for two of the defined functions
@@ -105,7 +106,8 @@ class HackingCode(fixtures.Fixture):
         """,
         'expected_errors': [
             (3, 0, 'K002'),
-        ]}
+        ],
+    }
 
     asserting_none_equality = {
         'code': """
@@ -125,7 +127,8 @@ class HackingCode(fixtures.Fixture):
             (6, 8, 'K003'),
             (7, 8, 'K004'),
             (8, 8, 'K004'),
-        ]}
+        ],
+    }
 
     dict_constructor = {
         'code': """
@@ -140,7 +143,8 @@ class HackingCode(fixtures.Fixture):
             (3, 0, 'K008'),
             (4, 0, 'K008'),
             (5, 0, 'K008'),
-        ]}
+        ],
+    }
 
 
 class HackingTranslations(fixtures.Fixture):

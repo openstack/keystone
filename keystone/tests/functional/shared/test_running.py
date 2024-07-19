@@ -17,7 +17,8 @@ from keystone.tests.functional import core as functests
 
 
 is_multiple_choices = testtools.matchers.Equals(
-    requests.status_codes.codes.multiple_choices)
+    requests.status_codes.codes.multiple_choices
+)
 is_ok = testtools.matchers.Equals(requests.status_codes.codes.ok)
 
 versions = ['v3']
@@ -35,7 +36,9 @@ class TestServerRunning(functests.BaseTestCase):
             self.assertThat(
                 resp.status_code,
                 testtools.matchers.Annotate(
-                    'failed for version %s' % version, is_ok))
+                    'failed for version %s' % version, is_ok
+                ),
+            )
 
     def test_public_responds_with_multiple_choices(self):
         resp = requests.get(self.PUBLIC_URL)
@@ -47,7 +50,9 @@ class TestServerRunning(functests.BaseTestCase):
             self.assertThat(
                 resp.status_code,
                 testtools.matchers.Annotate(
-                    'failed for version %s' % version, is_ok))
+                    'failed for version %s' % version, is_ok
+                ),
+            )
 
     def test_get_user_token(self):
         token = self.get_scoped_user_token()

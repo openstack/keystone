@@ -44,7 +44,7 @@ class TestTokenProvider(unit.TestCase):
             ksfixtures.KeyRepository(
                 self.config_fixture,
                 'fernet_tokens',
-                CONF.fernet_tokens.max_active_keys
+                CONF.fernet_tokens.max_active_keys,
             )
         )
         self.load_backends()
@@ -54,19 +54,19 @@ class TestTokenProvider(unit.TestCase):
         self.assertEqual(s, urllib.parse.quote_plus(s))
 
     def test_unsupported_token_provider(self):
-        self.config_fixture.config(group='token',
-                                   provider='MyProvider')
-        self.assertRaises(ImportError,
-                          token.provider.Manager)
+        self.config_fixture.config(group='token', provider='MyProvider')
+        self.assertRaises(ImportError, token.provider.Manager)
 
     def test_provider_token_expiration_validation(self):
         token = token_model.TokenModel()
         token.issued_at = "2013-05-21T00:02:43.941473Z"
         token.expires_at = utils.isotime(CURRENT_DATE)
 
-        self.assertRaises(exception.TokenNotFound,
-                          PROVIDERS.token_provider_api._is_valid_token,
-                          token)
+        self.assertRaises(
+            exception.TokenNotFound,
+            PROVIDERS.token_provider_api._is_valid_token,
+            token,
+        )
 
         token = token_model.TokenModel()
         token.issued_at = "2013-05-21T00:02:43.941473Z"
@@ -77,4 +77,5 @@ class TestTokenProvider(unit.TestCase):
         self.assertRaises(
             exception.TokenNotFound,
             PROVIDERS.token_provider_api.validate_token,
-            None)
+            None,
+        )

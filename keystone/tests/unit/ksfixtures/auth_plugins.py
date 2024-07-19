@@ -52,8 +52,7 @@ class LoadAuthPlugins(fixtures.Fixture):
         for method_name in self.method_names:
             if method_name in AUTH_METHODS:
                 self.saved[method_name] = AUTH_METHODS[method_name]
-            AUTH_METHODS[method_name] = auth.core.load_auth_method(
-                method_name)
+            AUTH_METHODS[method_name] = auth.core.load_auth_method(method_name)
         auth.core.AUTH_PLUGINS_LOADED = True
 
     def cleanUp(self):

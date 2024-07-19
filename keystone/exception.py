@@ -34,8 +34,7 @@ def _format_with_unicode_kwargs(msg_format, kwargs):
         return msg_format % kwargs
     except UnicodeDecodeError:
         try:
-            kwargs = {k: encodeutils.safe_decode(v)
-                      for k, v in kwargs.items()}
+            kwargs = {k: encodeutils.safe_decode(v) for k, v in kwargs.items()}
         except UnicodeDecodeError:
             # NOTE(jamielennox): This is the complete failure case
             # at least by showing the template we have some idea
@@ -96,17 +95,20 @@ class Error(Exception, metaclass=_KeystoneExceptionMeta):
 
 
 class ValidationError(Error):
-    message_format = _("Expecting to find %(attribute)s in %(target)s."
-                       " The server could not comply with the request"
-                       " since it is either malformed or otherwise"
-                       " incorrect. The client is assumed to be in error.")
+    message_format = _(
+        "Expecting to find %(attribute)s in %(target)s."
+        " The server could not comply with the request"
+        " since it is either malformed or otherwise"
+        " incorrect. The client is assumed to be in error."
+    )
     code = int(http.client.BAD_REQUEST)
     title = http.client.responses[http.client.BAD_REQUEST]
 
 
 class URLValidationError(ValidationError):
-    message_format = _("Cannot create an endpoint with an invalid URL:"
-                       " %(url)s.")
+    message_format = _(
+        "Cannot create an endpoint with an invalid URL:" " %(url)s."
+    )
 
 
 class PasswordValidationError(ValidationError):
@@ -114,31 +116,38 @@ class PasswordValidationError(ValidationError):
 
 
 class PasswordRequirementsValidationError(PasswordValidationError):
-    message_format = _("The password does not match the requirements:"
-                       " %(detail)s.")
+    message_format = _(
+        "The password does not match the requirements:" " %(detail)s."
+    )
 
 
 class PasswordHistoryValidationError(PasswordValidationError):
-    message_format = _("The new password cannot be identical to a "
-                       "previous password. The total number which "
-                       "includes the new password must be unique is "
-                       "%(unique_count)s.")
+    message_format = _(
+        "The new password cannot be identical to a "
+        "previous password. The total number which "
+        "includes the new password must be unique is "
+        "%(unique_count)s."
+    )
 
 
 class PasswordAgeValidationError(PasswordValidationError):
-    message_format = _("You cannot change your password at this time due "
-                       "to the minimum password age. Once you change your "
-                       "password, it must be used for %(min_age_days)d day(s) "
-                       "before it can be changed. Please try again in "
-                       "%(days_left)d day(s) or contact your administrator to "
-                       "reset your password.")
+    message_format = _(
+        "You cannot change your password at this time due "
+        "to the minimum password age. Once you change your "
+        "password, it must be used for %(min_age_days)d day(s) "
+        "before it can be changed. Please try again in "
+        "%(days_left)d day(s) or contact your administrator to "
+        "reset your password."
+    )
 
 
 class PasswordSelfServiceDisabled(PasswordValidationError):
-    message_format = _("You cannot change your password at this time due "
-                       "to password policy disallowing password changes. "
-                       "Please contact your administrator to reset your "
-                       "password.")
+    message_format = _(
+        "You cannot change your password at this time due "
+        "to password policy disallowing password changes. "
+        "Please contact your administrator to reset your "
+        "password."
+    )
 
 
 class SchemaValidationError(ValidationError):
@@ -148,39 +157,49 @@ class SchemaValidationError(ValidationError):
 
 
 class ValidationTimeStampError(Error):
-    message_format = _("Timestamp not in expected format."
-                       " The server could not comply with the request"
-                       " since it is either malformed or otherwise"
-                       " incorrect. The client is assumed to be in error.")
+    message_format = _(
+        "Timestamp not in expected format."
+        " The server could not comply with the request"
+        " since it is either malformed or otherwise"
+        " incorrect. The client is assumed to be in error."
+    )
     code = int(http.client.BAD_REQUEST)
     title = http.client.responses[http.client.BAD_REQUEST]
 
 
 class InvalidOperatorError(ValidationError):
-    message_format = _("The given operator %(_op)s is not valid."
-                       " It must be one of the following:"
-                       " 'eq', 'neq', 'lt', 'lte', 'gt', or 'gte'.")
+    message_format = _(
+        "The given operator %(_op)s is not valid."
+        " It must be one of the following:"
+        " 'eq', 'neq', 'lt', 'lte', 'gt', or 'gte'."
+    )
 
 
 class ValidationExpirationError(Error):
-    message_format = _("The 'expires_at' must not be before now."
-                       " The server could not comply with the request"
-                       " since it is either malformed or otherwise"
-                       " incorrect. The client is assumed to be in error.")
+    message_format = _(
+        "The 'expires_at' must not be before now."
+        " The server could not comply with the request"
+        " since it is either malformed or otherwise"
+        " incorrect. The client is assumed to be in error."
+    )
     code = int(http.client.BAD_REQUEST)
     title = http.client.responses[http.client.BAD_REQUEST]
 
 
 class StringLengthExceeded(ValidationError):
-    message_format = _("String length exceeded. The length of"
-                       " string '%(string)s' exceeds the limit"
-                       " of column %(type)s(CHAR(%(length)d)).")
+    message_format = _(
+        "String length exceeded. The length of"
+        " string '%(string)s' exceeds the limit"
+        " of column %(type)s(CHAR(%(length)d))."
+    )
 
 
 class AmbiguityError(ValidationError):
-    message_format = _("There are multiple %(resource)s entities named"
-                       " '%(name)s'. Please use ID instead of names to"
-                       " resolve the ambiguity.")
+    message_format = _(
+        "There are multiple %(resource)s entities named"
+        " '%(name)s'. Please use ID instead of names to"
+        " resolve the ambiguity."
+    )
 
 
 class ApplicationCredentialValidationError(ValidationError):
@@ -188,8 +207,10 @@ class ApplicationCredentialValidationError(ValidationError):
 
 
 class CircularRegionHierarchyError(Error):
-    message_format = _("The specified parent region %(parent_region_id)s "
-                       "would create a circular region hierarchy.")
+    message_format = _(
+        "The specified parent region %(parent_region_id)s "
+        "would create a circular region hierarchy."
+    )
     code = int(http.client.BAD_REQUEST)
     title = http.client.responses[http.client.BAD_REQUEST]
 
@@ -207,24 +228,32 @@ class ForbiddenNotSecurity(Error):
 
 
 class PasswordVerificationError(ForbiddenNotSecurity):
-    message_format = _("The password length must be less than or equal "
-                       "to %(size)i. The server could not comply with the "
-                       "request because the password is invalid.")
+    message_format = _(
+        "The password length must be less than or equal "
+        "to %(size)i. The server could not comply with the "
+        "request because the password is invalid."
+    )
 
 
 class RegionDeletionError(ForbiddenNotSecurity):
-    message_format = _("Unable to delete region %(region_id)s because it or "
-                       "its child regions have associated endpoints.")
+    message_format = _(
+        "Unable to delete region %(region_id)s because it or "
+        "its child regions have associated endpoints."
+    )
 
 
 class ApplicationCredentialLimitExceeded(ForbiddenNotSecurity):
-    message_format = _("Unable to create additional application credentials, "
-                       "maximum of %(limit)d already exceeded for user.")
+    message_format = _(
+        "Unable to create additional application credentials, "
+        "maximum of %(limit)d already exceeded for user."
+    )
 
 
 class CredentialLimitExceeded(ForbiddenNotSecurity):
-    message_format = _("Unable to create additional credentials, maximum "
-                       "of %(limit)d already exceeded for user.")
+    message_format = _(
+        "Unable to create additional credentials, maximum "
+        "of %(limit)d already exceeded for user."
+    )
 
 
 class SecurityError(Error):
@@ -275,7 +304,8 @@ class SecurityError(Error):
                 message = _format_with_unicode_kwargs(message, kwargs)
             return _('%(message)s %(amendment)s') % {
                 'message': message,
-                'amendment': self.amendment}
+                'amendment': self.amendment,
+            }
 
         return _format_with_unicode_kwargs(self.message_format, kwargs)
 
@@ -289,15 +319,18 @@ class Unauthorized(SecurityError):
 class InsufficientAuthMethods(Error):
     # NOTE(adriant): This is an internal only error that is built into
     # an auth receipt response.
-    message_format = _("Insufficient auth methods received for %(user_id)s. "
-                       "Auth Methods Provided: %(methods)s.")
+    message_format = _(
+        "Insufficient auth methods received for %(user_id)s. "
+        "Auth Methods Provided: %(methods)s."
+    )
     code = 401
     title = 'Unauthorized'
 
     def __init__(self, message=None, user_id=None, methods=None):
         methods_str = '[%s]' % ','.join(methods)
         super(InsufficientAuthMethods, self).__init__(
-            message, user_id=user_id, methods=methods_str)
+            message, user_id=user_id, methods=methods_str
+        )
 
         self.user_id = user_id
         self.methods = methods
@@ -308,8 +341,10 @@ class ReceiptNotFound(Unauthorized):
 
 
 class PasswordExpired(Unauthorized):
-    message_format = _("The password is expired and needs to be changed for "
-                       "user: %(user_id)s.")
+    message_format = _(
+        "The password is expired and needs to be changed for "
+        "user: %(user_id)s."
+    )
 
 
 class AuthPluginException(Unauthorized):
@@ -338,7 +373,8 @@ class AuthMethodNotSupported(AuthPluginException):
 
 class ApplicationCredentialAuthError(AuthPluginException):
     message_format = _(
-        "Error authenticating with application credential: %(detail)s")
+        "Error authenticating with application credential: %(detail)s"
+    )
 
 
 class AdditionalAuthRequired(AuthPluginException):
@@ -350,28 +386,35 @@ class AdditionalAuthRequired(AuthPluginException):
 
 
 class Forbidden(SecurityError):
-    message_format = _("You are not authorized to perform the"
-                       " requested action.")
+    message_format = _(
+        "You are not authorized to perform the" " requested action."
+    )
     code = int(http.client.FORBIDDEN)
     title = http.client.responses[http.client.FORBIDDEN]
 
 
 class ForbiddenAction(Forbidden):
-    message_format = _("You are not authorized to perform the"
-                       " requested action: %(action)s.")
+    message_format = _(
+        "You are not authorized to perform the"
+        " requested action: %(action)s."
+    )
 
 
 class CrossBackendNotAllowed(Forbidden):
-    message_format = _("Group membership across backend boundaries is not "
-                       "allowed. Group in question is %(group_id)s, "
-                       "user is %(user_id)s.")
+    message_format = _(
+        "Group membership across backend boundaries is not "
+        "allowed. Group in question is %(group_id)s, "
+        "user is %(user_id)s."
+    )
 
 
 class InvalidPolicyAssociation(Forbidden):
-    message_format = _("Invalid mix of entities for policy association: "
-                       "only Endpoint, Service, or Region+Service allowed. "
-                       "Request was - Endpoint: %(endpoint_id)s, "
-                       "Service: %(service_id)s, Region: %(region_id)s.")
+    message_format = _(
+        "Invalid mix of entities for policy association: "
+        "only Endpoint, Service, or Region+Service allowed. "
+        "Request was - Endpoint: %(endpoint_id)s, "
+        "Service: %(service_id)s, Region: %(region_id)s."
+    )
 
 
 class InvalidDomainConfig(Forbidden):
@@ -384,12 +427,15 @@ class InvalidLimit(Forbidden):
 
 class LimitTreeExceedError(Exception):
     def __init__(self, project_id, max_limit_depth):
-        super(LimitTreeExceedError, self).__init__(_(
-            "Keystone cannot start due to project hierarchical depth in the "
-            "current deployment (project_ids: %(project_id)s) exceeds the "
-            "enforcement model's maximum limit of %(max_limit_depth)s. Please "
-            "use a different enforcement model to correct the issue."
-        ) % {'project_id': project_id, 'max_limit_depth': max_limit_depth})
+        super(LimitTreeExceedError, self).__init__(
+            _(
+                "Keystone cannot start due to project hierarchical depth in the "
+                "current deployment (project_ids: %(project_id)s) exceeds the "
+                "enforcement model's maximum limit of %(max_limit_depth)s. Please "
+                "use a different enforcement model to correct the issue."
+            )
+            % {'project_id': project_id, 'max_limit_depth': max_limit_depth}
+        )
 
 
 class NotFound(Error):
@@ -423,13 +469,17 @@ class InvalidImpliedRole(Forbidden):
 
 
 class DomainSpecificRoleMismatch(Forbidden):
-    message_format = _("Project %(project_id)s must be in the same domain "
-                       "as the role %(role_id)s being assigned.")
+    message_format = _(
+        "Project %(project_id)s must be in the same domain "
+        "as the role %(role_id)s being assigned."
+    )
 
 
 class DomainSpecificRoleNotWithinIdPDomain(Forbidden):
-    message_format = _("role: %(role_name)s must be within the same domain as "
-                       "the identity provider: %(identity_provider)s.")
+    message_format = _(
+        "role: %(role_name)s must be within the same domain as "
+        "the identity provider: %(identity_provider)s."
+    )
 
 
 class DomainIdInvalid(ValidationError):
@@ -437,9 +487,11 @@ class DomainIdInvalid(ValidationError):
 
 
 class RoleAssignmentNotFound(NotFound):
-    message_format = _("Could not find role assignment with role: "
-                       "%(role_id)s, user or group: %(actor_id)s, "
-                       "project, domain, or system: %(target_id)s.")
+    message_format = _(
+        "Could not find role assignment with role: "
+        "%(role_id)s, user or group: %(actor_id)s, "
+        "project, domain, or system: %(target_id)s."
+    )
 
 
 class RegionNotFound(NotFound):
@@ -507,8 +559,10 @@ class ServiceProviderNotFound(NotFound):
 
 
 class FederatedProtocolNotFound(NotFound):
-    message_format = _("Could not find federated protocol %(protocol_id)s for"
-                       " Identity Provider: %(idp_id)s.")
+    message_format = _(
+        "Could not find federated protocol %(protocol_id)s for"
+        " Identity Provider: %(idp_id)s."
+    )
 
 
 class PublicIDNotFound(NotFound):
@@ -526,18 +580,24 @@ class LimitNotFound(NotFound):
 
 
 class NoLimitReference(Forbidden):
-    message_format = _("Unable to create a limit that has no corresponding "
-                       "registered limit.")
+    message_format = _(
+        "Unable to create a limit that has no corresponding "
+        "registered limit."
+    )
 
 
 class RegisteredLimitError(ForbiddenNotSecurity):
-    message_format = _("Unable to update or delete registered limit %(id)s "
-                       "because there are project limits associated with it.")
+    message_format = _(
+        "Unable to update or delete registered limit %(id)s "
+        "because there are project limits associated with it."
+    )
 
 
 class DomainConfigNotFound(NotFound):
-    message_format = _('Could not find %(group_or_option)s in domain '
-                       'configuration for domain %(domain_id)s.')
+    message_format = _(
+        'Could not find %(group_or_option)s in domain '
+        'configuration for domain %(domain_id)s.'
+    )
 
 
 class ConfigRegistrationNotFound(Exception):
@@ -548,8 +608,10 @@ class ConfigRegistrationNotFound(Exception):
 
 
 class ApplicationCredentialNotFound(NotFound):
-    message_format = _("Could not find Application Credential: "
-                       "%(application_credential_id)s.")
+    message_format = _(
+        "Could not find Application Credential: "
+        "%(application_credential_id)s."
+    )
 
 
 class AccessRuleNotFound(NotFound):
@@ -557,8 +619,9 @@ class AccessRuleNotFound(NotFound):
 
 
 class Conflict(Error):
-    message_format = _("Conflict occurred attempting to store %(type)s -"
-                       " %(details)s.")
+    message_format = _(
+        "Conflict occurred attempting to store %(type)s -" " %(details)s."
+    )
     code = int(http.client.CONFLICT)
     title = http.client.responses[http.client.CONFLICT]
 
@@ -566,11 +629,15 @@ class Conflict(Error):
 class UnexpectedError(SecurityError):
     """Avoids exposing details of failures, unless in insecure_debug mode."""
 
-    message_format = _("An unexpected error prevented the server "
-                       "from fulfilling your request.")
+    message_format = _(
+        "An unexpected error prevented the server "
+        "from fulfilling your request."
+    )
 
-    debug_message_format = _("An unexpected error prevented the server "
-                             "from fulfilling your request: %(exception)s.")
+    debug_message_format = _(
+        "An unexpected error prevented the server "
+        "from fulfilling your request: %(exception)s."
+    )
 
     def _build_message(self, message, **kwargs):
 
@@ -580,25 +647,30 @@ class UnexpectedError(SecurityError):
         kwargs.setdefault('exception', '')
 
         return super(UnexpectedError, self)._build_message(
-            message or self.debug_message_format, **kwargs)
+            message or self.debug_message_format, **kwargs
+        )
 
     code = int(http.client.INTERNAL_SERVER_ERROR)
     title = http.client.responses[http.client.INTERNAL_SERVER_ERROR]
 
 
 class TrustConsumeMaximumAttempt(UnexpectedError):
-    debug_message_format = _("Unable to consume trust %(trust_id)s. Unable to "
-                             "acquire lock.")
+    debug_message_format = _(
+        "Unable to consume trust %(trust_id)s. Unable to " "acquire lock."
+    )
 
 
 class MalformedEndpoint(UnexpectedError):
-    debug_message_format = _("Malformed endpoint URL (%(endpoint)s),"
-                             " see ERROR log for details.")
+    debug_message_format = _(
+        "Malformed endpoint URL (%(endpoint)s)," " see ERROR log for details."
+    )
 
 
 class MappedGroupNotFound(UnexpectedError):
-    debug_message_format = _("Group %(group_id)s returned by mapping "
-                             "%(mapping_id)s was not found in the backend.")
+    debug_message_format = _(
+        "Group %(group_id)s returned by mapping "
+        "%(mapping_id)s was not found in the backend."
+    )
 
 
 class MetadataFileError(UnexpectedError):
@@ -606,122 +678,154 @@ class MetadataFileError(UnexpectedError):
 
 
 class DirectMappingError(UnexpectedError):
-    debug_message_format = _("Local section in mapping %(mapping_id)s refers "
-                             "to a remote match that doesn't exist "
-                             "(e.g. {0} in a local section).")
+    debug_message_format = _(
+        "Local section in mapping %(mapping_id)s refers "
+        "to a remote match that doesn't exist "
+        "(e.g. {0} in a local section)."
+    )
 
 
 class AssignmentTypeCalculationError(UnexpectedError):
     debug_message_format = _(
         'Unexpected combination of grant attributes - '
         'User: %(user_id)s, Group: %(group_id)s, Project: %(project_id)s, '
-        'Domain: %(domain_id)s.')
+        'Domain: %(domain_id)s.'
+    )
 
 
 class NotImplemented(Error):
-    message_format = _("The action you have requested has not"
-                       " been implemented.")
+    message_format = _(
+        "The action you have requested has not" " been implemented."
+    )
     code = int(http.client.NOT_IMPLEMENTED)
     title = http.client.responses[http.client.NOT_IMPLEMENTED]
 
 
 class Gone(Error):
-    message_format = _("The service you have requested is no"
-                       " longer available on this server.")
+    message_format = _(
+        "The service you have requested is no"
+        " longer available on this server."
+    )
     code = int(http.client.GONE)
     title = http.client.responses[http.client.GONE]
 
 
 class ConfigFileNotFound(UnexpectedError):
-    debug_message_format = _("The Keystone configuration file %(config_file)s "
-                             "could not be found.")
+    debug_message_format = _(
+        "The Keystone configuration file %(config_file)s "
+        "could not be found."
+    )
 
 
 class KeysNotFound(UnexpectedError):
-    debug_message_format = _('No encryption keys found; run keystone-manage '
-                             'fernet_setup to bootstrap one.')
+    debug_message_format = _(
+        'No encryption keys found; run keystone-manage '
+        'fernet_setup to bootstrap one.'
+    )
 
 
 class MultipleSQLDriversInConfig(UnexpectedError):
-    debug_message_format = _('The Keystone domain-specific configuration has '
-                             'specified more than one SQL driver (only one is '
-                             'permitted): %(source)s.')
+    debug_message_format = _(
+        'The Keystone domain-specific configuration has '
+        'specified more than one SQL driver (only one is '
+        'permitted): %(source)s.'
+    )
 
 
 class MigrationNotProvided(Exception):
     def __init__(self, mod_name, path):
-        super(MigrationNotProvided, self).__init__(_(
-            "%(mod_name)s doesn't provide database migrations. The migration"
-            " repository path at %(path)s doesn't exist or isn't a directory."
-        ) % {'mod_name': mod_name, 'path': path})
+        super(MigrationNotProvided, self).__init__(
+            _(
+                "%(mod_name)s doesn't provide database migrations. The migration"
+                " repository path at %(path)s doesn't exist or isn't a directory."
+            )
+            % {'mod_name': mod_name, 'path': path}
+        )
 
 
 class UnsupportedTokenVersionException(UnexpectedError):
-    debug_message_format = _('Token version is unrecognizable or '
-                             'unsupported.')
+    debug_message_format = _(
+        'Token version is unrecognizable or ' 'unsupported.'
+    )
 
 
 class SAMLSigningError(UnexpectedError):
-    debug_message_format = _('Unable to sign SAML assertion. It is likely '
-                             'that this server does not have xmlsec1 '
-                             'installed or this is the result of '
-                             'misconfiguration. Reason %(reason)s.')
+    debug_message_format = _(
+        'Unable to sign SAML assertion. It is likely '
+        'that this server does not have xmlsec1 '
+        'installed or this is the result of '
+        'misconfiguration. Reason %(reason)s.'
+    )
 
 
 class OAuthHeadersMissingError(UnexpectedError):
-    debug_message_format = _('No Authorization headers found, cannot proceed '
-                             'with OAuth related calls. If running under '
-                             'HTTPd or Apache, ensure WSGIPassAuthorization '
-                             'is set to On.')
+    debug_message_format = _(
+        'No Authorization headers found, cannot proceed '
+        'with OAuth related calls. If running under '
+        'HTTPd or Apache, ensure WSGIPassAuthorization '
+        'is set to On.'
+    )
 
 
 class TokenlessAuthConfigError(ValidationError):
-    message_format = _('Could not determine Identity Provider ID. The '
-                       'configuration option %(issuer_attribute)s '
-                       'was not found in the request environment.')
+    message_format = _(
+        'Could not determine Identity Provider ID. The '
+        'configuration option %(issuer_attribute)s '
+        'was not found in the request environment.'
+    )
 
 
 class CredentialEncryptionError(Exception):
-    message_format = _("An unexpected error prevented the server "
-                       "from accessing encrypted credentials.")
+    message_format = _(
+        "An unexpected error prevented the server "
+        "from accessing encrypted credentials."
+    )
 
 
 class LDAPServerConnectionError(UnexpectedError):
-    debug_message_format = _('Unable to establish a connection to '
-                             'LDAP Server (%(url)s).')
+    debug_message_format = _(
+        'Unable to establish a connection to ' 'LDAP Server (%(url)s).'
+    )
 
 
 class LDAPInvalidCredentialsError(UnexpectedError):
-    message_format = _('Unable to authenticate against Identity backend - '
-                       'Invalid username or password')
+    message_format = _(
+        'Unable to authenticate against Identity backend - '
+        'Invalid username or password'
+    )
 
 
 class LDAPSizeLimitExceeded(UnexpectedError):
-    message_format = _('Number of User/Group entities returned by LDAP '
-                       'exceeded size limit. Contact your LDAP '
-                       'administrator.')
+    message_format = _(
+        'Number of User/Group entities returned by LDAP '
+        'exceeded size limit. Contact your LDAP '
+        'administrator.'
+    )
 
 
 class CacheDeserializationError(Exception):
 
     def __init__(self, obj, data):
         super(CacheDeserializationError, self).__init__(
-            _('Failed to deserialize %(obj)s. Data is %(data)s') % {
-                'obj': obj, 'data': data
-            }
+            _('Failed to deserialize %(obj)s. Data is %(data)s')
+            % {'obj': obj, 'data': data}
         )
 
 
 class ResourceUpdateForbidden(ForbiddenNotSecurity):
-    message_format = _('Unable to update immutable %(type)s resource: '
-                       '`%(resource_id)s. Set resource option "immutable" '
-                       'to false first.')
+    message_format = _(
+        'Unable to update immutable %(type)s resource: '
+        '`%(resource_id)s. Set resource option "immutable" '
+        'to false first.'
+    )
 
 
 class ResourceDeleteForbidden(ForbiddenNotSecurity):
-    message_format = _('Unable to delete immutable %(type)s resource: '
-                       '`%(resource_id)s. Set resource option "immutable" '
-                       'to false first.')
+    message_format = _(
+        'Unable to delete immutable %(type)s resource: '
+        '`%(resource_id)s. Set resource option "immutable" '
+        'to false first.'
+    )
 
 
 class OAuth2Error(Error):

@@ -17,8 +17,9 @@ REQUEST_CONTEXT_ENV = 'keystone.oslo_request_context'
 
 
 def _prop(name):
-    return property(lambda x: getattr(x, name),
-                    lambda x, y: setattr(x, name, y))
+    return property(
+        lambda x: getattr(x, name), lambda x, y: setattr(x, name, y)
+    )
 
 
 class RequestContext(oslo_context.RequestContext):

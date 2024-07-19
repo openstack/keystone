@@ -20,9 +20,11 @@ from keystone.tests.unit.identity.backends import test_base as id_test_base
 from keystone.tests.unit.ksfixtures import database
 
 
-class TestIdentityDriver(db_fixtures.OpportunisticDBTestMixin,
-                         test_base.BaseTestCase,
-                         id_test_base.IdentityDriverTests):
+class TestIdentityDriver(
+    db_fixtures.OpportunisticDBTestMixin,
+    test_base.BaseTestCase,
+    id_test_base.IdentityDriverTests,
+):
 
     expected_is_domain_aware = True
     expected_default_assignment_driver = 'sql'
@@ -36,14 +38,16 @@ class TestIdentityDriver(db_fixtures.OpportunisticDBTestMixin,
 
         # Set keystone's connection URL to be the test engine's url. Close
         # sqlite FK to avoid conflicting with sql upgrade test.
-        database.initialize_sql_session(self.engine.url,
-                                        enforce_sqlite_fks=False)
+        database.initialize_sql_session(
+            self.engine.url, enforce_sqlite_fks=False
+        )
 
         # Override keystone's context manager to be oslo.db's global context
         # manager.
         sql.core._TESTING_USE_GLOBAL_CONTEXT_MANAGER = True
-        self.addCleanup(setattr,
-                        sql.core, '_TESTING_USE_GLOBAL_CONTEXT_MANAGER', False)
+        self.addCleanup(
+            setattr, sql.core, '_TESTING_USE_GLOBAL_CONTEXT_MANAGER', False
+        )
         self.addCleanup(sql.cleanup)
 
         database._load_sqlalchemy_models()

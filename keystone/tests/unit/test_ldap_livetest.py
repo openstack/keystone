@@ -47,28 +47,42 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
 
     def clear_database(self):
         devnull = open('/dev/null', 'w')
-        subprocess.call(['ldapdelete',
-                         '-x',
-                         '-D', CONF.ldap.user,
-                         '-H', CONF.ldap.url,
-                         '-w', CONF.ldap.password,
-                         '-r', CONF.ldap.suffix],
-                        stderr=devnull)
+        subprocess.call(
+            [
+                'ldapdelete',
+                '-x',
+                '-D',
+                CONF.ldap.user,
+                '-H',
+                CONF.ldap.url,
+                '-w',
+                CONF.ldap.password,
+                '-r',
+                CONF.ldap.suffix,
+            ],
+            stderr=devnull,
+        )
 
         if CONF.ldap.suffix.startswith('ou='):
-            tree_dn_attrs = {'objectclass': 'organizationalUnit',
-                             'ou': 'openstack'}
+            tree_dn_attrs = {
+                'objectclass': 'organizationalUnit',
+                'ou': 'openstack',
+            }
         else:
-            tree_dn_attrs = {'objectclass': ['dcObject', 'organizationalUnit'],
-                             'dc': 'openstack',
-                             'ou': 'openstack'}
+            tree_dn_attrs = {
+                'objectclass': ['dcObject', 'organizationalUnit'],
+                'dc': 'openstack',
+                'ou': 'openstack',
+            }
         create_object(CONF.ldap.suffix, tree_dn_attrs)
-        create_object(CONF.ldap.user_tree_dn,
-                      {'objectclass': 'organizationalUnit',
-                       'ou': 'Users'})
-        create_object(CONF.ldap.group_tree_dn,
-                      {'objectclass': 'organizationalUnit',
-                       'ou': 'UserGroups'})
+        create_object(
+            CONF.ldap.user_tree_dn,
+            {'objectclass': 'organizationalUnit', 'ou': 'Users'},
+        )
+        create_object(
+            CONF.ldap.group_tree_dn,
+            {'objectclass': 'organizationalUnit', 'ou': 'UserGroups'},
+        )
 
     def config_files(self):
         config_files = super(LiveLDAPIdentity, self).config_files()
@@ -83,31 +97,42 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
         self.assertEqual(CONF.ldap.user_tree_dn, user_api.tree_dn)
 
     def test_ldap_dereferencing(self):
-        alt_users_ldif = {'objectclass': ['top', 'organizationalUnit'],
-                          'ou': 'alt_users'}
-        alt_fake_user_ldif = {'objectclass': ['person', 'inetOrgPerson'],
-                              'cn': 'alt_fake1',
-                              'sn': 'alt_fake1'}
-        aliased_users_ldif = {'objectclass': ['alias', 'extensibleObject'],
-                              'aliasedobjectname': "ou=alt_users,%s" %
-                              CONF.ldap.suffix}
+        alt_users_ldif = {
+            'objectclass': ['top', 'organizationalUnit'],
+            'ou': 'alt_users',
+        }
+        alt_fake_user_ldif = {
+            'objectclass': ['person', 'inetOrgPerson'],
+            'cn': 'alt_fake1',
+            'sn': 'alt_fake1',
+        }
+        aliased_users_ldif = {
+            'objectclass': ['alias', 'extensibleObject'],
+            'aliasedobjectname': "ou=alt_users,%s" % CONF.ldap.suffix,
+        }
         create_object("ou=alt_users,%s" % CONF.ldap.suffix, alt_users_ldif)
-        create_object("%s=alt_fake1,ou=alt_users,%s" %
-                      (CONF.ldap.user_id_attribute, CONF.ldap.suffix),
-                      alt_fake_user_ldif)
-        create_object("ou=alt_users,%s" % CONF.ldap.user_tree_dn,
-                      aliased_users_ldif)
+        create_object(
+            "%s=alt_fake1,ou=alt_users,%s"
+            % (CONF.ldap.user_id_attribute, CONF.ldap.suffix),
+            alt_fake_user_ldif,
+        )
+        create_object(
+            "ou=alt_users,%s" % CONF.ldap.user_tree_dn, aliased_users_ldif
+        )
 
-        self.config_fixture.config(group='ldap',
-                                   query_scope='sub',
-                                   alias_dereferencing='never')
+        self.config_fixture.config(
+            group='ldap', query_scope='sub', alias_dereferencing='never'
+        )
         PROVIDERS.identity_api = identity_ldap.Identity()
-        self.assertRaises(exception.UserNotFound,
-                          PROVIDERS.identity_api.get_user,
-                          'alt_fake1')
+        self.assertRaises(
+            exception.UserNotFound,
+            PROVIDERS.identity_api.get_user,
+            'alt_fake1',
+        )
 
-        self.config_fixture.config(group='ldap',
-                                   alias_dereferencing='searching')
+        self.config_fixture.config(
+            group='ldap', alias_dereferencing='searching'
+        )
         PROVIDERS.identity_api = identity_ldap.Identity()
         user_ref = PROVIDERS.identity_api.get_user('alt_fake1')
         self.assertEqual('alt_fake1', user_ref['id'])
@@ -131,7 +156,8 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
 
         for x in range(0, USER_COUNT):
             group_refs = PROVIDERS.identity_api.list_groups_for_user(
-                test_users[x]['id'])
+                test_users[x]['id']
+            )
             self.assertEqual(0, len(group_refs))
 
         for x in range(0, GROUP_COUNT):
@@ -140,53 +166,65 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
             test_groups.append(new_group)
 
             group_refs = PROVIDERS.identity_api.list_groups_for_user(
-                positive_user['id'])
+                positive_user['id']
+            )
             self.assertEqual(x, len(group_refs))
 
             PROVIDERS.identity_api.add_user_to_group(
-                positive_user['id'],
-                new_group['id'])
+                positive_user['id'], new_group['id']
+            )
             group_refs = PROVIDERS.identity_api.list_groups_for_user(
-                positive_user['id'])
+                positive_user['id']
+            )
             self.assertEqual(x + 1, len(group_refs))
 
             group_refs = PROVIDERS.identity_api.list_groups_for_user(
-                negative_user['id'])
+                negative_user['id']
+            )
             self.assertEqual(0, len(group_refs))
 
         driver = PROVIDERS.identity_api._select_identity_driver(
-            CONF.identity.default_domain_id)
+            CONF.identity.default_domain_id
+        )
         driver.group.ldap_filter = '(dn=xx)'
 
         group_refs = PROVIDERS.identity_api.list_groups_for_user(
-            positive_user['id'])
+            positive_user['id']
+        )
         self.assertEqual(0, len(group_refs))
         group_refs = PROVIDERS.identity_api.list_groups_for_user(
-            negative_user['id'])
+            negative_user['id']
+        )
         self.assertEqual(0, len(group_refs))
 
         driver.group.ldap_filter = '(objectclass=*)'
 
         group_refs = PROVIDERS.identity_api.list_groups_for_user(
-            positive_user['id'])
+            positive_user['id']
+        )
         self.assertEqual(GROUP_COUNT, len(group_refs))
         group_refs = PROVIDERS.identity_api.list_groups_for_user(
-            negative_user['id'])
+            negative_user['id']
+        )
         self.assertEqual(0, len(group_refs))
 
     def test_user_enable_attribute_mask(self):
         self.config_fixture.config(
             group='ldap',
             user_enabled_emulation=False,
-            user_enabled_attribute='employeeType')
+            user_enabled_attribute='employeeType',
+        )
         super(LiveLDAPIdentity, self).test_user_enable_attribute_mask()
 
     def test_create_project_case_sensitivity(self):
         # The attribute used for the live LDAP tests is case insensitive.
 
         def call_super():
-            (super(LiveLDAPIdentity, self).
-                test_create_project_case_sensitivity())
+            (
+                super(
+                    LiveLDAPIdentity, self
+                ).test_create_project_case_sensitivity()
+            )
 
         self.assertRaises(exception.Conflict, call_super)
 
@@ -202,7 +240,10 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
         # The description attribute doesn't allow an empty value.
 
         def call_super():
-            (super(LiveLDAPIdentity, self).
-                test_project_update_missing_attrs_with_a_falsey_value())
+            (
+                super(
+                    LiveLDAPIdentity, self
+                ).test_project_update_missing_attrs_with_a_falsey_value()
+            )
 
         self.assertRaises(ldap.INVALID_SYNTAX, call_super)

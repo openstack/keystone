@@ -32,8 +32,9 @@ class PolicyAssociation(sql.ModelBase, sql.ModelDictMixin):
     endpoint_id = sql.Column(sql.String(64), nullable=True)
     service_id = sql.Column(sql.String(64), nullable=True)
     region_id = sql.Column(sql.String(64), nullable=True)
-    __table_args__ = (sql.UniqueConstraint('endpoint_id', 'service_id',
-                                           'region_id'),)
+    __table_args__ = (
+        sql.UniqueConstraint('endpoint_id', 'service_id', 'region_id'),
+    )
 
     def to_dict(self):
         """Return the model's attributes as a dictionary.
@@ -50,8 +51,9 @@ class PolicyAssociation(sql.ModelBase, sql.ModelDictMixin):
 
 class EndpointPolicy(base.EndpointPolicyDriverBase):
 
-    def create_policy_association(self, policy_id, endpoint_id=None,
-                                  service_id=None, region_id=None):
+    def create_policy_association(
+        self, policy_id, endpoint_id=None, service_id=None, region_id=None
+    ):
         with sql.session_for_write() as session:
             try:
                 # See if there is already a row for this association, and if
@@ -63,30 +65,40 @@ class EndpointPolicy(base.EndpointPolicyDriverBase):
                 association = query.one()
                 association.policy_id = policy_id
             except sql.NotFound:
-                association = PolicyAssociation(id=uuid.uuid4().hex,
-                                                policy_id=policy_id,
-                                                endpoint_id=endpoint_id,
-                                                service_id=service_id,
-                                                region_id=region_id)
+                association = PolicyAssociation(
+                    id=uuid.uuid4().hex,
+                    policy_id=policy_id,
+                    endpoint_id=endpoint_id,
+                    service_id=service_id,
+                    region_id=region_id,
+                )
                 session.add(association)
 
-    def check_policy_association(self, policy_id, endpoint_id=None,
-                                 service_id=None, region_id=None):
+    def check_policy_association(
+        self, policy_id, endpoint_id=None, service_id=None, region_id=None
+    ):
         sql_constraints = sqlalchemy.and_(
             PolicyAssociation.policy_id == policy_id,
             PolicyAssociation.endpoint_id == endpoint_id,
             PolicyAssociation.service_id == service_id,
-            PolicyAssociation.region_id == region_id)
+            PolicyAssociation.region_id == region_id,
+        )
 
         # NOTE(henry-nash): Getting a single value to save object
         # management overhead.
         with sql.session_for_read() as session:
-            if session.query(PolicyAssociation.id).filter(
-                    sql_constraints).distinct().count() == 0:
+            if (
+                session.query(PolicyAssociation.id)
+                .filter(sql_constraints)
+                .distinct()
+                .count()
+                == 0
+            ):
                 raise exception.PolicyAssociationNotFound()
 
-    def delete_policy_association(self, policy_id, endpoint_id=None,
-                                  service_id=None, region_id=None):
+    def delete_policy_association(
+        self, policy_id, endpoint_id=None, service_id=None, region_id=None
+    ):
         with sql.session_for_write() as session:
             query = session.query(PolicyAssociation)
             query = query.filter_by(policy_id=policy_id)
@@ -95,17 +107,23 @@ class EndpointPolicy(base.EndpointPolicyDriverBase):
             query = query.filter_by(region_id=region_id)
             query.delete()
 
-    def get_policy_association(self, endpoint_id=None,
-                               service_id=None, region_id=None):
+    def get_policy_association(
+        self, endpoint_id=None, service_id=None, region_id=None
+    ):
         sql_constraints = sqlalchemy.and_(
             PolicyAssociation.endpoint_id == endpoint_id,
             PolicyAssociation.service_id == service_id,
-            PolicyAssociation.region_id == region_id)
+            PolicyAssociation.region_id == region_id,
+        )
 
         try:
             with sql.session_for_read() as session:
-                policy_id = session.query(PolicyAssociation.policy_id).filter(
-                    sql_constraints).distinct().one()
+                policy_id = (
+                    session.query(PolicyAssociation.policy_id)
+                    .filter(sql_constraints)
+                    .distinct()
+                    .one()
+                )
             return {'policy_id': policy_id}
         except sql.NotFound:
             raise exception.PolicyAssociationNotFound()

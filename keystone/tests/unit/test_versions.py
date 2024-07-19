@@ -30,8 +30,7 @@ from keystone.tests import unit
 v3_MEDIA_TYPES = [
     {
         "base": "application/json",
-        "type": "application/"
-                "vnd.openstack.identity-v3+json"
+        "type": "application/" "vnd.openstack.identity-v3+json",
     }
 ]
 
@@ -42,15 +41,13 @@ v3_EXPECTED_RESPONSE = {
     "links": [
         {
             "rel": "self",
-            "href": "",     # Will get filled in after initialization
+            "href": "",  # Will get filled in after initialization
         }
     ],
-    "media-types": v3_MEDIA_TYPES
+    "media-types": v3_MEDIA_TYPES,
 }
 
-v3_VERSION_RESPONSE = {
-    "version": v3_EXPECTED_RESPONSE
-}
+v3_VERSION_RESPONSE = {"version": v3_EXPECTED_RESPONSE}
 
 VERSIONS_RESPONSE = {
     "versions": {
@@ -61,89 +58,125 @@ VERSIONS_RESPONSE = {
 }
 
 _build_ec2tokens_relation = functools.partial(
-    json_home.build_v3_extension_resource_relation, extension_name='OS-EC2',
-    extension_version='1.0')
+    json_home.build_v3_extension_resource_relation,
+    extension_name='OS-EC2',
+    extension_version='1.0',
+)
 
 REVOCATIONS_RELATION = json_home.build_v3_extension_resource_relation(
-    'OS-PKI', '1.0', 'revocations')
+    'OS-PKI', '1.0', 'revocations'
+)
 
 _build_simple_cert_relation = functools.partial(
     json_home.build_v3_extension_resource_relation,
-    extension_name='OS-SIMPLE-CERT', extension_version='1.0')
+    extension_name='OS-SIMPLE-CERT',
+    extension_version='1.0',
+)
 
 _build_trust_relation = functools.partial(
-    json_home.build_v3_extension_resource_relation, extension_name='OS-TRUST',
-    extension_version='1.0')
+    json_home.build_v3_extension_resource_relation,
+    extension_name='OS-TRUST',
+    extension_version='1.0',
+)
 
 _build_federation_rel = functools.partial(
     json_home.build_v3_extension_resource_relation,
     extension_name='OS-FEDERATION',
-    extension_version='1.0')
+    extension_version='1.0',
+)
 
 _build_oauth1_rel = functools.partial(
     json_home.build_v3_extension_resource_relation,
-    extension_name='OS-OAUTH1', extension_version='1.0')
+    extension_name='OS-OAUTH1',
+    extension_version='1.0',
+)
 
 _build_ep_policy_rel = functools.partial(
     json_home.build_v3_extension_resource_relation,
-    extension_name='OS-ENDPOINT-POLICY', extension_version='1.0')
+    extension_name='OS-ENDPOINT-POLICY',
+    extension_version='1.0',
+)
 
 _build_ep_filter_rel = functools.partial(
     json_home.build_v3_extension_resource_relation,
-    extension_name='OS-EP-FILTER', extension_version='1.0')
+    extension_name='OS-EP-FILTER',
+    extension_version='1.0',
+)
 
 _build_os_inherit_rel = functools.partial(
     json_home.build_v3_extension_resource_relation,
-    extension_name='OS-INHERIT', extension_version='1.0')
+    extension_name='OS-INHERIT',
+    extension_version='1.0',
+)
 
 TRUST_ID_PARAMETER_RELATION = json_home.build_v3_extension_parameter_relation(
-    'OS-TRUST', '1.0', 'trust_id')
+    'OS-TRUST', '1.0', 'trust_id'
+)
 
 IDP_ID_PARAMETER_RELATION = json_home.build_v3_extension_parameter_relation(
-    'OS-FEDERATION', '1.0', 'idp_id')
+    'OS-FEDERATION', '1.0', 'idp_id'
+)
 
 PROTOCOL_ID_PARAM_RELATION = json_home.build_v3_extension_parameter_relation(
-    'OS-FEDERATION', '1.0', 'protocol_id')
+    'OS-FEDERATION', '1.0', 'protocol_id'
+)
 
 MAPPING_ID_PARAM_RELATION = json_home.build_v3_extension_parameter_relation(
-    'OS-FEDERATION', '1.0', 'mapping_id')
+    'OS-FEDERATION', '1.0', 'mapping_id'
+)
 
 SP_ID_PARAMETER_RELATION = json_home.build_v3_extension_parameter_relation(
-    'OS-FEDERATION', '1.0', 'sp_id')
+    'OS-FEDERATION', '1.0', 'sp_id'
+)
 
 CONSUMER_ID_PARAMETER_RELATION = (
     json_home.build_v3_extension_parameter_relation(
-        'OS-OAUTH1', '1.0', 'consumer_id'))
+        'OS-OAUTH1', '1.0', 'consumer_id'
+    )
+)
 
 REQUEST_TOKEN_ID_PARAMETER_RELATION = (
     json_home.build_v3_extension_parameter_relation(
-        'OS-OAUTH1', '1.0', 'request_token_id'))
+        'OS-OAUTH1', '1.0', 'request_token_id'
+    )
+)
 
 ACCESS_TOKEN_ID_PARAMETER_RELATION = (
     json_home.build_v3_extension_parameter_relation(
-        'OS-OAUTH1', '1.0', 'access_token_id'))
+        'OS-OAUTH1', '1.0', 'access_token_id'
+    )
+)
 
 ENDPOINT_GROUP_ID_PARAMETER_RELATION = (
     json_home.build_v3_extension_parameter_relation(
-        'OS-EP-FILTER', '1.0', 'endpoint_group_id'))
+        'OS-EP-FILTER', '1.0', 'endpoint_group_id'
+    )
+)
 
 BASE_IDP_PROTOCOL = '/OS-FEDERATION/identity_providers/{idp_id}/protocols'
 BASE_EP_POLICY = '/policies/{policy_id}/OS-ENDPOINT-POLICY'
 BASE_EP_FILTER_PREFIX = '/OS-EP-FILTER'
 BASE_EP_FILTER = BASE_EP_FILTER_PREFIX + '/endpoint_groups/{endpoint_group_id}'
 BASE_ACCESS_TOKEN = (
-    '/users/{user_id}/OS-OAUTH1/access_tokens/{access_token_id}')
+    '/users/{user_id}/OS-OAUTH1/access_tokens/{access_token_id}'
+)
 
-FEDERATED_AUTH_URL = ('/OS-FEDERATION/identity_providers/{idp_id}'
-                      '/protocols/{protocol_id}/auth')
-FEDERATED_IDP_SPECIFIC_WEBSSO = ('/auth/OS-FEDERATION/identity_providers/'
-                                 '{idp_id}/protocols/{protocol_id}/websso')
+FEDERATED_AUTH_URL = (
+    '/OS-FEDERATION/identity_providers/{idp_id}'
+    '/protocols/{protocol_id}/auth'
+)
+FEDERATED_IDP_SPECIFIC_WEBSSO = (
+    '/auth/OS-FEDERATION/identity_providers/'
+    '{idp_id}/protocols/{protocol_id}/websso'
+)
 
-APPLICATION_CREDENTIAL = ('/users/{user_id}/application_credentials/'
-                          '{application_credential_id}')
+APPLICATION_CREDENTIAL = (
+    '/users/{user_id}/application_credentials/' '{application_credential_id}'
+)
 APPLICATION_CREDENTIALS = '/users/{user_id}/application_credentials'
-APPLICATION_CREDENTIAL_RELATION = (
-    json_home.build_v3_parameter_relation('application_credential_id'))
+APPLICATION_CREDENTIAL_RELATION = json_home.build_v3_parameter_relation(
+    'application_credential_id'
+)
 
 ACCESS_RULE = '/users/{user_id}/access_rules/{access_rule_id}'
 ACCESS_RULES = '/users/{user_id}/access_rules'
@@ -151,194 +184,240 @@ ACCESS_RULE_RELATION = json_home.build_v3_parameter_relation('access_rule_id')
 
 V3_JSON_HOME_RESOURCES = {
     json_home.build_v3_resource_relation('auth_tokens'): {
-        'href': '/auth/tokens'},
+        'href': '/auth/tokens'
+    },
     json_home.build_v3_resource_relation('auth_catalog'): {
-        'href': '/auth/catalog'},
+        'href': '/auth/catalog'
+    },
     json_home.build_v3_resource_relation('auth_projects'): {
-        'href': '/auth/projects'},
+        'href': '/auth/projects'
+    },
     json_home.build_v3_resource_relation('auth_domains'): {
-        'href': '/auth/domains'},
+        'href': '/auth/domains'
+    },
     json_home.build_v3_resource_relation('auth_system'): {
-        'href': '/auth/system'},
+        'href': '/auth/system'
+    },
     json_home.build_v3_resource_relation('credential'): {
         'href-template': '/credentials/{credential_id}',
         'href-vars': {
-            'credential_id':
-            json_home.build_v3_parameter_relation('credential_id')}},
+            'credential_id': json_home.build_v3_parameter_relation(
+                'credential_id'
+            )
+        },
+    },
     json_home.build_v3_resource_relation('credentials'): {
-        'href': '/credentials'},
+        'href': '/credentials'
+    },
     json_home.build_v3_resource_relation('system_user_role'): {
         'href-template': '/system/users/{user_id}/roles/{role_id}',
         'href-vars': {
             'user_id': json_home.Parameters.USER_ID,
-            'role_id': json_home.Parameters.ROLE_ID
-        }
+            'role_id': json_home.Parameters.ROLE_ID,
+        },
     },
     json_home.build_v3_resource_relation('system_user_roles'): {
         'href-template': '/system/users/{user_id}/roles',
-        'href-vars': {
-            'user_id': json_home.Parameters.USER_ID
-        }
+        'href-vars': {'user_id': json_home.Parameters.USER_ID},
     },
     json_home.build_v3_resource_relation('system_group_role'): {
         'href-template': '/system/groups/{group_id}/roles/{role_id}',
         'href-vars': {
             'group_id': json_home.Parameters.GROUP_ID,
-            'role_id': json_home.Parameters.ROLE_ID
-        }
+            'role_id': json_home.Parameters.ROLE_ID,
+        },
     },
     json_home.build_v3_resource_relation('system_group_roles'): {
         'href-template': '/system/groups/{group_id}/roles',
-        'href-vars': {
-            'group_id': json_home.Parameters.GROUP_ID
-        }
+        'href-vars': {'group_id': json_home.Parameters.GROUP_ID},
     },
     json_home.build_v3_resource_relation('domain'): {
         'href-template': '/domains/{domain_id}',
-        'href-vars': {'domain_id': json_home.Parameters.DOMAIN_ID, }},
+        'href-vars': {
+            'domain_id': json_home.Parameters.DOMAIN_ID,
+        },
+    },
     json_home.build_v3_resource_relation('domain_group_role'): {
-        'href-template':
-        '/domains/{domain_id}/groups/{group_id}/roles/{role_id}',
+        'href-template': '/domains/{domain_id}/groups/{group_id}/roles/{role_id}',
         'href-vars': {
             'domain_id': json_home.Parameters.DOMAIN_ID,
             'group_id': json_home.Parameters.GROUP_ID,
-            'role_id': json_home.Parameters.ROLE_ID, }},
+            'role_id': json_home.Parameters.ROLE_ID,
+        },
+    },
     json_home.build_v3_resource_relation('domain_group_roles'): {
         'href-template': '/domains/{domain_id}/groups/{group_id}/roles',
         'href-vars': {
             'domain_id': json_home.Parameters.DOMAIN_ID,
-            'group_id': json_home.Parameters.GROUP_ID}},
+            'group_id': json_home.Parameters.GROUP_ID,
+        },
+    },
     json_home.build_v3_resource_relation('domain_user_role'): {
-        'href-template':
-        '/domains/{domain_id}/users/{user_id}/roles/{role_id}',
+        'href-template': '/domains/{domain_id}/users/{user_id}/roles/{role_id}',
         'href-vars': {
             'domain_id': json_home.Parameters.DOMAIN_ID,
             'role_id': json_home.Parameters.ROLE_ID,
-            'user_id': json_home.Parameters.USER_ID, }},
+            'user_id': json_home.Parameters.USER_ID,
+        },
+    },
     json_home.build_v3_resource_relation('domain_user_roles'): {
         'href-template': '/domains/{domain_id}/users/{user_id}/roles',
         'href-vars': {
             'domain_id': json_home.Parameters.DOMAIN_ID,
-            'user_id': json_home.Parameters.USER_ID, }},
+            'user_id': json_home.Parameters.USER_ID,
+        },
+    },
     json_home.build_v3_resource_relation('domains'): {'href': '/domains'},
     json_home.build_v3_resource_relation('endpoint'): {
         'href-template': '/endpoints/{endpoint_id}',
         'href-vars': {
-            'endpoint_id':
-            json_home.build_v3_parameter_relation('endpoint_id'), }},
-    json_home.build_v3_resource_relation('endpoints'): {
-        'href': '/endpoints'},
+            'endpoint_id': json_home.build_v3_parameter_relation(
+                'endpoint_id'
+            ),
+        },
+    },
+    json_home.build_v3_resource_relation('endpoints'): {'href': '/endpoints'},
     _build_ec2tokens_relation(resource_name='ec2tokens'): {
-        'href': '/ec2tokens'},
+        'href': '/ec2tokens'
+    },
     _build_ec2tokens_relation(resource_name='user_credential'): {
         'href-template': '/users/{user_id}/credentials/OS-EC2/{credential_id}',
         'href-vars': {
-            'credential_id':
-            json_home.build_v3_parameter_relation('credential_id'),
-            'user_id': json_home.Parameters.USER_ID, }},
+            'credential_id': json_home.build_v3_parameter_relation(
+                'credential_id'
+            ),
+            'user_id': json_home.Parameters.USER_ID,
+        },
+    },
     _build_ec2tokens_relation(resource_name='user_credentials'): {
         'href-template': '/users/{user_id}/credentials/OS-EC2',
         'href-vars': {
-            'user_id': json_home.Parameters.USER_ID, }},
-    REVOCATIONS_RELATION: {
-        'href': '/auth/tokens/OS-PKI/revoked'},
+            'user_id': json_home.Parameters.USER_ID,
+        },
+    },
+    REVOCATIONS_RELATION: {'href': '/auth/tokens/OS-PKI/revoked'},
     'https://docs.openstack.org/api/openstack-identity/3/ext/OS-REVOKE/1.0/rel'
-    '/events': {
-        'href': '/OS-REVOKE/events'},
+    '/events': {'href': '/OS-REVOKE/events'},
     _build_simple_cert_relation(resource_name='ca_certificate'): {
-        'href': '/OS-SIMPLE-CERT/ca'},
+        'href': '/OS-SIMPLE-CERT/ca'
+    },
     _build_simple_cert_relation(resource_name='certificates'): {
-        'href': '/OS-SIMPLE-CERT/certificates'},
-    _build_trust_relation(resource_name='trust'):
-    {
+        'href': '/OS-SIMPLE-CERT/certificates'
+    },
+    _build_trust_relation(resource_name='trust'): {
         'href-template': '/OS-TRUST/trusts/{trust_id}',
-        'href-vars': {'trust_id': TRUST_ID_PARAMETER_RELATION, }},
+        'href-vars': {
+            'trust_id': TRUST_ID_PARAMETER_RELATION,
+        },
+    },
     _build_trust_relation(resource_name='trust_role'): {
         'href-template': '/OS-TRUST/trusts/{trust_id}/roles/{role_id}',
         'href-vars': {
             'role_id': json_home.Parameters.ROLE_ID,
-            'trust_id': TRUST_ID_PARAMETER_RELATION, }},
+            'trust_id': TRUST_ID_PARAMETER_RELATION,
+        },
+    },
     _build_trust_relation(resource_name='trust_roles'): {
         'href-template': '/OS-TRUST/trusts/{trust_id}/roles',
-        'href-vars': {'trust_id': TRUST_ID_PARAMETER_RELATION, }},
+        'href-vars': {
+            'trust_id': TRUST_ID_PARAMETER_RELATION,
+        },
+    },
     _build_trust_relation(resource_name='trusts'): {
-        'href': '/OS-TRUST/trusts'},
+        'href': '/OS-TRUST/trusts'
+    },
     'https://docs.openstack.org/api/openstack-identity/3/ext/s3tokens/1.0/rel/'
-    's3tokens': {
-        'href': '/s3tokens'},
+    's3tokens': {'href': '/s3tokens'},
     json_home.build_v3_resource_relation('group'): {
         'href-template': '/groups/{group_id}',
         'href-vars': {
-            'group_id': json_home.Parameters.GROUP_ID, }},
+            'group_id': json_home.Parameters.GROUP_ID,
+        },
+    },
     json_home.build_v3_resource_relation('group_user'): {
         'href-template': '/groups/{group_id}/users/{user_id}',
         'href-vars': {
             'group_id': json_home.Parameters.GROUP_ID,
-            'user_id': json_home.Parameters.USER_ID, }},
+            'user_id': json_home.Parameters.USER_ID,
+        },
+    },
     json_home.build_v3_resource_relation('group_users'): {
         'href-template': '/groups/{group_id}/users',
-        'href-vars': {'group_id': json_home.Parameters.GROUP_ID, }},
+        'href-vars': {
+            'group_id': json_home.Parameters.GROUP_ID,
+        },
+    },
     json_home.build_v3_resource_relation('groups'): {'href': '/groups'},
-    json_home.build_v3_resource_relation('policies'): {
-        'href': '/policies'},
+    json_home.build_v3_resource_relation('policies'): {'href': '/policies'},
     json_home.build_v3_resource_relation('policy'): {
         'href-template': '/policies/{policy_id}',
         'href-vars': {
-            'policy_id':
-            json_home.build_v3_parameter_relation('policy_id'), }},
+            'policy_id': json_home.build_v3_parameter_relation('policy_id'),
+        },
+    },
     json_home.build_v3_resource_relation('project'): {
         'href-template': '/projects/{project_id}',
         'href-vars': {
-            'project_id': json_home.Parameters.PROJECT_ID, }},
+            'project_id': json_home.Parameters.PROJECT_ID,
+        },
+    },
     json_home.build_v3_resource_relation('project_group_role'): {
-        'href-template':
-        '/projects/{project_id}/groups/{group_id}/roles/{role_id}',
+        'href-template': '/projects/{project_id}/groups/{group_id}/roles/{role_id}',
         'href-vars': {
             'group_id': json_home.Parameters.GROUP_ID,
             'project_id': json_home.Parameters.PROJECT_ID,
-            'role_id': json_home.Parameters.ROLE_ID, }},
+            'role_id': json_home.Parameters.ROLE_ID,
+        },
+    },
     json_home.build_v3_resource_relation('project_group_roles'): {
         'href-template': '/projects/{project_id}/groups/{group_id}/roles',
         'href-vars': {
             'group_id': json_home.Parameters.GROUP_ID,
-            'project_id': json_home.Parameters.PROJECT_ID, }},
+            'project_id': json_home.Parameters.PROJECT_ID,
+        },
+    },
     json_home.build_v3_resource_relation('project_tags'): {
         'href-template': '/projects/{project_id}/tags/{value}',
         'href-vars': {
             'project_id': json_home.Parameters.PROJECT_ID,
-            'value': json_home.Parameters.TAG_VALUE}},
+            'value': json_home.Parameters.TAG_VALUE,
+        },
+    },
     json_home.build_v3_resource_relation('project_user_role'): {
-        'href-template':
-        '/projects/{project_id}/users/{user_id}/roles/{role_id}',
+        'href-template': '/projects/{project_id}/users/{user_id}/roles/{role_id}',
         'href-vars': {
             'project_id': json_home.Parameters.PROJECT_ID,
             'role_id': json_home.Parameters.ROLE_ID,
-            'user_id': json_home.Parameters.USER_ID, }},
+            'user_id': json_home.Parameters.USER_ID,
+        },
+    },
     json_home.build_v3_resource_relation('project_user_roles'): {
         'href-template': '/projects/{project_id}/users/{user_id}/roles',
         'href-vars': {
             'project_id': json_home.Parameters.PROJECT_ID,
-            'user_id': json_home.Parameters.USER_ID, }},
-    json_home.build_v3_resource_relation('projects'): {
-        'href': '/projects'},
+            'user_id': json_home.Parameters.USER_ID,
+        },
+    },
+    json_home.build_v3_resource_relation('projects'): {'href': '/projects'},
     json_home.build_v3_resource_relation('region'): {
         'href-template': '/regions/{region_id}',
         'href-vars': {
-            'region_id':
-            json_home.build_v3_parameter_relation('region_id'), }},
+            'region_id': json_home.build_v3_parameter_relation('region_id'),
+        },
+    },
     json_home.build_v3_resource_relation('regions'): {'href': '/regions'},
     json_home.build_v3_resource_relation('role'): {
         'href-template': '/roles/{role_id}',
         'href-vars': {
-            'role_id': json_home.Parameters.ROLE_ID, }},
+            'role_id': json_home.Parameters.ROLE_ID,
+        },
+    },
     json_home.build_v3_resource_relation('implied_roles'): {
         'href-template': '/roles/{prior_role_id}/implies',
-        'href-vars': {
-            'prior_role_id': json_home.Parameters.ROLE_ID}
+        'href-vars': {'prior_role_id': json_home.Parameters.ROLE_ID},
     },
     json_home.build_v3_resource_relation('implied_role'): {
-        'href-template':
-        '/roles/{prior_role_id}/implies/{implied_role_id}',
+        'href-template': '/roles/{prior_role_id}/implies/{implied_role_id}',
         'href-vars': {
             'prior_role_id': json_home.Parameters.ROLE_ID,
             'implied_role_id': json_home.Parameters.ROLE_ID,
@@ -348,316 +427,418 @@ V3_JSON_HOME_RESOURCES = {
         'href': '/role_inferences',
     },
     json_home.build_v3_resource_relation('role_assignments'): {
-        'href': '/role_assignments'},
+        'href': '/role_assignments'
+    },
     json_home.build_v3_resource_relation('roles'): {'href': '/roles'},
     json_home.build_v3_resource_relation('service'): {
         'href-template': '/services/{service_id}',
         'href-vars': {
-            'service_id':
-            json_home.build_v3_parameter_relation('service_id')}},
-    json_home.build_v3_resource_relation('services'): {
-        'href': '/services'},
+            'service_id': json_home.build_v3_parameter_relation('service_id')
+        },
+    },
+    json_home.build_v3_resource_relation('services'): {'href': '/services'},
     json_home.build_v3_resource_relation('user'): {
         'href-template': '/users/{user_id}',
         'href-vars': {
-            'user_id': json_home.Parameters.USER_ID, }},
+            'user_id': json_home.Parameters.USER_ID,
+        },
+    },
     json_home.build_v3_resource_relation('user_change_password'): {
         'href-template': '/users/{user_id}/password',
-        'href-vars': {'user_id': json_home.Parameters.USER_ID, }},
+        'href-vars': {
+            'user_id': json_home.Parameters.USER_ID,
+        },
+    },
     json_home.build_v3_resource_relation('user_groups'): {
         'href-template': '/users/{user_id}/groups',
-        'href-vars': {'user_id': json_home.Parameters.USER_ID, }},
+        'href-vars': {
+            'user_id': json_home.Parameters.USER_ID,
+        },
+    },
     json_home.build_v3_resource_relation('user_projects'): {
         'href-template': '/users/{user_id}/projects',
-        'href-vars': {'user_id': json_home.Parameters.USER_ID, }},
+        'href-vars': {
+            'user_id': json_home.Parameters.USER_ID,
+        },
+    },
     json_home.build_v3_resource_relation('users'): {'href': '/users'},
     json_home.build_v3_extension_resource_relation(
-        'OS-OAUTH2', '1.0', 'token'): {
-        'href': '/OS-OAUTH2/token'},
-    _build_federation_rel(resource_name='domains'): {
-        'href': '/auth/domains'},
+        'OS-OAUTH2', '1.0', 'token'
+    ): {'href': '/OS-OAUTH2/token'},
+    _build_federation_rel(resource_name='domains'): {'href': '/auth/domains'},
     _build_federation_rel(resource_name='websso'): {
         'href-template': '/auth/OS-FEDERATION/websso/{protocol_id}',
         'href-vars': {
-            'protocol_id': PROTOCOL_ID_PARAM_RELATION, }},
+            'protocol_id': PROTOCOL_ID_PARAM_RELATION,
+        },
+    },
     _build_federation_rel(resource_name='projects'): {
-        'href': '/auth/projects'},
+        'href': '/auth/projects'
+    },
     _build_federation_rel(resource_name='saml2'): {
-        'href': '/auth/OS-FEDERATION/saml2'},
+        'href': '/auth/OS-FEDERATION/saml2'
+    },
     _build_federation_rel(resource_name='ecp'): {
-        'href': '/auth/OS-FEDERATION/saml2/ecp'},
+        'href': '/auth/OS-FEDERATION/saml2/ecp'
+    },
     _build_federation_rel(resource_name='metadata'): {
-        'href': '/OS-FEDERATION/saml2/metadata'},
+        'href': '/OS-FEDERATION/saml2/metadata'
+    },
     _build_federation_rel(resource_name='identity_providers'): {
-        'href': '/OS-FEDERATION/identity_providers'},
+        'href': '/OS-FEDERATION/identity_providers'
+    },
     _build_federation_rel(resource_name='service_providers'): {
-        'href': '/OS-FEDERATION/service_providers'},
+        'href': '/OS-FEDERATION/service_providers'
+    },
     _build_federation_rel(resource_name='mappings'): {
-        'href': '/OS-FEDERATION/mappings'},
-    _build_federation_rel(resource_name='identity_provider'):
-    {
+        'href': '/OS-FEDERATION/mappings'
+    },
+    _build_federation_rel(resource_name='identity_provider'): {
         'href-template': '/OS-FEDERATION/identity_providers/{idp_id}',
-        'href-vars': {'idp_id': IDP_ID_PARAMETER_RELATION, }},
+        'href-vars': {
+            'idp_id': IDP_ID_PARAMETER_RELATION,
+        },
+    },
     _build_federation_rel(resource_name='identity_providers_websso'): {
         'href-template': FEDERATED_IDP_SPECIFIC_WEBSSO,
         'href-vars': {
             'idp_id': IDP_ID_PARAMETER_RELATION,
-            'protocol_id': PROTOCOL_ID_PARAM_RELATION, }},
-    _build_federation_rel(resource_name='service_provider'):
-    {
+            'protocol_id': PROTOCOL_ID_PARAM_RELATION,
+        },
+    },
+    _build_federation_rel(resource_name='service_provider'): {
         'href-template': '/OS-FEDERATION/service_providers/{sp_id}',
-        'href-vars': {'sp_id': SP_ID_PARAMETER_RELATION, }},
-    _build_federation_rel(resource_name='mapping'):
-    {
+        'href-vars': {
+            'sp_id': SP_ID_PARAMETER_RELATION,
+        },
+    },
+    _build_federation_rel(resource_name='mapping'): {
         'href-template': '/OS-FEDERATION/mappings/{mapping_id}',
-        'href-vars': {'mapping_id': MAPPING_ID_PARAM_RELATION, }},
+        'href-vars': {
+            'mapping_id': MAPPING_ID_PARAM_RELATION,
+        },
+    },
     _build_federation_rel(resource_name='identity_provider_protocol'): {
         'href-template': BASE_IDP_PROTOCOL + '/{protocol_id}',
         'href-vars': {
             'idp_id': IDP_ID_PARAMETER_RELATION,
-            'protocol_id': PROTOCOL_ID_PARAM_RELATION, }},
+            'protocol_id': PROTOCOL_ID_PARAM_RELATION,
+        },
+    },
     _build_federation_rel(resource_name='identity_provider_protocols'): {
         'href-template': BASE_IDP_PROTOCOL,
-        'href-vars': {
-            'idp_id': IDP_ID_PARAMETER_RELATION}},
+        'href-vars': {'idp_id': IDP_ID_PARAMETER_RELATION},
+    },
     _build_federation_rel(resource_name='identity_provider_protocol_auth'): {
         'href-template': FEDERATED_AUTH_URL,
         'href-vars': {
             'idp_id': IDP_ID_PARAMETER_RELATION,
-            'protocol_id': PROTOCOL_ID_PARAM_RELATION, }},
+            'protocol_id': PROTOCOL_ID_PARAM_RELATION,
+        },
+    },
     _build_oauth1_rel(resource_name='access_tokens'): {
-        'href': '/OS-OAUTH1/access_token'},
+        'href': '/OS-OAUTH1/access_token'
+    },
     _build_oauth1_rel(resource_name='request_tokens'): {
-        'href': '/OS-OAUTH1/request_token'},
+        'href': '/OS-OAUTH1/request_token'
+    },
     _build_oauth1_rel(resource_name='consumers'): {
-        'href': '/OS-OAUTH1/consumers'},
-    _build_oauth1_rel(resource_name='authorize_request_token'):
-    {
+        'href': '/OS-OAUTH1/consumers'
+    },
+    _build_oauth1_rel(resource_name='authorize_request_token'): {
         'href-template': '/OS-OAUTH1/authorize/{request_token_id}',
-        'href-vars': {'request_token_id':
-                      REQUEST_TOKEN_ID_PARAMETER_RELATION, }},
-    _build_oauth1_rel(resource_name='consumer'):
-    {
+        'href-vars': {
+            'request_token_id': REQUEST_TOKEN_ID_PARAMETER_RELATION,
+        },
+    },
+    _build_oauth1_rel(resource_name='consumer'): {
         'href-template': '/OS-OAUTH1/consumers/{consumer_id}',
-        'href-vars': {'consumer_id': CONSUMER_ID_PARAMETER_RELATION, }},
-    _build_oauth1_rel(resource_name='user_access_token'):
-    {
+        'href-vars': {
+            'consumer_id': CONSUMER_ID_PARAMETER_RELATION,
+        },
+    },
+    _build_oauth1_rel(resource_name='user_access_token'): {
         'href-template': BASE_ACCESS_TOKEN,
-        'href-vars': {'user_id': json_home.Parameters.USER_ID,
-                      'access_token_id':
-                      ACCESS_TOKEN_ID_PARAMETER_RELATION, }},
-    _build_oauth1_rel(resource_name='user_access_tokens'):
-    {
+        'href-vars': {
+            'user_id': json_home.Parameters.USER_ID,
+            'access_token_id': ACCESS_TOKEN_ID_PARAMETER_RELATION,
+        },
+    },
+    _build_oauth1_rel(resource_name='user_access_tokens'): {
         'href-template': '/users/{user_id}/OS-OAUTH1/access_tokens',
-        'href-vars': {'user_id': json_home.Parameters.USER_ID, }},
-    _build_oauth1_rel(resource_name='user_access_token_role'):
-    {
+        'href-vars': {
+            'user_id': json_home.Parameters.USER_ID,
+        },
+    },
+    _build_oauth1_rel(resource_name='user_access_token_role'): {
         'href-template': BASE_ACCESS_TOKEN + '/roles/{role_id}',
-        'href-vars': {'user_id': json_home.Parameters.USER_ID,
-                      'role_id': json_home.Parameters.ROLE_ID,
-                      'access_token_id':
-                      ACCESS_TOKEN_ID_PARAMETER_RELATION, }},
-    _build_oauth1_rel(resource_name='user_access_token_roles'):
-    {
+        'href-vars': {
+            'user_id': json_home.Parameters.USER_ID,
+            'role_id': json_home.Parameters.ROLE_ID,
+            'access_token_id': ACCESS_TOKEN_ID_PARAMETER_RELATION,
+        },
+    },
+    _build_oauth1_rel(resource_name='user_access_token_roles'): {
         'href-template': BASE_ACCESS_TOKEN + '/roles',
-        'href-vars': {'user_id': json_home.Parameters.USER_ID,
-                      'access_token_id':
-                      ACCESS_TOKEN_ID_PARAMETER_RELATION, }},
-    _build_ep_policy_rel(resource_name='endpoint_policy'):
-    {
+        'href-vars': {
+            'user_id': json_home.Parameters.USER_ID,
+            'access_token_id': ACCESS_TOKEN_ID_PARAMETER_RELATION,
+        },
+    },
+    _build_ep_policy_rel(resource_name='endpoint_policy'): {
         'href-template': '/endpoints/{endpoint_id}/OS-ENDPOINT-POLICY/policy',
-        'href-vars': {'endpoint_id': json_home.Parameters.ENDPOINT_ID, }},
-    _build_ep_policy_rel(resource_name='endpoint_policy_association'):
-    {
+        'href-vars': {
+            'endpoint_id': json_home.Parameters.ENDPOINT_ID,
+        },
+    },
+    _build_ep_policy_rel(resource_name='endpoint_policy_association'): {
         'href-template': BASE_EP_POLICY + '/endpoints/{endpoint_id}',
-        'href-vars': {'endpoint_id': json_home.Parameters.ENDPOINT_ID,
-                      'policy_id': json_home.Parameters.POLICY_ID, }},
-    _build_ep_policy_rel(resource_name='policy_endpoints'):
-    {
+        'href-vars': {
+            'endpoint_id': json_home.Parameters.ENDPOINT_ID,
+            'policy_id': json_home.Parameters.POLICY_ID,
+        },
+    },
+    _build_ep_policy_rel(resource_name='policy_endpoints'): {
         'href-template': BASE_EP_POLICY + '/endpoints',
-        'href-vars': {'policy_id': json_home.Parameters.POLICY_ID, }},
+        'href-vars': {
+            'policy_id': json_home.Parameters.POLICY_ID,
+        },
+    },
     _build_ep_policy_rel(
-        resource_name='region_and_service_policy_association'):
-    {
-        'href-template': (BASE_EP_POLICY +
-                          '/services/{service_id}/regions/{region_id}'),
-        'href-vars': {'policy_id': json_home.Parameters.POLICY_ID,
-                      'service_id': json_home.Parameters.SERVICE_ID,
-                      'region_id': json_home.Parameters.REGION_ID, }},
-    _build_ep_policy_rel(resource_name='service_policy_association'):
-    {
+        resource_name='region_and_service_policy_association'
+    ): {
+        'href-template': (
+            BASE_EP_POLICY + '/services/{service_id}/regions/{region_id}'
+        ),
+        'href-vars': {
+            'policy_id': json_home.Parameters.POLICY_ID,
+            'service_id': json_home.Parameters.SERVICE_ID,
+            'region_id': json_home.Parameters.REGION_ID,
+        },
+    },
+    _build_ep_policy_rel(resource_name='service_policy_association'): {
         'href-template': BASE_EP_POLICY + '/services/{service_id}',
-        'href-vars': {'policy_id': json_home.Parameters.POLICY_ID,
-                      'service_id': json_home.Parameters.SERVICE_ID, }},
-    _build_ep_filter_rel(resource_name='endpoint_group'):
-    {
+        'href-vars': {
+            'policy_id': json_home.Parameters.POLICY_ID,
+            'service_id': json_home.Parameters.SERVICE_ID,
+        },
+    },
+    _build_ep_filter_rel(resource_name='endpoint_group'): {
         'href-template': '/OS-EP-FILTER/endpoint_groups/{endpoint_group_id}',
-        'href-vars': {'endpoint_group_id':
-                      ENDPOINT_GROUP_ID_PARAMETER_RELATION, }},
+        'href-vars': {
+            'endpoint_group_id': ENDPOINT_GROUP_ID_PARAMETER_RELATION,
+        },
+    },
     _build_ep_filter_rel(
-        resource_name='endpoint_group_to_project_association'):
-    {
+        resource_name='endpoint_group_to_project_association'
+    ): {
         'href-template': BASE_EP_FILTER + '/projects/{project_id}',
-        'href-vars': {'endpoint_group_id':
-                      ENDPOINT_GROUP_ID_PARAMETER_RELATION,
-                      'project_id': json_home.Parameters.PROJECT_ID, }},
-    _build_ep_filter_rel(resource_name='endpoint_groups'):
-    {'href': '/OS-EP-FILTER/endpoint_groups'},
-    _build_ep_filter_rel(resource_name='endpoint_projects'):
-    {
+        'href-vars': {
+            'endpoint_group_id': ENDPOINT_GROUP_ID_PARAMETER_RELATION,
+            'project_id': json_home.Parameters.PROJECT_ID,
+        },
+    },
+    _build_ep_filter_rel(resource_name='endpoint_groups'): {
+        'href': '/OS-EP-FILTER/endpoint_groups'
+    },
+    _build_ep_filter_rel(resource_name='endpoint_projects'): {
         'href-template': '/OS-EP-FILTER/endpoints/{endpoint_id}/projects',
-        'href-vars': {'endpoint_id': json_home.Parameters.ENDPOINT_ID, }},
-    _build_ep_filter_rel(resource_name='endpoints_in_endpoint_group'):
-    {
+        'href-vars': {
+            'endpoint_id': json_home.Parameters.ENDPOINT_ID,
+        },
+    },
+    _build_ep_filter_rel(resource_name='endpoints_in_endpoint_group'): {
         'href-template': BASE_EP_FILTER + '/endpoints',
-        'href-vars': {'endpoint_group_id':
-                      ENDPOINT_GROUP_ID_PARAMETER_RELATION, }},
-    _build_ep_filter_rel(resource_name='project_endpoint_groups'):
-    {
-        'href-template': (BASE_EP_FILTER_PREFIX + '/projects/{project_id}' +
-                          '/endpoint_groups'),
-        'href-vars': {'project_id':
-                      json_home.Parameters.PROJECT_ID, }},
-    _build_ep_filter_rel(resource_name='project_endpoint'):
-    {
-        'href-template': ('/OS-EP-FILTER/projects/{project_id}'
-                          '/endpoints/{endpoint_id}'),
-        'href-vars': {'endpoint_id': json_home.Parameters.ENDPOINT_ID,
-                      'project_id': json_home.Parameters.PROJECT_ID, }},
-    _build_ep_filter_rel(resource_name='project_endpoints'):
-    {
+        'href-vars': {
+            'endpoint_group_id': ENDPOINT_GROUP_ID_PARAMETER_RELATION,
+        },
+    },
+    _build_ep_filter_rel(resource_name='project_endpoint_groups'): {
+        'href-template': (
+            BASE_EP_FILTER_PREFIX
+            + '/projects/{project_id}'
+            + '/endpoint_groups'
+        ),
+        'href-vars': {
+            'project_id': json_home.Parameters.PROJECT_ID,
+        },
+    },
+    _build_ep_filter_rel(resource_name='project_endpoint'): {
+        'href-template': (
+            '/OS-EP-FILTER/projects/{project_id}' '/endpoints/{endpoint_id}'
+        ),
+        'href-vars': {
+            'endpoint_id': json_home.Parameters.ENDPOINT_ID,
+            'project_id': json_home.Parameters.PROJECT_ID,
+        },
+    },
+    _build_ep_filter_rel(resource_name='project_endpoints'): {
         'href-template': '/OS-EP-FILTER/projects/{project_id}/endpoints',
-        'href-vars': {'project_id': json_home.Parameters.PROJECT_ID, }},
+        'href-vars': {
+            'project_id': json_home.Parameters.PROJECT_ID,
+        },
+    },
     _build_ep_filter_rel(
-        resource_name='projects_associated_with_endpoint_group'):
-    {
+        resource_name='projects_associated_with_endpoint_group'
+    ): {
         'href-template': BASE_EP_FILTER + '/projects',
-        'href-vars': {'endpoint_group_id':
-                      ENDPOINT_GROUP_ID_PARAMETER_RELATION, }},
+        'href-vars': {
+            'endpoint_group_id': ENDPOINT_GROUP_ID_PARAMETER_RELATION,
+        },
+    },
     _build_os_inherit_rel(
-        resource_name='domain_user_role_inherited_to_projects'):
-    {
+        resource_name='domain_user_role_inherited_to_projects'
+    ): {
         'href-template': '/OS-INHERIT/domains/{domain_id}/users/'
         '{user_id}/roles/{role_id}/inherited_to_projects',
         'href-vars': {
             'domain_id': json_home.Parameters.DOMAIN_ID,
             'role_id': json_home.Parameters.ROLE_ID,
-            'user_id': json_home.Parameters.USER_ID, }},
+            'user_id': json_home.Parameters.USER_ID,
+        },
+    },
     _build_os_inherit_rel(
-        resource_name='domain_group_role_inherited_to_projects'):
-    {
+        resource_name='domain_group_role_inherited_to_projects'
+    ): {
         'href-template': '/OS-INHERIT/domains/{domain_id}/groups/'
         '{group_id}/roles/{role_id}/inherited_to_projects',
         'href-vars': {
             'domain_id': json_home.Parameters.DOMAIN_ID,
             'group_id': json_home.Parameters.GROUP_ID,
-            'role_id': json_home.Parameters.ROLE_ID, }},
+            'role_id': json_home.Parameters.ROLE_ID,
+        },
+    },
     _build_os_inherit_rel(
-        resource_name='domain_user_roles_inherited_to_projects'):
-    {
+        resource_name='domain_user_roles_inherited_to_projects'
+    ): {
         'href-template': '/OS-INHERIT/domains/{domain_id}/users/'
         '{user_id}/roles/inherited_to_projects',
         'href-vars': {
             'domain_id': json_home.Parameters.DOMAIN_ID,
-            'user_id': json_home.Parameters.USER_ID, }},
+            'user_id': json_home.Parameters.USER_ID,
+        },
+    },
     _build_os_inherit_rel(
-        resource_name='domain_group_roles_inherited_to_projects'):
-    {
+        resource_name='domain_group_roles_inherited_to_projects'
+    ): {
         'href-template': '/OS-INHERIT/domains/{domain_id}/groups/'
         '{group_id}/roles/inherited_to_projects',
         'href-vars': {
             'domain_id': json_home.Parameters.DOMAIN_ID,
-            'group_id': json_home.Parameters.GROUP_ID, }},
+            'group_id': json_home.Parameters.GROUP_ID,
+        },
+    },
     _build_os_inherit_rel(
-        resource_name='project_user_role_inherited_to_projects'):
-    {
+        resource_name='project_user_role_inherited_to_projects'
+    ): {
         'href-template': '/OS-INHERIT/projects/{project_id}/users/'
         '{user_id}/roles/{role_id}/inherited_to_projects',
         'href-vars': {
             'project_id': json_home.Parameters.PROJECT_ID,
             'role_id': json_home.Parameters.ROLE_ID,
-            'user_id': json_home.Parameters.USER_ID, }},
+            'user_id': json_home.Parameters.USER_ID,
+        },
+    },
     _build_os_inherit_rel(
-        resource_name='project_group_role_inherited_to_projects'):
-    {
+        resource_name='project_group_role_inherited_to_projects'
+    ): {
         'href-template': '/OS-INHERIT/projects/{project_id}/groups/'
         '{group_id}/roles/{role_id}/inherited_to_projects',
         'href-vars': {
             'project_id': json_home.Parameters.PROJECT_ID,
             'group_id': json_home.Parameters.GROUP_ID,
-            'role_id': json_home.Parameters.ROLE_ID, }},
+            'role_id': json_home.Parameters.ROLE_ID,
+        },
+    },
     json_home.build_v3_resource_relation('domain_config'): {
-        'href-template':
-        '/domains/{domain_id}/config',
-        'href-vars': {
-            'domain_id': json_home.Parameters.DOMAIN_ID}},
+        'href-template': '/domains/{domain_id}/config',
+        'href-vars': {'domain_id': json_home.Parameters.DOMAIN_ID},
+    },
     json_home.build_v3_resource_relation('domain_config_group'): {
-        'href-template':
-        '/domains/{domain_id}/config/{group}',
-        'href-vars': {
-            'domain_id': json_home.Parameters.DOMAIN_ID,
-            'group': json_home.build_v3_parameter_relation('config_group')}},
-    json_home.build_v3_resource_relation('domain_config_option'): {
-        'href-template':
-        '/domains/{domain_id}/config/{group}/{option}',
+        'href-template': '/domains/{domain_id}/config/{group}',
         'href-vars': {
             'domain_id': json_home.Parameters.DOMAIN_ID,
             'group': json_home.build_v3_parameter_relation('config_group'),
-            'option': json_home.build_v3_parameter_relation('config_option')}},
+        },
+    },
+    json_home.build_v3_resource_relation('domain_config_option'): {
+        'href-template': '/domains/{domain_id}/config/{group}/{option}',
+        'href-vars': {
+            'domain_id': json_home.Parameters.DOMAIN_ID,
+            'group': json_home.build_v3_parameter_relation('config_group'),
+            'option': json_home.build_v3_parameter_relation('config_option'),
+        },
+    },
     json_home.build_v3_resource_relation('domain_config_default'): {
-        'href': '/domains/config/default'},
+        'href': '/domains/config/default'
+    },
     json_home.build_v3_resource_relation('domain_config_default_group'): {
         'href-template': '/domains/config/{group}/default',
         'href-vars': {
-            'group': json_home.build_v3_parameter_relation('config_group')}},
+            'group': json_home.build_v3_parameter_relation('config_group')
+        },
+    },
     json_home.build_v3_resource_relation('domain_config_default_option'): {
         'href-template': '/domains/config/{group}/{option}/default',
         'href-vars': {
             'group': json_home.build_v3_parameter_relation('config_group'),
-            'option': json_home.build_v3_parameter_relation('config_option')}},
+            'option': json_home.build_v3_parameter_relation('config_option'),
+        },
+    },
     json_home.build_v3_resource_relation('registered_limits'): {
         'hints': {'status': 'experimental'},
-        'href': '/registered_limits'},
+        'href': '/registered_limits',
+    },
     json_home.build_v3_resource_relation('registered_limit'): {
         'href-template': '/registered_limits/{registered_limit_id}',
         'href-vars': {
             'registered_limit_id': json_home.build_v3_parameter_relation(
-                'registered_limit_id')
+                'registered_limit_id'
+            )
         },
-        'hints': {'status': 'experimental'}
+        'hints': {'status': 'experimental'},
     },
     json_home.build_v3_resource_relation('limits'): {
         'hints': {'status': 'experimental'},
-        'href': '/limits'},
+        'href': '/limits',
+    },
     json_home.build_v3_resource_relation('limit'): {
         'href-template': '/limits/{limit_id}',
         'href-vars': {
             'limit_id': json_home.build_v3_parameter_relation('limit_id')
         },
-        'hints': {'status': 'experimental'}
+        'hints': {'status': 'experimental'},
     },
     json_home.build_v3_resource_relation('limit_model'): {
         'href': '/limits/model',
-        'hints': {'status': 'experimental'}
+        'hints': {'status': 'experimental'},
     },
     json_home.build_v3_resource_relation('application_credentials'): {
         'href-template': APPLICATION_CREDENTIALS,
         'href-vars': {
-            'user_id': json_home.build_v3_parameter_relation('user_id')}},
+            'user_id': json_home.build_v3_parameter_relation('user_id')
+        },
+    },
     json_home.build_v3_resource_relation('application_credential'): {
         'href-template': APPLICATION_CREDENTIAL,
         'href-vars': {
             'application_credential_id': APPLICATION_CREDENTIAL_RELATION,
-            'user_id': json_home.build_v3_parameter_relation('user_id')}},
+            'user_id': json_home.build_v3_parameter_relation('user_id'),
+        },
+    },
     json_home.build_v3_resource_relation('access_rules'): {
         'href-template': ACCESS_RULES,
         'href-vars': {
-            'user_id': json_home.build_v3_parameter_relation('user_id')}},
+            'user_id': json_home.build_v3_parameter_relation('user_id')
+        },
+    },
     json_home.build_v3_resource_relation('access_rule'): {
         'href-template': ACCESS_RULE,
         'href-vars': {
             'access_rule_id': ACCESS_RULE_RELATION,
-            'user_id': json_home.build_v3_parameter_relation('user_id')}},
+            'user_id': json_home.build_v3_parameter_relation('user_id'),
+        },
+    },
 }
 
 
@@ -693,20 +874,24 @@ class TestClient(object):
 
 class _VersionsEqual(tt_matchers.MatchesListwise):
     def __init__(self, expected):
-        super(_VersionsEqual, self).__init__([
-            tt_matchers.KeysEqual(expected),
-            tt_matchers.KeysEqual(expected['versions']),
-            tt_matchers.HasLength(len(expected['versions']['values'])),
-            tt_matchers.ContainsAll(expected['versions']['values']),
-        ])
+        super(_VersionsEqual, self).__init__(
+            [
+                tt_matchers.KeysEqual(expected),
+                tt_matchers.KeysEqual(expected['versions']),
+                tt_matchers.HasLength(len(expected['versions']['values'])),
+                tt_matchers.ContainsAll(expected['versions']['values']),
+            ]
+        )
 
     def match(self, other):
-        return super(_VersionsEqual, self).match([
-            other,
-            other['versions'],
-            other['versions']['values'],
-            other['versions']['values'],
-        ])
+        return super(_VersionsEqual, self).match(
+            [
+                other,
+                other['versions'],
+                other['versions']['values'],
+                other['versions']['values'],
+            ]
+        )
 
 
 class VersionTestCase(unit.TestCase):
@@ -717,7 +902,8 @@ class VersionTestCase(unit.TestCase):
         self.public_port = random.randint(40000, 60000)
 
         self.config_fixture.config(
-            public_endpoint='http://localhost:%d' % self.public_port)
+            public_endpoint='http://localhost:%d' % self.public_port
+        )
 
     def config_overrides(self):
         super(VersionTestCase, self).config_overrides()
@@ -736,7 +922,8 @@ class VersionTestCase(unit.TestCase):
         for version in expected['versions']['values']:
             if version['id'].startswith('v3'):
                 self._paste_in_port(
-                    version, 'http://localhost:%s/v3/' % self.public_port)
+                    version, 'http://localhost:%s/v3/' % self.public_port
+                )
         self.assertThat(data, _VersionsEqual(expected))
 
     def test_use_site_url_if_endpoint_unset(self):
@@ -751,8 +938,7 @@ class VersionTestCase(unit.TestCase):
             for version in expected['versions']['values']:
                 # localhost happens to be the site url for tests
                 if version['id'].startswith('v3'):
-                    self._paste_in_port(
-                        version, 'http://localhost/v3/')
+                    self._paste_in_port(version, 'http://localhost/v3/')
             self.assertThat(data, _VersionsEqual(expected))
 
     def test_public_version_v3(self):
@@ -761,8 +947,9 @@ class VersionTestCase(unit.TestCase):
         self.assertEqual(http.client.OK, resp.status_int)
         data = jsonutils.loads(resp.body)
         expected = v3_VERSION_RESPONSE
-        self._paste_in_port(expected['version'],
-                            'http://localhost:%s/v3/' % self.public_port)
+        self._paste_in_port(
+            expected['version'], 'http://localhost:%s/v3/' % self.public_port
+        )
         self.assertEqual(expected, data)
 
     def test_use_site_url_if_endpoint_unset_v3(self):
@@ -792,20 +979,17 @@ class VersionTestCase(unit.TestCase):
         self.assertEqual(http.client.OK, resp.status_int)
         data = jsonutils.loads(resp.body)
         expected = v3_VERSION_RESPONSE
-        self._paste_in_port(expected['version'],
-                            'http://localhost:%s/v3/' % self.public_port)
+        self._paste_in_port(
+            expected['version'], 'http://localhost:%s/v3/' % self.public_port
+        )
         self.assertEqual(expected, data)
 
         # only v3 information should be displayed by requests to /
-        v3_only_response = {
-            "versions": {
-                "values": [
-                    v3_EXPECTED_RESPONSE
-                ]
-            }
-        }
-        self._paste_in_port(v3_only_response['versions']['values'][0],
-                            'http://localhost:%s/v3/' % self.public_port)
+        v3_only_response = {"versions": {"values": [v3_EXPECTED_RESPONSE]}}
+        self._paste_in_port(
+            v3_only_response['versions']['values'][0],
+            'http://localhost:%s/v3/' % self.public_port,
+        )
         resp = client.get('/')
         self.assertEqual(300, resp.status_int)
         data = jsonutils.loads(resp.body)
@@ -816,23 +1000,23 @@ class VersionTestCase(unit.TestCase):
         resp = client.get(path, headers={'Accept': 'application/json-home'})
 
         self.assertThat(resp.status, tt_matchers.Equals('200 OK'))
-        self.assertThat(resp.headers['Content-Type'],
-                        tt_matchers.Equals('application/json-home'))
+        self.assertThat(
+            resp.headers['Content-Type'],
+            tt_matchers.Equals('application/json-home'),
+        )
         maxDiff = self.maxDiff
         self.maxDiff = None
         # NOTE(morgan): Changed from tt_matchers.Equals to make it easier to
         # determine issues. Reset maxDiff to the original value at the end
         # of the assert.
-        self.assertDictEqual(exp_json_home_data,
-                             jsonutils.loads(resp.body))
+        self.assertDictEqual(exp_json_home_data, jsonutils.loads(resp.body))
         self.maxDiff = maxDiff
 
     def test_json_home_v3(self):
         # If the request is /v3 and the Accept header is application/json-home
         # then the server responds with a JSON Home document.
 
-        exp_json_home_data = {
-            'resources': V3_JSON_HOME_RESOURCES}
+        exp_json_home_data = {'resources': V3_JSON_HOME_RESOURCES}
 
         self._test_json_home('/v3', exp_json_home_data)
 
@@ -840,8 +1024,9 @@ class VersionTestCase(unit.TestCase):
         # If the request is / and the Accept header is application/json-home
         # then the server responds with a JSON Home document.
 
-        exp_json_home_data = copy.deepcopy({
-            'resources': V3_JSON_HOME_RESOURCES})
+        exp_json_home_data = copy.deepcopy(
+            {'resources': V3_JSON_HOME_RESOURCES}
+        )
         json_home.translate_urls(exp_json_home_data, '/v3')
 
         self._test_json_home('/', exp_json_home_data)
@@ -904,7 +1089,8 @@ class VersionSingleAppTestCase(unit.TestCase):
         self.public_port = random.randint(40000, 60000)
 
         self.config_fixture.config(
-            public_endpoint='http://localhost:%d' % self.public_port)
+            public_endpoint='http://localhost:%d' % self.public_port
+        )
 
     def config_overrides(self):
         super(VersionSingleAppTestCase, self).config_overrides()
@@ -927,8 +1113,7 @@ class VersionSingleAppTestCase(unit.TestCase):
             # of the tests. Ultimately, this is very hacky and shows we are
             # not setting up the test case sanely.
             if version['id'].startswith('v3'):
-                self._paste_in_port(
-                    version, url_with_port)
+                self._paste_in_port(version, url_with_port)
         # Explicitly check that a location header is set and it is pointing
         # to v3 (The preferred location for now)!
         self.assertIn('Location', resp.headers)

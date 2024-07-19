@@ -27,6 +27,14 @@ from keystone.server.flask.common import unenforced_api  # noqa
 
 # NOTE(morgan): This allows for from keystone.flask import * and have all the
 # cool stuff needed to develop new APIs within a module/subsystem
-__all__ = ('APIBase', 'JsonHomeData', 'ResourceBase', 'ResourceMap',
-           'base_url', 'construct_json_home_data',
-           'construct_resource_map', 'full_url', 'unenforced_api')
+__all__ = (
+    'APIBase',
+    'JsonHomeData',
+    'ResourceBase',
+    'ResourceMap',
+    'base_url',
+    'construct_json_home_data',
+    'construct_resource_map',
+    'full_url',
+    'unenforced_api',
+)

@@ -101,8 +101,9 @@ def _match_query(query, attrs, attrs_checked):
             matchfn = any
         # cut off the & or |
         groups = _paren_groups(inner[1:])
-        return matchfn(_match_query(group, attrs, attrs_checked)
-                       for group in groups)
+        return matchfn(
+            _match_query(group, attrs, attrs_checked) for group in groups
+        )
     if inner.startswith('!'):
         # cut off the ! and the nested parentheses
         return not _match_query(query[2:-1], attrs, attrs_checked)
@@ -125,12 +126,13 @@ def _paren_groups(source):
         if source[pos] == ')':
             count -= 1
             if count == 0:
-                result.append(source[start:pos + 1])
+                result.append(source[start : pos + 1])
     return result
 
 
 def _match(key, value, attrs):
     """Match a given key and value against an attribute list."""
+
     def match_with_wildcards(norm_val, val_list):
         # Case insensitive checking with wildcards
         if norm_val.startswith('*'):
@@ -142,13 +144,12 @@ def _match(key, value, attrs):
             else:
                 # Is the string at the end of the target?
                 for x in val_list:
-                    if (norm_val[1:] ==
-                            x[len(x) - len(norm_val) + 1:]):
+                    if norm_val[1:] == x[len(x) - len(norm_val) + 1 :]:
                         return True
         elif norm_val.endswith('*'):
             # Is the string at the start of the target?
             for x in val_list:
-                if norm_val[:-1] == x[:len(norm_val) - 1]:
+                if norm_val[:-1] == x[: len(norm_val) - 1]:
                     return True
         else:
             # Is the string an exact match?
@@ -171,7 +172,8 @@ def _match(key, value, attrs):
     if key != 'objectclass':
         check_value = _internal_attr(key, value)[0].lower()
         norm_values = list(
-            _internal_attr(key, x)[0].lower() for x in attrs[key])
+            _internal_attr(key, x)[0].lower() for x in attrs[key]
+        )
         return match_with_wildcards(check_value, norm_values)
     # It is an objectclass check, so check subclasses
     values = _subs(value)
@@ -189,9 +191,13 @@ def _subs(value):
     so subclasses need to be defined manually in the dictionary below.
 
     """
-    subs = {'groupOfNames': ['keystoneProject',
-                             'keystoneRole',
-                             'keystoneProjectRole']}
+    subs = {
+        'groupOfNames': [
+            'keystoneProject',
+            'keystoneRole',
+            'keystoneProjectRole',
+        ]
+    }
     if value in subs:
         return [value] + subs[value]
     return [value]
@@ -238,13 +244,25 @@ class FakeLdap(common.LDAPHandler):
         super(FakeLdap, self).__init__(conn=conn)
         self._ldap_options = {ldap.OPT_DEREF: ldap.DEREF_NEVER}
 
-    def connect(self, url, page_size=0, alias_dereferencing=None,
-                use_tls=False, tls_cacertfile=None, tls_cacertdir=None,
-                tls_req_cert='demand', chase_referrals=None, debug_level=None,
-                use_pool=None, pool_size=None, pool_retry_max=None,
-                pool_retry_delay=None, pool_conn_timeout=None,
-                pool_conn_lifetime=None,
-                conn_timeout=None):
+    def connect(
+        self,
+        url,
+        page_size=0,
+        alias_dereferencing=None,
+        use_tls=False,
+        tls_cacertfile=None,
+        tls_cacertdir=None,
+        tls_req_cert='demand',
+        chase_referrals=None,
+        debug_level=None,
+        use_pool=None,
+        pool_size=None,
+        pool_retry_max=None,
+        pool_retry_delay=None,
+        pool_conn_timeout=None,
+        pool_conn_lifetime=None,
+        conn_timeout=None,
+    ):
         if url.startswith('fake://memory'):
             if url not in FakeShelves:
                 FakeShelves[url] = FakeShelve()
@@ -265,8 +283,9 @@ class FakeLdap(common.LDAPHandler):
             if tls_req_cert in list(common.LDAP_TLS_CERTS.values()):
                 ldap.set_option(ldap.OPT_X_TLS_REQUIRE_CERT, tls_req_cert)
             else:
-                raise ValueError("invalid TLS_REQUIRE_CERT tls_req_cert=%s",
-                                 tls_req_cert)
+                raise ValueError(
+                    "invalid TLS_REQUIRE_CERT tls_req_cert=%s", tls_req_cert
+                )
 
         if alias_dereferencing is not None:
             self.set_option(ldap.OPT_DEREF, alias_dereferencing)
@@ -289,13 +308,14 @@ class FakeLdap(common.LDAPHandler):
     def key(self, dn):
         return '%s%s' % (self.__prefix, dn)
 
-    def simple_bind_s(self, who='', cred='',
-                      serverctrls=None, clientctrls=None):
+    def simple_bind_s(
+        self, who='', cred='', serverctrls=None, clientctrls=None
+    ):
         """Provide for compatibility but this method is ignored."""
         if server_fail:
             raise ldap.SERVER_DOWN
         whos = ['cn=Admin', CONF.ldap.user]
-        if (who in whos and cred in ['password', CONF.ldap.password]):
+        if who in whos and cred in ['password', CONF.ldap.password]:
             self.connected = True
             self.who = who
             self.cred = cred
@@ -337,8 +357,9 @@ class FakeLdap(common.LDAPHandler):
         # The LDAP API raises a TypeError if attr name is None.
         for k, dummy_v in modlist:
             if k is None:
-                raise TypeError('must be string, not None. modlist=%s' %
-                                modlist)
+                raise TypeError(
+                    'must be string, not None. modlist=%s' % modlist
+                )
 
             if k == id_attr:
                 for val in dummy_v:
@@ -346,12 +367,16 @@ class FakeLdap(common.LDAPHandler):
                         id_attr_in_modlist = True
 
         if not id_attr_in_modlist:
-            LOG.debug('id_attribute=%(attr)s missing, attributes=%(attrs)s',
-                      {'attr': id_attr, 'attrs': modlist})
+            LOG.debug(
+                'id_attribute=%(attr)s missing, attributes=%(attrs)s',
+                {'attr': id_attr, 'attrs': modlist},
+            )
             raise ldap.NAMING_VIOLATION
         key = self.key(dn)
-        LOG.debug('add item: dn=%(dn)s, attrs=%(attrs)s', {
-            'dn': dn, 'attrs': modlist})
+        LOG.debug(
+            'add item: dn=%(dn)s, attrs=%(attrs)s',
+            {'dn': dn, 'attrs': modlist},
+        )
         if key in self.db:
             LOG.debug('add item failed: dn=%s is already in store.', dn)
             raise ldap.ALREADY_EXISTS(dn)
@@ -364,10 +389,13 @@ class FakeLdap(common.LDAPHandler):
         return self.delete_ext_s(dn, serverctrls=[])
 
     def _getChildren(self, dn):
-        return [k for k, v in self.db.items()
-                if re.match('%s.*,%s' % (
-                            re.escape(self.__prefix),
-                            re.escape(dn)), k)]
+        return [
+            k
+            for k, v in self.db.items()
+            if re.match(
+                '%s.*,%s' % (re.escape(self.__prefix), re.escape(dn)), k
+            )
+        ]
 
     def delete_ext_s(self, dn, serverctrls, clientctrls=None):
         """Remove the ldap object at specified dn."""
@@ -394,8 +422,10 @@ class FakeLdap(common.LDAPHandler):
             raise ldap.SERVER_DOWN
 
         key = self.key(dn)
-        LOG.debug('modify item: dn=%(dn)s attrs=%(attrs)s', {
-            'dn': dn, 'attrs': modlist})
+        LOG.debug(
+            'modify item: dn=%(dn)s attrs=%(attrs)s',
+            {'dn': dn, 'attrs': modlist},
+        )
         try:
             entry = self.db[key]
         except KeyError:
@@ -415,8 +445,11 @@ class FakeLdap(common.LDAPHandler):
             elif cmd == ldap.MOD_DELETE:
                 if v is None:
                     if not values:
-                        LOG.debug('modify item failed: '
-                                  'item has no attribute "%s" to delete', k)
+                        LOG.debug(
+                            'modify item failed: '
+                            'item has no attribute "%s" to delete',
+                            k,
+                        )
                         raise ldap.NO_SUCH_ATTRIBUTE
                     values[:] = []
                 else:
@@ -424,20 +457,29 @@ class FakeLdap(common.LDAPHandler):
                         try:
                             values.remove(val)
                         except ValueError:
-                            LOG.debug('modify item failed: '
-                                      'item has no attribute "%(k)s" with '
-                                      'value "%(v)s" to delete', {
-                                          'k': k, 'v': val})
+                            LOG.debug(
+                                'modify item failed: '
+                                'item has no attribute "%(k)s" with '
+                                'value "%(v)s" to delete',
+                                {'k': k, 'v': val},
+                            )
                             raise ldap.NO_SUCH_ATTRIBUTE
             else:
                 LOG.debug('modify item failed: unknown command %s', cmd)
-                raise NotImplementedError('modify_s action %s not'
-                                          ' implemented' % cmd)
+                raise NotImplementedError(
+                    'modify_s action %s not' ' implemented' % cmd
+                )
         self.db[key] = entry
         self.db.sync()
 
-    def search_s(self, base, scope,
-                 filterstr='(objectClass=*)', attrlist=None, attrsonly=0):
+    def search_s(
+        self,
+        base,
+        scope,
+        filterstr='(objectClass=*)',
+        attrlist=None,
+        attrsonly=0,
+    ):
         """Search for all matching objects under base using the query.
 
         Args:
@@ -451,8 +493,9 @@ class FakeLdap(common.LDAPHandler):
             raise ldap.SERVER_DOWN
 
         if (not filterstr) and (scope != ldap.SCOPE_BASE):
-            raise AssertionError('Search without filter on onelevel or '
-                                 'subtree scope')
+            raise AssertionError(
+                'Search without filter on onelevel or ' 'subtree scope'
+            )
 
         if scope == ldap.SCOPE_BASE:
             try:
@@ -475,11 +518,13 @@ class FakeLdap(common.LDAPHandler):
                 LOG.debug('search fail: dn not found for SCOPE_SUBTREE')
                 raise ldap.NO_SUCH_OBJECT
             results = [(base, item_dict)]
-            extraresults = [(k[len(self.__prefix):], v)
-                            for k, v in self.db.items()
-                            if re.match('%s.*,%s' %
-                                        (re.escape(self.__prefix),
-                                         re.escape(base)), k)]
+            extraresults = [
+                (k[len(self.__prefix) :], v)
+                for k, v in self.db.items()
+                if re.match(
+                    '%s.*,%s' % (re.escape(self.__prefix), re.escape(base)), k
+                )
+            ]
             results.extend(extraresults)
         elif scope == ldap.SCOPE_ONELEVEL:
 
@@ -490,7 +535,7 @@ class FakeLdap(common.LDAPHandler):
                 for k, v in self.db.items():
                     if not k.startswith(self.__prefix):
                         continue
-                    k_dn_str = k[len(self.__prefix):]
+                    k_dn_str = k[len(self.__prefix) :]
                     k_dn = ldap.dn.str2dn(k_dn_str)
                     if len(k_dn) != base_len + 1:
                         continue
@@ -511,16 +556,21 @@ class FakeLdap(common.LDAPHandler):
             match_attrs = attrs.copy()
             match_attrs[id_attr] = [id_val]
             attrs_checked = set()
-            if not filterstr or _match_query(filterstr,
-                                             match_attrs,
-                                             attrs_checked):
-                if (filterstr and
-                        (scope != ldap.SCOPE_BASE) and
-                        ('objectclass' not in attrs_checked)):
+            if not filterstr or _match_query(
+                filterstr, match_attrs, attrs_checked
+            ):
+                if (
+                    filterstr
+                    and (scope != ldap.SCOPE_BASE)
+                    and ('objectclass' not in attrs_checked)
+                ):
                     raise AssertionError('No objectClass in search filter')
                 # filter the attributes by attrlist
-                attrs = {k: v for k, v in attrs.items()
-                         if not attrlist or k in attrlist}
+                attrs = {
+                    k: v
+                    for k, v in attrs.items()
+                    if not attrlist or k in attrlist
+                }
                 objects.append((dn, attrs))
 
         return objects
@@ -532,10 +582,18 @@ class FakeLdap(common.LDAPHandler):
         value = self._ldap_options.get(option)
         return value
 
-    def search_ext(self, base, scope,
-                   filterstr='(objectClass=*)', attrlist=None, attrsonly=0,
-                   serverctrls=None, clientctrls=None,
-                   timeout=-1, sizelimit=0):
+    def search_ext(
+        self,
+        base,
+        scope,
+        filterstr='(objectClass=*)',
+        attrlist=None,
+        attrsonly=0,
+        serverctrls=None,
+        clientctrls=None,
+        timeout=-1,
+        sizelimit=0,
+    ):
         if clientctrls is not None or timeout != -1 or sizelimit != 0:
             raise exception.NotImplemented()
 
@@ -548,12 +606,19 @@ class FakeLdap(common.LDAPHandler):
         # storing the request in a variable with random integer key and
         # performing the real lookup in result3()
         msgid = random.randint(0, 1000)
-        PendingRequests[msgid] = (base, scope, filterstr, attrlist, attrsonly,
-                                  serverctrls)
+        PendingRequests[msgid] = (
+            base,
+            scope,
+            filterstr,
+            attrlist,
+            attrsonly,
+            serverctrls,
+        )
         return msgid
 
-    def result3(self, msgid=ldap.RES_ANY, all=1, timeout=None,
-                resp_ctrl_classes=None):
+    def result3(
+        self, msgid=ldap.RES_ANY, all=1, timeout=None, resp_ctrl_classes=None
+    ):
         """Execute async request.
 
         Only msgid param is supported. Request info is fetched from global
@@ -573,7 +638,7 @@ class FakeLdap(common.LDAPHandler):
         ctrl = serverctrls[0]
 
         if ctrl.size:
-            rdata = results[:ctrl.size]
+            rdata = results[: ctrl.size]
         else:
             rdata = results
 
@@ -603,8 +668,9 @@ class FakeLdapPool(FakeLdap):
     def get_lifetime(self):
         return self._connection_time
 
-    def simple_bind_s(self, who=None, cred=None,
-                      serverctrls=None, clientctrls=None):
+    def simple_bind_s(
+        self, who=None, cred=None, serverctrls=None, clientctrls=None
+    ):
         if self.url.startswith('fakepool://memory'):
             if self.url not in FakeShelves:
                 FakeShelves[self.url] = FakeShelve()
@@ -617,9 +683,12 @@ class FakeLdapPool(FakeLdap):
         if not cred:
             cred = 'password'
 
-        super(FakeLdapPool, self).simple_bind_s(who=who, cred=cred,
-                                                serverctrls=serverctrls,
-                                                clientctrls=clientctrls)
+        super(FakeLdapPool, self).simple_bind_s(
+            who=who,
+            cred=cred,
+            serverctrls=serverctrls,
+            clientctrls=clientctrls,
+        )
 
     def unbind_ext_s(self):
         """Added to extend FakeLdap as connector class."""
@@ -647,6 +716,6 @@ class FakeLdapNoSubtreeDelete(FakeLdap):
         except KeyError:
             LOG.debug('delete item failed: dn=%s not found.', dn)
             raise ldap.NO_SUCH_OBJECT
-        super(FakeLdapNoSubtreeDelete, self).delete_ext_s(dn,
-                                                          serverctrls,
-                                                          clientctrls)
+        super(FakeLdapNoSubtreeDelete, self).delete_ext_s(
+            dn, serverctrls, clientctrls
+        )

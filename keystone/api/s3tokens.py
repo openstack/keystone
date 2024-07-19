@@ -39,8 +39,11 @@ def _calculate_signature_v1(string_to_sign, secret_key):
     """
     key = str(secret_key).encode('utf-8')
     b64_encode = base64.encodebytes
-    signed = b64_encode(hmac.new(key, string_to_sign, hashlib.sha1)
-                        .digest()).decode('utf-8').strip()
+    signed = (
+        b64_encode(hmac.new(key, string_to_sign, hashlib.sha1).digest())
+        .decode('utf-8')
+        .strip()
+    )
     return signed
 
 
@@ -80,15 +83,18 @@ class S3Resource(EC2_S3_Resource.ResourceBase):
         string_to_sign = base64.urlsafe_b64decode(str(credentials['token']))
 
         if string_to_sign[0:4] != b'AWS4':
-            signature = _calculate_signature_v1(string_to_sign,
-                                                creds_ref['secret'])
+            signature = _calculate_signature_v1(
+                string_to_sign, creds_ref['secret']
+            )
         else:
-            signature = _calculate_signature_v4(string_to_sign,
-                                                creds_ref['secret'])
+            signature = _calculate_signature_v4(
+                string_to_sign, creds_ref['secret']
+            )
 
         if not utils.auth_str_equal(credentials['signature'], signature):
             raise exception.Unauthorized(
-                message=_('Credential signature mismatch'))
+                message=_('Credential signature mismatch')
+            )
 
     @ks_flask.unenforced_api
     def post(self):
@@ -115,7 +121,9 @@ class S3Api(ks_flask.APIBase):
             resource_kwargs={},
             rel='s3tokens',
             resource_relation_func=(
-                json_home_relations.s3_token_resource_rel_func))
+                json_home_relations.s3_token_resource_rel_func
+            ),
+        )
     ]
 
 

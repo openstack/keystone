@@ -55,11 +55,17 @@ class LimitsResource(ks_flask.ResourceBase):
     member_key = 'limit'
     json_home_resource_status = json_home.Status.EXPERIMENTAL
     get_member_from_driver = PROVIDERS.deferred_provider_lookup(
-        api='unified_limit_api', method='get_limit')
+        api='unified_limit_api', method='get_limit'
+    )
 
     def _list_limits(self):
-        filters = ['service_id', 'region_id', 'resource_name', 'project_id',
-                   'domain_id']
+        filters = [
+            'service_id',
+            'region_id',
+            'resource_name',
+            'project_id',
+            'domain_id',
+        ]
 
         ENFORCER.enforce_call(action='identity:list_limits', filters=filters)
 
@@ -90,8 +96,10 @@ class LimitsResource(ks_flask.ResourceBase):
         return self.wrap_collection(filtered_refs, hints=hints)
 
     def _get_limit(self, limit_id):
-        ENFORCER.enforce_call(action='identity:get_limit',
-                              build_target=_build_limit_enforcement_target)
+        ENFORCER.enforce_call(
+            action='identity:get_limit',
+            build_target=_build_limit_enforcement_target,
+        )
         ref = PROVIDERS.unified_limit_api.get_limit(limit_id)
         return self.wrap_member(ref)
 
@@ -103,10 +111,13 @@ class LimitsResource(ks_flask.ResourceBase):
     def post(self):
         ENFORCER.enforce_call(action='identity:create_limits')
         limits_b = (flask.request.get_json(silent=True, force=True) or {}).get(
-            'limits', {})
+            'limits', {}
+        )
         validation.lazy_validate(schema.limit_create, limits_b)
-        limits = [self._assign_unique_id(self._normalize_dict(limit))
-                  for limit in limits_b]
+        limits = [
+            self._assign_unique_id(self._normalize_dict(limit))
+            for limit in limits_b
+        ]
         refs = PROVIDERS.unified_limit_api.create_limits(limits)
         refs = self.wrap_collection(refs)
         refs.pop('links')
@@ -115,7 +126,8 @@ class LimitsResource(ks_flask.ResourceBase):
     def patch(self, limit_id):
         ENFORCER.enforce_call(action='identity:update_limit')
         limit = (flask.request.get_json(silent=True, force=True) or {}).get(
-            'limit', {})
+            'limit', {}
+        )
         validation.lazy_validate(schema.limit_update, limit)
         self._require_matching_id(limit)
         ref = PROVIDERS.unified_limit_api.update_limit(limit_id, limit)
@@ -123,8 +135,10 @@ class LimitsResource(ks_flask.ResourceBase):
 
     def delete(self, limit_id):
         ENFORCER.enforce_call(action='identity:delete_limit')
-        return (PROVIDERS.unified_limit_api.delete_limit(limit_id),
-                http.client.NO_CONTENT)
+        return (
+            PROVIDERS.unified_limit_api.delete_limit(limit_id),
+            http.client.NO_CONTENT,
+        )
 
 
 class LimitModelResource(flask_restful.Resource):
@@ -144,7 +158,7 @@ class LimitsAPI(ks_flask.APIBase):
             resource_kwargs={},
             url='/limits/model',
             rel='limit_model',
-            status=json_home.Status.EXPERIMENTAL
+            status=json_home.Status.EXPERIMENTAL,
         )
     ]
 

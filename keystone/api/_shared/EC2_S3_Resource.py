@@ -46,10 +46,11 @@ class ResourceBase(ks_flask.ResourceBase):
     def _check_timestamp(credentials):
         timestamp = (
             # AWS Signature v1/v2
-            credentials.get('params', {}).get('Timestamp') or
+            credentials.get('params', {}).get('Timestamp')
+            or
             # AWS Signature v4
-            credentials.get('headers', {}).get('X-Amz-Date') or
-            credentials.get('params', {}).get('X-Amz-Date')
+            credentials.get('headers', {}).get('X-Amz-Date')
+            or credentials.get('params', {}).get('X-Amz-Date')
         )
         if not timestamp:
             # If the signed payload doesn't include a timestamp then the signer
@@ -60,12 +61,12 @@ class ResourceBase(ks_flask.ResourceBase):
             timestamp = timeutils.normalize_time(timestamp)
         except Exception as e:
             raise ks_exceptions.Unauthorized(
-                _('Credential timestamp is invalid: %s') % e)
+                _('Credential timestamp is invalid: %s') % e
+            )
         auth_ttl = datetime.timedelta(minutes=CONF.credential.auth_ttl)
         current_time = timeutils.normalize_time(timeutils.utcnow())
         if current_time > timestamp + auth_ttl:
-            raise ks_exceptions.Unauthorized(
-                _('Credential is expired'))
+            raise ks_exceptions.Unauthorized(_('Credential is expired'))
 
     def handle_authenticate(self):
         # TODO(morgan): convert this dirty check to JSON Schema validation
@@ -86,9 +87,9 @@ class ResourceBase(ks_flask.ResourceBase):
         # Try "credentials" then "credential" and THEN ec2Credentials. Final
         # default is {}
         credentials = (
-            self.request_body_json.get('credentials') or
-            self.request_body_json.get('credential') or
-            self.request_body_json.get('ec2Credentials')
+            self.request_body_json.get('credentials')
+            or self.request_body_json.get('credential')
+            or self.request_body_json.get('ec2Credentials')
         )
         if not credentials:
             credentials = {}
@@ -116,21 +117,24 @@ class ResourceBase(ks_flask.ResourceBase):
             secret=loaded.get('secret'),
             trust_id=loaded.get('trust_id'),
             app_cred_id=loaded.get('app_cred_id'),
-            access_token_id=loaded.get('access_token_id')
+            access_token_id=loaded.get('access_token_id'),
         )
 
         # validate the signature
         self._check_signature(cred_data, credentials)
         project_ref = PROVIDERS.resource_api.get_project(
-            cred_data['project_id'])
+            cred_data['project_id']
+        )
         user_ref = PROVIDERS.identity_api.get_user(cred_data['user_id'])
 
         # validate that the auth info is valid and nothing is disabled
         try:
             PROVIDERS.identity_api.assert_user_enabled(
-                user_id=user_ref['id'], user=user_ref)
+                user_id=user_ref['id'], user=user_ref
+            )
             PROVIDERS.resource_api.assert_project_enabled(
-                project_id=project_ref['id'], project=project_ref)
+                project_id=project_ref['id'], project=project_ref
+            )
         except AssertionError as e:
             raise ks_exceptions.Unauthorized from e
 
@@ -153,16 +157,19 @@ class ResourceBase(ks_flask.ResourceBase):
         elif cred_data['app_cred_id']:
             ac_client = PROVIDERS.application_credential_api
             app_cred = ac_client.get_application_credential(
-                cred_data['app_cred_id'])
+                cred_data['app_cred_id']
+            )
             roles = [r['id'] for r in app_cred['roles']]
         elif cred_data['access_token_id']:
             access_token = PROVIDERS.oauth_api.get_access_token(
-                cred_data['access_token_id'])
+                cred_data['access_token_id']
+            )
             roles = jsonutils.loads(access_token['role_ids'])
             auth_context = {'access_token_id': cred_data['access_token_id']}
         else:
             roles = PROVIDERS.assignment_api.get_roles_for_user_and_project(
-                user_ref['id'], project_ref['id'])
+                user_ref['id'], project_ref['id']
+            )
 
         if not roles:
             raise ks_exceptions.Unauthorized(_('User not valid for project.'))
@@ -178,9 +185,11 @@ class ResourceBase(ks_flask.ResourceBase):
         else:
             user_id = user_ref['id']
         token = PROVIDERS.token_provider_api.issue_token(
-            user_id=user_id, method_names=method_names,
+            user_id=user_id,
+            method_names=method_names,
             project_id=project_ref['id'],
             trust_id=cred_data['trust_id'],
             app_cred_id=cred_data['app_cred_id'],
-            auth_context=auth_context)
+            auth_context=auth_context,
+        )
         return token

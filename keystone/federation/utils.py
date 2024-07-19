@@ -47,12 +47,10 @@ ROLE_PROPERTIES = {
         "type": "object",
         "required": ["name"],
         "properties": {
-            "name": {
-                "type": "string"
-            },
+            "name": {"type": "string"},
         },
-        "additionalProperties": False
-    }
+        "additionalProperties": False,
+    },
 }
 
 PROJECTS_SCHEMA = {
@@ -61,11 +59,8 @@ PROJECTS_SCHEMA = {
         "type": "object",
         "required": ["name", "roles"],
         "additionalProperties": False,
-        "properties": {
-            "name": {"type": "string"},
-            "roles": ROLE_PROPERTIES
-        }
-    }
+        "properties": {"name": {"type": "string"}, "roles": ROLE_PROPERTIES},
+    },
 }
 
 IDP_ATTRIBUTE_MAPPING_SCHEMA_1_0 = {
@@ -97,29 +92,29 @@ IDP_ATTRIBUTE_MAPPING_SCHEMA_1_0 = {
                                         },
                                         "type": {
                                             "type": "string",
-                                            "enum": [UserType.EPHEMERAL,
-                                                     UserType.LOCAL]
-                                        }
+                                            "enum": [
+                                                UserType.EPHEMERAL,
+                                                UserType.LOCAL,
+                                            ],
+                                        },
                                     },
-                                    "additionalProperties": False
+                                    "additionalProperties": False,
                                 },
                                 "projects": PROJECTS_SCHEMA,
                                 "group": {
                                     "type": "object",
                                     "oneOf": [
                                         {"$ref": "#/definitions/group_by_id"},
-                                        {"$ref": "#/definitions/group_by_name"}
-                                    ]
+                                        {
+                                            "$ref": "#/definitions/group_by_name"
+                                        },
+                                    ],
                                 },
-                                "groups": {
-                                    "type": "string"
-                                },
-                                "group_ids": {
-                                    "type": "string"
-                                },
+                                "groups": {"type": "string"},
+                                "group_ids": {"type": "string"},
                                 "domain": {"$ref": "#/definitions/domain"},
-                            }
-                        }
+                            },
+                        },
                     },
                     "remote": {
                         "minItems": 1,
@@ -131,25 +126,21 @@ IDP_ATTRIBUTE_MAPPING_SCHEMA_1_0 = {
                                 {"$ref": "#/definitions/any_one_of"},
                                 {"$ref": "#/definitions/not_any_of"},
                                 {"$ref": "#/definitions/blacklist"},
-                                {"$ref": "#/definitions/whitelist"}
+                                {"$ref": "#/definitions/whitelist"},
                             ],
-                        }
-                    }
-                }
-            }
+                        },
+                    },
+                },
+            },
         },
-        "schema_version": {
-            "name": {"type": "string"}
-        }
+        "schema_version": {"name": {"type": "string"}},
     },
     "definitions": {
         "empty": {
             "type": "object",
             "required": ['type'],
             "properties": {
-                "type": {
-                    "type": "string"
-                },
+                "type": {"type": "string"},
             },
             "additionalProperties": False,
         },
@@ -158,104 +149,81 @@ IDP_ATTRIBUTE_MAPPING_SCHEMA_1_0 = {
             "additionalProperties": False,
             "required": ['type', 'any_one_of'],
             "properties": {
-                "type": {
-                    "type": "string"
-                },
-                "any_one_of": {
-                    "type": "array"
-                },
-                "regex": {
-                    "type": "boolean"
-                }
-            }
+                "type": {"type": "string"},
+                "any_one_of": {"type": "array"},
+                "regex": {"type": "boolean"},
+            },
         },
         "not_any_of": {
             "type": "object",
             "additionalProperties": False,
             "required": ['type', 'not_any_of'],
             "properties": {
-                "type": {
-                    "type": "string"
-                },
-                "not_any_of": {
-                    "type": "array"
-                },
-                "regex": {
-                    "type": "boolean"
-                }
-            }
+                "type": {"type": "string"},
+                "not_any_of": {"type": "array"},
+                "regex": {"type": "boolean"},
+            },
         },
         "blacklist": {
             "type": "object",
             "additionalProperties": False,
             "required": ['type', 'blacklist'],
             "properties": {
-                "type": {
-                    "type": "string"
-                },
-                "blacklist": {
-                    "type": "array"
-                },
-                "regex": {
-                    "type": "boolean"
-                }
-            }
+                "type": {"type": "string"},
+                "blacklist": {"type": "array"},
+                "regex": {"type": "boolean"},
+            },
         },
         "whitelist": {
             "type": "object",
             "additionalProperties": False,
             "required": ['type', 'whitelist'],
             "properties": {
-                "type": {
-                    "type": "string"
-                },
-                "whitelist": {
-                    "type": "array"
-                },
-                "regex": {
-                    "type": "boolean"
-                }
-            }
+                "type": {"type": "string"},
+                "whitelist": {"type": "array"},
+                "regex": {"type": "boolean"},
+            },
         },
         "domain": {
             "type": "object",
             "properties": {
                 "id": {"type": "string"},
-                "name": {"type": "string"}
+                "name": {"type": "string"},
             },
-            "additionalProperties": False
+            "additionalProperties": False,
         },
         "group_by_id": {
             "type": "object",
-            "properties": {
-                "id": {"type": "string"}
-            },
+            "properties": {"id": {"type": "string"}},
             "additionalProperties": False,
-            "required": ["id"]
+            "required": ["id"],
         },
         "group_by_name": {
             "type": "object",
             "properties": {
                 "name": {"type": "string"},
-                "domain": {"$ref": "#/definitions/domain"}
+                "domain": {"$ref": "#/definitions/domain"},
             },
             "additionalProperties": False,
-            "required": ["name", "domain"]
-        }
-    }
+            "required": ["name", "domain"],
+        },
+    },
 }
 
 # `IDP_ATTRIBUTE_MAPPING_SCHEMA_2_0` adds the domain option for projects,
 # the goal is to work in a similar fashion as `user` and `groups` properties
 IDP_ATTRIBUTE_MAPPING_SCHEMA_2_0 = copy.deepcopy(
-    IDP_ATTRIBUTE_MAPPING_SCHEMA_1_0)
+    IDP_ATTRIBUTE_MAPPING_SCHEMA_1_0
+)
 
 PROJECTS_SCHEMA_2_0 = copy.deepcopy(PROJECTS_SCHEMA)
-PROJECTS_SCHEMA_2_0["items"]["properties"][
-    "domain"] = {"$ref": "#/definitions/domain"}
+PROJECTS_SCHEMA_2_0["items"]["properties"]["domain"] = {
+    "$ref": "#/definitions/domain"
+}
 
 IDP_ATTRIBUTE_MAPPING_SCHEMA_2_0['properties']['rules']['items']['properties'][
-    'local']['items']['properties']['projects'] = PROJECTS_SCHEMA_2_0
+    'local'
+]['items']['properties']['projects'] = PROJECTS_SCHEMA_2_0
 
 
 def get_default_attribute_mapping_schema_version():
@@ -294,13 +262,18 @@ class DirectMaps(object):
 
 def validate_mapping_structure(ref):
     version = ref.get(
-        'schema_version', get_default_attribute_mapping_schema_version())
+        'schema_version', get_default_attribute_mapping_schema_version()
+    )
 
-    LOG.debug("Validating mapping [%s] using validator from version [%s].",
-              ref, version)
+    LOG.debug(
+        "Validating mapping [%s] using validator from version [%s].",
+        ref,
+        version,
+    )
 
     v = jsonschema.Draft4Validator(
-        IDP_ATTRIBUTE_MAPPING_SCHEMAS[version]['schema'])
+        IDP_ATTRIBUTE_MAPPING_SCHEMAS[version]['schema']
+    )
 
     messages = ''
     for error in sorted(v.iter_errors(ref), key=str):
@@ -334,8 +307,9 @@ def get_remote_id_parameter(idp, protocol):
             remote_id_parameter = CONF[protocol]['remote_id_attribute']
         except AttributeError:
             # TODO(dolph): Move configuration registration to keystone.conf
-            CONF.register_opt(cfg.StrOpt('remote_id_attribute'),
-                              group=protocol)
+            CONF.register_opt(
+                cfg.StrOpt('remote_id_attribute'), group=protocol
+            )
             try:
                 remote_id_parameter = CONF[protocol]['remote_id_attribute']
             except AttributeError:  # nosec
@@ -343,9 +317,12 @@ def get_remote_id_parameter(idp, protocol):
                 # instead.
                 pass
     if not remote_id_parameter:
-        LOG.debug('Cannot find "remote_id_attribute" in configuration '
-                  'group %s. Trying default location in '
-                  'group federation.', protocol)
+        LOG.debug(
+            'Cannot find "remote_id_attribute" in configuration '
+            'group %s. Trying default location in '
+            'group federation.',
+            protocol,
+        )
         remote_id_parameter = CONF.federation.remote_id_attribute
 
     return remote_id_parameter
@@ -362,12 +339,15 @@ def validate_idp(idp, protocol, assertion):
     try:
         idp_remote_identifier = assertion[remote_id_parameter]
     except KeyError:
-        msg = _('Could not find Identity Provider identifier in '
-                'environment')
+        msg = _(
+            'Could not find Identity Provider identifier in ' 'environment'
+        )
         raise exception.ValidationError(msg)
     if idp_remote_identifier not in idp['remote_ids']:
-        msg = _('Incoming identity provider identifier not included '
-                'among the accepted identifiers.')
+        msg = _(
+            'Incoming identity provider identifier not included '
+            'among the accepted identifiers.'
+        )
         raise exception.Forbidden(msg)
 
 
@@ -394,13 +374,15 @@ def validate_mapped_group_ids(group_ids, mapping_id, identity_api):
             identity_api.get_group(group_id)
         except exception.GroupNotFound:
             raise exception.MappedGroupNotFound(
-                group_id=group_id, mapping_id=mapping_id)
+                group_id=group_id, mapping_id=mapping_id
+            )
 
 
 # TODO(marek-denis): Optimize this function, so the number of calls to the
 # backend are minimized.
-def transform_to_group_ids(group_names, mapping_id,
-                           identity_api, resource_api):
+def transform_to_group_ids(
+    group_names, mapping_id, identity_api, resource_api
+):
     """Transform groups identified by name/domain to their ids.
 
     Function accepts list of groups identified by a name and domain giving
@@ -437,6 +419,7 @@ def transform_to_group_ids(group_names, mapping_id,
     :returns: generator object with group ids
 
     """
+
     def resolve_domain(domain):
         """Return domain id.
 
@@ -448,19 +431,19 @@ def transform_to_group_ids(group_names, mapping_id,
         :rtype: str
 
         """
-        domain_id = (domain.get('id') or
-                     resource_api.get_domain_by_name(
-                     domain.get('name')).get('id'))
+        domain_id = domain.get('id') or resource_api.get_domain_by_name(
+            domain.get('name')
+        ).get('id')
         return domain_id
 
     for group in group_names:
         try:
             group_dict = identity_api.get_group_by_name(
-                group['name'], resolve_domain(group['domain']))
+                group['name'], resolve_domain(group['domain'])
+            )
             yield group_dict['id']
         except exception.GroupNotFound:
-            LOG.debug('Group %s has no entry in the backend',
-                      group['name'])
+            LOG.debug('Group %s has no entry in the backend', group['name'])
 
 
 def get_assertion_params_from_env():
@@ -560,15 +543,19 @@ class RuleProcessor(object):
         # This will create a new dictionary where the values are arrays, and
         # any multiple values are stored in the arrays.
         LOG.debug('assertion data: %s', assertion_data)
-        assertion = {n: v.split(';') for n, v in assertion_data.items()
-                     if isinstance(v, str)}
+        assertion = {
+            n: v.split(';')
+            for n, v in assertion_data.items()
+            if isinstance(v, str)
+        }
         LOG.debug('assertion: %s', assertion)
         identity_values = []
 
         LOG.debug('rules: %s', self.rules)
         for rule in self.rules:
-            direct_maps = self._verify_all_requirements(rule['remote'],
-                                                        assertion)
+            direct_maps = self._verify_all_requirements(
+                rule['remote'], assertion
+            )
 
             # If the compare comes back as None, then the rule did not apply
             # to the assertion data, go on to the next rule
@@ -618,23 +605,27 @@ class RuleProcessor(object):
             group_dicts = [convert_json(g) for g in group_names_list]
             for g in group_dicts:
                 if 'domain' not in g:
-                    msg = _("Invalid rule: %(identity_value)s. Both "
-                            "'groups' and 'domain' keywords must be "
-                            "specified.")
+                    msg = _(
+                        "Invalid rule: %(identity_value)s. Both "
+                        "'groups' and 'domain' keywords must be "
+                        "specified."
+                    )
                     msg = msg % {'identity_value': identity_value}
                     raise exception.ValidationError(msg)
         else:
             if 'domain' not in identity_value:
-                msg = _("Invalid rule: %(identity_value)s. Both "
-                        "'groups' and 'domain' keywords must be "
-                        "specified.")
+                msg = _(
+                    "Invalid rule: %(identity_value)s. Both "
+                    "'groups' and 'domain' keywords must be "
+                    "specified."
+                )
                 msg = msg % {'identity_value': identity_value}
                 raise exception.ValidationError(msg)
-            group_names_list = self._ast_literal_eval(
-                identity_value['groups'])
+            group_names_list = self._ast_literal_eval(identity_value['groups'])
             domain = identity_value['domain']
-            group_dicts = [{'name': name, 'domain': domain} for name in
-                           group_names_list]
+            group_dicts = [
+                {'name': name, 'domain': domain} for name in group_names_list
+            ]
         return group_dicts
 
     def normalize_user(self, user, default_mapping_domain):
@@ -694,12 +685,16 @@ class RuleProcessor(object):
         # if mapping yield no valid identity values, we should bail right away
         # instead of continuing on with a normalized bogus user
         if not identity_values:
-            msg = ("Could not map any federated user properties to identity "
-                   "values. Check debug logs or the mapping used for "
-                   "additional details.")
-            tr_msg = _("Could not map any federated user properties to "
-                       "identity values. Check debug logs or the mapping "
-                       "used for additional details.")
+            msg = (
+                "Could not map any federated user properties to identity "
+                "values. Check debug logs or the mapping used for "
+                "additional details."
+            )
+            tr_msg = _(
+                "Could not map any federated user properties to "
+                "identity values. Check debug logs or the mapping "
+                "used for additional details."
+            )
             LOG.warning(msg)
             raise exception.ValidationError(tr_msg)
 
@@ -707,8 +702,9 @@ class RuleProcessor(object):
             if 'user' in identity_value:
                 # if a mapping outputs more than one user name, log it
                 if user:
-                    LOG.warning('Ignoring user [%s]',
-                                identity_value.get('user'))
+                    LOG.warning(
+                        'Ignoring user [%s]', identity_value.get('user')
+                    )
                 else:
                     user = identity_value.get('user')
 
@@ -718,7 +714,8 @@ class RuleProcessor(object):
                     group_ids.add(group['id'])
                 elif 'name' in group:
                     groups = self.process_group_by_name(
-                        group, groups_by_domain)
+                        group, groups_by_domain
+                    )
                     group_names.extend(groups)
             if 'groups' in identity_value:
                 group_dicts = self._normalize_groups(identity_value)
@@ -730,20 +727,23 @@ class RuleProcessor(object):
                 # parsed as a simple string, and not a list or the
                 # representation of a list.
                 group_ids.update(
-                    self._ast_literal_eval(identity_value['group_ids']))
+                    self._ast_literal_eval(identity_value['group_ids'])
+                )
 
             if 'projects' in identity_value:
                 projects = self.extract_projects(identity_value)
 
         self.normalize_user(user, identity_value.get('domain'))
 
-        return {'user': user,
-                'group_ids': list(group_ids),
-                'group_names': group_names,
-                'projects': projects}
+        return {
+            'user': user,
+            'group_ids': list(group_ids),
+            'group_names': group_names,
+            'projects': projects,
+        }
 
     def process_group_by_name(self, group, groups_by_domain):
-        domain = (group['domain'].get('name') or group['domain'].get('id'))
+        domain = group['domain'].get('name') or group['domain'].get('id')
         groups_by_domain.setdefault(domain, list()).append(group)
         return self.extract_groups(groups_by_domain)
 
@@ -783,14 +783,16 @@ class RuleProcessor(object):
             if isinstance(v, dict):
                 new_value = self._update_local_mapping(v, direct_maps)
             elif isinstance(v, list):
-                new_value = [self._update_local_mapping(item, direct_maps)
-                             for item in v]
+                new_value = [
+                    self._update_local_mapping(item, direct_maps) for item in v
+                ]
             else:
                 try:
                     new_value = v.format(*direct_maps)
                 except IndexError:
                     raise exception.DirectMappingError(
-                        mapping_id=self.mapping_id)
+                        mapping_id=self.mapping_id
+                    )
 
             new[k] = new_value
         return new
@@ -859,20 +861,24 @@ class RuleProcessor(object):
 
             any_one_values = requirement.get(self._EvalType.ANY_ONE_OF)
             if any_one_values is not None:
-                if self._evaluate_requirement(any_one_values,
-                                              direct_map_values,
-                                              self._EvalType.ANY_ONE_OF,
-                                              regex):
+                if self._evaluate_requirement(
+                    any_one_values,
+                    direct_map_values,
+                    self._EvalType.ANY_ONE_OF,
+                    regex,
+                ):
                     continue
                 else:
                     return None
 
             not_any_values = requirement.get(self._EvalType.NOT_ANY_OF)
             if not_any_values is not None:
-                if self._evaluate_requirement(not_any_values,
-                                              direct_map_values,
-                                              self._EvalType.NOT_ANY_OF,
-                                              regex):
+                if self._evaluate_requirement(
+                    not_any_values,
+                    direct_map_values,
+                    self._EvalType.NOT_ANY_OF,
+                    regex,
+                ):
                     continue
                 else:
                     return None
@@ -886,17 +892,19 @@ class RuleProcessor(object):
             # If a blacklist or whitelist is used, we want to map to the
             # whole list instead of just its values separately.
             if blacklisted_values is not None:
-                direct_map_values = (
-                    self._evaluate_requirement(blacklisted_values,
-                                               direct_map_values,
-                                               self._EvalType.BLACKLIST,
-                                               regex))
+                direct_map_values = self._evaluate_requirement(
+                    blacklisted_values,
+                    direct_map_values,
+                    self._EvalType.BLACKLIST,
+                    regex,
+                )
             elif whitelisted_values is not None:
-                direct_map_values = (
-                    self._evaluate_requirement(whitelisted_values,
-                                               direct_map_values,
-                                               self._EvalType.WHITELIST,
-                                               regex))
+                direct_map_values = self._evaluate_requirement(
+                    whitelisted_values,
+                    direct_map_values,
+                    self._EvalType.WHITELIST,
+                    regex,
+                )
 
             direct_maps.add(direct_map_values)
 
@@ -906,12 +914,14 @@ class RuleProcessor(object):
 
     def _evaluate_values_by_regex(self, values, assertion_values):
         return [
-            assertion for assertion in assertion_values
+            assertion
+            for assertion in assertion_values
             if any([re.search(regex, assertion) for regex in values])
         ]
 
-    def _evaluate_requirement(self, values, assertion_values,
-                              eval_type, regex):
+    def _evaluate_requirement(
+        self, values, assertion_values, eval_type, regex
+    ):
         """Evaluate the incoming requirement and assertion.
 
         Filter the incoming assertions against the requirement values. If regex
@@ -956,17 +966,16 @@ class RuleProcessor(object):
             return list(matches)
         else:
             raise exception.UnexpectedError(
-                _('Unexpected evaluation type "%(eval_type)s"') % {
-                    'eval_type': eval_type})
+                _('Unexpected evaluation type "%(eval_type)s"')
+                % {'eval_type': eval_type}
+            )
 
 
 def assert_enabled_identity_provider(federation_api, idp_id):
     identity_provider = federation_api.get_idp(idp_id)
     if identity_provider.get('enabled') is not True:
-        msg = 'Identity Provider %(idp)s is disabled' % {
-            'idp': idp_id}
-        tr_msg = _('Identity Provider %(idp)s is disabled') % {
-            'idp': idp_id}
+        msg = 'Identity Provider %(idp)s is disabled' % {'idp': idp_id}
+        tr_msg = _('Identity Provider %(idp)s is disabled') % {'idp': idp_id}
         LOG.debug(msg)
         raise exception.Forbidden(tr_msg)
 
@@ -993,41 +1002,58 @@ class RuleProcessorToHonorDomainOption(RuleProcessor):
 
     def __init__(self, mapping_id, rules):
         super(RuleProcessorToHonorDomainOption, self).__init__(
-            mapping_id, rules)
+            mapping_id, rules
+        )
 
     def extract_projects(self, identity_value):
         projects = identity_value.get("projects", [])
         default_mapping_domain = identity_value.get("domain")
         for project in projects:
             if not project.get("domain"):
-                LOG.debug("Configuring the domain [%s] for project [%s].",
-                          default_mapping_domain, project)
+                LOG.debug(
+                    "Configuring the domain [%s] for project [%s].",
+                    default_mapping_domain,
+                    project,
+                )
                 project["domain"] = default_mapping_domain
         return projects
 
     def normalize_user(self, user, default_mapping_domain):
         super(RuleProcessorToHonorDomainOption, self).normalize_user(
-            user, default_mapping_domain)
+            user, default_mapping_domain
+        )
         if not user.get("domain"):
-            LOG.debug("Configuring the domain [%s] for user [%s].",
-                      default_mapping_domain, user)
+            LOG.debug(
+                "Configuring the domain [%s] for user [%s].",
+                default_mapping_domain,
+                user,
+            )
             user["domain"] = default_mapping_domain
         else:
-            LOG.debug("The user [%s] was configured with a domain. "
-                      "Therefore, we do not need to define.", user)
+            LOG.debug(
+                "The user [%s] was configured with a domain. "
+                "Therefore, we do not need to define.",
+                user,
+            )
 
 
 IDP_ATTRIBUTE_MAPPING_SCHEMAS = {
-    "1.0": {"schema": IDP_ATTRIBUTE_MAPPING_SCHEMA_1_0,
-            "processor": RuleProcessor},
-    "2.0": {"schema": IDP_ATTRIBUTE_MAPPING_SCHEMA_2_0,
-            "processor": RuleProcessorToHonorDomainOption}
+    "1.0": {
+        "schema": IDP_ATTRIBUTE_MAPPING_SCHEMA_1_0,
+        "processor": RuleProcessor,
+    },
+    "2.0": {
+        "schema": IDP_ATTRIBUTE_MAPPING_SCHEMA_2_0,
+        "processor": RuleProcessorToHonorDomainOption,
+    },
 }
 
 
 def create_attribute_mapping_rules_processor(mapping):
     version = mapping.get(
-        'schema_version', get_default_attribute_mapping_schema_version())
+        'schema_version', get_default_attribute_mapping_schema_version()
+    )
 
     return IDP_ATTRIBUTE_MAPPING_SCHEMAS[version]['processor'](
-        mapping['id'], mapping['rules'])
+        mapping['id'], mapping['rules']
+    )

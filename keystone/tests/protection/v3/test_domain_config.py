@@ -32,29 +32,36 @@ class _SystemDomainAndProjectUserDomainConfigTests(object):
         password_regex = uuid.uuid4().hex
         password_regex_description = uuid.uuid4().hex
         self.config_fixture.config(
-            group='security_compliance',
-            password_regex=password_regex
+            group='security_compliance', password_regex=password_regex
         )
         self.config_fixture.config(
             group='security_compliance',
-            password_regex_description=password_regex_description
+            password_regex_description=password_regex_description,
         )
         with self.test_client() as c:
-            c.get('/v3/domains/%s/config/security_compliance'
-                  % CONF.identity.default_domain_id, headers=self.headers)
+            c.get(
+                '/v3/domains/%s/config/security_compliance'
+                % CONF.identity.default_domain_id,
+                headers=self.headers,
+            )
 
     def test_user_can_get_security_compliance_domain_config_option(self):
         password_regex_description = uuid.uuid4().hex
         self.config_fixture.config(
             group='security_compliance',
-            password_regex_description=password_regex_description
+            password_regex_description=password_regex_description,
         )
         with self.test_client() as c:
-            c.get('/v3/domains/%s/config/security_compliance'
-                  '/password_regex_description'
-                  % CONF.identity.default_domain_id, headers=self.headers)
+            c.get(
+                '/v3/domains/%s/config/security_compliance'
+                '/password_regex_description'
+                % CONF.identity.default_domain_id,
+                headers=self.headers,
+            )
 
-    def test_can_get_security_compliance_config_with_user_from_other_domain(self):  # noqa: E501
+    def test_can_get_security_compliance_config_with_user_from_other_domain(
+        self,
+    ):  # noqa: E501
         domain = unit.new_domain_ref()
         PROVIDERS.resource_api.create_domain(domain['id'], domain)
 
@@ -70,24 +77,21 @@ class _SystemDomainAndProjectUserDomainConfigTests(object):
 
         # Give the new user a non-admin role on the project
         PROVIDERS.assignment_api.add_role_to_user_and_project(
-            user['id'],
-            project['id'],
-            role['id']
+            user['id'], project['id'], role['id']
         )
         password_regex = uuid.uuid4().hex
         password_regex_description = uuid.uuid4().hex
         group = 'security_compliance'
+        self.config_fixture.config(group=group, password_regex=password_regex)
         self.config_fixture.config(
-            group=group,
-            password_regex=password_regex
-        )
-        self.config_fixture.config(
-            group=group,
-            password_regex_description=password_regex_description
+            group=group, password_regex_description=password_regex_description
         )
         with self.test_client() as c:
-            c.get('/v3/domains/%s/config/security_compliance'
-                  % CONF.identity.default_domain_id, headers=self.headers)
+            c.get(
+                '/v3/domains/%s/config/security_compliance'
+                % CONF.identity.default_domain_id,
+                headers=self.headers,
+            )
 
 
 class _SystemUserDomainConfigTests(object):
@@ -97,40 +101,49 @@ class _SystemUserDomainConfigTests(object):
             uuid.uuid4().hex, unit.new_domain_ref()
         )
         PROVIDERS.domain_config_api.create_config(
-            domain['id'], unit.new_domain_config_ref())
+            domain['id'], unit.new_domain_config_ref()
+        )
         with self.test_client() as c:
-            c.get('/v3/domains/%s/config'
-                  % domain['id'], headers=self.headers)
+            c.get('/v3/domains/%s/config' % domain['id'], headers=self.headers)
 
     def test_user_can_get_domain_group_config(self):
         domain = PROVIDERS.resource_api.create_domain(
             uuid.uuid4().hex, unit.new_domain_ref()
         )
         PROVIDERS.domain_config_api.create_config(
-            domain['id'], unit.new_domain_config_ref())
+            domain['id'], unit.new_domain_config_ref()
+        )
         with self.test_client() as c:
-            c.get('/v3/domains/%s/config/ldap'
-                  % domain['id'], headers=self.headers)
+            c.get(
+                '/v3/domains/%s/config/ldap' % domain['id'],
+                headers=self.headers,
+            )
 
     def test_user_can_get_config_by_group_invalid_domain(self):
         domain = PROVIDERS.resource_api.create_domain(
             uuid.uuid4().hex, unit.new_domain_ref()
         )
         PROVIDERS.domain_config_api.create_config(
-            domain['id'], unit.new_domain_config_ref())
+            domain['id'], unit.new_domain_config_ref()
+        )
         invalid_domain_id = uuid.uuid4().hex
         with self.test_client() as c:
-            c.get('/v3/domains/%s/config/ldap'
-                  % invalid_domain_id, headers=self.headers,
-                  expected_status_code=http.client.NOT_FOUND)
+            c.get(
+                '/v3/domains/%s/config/ldap' % invalid_domain_id,
+                headers=self.headers,
+                expected_status_code=http.client.NOT_FOUND,
+            )
 
     def test_user_can_get_non_existent_config(self):
         domain = PROVIDERS.resource_api.create_domain(
             uuid.uuid4().hex, unit.new_domain_ref()
         )
         with self.test_client() as c:
-            c.get('/v3/domains/%s/config' % domain['id'], headers=self.headers,
-                  expected_status_code=http.client.NOT_FOUND)
+            c.get(
+                '/v3/domains/%s/config' % domain['id'],
+                headers=self.headers,
+                expected_status_code=http.client.NOT_FOUND,
+            )
 
     def test_user_can_get_non_existent_config_group_invalid_domain(self):
         domain = PROVIDERS.resource_api.create_domain(
@@ -140,19 +153,24 @@ class _SystemUserDomainConfigTests(object):
         PROVIDERS.domain_config_api.create_config(domain['id'], config)
         invalid_domain_id = uuid.uuid4().hex
         with self.test_client() as c:
-            c.get('/v3/domains/%s/config/ldap'
-                  % invalid_domain_id, headers=self.headers,
-                  expected_status_code=http.client.NOT_FOUND)
+            c.get(
+                '/v3/domains/%s/config/ldap' % invalid_domain_id,
+                headers=self.headers,
+                expected_status_code=http.client.NOT_FOUND,
+            )
 
     def test_user_can_get_domain_config_option(self):
         domain = PROVIDERS.resource_api.create_domain(
             uuid.uuid4().hex, unit.new_domain_ref()
         )
         PROVIDERS.domain_config_api.create_config(
-            domain['id'], unit.new_domain_config_ref())
+            domain['id'], unit.new_domain_config_ref()
+        )
         with self.test_client() as c:
-            c.get('/v3/domains/%s/config/ldap/url'
-                  % domain['id'], headers=self.headers)
+            c.get(
+                '/v3/domains/%s/config/ldap/url' % domain['id'],
+                headers=self.headers,
+            )
 
     def test_user_can_get_non_existent_config_option(self):
         domain = PROVIDERS.resource_api.create_domain(
@@ -161,9 +179,11 @@ class _SystemUserDomainConfigTests(object):
         config = {'ldap': {'url': uuid.uuid4().hex}}
         PROVIDERS.domain_config_api.create_config(domain['id'], config)
         with self.test_client() as c:
-            c.get('/v3/domains/%s/config/ldap/user_tree_dn'
-                  % domain['id'], headers=self.headers,
-                  expected_status_code=http.client.NOT_FOUND)
+            c.get(
+                '/v3/domains/%s/config/ldap/user_tree_dn' % domain['id'],
+                headers=self.headers,
+                expected_status_code=http.client.NOT_FOUND,
+            )
 
     def test_user_can_get_non_existent_config_option_invalid_domain(self):
         domain = PROVIDERS.resource_api.create_domain(
@@ -173,55 +193,63 @@ class _SystemUserDomainConfigTests(object):
         PROVIDERS.domain_config_api.create_config(domain['id'], config)
         invalid_domain_id = uuid.uuid4().hex
         with self.test_client() as c:
-            c.get('/v3/domains/%s/config/ldap/user_tree_dn'
-                  % invalid_domain_id, headers=self.headers,
-                  expected_status_code=http.client.NOT_FOUND)
+            c.get(
+                '/v3/domains/%s/config/ldap/user_tree_dn' % invalid_domain_id,
+                headers=self.headers,
+                expected_status_code=http.client.NOT_FOUND,
+            )
 
     def test_user_can_get_security_compliance_domain_config(self):
         # Set the security compliance configuration options
         password_regex = uuid.uuid4().hex
         password_regex_description = uuid.uuid4().hex
         self.config_fixture.config(
-            group='security_compliance',
-            password_regex=password_regex
+            group='security_compliance', password_regex=password_regex
         )
         self.config_fixture.config(
             group='security_compliance',
-            password_regex_description=password_regex_description
+            password_regex_description=password_regex_description,
         )
         with self.test_client() as c:
-            c.get('/v3/domains/%s/config/security_compliance'
-                  % CONF.identity.default_domain_id, headers=self.headers)
+            c.get(
+                '/v3/domains/%s/config/security_compliance'
+                % CONF.identity.default_domain_id,
+                headers=self.headers,
+            )
 
     def test_user_can_get_security_compliance_domain_config_option(self):
         password_regex_description = uuid.uuid4().hex
         self.config_fixture.config(
             group='security_compliance',
-            password_regex_description=password_regex_description
+            password_regex_description=password_regex_description,
         )
         with self.test_client() as c:
-            c.get('/v3/domains/%s/config/security_compliance'
-                  '/password_regex_description'
-                  % CONF.identity.default_domain_id, headers=self.headers)
+            c.get(
+                '/v3/domains/%s/config/security_compliance'
+                '/password_regex_description'
+                % CONF.identity.default_domain_id,
+                headers=self.headers,
+            )
 
-    def test_can_get_security_compliance_config_with_user_from_other_domain(self):  # noqa: E501
+    def test_can_get_security_compliance_config_with_user_from_other_domain(
+        self,
+    ):  # noqa: E501
         domain = unit.new_domain_ref()
         PROVIDERS.resource_api.create_domain(domain['id'], domain)
 
         password_regex = uuid.uuid4().hex
         password_regex_description = uuid.uuid4().hex
         group = 'security_compliance'
+        self.config_fixture.config(group=group, password_regex=password_regex)
         self.config_fixture.config(
-            group=group,
-            password_regex=password_regex
-        )
-        self.config_fixture.config(
-            group=group,
-            password_regex_description=password_regex_description
+            group=group, password_regex_description=password_regex_description
         )
         with self.test_client() as c:
-            c.get('/v3/domains/%s/config/security_compliance'
-                  % CONF.identity.default_domain_id, headers=self.headers)
+            c.get(
+                '/v3/domains/%s/config/security_compliance'
+                % CONF.identity.default_domain_id,
+                headers=self.headers,
+            )
 
     def test_user_can_get_domain_config_default(self):
         with self.test_client() as c:
@@ -243,39 +271,49 @@ class _SystemReaderMemberDomainAndProjectUserDomainConfigTests(object):
             uuid.uuid4().hex, unit.new_domain_ref()
         )
         with self.test_client() as c:
-            c.put('/v3/domains/%s/config'
-                  % domain['id'],
-                  json={'config': unit.new_domain_config_ref()},
-                  headers=self.headers,
-                  expected_status_code=http.client.FORBIDDEN)
+            c.put(
+                '/v3/domains/%s/config' % domain['id'],
+                json={'config': unit.new_domain_config_ref()},
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
+            )
 
     def test_user_cannot_update_domain_config(self):
         domain = PROVIDERS.resource_api.create_domain(
             uuid.uuid4().hex, unit.new_domain_ref()
         )
         PROVIDERS.domain_config_api.create_config(
-            domain['id'], unit.new_domain_config_ref())
-        new_config = {'ldap': {'url': uuid.uuid4().hex},
-                      'identity': {'driver': uuid.uuid4().hex}}
+            domain['id'], unit.new_domain_config_ref()
+        )
+        new_config = {
+            'ldap': {'url': uuid.uuid4().hex},
+            'identity': {'driver': uuid.uuid4().hex},
+        }
         with self.test_client() as c:
-            c.patch('/v3/domains/%s/config'
-                    % domain['id'], json={'config': new_config},
-                    headers=self.headers,
-                    expected_status_code=http.client.FORBIDDEN)
+            c.patch(
+                '/v3/domains/%s/config' % domain['id'],
+                json={'config': new_config},
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
+            )
 
     def test_user_cannot_update_domain_group_config(self):
         domain = PROVIDERS.resource_api.create_domain(
             uuid.uuid4().hex, unit.new_domain_ref()
         )
         PROVIDERS.domain_config_api.create_config(
-            domain['id'], unit.new_domain_config_ref())
-        new_config = {'ldap': {'url': uuid.uuid4().hex,
-                               'user_filter': uuid.uuid4().hex}}
+            domain['id'], unit.new_domain_config_ref()
+        )
+        new_config = {
+            'ldap': {'url': uuid.uuid4().hex, 'user_filter': uuid.uuid4().hex}
+        }
         with self.test_client() as c:
-            c.patch('/v3/domains/%s/config/ldap'
-                    % domain['id'], json={'config': new_config},
-                    headers=self.headers,
-                    expected_status_code=http.client.FORBIDDEN)
+            c.patch(
+                '/v3/domains/%s/config/ldap' % domain['id'],
+                json={'config': new_config},
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
+            )
 
     def test_user_cannot_update_domain_config_option(self):
         domain = PROVIDERS.resource_api.create_domain(
@@ -283,46 +321,57 @@ class _SystemReaderMemberDomainAndProjectUserDomainConfigTests(object):
         )
         new_config = {'url': uuid.uuid4().hex}
         PROVIDERS.domain_config_api.create_config(
-            domain['id'], unit.new_domain_config_ref())
+            domain['id'], unit.new_domain_config_ref()
+        )
         with self.test_client() as c:
-            c.patch('/v3/domains/%s/config/ldap/url'
-                    % domain['id'],
-                    json={'config': new_config},
-                    headers=self.headers,
-                    expected_status_code=http.client.FORBIDDEN)
+            c.patch(
+                '/v3/domains/%s/config/ldap/url' % domain['id'],
+                json={'config': new_config},
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
+            )
 
     def test_user_cannot_delete_domain_config(self):
         domain = PROVIDERS.resource_api.create_domain(
             uuid.uuid4().hex, unit.new_domain_ref()
         )
         PROVIDERS.domain_config_api.create_config(
-            domain['id'], unit.new_domain_config_ref())
+            domain['id'], unit.new_domain_config_ref()
+        )
         with self.test_client() as c:
-            c.delete('/v3/domains/%s/config' % domain['id'],
-                     headers=self.headers,
-                     expected_status_code=http.client.FORBIDDEN)
+            c.delete(
+                '/v3/domains/%s/config' % domain['id'],
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
+            )
 
     def test_user_cannot_delete_domain_group_config(self):
         domain = PROVIDERS.resource_api.create_domain(
             uuid.uuid4().hex, unit.new_domain_ref()
         )
         PROVIDERS.domain_config_api.create_config(
-            domain['id'], unit.new_domain_config_ref())
+            domain['id'], unit.new_domain_config_ref()
+        )
         with self.test_client() as c:
-            c.delete('/v3/domains/%s/config/ldap'
-                     % domain['id'], headers=self.headers,
-                     expected_status_code=http.client.FORBIDDEN)
+            c.delete(
+                '/v3/domains/%s/config/ldap' % domain['id'],
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
+            )
 
     def test_user_cannot_delete_domain_config_option(self):
         domain = PROVIDERS.resource_api.create_domain(
             uuid.uuid4().hex, unit.new_domain_ref()
         )
         PROVIDERS.domain_config_api.create_config(
-            domain['id'], unit.new_domain_config_ref())
+            domain['id'], unit.new_domain_config_ref()
+        )
         with self.test_client() as c:
-            c.delete('/v3/domains/%s/config/ldap/url'
-                     % domain['id'], headers=self.headers,
-                     expected_status_code=http.client.FORBIDDEN)
+            c.delete(
+                '/v3/domains/%s/config/ldap/url' % domain['id'],
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
+            )
 
 
 class _DomainAndProjectUserDomainConfigTests(object):
@@ -332,64 +381,86 @@ class _DomainAndProjectUserDomainConfigTests(object):
             uuid.uuid4().hex, unit.new_domain_ref()
         )
         PROVIDERS.domain_config_api.create_config(
-            domain['id'], unit.new_domain_config_ref())
+            domain['id'], unit.new_domain_config_ref()
+        )
         with self.test_client() as c:
-            c.get('/v3/domains/%s/config'
-                  % domain['id'], headers=self.headers,
-                  expected_status_code=http.client.FORBIDDEN)
+            c.get(
+                '/v3/domains/%s/config' % domain['id'],
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
+            )
 
     def test_user_cannot_get_domain_group_config(self):
         domain = PROVIDERS.resource_api.create_domain(
             uuid.uuid4().hex, unit.new_domain_ref()
         )
         PROVIDERS.domain_config_api.create_config(
-            domain['id'], unit.new_domain_config_ref())
+            domain['id'], unit.new_domain_config_ref()
+        )
         with self.test_client() as c:
-            c.get('/v3/domains/%s/config/ldap'
-                  % domain['id'], headers=self.headers,
-                  expected_status_code=http.client.FORBIDDEN)
+            c.get(
+                '/v3/domains/%s/config/ldap' % domain['id'],
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
+            )
 
     def test_user_cannot_get_non_existant_config(self):
         domain = PROVIDERS.resource_api.create_domain(
             uuid.uuid4().hex, unit.new_domain_ref()
         )
         with self.test_client() as c:
-            c.get('/v3/domains/%s/config' % domain['id'], headers=self.headers,
-                  expected_status_code=http.client.FORBIDDEN)
+            c.get(
+                '/v3/domains/%s/config' % domain['id'],
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
+            )
 
     def test_user_cannot_get_domain_config_option(self):
         domain = PROVIDERS.resource_api.create_domain(
             uuid.uuid4().hex, unit.new_domain_ref()
         )
         PROVIDERS.domain_config_api.create_config(
-            domain['id'], unit.new_domain_config_ref())
+            domain['id'], unit.new_domain_config_ref()
+        )
         with self.test_client() as c:
-            c.get('/v3/domains/%s/config/ldap/url'
-                  % domain['id'], headers=self.headers,
-                  expected_status_code=http.client.FORBIDDEN)
+            c.get(
+                '/v3/domains/%s/config/ldap/url' % domain['id'],
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
+            )
 
     def test_user_cannot_get_domain_config_default(self):
         with self.test_client() as c:
-            c.get('/v3/domains/config/default', headers=self.headers,
-                  expected_status_code=http.client.FORBIDDEN)
+            c.get(
+                '/v3/domains/config/default',
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
+            )
 
     def test_user_cannot_get_domain_group_config_default(self):
         with self.test_client() as c:
-            c.get('/v3/domains/config/ldap/default', headers=self.headers,
-                  expected_status_code=http.client.FORBIDDEN)
+            c.get(
+                '/v3/domains/config/ldap/default',
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
+            )
 
     def test_user_cannot_get_domain_config_option_default(self):
         with self.test_client() as c:
-            c.get('/v3/domains/config/ldap/url/default', headers=self.headers,
-                  expected_status_code=http.client.FORBIDDEN)
+            c.get(
+                '/v3/domains/config/ldap/url/default',
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
+            )
 
 
 class SystemReaderTests(
-        base_classes.TestCaseWithBootstrap,
-        common_auth.AuthTestMixin,
-        _SystemUserDomainConfigTests,
-        _SystemReaderMemberDomainAndProjectUserDomainConfigTests,
-        _SystemDomainAndProjectUserDomainConfigTests):
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _SystemUserDomainConfigTests,
+    _SystemReaderMemberDomainAndProjectUserDomainConfigTests,
+    _SystemDomainAndProjectUserDomainConfigTests,
+):
 
     def setUp(self):
         super(SystemReaderTests, self).setUp()
@@ -400,16 +471,15 @@ class SystemReaderTests(
         system_reader = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
         )
-        self.user_id = PROVIDERS.identity_api.create_user(
-            system_reader
-        )['id']
+        self.user_id = PROVIDERS.identity_api.create_user(system_reader)['id']
         PROVIDERS.assignment_api.create_system_grant_for_user(
             self.user_id, self.bootstrapper.reader_role_id
         )
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=system_reader['password'],
-            system=True
+            user_id=self.user_id,
+            password=system_reader['password'],
+            system=True,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -421,11 +491,12 @@ class SystemReaderTests(
 
 
 class SystemMemberTests(
-        base_classes.TestCaseWithBootstrap,
-        common_auth.AuthTestMixin,
-        _SystemUserDomainConfigTests,
-        _SystemReaderMemberDomainAndProjectUserDomainConfigTests,
-        _SystemDomainAndProjectUserDomainConfigTests):
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _SystemUserDomainConfigTests,
+    _SystemReaderMemberDomainAndProjectUserDomainConfigTests,
+    _SystemDomainAndProjectUserDomainConfigTests,
+):
 
     def setUp(self):
         super(SystemMemberTests, self).setUp()
@@ -436,16 +507,15 @@ class SystemMemberTests(
         system_member = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
         )
-        self.user_id = PROVIDERS.identity_api.create_user(
-            system_member
-        )['id']
+        self.user_id = PROVIDERS.identity_api.create_user(system_member)['id']
         PROVIDERS.assignment_api.create_system_grant_for_user(
             self.user_id, self.bootstrapper.member_role_id
         )
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=system_member['password'],
-            system=True
+            user_id=self.user_id,
+            password=system_member['password'],
+            system=True,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -456,10 +526,12 @@ class SystemMemberTests(
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class SystemAdminTests(base_classes.TestCaseWithBootstrap,
-                       common_auth.AuthTestMixin,
-                       _SystemUserDomainConfigTests,
-                       _SystemDomainAndProjectUserDomainConfigTests):
+class SystemAdminTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _SystemUserDomainConfigTests,
+    _SystemDomainAndProjectUserDomainConfigTests,
+):
 
     def setUp(self):
         super(SystemAdminTests, self).setUp()
@@ -473,7 +545,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
         auth = self.build_authentication_request(
             user_id=self.user_id,
             password=self.bootstrapper.admin_password,
-            system=True
+            system=True,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -488,46 +560,57 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
             uuid.uuid4().hex, unit.new_domain_ref()
         )
         with self.test_client() as c:
-            c.put('/v3/domains/%s/config'
-                  % domain['id'],
-                  json={'config': unit.new_domain_config_ref()},
-                  headers=self.headers,
-                  expected_status_code=http.client.CREATED)
+            c.put(
+                '/v3/domains/%s/config' % domain['id'],
+                json={'config': unit.new_domain_config_ref()},
+                headers=self.headers,
+                expected_status_code=http.client.CREATED,
+            )
 
     def test_user_cannot_create_invalid_domain_config(self):
         invalid_domain_id = uuid.uuid4().hex
         with self.test_client() as c:
-            c.put('/v3/domains/%s/config'
-                  % invalid_domain_id,
-                  json={'config': unit.new_domain_config_ref()},
-                  headers=self.headers,
-                  expected_status_code=http.client.NOT_FOUND)
+            c.put(
+                '/v3/domains/%s/config' % invalid_domain_id,
+                json={'config': unit.new_domain_config_ref()},
+                headers=self.headers,
+                expected_status_code=http.client.NOT_FOUND,
+            )
 
     def test_user_can_update_domain_config(self):
         domain = PROVIDERS.resource_api.create_domain(
             uuid.uuid4().hex, unit.new_domain_ref()
         )
-        new_config = {'ldap': {'url': uuid.uuid4().hex},
-                      'identity': {'driver': uuid.uuid4().hex}}
+        new_config = {
+            'ldap': {'url': uuid.uuid4().hex},
+            'identity': {'driver': uuid.uuid4().hex},
+        }
         PROVIDERS.domain_config_api.create_config(
-            domain['id'], unit.new_domain_config_ref())
+            domain['id'], unit.new_domain_config_ref()
+        )
         with self.test_client() as c:
-            c.patch('/v3/domains/%s/config'
-                    % domain['id'], json={'config': new_config},
-                    headers=self.headers)
+            c.patch(
+                '/v3/domains/%s/config' % domain['id'],
+                json={'config': new_config},
+                headers=self.headers,
+            )
 
     def test_user_can_update_domain_group_config(self):
         domain = PROVIDERS.resource_api.create_domain(
             uuid.uuid4().hex, unit.new_domain_ref()
         )
-        new_config = {'ldap': {'url': uuid.uuid4().hex,
-                               'user_filter': uuid.uuid4().hex}}
+        new_config = {
+            'ldap': {'url': uuid.uuid4().hex, 'user_filter': uuid.uuid4().hex}
+        }
         PROVIDERS.domain_config_api.create_config(
-            domain['id'], unit.new_domain_config_ref())
+            domain['id'], unit.new_domain_config_ref()
+        )
         with self.test_client() as c:
-            c.patch('/v3/domains/%s/config/ldap'
-                    % domain['id'], json={'config': new_config},
-                    headers=self.headers)
+            c.patch(
+                '/v3/domains/%s/config/ldap' % domain['id'],
+                json={'config': new_config},
+                headers=self.headers,
+            )
 
     def test_user_can_update_domain_config_option(self):
         domain = PROVIDERS.resource_api.create_domain(
@@ -535,61 +618,76 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
         )
         new_config = {'url': uuid.uuid4().hex}
         PROVIDERS.domain_config_api.create_config(
-            domain['id'], unit.new_domain_config_ref())
+            domain['id'], unit.new_domain_config_ref()
+        )
         with self.test_client() as c:
-            c.patch('/v3/domains/%s/config/ldap/url'
-                    % domain['id'], json={'config': new_config},
-                    headers=self.headers)
+            c.patch(
+                '/v3/domains/%s/config/ldap/url' % domain['id'],
+                json={'config': new_config},
+                headers=self.headers,
+            )
 
     def test_user_can_delete_domain_config(self):
         domain = PROVIDERS.resource_api.create_domain(
             uuid.uuid4().hex, unit.new_domain_ref()
         )
         PROVIDERS.domain_config_api.create_config(
-            domain['id'], unit.new_domain_config_ref())
+            domain['id'], unit.new_domain_config_ref()
+        )
         with self.test_client() as c:
-            c.delete('/v3/domains/%s/config' % domain['id'],
-                     headers=self.headers)
+            c.delete(
+                '/v3/domains/%s/config' % domain['id'], headers=self.headers
+            )
 
     def test_user_can_delete_domain_group_config(self):
         domain = PROVIDERS.resource_api.create_domain(
             uuid.uuid4().hex, unit.new_domain_ref()
         )
         PROVIDERS.domain_config_api.create_config(
-            domain['id'], unit.new_domain_config_ref())
+            domain['id'], unit.new_domain_config_ref()
+        )
         with self.test_client() as c:
-            c.delete('/v3/domains/%s/config/ldap'
-                     % domain['id'], headers=self.headers)
+            c.delete(
+                '/v3/domains/%s/config/ldap' % domain['id'],
+                headers=self.headers,
+            )
 
     def test_user_can_delete_domain_config_option(self):
         domain = PROVIDERS.resource_api.create_domain(
             uuid.uuid4().hex, unit.new_domain_ref()
         )
         PROVIDERS.domain_config_api.create_config(
-            domain['id'], unit.new_domain_config_ref())
+            domain['id'], unit.new_domain_config_ref()
+        )
         with self.test_client() as c:
-            c.delete('/v3/domains/%s/config/ldap/url'
-                     % domain['id'], headers=self.headers)
+            c.delete(
+                '/v3/domains/%s/config/ldap/url' % domain['id'],
+                headers=self.headers,
+            )
 
     def test_user_cannot_delete_invalid_domain_config(self):
         domain = PROVIDERS.resource_api.create_domain(
             uuid.uuid4().hex, unit.new_domain_ref()
         )
         PROVIDERS.domain_config_api.create_config(
-            domain['id'], unit.new_domain_config_ref())
+            domain['id'], unit.new_domain_config_ref()
+        )
         invalid_domain_id = uuid.uuid4().hex
         with self.test_client() as c:
-            c.delete('/v3/domains/%s/config' % invalid_domain_id,
-                     headers=self.headers,
-                     expected_status_code=http.client.NOT_FOUND)
+            c.delete(
+                '/v3/domains/%s/config' % invalid_domain_id,
+                headers=self.headers,
+                expected_status_code=http.client.NOT_FOUND,
+            )
 
 
 class DomainUserTests(
-        base_classes.TestCaseWithBootstrap,
-        common_auth.AuthTestMixin,
-        _SystemDomainAndProjectUserDomainConfigTests,
-        _DomainAndProjectUserDomainConfigTests,
-        _SystemReaderMemberDomainAndProjectUserDomainConfigTests):
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _SystemDomainAndProjectUserDomainConfigTests,
+    _DomainAndProjectUserDomainConfigTests,
+    _SystemReaderMemberDomainAndProjectUserDomainConfigTests,
+):
 
     def setUp(self):
         super(DomainUserTests, self).setUp()
@@ -604,14 +702,15 @@ class DomainUserTests(
         domain_admin = unit.new_user_ref(domain_id=self.domain_id)
         self.user_id = PROVIDERS.identity_api.create_user(domain_admin)['id']
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.admin_role_id, user_id=self.user_id,
-            domain_id=self.domain_id
+            self.bootstrapper.admin_role_id,
+            user_id=self.user_id,
+            domain_id=self.domain_id,
         )
 
         auth = self.build_authentication_request(
             user_id=self.user_id,
             password=domain_admin['password'],
-            domain_id=self.domain_id
+            domain_id=self.domain_id,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -623,11 +722,12 @@ class DomainUserTests(
 
 
 class ProjectUserTests(
-        base_classes.TestCaseWithBootstrap,
-        common_auth.AuthTestMixin,
-        _SystemDomainAndProjectUserDomainConfigTests,
-        _DomainAndProjectUserDomainConfigTests,
-        _SystemReaderMemberDomainAndProjectUserDomainConfigTests):
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _SystemDomainAndProjectUserDomainConfigTests,
+    _DomainAndProjectUserDomainConfigTests,
+    _SystemReaderMemberDomainAndProjectUserDomainConfigTests,
+):
 
     def setUp(self):
         super(ProjectUserTests, self).setUp()
@@ -639,7 +739,7 @@ class ProjectUserTests(
         auth = self.build_authentication_request(
             user_id=self.user_id,
             password=self.bootstrapper.admin_password,
-            project_id=self.bootstrapper.project_id
+            project_id=self.bootstrapper.project_id,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -651,11 +751,12 @@ class ProjectUserTests(
 
 
 class ProjectUserTestsWithoutEnforceScope(
-        base_classes.TestCaseWithBootstrap,
-        common_auth.AuthTestMixin,
-        _SystemDomainAndProjectUserDomainConfigTests,
-        _DomainAndProjectUserDomainConfigTests,
-        _SystemReaderMemberDomainAndProjectUserDomainConfigTests):
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _SystemDomainAndProjectUserDomainConfigTests,
+    _DomainAndProjectUserDomainConfigTests,
+    _SystemReaderMemberDomainAndProjectUserDomainConfigTests,
+):
 
     def setUp(self):
         super(ProjectUserTestsWithoutEnforceScope, self).setUp()
@@ -677,14 +778,15 @@ class ProjectUserTestsWithoutEnforceScope(
         )['id']
 
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.member_role_id, user_id=self.user_id,
-            project_id=self.project_id
+            self.bootstrapper.member_role_id,
+            user_id=self.user_id,
+            project_id=self.project_id,
         )
 
         auth = self.build_authentication_request(
             user_id=self.user_id,
             password=user['password'],
-            project_id=self.project_id
+            project_id=self.project_id,
         )
 
         # Grab a token using the persona we're testing and prepare headers

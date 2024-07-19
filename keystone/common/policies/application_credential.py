@@ -27,19 +27,19 @@ deprecated_list_application_credentials_for_user = policy.DeprecatedRule(
     name=base.IDENTITY % 'list_application_credentials',
     check_str=base.RULE_ADMIN_OR_OWNER,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.TRAIN
+    deprecated_since=versionutils.deprecated.TRAIN,
 )
 deprecated_get_application_credentials_for_user = policy.DeprecatedRule(
     name=base.IDENTITY % 'get_application_credential',
     check_str=base.RULE_ADMIN_OR_OWNER,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.TRAIN
+    deprecated_since=versionutils.deprecated.TRAIN,
 )
 deprecated_delete_application_credentials_for_user = policy.DeprecatedRule(
     name=base.IDENTITY % 'delete_application_credential',
     check_str=base.RULE_ADMIN_OR_OWNER,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.TRAIN
+    deprecated_since=versionutils.deprecated.TRAIN,
 )
 
 
@@ -49,36 +49,38 @@ application_credential_policies = [
         check_str=base.ADMIN_OR_SYSTEM_READER_OR_OWNER,
         scope_types=['system', 'project'],
         description='Show application credential details.',
-        operations=[{'path': resource_path,
-                     'method': 'GET'},
-                    {'path': resource_path,
-                     'method': 'HEAD'}],
-        deprecated_rule=deprecated_get_application_credentials_for_user),
+        operations=[
+            {'path': resource_path, 'method': 'GET'},
+            {'path': resource_path, 'method': 'HEAD'},
+        ],
+        deprecated_rule=deprecated_get_application_credentials_for_user,
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_application_credentials',
         check_str=base.ADMIN_OR_SYSTEM_READER_OR_OWNER,
         scope_types=['system', 'project'],
         description='List application credentials for a user.',
-        operations=[{'path': collection_path,
-                     'method': 'GET'},
-                    {'path': collection_path,
-                     'method': 'HEAD'}],
-        deprecated_rule=deprecated_list_application_credentials_for_user),
+        operations=[
+            {'path': collection_path, 'method': 'GET'},
+            {'path': collection_path, 'method': 'HEAD'},
+        ],
+        deprecated_rule=deprecated_list_application_credentials_for_user,
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_application_credential',
         check_str=base.RULE_OWNER,
         scope_types=['project'],
         description='Create an application credential.',
-        operations=[{'path': collection_path,
-                     'method': 'POST'}]),
+        operations=[{'path': collection_path, 'method': 'POST'}],
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_application_credential',
         check_str=base.RULE_ADMIN_OR_OWNER,
         scope_types=['system', 'project'],
         description='Delete an application credential.',
-        operations=[{'path': resource_path,
-                     'method': 'DELETE'}],
-        deprecated_rule=deprecated_delete_application_credentials_for_user)
+        operations=[{'path': resource_path, 'method': 'DELETE'}],
+        deprecated_rule=deprecated_delete_application_credentials_for_user,
+    ),
 ]
 
 

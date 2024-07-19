@@ -49,17 +49,25 @@ _URL_SUBST = re.compile(r'<[^\s:]+:([^>]+)>')
 CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 ResourceMap = collections.namedtuple(
-    'resource_map', 'resource, url, alternate_urls, kwargs, json_home_data')
+    'resource_map', 'resource, url, alternate_urls, kwargs, json_home_data'
+)
 JsonHomeData = collections.namedtuple(
-    'json_home_data', 'rel, status, path_vars')
+    'json_home_data', 'rel, status, path_vars'
+)
 
 _v3_resource_relation = json_home.build_v3_resource_relation
 
 
-def construct_resource_map(resource, url, resource_kwargs, alternate_urls=None,
-                           rel=None, status=json_home.Status.STABLE,
-                           path_vars=None,
-                           resource_relation_func=_v3_resource_relation):
+def construct_resource_map(
+    resource,
+    url,
+    resource_kwargs,
+    alternate_urls=None,
+    rel=None,
+    status=json_home.Status.STABLE,
+    path_vars=None,
+    resource_relation_func=_v3_resource_relation,
+):
     """Construct the ResourceMap Named Tuple.
 
     :param resource: The flask-RESTful resource class implementing the methods
@@ -115,20 +123,30 @@ def construct_resource_map(resource, url, resource_kwargs, alternate_urls=None,
     """
     if rel is not None:
         jh_data = construct_json_home_data(
-            rel=rel, status=status, path_vars=path_vars,
-            resource_relation_func=resource_relation_func)
+            rel=rel,
+            status=status,
+            path_vars=path_vars,
+            resource_relation_func=resource_relation_func,
+        )
     else:
         jh_data = None
     if not url.startswith('/'):
         url = '/%s' % url
     return ResourceMap(
-        resource=resource, url=url, alternate_urls=alternate_urls,
-        kwargs=resource_kwargs, json_home_data=jh_data)
+        resource=resource,
+        url=url,
+        alternate_urls=alternate_urls,
+        kwargs=resource_kwargs,
+        json_home_data=jh_data,
+    )
 
 
-def construct_json_home_data(rel, status=json_home.Status.STABLE,
-                             path_vars=None,
-                             resource_relation_func=_v3_resource_relation):
+def construct_json_home_data(
+    rel,
+    status=json_home.Status.STABLE,
+    path_vars=None,
+    resource_relation_func=_v3_resource_relation,
+):
     rel = resource_relation_func(resource_name=rel)
     return JsonHomeData(rel=rel, status=status, path_vars=(path_vars or {}))
 
@@ -140,15 +158,18 @@ def _initialize_rbac_enforcement_check():
 def _assert_rbac_enforcement_called(resp):
     # assert is intended to be used to ensure code during development works
     # as expected, it is fine to be optimized out with `python -O`
-    msg = ('PROGRAMMING ERROR: enforcement (`keystone.common.rbac_enforcer.'
-           'enforcer.RBACEnforcer.enforce_call()`) has not been called; API '
-           'is unenforced.')
+    msg = (
+        'PROGRAMMING ERROR: enforcement (`keystone.common.rbac_enforcer.'
+        'enforcer.RBACEnforcer.enforce_call()`) has not been called; API '
+        'is unenforced.'
+    )
     g = flask.g
     # NOTE(morgan): OPTIONS is a special case and is handled by flask
     # internally. We should never be enforcing on OPTIONS calls.
     if flask.request.method != 'OPTIONS':
         assert getattr(  # nosec
-            g, enforcer._ENFORCEMENT_CHECK_ATTR, False), msg  # nosec
+            g, enforcer._ENFORCEMENT_CHECK_ATTR, False
+        ), msg  # nosec
     return resp
 
 
@@ -239,9 +260,14 @@ class APIBase(object, metaclass=abc.ABCMeta):
         # The API Blueprint may be directly accessed via this property
         return self.__blueprint
 
-    def __init__(self, blueprint_url_prefix='', api_url_prefix='',
-                 default_mediatype='application/json', decorators=None,
-                 errors=None):
+    def __init__(
+        self,
+        blueprint_url_prefix='',
+        api_url_prefix='',
+        default_mediatype='application/json',
+        decorators=None,
+        errors=None,
+    ):
         self.__before_request_functions_added = False
         self.__after_request_functions_added = False
 
@@ -254,23 +280,31 @@ class APIBase(object, metaclass=abc.ABCMeta):
         else:
             # NOTE(morgan): If the api_url_prefix is empty fall back on the
             # class-level defined `_api_url_prefix` if it is set.
-            self._api_url_prefix = (api_url_prefix or
-                                    getattr(self, '_api_url_prefix', ''))
+            self._api_url_prefix = api_url_prefix or getattr(
+                self, '_api_url_prefix', ''
+            )
 
         if blueprint_url_prefix and not blueprint_url_prefix.startswith('/'):
             self._blueprint_url_prefix = self._build_bp_url_prefix(
-                '/%s' % blueprint_url_prefix)
+                '/%s' % blueprint_url_prefix
+            )
         else:
             self._blueprint_url_prefix = self._build_bp_url_prefix(
-                blueprint_url_prefix)
+                blueprint_url_prefix
+            )
 
         self.__blueprint = blueprints.Blueprint(
-            name=self._name, import_name=self._import_name,
-            url_prefix=self._blueprint_url_prefix)
+            name=self._name,
+            import_name=self._import_name,
+            url_prefix=self._blueprint_url_prefix,
+        )
         self.__api = flask_restful.Api(
-            app=self.__blueprint, prefix=self._api_url_prefix,
+            app=self.__blueprint,
+            prefix=self._api_url_prefix,
             default_mediatype=self._default_mediatype,
-            decorators=decorators, errors=errors)
+            decorators=decorators,
+            errors=errors,
+        )
 
         # NOTE(morgan): Make sure we're using oslo_serialization.jsonutils
         # instead of the default json serializer. Keystone has data types that
@@ -306,19 +340,29 @@ class APIBase(object, metaclass=abc.ABCMeta):
             r_pfx = getattr(r, 'api_prefix', None)
 
             if not c_key or not m_key:
-                LOG.debug('Unable to add resource %(resource)s to API '
-                          '%(name)s, both `member_key` and `collection_key` '
-                          'must be implemented. [collection_key(%(col_key)s) '
-                          'member_key(%(m_key)s)]',
-                          {'resource': r.__name__,
-                           'name': self._name, 'col_key': c_key,
-                           'm_key': m_key})
+                LOG.debug(
+                    'Unable to add resource %(resource)s to API '
+                    '%(name)s, both `member_key` and `collection_key` '
+                    'must be implemented. [collection_key(%(col_key)s) '
+                    'member_key(%(m_key)s)]',
+                    {
+                        'resource': r.__name__,
+                        'name': self._name,
+                        'col_key': c_key,
+                        'm_key': m_key,
+                    },
+                )
                 continue
             if r_pfx != self._api_url_prefix:
-                LOG.debug('Unable to add resource %(resource)s to API as the '
-                          'API Prefixes do not match: %(apfx)r != %(rpfx)r',
-                          {'resource': r.__name__,
-                           'rpfx': r_pfx, 'apfx': self._api_url_prefix})
+                LOG.debug(
+                    'Unable to add resource %(resource)s to API as the '
+                    'API Prefixes do not match: %(apfx)r != %(rpfx)r',
+                    {
+                        'resource': r.__name__,
+                        'rpfx': r_pfx,
+                        'apfx': self._api_url_prefix,
+                    },
+                )
                 continue
 
             # NOTE(morgan): The Prefix is automatically added by the API, so
@@ -332,43 +376,59 @@ class APIBase(object, metaclass=abc.ABCMeta):
                 member_id_key = '%(member_key)s_id' % {'member_key': m_key}
 
             entity_path = '/%(collection)s/<string:%(member)s>' % {
-                'collection': c_key, 'member': member_id_key}
+                'collection': c_key,
+                'member': member_id_key,
+            }
             # NOTE(morgan): The json-home form of the entity path is different
             # from the flask-url routing form. Must also include the prefix
-            jh_e_path = _URL_SUBST.sub('{\\1}', '%(pfx)s/%(e_path)s' % {
-                'pfx': self._api_url_prefix,
-                'e_path': entity_path.lstrip('/')})
+            jh_e_path = _URL_SUBST.sub(
+                '{\\1}',
+                '%(pfx)s/%(e_path)s'
+                % {
+                    'pfx': self._api_url_prefix,
+                    'e_path': entity_path.lstrip('/'),
+                },
+            )
 
             LOG.debug(
                 'Adding standard routes to API %(name)s for `%(resource)s` '
                 '(API Prefix: %(prefix)s) [%(collection_path)s, '
-                '%(entity_path)s]', {
-                    'name': self._name, 'resource': r.__class__.__name__,
+                '%(entity_path)s]',
+                {
+                    'name': self._name,
+                    'resource': r.__class__.__name__,
                     'collection_path': collection_path,
                     'entity_path': entity_path,
-                    'prefix': self._api_url_prefix})
+                    'prefix': self._api_url_prefix,
+                },
+            )
             self.api.add_resource(r, collection_path, entity_path)
 
             # Add JSON Home data
             resource_rel_func = getattr(
-                r, 'json_home_resource_rel_func',
-                json_home.build_v3_resource_relation)
-            resource_rel_status = getattr(
-                r, 'json_home_resource_status', None)
+                r,
+                'json_home_resource_rel_func',
+                json_home.build_v3_resource_relation,
+            )
+            resource_rel_status = getattr(r, 'json_home_resource_status', None)
             collection_rel_resource_name = getattr(
-                r, 'json_home_collection_resource_name_override', c_key)
+                r, 'json_home_collection_resource_name_override', c_key
+            )
             collection_rel = resource_rel_func(
-                resource_name=collection_rel_resource_name)
+                resource_name=collection_rel_resource_name
+            )
             # NOTE(morgan): Add the prefix explicitly for JSON Home documents
             # to the collection path.
             href_val = '%(pfx)s%(collection_path)s' % {
                 'pfx': self._api_url_prefix,
-                'collection_path': collection_path}
+                'collection_path': collection_path,
+            }
 
             # If additional parameters exist in the URL, add them to the
             # href-vars dict.
             additional_params = getattr(
-                r, 'json_home_additional_parameters', {})
+                r, 'json_home_additional_parameters', {}
+            )
 
             if additional_params:
                 # NOTE(morgan): Special case, we have 'additional params' which
@@ -381,33 +441,44 @@ class APIBase(object, metaclass=abc.ABCMeta):
             else:
                 rel_data = {'href': href_val}
             member_rel_resource_name = getattr(
-                r, 'json_home_member_resource_name_override', m_key)
+                r, 'json_home_member_resource_name_override', m_key
+            )
 
             entity_rel = resource_rel_func(
-                resource_name=member_rel_resource_name)
+                resource_name=member_rel_resource_name
+            )
             id_str = member_id_key
 
             parameter_rel_func = getattr(
-                r, 'json_home_parameter_rel_func',
-                json_home.build_v3_parameter_relation)
+                r,
+                'json_home_parameter_rel_func',
+                json_home.build_v3_parameter_relation,
+            )
             id_param_rel = parameter_rel_func(parameter_name=id_str)
-            entity_rel_data = {'href-template': jh_e_path,
-                               'href-vars': {id_str: id_param_rel}}
+            entity_rel_data = {
+                'href-template': jh_e_path,
+                'href-vars': {id_str: id_param_rel},
+            }
 
             if additional_params:
                 entity_rel_data.setdefault('href-vars', {}).update(
-                    additional_params)
+                    additional_params
+                )
 
             if resource_rel_status is not None:
                 json_home.Status.update_resource_data(
-                    rel_data, resource_rel_status)
+                    rel_data, resource_rel_status
+                )
                 json_home.Status.update_resource_data(
-                    entity_rel_data, resource_rel_status)
+                    entity_rel_data, resource_rel_status
+                )
 
             json_home.JsonHomeResources.append_resource(
-                collection_rel, rel_data)
+                collection_rel, rel_data
+            )
             json_home.JsonHomeResources.append_resource(
-                entity_rel, entity_rel_data)
+                entity_rel, entity_rel_data
+            )
 
     def _add_mapped_resources(self):
         # Add resource mappings, non-standard resource connections
@@ -416,7 +487,8 @@ class APIBase(object, metaclass=abc.ABCMeta):
             LOG.debug(
                 'Adding resource routes to API %(name)s: '
                 '[%(url)r %(kwargs)r]',
-                {'name': self._name, 'url': r.url, 'kwargs': r.kwargs})
+                {'name': self._name, 'url': r.url, 'kwargs': r.kwargs},
+            )
             urls = [r.url]
             if r.alternate_urls is not None:
                 for element in r.alternate_urls:
@@ -426,14 +498,18 @@ class APIBase(object, metaclass=abc.ABCMeta):
                             '`%(route)s` to API %(name)s because API has a '
                             'URL prefix. Only APIs without explicit prefixes '
                             'can have alternate URL routes added.',
-                            {'route': element['url'], 'name': self._name}
+                            {'route': element['url'], 'name': self._name},
                         )
                         continue
                     LOG.debug(
                         'Adding additional resource route (alternate) to API '
                         '%(name)s: [%(url)r %(kwargs)r]',
-                        {'name': self._name, 'url': element['url'],
-                         'kwargs': r.kwargs})
+                        {
+                            'name': self._name,
+                            'url': element['url'],
+                            'kwargs': r.kwargs,
+                        },
+                    )
                     urls.append(element['url'])
                     if element.get('json_home'):
                         alt_url_json_home_data.append(element['json_home'])
@@ -448,7 +524,8 @@ class APIBase(object, metaclass=abc.ABCMeta):
                 # from FLASK, do the conversion here.
                 conv_url = '%(pfx)s/%(url)s' % {
                     'url': _URL_SUBST.sub('{\\1}', r.url).lstrip('/'),
-                    'pfx': self._api_url_prefix}
+                    'pfx': self._api_url_prefix,
+                }
 
                 if r.json_home_data.path_vars:
                     resource_data['href-template'] = conv_url
@@ -456,16 +533,18 @@ class APIBase(object, metaclass=abc.ABCMeta):
                 else:
                     resource_data['href'] = conv_url
                 json_home.Status.update_resource_data(
-                    resource_data, r.json_home_data.status)
+                    resource_data, r.json_home_data.status
+                )
                 json_home.JsonHomeResources.append_resource(
-                    r.json_home_data.rel,
-                    resource_data)
+                    r.json_home_data.rel, resource_data
+                )
 
                 for element in alt_url_json_home_data:
                     # Append the "new" path (resource) data with the old rel
                     # reference.
                     json_home.JsonHomeResources.append_resource(
-                        element.rel, resource_data)
+                        element.rel, resource_data
+                    )
 
     def _register_before_request_functions(self, functions=None):
         """Register functions to be executed in the `before request` phase.
@@ -578,7 +657,8 @@ class _AttributeRaisesError(object):
 
     def __init__(self, name):
         self.__msg = 'PROGRAMMING ERROR: `self.{name}` is not set.'.format(
-            name=name)
+            name=name
+        )
 
     def __get__(self, instance, owner):
         raise ValueError(self.__msg)
@@ -670,11 +750,7 @@ class ResourceBase(flask_restful.Resource):
 
         container = {collection: refs}
         self_url = full_url(flask.request.environ['PATH_INFO'])
-        container['links'] = {
-            'next': None,
-            'self': self_url,
-            'previous': None
-        }
+        container['links'] = {'next': None, 'self': self_url, 'previous': None}
         if list_limited:
             container['truncated'] = True
 
@@ -699,13 +775,15 @@ class ResourceBase(flask_restful.Resource):
                 # (e.g. head/get/post/...).
                 api_prefix = api_prefix.format(**flask.request.view_args)
             collection_element = '/'.join(
-                [api_prefix, collection_name or cls.collection_key])
+                [api_prefix, collection_name or cls.collection_key]
+            )
         self_link = base_url(path='/'.join([collection_element, ref['id']]))
         ref.setdefault('links', {})['self'] = self_link
 
     @classmethod
     def filter_by_attributes(cls, refs, hints):
         """Filter a list of references by filter values."""
+
         def _attr_match(ref_attr, val_attr):
             """Matche attributes allowing for booleans as strings.
 
@@ -741,7 +819,7 @@ class ResourceBase(flask_restful.Resource):
                     target_value = target_value.lower()
 
                 if comparator == 'contains':
-                    return (filter_value in target_value)
+                    return filter_value in target_value
                 elif comparator == 'startswith':
                     return target_value.startswith(filter_value)
                 elif comparator == 'endswith':
@@ -756,8 +834,11 @@ class ResourceBase(flask_restful.Resource):
             if f['comparator'] == 'equals':
                 attr = f['name']
                 value = f['value']
-                refs = [r for r in refs if _attr_match(
-                    utils.flatten_dict(r).get(attr), value)]
+                refs = [
+                    r
+                    for r in refs
+                    if _attr_match(utils.flatten_dict(r).get(attr), value)
+                ]
             else:
                 # It might be an inexact filter
                 refs = [r for r in refs if _inexact_attr_match(f, r)]
@@ -804,8 +885,7 @@ class ResourceBase(flask_restful.Resource):
         val = False
         if filter_name in flask.request.args:
             filter_value = flask.request.args.get(filter_name)
-            if (isinstance(filter_value, str) and
-                    filter_value == '0'):
+            if isinstance(filter_value, str) and filter_value == '0':
                 val = False
             else:
                 val = True
@@ -860,9 +940,12 @@ class ResourceBase(flask_restful.Resource):
                 if comparator.startswith('i'):
                     case_sensitive = False
                     comparator = comparator[1:]
-                hints.add_filter(base_key, value,
-                                 comparator=comparator,
-                                 case_sensitive=case_sensitive)
+                hints.add_filter(
+                    base_key,
+                    value,
+                    comparator=comparator,
+                    case_sensitive=case_sensitive,
+                )
 
         # NOTE(henry-nash): If we were to support pagination, we would pull any
         # pagination directives out of the query_dict here, and add them into
@@ -898,7 +981,7 @@ class ResourceBase(flask_restful.Resource):
         if len(refs) > hints.limit['limit']:
             # The driver layer wasn't able to truncate it for us, so we must
             # do it here
-            return LIMITED, refs[:hints.limit['limit']]
+            return LIMITED, refs[: hints.limit['limit']]
 
         return NOT_LIMITED, refs
 
@@ -936,8 +1019,9 @@ class ResourceBase(flask_restful.Resource):
             return
         else:
             msg = 'No domain information specified as part of list request'
-            tr_msg = _('No domain information specified as part of list '
-                       'request')
+            tr_msg = _(
+                'No domain information specified as part of list ' 'request'
+            )
             LOG.warning(msg)
             raise exception.Unauthorized(tr_msg)
 
@@ -954,7 +1038,8 @@ class ResourceBase(flask_restful.Resource):
             # AuthContextMiddleware.
 
             auth_context = flask.request.environ.get(
-                authorization.AUTH_CONTEXT_ENV, {})
+                authorization.AUTH_CONTEXT_ENV, {}
+            )
             return auth_context['token']
         except KeyError:
             LOG.warning("Couldn't find the auth context.")
@@ -965,17 +1050,21 @@ class ResourceBase(flask_restful.Resource):
         """Fill in domain_id if not specified in a v3 call."""
         if not ref.get('domain_id'):
             oslo_ctx = flask.request.environ.get(
-                context.REQUEST_CONTEXT_ENV, None)
+                context.REQUEST_CONTEXT_ENV, None
+            )
             if oslo_ctx and oslo_ctx.domain_id:
                 # Domain Scoped Token Scenario.
                 ref['domain_id'] = oslo_ctx.domain_id
             elif oslo_ctx.is_admin:
                 # Legacy "shared" admin token Scenario
                 raise exception.ValidationError(
-                    _('You have tried to create a resource using the admin '
-                      'token. As this token is not within a domain you must '
-                      'explicitly include a domain for this resource to '
-                      'belong to.'))
+                    _(
+                        'You have tried to create a resource using the admin '
+                        'token. As this token is not within a domain you must '
+                        'explicitly include a domain for this resource to '
+                        'belong to.'
+                    )
+                )
             else:
                 # TODO(henry-nash): We should issue an exception here since if
                 # a v3 call does not explicitly specify the domain_id in the
@@ -993,7 +1082,8 @@ class ResourceBase(flask_restful.Resource):
                     'default domain, is deprecated as of Liberty. There is no '
                     'plan to remove this compatibility, however, future API '
                     'versions may remove this, so please specify the domain '
-                    'explicitly or use a domain-scoped token.')
+                    'explicitly or use a domain-scoped token.',
+                )
                 ref['domain_id'] = CONF.identity.default_domain_id
         return ref
 
@@ -1049,8 +1139,10 @@ def unenforced_api(f):
     logic/varying enforcement logic (such as some of the AUTH paths) where
     the full enforcement will be implemented directly within the methods.
     """
+
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
         set_unenforced_ok()
         return f(*args, **kwargs)
+
     return wrapper

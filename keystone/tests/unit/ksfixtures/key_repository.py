@@ -25,13 +25,12 @@ class KeyRepository(fixtures.Fixture):
     def setUp(self):
         super(KeyRepository, self).setUp()
         directory = self.useFixture(fixtures.TempDir()).path
-        self.config_fixture.config(group=self.key_group,
-                                   key_repository=directory)
+        self.config_fixture.config(
+            group=self.key_group, key_repository=directory
+        )
 
         fernet_utils = utils.FernetUtils(
-            directory,
-            self.max_active_keys,
-            self.key_group
+            directory, self.max_active_keys, self.key_group
         )
         fernet_utils.create_key_directory()
         fernet_utils.initialize_key_repository()

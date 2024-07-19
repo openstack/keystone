@@ -51,7 +51,8 @@ class GroupsResource(ks_flask.ResourceBase):
     collection_key = 'groups'
     member_key = 'group'
     get_member_from_driver = PROVIDERS.deferred_provider_lookup(
-        api='identity_api', method='get_group')
+        api='identity_api', method='get_group'
+    )
 
     def get(self, group_id=None):
         if group_id is not None:
@@ -65,7 +66,7 @@ class GroupsResource(ks_flask.ResourceBase):
         """
         ENFORCER.enforce_call(
             action='identity:get_group',
-            build_target=_build_group_target_enforcement
+            build_target=_build_group_target_enforcement,
         )
         return self.wrap_member(PROVIDERS.identity_api.get_group(group_id))
 
@@ -78,12 +79,14 @@ class GroupsResource(ks_flask.ResourceBase):
         target = None
         if self.oslo_context.domain_id:
             target = {'group': {'domain_id': self.oslo_context.domain_id}}
-        ENFORCER.enforce_call(action='identity:list_groups', filters=filters,
-                              target_attr=target)
+        ENFORCER.enforce_call(
+            action='identity:list_groups', filters=filters, target_attr=target
+        )
         hints = self.build_driver_hints(filters)
         domain = self._get_domain_id_for_list_request()
-        refs = PROVIDERS.identity_api.list_groups(domain_scope=domain,
-                                                  hints=hints)
+        refs = PROVIDERS.identity_api.list_groups(
+            domain_scope=domain, hints=hints
+        )
         if self.oslo_context.domain_id:
             filtered_refs = []
             for ref in refs:
@@ -106,7 +109,8 @@ class GroupsResource(ks_flask.ResourceBase):
         group = self._normalize_dict(group)
         group = self._normalize_domain_id(group)
         ref = PROVIDERS.identity_api.create_group(
-            group, initiator=self.audit_initiator)
+            group, initiator=self.audit_initiator
+        )
         return self.wrap_member(ref), http.client.CREATED
 
     def patch(self, group_id):
@@ -116,13 +120,14 @@ class GroupsResource(ks_flask.ResourceBase):
         """
         ENFORCER.enforce_call(
             action='identity:update_group',
-            build_target=_build_group_target_enforcement
+            build_target=_build_group_target_enforcement,
         )
         group = self.request_body_json.get('group', {})
         validation.lazy_validate(schema.group_update, group)
         self._require_matching_id(group)
         ref = PROVIDERS.identity_api.update_group(
-            group_id, group, initiator=self.audit_initiator)
+            group_id, group, initiator=self.audit_initiator
+        )
         return self.wrap_member(ref)
 
     def delete(self, group_id):
@@ -132,7 +137,8 @@ class GroupsResource(ks_flask.ResourceBase):
         """
         ENFORCER.enforce_call(action='identity:delete_group')
         PROVIDERS.identity_api.delete_group(
-            group_id, initiator=self.audit_initiator)
+            group_id, initiator=self.audit_initiator
+        )
         return None, http.client.NO_CONTENT
 
 
@@ -151,19 +157,24 @@ class GroupUsersResource(ks_flask.ResourceBase):
             # data, leage target empty. This is the safest route and does not
             # leak data before enforcement happens.
             pass
-        ENFORCER.enforce_call(action='identity:list_users_in_group',
-                              target_attr=target, filters=filters)
+        ENFORCER.enforce_call(
+            action='identity:list_users_in_group',
+            target_attr=target,
+            filters=filters,
+        )
         hints = ks_flask.ResourceBase.build_driver_hints(filters)
         refs = PROVIDERS.identity_api.list_users_in_group(
-            group_id, hints=hints)
-        if (self.oslo_context.domain_id):
+            group_id, hints=hints
+        )
+        if self.oslo_context.domain_id:
             filtered_refs = []
             for ref in refs:
                 if ref['domain_id'] == self.oslo_context.domain_id:
                     filtered_refs.append(ref)
             refs = filtered_refs
         return ks_flask.ResourceBase.wrap_collection(
-            refs, hints=hints, collection_name='users')
+            refs, hints=hints, collection_name='users'
+        )
 
 
 class UserGroupCRUDResource(flask_restful.Resource):
@@ -191,8 +202,10 @@ class UserGroupCRUDResource(flask_restful.Resource):
         """
         ENFORCER.enforce_call(
             action='identity:check_user_in_group',
-            build_target=functools.partial(self._build_enforcement_target_attr,
-                                           user_id, group_id))
+            build_target=functools.partial(
+                self._build_enforcement_target_attr, user_id, group_id
+            ),
+        )
         PROVIDERS.identity_api.check_user_in_group(user_id, group_id)
         return None, http.client.NO_CONTENT
 
@@ -203,10 +216,13 @@ class UserGroupCRUDResource(flask_restful.Resource):
         """
         ENFORCER.enforce_call(
             action='identity:add_user_to_group',
-            build_target=functools.partial(self._build_enforcement_target_attr,
-                                           user_id, group_id))
+            build_target=functools.partial(
+                self._build_enforcement_target_attr, user_id, group_id
+            ),
+        )
         PROVIDERS.identity_api.add_user_to_group(
-            user_id, group_id, initiator=notifications.build_audit_initiator())
+            user_id, group_id, initiator=notifications.build_audit_initiator()
+        )
         return None, http.client.NO_CONTENT
 
     def delete(self, group_id, user_id):
@@ -216,10 +232,13 @@ class UserGroupCRUDResource(flask_restful.Resource):
         """
         ENFORCER.enforce_call(
             action='identity:remove_user_from_group',
-            build_target=functools.partial(self._build_enforcement_target_attr,
-                                           user_id, group_id))
+            build_target=functools.partial(
+                self._build_enforcement_target_attr, user_id, group_id
+            ),
+        )
         PROVIDERS.identity_api.remove_user_from_group(
-            user_id, group_id, initiator=notifications.build_audit_initiator())
+            user_id, group_id, initiator=notifications.build_audit_initiator()
+        )
         return None, http.client.NO_CONTENT
 
 
@@ -233,7 +252,8 @@ class GroupAPI(ks_flask.APIBase):
             url='/groups/<string:group_id>/users',
             resource_kwargs={},
             rel='group_users',
-            path_vars={'group_id': json_home.Parameters.GROUP_ID}),
+            path_vars={'group_id': json_home.Parameters.GROUP_ID},
+        ),
         ks_flask.construct_resource_map(
             resource=UserGroupCRUDResource,
             url='/groups/<string:group_id>/users/<string:user_id>',
@@ -241,7 +261,9 @@ class GroupAPI(ks_flask.APIBase):
             rel='group_user',
             path_vars={
                 'group_id': json_home.Parameters.GROUP_ID,
-                'user_id': json_home.Parameters.USER_ID})
+                'user_id': json_home.Parameters.USER_ID,
+            },
+        ),
     ]
 
 

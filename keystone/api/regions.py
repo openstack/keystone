@@ -58,7 +58,8 @@ class RegionResource(ks_flask.ResourceBase):
             # both ways.
             region = self._assign_unique_id(region)
         ref = PROVIDERS.catalog_api.create_region(
-            region, initiator=self.audit_initiator)
+            region, initiator=self.audit_initiator
+        )
         return self.wrap_member(ref), http.client.CREATED
 
     def put(self, region_id):
@@ -70,13 +71,16 @@ class RegionResource(ks_flask.ResourceBase):
             region['id'] = region_id
         elif region_id != region.get('id'):
             raise exception.ValidationError(
-                _('Conflicting region IDs specified: '
-                  '"%(url_id)s" != "%(ref_id)s"') % {
-                      'url_id': region_id,
-                      'ref_id': region['id']})
+                _(
+                    'Conflicting region IDs specified: '
+                    '"%(url_id)s" != "%(ref_id)s"'
+                )
+                % {'url_id': region_id, 'ref_id': region['id']}
+            )
 
         ref = PROVIDERS.catalog_api.create_region(
-            region, initiator=self.audit_initiator)
+            region, initiator=self.audit_initiator
+        )
         return self.wrap_member(ref), http.client.CREATED
 
     def patch(self, region_id):
@@ -84,13 +88,20 @@ class RegionResource(ks_flask.ResourceBase):
         region = self.request_body_json.get('region')
         validation.lazy_validate(schema.region_update, region)
         self._require_matching_id(region)
-        return self.wrap_member(PROVIDERS.catalog_api.update_region(
-            region_id, region, initiator=self.audit_initiator))
+        return self.wrap_member(
+            PROVIDERS.catalog_api.update_region(
+                region_id, region, initiator=self.audit_initiator
+            )
+        )
 
     def delete(self, region_id):
         ENFORCER.enforce_call(action='identity:delete_region')
-        return PROVIDERS.catalog_api.delete_region(
-            region_id, initiator=self.audit_initiator), http.client.NO_CONTENT
+        return (
+            PROVIDERS.catalog_api.delete_region(
+                region_id, initiator=self.audit_initiator
+            ),
+            http.client.NO_CONTENT,
+        )
 
 
 class RegionAPI(ks_flask.APIBase):

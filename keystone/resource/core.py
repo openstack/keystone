@@ -79,7 +79,8 @@ class Manager(manager.Manager):
             max_depth = min(max_depth, limit_model.MAX_PROJECT_TREE_DEPTH + 1)
         if self._get_hierarchy_depth(parents_list) > max_depth:
             raise exception.ForbiddenNotSecurity(
-                _('Max hierarchy depth reached for %s branch.') % project_id)
+                _('Max hierarchy depth reached for %s branch.') % project_id
+            )
 
     def _assert_is_domain_project_constraints(self, project_ref):
         """Enforce specific constraints of projects that act as domains.
@@ -93,18 +94,23 @@ class Manager(manager.Manager):
         :raises keystone.exception.ValidationError: If one of the constraints
             was not satisfied.
         """
-        if (not PROVIDERS.identity_api.multiple_domains_supported and
-                project_ref['id'] != CONF.identity.default_domain_id and
-                project_ref['id'] != base.NULL_DOMAIN_ID):
+        if (
+            not PROVIDERS.identity_api.multiple_domains_supported
+            and project_ref['id'] != CONF.identity.default_domain_id
+            and project_ref['id'] != base.NULL_DOMAIN_ID
+        ):
             raise exception.ValidationError(
-                message=_('Multiple domains are not supported'))
+                message=_('Multiple domains are not supported')
+            )
 
         self.assert_domain_not_federated(project_ref['id'], project_ref)
 
         if project_ref['parent_id']:
             raise exception.ValidationError(
-                message=_('only root projects are allowed to act as '
-                          'domains.'))
+                message=_(
+                    'only root projects are allowed to act as ' 'domains.'
+                )
+            )
 
     def _assert_regular_project_constraints(self, project_ref):
         """Enforce regular project hierarchy constraints.
@@ -126,22 +132,32 @@ class Manager(manager.Manager):
         if parent_ref['is_domain']:
             if parent_ref['id'] != domain['id']:
                 raise exception.ValidationError(
-                    message=_('Cannot create project, the parent '
-                              '(%(parent_id)s) is acting as a domain, '
-                              'but this project\'s domain id (%(domain_id)s) '
-                              'does not match the parent\'s id.')
-                    % {'parent_id': parent_ref['id'],
-                       'domain_id': domain['id']})
+                    message=_(
+                        'Cannot create project, the parent '
+                        '(%(parent_id)s) is acting as a domain, '
+                        'but this project\'s domain id (%(domain_id)s) '
+                        'does not match the parent\'s id.'
+                    )
+                    % {
+                        'parent_id': parent_ref['id'],
+                        'domain_id': domain['id'],
+                    }
+                )
         else:
             parent_domain_id = parent_ref.get('domain_id')
             if parent_domain_id != domain['id']:
                 raise exception.ValidationError(
-                    message=_('Cannot create project, since it specifies '
-                              'its domain_id %(domain_id)s, but '
-                              'specifies a parent in a different domain '
-                              '(%(parent_domain_id)s).')
-                    % {'domain_id': domain['id'],
-                       'parent_domain_id': parent_domain_id})
+                    message=_(
+                        'Cannot create project, since it specifies '
+                        'its domain_id %(domain_id)s, but '
+                        'specifies a parent in a different domain '
+                        '(%(parent_domain_id)s).'
+                    )
+                    % {
+                        'domain_id': domain['id'],
+                        'parent_domain_id': parent_domain_id,
+                    }
+                )
 
     def _enforce_project_constraints(self, project_ref):
         if project_ref.get('is_domain'):
@@ -156,41 +172,61 @@ class Manager(manager.Manager):
             for ref in parents_list:
                 if not ref.get('enabled', True):
                     raise exception.ValidationError(
-                        message=_('cannot create a project in a '
-                                  'branch containing a disabled '
-                                  'project: %s') % ref['id'])
+                        message=_(
+                            'cannot create a project in a '
+                            'branch containing a disabled '
+                            'project: %s'
+                        )
+                        % ref['id']
+                    )
 
-            self._assert_max_hierarchy_depth(project_ref.get('parent_id'),
-                                             parents_list)
+            self._assert_max_hierarchy_depth(
+                project_ref.get('parent_id'), parents_list
+            )
 
     def _raise_reserved_character_exception(self, entity_type, name):
-        msg = _('%(entity)s name cannot contain the following reserved '
-                'characters: %(chars)s')
+        msg = _(
+            '%(entity)s name cannot contain the following reserved '
+            'characters: %(chars)s'
+        )
         raise exception.ValidationError(
-            message=msg % {
+            message=msg
+            % {
                 'entity': entity_type,
-                'chars': utils.list_url_unsafe_chars(name)
-            })
+                'chars': utils.list_url_unsafe_chars(name),
+            }
+        )
 
     def _generate_project_name_conflict_msg(self, project):
         if project['is_domain']:
-            return _('it is not permitted to have two projects '
-                     'acting as domains with the same name: %s'
-                     ) % project['name']
+            return (
+                _(
+                    'it is not permitted to have two projects '
+                    'acting as domains with the same name: %s'
+                )
+                % project['name']
+            )
         else:
-            return _('it is not permitted to have two projects '
-                     'with either the same name or same id in '
-                     'the same domain: '
-                     'name is %(name)s, project id %(id)s'
-                     ) % project
+            return (
+                _(
+                    'it is not permitted to have two projects '
+                    'with either the same name or same id in '
+                    'the same domain: '
+                    'name is %(name)s, project id %(id)s'
+                )
+                % project
+            )
 
     def create_project(self, project_id, project, initiator=None):
         project = project.copy()
 
-        if (CONF.resource.project_name_url_safe != 'off' and
-                utils.is_not_url_safe(project['name'])):
-            self._raise_reserved_character_exception('Project',
-                                                     project['name'])
+        if (
+            CONF.resource.project_name_url_safe != 'off'
+            and utils.is_not_url_safe(project['name'])
+        ):
+            self._raise_reserved_character_exception(
+                'Project', project['name']
+            )
 
         project.setdefault('enabled', True)
         project['name'] = project['name'].strip()
@@ -217,7 +253,8 @@ class Manager(manager.Manager):
         except exception.Conflict:
             raise exception.Conflict(
                 type='project',
-                details=self._generate_project_name_conflict_msg(project))
+                details=self._generate_project_name_conflict_msg(project),
+            )
 
         if project.get('is_domain'):
             notifications.Audit.created(self._DOMAIN, project_id, initiator)
@@ -225,8 +262,9 @@ class Manager(manager.Manager):
             notifications.Audit.created(self._PROJECT, project_id, initiator)
         if MEMOIZE.should_cache(ret):
             self.get_project.set(ret, self, project_id)
-            self.get_project_by_name.set(ret, self, ret['name'],
-                                         ret['domain_id'])
+            self.get_project_by_name.set(
+                ret, self, ret['name'], ret['domain_id']
+            )
 
         assignment.COMPUTED_ASSIGNMENTS_REGION.invalidate()
 
@@ -256,12 +294,12 @@ class Manager(manager.Manager):
         # NOTE(marek-denis): We cannot create this attribute in the __init__ as
         # config values are always initialized to default value.
         federated_domain = CONF.federation.federated_domain_name.lower()
-        if (domain.get('name') and domain['name'].lower() == federated_domain):
-            raise AssertionError(_('Domain cannot be named %s')
-                                 % domain['name'])
-        if (domain_id.lower() == federated_domain):
-            raise AssertionError(_('Domain cannot have ID %s')
-                                 % domain_id)
+        if domain.get('name') and domain['name'].lower() == federated_domain:
+            raise AssertionError(
+                _('Domain cannot be named %s') % domain['name']
+            )
+        if domain_id.lower() == federated_domain:
+            raise AssertionError(_('Domain cannot have ID %s') % domain_id)
 
     def assert_project_enabled(self, project_id, project=None):
         """Assert the project is enabled and its associated domain is enabled.
@@ -282,21 +320,27 @@ class Manager(manager.Manager):
         for project in parents_list:
             if not project.get('enabled', True):
                 raise exception.ForbiddenNotSecurity(
-                    _('Cannot enable project %s since it has disabled '
-                      'parents') % project_id)
+                    _(
+                        'Cannot enable project %s since it has disabled '
+                        'parents'
+                    )
+                    % project_id
+                )
 
     def _is_immutable(self, project_ref):
         return project_ref['options'].get(
-            ro_opt.IMMUTABLE_OPT.option_name, False)
+            ro_opt.IMMUTABLE_OPT.option_name, False
+        )
 
     def _check_whole_subtree_is_disabled(self, project_id, subtree_list=None):
         if not subtree_list:
             subtree_list = self.list_projects_in_subtree(project_id)
         subtree_enabled = [ref.get('enabled', True) for ref in subtree_list]
-        return (not any(subtree_enabled))
+        return not any(subtree_enabled)
 
-    def _update_project(self, project_id, project, initiator=None,
-                        cascade=False):
+    def _update_project(
+        self, project_id, project, initiator=None, cascade=False
+    ):
         # Use the driver directly to prevent using old cached value.
         original_project = self.driver.get_project(project_id)
         project = project.copy()
@@ -308,7 +352,8 @@ class Manager(manager.Manager):
                 original_resource_ref=original_project,
                 new_resource_ref=project,
                 type='domain',
-                resource_id=project_id)
+                resource_id=project_id,
+            )
             domain = self._get_domain_from_project(original_project)
             self.assert_domain_not_federated(project_id, domain)
             url_safe_option = CONF.resource.domain_name_url_safe
@@ -319,27 +364,37 @@ class Manager(manager.Manager):
                 original_resource_ref=original_project,
                 new_resource_ref=project,
                 type='project',
-                resource_id=project_id)
+                resource_id=project_id,
+            )
             url_safe_option = CONF.resource.project_name_url_safe
             exception_entity = 'Project'
 
-        project_name_changed = ('name' in project and project['name'] !=
-                                original_project['name'])
-        if (url_safe_option != 'off' and project_name_changed and
-                utils.is_not_url_safe(project['name'])):
-            self._raise_reserved_character_exception(exception_entity,
-                                                     project['name'])
+        project_name_changed = (
+            'name' in project and project['name'] != original_project['name']
+        )
+        if (
+            url_safe_option != 'off'
+            and project_name_changed
+            and utils.is_not_url_safe(project['name'])
+        ):
+            self._raise_reserved_character_exception(
+                exception_entity, project['name']
+            )
         elif project_name_changed:
             project['name'] = project['name'].strip()
         parent_id = original_project.get('parent_id')
         if 'parent_id' in project and project.get('parent_id') != parent_id:
             raise exception.ForbiddenNotSecurity(
-                _('Update of `parent_id` is not allowed.'))
+                _('Update of `parent_id` is not allowed.')
+            )
 
-        if ('is_domain' in project and
-                project['is_domain'] != original_project['is_domain']):
+        if (
+            'is_domain' in project
+            and project['is_domain'] != original_project['is_domain']
+        ):
             raise exception.ValidationError(
-                message=_('Update of `is_domain` is not allowed.'))
+                message=_('Update of `is_domain` is not allowed.')
+            )
 
         original_project_enabled = original_project.get('enabled', True)
         project_enabled = project.get('enabled', True)
@@ -352,40 +407,53 @@ class Manager(manager.Manager):
             # project acting as a domain to be disabled irrespective of the
             # state of its children. Disabling a project acting as domain
             # effectively disables its children.
-            if (not original_project.get('is_domain') and not cascade and not
-                    self._check_whole_subtree_is_disabled(project_id)):
+            if (
+                not original_project.get('is_domain')
+                and not cascade
+                and not self._check_whole_subtree_is_disabled(project_id)
+            ):
                 raise exception.ForbiddenNotSecurity(
-                    _('Cannot disable project %(project_id)s since its '
-                      'subtree contains enabled projects.')
-                    % {'project_id': project_id})
+                    _(
+                        'Cannot disable project %(project_id)s since its '
+                        'subtree contains enabled projects.'
+                    )
+                    % {'project_id': project_id}
+                )
 
-            notifications.Audit.disabled(self._PROJECT, project_id,
-                                         public=False)
+            notifications.Audit.disabled(
+                self._PROJECT, project_id, public=False
+            )
             # Drop the computed assignments if the project is being disabled.
             # This ensures an accurate list of projects is returned when
             # listing projects/domains for a user based on role assignments.
             assignment.COMPUTED_ASSIGNMENTS_REGION.invalidate()
 
         if cascade:
-            self._only_allow_enabled_to_update_cascade(project,
-                                                       original_project)
+            self._only_allow_enabled_to_update_cascade(
+                project, original_project
+            )
             self._update_project_enabled_cascade(project_id, project_enabled)
 
         try:
-            project['is_domain'] = (project.get('is_domain') or
-                                    original_project['is_domain'])
+            project['is_domain'] = (
+                project.get('is_domain') or original_project['is_domain']
+            )
             ret = self.driver.update_project(project_id, project)
         except exception.Conflict:
             raise exception.Conflict(
                 type='project',
-                details=self._generate_project_name_conflict_msg(project))
+                details=self._generate_project_name_conflict_msg(project),
+            )
 
         try:
             self.get_project.invalidate(self, project_id)
-            self.get_project_by_name.invalidate(self, original_project['name'],
-                                                original_project['domain_id'])
-            if ('domain_id' in project and
-               project['domain_id'] != original_project['domain_id']):
+            self.get_project_by_name.invalidate(
+                self, original_project['name'], original_project['domain_id']
+            )
+            if (
+                'domain_id' in project
+                and project['domain_id'] != original_project['domain_id']
+            ):
                 # If the project's domain_id has been updated, invalidate user
                 # role assignments cache region, as it may be caching inherited
                 # assignments from the old domain to the specified project
@@ -394,8 +462,9 @@ class Manager(manager.Manager):
             # attempt to send audit event even if the cache invalidation raises
             notifications.Audit.updated(self._PROJECT, project_id, initiator)
             if original_project['is_domain']:
-                notifications.Audit.updated(self._DOMAIN, project_id,
-                                            initiator)
+                notifications.Audit.updated(
+                    self._DOMAIN, project_id, initiator
+                )
                 # If the domain is being disabled, issue the disable
                 # notification as well
                 if original_project_enabled and not project_enabled:
@@ -408,8 +477,9 @@ class Manager(manager.Manager):
                     # requiring the authorization context to be rebuilt the
                     # next time they're validated.
                     token_provider.TOKENS_REGION.invalidate()
-                    notifications.Audit.disabled(self._DOMAIN, project_id,
-                                                 public=False)
+                    notifications.Audit.disabled(
+                        self._DOMAIN, project_id, public=False
+                    )
 
         return ret
 
@@ -418,14 +488,18 @@ class Manager(manager.Manager):
             if attr != 'enabled':
                 if project.get(attr) != original_project.get(attr):
                     raise exception.ValidationError(
-                        message=_('Cascade update is only allowed for '
-                                  'enabled attribute.'))
+                        message=_(
+                            'Cascade update is only allowed for '
+                            'enabled attribute.'
+                        )
+                    )
 
     def _update_project_enabled_cascade(self, project_id, enabled):
         subtree = self.list_projects_in_subtree(project_id)
         # Update enabled only if different from original value
-        subtree_to_update = [child for child in subtree
-                             if child['enabled'] != enabled]
+        subtree_to_update = [
+            child for child in subtree if child['enabled'] != enabled
+        ]
         for child in subtree_to_update:
             child['enabled'] = enabled
 
@@ -433,13 +507,15 @@ class Manager(manager.Manager):
                 # Does not in fact disable the project, only emits a
                 # notification that it was disabled. The actual disablement
                 # is done in the next line.
-                notifications.Audit.disabled(self._PROJECT, child['id'],
-                                             public=False)
+                notifications.Audit.disabled(
+                    self._PROJECT, child['id'], public=False
+                )
 
             self.driver.update_project(child['id'], child)
 
-    def update_project(self, project_id, project, initiator=None,
-                       cascade=False):
+    def update_project(
+        self, project_id, project, initiator=None, cascade=False
+    ):
         ret = self._update_project(project_id, project, initiator, cascade)
         if ret['is_domain']:
             self.get_domain.invalidate(self, project_id)
@@ -447,12 +523,14 @@ class Manager(manager.Manager):
 
         return ret
 
-    def _post_delete_cleanup_project(self, project_id, project,
-                                     initiator=None):
+    def _post_delete_cleanup_project(
+        self, project_id, project, initiator=None
+    ):
         try:
             self.get_project.invalidate(self, project_id)
-            self.get_project_by_name.invalidate(self, project['name'],
-                                                project['domain_id'])
+            self.get_project_by_name.invalidate(
+                self, project['name'], project['domain_id']
+            )
             PROVIDERS.assignment_api.delete_project_assignments(project_id)
             # Invalidate user role assignments cache region, as it may
             # be caching role assignments where the target is
@@ -486,20 +564,27 @@ class Manager(manager.Manager):
         ro_opt.check_immutable_delete(
             resource_ref=project,
             resource_type='project',
-            resource_id=project['id'])
+            resource_id=project['id'],
+        )
         project_id = project['id']
         if project['is_domain'] and project['enabled']:
             raise exception.ValidationError(
-                message=_('cannot delete an enabled project acting as a '
-                          'domain. Please disable the project %s first.')
-                % project.get('id'))
+                message=_(
+                    'cannot delete an enabled project acting as a '
+                    'domain. Please disable the project %s first.'
+                )
+                % project.get('id')
+            )
 
         if not self.is_leaf_project(project_id) and not cascade:
             raise exception.ForbiddenNotSecurity(
-                _('Cannot delete the project %s since it is not a leaf in the '
-                  'hierarchy. Use the cascade option if you want to delete a '
-                  'whole subtree.')
-                % project_id)
+                _(
+                    'Cannot delete the project %s since it is not a leaf in the '
+                    'hierarchy. Use the cascade option if you want to delete a '
+                    'whole subtree.'
+                )
+                % project_id
+            )
 
         if cascade:
             # Getting reversed project's subtrees list, i.e. from the leaves
@@ -507,11 +592,15 @@ class Manager(manager.Manager):
             subtree_list = self.list_projects_in_subtree(project_id)
             subtree_list.reverse()
             if not self._check_whole_subtree_is_disabled(
-                    project_id, subtree_list=subtree_list):
+                project_id, subtree_list=subtree_list
+            ):
                 raise exception.ForbiddenNotSecurity(
-                    _('Cannot delete project %(project_id)s since its subtree '
-                      'contains enabled projects.')
-                    % {'project_id': project_id})
+                    _(
+                        'Cannot delete project %(project_id)s since its subtree '
+                        'contains enabled projects.'
+                    )
+                    % {'project_id': project_id}
+                )
 
             project_list = subtree_list + [project]
             projects_ids = [x['id'] for x in project_list]
@@ -538,8 +627,9 @@ class Manager(manager.Manager):
         )
         user_projects_ids = set([proj['id'] for proj in user_projects])
         # Keep only the projects present in user_projects
-        return [proj for proj in projects_list
-                if proj['id'] in user_projects_ids]
+        return [
+            proj for proj in projects_list if proj['id'] in user_projects_ids
+        ]
 
     def _assert_valid_project_id(self, project_id):
         if project_id is None:
@@ -560,8 +650,9 @@ class Manager(manager.Manager):
             limits = PROVIDERS.unified_limit_api.list_limits(hints)
             project['limits'] = limits
 
-    def list_project_parents(self, project_id, user_id=None,
-                             include_limits=False):
+    def list_project_parents(
+        self, project_id, user_id=None, include_limits=False
+    ):
         self._assert_valid_project_id(project_id)
         parents = self.driver.list_project_parents(project_id)
         # If a user_id was provided, the returned list should be filtered
@@ -612,11 +703,13 @@ class Manager(manager.Manager):
         """
         parents_list = self.list_project_parents(project['id'])
         parents_as_ids = self._build_parents_as_ids_dict(
-            project, {proj['id']: proj for proj in parents_list})
+            project, {proj['id']: proj for proj in parents_list}
+        )
         return parents_as_ids
 
-    def list_projects_in_subtree(self, project_id, user_id=None,
-                                 include_limits=False):
+    def list_projects_in_subtree(
+        self, project_id, user_id=None, include_limits=False
+    ):
         self._assert_valid_project_id(project_id)
         subtree = self.driver.list_projects_in_subtree(project_id)
         # If a user_id was provided, the returned list should be filtered
@@ -641,7 +734,8 @@ class Manager(manager.Manager):
             children_ids = {}
             for child in children:
                 children_ids[child['id']] = traverse_subtree_hierarchy(
-                    child['id'])
+                    child['id']
+                )
             return children_ids
 
         return traverse_subtree_hierarchy(project_id)
@@ -670,6 +764,7 @@ class Manager(manager.Manager):
             }
 
         """
+
         def _projects_indexed_by_parent(projects_list):
             projects_by_parent = {}
             for proj in projects_list:
@@ -683,7 +778,8 @@ class Manager(manager.Manager):
 
         subtree_list = self.list_projects_in_subtree(project_id)
         subtree_as_ids = self._build_subtree_as_ids_dict(
-            project_id, _projects_indexed_by_parent(subtree_list))
+            project_id, _projects_indexed_by_parent(subtree_list)
+        )
         return subtree_as_ids
 
     def list_domains_from_ids(self, domain_ids):
@@ -700,8 +796,9 @@ class Manager(manager.Manager):
         # Retrieve the projects acting as domains get their correspondent
         # domains
         projects = self.list_projects_from_ids(domain_ids)
-        domains = [self._get_domain_from_project(project)
-                   for project in projects]
+        domains = [
+            self._get_domain_from_project(project) for project in projects
+        ]
 
         return domains
 
@@ -724,8 +821,9 @@ class Manager(manager.Manager):
     def get_domain_by_name(self, domain_name):
         try:
             # Retrieve the corresponding project that acts as a domain
-            project = self.driver.get_project_by_name(domain_name,
-                                                      domain_id=None)
+            project = self.driver.get_project_by_name(
+                domain_name, domain_id=None
+            )
         except exception.ProjectNotFound:
             raise exception.DomainNotFound(domain_id=domain_name)
 
@@ -739,12 +837,16 @@ class Manager(manager.Manager):
         result can be returned in response to a domain API call.
         """
         if not project_ref['is_domain']:
-            LOG.error('Asked to convert a non-domain project into a '
-                      'domain - Domain: %(domain_id)s, Project ID: '
-                      '%(id)s, Project Name: %(project_name)s',
-                      {'domain_id': project_ref['domain_id'],
-                       'id': project_ref['id'],
-                       'project_name': project_ref['name']})
+            LOG.error(
+                'Asked to convert a non-domain project into a '
+                'domain - Domain: %(domain_id)s, Project ID: '
+                '%(id)s, Project Name: %(project_name)s',
+                {
+                    'domain_id': project_ref['domain_id'],
+                    'id': project_ref['id'],
+                    'project_name': project_ref['name'],
+                },
+            )
             raise exception.DomainNotFound(domain_id=project_ref['id'])
 
         domain_ref = project_ref.copy()
@@ -758,20 +860,24 @@ class Manager(manager.Manager):
         return domain_ref
 
     def create_domain(self, domain_id, domain, initiator=None):
-        if (CONF.resource.domain_name_url_safe != 'off' and
-                utils.is_not_url_safe(domain['name'])):
+        if (
+            CONF.resource.domain_name_url_safe != 'off'
+            and utils.is_not_url_safe(domain['name'])
+        ):
             self._raise_reserved_character_exception('Domain', domain['name'])
         project_from_domain = base.get_project_from_domain(domain)
         is_domain_project = self.create_project(
-            domain_id, project_from_domain, initiator)
+            domain_id, project_from_domain, initiator
+        )
 
         return self._get_domain_from_project(is_domain_project)
 
     @manager.response_truncated
     def list_domains(self, hints=None):
         projects = self.list_projects_acting_as_domain(hints)
-        domains = [self._get_domain_from_project(project)
-                   for project in projects]
+        domains = [
+            self._get_domain_from_project(project) for project in projects
+        ]
         return domains
 
     def update_domain(self, domain_id, domain, initiator=None):
@@ -806,21 +912,23 @@ class Manager(manager.Manager):
         ro_opt.check_immutable_delete(
             resource_ref=domain,
             resource_type='domain',
-            resource_id=domain['id'])
+            resource_id=domain['id'],
+        )
         # To help avoid inadvertent deletes, we insist that the domain
         # has been previously disabled.  This also prevents a user deleting
         # their own domain since, once it is disabled, they won't be able
         # to get a valid token to issue this delete.
         if domain['enabled']:
             raise exception.ForbiddenNotSecurity(
-                _('Cannot delete a domain that is enabled, please disable it '
-                  'first.'))
+                _(
+                    'Cannot delete a domain that is enabled, please disable it '
+                    'first.'
+                )
+            )
 
         domain_id = domain['id']
         self._delete_domain_contents(domain_id)
-        notifications.Audit.internal(
-            notifications.DOMAIN_DELETED, domain_id
-        )
+        notifications.Audit.internal(notifications.DOMAIN_DELETED, domain_id)
         self._delete_project(domain, initiator)
         try:
             self.get_domain.invalidate(self, domain_id)
@@ -842,27 +950,36 @@ class Manager(manager.Manager):
         associated with them as well as revoking any relevant tokens.
 
         """
+
         def _delete_projects(project, projects, examined):
             if project['id'] in examined:
-                msg = ('Circular reference or a repeated entry found '
-                       'projects hierarchy - %(project_id)s.')
+                msg = (
+                    'Circular reference or a repeated entry found '
+                    'projects hierarchy - %(project_id)s.'
+                )
                 LOG.error(msg, {'project_id': project['id']})
                 return
 
             examined.add(project['id'])
-            children = [proj for proj in projects
-                        if proj.get('parent_id') == project['id']]
+            children = [
+                proj
+                for proj in projects
+                if proj.get('parent_id') == project['id']
+            ]
             for proj in children:
                 _delete_projects(proj, projects, examined)
 
             try:
                 self._delete_project(project, initiator=None)
             except exception.ProjectNotFound:
-                LOG.debug(('Project %(projectid)s not found when '
-                           'deleting domain contents for %(domainid)s, '
-                           'continuing with cleanup.'),
-                          {'projectid': project['id'],
-                           'domainid': domain_id})
+                LOG.debug(
+                    (
+                        'Project %(projectid)s not found when '
+                        'deleting domain contents for %(domainid)s, '
+                        'continuing with cleanup.'
+                    ),
+                    {'projectid': project['id'], 'domainid': domain_id},
+                )
 
         proj_refs = self.list_projects_in_domain(domain_id)
 
@@ -896,7 +1013,8 @@ class Manager(manager.Manager):
 
     def list_projects_acting_as_domain(self, hints=None):
         return self.driver.list_projects_acting_as_domain(
-            hints or driver_hints.Hints())
+            hints or driver_hints.Hints()
+        )
 
     @MEMOIZE
     def get_project(self, project_id):
@@ -936,13 +1054,15 @@ class Manager(manager.Manager):
                 message=_(
                     'Cannot create project tags for %(project_id)s, project '
                     'is immutable. Set "immutable" option to false before '
-                    'creating project tags.') % {'project_id': project_id})
+                    'creating project tags.'
+                )
+                % {'project_id': project_id}
+            )
         tag_name = tag.strip()
         project['tags'].append(tag_name)
         self.update_project(project_id, {'tags': project['tags']})
 
-        notifications.Audit.created(
-            self._PROJECT_TAG, tag_name, initiator)
+        notifications.Audit.created(self._PROJECT_TAG, tag_name, initiator)
         return tag_name
 
     def get_project_tag(self, project_id, tag_name):
@@ -984,7 +1104,10 @@ class Manager(manager.Manager):
                 message=_(
                     'Cannot update project tags for %(project_id)s, project '
                     'is immutable. Set "immutable" option to false before '
-                    'creating project tags.') % {'project_id': project_id})
+                    'creating project tags.'
+                )
+                % {'project_id': project_id}
+            )
         tag_list = [t.strip() for t in tags]
         project = {'tags': tag_list}
         self.update_project(project_id, project)
@@ -1005,7 +1128,10 @@ class Manager(manager.Manager):
                 message=_(
                     'Cannot delete project tags for %(project_id)s, project '
                     'is immutable. Set "immutable" option to false before '
-                    'creating project tags.') % {'project_id': project_id})
+                    'creating project tags.'
+                )
+                % {'project_id': project_id}
+            )
         try:
             project['tags'].remove(tag)
         except ValueError:
@@ -1018,8 +1144,9 @@ class Manager(manager.Manager):
         if max_depth:
             exceeded_project_ids = self.driver.check_project_depth(max_depth)
             if exceeded_project_ids:
-                raise exception.LimitTreeExceedError(exceeded_project_ids,
-                                                     max_depth)
+                raise exception.LimitTreeExceedError(
+                    exceeded_project_ids, max_depth
+                )
 
 
 MEMOIZE_CONFIG = cache.get_memoization_decorator(group='domain_config')
@@ -1048,31 +1175,58 @@ class DomainConfigManager(manager.Manager):
     whitelisted_options = {
         'identity': ['driver', 'list_limit'],
         'ldap': [
-            'url', 'user', 'suffix', 'query_scope', 'page_size',
-            'alias_dereferencing', 'debug_level', 'chase_referrals',
-            'user_tree_dn', 'user_filter', 'user_objectclass',
-            'user_id_attribute', 'user_name_attribute', 'user_mail_attribute',
-            'user_description_attribute', 'user_pass_attribute',
-            'user_enabled_attribute', 'user_enabled_invert',
-            'user_enabled_mask', 'user_enabled_default',
-            'user_attribute_ignore', 'user_default_project_id_attribute',
-            'user_enabled_emulation', 'user_enabled_emulation_dn',
+            'url',
+            'user',
+            'suffix',
+            'query_scope',
+            'page_size',
+            'alias_dereferencing',
+            'debug_level',
+            'chase_referrals',
+            'user_tree_dn',
+            'user_filter',
+            'user_objectclass',
+            'user_id_attribute',
+            'user_name_attribute',
+            'user_mail_attribute',
+            'user_description_attribute',
+            'user_pass_attribute',
+            'user_enabled_attribute',
+            'user_enabled_invert',
+            'user_enabled_mask',
+            'user_enabled_default',
+            'user_attribute_ignore',
+            'user_default_project_id_attribute',
+            'user_enabled_emulation',
+            'user_enabled_emulation_dn',
             'user_enabled_emulation_use_group_config',
-            'user_additional_attribute_mapping', 'group_tree_dn',
-            'group_filter', 'group_objectclass', 'group_id_attribute',
-            'group_name_attribute', 'group_members_are_ids',
-            'group_member_attribute', 'group_desc_attribute',
-            'group_attribute_ignore', 'group_additional_attribute_mapping',
-            'tls_cacertfile', 'tls_cacertdir', 'use_tls', 'tls_req_cert',
-            'use_pool', 'pool_size', 'pool_retry_max', 'pool_retry_delay',
-            'pool_connection_timeout', 'pool_connection_lifetime',
-            'use_auth_pool', 'auth_pool_size', 'auth_pool_connection_lifetime'
-        ]
+            'user_additional_attribute_mapping',
+            'group_tree_dn',
+            'group_filter',
+            'group_objectclass',
+            'group_id_attribute',
+            'group_name_attribute',
+            'group_members_are_ids',
+            'group_member_attribute',
+            'group_desc_attribute',
+            'group_attribute_ignore',
+            'group_additional_attribute_mapping',
+            'tls_cacertfile',
+            'tls_cacertdir',
+            'use_tls',
+            'tls_req_cert',
+            'use_pool',
+            'pool_size',
+            'pool_retry_max',
+            'pool_retry_delay',
+            'pool_connection_timeout',
+            'pool_connection_lifetime',
+            'use_auth_pool',
+            'auth_pool_size',
+            'auth_pool_connection_lifetime',
+        ],
     }
-    sensitive_options = {
-        'identity': [],
-        'ldap': ['password']
-    }
+    sensitive_options = {'identity': [], 'ldap': ['password']}
 
     def __init__(self):
         super(DomainConfigManager, self).__init__(CONF.domain_config.driver)
@@ -1089,15 +1243,16 @@ class DomainConfigManager(manager.Manager):
         # Something must be defined in the request
         if not config:
             raise exception.InvalidDomainConfig(
-                reason=_('No options specified'))
+                reason=_('No options specified')
+            )
 
         # Make sure the groups/options defined in config itself are valid
         for group in config:
-            if (not config[group] or not
-                    isinstance(config[group], dict)):
-                msg = _('The value of group %(group)s specified in the '
-                        'config should be a dictionary of options') % {
-                            'group': group}
+            if not config[group] or not isinstance(config[group], dict):
+                msg = _(
+                    'The value of group %(group)s specified in the '
+                    'config should be a dictionary of options'
+                ) % {'group': group}
                 raise exception.InvalidDomainConfig(reason=msg)
             for option in config[group]:
                 self._assert_valid_group_and_option(group, option)
@@ -1119,30 +1274,40 @@ class DomainConfigManager(manager.Manager):
         if not group and option:
             # Our API structure should prevent this from ever happening, so if
             # it does, then this is coding error.
-            msg = _('Option %(option)s found with no group specified while '
-                    'checking domain configuration request') % {
-                        'option': option}
+            msg = _(
+                'Option %(option)s found with no group specified while '
+                'checking domain configuration request'
+            ) % {'option': option}
             raise exception.UnexpectedError(exception=msg)
 
         if CONF.domain_config.additional_whitelisted_options:
             self.whitelisted_options.update(
-                **CONF.domain_config.additional_whitelisted_options)
+                **CONF.domain_config.additional_whitelisted_options
+            )
         if CONF.domain_config.additional_sensitive_options:
             self.sensitive_options.update(
-                **CONF.domain_config.additional_sensitive_options)
+                **CONF.domain_config.additional_sensitive_options
+            )
 
-        if (group and group not in self.whitelisted_options and
-                group not in self.sensitive_options):
-            msg = _('Group %(group)s is not supported '
-                    'for domain specific configurations') % {'group': group}
+        if (
+            group
+            and group not in self.whitelisted_options
+            and group not in self.sensitive_options
+        ):
+            msg = _(
+                'Group %(group)s is not supported '
+                'for domain specific configurations'
+            ) % {'group': group}
             raise exception.InvalidDomainConfig(reason=msg)
 
         if option:
-            if (option not in self.whitelisted_options.get(group, {})
-                    and option not in self.sensitive_options.get(group, {})):
-                msg = _('Option %(option)s in group %(group)s is not '
-                        'supported for domain specific configurations') % {
-                            'group': group, 'option': option}
+            if option not in self.whitelisted_options.get(
+                group, {}
+            ) and option not in self.sensitive_options.get(group, {}):
+                msg = _(
+                    'Option %(option)s in group %(group)s is not '
+                    'supported for domain specific configurations'
+                ) % {'group': group, 'option': option}
                 raise exception.InvalidDomainConfig(reason=msg)
 
     def _is_sensitive(self, group, option):
@@ -1153,17 +1318,24 @@ class DomainConfigManager(manager.Manager):
         option_list = []
         for group in config:
             for option in config[group]:
-                option_list.append({
-                    'group': group, 'option': option,
-                    'value': config[group][option],
-                    'sensitive': self._is_sensitive(group, option)})
+                option_list.append(
+                    {
+                        'group': group,
+                        'option': option,
+                        'value': config[group][option],
+                        'sensitive': self._is_sensitive(group, option),
+                    }
+                )
 
         return option_list
 
     def _option_dict(self, group, option):
         group_attr = getattr(CONF, group)
-        return {'group': group, 'option': option,
-                'value': getattr(group_attr, option)}
+        return {
+            'group': group,
+            'option': option,
+            'value': getattr(group_attr, option),
+        }
 
     def _list_to_config(self, whitelisted, sensitive=None, req_option=None):
         """Build config dict from a list of option dicts.
@@ -1189,14 +1361,22 @@ class DomainConfigManager(manager.Manager):
             # there is only one option in the answer (and that it's the right
             # one) - if not, something has gone wrong and we raise an error
             if len(the_list) > 1 or the_list[0]['option'] != req_option:
-                LOG.error('Unexpected results in response for domain '
-                          'config - %(count)s responses, first option is '
-                          '%(option)s, expected option %(expected)s',
-                          {'count': len(the_list), 'option': list[0]['option'],
-                           'expected': req_option})
+                LOG.error(
+                    'Unexpected results in response for domain '
+                    'config - %(count)s responses, first option is '
+                    '%(option)s, expected option %(expected)s',
+                    {
+                        'count': len(the_list),
+                        'option': list[0]['option'],
+                        'expected': req_option,
+                    },
+                )
                 raise exception.UnexpectedError(
-                    _('An unexpected error occurred when retrieving domain '
-                      'configs'))
+                    _(
+                        'An unexpected error occurred when retrieving domain '
+                        'configs'
+                    )
+                )
             return {the_list[0]['option']: the_list[0]['value']}
 
         config = {}
@@ -1265,13 +1445,16 @@ class DomainConfigManager(manager.Manager):
 
         if option:
             msg = _('option %(option)s in group %(group)s') % {
-                'group': group, 'option': option}
+                'group': group,
+                'option': option,
+            }
         elif group:
             msg = _('group %(group)s') % {'group': group}
         else:
             msg = _('any options')
         raise exception.DomainConfigNotFound(
-            domain_id=domain_id, group_or_option=msg)
+            domain_id=domain_id, group_or_option=msg
+        )
 
     def get_security_compliance_config(self, domain_id, group, option=None):
         r"""Get full or partial security compliance config from configuration.
@@ -1299,17 +1482,21 @@ class DomainConfigManager(manager.Manager):
 
         """
         if domain_id != CONF.identity.default_domain_id:
-            msg = _('Reading security compliance information for any domain '
-                    'other than the default domain is not allowed or '
-                    'supported.')
+            msg = _(
+                'Reading security compliance information for any domain '
+                'other than the default domain is not allowed or '
+                'supported.'
+            )
             raise exception.InvalidDomainConfig(reason=msg)
 
         config_list = []
         readable_options = ['password_regex', 'password_regex_description']
         if option and option not in readable_options:
-            msg = _('Reading security compliance values other than '
-                    'password_regex and password_regex_description is not '
-                    'allowed.')
+            msg = _(
+                'Reading security compliance values other than '
+                'password_regex and password_regex_description is not '
+                'allowed.'
+            )
             raise exception.InvalidDomainConfig(reason=msg)
         elif option and option in readable_options:
             config_list.append(self._option_dict(group, option))
@@ -1345,6 +1532,7 @@ class DomainConfigManager(manager.Manager):
                 support or one that does not exist in the original config
 
         """
+
         def _assert_valid_update(domain_id, config, group=None, option=None):
             """Ensure the combination of config, group and option is valid."""
             self._assert_valid_config(config)
@@ -1359,49 +1547,61 @@ class DomainConfigManager(manager.Manager):
             if group:
                 if len(config) != 1 or (option and len(config[group]) != 1):
                     if option:
-                        msg = _('Trying to update option %(option)s in group '
-                                '%(group)s, so that, and only that, option '
-                                'must be specified  in the config') % {
-                                    'group': group, 'option': option}
+                        msg = _(
+                            'Trying to update option %(option)s in group '
+                            '%(group)s, so that, and only that, option '
+                            'must be specified  in the config'
+                        ) % {'group': group, 'option': option}
                     else:
-                        msg = _('Trying to update group %(group)s, so that, '
-                                'and only that, group must be specified in '
-                                'the config') % {'group': group}
+                        msg = _(
+                            'Trying to update group %(group)s, so that, '
+                            'and only that, group must be specified in '
+                            'the config'
+                        ) % {'group': group}
                     raise exception.InvalidDomainConfig(reason=msg)
 
                 # So we now know we have the right number of entries in the
                 # config that align with a group/option being specified, but we
                 # must also make sure they match.
                 if group not in config:
-                    msg = _('request to update group %(group)s, but config '
-                            'provided contains group %(group_other)s '
-                            'instead') % {
-                                'group': group,
-                                'group_other': list(config.keys())[0]}
+                    msg = _(
+                        'request to update group %(group)s, but config '
+                        'provided contains group %(group_other)s '
+                        'instead'
+                    ) % {'group': group, 'group_other': list(config.keys())[0]}
                     raise exception.InvalidDomainConfig(reason=msg)
                 if option and option not in config[group]:
-                    msg = _('Trying to update option %(option)s in group '
-                            '%(group)s, but config provided contains option '
-                            '%(option_other)s instead') % {
-                                'group': group, 'option': option,
-                                'option_other': list(config[group].keys())[0]}
+                    msg = _(
+                        'Trying to update option %(option)s in group '
+                        '%(group)s, but config provided contains option '
+                        '%(option_other)s instead'
+                    ) % {
+                        'group': group,
+                        'option': option,
+                        'option_other': list(config[group].keys())[0],
+                    }
                     raise exception.InvalidDomainConfig(reason=msg)
 
                 # Finally, we need to check if the group/option specified
                 # already exists in the original config - since if not, to keep
                 # with the semantics of an update, we need to fail with
                 # a DomainConfigNotFound
-                if not self._get_config_with_sensitive_info(domain_id,
-                                                            group, option):
+                if not self._get_config_with_sensitive_info(
+                    domain_id, group, option
+                ):
                     if option:
                         msg = _('option %(option)s in group %(group)s') % {
-                            'group': group, 'option': option}
+                            'group': group,
+                            'option': option,
+                        }
                         raise exception.DomainConfigNotFound(
-                            domain_id=domain_id, group_or_option=msg)
+                            domain_id=domain_id, group_or_option=msg
+                        )
                     else:
                         msg = _('group %(group)s') % {'group': group}
                         raise exception.DomainConfigNotFound(
-                            domain_id=domain_id, group_or_option=msg)
+                            domain_id=domain_id, group_or_option=msg
+                        )
 
         update_config = config
         if group and option:
@@ -1447,18 +1647,23 @@ class DomainConfigManager(manager.Manager):
             if not current_group:
                 msg = _('group %(group)s') % {'group': group}
                 raise exception.DomainConfigNotFound(
-                    domain_id=domain_id, group_or_option=msg)
+                    domain_id=domain_id, group_or_option=msg
+                )
             if option and not current_group.get(option):
                 msg = _('option %(option)s in group %(group)s') % {
-                    'group': group, 'option': option}
+                    'group': group,
+                    'option': option,
+                }
                 raise exception.DomainConfigNotFound(
-                    domain_id=domain_id, group_or_option=msg)
+                    domain_id=domain_id, group_or_option=msg
+                )
 
         self.delete_config_options(domain_id, group, option)
         self.get_config_with_sensitive_info.invalidate(self, domain_id)
 
-    def _get_config_with_sensitive_info(self, domain_id, group=None,
-                                        option=None):
+    def _get_config_with_sensitive_info(
+        self, domain_id, group=None, option=None
+    ):
         """Get config for a domain/group/option with sensitive info included.
 
         This is only used by the methods within this class, which may need to
@@ -1466,8 +1671,9 @@ class DomainConfigManager(manager.Manager):
 
         """
         whitelisted = self.list_config_options(domain_id, group, option)
-        sensitive = self.list_config_options(domain_id, group, option,
-                                             sensitive=True)
+        sensitive = self.list_config_options(
+            domain_id, group, option, sensitive=True
+        )
 
         # Check if there are any sensitive substitutions needed. We first try
         # and simply ensure any sensitive options that have valid substitution
@@ -1493,27 +1699,34 @@ class DomainConfigManager(manager.Manager):
             warning_msg = ''
             try:
                 each_whitelisted['value'] = (
-                    each_whitelisted['value'] % sensitive_dict)
+                    each_whitelisted['value'] % sensitive_dict
+                )
             except KeyError:
                 warning_msg = (
                     'Found what looks like an unmatched config option '
                     'substitution reference - domain: %(domain)s, group: '
                     '%(group)s, option: %(option)s, value: %(value)s. Perhaps '
                     'the config option to which it refers has yet to be '
-                    'added?')
+                    'added?'
+                )
             except (ValueError, TypeError):
                 warning_msg = (
                     'Found what looks like an incorrectly constructed '
                     'config option substitution reference - domain: '
                     '%(domain)s, group: %(group)s, option: %(option)s, '
-                    'value: %(value)s.')
+                    'value: %(value)s.'
+                )
 
             if warning_msg:
-                LOG.warning(warning_msg, {
-                    'domain': domain_id,
-                    'group': each_whitelisted['group'],
-                    'option': each_whitelisted['option'],
-                    'value': original_value})
+                LOG.warning(
+                    warning_msg,
+                    {
+                        'domain': domain_id,
+                        'group': each_whitelisted['group'],
+                        'option': each_whitelisted['option'],
+                        'value': original_value,
+                    },
+                )
 
         return self._list_to_config(whitelisted, sensitive)
 
@@ -1558,9 +1771,10 @@ class DomainConfigManager(manager.Manager):
         if group:
             if option:
                 if option not in self.whitelisted_options[group]:
-                    msg = _('Reading the default for option %(option)s in '
-                            'group %(group)s is not supported') % {
-                                'option': option, 'group': group}
+                    msg = _(
+                        'Reading the default for option %(option)s in '
+                        'group %(group)s is not supported'
+                    ) % {'option': option, 'group': group}
                     raise exception.InvalidDomainConfig(reason=msg)
                 config_list.append(self._option_dict(group, option))
             else:

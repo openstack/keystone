@@ -20,7 +20,8 @@ from keystone.conf import utils
 key_repository = cfg.StrOpt(
     'key_repository',
     default='/etc/keystone/fernet-keys/',
-    help=utils.fmt("""
+    help=utils.fmt(
+        """
 Directory containing Fernet receipt keys. This directory must exist before
 using `keystone-manage fernet_setup` for the first time, must be writable by
 the user running `keystone-manage fernet_setup` or `keystone-manage
@@ -41,19 +42,24 @@ unpack it on host B to a temporary location, and atomically move (`mv`) the
 directory into place on host B). Running `keystone-manage fernet_rotate`
 *twice* on a key repository without syncing other nodes will result in receipts
 that can not be validated by all nodes.
-"""))
+"""
+    ),
+)
 
 max_active_keys = cfg.IntOpt(
     'max_active_keys',
     default=3,
     min=1,
-    help=utils.fmt("""
+    help=utils.fmt(
+        """
 This controls how many keys are held in rotation by `keystone-manage
 fernet_rotate` before they are discarded. The default value of 3 means that
 keystone will maintain one staged key (always index 0), one primary key (the
 highest numerical index), and one secondary key (every other index). Increasing
 this value means that additional secondary keys will be kept in the rotation.
-"""))
+"""
+    ),
+)
 
 
 GROUP_NAME = __name__.split('.')[-1]

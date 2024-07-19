@@ -50,8 +50,9 @@ PROVIDERS = provider_api.ProviderAPIs
 MEMOIZE = cache.get_memoization_decorator(group='identity')
 
 ID_MAPPING_REGION = cache.create_region(name='id mapping')
-MEMOIZE_ID_MAPPING = cache.get_memoization_decorator(group='identity',
-                                                     region=ID_MAPPING_REGION)
+MEMOIZE_ID_MAPPING = cache.get_memoization_decorator(
+    group='identity', region=ID_MAPPING_REGION
+)
 
 DOMAIN_CONF_FHEAD = 'keystone.'
 DOMAIN_CONF_FTAIL = '.conf'
@@ -72,13 +73,12 @@ def get_driver(namespace, driver_name, *args):
     looking for additional configuration options required by the driver.
     """
     try:
-        driver_manager = stevedore.DriverManager(namespace,
-                                                 driver_name,
-                                                 invoke_on_load=False,
-                                                 invoke_args=args)
+        driver_manager = stevedore.DriverManager(
+            namespace, driver_name, invoke_on_load=False, invoke_args=args
+        )
         return driver_manager.driver
     except stevedore.exception.NoMatches:
-        msg = (_('Unable to find %(name)r driver in %(namespace)r.'))
+        msg = _('Unable to find %(name)r driver in %(namespace)r.')
         raise ImportError(msg % {'name': driver_name, 'namespace': namespace})
 
 
@@ -105,9 +105,11 @@ class DomainConfigs(provider_api.ProviderAPIMixin, dict):
     lock = threading.Lock()
 
     def _load_driver(self, domain_config):
-        return manager.load_driver(Manager.driver_namespace,
-                                   domain_config['cfg'].identity.driver,
-                                   domain_config['cfg'])
+        return manager.load_driver(
+            Manager.driver_namespace,
+            domain_config['cfg'].identity.driver,
+            domain_config['cfg'],
+        )
 
     def _load_config_from_file(self, resource_api, file_list, domain_name):
 
@@ -118,8 +120,9 @@ class DomainConfigs(provider_api.ProviderAPIMixin, dict):
             would cause there to be more than one sql driver.
 
             """
-            if (new_config['driver'].is_sql and
-                    (self.driver.is_sql or self._any_sql)):
+            if new_config['driver'].is_sql and (
+                self.driver.is_sql or self._any_sql
+            ):
                 # The addition of this driver would cause us to have more than
                 # one sql driver, so raise an exception.
                 raise exception.MultipleSQLDriversInConfig(source=config_file)
@@ -128,8 +131,10 @@ class DomainConfigs(provider_api.ProviderAPIMixin, dict):
         try:
             domain_ref = resource_api.get_domain_by_name(domain_name)
         except exception.DomainNotFound:
-            LOG.warning('Invalid domain name (%s) found in config file name',
-                        domain_name)
+            LOG.warning(
+                'Invalid domain name (%s) found in config file name',
+                domain_name,
+            )
             return
 
         # Create a new entry in the domain config dict, which contains
@@ -140,9 +145,12 @@ class DomainConfigs(provider_api.ProviderAPIMixin, dict):
         domain_config = {}
         domain_config['cfg'] = cfg.ConfigOpts()
         keystone.conf.configure(conf=domain_config['cfg'])
-        domain_config['cfg'](args=[], project='keystone',
-                             default_config_files=file_list,
-                             default_config_dirs=[])
+        domain_config['cfg'](
+            args=[],
+            project='keystone',
+            default_config_files=file_list,
+            default_config_dirs=[],
+        )
         domain_config['driver'] = self._load_driver(domain_config)
         _assert_no_more_than_one_sql_driver(domain_config, file_list)
         self[domain_ref['id']] = domain_config
@@ -165,23 +173,34 @@ class DomainConfigs(provider_api.ProviderAPIMixin, dict):
         """
         conf_dir = CONF.identity.domain_config_dir
         if not os.path.exists(conf_dir):
-            LOG.warning('Unable to locate domain config directory: %s',
-                        conf_dir)
+            LOG.warning(
+                'Unable to locate domain config directory: %s', conf_dir
+            )
             return
 
         for r, d, f in os.walk(conf_dir):
             for fname in f:
-                if (fname.startswith(DOMAIN_CONF_FHEAD) and
-                        fname.endswith(DOMAIN_CONF_FTAIL)):
+                if fname.startswith(DOMAIN_CONF_FHEAD) and fname.endswith(
+                    DOMAIN_CONF_FTAIL
+                ):
                     if fname.count('.') >= 2:
                         self._load_config_from_file(
-                            resource_api, [os.path.join(r, fname)],
-                            fname[len(DOMAIN_CONF_FHEAD):
-                                  -len(DOMAIN_CONF_FTAIL)])
+                            resource_api,
+                            [os.path.join(r, fname)],
+                            fname[
+                                len(DOMAIN_CONF_FHEAD) : -len(
+                                    DOMAIN_CONF_FTAIL
+                                )
+                            ],
+                        )
                     else:
-                        LOG.debug(('Ignoring file (%s) while scanning domain '
-                                   'config directory'),
-                                  fname)
+                        LOG.debug(
+                            (
+                                'Ignoring file (%s) while scanning domain '
+                                'config directory'
+                            ),
+                            fname,
+                        )
 
     def _load_config_from_database(self, domain_id, specific_config):
 
@@ -211,22 +230,31 @@ class DomainConfigs(provider_api.ProviderAPIMixin, dict):
             domain_registered = 'Unknown'
             for attempt in range(REGISTRATION_ATTEMPTS):
                 if PROVIDERS.domain_config_api.obtain_registration(
-                        domain_id, SQL_DRIVER):
-                    LOG.debug('Domain %s successfully registered to use the '
-                              'SQL driver.', domain_id)
+                    domain_id, SQL_DRIVER
+                ):
+                    LOG.debug(
+                        'Domain %s successfully registered to use the '
+                        'SQL driver.',
+                        domain_id,
+                    )
                     return
 
                 # We failed to register our use, let's find out who is using it
                 try:
                     domain_registered = (
                         PROVIDERS.domain_config_api.read_registration(
-                            SQL_DRIVER))
+                            SQL_DRIVER
+                        )
+                    )
                 except exception.ConfigRegistrationNotFound:
-                    msg = ('While attempting to register domain %(domain)s to '
-                           'use the SQL driver, another process released it, '
-                           'retrying (attempt %(attempt)s).')
-                    LOG.debug(msg, {'domain': domain_id,
-                                    'attempt': attempt + 1})
+                    msg = (
+                        'While attempting to register domain %(domain)s to '
+                        'use the SQL driver, another process released it, '
+                        'retrying (attempt %(attempt)s).'
+                    )
+                    LOG.debug(
+                        msg, {'domain': domain_id, 'attempt': attempt + 1}
+                    )
                     continue
 
                 if domain_registered == domain_id:
@@ -235,10 +263,13 @@ class DomainConfigs(provider_api.ProviderAPIMixin, dict):
                     # in the middle of deleting this domain, we know the domain
                     # is already disabled and hence telling the caller that we
                     # are registered is benign.
-                    LOG.debug('While attempting to register domain %s to use '
-                              'the SQL driver, found that another process had '
-                              'already registered this domain. This is normal '
-                              'in multi-process configurations.', domain_id)
+                    LOG.debug(
+                        'While attempting to register domain %s to use '
+                        'the SQL driver, found that another process had '
+                        'already registered this domain. This is normal '
+                        'in multi-process configurations.',
+                        domain_id,
+                    )
                     return
 
                 # So we don't have it, but someone else does...let's check that
@@ -246,39 +277,52 @@ class DomainConfigs(provider_api.ProviderAPIMixin, dict):
                 try:
                     PROVIDERS.resource_api.get_domain(domain_registered)
                 except exception.DomainNotFound:
-                    msg = ('While attempting to register domain %(domain)s to '
-                           'use the SQL driver, found that it was already '
-                           'registered to a domain that no longer exists '
-                           '(%(old_domain)s). Removing this stale '
-                           'registration and retrying (attempt %(attempt)s).')
-                    LOG.debug(msg, {'domain': domain_id,
-                                    'old_domain': domain_registered,
-                                    'attempt': attempt + 1})
+                    msg = (
+                        'While attempting to register domain %(domain)s to '
+                        'use the SQL driver, found that it was already '
+                        'registered to a domain that no longer exists '
+                        '(%(old_domain)s). Removing this stale '
+                        'registration and retrying (attempt %(attempt)s).'
+                    )
+                    LOG.debug(
+                        msg,
+                        {
+                            'domain': domain_id,
+                            'old_domain': domain_registered,
+                            'attempt': attempt + 1,
+                        },
+                    )
                     PROVIDERS.domain_config_api.release_registration(
-                        domain_registered, type=SQL_DRIVER)
+                        domain_registered, type=SQL_DRIVER
+                    )
                     continue
 
                 # The domain is valid, so we really do have an attempt at more
                 # than one SQL driver.
                 details = (
-                    _('Config API entity at /domains/%s/config') % domain_id)
+                    _('Config API entity at /domains/%s/config') % domain_id
+                )
                 raise exception.MultipleSQLDriversInConfig(source=details)
 
             # We fell out of the loop without either registering our domain or
             # being able to find who has it...either we were very very very
             # unlucky or something is awry.
-            msg = _('Exceeded attempts to register domain %(domain)s to use '
-                    'the SQL driver, the last domain that appears to have '
-                    'had it is %(last_domain)s, giving up') % {
-                        'domain': domain_id, 'last_domain': domain_registered}
+            msg = _(
+                'Exceeded attempts to register domain %(domain)s to use '
+                'the SQL driver, the last domain that appears to have '
+                'had it is %(last_domain)s, giving up'
+            ) % {'domain': domain_id, 'last_domain': domain_registered}
             raise exception.UnexpectedError(msg)
 
         domain_config = {}
         domain_config['cfg'] = cfg.ConfigOpts()
         keystone.conf.configure(conf=domain_config['cfg'])
-        domain_config['cfg'](args=[], project='keystone',
-                             default_config_files=[],
-                             default_config_dirs=[])
+        domain_config['cfg'](
+            args=[],
+            project='keystone',
+            default_config_files=[],
+            default_config_dirs=[],
+        )
 
         # Try to identify the required driver for the domain to let it register
         # supported configuration options. In difference to the FS based
@@ -286,12 +330,12 @@ class DomainConfigs(provider_api.ProviderAPIMixin, dict):
         # thus require special treatment.
         try:
             driver_name = specific_config.get("identity", {}).get(
-                "driver", domain_config["cfg"].identity.driver)
+                "driver", domain_config["cfg"].identity.driver
+            )
             # For the non in-tree drivers ...
             if driver_name not in ["sql", "ldap"]:
                 # Locate the driver without invoking ...
-                driver = get_driver(
-                    Manager.driver_namespace, driver_name)
+                driver = get_driver(Manager.driver_namespace, driver_name)
                 # Check whether it wants to register additional config options
                 # ...
                 if hasattr(driver, "register_opts"):
@@ -305,7 +349,8 @@ class DomainConfigs(provider_api.ProviderAPIMixin, dict):
             # register config options with the DB configuration loading branch.
             LOG.debug(
                 f"Exception during attempt to load domain specific "
-                f"configuration options: {ex}")
+                f"configuration options: {ex}"
+            )
 
         # Override any options that have been passed in as specified in the
         # database.
@@ -319,7 +364,8 @@ class DomainConfigs(provider_api.ProviderAPIMixin, dict):
                 # to complete the process properly.
                 try:
                     domain_config['cfg'].set_override(
-                        option, specific_config[group][option], group)
+                        option, specific_config[group][option], group
+                    )
                 except (cfg.NoSuchOptError, cfg.NoSuchGroupError):
                     # Error to register config overrides for wrong driver. This
                     # is not worth of logging since it is a normal case during
@@ -331,8 +377,9 @@ class DomainConfigs(provider_api.ProviderAPIMixin, dict):
         _assert_no_more_than_one_sql_driver(domain_id, domain_config)
         self[domain_id] = domain_config
 
-    def _setup_domain_drivers_from_database(self, standard_driver,
-                                            resource_api):
+    def _setup_domain_drivers_from_database(
+        self, standard_driver, resource_api
+    ):
         """Read domain specific configuration from database and load drivers.
 
         Domain configurations are stored in the domain-config backend,
@@ -346,22 +393,27 @@ class DomainConfigs(provider_api.ProviderAPIMixin, dict):
         """
         for domain in resource_api.list_domains():
             domain_config_options = (
-                PROVIDERS.domain_config_api.
-                get_config_with_sensitive_info(domain['id']))
+                PROVIDERS.domain_config_api.get_config_with_sensitive_info(
+                    domain['id']
+                )
+            )
             if domain_config_options:
-                self._load_config_from_database(domain['id'],
-                                                domain_config_options)
+                self._load_config_from_database(
+                    domain['id'], domain_config_options
+                )
 
     def setup_domain_drivers(self, standard_driver, resource_api):
         # This is called by the api call wrapper
         self.driver = standard_driver
 
         if CONF.identity.domain_configurations_from_database:
-            self._setup_domain_drivers_from_database(standard_driver,
-                                                     resource_api)
+            self._setup_domain_drivers_from_database(
+                standard_driver, resource_api
+            )
         else:
-            self._setup_domain_drivers_from_files(standard_driver,
-                                                  resource_api)
+            self._setup_domain_drivers_from_files(
+                standard_driver, resource_api
+            )
         self.configured = True
 
     def get_domain_driver(self, domain_id):
@@ -384,8 +436,7 @@ class DomainConfigs(provider_api.ProviderAPIMixin, dict):
         # read.
         if self.configured:
             if domain_id in self:
-                self[domain_id]['driver'] = (
-                    self._load_driver(self[domain_id]))
+                self[domain_id]['driver'] = self._load_driver(self[domain_id])
             else:
                 # The standard driver
                 self.driver = self.driver()
@@ -413,8 +464,10 @@ class DomainConfigs(provider_api.ProviderAPIMixin, dict):
         process, next time it accesses the driver it will pickup the new one.
 
         """
-        if (not CONF.identity.domain_specific_drivers_enabled or
-                not CONF.identity.domain_configurations_from_database):
+        if (
+            not CONF.identity.domain_specific_drivers_enabled
+            or not CONF.identity.domain_configurations_from_database
+        ):
             # If specific drivers are not enabled, then there is nothing to do.
             # If we are not storing the configurations in the database, then
             # we'll only re-read the domain specific config files on startup
@@ -422,15 +475,20 @@ class DomainConfigs(provider_api.ProviderAPIMixin, dict):
             return
 
         latest_domain_config = (
-            PROVIDERS.domain_config_api.
-            get_config_with_sensitive_info(domain_id))
+            PROVIDERS.domain_config_api.get_config_with_sensitive_info(
+                domain_id
+            )
+        )
         domain_config_in_use = domain_id in self
 
         if latest_domain_config:
-            if (not domain_config_in_use or
-                    latest_domain_config != self[domain_id]['cfg_overrides']):
-                self._load_config_from_database(domain_id,
-                                                latest_domain_config)
+            if (
+                not domain_config_in_use
+                or latest_domain_config != self[domain_id]['cfg_overrides']
+            ):
+                self._load_config_from_database(
+                    domain_id, latest_domain_config
+                )
         elif domain_config_in_use:
             # The domain specific config has been deleted, so should remove the
             # specific driver for this domain.
@@ -456,10 +514,13 @@ def domains_configured(f):
     to each call, and if requires load them,
 
     """
+
     @functools.wraps(f)
     def wrapper(self, *args, **kwargs):
-        if (not self.domain_configs.configured and
-                CONF.identity.domain_specific_drivers_enabled):
+        if (
+            not self.domain_configs.configured
+            and CONF.identity.domain_specific_drivers_enabled
+        ):
             # If domain specific driver has not been configured, acquire the
             # lock and proceed with loading the driver.
             with self.domain_configs.lock:
@@ -467,13 +528,16 @@ def domains_configured(f):
                 # completed domain config.
                 if not self.domain_configs.configured:
                     self.domain_configs.setup_domain_drivers(
-                        self.driver, PROVIDERS.resource_api)
+                        self.driver, PROVIDERS.resource_api
+                    )
         return f(self, *args, **kwargs)
+
     return wrapper
 
 
 def exception_translated(exception_type):
     """Wrap API calls to map to correct exception."""
+
     def _exception_translated(f):
         @functools.wraps(f)
         def wrapper(self, *args, **kwargs):
@@ -488,7 +552,9 @@ def exception_translated(exception_type):
                     raise AssertionError(_('Invalid user / password'))
                 else:
                     raise
+
         return wrapper
+
     return _exception_translated
 
 
@@ -542,8 +608,9 @@ class Manager(manager.Manager):
         super(Manager, self).__init__(CONF.identity.driver)
         self.domain_configs = DomainConfigs()
         notifications.register_event_callback(
-            notifications.ACTIONS.internal, notifications.DOMAIN_DELETED,
-            self._domain_deleted
+            notifications.ACTIONS.internal,
+            notifications.DOMAIN_DELETED,
+            self._domain_deleted,
         )
         self.event_callbacks = {
             notifications.ACTIONS.deleted: {
@@ -551,8 +618,7 @@ class Manager(manager.Manager):
             },
         }
 
-    def _domain_deleted(self, service, resource_type, operation,
-                        payload):
+    def _domain_deleted(self, service, resource_type, operation, payload):
         domain_id = payload['resource_info']
 
         driver = self._select_identity_driver(domain_id)
@@ -564,10 +630,14 @@ class Manager(manager.Manager):
                 try:
                     self.delete_group(group['id'])
                 except exception.GroupNotFound:
-                    LOG.debug(('Group %(groupid)s not found when deleting '
-                               'domain contents for %(domainid)s, continuing '
-                               'with cleanup.'),
-                              {'groupid': group['id'], 'domainid': domain_id})
+                    LOG.debug(
+                        (
+                            'Group %(groupid)s not found when deleting '
+                            'domain contents for %(domainid)s, continuing '
+                            'with cleanup.'
+                        ),
+                        {'groupid': group['id'], 'domainid': domain_id},
+                    )
 
         # And finally, delete the users themselves
         user_refs = self.list_users(domain_scope=domain_id)
@@ -579,13 +649,18 @@ class Manager(manager.Manager):
                 else:
                     self.delete_user(user['id'])
             except exception.UserNotFound:
-                LOG.debug(('User %(userid)s not found when deleting domain '
-                           'contents for %(domainid)s, continuing with '
-                           'cleanup.'),
-                          {'userid': user['id'], 'domainid': domain_id})
+                LOG.debug(
+                    (
+                        'User %(userid)s not found when deleting domain '
+                        'contents for %(domainid)s, continuing with '
+                        'cleanup.'
+                    ),
+                    {'userid': user['id'], 'domainid': domain_id},
+                )
 
-    def _unset_default_project(self, service, resource_type, operation,
-                               payload):
+    def _unset_default_project(
+        self, service, resource_type, operation, payload
+    ):
         """Callback, clears user default_project_id after project deletion.
 
         Notifications are used to unset a user's default project because
@@ -609,8 +684,7 @@ class Manager(manager.Manager):
                 pass
 
     # Domain ID normalization methods
-    def _set_domain_id_and_mapping(self, ref, domain_id, driver,
-                                   entity_type):
+    def _set_domain_id_and_mapping(self, ref, domain_id, driver, entity_type):
         """Patch the domain_id/public_id into the resulting entity(ies).
 
         :param ref: the entity or list of entities to post process
@@ -643,29 +717,38 @@ class Manager(manager.Manager):
             # a classic case would be when running with a single SQL driver
             return ref
 
-        LOG.debug('ID Mapping - Domain ID: %(domain)s, '
-                  'Default Driver: %(driver)s, '
-                  'Domains: %(aware)s, UUIDs: %(generate)s, '
-                  'Compatible IDs: %(compat)s',
-                  {'domain': domain_id,
-                   'driver': (driver == self.driver),
-                   'aware': driver.is_domain_aware(),
-                   'generate': driver.generates_uuids(),
-                   'compat': CONF.identity_mapping.backward_compatible_ids})
+        LOG.debug(
+            'ID Mapping - Domain ID: %(domain)s, '
+            'Default Driver: %(driver)s, '
+            'Domains: %(aware)s, UUIDs: %(generate)s, '
+            'Compatible IDs: %(compat)s',
+            {
+                'domain': domain_id,
+                'driver': (driver == self.driver),
+                'aware': driver.is_domain_aware(),
+                'generate': driver.generates_uuids(),
+                'compat': CONF.identity_mapping.backward_compatible_ids,
+            },
+        )
 
         if isinstance(ref, dict):
             return self._set_domain_id_and_mapping_for_single_ref(
-                ref, domain_id, driver, entity_type, conf)
+                ref, domain_id, driver, entity_type, conf
+            )
         elif isinstance(ref, list):
             return self._set_domain_id_and_mapping_for_list(
-                ref, domain_id, driver, entity_type, conf)
+                ref, domain_id, driver, entity_type, conf
+            )
         else:
             raise ValueError(_('Expected dict or list: %s') % type(ref))
 
     def _needs_post_processing(self, driver):
         """Return whether entity from driver needs domain added or mapping."""
-        return (driver is not self.driver or not driver.generates_uuids() or
-                not driver.is_domain_aware())
+        return (
+            driver is not self.driver
+            or not driver.generates_uuids()
+            or not driver.is_domain_aware()
+        )
 
     def _insert_new_public_id(self, local_entity, ref, driver):
         # Need to create a mapping. If the driver generates UUIDs
@@ -674,11 +757,13 @@ class Manager(manager.Manager):
         if driver.generates_uuids():
             public_id = ref['id']
         ref['id'] = PROVIDERS.id_mapping_api.create_id_mapping(
-            local_entity, public_id)
+            local_entity, public_id
+        )
         LOG.debug('Created new mapping to public ID: %s', ref['id'])
 
-    def _set_domain_id_and_mapping_for_single_ref(self, ref, domain_id,
-                                                  driver, entity_type, conf):
+    def _set_domain_id_and_mapping_for_single_ref(
+        self, ref, domain_id, driver, entity_type, conf
+    ):
         LOG.debug('Local ID: %s', ref['id'])
         ref = ref.copy()
 
@@ -688,20 +773,22 @@ class Manager(manager.Manager):
             ref['domain_id'] = domain_id
 
         if self._is_mapping_needed(driver):
-            local_entity = {'domain_id': ref['domain_id'],
-                            'local_id': ref['id'],
-                            'entity_type': entity_type}
+            local_entity = {
+                'domain_id': ref['domain_id'],
+                'local_id': ref['id'],
+                'entity_type': entity_type,
+            }
             public_id = PROVIDERS.id_mapping_api.get_public_id(local_entity)
             if public_id:
                 ref['id'] = public_id
-                LOG.debug('Found existing mapping to public ID: %s',
-                          ref['id'])
+                LOG.debug('Found existing mapping to public ID: %s', ref['id'])
             else:
                 self._insert_new_public_id(local_entity, ref, driver)
         return ref
 
-    def _set_domain_id_and_mapping_for_list(self, ref_list, domain_id, driver,
-                                            entity_type, conf):
+    def _set_domain_id_and_mapping_for_list(
+        self, ref_list, domain_id, driver, entity_type, conf
+    ):
         """Set domain id and mapping for a list of refs.
 
         The method modifies refs in-place.
@@ -730,7 +817,8 @@ class Manager(manager.Manager):
         # fetch all mappings for the domain, lookup the user at the map built
         # at previous step and replace his id.
         domain_mappings = PROVIDERS.id_mapping_api.get_domain_mapping_list(
-            domain_id, entity_type=entity_type)
+            domain_id, entity_type=entity_type
+        )
         for _mapping in domain_mappings:
             idx = (_mapping.local_id, _mapping.entity_type, _mapping.domain_id)
             try:
@@ -745,9 +833,11 @@ class Manager(manager.Manager):
         # at this point, all known refs were granted a public_id. For the refs
         # left, there are no mappings. They need to be created.
         for ref in refs_map.values():
-            local_entity = {'domain_id': ref['domain_id'],
-                            'local_id': ref['id'],
-                            'entity_type': entity_type}
+            local_entity = {
+                'domain_id': ref['domain_id'],
+                'local_id': ref['id'],
+                'entity_type': entity_type,
+            }
             self._insert_new_public_id(local_entity, ref, driver)
         return ref_list
 
@@ -762,9 +852,10 @@ class Manager(manager.Manager):
         current LDAP)
         """
         is_not_default_driver = driver is not self.driver
-        return (is_not_default_driver or (
-            not driver.generates_uuids() and
-            not CONF.identity_mapping.backward_compatible_ids))
+        return is_not_default_driver or (
+            not driver.generates_uuids()
+            and not CONF.identity_mapping.backward_compatible_ids
+        )
 
     def _clear_domain_id_if_domain_unaware(self, driver, ref):
         """Clear domain_id details if driver is not domain aware."""
@@ -790,22 +881,27 @@ class Manager(manager.Manager):
         if domain_id is None:
             driver = self.driver
         else:
-            driver = (self.domain_configs.get_domain_driver(domain_id) or
-                      self.driver)
+            driver = (
+                self.domain_configs.get_domain_driver(domain_id) or self.driver
+            )
 
         # If the driver is not domain aware (e.g. LDAP) then check to
         # ensure we are not mapping multiple domains onto it - the only way
         # that would happen is that the default driver is LDAP and the
         # domain is anything other than None or the default domain.
-        if (not driver.is_domain_aware() and driver == self.driver and
-            domain_id != CONF.identity.default_domain_id and
-                domain_id is not None):
-            LOG.warning('Found multiple domains being mapped to a '
-                        'driver that does not support that (e.g. '
-                        'LDAP) - Domain ID: %(domain)s, '
-                        'Default Driver: %(driver)s',
-                        {'domain': domain_id,
-                         'driver': (driver == self.driver)})
+        if (
+            not driver.is_domain_aware()
+            and driver == self.driver
+            and domain_id != CONF.identity.default_domain_id
+            and domain_id is not None
+        ):
+            LOG.warning(
+                'Found multiple domains being mapped to a '
+                'driver that does not support that (e.g. '
+                'LDAP) - Domain ID: %(domain)s, '
+                'Default Driver: %(driver)s',
+                {'domain': domain_id, 'driver': (driver == self.driver)},
+            )
             raise exception.DomainNotFound(domain_id=domain_id)
         return driver
 
@@ -835,7 +931,8 @@ class Manager(manager.Manager):
                 return (
                     local_id_ref['domain_id'],
                     self._select_identity_driver(local_id_ref['domain_id']),
-                    local_id_ref['local_id'])
+                    local_id_ref['local_id'],
+                )
 
         # So either we are using multiple drivers but the public ID is invalid
         # (and hence was not found in the mapping table), or the public ID is
@@ -865,7 +962,8 @@ class Manager(manager.Manager):
                 return (
                     local_id_ref['domain_id'],
                     driver,
-                    local_id_ref['local_id'])
+                    local_id_ref['local_id'],
+                )
             else:
                 raise exception.PublicIDNotFound(id=public_id)
 
@@ -880,7 +978,8 @@ class Manager(manager.Manager):
         return (conf.default_domain_id, driver, public_id)
 
     def _assert_user_and_group_in_same_backend(
-            self, user_entity_id, user_driver, group_entity_id, group_driver):
+        self, user_entity_id, user_driver, group_entity_id, group_driver
+    ):
         """Ensure that user and group IDs are backed by the same backend.
 
         Raise a CrossBackendNotAllowed exception if they are not from the same
@@ -895,19 +994,23 @@ class Manager(manager.Manager):
             group_driver.get_group(group_entity_id)
             # If we get here, then someone is attempting to create a cross
             # backend membership, which is not allowed.
-            raise exception.CrossBackendNotAllowed(group_id=group_entity_id,
-                                                   user_id=user_entity_id)
+            raise exception.CrossBackendNotAllowed(
+                group_id=group_entity_id, user_id=user_entity_id
+            )
 
     def _mark_domain_id_filter_satisfied(self, hints):
         if hints:
             for filter in hints.filters:
-                if (filter['name'] == 'domain_id' and
-                        filter['comparator'] == 'equals'):
+                if (
+                    filter['name'] == 'domain_id'
+                    and filter['comparator'] == 'equals'
+                ):
                     hints.filters.remove(filter)
 
     def _ensure_domain_id_in_hints(self, hints, domain_id):
-        if (domain_id is not None and
-                not hints.get_exact_filter_by_name('domain_id')):
+        if domain_id is not None and not hints.get_exact_filter_by_name(
+            'domain_id'
+        ):
             hints.add_filter('domain_id', domain_id)
 
     def _set_list_limit_in_hints(self, hints, driver):
@@ -955,11 +1058,13 @@ class Manager(manager.Manager):
     @domains_configured
     @exception_translated('assertion')
     def authenticate(self, user_id, password):
-        domain_id, driver, entity_id = (
-            self._get_domain_driver_and_entity_id(user_id))
+        domain_id, driver, entity_id = self._get_domain_driver_and_entity_id(
+            user_id
+        )
         ref = driver.authenticate(entity_id, password)
         ref = self._set_domain_id_and_mapping(
-            ref, domain_id, driver, mapping.EntityType.USER)
+            ref, domain_id, driver, mapping.EntityType.USER
+        )
         ref = self._shadow_nonlocal_user(ref)
         PROVIDERS.shadow_users_api.set_last_active_at(ref['id'])
         return ref
@@ -972,10 +1077,13 @@ class Manager(manager.Manager):
                     default_project_id
                 )
                 if project_ref['is_domain'] is True:
-                    msg = _("User's default project ID cannot be a "
-                            "domain ID: %s")
+                    msg = _(
+                        "User's default project ID cannot be a "
+                        "domain ID: %s"
+                    )
                     raise exception.ValidationError(
-                        message=(msg % default_project_id))
+                        message=(msg % default_project_id)
+                    )
             except exception.ProjectNotFound:
                 # should be idempotent if project is not found so that it is
                 # backward compatible
@@ -987,18 +1095,24 @@ class Manager(manager.Manager):
             try:
                 self.federation_api.get_idp(fed_obj['idp_id'])
             except exception.IdentityProviderNotFound:
-                msg = (_("Could not find Identity Provider: %s")
-                       % fed_obj['idp_id'])
+                msg = (
+                    _("Could not find Identity Provider: %s")
+                    % fed_obj['idp_id']
+                )
                 raise exception.ValidationError(msg)
             for protocol in fed_obj['protocols']:
                 try:
-                    self.federation_api.get_protocol(fed_obj['idp_id'],
-                                                     protocol['protocol_id'])
+                    self.federation_api.get_protocol(
+                        fed_obj['idp_id'], protocol['protocol_id']
+                    )
                 except exception.FederatedProtocolNotFound:
-                    msg = (_("Could not find federated protocol "
-                             "%(protocol)s for Identity Provider: %(idp)s.")
-                           % {'protocol': protocol['protocol_id'],
-                              'idp': fed_obj['idp_id']})
+                    msg = _(
+                        "Could not find federated protocol "
+                        "%(protocol)s for Identity Provider: %(idp)s."
+                    ) % {
+                        'protocol': protocol['protocol_id'],
+                        'idp': fed_obj['idp_id'],
+                    }
                     raise exception.ValidationError(msg)
 
     def _create_federated_objects(self, user_ref, fed_obj_list):
@@ -1009,10 +1123,9 @@ class Manager(manager.Manager):
                     'idp_id': fed_obj['idp_id'],
                     'protocol_id': protocols['protocol_id'],
                     'unique_id': protocols['unique_id'],
-                    'display_name': user_ref['name']
+                    'display_name': user_ref['name'],
                 }
-                self.shadow_users_api.create_federated_object(
-                    federated_dict)
+                self.shadow_users_api.create_federated_object(federated_dict)
 
     def _create_user_with_federated_objects(self, user, driver):
         # If the user did not pass a federated object along inside the user
@@ -1044,7 +1157,8 @@ class Manager(manager.Manager):
         PROVIDERS.resource_api.get_domain(domain_id)
 
         self._assert_default_project_id_is_not_domain(
-            user_ref.get('default_project_id'))
+            user_ref.get('default_project_id')
+        )
 
         # For creating a user, the domain is in the object itself
         domain_id = user_ref['domain_id']
@@ -1057,21 +1171,24 @@ class Manager(manager.Manager):
         ref = self._create_user_with_federated_objects(user, driver)
         notifications.Audit.created(self._USER, user['id'], initiator)
         return self._set_domain_id_and_mapping(
-            ref, domain_id, driver, mapping.EntityType.USER)
+            ref, domain_id, driver, mapping.EntityType.USER
+        )
 
     @domains_configured
     @exception_translated('user')
     @MEMOIZE
     def get_user(self, user_id):
-        domain_id, driver, entity_id = (
-            self._get_domain_driver_and_entity_id(user_id))
+        domain_id, driver, entity_id = self._get_domain_driver_and_entity_id(
+            user_id
+        )
         ref = driver.get_user(entity_id)
         # Add user's federated objects
         fed_objects = self.shadow_users_api.get_federated_objects(user_id)
         if fed_objects:
             ref['federated'] = fed_objects
         return self._set_domain_id_and_mapping(
-            ref, domain_id, driver, mapping.EntityType.USER)
+            ref, domain_id, driver, mapping.EntityType.USER
+        )
 
     def assert_user_enabled(self, user_id, user=None):
         """Assert the user and the user's domain are enabled.
@@ -1091,7 +1208,8 @@ class Manager(manager.Manager):
         driver = self._select_identity_driver(domain_id)
         ref = driver.get_user_by_name(user_name, domain_id)
         return self._set_domain_id_and_mapping(
-            ref, domain_id, driver, mapping.EntityType.USER)
+            ref, domain_id, driver, mapping.EntityType.USER
+        )
 
     def _translate_expired_password_hints(self, hints):
         """Clean Up Expired Password Hints.
@@ -1107,9 +1225,14 @@ class Manager(manager.Manager):
         or ValidationTimeStampError exception respectively if invalid.
 
         """
-        operators = {'lt': operator.lt, 'gt': operator.gt,
-                     'eq': operator.eq, 'lte': operator.le,
-                     'gte': operator.ge, 'neq': operator.ne}
+        operators = {
+            'lt': operator.lt,
+            'gt': operator.gt,
+            'eq': operator.eq,
+            'lte': operator.le,
+            'gte': operator.ge,
+            'neq': operator.ne,
+        }
         for filter_ in hints.filters:
             if 'password_expires_at' == filter_['name']:
                 # password_expires_at must be in the format
@@ -1143,7 +1266,8 @@ class Manager(manager.Manager):
             if filter_['name'] == 'name':
                 fed_hints = copy.deepcopy(hints)
                 fed_res = PROVIDERS.shadow_users_api.get_federated_users(
-                    fed_hints)
+                    fed_hints
+                )
                 break
         return driver.list_users(hints) + fed_res
 
@@ -1164,7 +1288,8 @@ class Manager(manager.Manager):
         hints = self._translate_expired_password_hints(hints)
         ref_list = self._handle_shadow_and_local_users(driver, hints)
         return self._set_domain_id_and_mapping(
-            ref_list, domain_scope, driver, mapping.EntityType.USER)
+            ref_list, domain_scope, driver, mapping.EntityType.USER
+        )
 
     def _require_matching_domain_id(self, new_ref, orig_ref):
         """Ensure the current domain ID matches the reference one, if any.
@@ -1192,7 +1317,8 @@ class Manager(manager.Manager):
                 del user['federated']
             user = driver.update_user(entity_id, user)
             fed_objects = self.shadow_users_api.get_federated_objects(
-                user['id'])
+                user['id']
+            )
             if fed_objects:
                 user['federated'] = fed_objects
             return user
@@ -1227,21 +1353,25 @@ class Manager(manager.Manager):
             user.pop('id')
 
         self._assert_default_project_id_is_not_domain(
-            user_ref.get('default_project_id'))
+            user_ref.get('default_project_id')
+        )
 
-        domain_id, driver, entity_id = (
-            self._get_domain_driver_and_entity_id(user_id))
+        domain_id, driver, entity_id = self._get_domain_driver_and_entity_id(
+            user_id
+        )
         user = self._clear_domain_id_if_domain_unaware(driver, user)
         self.get_user.invalidate(self, old_user_ref['id'])
-        self.get_user_by_name.invalidate(self, old_user_ref['name'],
-                                         old_user_ref['domain_id'])
+        self.get_user_by_name.invalidate(
+            self, old_user_ref['name'], old_user_ref['domain_id']
+        )
 
         ref = self._update_user_with_federated_objects(user, driver, entity_id)
 
         notifications.Audit.updated(self._USER, user_id, initiator)
 
-        enabled_change = ((user.get('enabled') is False) and
-                          user['enabled'] != old_user_ref.get('enabled'))
+        enabled_change = (user.get('enabled') is False) and user[
+            'enabled'
+        ] != old_user_ref.get('enabled')
         if enabled_change or user.get('password') is not None:
             self._persist_revocation_event_for_user(user_id)
             reason = (
@@ -1253,13 +1383,15 @@ class Manager(manager.Manager):
             notifications.invalidate_token_cache_notification(reason)
 
         return self._set_domain_id_and_mapping(
-            ref, domain_id, driver, mapping.EntityType.USER)
+            ref, domain_id, driver, mapping.EntityType.USER
+        )
 
     @domains_configured
     @exception_translated('user')
     def delete_user(self, user_id, initiator=None):
-        domain_id, driver, entity_id = (
-            self._get_domain_driver_and_entity_id(user_id))
+        domain_id, driver, entity_id = self._get_domain_driver_and_entity_id(
+            user_id
+        )
         # Get user details to invalidate the cache.
         user_old = self.get_user(user_id)
 
@@ -1269,8 +1401,9 @@ class Manager(manager.Manager):
         driver.delete_user(entity_id)
         PROVIDERS.assignment_api.delete_user_assignments(user_id)
         self.get_user.invalidate(self, user_id)
-        self.get_user_by_name.invalidate(self, user_old['name'],
-                                         user_old['domain_id'])
+        self.get_user_by_name.invalidate(
+            self, user_old['name'], user_old['domain_id']
+        )
 
         PROVIDERS.credential_api.delete_credentials_for_user(user_id)
         PROVIDERS.id_mapping_api.delete_id_mapping(user_id)
@@ -1302,17 +1435,20 @@ class Manager(manager.Manager):
         notifications.Audit.created(self._GROUP, group['id'], initiator)
 
         return self._set_domain_id_and_mapping(
-            ref, domain_id, driver, mapping.EntityType.GROUP)
+            ref, domain_id, driver, mapping.EntityType.GROUP
+        )
 
     @domains_configured
     @exception_translated('group')
     @MEMOIZE
     def get_group(self, group_id):
-        domain_id, driver, entity_id = (
-            self._get_domain_driver_and_entity_id(group_id))
+        domain_id, driver, entity_id = self._get_domain_driver_and_entity_id(
+            group_id
+        )
         ref = driver.get_group(entity_id)
         return self._set_domain_id_and_mapping(
-            ref, domain_id, driver, mapping.EntityType.GROUP)
+            ref, domain_id, driver, mapping.EntityType.GROUP
+        )
 
     @domains_configured
     @exception_translated('group')
@@ -1320,15 +1456,17 @@ class Manager(manager.Manager):
         driver = self._select_identity_driver(domain_id)
         ref = driver.get_group_by_name(group_name, domain_id)
         return self._set_domain_id_and_mapping(
-            ref, domain_id, driver, mapping.EntityType.GROUP)
+            ref, domain_id, driver, mapping.EntityType.GROUP
+        )
 
     @domains_configured
     @exception_translated('group')
     def update_group(self, group_id, group, initiator=None):
         old_group_ref = self.get_group(group_id)
         self._require_matching_domain_id(group, old_group_ref)
-        domain_id, driver, entity_id = (
-            self._get_domain_driver_and_entity_id(group_id))
+        domain_id, driver, entity_id = self._get_domain_driver_and_entity_id(
+            group_id
+        )
         group = self._clear_domain_id_if_domain_unaware(driver, group)
         if 'name' in group:
             group['name'] = group['name'].strip()
@@ -1336,13 +1474,15 @@ class Manager(manager.Manager):
         self.get_group.invalidate(self, group_id)
         notifications.Audit.updated(self._GROUP, group_id, initiator)
         return self._set_domain_id_and_mapping(
-            ref, domain_id, driver, mapping.EntityType.GROUP)
+            ref, domain_id, driver, mapping.EntityType.GROUP
+        )
 
     @domains_configured
     @exception_translated('group')
     def delete_group(self, group_id, initiator=None):
-        domain_id, driver, entity_id = (
-            self._get_domain_driver_and_entity_id(group_id))
+        domain_id, driver, entity_id = self._get_domain_driver_and_entity_id(
+            group_id
+        )
         roles = PROVIDERS.assignment_api.list_role_assignments(
             group_id=group_id
         )
@@ -1379,22 +1519,26 @@ class Manager(manager.Manager):
             return self._get_domain_driver_and_entity_id(public_id)
 
         _domain_id, group_driver, group_entity_id = (
-            self._get_domain_driver_and_entity_id(group_id))
+            self._get_domain_driver_and_entity_id(group_id)
+        )
         # Get the same info for the user_id, taking care to map any
         # exceptions correctly
-        _domain_id, user_driver, user_entity_id = (
-            get_entity_info_for_user(user_id))
+        _domain_id, user_driver, user_entity_id = get_entity_info_for_user(
+            user_id
+        )
 
         self._assert_user_and_group_in_same_backend(
-            user_entity_id, user_driver, group_entity_id, group_driver)
+            user_entity_id, user_driver, group_entity_id, group_driver
+        )
 
         group_driver.add_user_to_group(user_entity_id, group_entity_id)
 
         # Invalidate user role assignments cache region, as it may now need to
         # include role assignments from the specified group to its users
         assignment.COMPUTED_ASSIGNMENTS_REGION.invalidate()
-        notifications.Audit.added_to(self._GROUP, group_id, self._USER,
-                                     user_id, initiator)
+        notifications.Audit.added_to(
+            self._GROUP, group_id, self._USER, user_id, initiator
+        )
 
     @domains_configured
     @exception_translated('group')
@@ -1404,14 +1548,17 @@ class Manager(manager.Manager):
             return self._get_domain_driver_and_entity_id(public_id)
 
         _domain_id, group_driver, group_entity_id = (
-            self._get_domain_driver_and_entity_id(group_id))
+            self._get_domain_driver_and_entity_id(group_id)
+        )
         # Get the same info for the user_id, taking care to map any
         # exceptions correctly
-        _domain_id, user_driver, user_entity_id = (
-            get_entity_info_for_user(user_id))
+        _domain_id, user_driver, user_entity_id = get_entity_info_for_user(
+            user_id
+        )
 
         self._assert_user_and_group_in_same_backend(
-            user_entity_id, user_driver, group_entity_id, group_driver)
+            user_entity_id, user_driver, group_entity_id, group_driver
+        )
 
         group_driver.remove_user_from_group(user_entity_id, group_entity_id)
         self._persist_revocation_event_for_user(user_id)
@@ -1423,14 +1570,16 @@ class Manager(manager.Manager):
             'Invalidating the token cache because user %(user_id)s was '
             'removed from group %(group_id)s. Authorization will be '
             'calculated and enforced accordingly the next time they '
-            'authenticate or validate a token.' % {
+            'authenticate or validate a token.'
+            % {
                 'user_id': user_id,
                 'group_id': group_id,
             }
         )
         notifications.invalidate_token_cache_notification(reason)
-        notifications.Audit.removed_from(self._GROUP, group_id, self._USER,
-                                         user_id, initiator)
+        notifications.Audit.removed_from(
+            self._GROUP, group_id, self._USER, user_id, initiator
+        )
 
     def _persist_revocation_event_for_user(self, user_id):
         """Emit a notification to invoke a revocation event callback.
@@ -1448,8 +1597,9 @@ class Manager(manager.Manager):
     @domains_configured
     @exception_translated('user')
     def list_groups_for_user(self, user_id, hints=None):
-        domain_id, driver, entity_id = (
-            self._get_domain_driver_and_entity_id(user_id))
+        domain_id, driver, entity_id = self._get_domain_driver_and_entity_id(
+            user_id
+        )
         self._set_list_limit_in_hints(hints, driver)
         hints = hints or driver_hints.Hints()
         if not driver.is_domain_aware():
@@ -1461,7 +1611,8 @@ class Manager(manager.Manager):
             if 'membership_expires_at' not in ref:
                 ref['membership_expires_at'] = None
         return self._set_domain_id_and_mapping(
-            ref_list, domain_id, driver, mapping.EntityType.GROUP)
+            ref_list, domain_id, driver, mapping.EntityType.GROUP
+        )
 
     @domains_configured
     @exception_translated('group')
@@ -1479,13 +1630,15 @@ class Manager(manager.Manager):
             self._mark_domain_id_filter_satisfied(hints)
         ref_list = driver.list_groups(hints)
         return self._set_domain_id_and_mapping(
-            ref_list, domain_scope, driver, mapping.EntityType.GROUP)
+            ref_list, domain_scope, driver, mapping.EntityType.GROUP
+        )
 
     @domains_configured
     @exception_translated('group')
     def list_users_in_group(self, group_id, hints=None):
-        domain_id, driver, entity_id = (
-            self._get_domain_driver_and_entity_id(group_id))
+        domain_id, driver, entity_id = self._get_domain_driver_and_entity_id(
+            group_id
+        )
         self._set_list_limit_in_hints(hints, driver)
         hints = hints or driver_hints.Hints()
         if not driver.is_domain_aware():
@@ -1495,7 +1648,8 @@ class Manager(manager.Manager):
         hints = self._translate_expired_password_hints(hints)
         ref_list = driver.list_users_in_group(entity_id, hints)
         return self._set_domain_id_and_mapping(
-            ref_list, domain_id, driver, mapping.EntityType.USER)
+            ref_list, domain_id, driver, mapping.EntityType.USER
+        )
 
     @domains_configured
     @exception_translated('group')
@@ -1505,21 +1659,26 @@ class Manager(manager.Manager):
             return self._get_domain_driver_and_entity_id(public_id)
 
         _domain_id, group_driver, group_entity_id = (
-            self._get_domain_driver_and_entity_id(group_id))
+            self._get_domain_driver_and_entity_id(group_id)
+        )
         # Get the same info for the user_id, taking care to map any
         # exceptions correctly
-        _domain_id, user_driver, user_entity_id = (
-            get_entity_info_for_user(user_id))
+        _domain_id, user_driver, user_entity_id = get_entity_info_for_user(
+            user_id
+        )
 
         self._assert_user_and_group_in_same_backend(
-            user_entity_id, user_driver, group_entity_id, group_driver)
+            user_entity_id, user_driver, group_entity_id, group_driver
+        )
 
-        return group_driver.check_user_in_group(user_entity_id,
-                                                group_entity_id)
+        return group_driver.check_user_in_group(
+            user_entity_id, group_entity_id
+        )
 
     @domains_configured
-    def change_password(self, user_id, original_password,
-                        new_password, initiator=None):
+    def change_password(
+        self, user_id, original_password, new_password, initiator=None
+    ):
 
         # authenticate() will raise an AssertionError if authentication fails
         try:
@@ -1528,15 +1687,17 @@ class Manager(manager.Manager):
             # If a password has expired, we want users to be able to change it
             pass
 
-        domain_id, driver, entity_id = (
-            self._get_domain_driver_and_entity_id(user_id))
+        domain_id, driver, entity_id = self._get_domain_driver_and_entity_id(
+            user_id
+        )
         try:
             validators.validate_password(new_password)
             driver.change_password(entity_id, new_password)
         except exception.PasswordValidationError as ex:
             audit_reason = reason.Reason(str(ex), str(ex.code))
-            notifications.Audit.updated(self._USER, user_id,
-                                        initiator, reason=audit_reason)
+            notifications.Audit.updated(
+                self._USER, user_id, initiator, reason=audit_reason
+            )
             raise
 
         notifications.Audit.updated(self._USER, user_id, initiator)
@@ -1563,13 +1724,17 @@ class Manager(manager.Manager):
             LOG.debug("Trying to update name for federated user [%s].", user)
 
             PROVIDERS.shadow_users_api.update_federated_user_display_name(
-                idp_id, protocol_id, user['id'], user['name'])
+                idp_id, protocol_id, user['id'], user['name']
+            )
             user_dict = PROVIDERS.shadow_users_api.get_federated_user(
-                idp_id, protocol_id, user['id'])
+                idp_id, protocol_id, user['id']
+            )
 
             if email:
-                LOG.debug("Executing the e-mail update for federated user "
-                          "[%s].", user)
+                LOG.debug(
+                    "Executing the e-mail update for federated user " "[%s].",
+                    user,
+                )
 
                 user_ref = {"email": email}
                 self.update_user(user_dict['id'], user_ref)
@@ -1579,14 +1744,11 @@ class Manager(manager.Manager):
                 'idp_id': idp_id,
                 'protocol_id': protocol_id,
                 'unique_id': user['id'],
-                'display_name': user['name']
+                'display_name': user['name'],
             }
             LOG.debug("Creating federated user [%s].", user)
-            user_dict = (
-                PROVIDERS.shadow_users_api.create_federated_user(
-                    user["domain"]['id'],
-                    federated_dict, email=email
-                )
+            user_dict = PROVIDERS.shadow_users_api.create_federated_user(
+                user["domain"]['id'], federated_dict, email=email
             )
         PROVIDERS.shadow_users_api.set_last_active_at(user_dict['id'])
         return user_dict
@@ -1607,10 +1769,12 @@ class Manager(manager.Manager):
         # however we need to update the expiring group memberships.
         if group_ids:
             for group_id in group_ids:
-                LOG.info("Adding user [%s] to group [%s].",
-                         user_dict, group_id)
+                LOG.info(
+                    "Adding user [%s] to group [%s].", user_dict, group_id
+                )
                 PROVIDERS.shadow_users_api.add_user_to_group_expires(
-                    user_dict['id'], group_id)
+                    user_dict['id'], group_id
+                )
         return user_dict
 
 
@@ -1625,14 +1789,20 @@ class MappingManager(manager.Manager):
 
     @MEMOIZE_ID_MAPPING
     def _get_public_id(self, domain_id, local_id, entity_type):
-        return self.driver.get_public_id({'domain_id': domain_id,
-                                          'local_id': local_id,
-                                          'entity_type': entity_type})
+        return self.driver.get_public_id(
+            {
+                'domain_id': domain_id,
+                'local_id': local_id,
+                'entity_type': entity_type,
+            }
+        )
 
     def get_public_id(self, local_entity):
-        return self._get_public_id(local_entity['domain_id'],
-                                   local_entity['local_id'],
-                                   local_entity['entity_type'])
+        return self._get_public_id(
+            local_entity['domain_id'],
+            local_entity['local_id'],
+            local_entity['entity_type'],
+        )
 
     @MEMOIZE_ID_MAPPING
     def get_id_mapping(self, public_id):
@@ -1641,10 +1811,13 @@ class MappingManager(manager.Manager):
     def create_id_mapping(self, local_entity, public_id=None):
         public_id = self.driver.create_id_mapping(local_entity, public_id)
         if MEMOIZE_ID_MAPPING.should_cache(public_id):
-            self._get_public_id.set(public_id, self,
-                                    local_entity['domain_id'],
-                                    local_entity['local_id'],
-                                    local_entity['entity_type'])
+            self._get_public_id.set(
+                public_id,
+                self,
+                local_entity['domain_id'],
+                local_entity['local_id'],
+                local_entity['entity_type'],
+            )
             self.get_id_mapping.set(local_entity, self, public_id)
         return public_id
 
@@ -1653,9 +1826,12 @@ class MappingManager(manager.Manager):
         self.driver.delete_id_mapping(public_id)
         # Delete the key of entity from cache
         if local_entity:
-            self._get_public_id.invalidate(self, local_entity['domain_id'],
-                                           local_entity['local_id'],
-                                           local_entity['entity_type'])
+            self._get_public_id.invalidate(
+                self,
+                local_entity['domain_id'],
+                local_entity['local_id'],
+                local_entity['entity_type'],
+            )
         self.get_id_mapping.invalidate(self, public_id)
 
     def purge_mappings(self, purge_filter):

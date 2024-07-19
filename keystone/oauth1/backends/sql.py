@@ -40,17 +40,28 @@ class Consumer(sql.ModelBase, sql.ModelDictMixinWithExtras):
 
 class RequestToken(sql.ModelBase, sql.ModelDictMixin):
     __tablename__ = 'request_token'
-    attributes = ['id', 'request_secret',
-                  'verifier', 'authorizing_user_id', 'requested_project_id',
-                  'role_ids', 'consumer_id', 'expires_at']
+    attributes = [
+        'id',
+        'request_secret',
+        'verifier',
+        'authorizing_user_id',
+        'requested_project_id',
+        'role_ids',
+        'consumer_id',
+        'expires_at',
+    ]
     id = sql.Column(sql.String(64), primary_key=True, nullable=False)
     request_secret = sql.Column(sql.String(64), nullable=False)
     verifier = sql.Column(sql.String(64), nullable=True)
     authorizing_user_id = sql.Column(sql.String(64), nullable=True)
     requested_project_id = sql.Column(sql.String(64), nullable=False)
     role_ids = sql.Column(sql.Text(), nullable=True)
-    consumer_id = sql.Column(sql.String(64), sql.ForeignKey('consumer.id'),
-                             nullable=False, index=True)
+    consumer_id = sql.Column(
+        sql.String(64),
+        sql.ForeignKey('consumer.id'),
+        nullable=False,
+        index=True,
+    )
     expires_at = sql.Column(sql.String(64), nullable=True)
 
     @classmethod
@@ -63,17 +74,25 @@ class RequestToken(sql.ModelBase, sql.ModelDictMixin):
 
 class AccessToken(sql.ModelBase, sql.ModelDictMixin):
     __tablename__ = 'access_token'
-    attributes = ['id', 'access_secret', 'authorizing_user_id',
-                  'project_id', 'role_ids', 'consumer_id',
-                  'expires_at']
+    attributes = [
+        'id',
+        'access_secret',
+        'authorizing_user_id',
+        'project_id',
+        'role_ids',
+        'consumer_id',
+        'expires_at',
+    ]
     id = sql.Column(sql.String(64), primary_key=True, nullable=False)
     access_secret = sql.Column(sql.String(64), nullable=False)
-    authorizing_user_id = sql.Column(sql.String(64), nullable=False,
-                                     index=True)
+    authorizing_user_id = sql.Column(
+        sql.String(64), nullable=False, index=True
+    )
     project_id = sql.Column(sql.String(64), nullable=False)
     role_ids = sql.Column(sql.Text(), nullable=False)
-    consumer_id = sql.Column(sql.String(64), sql.ForeignKey('consumer.id'),
-                             nullable=False)
+    consumer_id = sql.Column(
+        sql.String(64), sql.ForeignKey('consumer.id'), nullable=False
+    )
     expires_at = sql.Column(sql.String(64), nullable=True)
 
     @classmethod
@@ -97,8 +116,7 @@ class OAuth1(base.Oauth1DriverBase):
             return consumer_ref.to_dict()
 
     def get_consumer(self, consumer_id):
-        return base.filter_consumer(
-            self.get_consumer_with_secret(consumer_id))
+        return base.filter_consumer(self.get_consumer_with_secret(consumer_id))
 
     def create_consumer(self, consumer_ref):
         with sql.session_for_write() as session:
@@ -147,8 +165,9 @@ class OAuth1(base.Oauth1DriverBase):
             consumer.extra = new_consumer.extra
             return base.filter_consumer(consumer.to_dict())
 
-    def create_request_token(self, consumer_id, requested_project,
-                             request_token_duration):
+    def create_request_token(
+        self, consumer_id, requested_project, request_token_duration
+    ):
         request_token_id = uuid.uuid4().hex
         request_token_secret = uuid.uuid4().hex
         expiry_date = None
@@ -182,14 +201,14 @@ class OAuth1(base.Oauth1DriverBase):
             token_ref = self._get_request_token(session, request_token_id)
             return token_ref.to_dict()
 
-    def authorize_request_token(self, request_token_id, user_id,
-                                role_ids):
+    def authorize_request_token(self, request_token_id, user_id, role_ids):
         with sql.session_for_write() as session:
             token_ref = self._get_request_token(session, request_token_id)
             token_dict = token_ref.to_dict()
             token_dict['authorizing_user_id'] = user_id
-            token_dict['verifier'] = ''.join(random.sample(base.VERIFIER_CHARS,
-                                                           8))
+            token_dict['verifier'] = ''.join(
+                random.sample(base.VERIFIER_CHARS, 8)
+            )
             token_dict['role_ids'] = jsonutils.dumps(role_ids)
 
             new_token = RequestToken.from_dict(token_dict)
@@ -209,8 +228,9 @@ class OAuth1(base.Oauth1DriverBase):
             expiry_date = None
             if access_token_duration > 0:
                 now = timeutils.utcnow()
-                future = (now +
-                          datetime.timedelta(seconds=access_token_duration))
+                future = now + datetime.timedelta(
+                    seconds=access_token_duration
+                )
                 expiry_date = utils.isotime(future, subsecond=True)
 
             # add Access Token

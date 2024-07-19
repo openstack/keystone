@@ -68,8 +68,10 @@ class TokenlessAuthHelper(provider_api.ProviderAPIMixin, object):
             elif project_domain_name:
                 scope['project']['domain'] = {'name': project_domain_name}
             else:
-                msg = _('Neither Project Domain ID nor Project Domain Name '
-                        'was provided.')
+                msg = _(
+                    'Neither Project Domain ID nor Project Domain Name '
+                    'was provided.'
+                )
                 raise exception.ValidationError(msg)
         elif domain_id:
             scope['domain'] = {'id': domain_id}
@@ -77,8 +79,8 @@ class TokenlessAuthHelper(provider_api.ProviderAPIMixin, object):
             scope['domain'] = {'name': domain_name}
         else:
             raise exception.ValidationError(
-                attribute='project or domain',
-                target='scope')
+                attribute='project or domain', target='scope'
+            )
         return scope
 
     def get_scope(self):
@@ -107,11 +109,16 @@ class TokenlessAuthHelper(provider_api.ProviderAPIMixin, object):
         :rtype: dict
         """
         idp_id = self._build_idp_id()
-        LOG.debug('The IdP Id %s and protocol Id %s are used to look up '
-                  'the mapping.', idp_id, CONF.tokenless_auth.protocol)
+        LOG.debug(
+            'The IdP Id %s and protocol Id %s are used to look up '
+            'the mapping.',
+            idp_id,
+            CONF.tokenless_auth.protocol,
+        )
 
         mapped_properties, mapping_id = self.federation_api.evaluate(
-            idp_id, CONF.tokenless_auth.protocol, self.env)
+            idp_id, CONF.tokenless_auth.protocol, self.env
+        )
 
         user = mapped_properties.get('user', {})
         user_id = user.get('id')
@@ -129,23 +136,28 @@ class TokenlessAuthHelper(provider_api.ProviderAPIMixin, object):
         if user_type == utils.UserType.EPHEMERAL:
             user_ref = {'type': utils.UserType.EPHEMERAL}
             group_ids = mapped_properties['group_ids']
-            utils.validate_mapped_group_ids(group_ids,
-                                            mapping_id,
-                                            self.identity_api)
+            utils.validate_mapped_group_ids(
+                group_ids, mapping_id, self.identity_api
+            )
             group_ids.extend(
                 utils.transform_to_group_ids(
-                    mapped_properties['group_names'], mapping_id,
-                    self.identity_api, self.resource_api))
-            roles = self.assignment_api.get_roles_for_groups(group_ids,
-                                                             project_id,
-                                                             domain_id)
+                    mapped_properties['group_names'],
+                    mapping_id,
+                    self.identity_api,
+                    self.resource_api,
+                )
+            )
+            roles = self.assignment_api.get_roles_for_groups(
+                group_ids, project_id, domain_id
+            )
             if roles is not None:
                 role_names = [role['name'] for role in roles]
                 user_ref['roles'] = role_names
             user_ref['group_ids'] = list(group_ids)
             user_ref[federation_constants.IDENTITY_PROVIDER] = idp_id
             user_ref[federation_constants.PROTOCOL] = (
-                CONF.tokenless_auth.protocol)
+                CONF.tokenless_auth.protocol
+            )
             return user_ref
 
         if user_id:
@@ -153,20 +165,25 @@ class TokenlessAuthHelper(provider_api.ProviderAPIMixin, object):
         elif user_name and (user_domain_name or user_domain_id):
             if user_domain_name:
                 user_domain = self.resource_api.get_domain_by_name(
-                    user_domain_name)
-                self.resource_api.assert_domain_enabled(user_domain['id'],
-                                                        user_domain)
+                    user_domain_name
+                )
+                self.resource_api.assert_domain_enabled(
+                    user_domain['id'], user_domain
+                )
                 user_domain_id = user_domain['id']
-            user_ref = self.identity_api.get_user_by_name(user_name,
-                                                          user_domain_id)
+            user_ref = self.identity_api.get_user_by_name(
+                user_name, user_domain_id
+            )
         else:
-            msg = _('User auth cannot be built due to missing either '
-                    'user id, or user name with domain id, or user name '
-                    'with domain name.')
+            msg = _(
+                'User auth cannot be built due to missing either '
+                'user id, or user name with domain id, or user name '
+                'with domain name.'
+            )
             raise exception.ValidationError(msg)
         self.identity_api.assert_user_enabled(
-            user_id=user_ref['id'],
-            user=user_ref)
+            user_id=user_ref['id'], user=user_ref
+        )
         user_ref['type'] = utils.UserType.LOCAL
         return user_ref
 
@@ -184,7 +201,8 @@ class TokenlessAuthHelper(provider_api.ProviderAPIMixin, object):
         idp = self.env.get(CONF.tokenless_auth.issuer_attribute)
         if idp is None:
             raise exception.TokenlessAuthConfigError(
-                issuer_attribute=CONF.tokenless_auth.issuer_attribute)
+                issuer_attribute=CONF.tokenless_auth.issuer_attribute
+            )
 
         hashed_idp = hashlib.sha256(idp.encode('utf-8'))
         return hashed_idp.hexdigest()

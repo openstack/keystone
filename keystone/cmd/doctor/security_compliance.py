@@ -60,5 +60,7 @@ def symptom_password_regular_expression_description_not_set():
     Ensure `[security_compliance] password_regex_description` is set with a
     description of your password regular expression in a language for humans.
     """
-    return (CONF.security_compliance.password_regex and not
-            CONF.security_compliance.password_regex_description)
+    return (
+        CONF.security_compliance.password_regex
+        and not CONF.security_compliance.password_regex_description
+    )

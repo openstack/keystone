@@ -57,10 +57,12 @@ class DomainConfig(base.DomainConfigDriverBase):
             return WhiteListedConfig
 
     def _create_config_option(
-            self, session, domain_id, group, option, sensitive, value):
+        self, session, domain_id, group, option, sensitive, value
+    ):
         config_table = self.choose_table(sensitive)
-        ref = config_table(domain_id=domain_id, group=group, option=option,
-                           value=value)
+        ref = config_table(
+            domain_id=domain_id, group=group, option=option, value=value
+        )
         session.add(ref)
 
     def create_config_options(self, domain_id, option_list):
@@ -71,30 +73,42 @@ class DomainConfig(base.DomainConfigDriverBase):
                 query.delete(False)
             for option in option_list:
                 self._create_config_option(
-                    session, domain_id, option['group'],
-                    option['option'], option['sensitive'], option['value'])
+                    session,
+                    domain_id,
+                    option['group'],
+                    option['option'],
+                    option['sensitive'],
+                    option['value'],
+                )
 
     def _get_config_option(self, session, domain_id, group, option, sensitive):
         try:
             config_table = self.choose_table(sensitive)
-            ref = (session.query(config_table).
-                   filter_by(domain_id=domain_id, group=group,
-                             option=option).one())
+            ref = (
+                session.query(config_table)
+                .filter_by(domain_id=domain_id, group=group, option=option)
+                .one()
+            )
         except sql.NotFound:
             msg = _('option %(option)s in group %(group)s') % {
-                'group': group, 'option': option}
+                'group': group,
+                'option': option,
+            }
             raise exception.DomainConfigNotFound(
-                domain_id=domain_id, group_or_option=msg)
+                domain_id=domain_id, group_or_option=msg
+            )
         return ref
 
     def get_config_option(self, domain_id, group, option, sensitive=False):
         with sql.session_for_read() as session:
-            ref = self._get_config_option(session, domain_id, group, option,
-                                          sensitive)
+            ref = self._get_config_option(
+                session, domain_id, group, option, sensitive
+            )
             return ref.to_dict()
 
-    def list_config_options(self, domain_id, group=None, option=None,
-                            sensitive=False):
+    def list_config_options(
+        self, domain_id, group=None, option=None, sensitive=False
+    ):
         with sql.session_for_read() as session:
             config_table = self.choose_table(sensitive)
             query = session.query(config_table)
@@ -109,10 +123,16 @@ class DomainConfig(base.DomainConfigDriverBase):
         with sql.session_for_write() as session:
             for option in option_list:
                 self._delete_config_options(
-                    session, domain_id, option['group'], option['option'])
+                    session, domain_id, option['group'], option['option']
+                )
                 self._create_config_option(
-                    session, domain_id, option['group'], option['option'],
-                    option['sensitive'], option['value'])
+                    session,
+                    domain_id,
+                    option['group'],
+                    option['option'],
+                    option['sensitive'],
+                    option['value'],
+                )
 
     def _delete_config_options(self, session, domain_id, group, option):
         for config_table in [WhiteListedConfig, SensitiveConfig]:

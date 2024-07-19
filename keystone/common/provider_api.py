@@ -29,20 +29,22 @@ class ProviderAPIRegistry(object):
         # Use "super" to bypass the __setattr__ preventing changes to the
         # object itself.
         super(ProviderAPIRegistry, self).__setattr__(
-            '__dict__', self.__shared_object_state)
+            '__dict__', self.__shared_object_state
+        )
 
     def __getattr__(self, item):
         """Do attr lookup."""
         try:
             return self.__registry[item]
         except KeyError:
-            raise AttributeError(
-                "'ProviderAPIs' has no attribute %s" % item)
+            raise AttributeError("'ProviderAPIs' has no attribute %s" % item)
 
     def __setattr__(self, key, value):
         """Do not allow setting values on the registry object."""
-        raise RuntimeError('Programming Error: You may not set values on the '
-                           'ProviderAPIRegistry objects.')
+        raise RuntimeError(
+            'Programming Error: You may not set values on the '
+            'ProviderAPIRegistry objects.'
+        )
 
     def _register_provider_api(self, name, obj):
         """Register an instance of a class as a provider api."""
@@ -53,13 +55,15 @@ class ProviderAPIRegistry(object):
             raise RuntimeError(
                 'Programming Error: The provider api registry has been '
                 'locked (post configuration). Ensure all provider api '
-                'managers are instantiated before locking.')
+                'managers are instantiated before locking.'
+            )
 
         if name in self.__registry:
             raise DuplicateProviderError(
                 '`%(name)s` has already been registered as an api '
-                'provider by `%(prov)r`' % {'name': name,
-                                            'prov': self.__registry[name]})
+                'provider by `%(prov)r`'
+                % {'name': name, 'prov': self.__registry[name]}
+            )
         self.__registry[name] = obj
 
     def _clear_registry_instances(self):
@@ -85,6 +89,7 @@ class ProviderAPIRegistry(object):
         :param method: the method on the api to return
         :type method: str
         """
+
         class DeferredProviderLookup(object):
             def __init__(self, api, method):
                 self.__api = api

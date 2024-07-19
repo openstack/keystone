@@ -39,8 +39,8 @@ PROVIDERS = provider_api.ProviderAPIs
 
 TOKENS_REGION = cache.create_region(name='tokens')
 MEMOIZE_TOKENS = cache.get_memoization_decorator(
-    group='token',
-    region=TOKENS_REGION)
+    group='token', region=TOKENS_REGION
+)
 
 # NOTE(morganfainberg): This is for compatibility in case someone was relying
 # on the old location of the UnsupportedTokenVersionException for their code.
@@ -109,15 +109,15 @@ class Manager(manager.Manager):
                 ['project', self._drop_token_cache],
             ],
             notifications.ACTIONS.internal: [
-                [notifications.INVALIDATE_TOKEN_CACHE,
-                    self._drop_token_cache],
-            ]
+                [notifications.INVALIDATE_TOKEN_CACHE, self._drop_token_cache],
+            ],
         }
 
         for event, cb_info in callbacks.items():
             for resource_type, callback_fns in cb_info:
-                notifications.register_event_callback(event, resource_type,
-                                                      callback_fns)
+                notifications.register_event_callback(
+                    event, resource_type, callback_fns
+                )
 
     def _drop_token_cache(self, service, resource_type, operation, payload):
         """Invalidate the entire token cache.
@@ -137,8 +137,9 @@ class Manager(manager.Manager):
         token_values = self.revoke_api.model.build_token_values(token)
         return self.check_revocation_v3(token_values)
 
-    def validate_token(self, token_id, window_seconds=0,
-                       access_rules_support=None):
+    def validate_token(
+        self, token_id, window_seconds=0, access_rules_support=None
+    ):
         if not token_id:
             raise exception.TokenNotFound(_('No token in the request'))
 
@@ -153,10 +154,23 @@ class Manager(manager.Manager):
 
     @MEMOIZE_TOKENS
     def _validate_token(self, token_id):
-        (user_id, methods, audit_ids, system, domain_id,
-            project_id, trust_id, federated_group_ids, identity_provider_id,
-            protocol_id, access_token_id, app_cred_id, thumbprint,
-            issued_at, expires_at) = self.driver.validate_token(token_id)
+        (
+            user_id,
+            methods,
+            audit_ids,
+            system,
+            domain_id,
+            project_id,
+            trust_id,
+            federated_group_ids,
+            identity_provider_id,
+            protocol_id,
+            access_token_id,
+            app_cred_id,
+            thumbprint,
+            issued_at,
+            expires_at,
+        ) = self.driver.validate_token(token_id)
 
         token = token_model.TokenModel()
         token.user_id = user_id
@@ -193,8 +207,11 @@ class Manager(manager.Manager):
             expiry += datetime.timedelta(seconds=window_seconds)
 
         except Exception:
-            LOG.exception('Unexpected error or malformed token '
-                          'determining token expiry: %s', token)
+            LOG.exception(
+                'Unexpected error or malformed token '
+                'determining token expiry: %s',
+                token,
+            )
             raise exception.TokenNotFound(_('Failed to validate token'))
 
         if current_time < expiry:
@@ -208,22 +225,36 @@ class Manager(manager.Manager):
         if token.application_credential_id:
             app_cred_api = PROVIDERS.application_credential_api
             app_cred = app_cred_api.get_application_credential(
-                token.application_credential_id)
-            if (app_cred.get('access_rules') is not None and
-                (not access_rules_support or
-                 (float(access_rules_support) < ACCESS_RULES_MIN_VERSION))):
-                LOG.exception('Attempted to use application credential'
-                              ' access rules with a middleware that does not'
-                              ' understand them. You must upgrade'
-                              ' keystonemiddleware on all services that'
-                              ' accept application credentials as an'
-                              ' authentication method.')
+                token.application_credential_id
+            )
+            if app_cred.get('access_rules') is not None and (
+                not access_rules_support
+                or (float(access_rules_support) < ACCESS_RULES_MIN_VERSION)
+            ):
+                LOG.exception(
+                    'Attempted to use application credential'
+                    ' access rules with a middleware that does not'
+                    ' understand them. You must upgrade'
+                    ' keystonemiddleware on all services that'
+                    ' accept application credentials as an'
+                    ' authentication method.'
+                )
                 raise exception.TokenNotFound(_('Failed to validate token'))
 
-    def issue_token(self, user_id, method_names, expires_at=None,
-                    system=None, project_id=None, domain_id=None,
-                    auth_context=None, trust_id=None, app_cred_id=None,
-                    thumbprint=None, parent_audit_id=None):
+    def issue_token(
+        self,
+        user_id,
+        method_names,
+        expires_at=None,
+        system=None,
+        project_id=None,
+        domain_id=None,
+        auth_context=None,
+        trust_id=None,
+        app_cred_id=None,
+        thumbprint=None,
+        parent_audit_id=None,
+    ):
 
         # NOTE(lbragstad): Grab a blank token object and use composition to
         # build the token according to the authentication and authorization
@@ -277,15 +308,20 @@ class Manager(manager.Manager):
         if app_cred_id is not None:
             app_cred_api = PROVIDERS.application_credential_api
             app_cred = app_cred_api.get_application_credential(
-                token.application_credential_id)
+                token.application_credential_id
+            )
             token_time = timeutils.normalize_time(
-                timeutils.parse_isotime(token.expires_at))
+                timeutils.parse_isotime(token.expires_at)
+            )
             if (app_cred['expires_at'] is not None) and (
-                    token_time > app_cred['expires_at']):
+                token_time > app_cred['expires_at']
+            ):
                 token.expires_at = app_cred['expires_at'].isoformat()
-                LOG.debug('Resetting token expiration to the application'
-                          ' credential expiration: %s',
-                          app_cred['expires_at'].isoformat())
+                LOG.debug(
+                    'Resetting token expiration to the application'
+                    ' credential expiration: %s',
+                    app_cred['expires_at'].isoformat(),
+                )
 
         token_id, issued_at = self.driver.generate_id_and_issued_at(token)
         token.mint(token_id, issued_at)
@@ -321,8 +357,9 @@ class Manager(manager.Manager):
 
         if revoke_chain:
             PROVIDERS.revoke_api.revoke_by_audit_chain_id(
-                token.parent_audit_id, project_id=project_id,
-                domain_id=domain_id
+                token.parent_audit_id,
+                project_id=project_id,
+                domain_id=domain_id,
             )
         else:
             PROVIDERS.revoke_api.revoke_by_audit_id(token.audit_id)

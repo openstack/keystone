@@ -31,8 +31,15 @@ CONF = keystone.conf.CONF
 
 class User(sql.ModelBase, sql.ModelDictMixinWithExtras):
     __tablename__ = 'user'
-    attributes = ['id', 'name', 'domain_id', 'password', 'enabled',
-                  'default_project_id', 'password_expires_at']
+    attributes = [
+        'id',
+        'name',
+        'domain_id',
+        'password',
+        'enabled',
+        'default_project_id',
+        'password_expires_at',
+    ]
     readonly_attributes = ['id', 'password_expires_at', 'password']
     resource_options_registry = iro.USER_OPTIONS_REGISTRY
     id = sql.Column(sql.String(64), primary_key=True)
@@ -46,25 +53,35 @@ class User(sql.ModelBase, sql.ModelDictMixinWithExtras):
         cascade='all,delete,delete-orphan',
         lazy='subquery',
         backref='user',
-        collection_class=collections.attribute_mapped_collection('option_id'))
-    local_user = orm.relationship('LocalUser', uselist=False,
-                                  single_parent=True, lazy='joined',
-                                  cascade='all,delete-orphan', backref='user')
-    federated_users = orm.relationship('FederatedUser',
-                                       single_parent=True,
-                                       lazy='joined',
-                                       cascade='all,delete-orphan',
-                                       backref='user')
-    nonlocal_user = orm.relationship('NonLocalUser',
-                                     uselist=False,
-                                     single_parent=True,
-                                     lazy='joined',
-                                     cascade='all,delete-orphan',
-                                     backref='user')
+        collection_class=collections.attribute_mapped_collection('option_id'),
+    )
+    local_user = orm.relationship(
+        'LocalUser',
+        uselist=False,
+        single_parent=True,
+        lazy='joined',
+        cascade='all,delete-orphan',
+        backref='user',
+    )
+    federated_users = orm.relationship(
+        'FederatedUser',
+        single_parent=True,
+        lazy='joined',
+        cascade='all,delete-orphan',
+        backref='user',
+    )
+    nonlocal_user = orm.relationship(
+        'NonLocalUser',
+        uselist=False,
+        single_parent=True,
+        lazy='joined',
+        cascade='all,delete-orphan',
+        backref='user',
+    )
     expiring_user_group_memberships = orm.relationship(
         'ExpiringUserGroupMembership',
         cascade='all, delete-orphan',
-        backref="user"
+        backref="user",
     )
     created_at = sql.Column(sql.DateTime, nullable=True)
     last_active_at = sql.Column(sql.Date, nullable=True)
@@ -176,14 +193,16 @@ class User(sql.ModelBase, sql.ModelDictMixinWithExtras):
         return getattr(
             self.get_resource_option(iro.IGNORE_PASSWORD_EXPIRY_OPT.option_id),
             'option_value',
-            False)
+            False,
+        )
 
     def _get_password_expires_at(self, created_at):
         expires_days = CONF.security_compliance.password_expires_days
         if not self._password_expiry_exempt():
             if expires_days:
-                expired_date = (created_at +
-                                datetime.timedelta(days=expires_days))
+                expired_date = created_at + datetime.timedelta(
+                    days=expires_days
+                )
                 return expired_date.replace(microsecond=0)
         return None
 
@@ -198,12 +217,15 @@ class User(sql.ModelBase, sql.ModelDictMixinWithExtras):
         """Return whether user is enabled or not."""
         if self._enabled:
             max_days = (
-                CONF.security_compliance.disable_user_account_days_inactive)
+                CONF.security_compliance.disable_user_account_days_inactive
+            )
             inactivity_exempt = getattr(
                 self.get_resource_option(
-                    iro.IGNORE_USER_INACTIVITY_OPT.option_id),
+                    iro.IGNORE_USER_INACTIVITY_OPT.option_id
+                ),
                 'option_value',
-                False)
+                False,
+            )
             last_active = self.last_active_at
             if not last_active and self.created_at:
                 last_active = self.created_at.date()
@@ -216,8 +238,10 @@ class User(sql.ModelBase, sql.ModelDictMixinWithExtras):
 
     @enabled.setter
     def enabled(self, value):
-        if (value and
-                CONF.security_compliance.disable_user_account_days_inactive):
+        if (
+            value
+            and CONF.security_compliance.disable_user_account_days_inactive
+        ):
             self.last_active_at = datetime.datetime.utcnow().date()
         if value and self.local_user:
             self.local_user.failed_auth_count = 0
@@ -279,27 +303,37 @@ class LocalUser(sql.ModelBase, sql.ModelDictMixin):
     user_id = sql.Column(sql.String(64), nullable=False)
     domain_id = sql.Column(sql.String(64), nullable=False)
     name = sql.Column(sql.String(255), nullable=False)
-    passwords = orm.relationship('Password',
-                                 single_parent=True,
-                                 cascade='all,delete-orphan',
-                                 lazy='joined',
-                                 backref='local_user',
-                                 order_by='Password.created_at_int')
+    passwords = orm.relationship(
+        'Password',
+        single_parent=True,
+        cascade='all,delete-orphan',
+        lazy='joined',
+        backref='local_user',
+        order_by='Password.created_at_int',
+    )
     failed_auth_count = sql.Column(sql.Integer, nullable=True)
     failed_auth_at = sql.Column(sql.DateTime, nullable=True)
     __table_args__ = (
         sql.UniqueConstraint('user_id'),
         sql.UniqueConstraint('domain_id', 'name'),
-        sqlalchemy.ForeignKeyConstraint(['user_id', 'domain_id'],
-                                        ['user.id', 'user.domain_id'],
-                                        onupdate='CASCADE', ondelete='CASCADE')
+        sqlalchemy.ForeignKeyConstraint(
+            ['user_id', 'domain_id'],
+            ['user.id', 'user.domain_id'],
+            onupdate='CASCADE',
+            ondelete='CASCADE',
+        ),
     )
 
 
 class Password(sql.ModelBase, sql.ModelDictMixin):
     __tablename__ = 'password'
-    attributes = ['id', 'local_user_id', 'password_hash', 'created_at',
-                  'expires_at']
+    attributes = [
+        'id',
+        'local_user_id',
+        'password_hash',
+        'created_at',
+        'expires_at',
+    ]
     id = sql.Column(sql.Integer, primary_key=True)
     local_user_id = sql.Column(
         sql.Integer,
@@ -314,8 +348,12 @@ class Password(sql.ModelBase, sql.ModelDictMixin):
     # big integers. The old datetime columns and their corresponding attributes
     # in the model are no longer required.
     # created_at default set here to safe guard in case it gets missed
-    _created_at = sql.Column('created_at', sql.DateTime, nullable=False,
-                             default=datetime.datetime.utcnow)
+    _created_at = sql.Column(
+        'created_at',
+        sql.DateTime,
+        nullable=False,
+        default=datetime.datetime.utcnow,
+    )
     _expires_at = sql.Column('expires_at', sql.DateTime, nullable=True)
     # set the default to 0, a 0 indicates it is unset.
     created_at_int = sql.Column(
@@ -353,8 +391,14 @@ class Password(sql.ModelBase, sql.ModelDictMixin):
 
 class FederatedUser(sql.ModelBase, sql.ModelDictMixin):
     __tablename__ = 'federated_user'
-    attributes = ['id', 'user_id', 'idp_id', 'protocol_id', 'unique_id',
-                  'display_name']
+    attributes = [
+        'id',
+        'user_id',
+        'idp_id',
+        'protocol_id',
+        'unique_id',
+        'display_name',
+    ]
     id = sql.Column(sql.Integer, primary_key=True)
     user_id = sql.Column(
         sql.String(64),
@@ -371,10 +415,11 @@ class FederatedUser(sql.ModelBase, sql.ModelDictMixin):
     display_name = sql.Column(sql.String(255), nullable=True)
     __table_args__ = (
         sql.UniqueConstraint('idp_id', 'protocol_id', 'unique_id'),
-        sqlalchemy.ForeignKeyConstraint(['protocol_id', 'idp_id'],
-                                        ['federation_protocol.id',
-                                         'federation_protocol.idp_id'],
-                                        ondelete='CASCADE')
+        sqlalchemy.ForeignKeyConstraint(
+            ['protocol_id', 'idp_id'],
+            ['federation_protocol.id', 'federation_protocol.idp_id'],
+            ondelete='CASCADE',
+        ),
     )
 
 
@@ -389,8 +434,12 @@ class NonLocalUser(sql.ModelBase, sql.ModelDictMixin):
     __table_args__ = (
         sql.UniqueConstraint('user_id'),
         sqlalchemy.ForeignKeyConstraint(
-            ['user_id', 'domain_id'], ['user.id', 'user.domain_id'],
-            onupdate='CASCADE', ondelete='CASCADE'),)
+            ['user_id', 'domain_id'],
+            ['user.id', 'user.domain_id'],
+            onupdate='CASCADE',
+            ondelete='CASCADE',
+        ),
+    )
 
 
 class Group(sql.ModelBase, sql.ModelDictMixinWithExtras):
@@ -404,7 +453,7 @@ class Group(sql.ModelBase, sql.ModelDictMixinWithExtras):
     expiring_user_group_memberships = orm.relationship(
         'ExpiringUserGroupMembership',
         cascade='all, delete-orphan',
-        backref="group"
+        backref="group",
     )
     # Unique constraint across two columns to create the separation
     # rather than just only 'name' being unique
@@ -415,28 +464,29 @@ class UserGroupMembership(sql.ModelBase, sql.ModelDictMixin):
     """Group membership join table."""
 
     __tablename__ = 'user_group_membership'
-    user_id = sql.Column(sql.String(64),
-                         sql.ForeignKey('user.id'),
-                         primary_key=True)
-    group_id = sql.Column(sql.String(64),
-                          sql.ForeignKey('group.id'),
-                          primary_key=True)
+    user_id = sql.Column(
+        sql.String(64), sql.ForeignKey('user.id'), primary_key=True
+    )
+    group_id = sql.Column(
+        sql.String(64), sql.ForeignKey('group.id'), primary_key=True
+    )
 
 
 class ExpiringUserGroupMembership(sql.ModelBase, sql.ModelDictMixin):
     """Expiring group membership through federation mapping rules."""
 
     __tablename__ = 'expiring_user_group_membership'
-    user_id = sql.Column(sql.String(64),
-                         sql.ForeignKey('user.id'),
-                         primary_key=True)
-    group_id = sql.Column(sql.String(64),
-                          sql.ForeignKey('group.id'),
-                          primary_key=True)
-    idp_id = sql.Column(sql.String(64),
-                        sql.ForeignKey('identity_provider.id',
-                                       ondelete='CASCADE'),
-                        primary_key=True)
+    user_id = sql.Column(
+        sql.String(64), sql.ForeignKey('user.id'), primary_key=True
+    )
+    group_id = sql.Column(
+        sql.String(64), sql.ForeignKey('group.id'), primary_key=True
+    )
+    idp_id = sql.Column(
+        sql.String(64),
+        sql.ForeignKey('identity_provider.id', ondelete='CASCADE'),
+        primary_key=True,
+    )
     last_verified = sql.Column(sql.DateTime, nullable=False)
 
     @hybrid_property
@@ -453,11 +503,13 @@ class ExpiringUserGroupMembership(sql.ModelBase, sql.ModelDictMixin):
 
 class UserOption(sql.ModelBase):
     __tablename__ = 'user_option'
-    user_id = sql.Column(sql.String(64), sql.ForeignKey('user.id',
-                         ondelete='CASCADE'), nullable=False,
-                         primary_key=True)
-    option_id = sql.Column(sql.String(4), nullable=False,
-                           primary_key=True)
+    user_id = sql.Column(
+        sql.String(64),
+        sql.ForeignKey('user.id', ondelete='CASCADE'),
+        nullable=False,
+        primary_key=True,
+    )
+    option_id = sql.Column(sql.String(4), nullable=False, primary_key=True)
     option_value = sql.Column(sql.JsonBlob, nullable=True)
 
     def __init__(self, option_id, option_value):

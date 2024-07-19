@@ -33,13 +33,15 @@ class TestCacheRegion(unit.BaseTestCase):
             # TODO(morganfainberg): Make Cache Testing a separate test case
             # in tempest, and move it out of the base unit tests.
             group='cache',
-            backend='dogpile.cache.memory')
+            backend='dogpile.cache.memory',
+        )
 
         # replace existing backend since this may already be configured
         cache.CACHE_INVALIDATION_REGION.configure(
             backend='dogpile.cache.memory',
             expiration_time=None,
-            replace_existing_backend=True)
+            replace_existing_backend=True,
+        )
 
         self.region_name = uuid.uuid4().hex
         self.region0 = cache.create_region('test_region')
@@ -181,7 +183,8 @@ class TestCacheRegion(unit.BaseTestCase):
         the tests above can erroneosly pass that we need this sanity check.
         """
         region_key = cache.RegionInvalidationManager(
-            None, self.region0.name)._region_key
+            None, self.region0.name
+        )._region_key
         key = uuid.uuid4().hex
         value = uuid.uuid4().hex
 

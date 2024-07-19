@@ -34,7 +34,7 @@ class _SystemUserTests(object):
     def test_user_can_list_projects(self):
         PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         with self.test_client() as c:
@@ -44,24 +44,25 @@ class _SystemUserTests(object):
     def test_user_can_list_projects_for_other_users(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         user = PROVIDERS.identity_api.create_user(
             unit.new_user_ref(
-                CONF.identity.default_domain_id,
-                id=uuid.uuid4().hex
+                CONF.identity.default_domain_id, id=uuid.uuid4().hex
             )
         )
 
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.reader_role_id, user_id=user['id'],
-            project_id=project['id']
+            self.bootstrapper.reader_role_id,
+            user_id=user['id'],
+            project_id=project['id'],
         )
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/users/%s/projects' % user['id'], headers=self.headers,
+                '/v3/users/%s/projects' % user['id'],
+                headers=self.headers,
             )
             self.assertEqual(1, len(r.json['projects']))
             self.assertEqual(project['id'], r.json['projects'][0]['id'])
@@ -69,7 +70,7 @@ class _SystemUserTests(object):
     def test_user_can_get_a_project(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         with self.test_client() as c:
@@ -79,8 +80,9 @@ class _SystemUserTests(object):
     def test_user_cannot_get_non_existent_project_not_found(self):
         with self.test_client() as c:
             c.get(
-                '/v3/projects/%s' % uuid.uuid4().hex, headers=self.headers,
-                expected_status_code=http.client.NOT_FOUND
+                '/v3/projects/%s' % uuid.uuid4().hex,
+                headers=self.headers,
+                expected_status_code=http.client.NOT_FOUND,
             )
 
 
@@ -96,23 +98,26 @@ class _SystemMemberAndReaderProjectTests(object):
 
         with self.test_client() as c:
             c.post(
-                '/v3/projects', json=create, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/projects',
+                json=create,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_update_projects(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         update = {'project': {'description': uuid.uuid4().hex}}
 
         with self.test_client() as c:
             c.patch(
-                '/v3/projects/%s' % project['id'], json=update,
+                '/v3/projects/%s' % project['id'],
+                json=update,
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_update_non_existent_project_forbidden(self):
@@ -120,28 +125,31 @@ class _SystemMemberAndReaderProjectTests(object):
 
         with self.test_client() as c:
             c.patch(
-                '/v3/projects/%s' % uuid.uuid4().hex, json=update,
+                '/v3/projects/%s' % uuid.uuid4().hex,
+                json=update,
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_projects(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         with self.test_client() as c:
             c.delete(
-                '/v3/projects/%s' % project['id'], headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/projects/%s' % project['id'],
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_non_existent_project_forbidden(self):
         with self.test_client() as c:
             c.delete(
-                '/v3/projects/%s' % uuid.uuid4().hex, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/projects/%s' % uuid.uuid4().hex,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
 
@@ -150,8 +158,7 @@ class _DomainUsersTests(object):
 
     def test_user_can_list_projects_within_domain(self):
         project = PROVIDERS.resource_api.create_project(
-            uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=self.domain_id)
+            uuid.uuid4().hex, unit.new_project_ref(domain_id=self.domain_id)
         )
 
         with self.test_client() as c:
@@ -162,7 +169,7 @@ class _DomainUsersTests(object):
     def test_user_cannot_list_projects_in_other_domain(self):
         PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         with self.test_client() as c:
@@ -171,8 +178,7 @@ class _DomainUsersTests(object):
 
     def test_user_can_get_a_project_within_domain(self):
         project = PROVIDERS.resource_api.create_project(
-            uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=self.domain_id)
+            uuid.uuid4().hex, unit.new_project_ref(domain_id=self.domain_id)
         )
 
         with self.test_client() as c:
@@ -182,31 +188,29 @@ class _DomainUsersTests(object):
     def test_user_cannot_get_a_project_in_other_domain(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         with self.test_client() as c:
             c.get(
-                '/v3/projects/%s' % project['id'], headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/projects/%s' % project['id'],
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_can_list_projects_for_user_in_domain(self):
         user = PROVIDERS.identity_api.create_user(
-            unit.new_user_ref(
-                self.domain_id,
-                id=uuid.uuid4().hex
-            )
+            unit.new_user_ref(self.domain_id, id=uuid.uuid4().hex)
         )
 
         project = PROVIDERS.resource_api.create_project(
-            uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=self.domain_id)
+            uuid.uuid4().hex, unit.new_project_ref(domain_id=self.domain_id)
         )
 
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.reader_role_id, user_id=user['id'],
-            project_id=project['id']
+            self.bootstrapper.reader_role_id,
+            user_id=user['id'],
+            project_id=project['id'],
         )
 
         with self.test_client() as c:
@@ -219,25 +223,26 @@ class _DomainUsersTests(object):
     def test_user_cannot_list_projects_for_user_in_other_domain(self):
         user = PROVIDERS.identity_api.create_user(
             unit.new_user_ref(
-                CONF.identity.default_domain_id,
-                id=uuid.uuid4().hex
+                CONF.identity.default_domain_id, id=uuid.uuid4().hex
             )
         )
 
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.reader_role_id, user_id=user['id'],
-            project_id=project['id']
+            self.bootstrapper.reader_role_id,
+            user_id=user['id'],
+            project_id=project['id'],
         )
 
         with self.test_client() as c:
             c.get(
-                '/v3/users/%s/projects' % user['id'], headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/users/%s/projects' % user['id'],
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
 
@@ -249,8 +254,10 @@ class _DomainMemberAndReaderProjectTests(object):
 
         with self.test_client() as c:
             c.post(
-                '/v3/projects', json=create, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/projects',
+                json=create,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_create_projects_in_other_domains(self):
@@ -262,38 +269,41 @@ class _DomainMemberAndReaderProjectTests(object):
 
         with self.test_client() as c:
             c.post(
-                '/v3/projects', json=create, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/projects',
+                json=create,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_update_projects_within_domain(self):
         project = PROVIDERS.resource_api.create_project(
-            uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=self.domain_id)
+            uuid.uuid4().hex, unit.new_project_ref(domain_id=self.domain_id)
         )
 
         update = {'project': {'description': uuid.uuid4().hex}}
 
         with self.test_client() as c:
             c.patch(
-                '/v3/projects/%s' % project['id'], json=update,
+                '/v3/projects/%s' % project['id'],
+                json=update,
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_update_projects_in_other_domain(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         update = {'project': {'description': uuid.uuid4().hex}}
 
         with self.test_client() as c:
             c.patch(
-                '/v3/projects/%s' % project['id'], json=update,
+                '/v3/projects/%s' % project['id'],
+                json=update,
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_update_non_existent_project_forbidden(self):
@@ -301,47 +311,52 @@ class _DomainMemberAndReaderProjectTests(object):
 
         with self.test_client() as c:
             c.patch(
-                '/v3/projects/%s' % uuid.uuid4().hex, json=update,
+                '/v3/projects/%s' % uuid.uuid4().hex,
+                json=update,
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_projects_within_domain(self):
         project = PROVIDERS.resource_api.create_project(
-            uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=self.domain_id)
+            uuid.uuid4().hex, unit.new_project_ref(domain_id=self.domain_id)
         )
 
         with self.test_client() as c:
             c.delete(
-                '/v3/projects/%s' % project['id'], headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/projects/%s' % project['id'],
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_projects_in_other_domain(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         with self.test_client() as c:
             c.delete(
-                '/v3/projects/%s' % project['id'], headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/projects/%s' % project['id'],
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_non_existent_projects_forbidden(self):
         with self.test_client() as c:
             c.delete(
-                '/v3/projects/%s' % uuid.uuid4().hex, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/projects/%s' % uuid.uuid4().hex,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
 
-class SystemReaderTests(base_classes.TestCaseWithBootstrap,
-                        common_auth.AuthTestMixin,
-                        _SystemUserTests,
-                        _SystemMemberAndReaderProjectTests):
+class SystemReaderTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _SystemUserTests,
+    _SystemMemberAndReaderProjectTests,
+):
 
     def setUp(self):
         super(SystemReaderTests, self).setUp()
@@ -352,16 +367,15 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
         system_reader = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
         )
-        self.user_id = PROVIDERS.identity_api.create_user(
-            system_reader
-        )['id']
+        self.user_id = PROVIDERS.identity_api.create_user(system_reader)['id']
         PROVIDERS.assignment_api.create_system_grant_for_user(
             self.user_id, self.bootstrapper.reader_role_id
         )
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=system_reader['password'],
-            system=True
+            user_id=self.user_id,
+            password=system_reader['password'],
+            system=True,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -372,10 +386,12 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class SystemMemberTests(base_classes.TestCaseWithBootstrap,
-                        common_auth.AuthTestMixin,
-                        _SystemUserTests,
-                        _SystemMemberAndReaderProjectTests):
+class SystemMemberTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _SystemUserTests,
+    _SystemMemberAndReaderProjectTests,
+):
 
     def setUp(self):
         super(SystemMemberTests, self).setUp()
@@ -386,16 +402,15 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
         system_member = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
         )
-        self.user_id = PROVIDERS.identity_api.create_user(
-            system_member
-        )['id']
+        self.user_id = PROVIDERS.identity_api.create_user(system_member)['id']
         PROVIDERS.assignment_api.create_system_grant_for_user(
             self.user_id, self.bootstrapper.member_role_id
         )
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=system_member['password'],
-            system=True
+            user_id=self.user_id,
+            password=system_member['password'],
+            system=True,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -406,9 +421,11 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class SystemAdminTests(base_classes.TestCaseWithBootstrap,
-                       common_auth.AuthTestMixin,
-                       _SystemUserTests):
+class SystemAdminTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _SystemUserTests,
+):
 
     def setUp(self):
         super(SystemAdminTests, self).setUp()
@@ -420,7 +437,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
         auth = self.build_authentication_request(
             user_id=self.user_id,
             password=self.bootstrapper.admin_password,
-            system=True
+            system=True,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -443,15 +460,16 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
     def test_user_can_update_projects(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         update = {'project': {'description': uuid.uuid4().hex}}
 
         with self.test_client() as c:
             c.patch(
-                '/v3/projects/%s' % project['id'], json=update,
-                headers=self.headers
+                '/v3/projects/%s' % project['id'],
+                json=update,
+                headers=self.headers,
             )
 
     def test_user_can_update_non_existent_project_not_found(self):
@@ -459,15 +477,16 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
 
         with self.test_client() as c:
             c.patch(
-                '/v3/projects/%s' % uuid.uuid4().hex, json=update,
+                '/v3/projects/%s' % uuid.uuid4().hex,
+                json=update,
                 headers=self.headers,
-                expected_status_code=http.client.NOT_FOUND
+                expected_status_code=http.client.NOT_FOUND,
             )
 
     def test_user_can_delete_projects(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         with self.test_client() as c:
@@ -476,29 +495,32 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
     def test_user_can_delete_non_existent_project_not_found(self):
         with self.test_client() as c:
             c.delete(
-                '/v3/projects/%s' % uuid.uuid4().hex, headers=self.headers,
-                expected_status_code=http.client.NOT_FOUND
+                '/v3/projects/%s' % uuid.uuid4().hex,
+                headers=self.headers,
+                expected_status_code=http.client.NOT_FOUND,
             )
 
     def test_user_can_list_their_projects(self):
         other_project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         user_project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.reader_role_id, user_id=self.user_id,
-            project_id=user_project['id']
+            self.bootstrapper.reader_role_id,
+            user_id=self.user_id,
+            project_id=user_project['id'],
         )
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/users/%s/projects' % self.user_id, headers=self.headers,
+                '/v3/users/%s/projects' % self.user_id,
+                headers=self.headers,
             )
             self.assertEqual(2, len(r.json['projects']))
             project_ids = []
@@ -510,10 +532,12 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
             self.assertNotIn(other_project['id'], project_ids)
 
 
-class DomainReaderTests(base_classes.TestCaseWithBootstrap,
-                        common_auth.AuthTestMixin,
-                        _DomainUsersTests,
-                        _DomainMemberAndReaderProjectTests):
+class DomainReaderTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _DomainUsersTests,
+    _DomainMemberAndReaderProjectTests,
+):
 
     def setUp(self):
         super(DomainReaderTests, self).setUp()
@@ -528,13 +552,15 @@ class DomainReaderTests(base_classes.TestCaseWithBootstrap,
         domain_user = unit.new_user_ref(domain_id=self.domain_id)
         self.user_id = PROVIDERS.identity_api.create_user(domain_user)['id']
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.reader_role_id, user_id=self.user_id,
-            domain_id=self.domain_id
+            self.bootstrapper.reader_role_id,
+            user_id=self.user_id,
+            domain_id=self.domain_id,
         )
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=domain_user['password'],
-            domain_id=self.domain_id
+            user_id=self.user_id,
+            password=domain_user['password'],
+            domain_id=self.domain_id,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -545,10 +571,12 @@ class DomainReaderTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class DomainMemberTests(base_classes.TestCaseWithBootstrap,
-                        common_auth.AuthTestMixin,
-                        _DomainUsersTests,
-                        _DomainMemberAndReaderProjectTests):
+class DomainMemberTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _DomainUsersTests,
+    _DomainMemberAndReaderProjectTests,
+):
 
     def setUp(self):
         super(DomainMemberTests, self).setUp()
@@ -563,13 +591,15 @@ class DomainMemberTests(base_classes.TestCaseWithBootstrap,
         domain_user = unit.new_user_ref(domain_id=self.domain_id)
         self.user_id = PROVIDERS.identity_api.create_user(domain_user)['id']
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.member_role_id, user_id=self.user_id,
-            domain_id=self.domain_id
+            self.bootstrapper.member_role_id,
+            user_id=self.user_id,
+            domain_id=self.domain_id,
         )
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=domain_user['password'],
-            domain_id=self.domain_id
+            user_id=self.user_id,
+            password=domain_user['password'],
+            domain_id=self.domain_id,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -580,9 +610,11 @@ class DomainMemberTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class DomainAdminTests(base_classes.TestCaseWithBootstrap,
-                       common_auth.AuthTestMixin,
-                       _DomainUsersTests):
+class DomainAdminTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _DomainUsersTests,
+):
 
     def setUp(self):
         super(DomainAdminTests, self).setUp()
@@ -606,12 +638,14 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
         domain_admin = unit.new_user_ref(domain_id=self.domain_id)
         self.user_id = PROVIDERS.identity_api.create_user(domain_admin)['id']
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.admin_role_id, user_id=self.user_id,
-            domain_id=self.domain_id
+            self.bootstrapper.admin_role_id,
+            user_id=self.user_id,
+            domain_id=self.domain_id,
         )
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=domain_admin['password'],
+            user_id=self.user_id,
+            password=domain_admin['password'],
             domain_id=self.domain_id,
         )
 
@@ -634,14 +668,15 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
         with open(self.policy_file_name, 'w') as f:
             overridden_policies = {
                 'identity:get_project': (
-                    pp.SYSTEM_READER_OR_DOMAIN_READER_OR_PROJECT_USER),
+                    pp.SYSTEM_READER_OR_DOMAIN_READER_OR_PROJECT_USER
+                ),
                 'identity:list_user_projects': (
-                    pp.SYSTEM_READER_OR_DOMAIN_READER_OR_OWNER),
-                'identity:list_projects': (
-                    pp.SYSTEM_READER_OR_DOMAIN_READER),
+                    pp.SYSTEM_READER_OR_DOMAIN_READER_OR_OWNER
+                ),
+                'identity:list_projects': (pp.SYSTEM_READER_OR_DOMAIN_READER),
                 'identity:create_project': pp.SYSTEM_ADMIN_OR_DOMAIN_ADMIN,
                 'identity:update_project': pp.SYSTEM_ADMIN_OR_DOMAIN_ADMIN,
-                'identity:delete_project': pp.SYSTEM_ADMIN_OR_DOMAIN_ADMIN
+                'identity:delete_project': pp.SYSTEM_ADMIN_OR_DOMAIN_ADMIN,
             }
             f.write(jsonutils.dumps(overridden_policies))
 
@@ -660,37 +695,40 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
 
         with self.test_client() as c:
             c.post(
-                '/v3/projects', json=create, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/projects',
+                json=create,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_can_update_projects_within_domain(self):
         project = PROVIDERS.resource_api.create_project(
-            uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=self.domain_id)
+            uuid.uuid4().hex, unit.new_project_ref(domain_id=self.domain_id)
         )
 
         update = {'project': {'description': uuid.uuid4().hex}}
 
         with self.test_client() as c:
             c.patch(
-                '/v3/projects/%s' % project['id'], json=update,
-                headers=self.headers
+                '/v3/projects/%s' % project['id'],
+                json=update,
+                headers=self.headers,
             )
 
     def test_user_cannot_update_projects_in_other_domain(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         update = {'project': {'description': uuid.uuid4().hex}}
 
         with self.test_client() as c:
             c.patch(
-                '/v3/projects/%s' % project['id'], json=update,
+                '/v3/projects/%s' % project['id'],
+                json=update,
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_update_non_existent_project_forbidden(self):
@@ -704,15 +742,15 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
 
         with self.test_client() as c:
             c.patch(
-                '/v3/projects/%s' % uuid.uuid4().hex, json=update,
+                '/v3/projects/%s' % uuid.uuid4().hex,
+                json=update,
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_can_delete_projects_within_domain(self):
         project = PROVIDERS.resource_api.create_project(
-            uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=self.domain_id)
+            uuid.uuid4().hex, unit.new_project_ref(domain_id=self.domain_id)
         )
 
         with self.test_client() as c:
@@ -721,13 +759,14 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
     def test_user_cannot_delete_projects_in_other_domain(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         with self.test_client() as c:
             c.delete(
-                '/v3/projects/%s' % project['id'], headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/projects/%s' % project['id'],
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_non_existent_projects_forbidden(self):
@@ -739,13 +778,15 @@ class DomainAdminTests(base_classes.TestCaseWithBootstrap,
         # a 403 instead of a 404.
         with self.test_client() as c:
             c.delete(
-                '/v3/projects/%s' % uuid.uuid4().hex, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/projects/%s' % uuid.uuid4().hex,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
 
-class ProjectUserTests(base_classes.TestCaseWithBootstrap,
-                       common_auth.AuthTestMixin):
+class ProjectUserTests(
+    base_classes.TestCaseWithBootstrap, common_auth.AuthTestMixin
+):
 
     def setUp(self):
         super(ProjectUserTests, self).setUp()
@@ -763,14 +804,16 @@ class ProjectUserTests(base_classes.TestCaseWithBootstrap,
 
         self.user_id = self.bootstrapper.admin_user_id
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.reader_role_id, user_id=self.user_id,
-            project_id=self.bootstrapper.project_id
+            self.bootstrapper.reader_role_id,
+            user_id=self.user_id,
+            project_id=self.bootstrapper.project_id,
         )
         self.project_id = self.bootstrapper.project_id
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=self.bootstrapper.admin_password,
-            project_id=self.bootstrapper.project_id
+            user_id=self.user_id,
+            password=self.bootstrapper.admin_password,
+            project_id=self.bootstrapper.project_id,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -792,14 +835,15 @@ class ProjectUserTests(base_classes.TestCaseWithBootstrap,
         with open(self.policy_file_name, 'w') as f:
             overridden_policies = {
                 'identity:get_project': (
-                    pp.SYSTEM_READER_OR_DOMAIN_READER_OR_PROJECT_USER),
+                    pp.SYSTEM_READER_OR_DOMAIN_READER_OR_PROJECT_USER
+                ),
                 'identity:list_user_projects': (
-                    pp.SYSTEM_READER_OR_DOMAIN_READER_OR_OWNER),
-                'identity:list_projects': (
-                    pp.SYSTEM_READER_OR_DOMAIN_READER),
+                    pp.SYSTEM_READER_OR_DOMAIN_READER_OR_OWNER
+                ),
+                'identity:list_projects': (pp.SYSTEM_READER_OR_DOMAIN_READER),
                 'identity:create_project': pp.SYSTEM_ADMIN_OR_DOMAIN_ADMIN,
                 'identity:update_project': pp.SYSTEM_ADMIN_OR_DOMAIN_ADMIN,
-                'identity:delete_project': pp.SYSTEM_ADMIN_OR_DOMAIN_ADMIN
+                'identity:delete_project': pp.SYSTEM_ADMIN_OR_DOMAIN_ADMIN,
             }
             f.write(jsonutils.dumps(overridden_policies))
 
@@ -808,32 +852,34 @@ class ProjectUserTests(base_classes.TestCaseWithBootstrap,
         # on the project created by ``keystone-manage bootstrap``.
         with self.test_client() as c:
             c.get(
-                '/v3/projects', headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/projects',
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_list_projects_for_others(self):
         user = PROVIDERS.identity_api.create_user(
             unit.new_user_ref(
-                CONF.identity.default_domain_id,
-                id=uuid.uuid4().hex
+                CONF.identity.default_domain_id, id=uuid.uuid4().hex
             )
         )
 
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.reader_role_id, user_id=user['id'],
-            project_id=project['id']
+            self.bootstrapper.reader_role_id,
+            user_id=user['id'],
+            project_id=project['id'],
         )
 
         with self.test_client() as c:
             c.get(
-                '/v3/users/%s/projects' % user['id'], headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/users/%s/projects' % user['id'],
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_can_list_their_projects(self):
@@ -842,7 +888,8 @@ class ProjectUserTests(base_classes.TestCaseWithBootstrap,
         # administrative, reserved for system and domain users.
         with self.test_client() as c:
             r = c.get(
-                '/v3/users/%s/projects' % self.user_id, headers=self.headers,
+                '/v3/users/%s/projects' % self.user_id,
+                headers=self.headers,
             )
             self.assertEqual(1, len(r.json['projects']))
             self.assertEqual(self.project_id, r.json['projects'][0]['id'])
@@ -854,13 +901,14 @@ class ProjectUserTests(base_classes.TestCaseWithBootstrap,
     def test_user_cannot_get_other_projects(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         with self.test_client() as c:
             c.get(
-                '/v3/projects/%s' % project['id'], headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/projects/%s' % project['id'],
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_create_projects(self):
@@ -872,23 +920,26 @@ class ProjectUserTests(base_classes.TestCaseWithBootstrap,
 
         with self.test_client() as c:
             c.post(
-                '/v3/projects', json=create, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/projects',
+                json=create,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_update_projects(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         update = {'project': {'description': uuid.uuid4().hex}}
 
         with self.test_client() as c:
             c.patch(
-                '/v3/projects/%s' % project['id'], json=update,
+                '/v3/projects/%s' % project['id'],
+                json=update,
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_update_non_existent_project_forbidden(self):
@@ -896,26 +947,29 @@ class ProjectUserTests(base_classes.TestCaseWithBootstrap,
 
         with self.test_client() as c:
             c.patch(
-                '/v3/projects/%s' % uuid.uuid4().hex, json=update,
+                '/v3/projects/%s' % uuid.uuid4().hex,
+                json=update,
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_projects(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         with self.test_client() as c:
             c.delete(
-                '/v3/projects/%s' % project['id'], headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/projects/%s' % project['id'],
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_non_existent_project_forbidden(self):
         with self.test_client() as c:
             c.delete(
-                '/v3/projects/%s' % uuid.uuid4().hex, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/projects/%s' % uuid.uuid4().hex,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )

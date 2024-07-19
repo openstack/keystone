@@ -22,30 +22,36 @@ from keystone.tests.unit.resource import test_core
 class SqlDomainConfigModels(core_sql.BaseBackendSqlModels):
 
     def test_whitelisted_model(self):
-        cols = (('domain_id', sql.String, 64),
-                ('group', sql.String, 255),
-                ('option', sql.String, 255),
-                ('value', sql.JsonBlob, None))
+        cols = (
+            ('domain_id', sql.String, 64),
+            ('group', sql.String, 255),
+            ('option', sql.String, 255),
+            ('value', sql.JsonBlob, None),
+        )
         self.assertExpectedSchema('whitelisted_config', cols)
 
     def test_sensitive_model(self):
-        cols = (('domain_id', sql.String, 64),
-                ('group', sql.String, 255),
-                ('option', sql.String, 255),
-                ('value', sql.JsonBlob, None))
+        cols = (
+            ('domain_id', sql.String, 64),
+            ('group', sql.String, 255),
+            ('option', sql.String, 255),
+            ('value', sql.JsonBlob, None),
+        )
         self.assertExpectedSchema('sensitive_config', cols)
 
 
-class SqlDomainConfigDriver(unit.BaseTestCase,
-                            test_core.DomainConfigDriverTests):
+class SqlDomainConfigDriver(
+    unit.BaseTestCase, test_core.DomainConfigDriverTests
+):
     def setUp(self):
         super(SqlDomainConfigDriver, self).setUp()
         self.useFixture(database.Database())
         self.driver = config_sql.DomainConfig()
 
 
-class SqlDomainConfig(core_sql.BaseBackendSqlTests,
-                      test_core.DomainConfigTests):
+class SqlDomainConfig(
+    core_sql.BaseBackendSqlTests, test_core.DomainConfigTests
+):
     def setUp(self):
         super(SqlDomainConfig, self).setUp()
         # test_core.DomainConfigTests is effectively a mixin class, so make

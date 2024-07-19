@@ -36,8 +36,8 @@ PROVIDERS = provider_api.ProviderAPIs
 
 RECEIPTS_REGION = cache.create_region(name='receipts')
 MEMOIZE_RECEIPTS = cache.get_memoization_decorator(
-    group='receipt',
-    region=RECEIPTS_REGION)
+    group='receipt', region=RECEIPTS_REGION
+)
 
 
 def default_expire_time():
@@ -82,15 +82,18 @@ class Manager(manager.Manager):
                 ['project', self._drop_receipt_cache],
             ],
             notifications.ACTIONS.internal: [
-                [notifications.INVALIDATE_TOKEN_CACHE,
-                    self._drop_receipt_cache],
-            ]
+                [
+                    notifications.INVALIDATE_TOKEN_CACHE,
+                    self._drop_receipt_cache,
+                ],
+            ],
         }
 
         for event, cb_info in callbacks.items():
             for resource_type, callback_fns in cb_info:
-                notifications.register_event_callback(event, resource_type,
-                                                      callback_fns)
+                notifications.register_event_callback(
+                    event, resource_type, callback_fns
+                )
 
     def _drop_receipt_cache(self, service, resource_type, operation, payload):
         """Invalidate the entire receipt cache.
@@ -105,7 +108,8 @@ class Manager(manager.Manager):
     def validate_receipt(self, receipt_id, window_seconds=0):
         if not receipt_id:
             raise exception.ReceiptNotFound(
-                _('No receipt in the request'), receipt_id=receipt_id)
+                _('No receipt in the request'), receipt_id=receipt_id
+            )
 
         try:
             receipt = self._validate_receipt(receipt_id)
@@ -117,8 +121,9 @@ class Manager(manager.Manager):
 
     @MEMOIZE_RECEIPTS
     def _validate_receipt(self, receipt_id):
-        (user_id, methods, issued_at,
-            expires_at) = self.driver.validate_receipt(receipt_id)
+        (user_id, methods, issued_at, expires_at) = (
+            self.driver.validate_receipt(receipt_id)
+        )
 
         receipt = receipt_model.ReceiptModel()
         receipt.user_id = user_id
@@ -139,16 +144,21 @@ class Manager(manager.Manager):
             expiry += datetime.timedelta(seconds=window_seconds)
 
         except Exception:
-            LOG.exception('Unexpected error or malformed receipt '
-                          'determining receipt expiry: %s', receipt)
+            LOG.exception(
+                'Unexpected error or malformed receipt '
+                'determining receipt expiry: %s',
+                receipt,
+            )
             raise exception.ReceiptNotFound(
-                _('Failed to validate receipt'), receipt_id=receipt.id)
+                _('Failed to validate receipt'), receipt_id=receipt.id
+            )
 
         if current_time < expiry:
             return None
         else:
             raise exception.ReceiptNotFound(
-                _('Failed to validate receipt'), receipt_id=receipt.id)
+                _('Failed to validate receipt'), receipt_id=receipt.id
+            )
 
     def issue_receipt(self, user_id, method_names, expires_at=None):
 
@@ -169,7 +179,6 @@ class Manager(manager.Manager):
         receipt.mint(receipt_id, issued_at)
 
         if CONF.receipt.cache_on_issue:
-            self._validate_receipt.set(
-                receipt, RECEIPTS_REGION, receipt_id)
+            self._validate_receipt.set(receipt, RECEIPTS_REGION, receipt_id)
 
         return receipt

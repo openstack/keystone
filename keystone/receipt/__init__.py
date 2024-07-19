@@ -15,6 +15,4 @@
 from keystone.receipt import provider
 
 
-__all__ = (
-    "provider",
-)
+__all__ = ("provider",)

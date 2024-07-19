@@ -20,8 +20,8 @@ revoke_event_policies = [
         check_str=base.RULE_SERVICE_OR_ADMIN,
         scope_types=['system', 'project'],
         description='List revocation events.',
-        operations=[{'path': '/v3/OS-REVOKE/events',
-                     'method': 'GET'}])
+        operations=[{'path': '/v3/OS-REVOKE/events', 'method': 'GET'}],
+    )
 ]
 
 

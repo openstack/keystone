@@ -79,10 +79,14 @@ class CheckForMutableDefaultArgs(BaseASTChecker):
 
     CHECK_DESC = 'K001 Using mutable as a function/method default'
     MUTABLES = (
-        ast.List, ast.ListComp,
-        ast.Dict, ast.DictComp,
-        ast.Set, ast.SetComp,
-        ast.Call)
+        ast.List,
+        ast.ListComp,
+        ast.Dict,
+        ast.DictComp,
+        ast.Set,
+        ast.SetComp,
+        ast.Call,
+    )
 
     def visit_FunctionDef(self, node):
         for arg in node.args.defaults:
@@ -124,9 +128,7 @@ class CheckForTranslationIssues(BaseASTChecker):
     LOGGING_CHECK_DESC = 'K005 Using translated string in logging'
     USING_DEPRECATED_WARN = 'K009 Using the deprecated Logger.warn'
     LOG_MODULES = ('logging', 'oslo_log.log')
-    I18N_MODULES = (
-        'keystone.i18n._',
-    )
+    I18N_MODULES = ('keystone.i18n._',)
     TRANS_HELPER_MAP = {
         'debug': None,
         'info': '_LI',
@@ -181,8 +183,9 @@ class CheckForTranslationIssues(BaseASTChecker):
         """Return the fully qualified name or a Name or Attribute."""
         if isinstance(node, ast.Name):
             return node.id
-        elif (isinstance(node, ast.Attribute)
-                and isinstance(node.value, (ast.Name, ast.Attribute))):
+        elif isinstance(node, ast.Attribute) and isinstance(
+            node.value, (ast.Name, ast.Attribute)
+        ):
             method_name = node.attr
             obj_name = self._find_name(node.value)
             if obj_name is None:
@@ -213,18 +216,22 @@ class CheckForTranslationIssues(BaseASTChecker):
         """
         attr_node_types = (ast.Name, ast.Attribute)
 
-        if (len(node.targets) != 1
-                or not isinstance(node.targets[0], attr_node_types)):
+        if len(node.targets) != 1 or not isinstance(
+            node.targets[0], attr_node_types
+        ):
             # say no to: "x, y = ..."
             return super(CheckForTranslationIssues, self).generic_visit(node)
 
         target_name = self._find_name(node.targets[0])
 
-        if (isinstance(node.value, ast.BinOp) and
-                isinstance(node.value.op, ast.Mod)):
-            if (isinstance(node.value.left, ast.Call) and
-                    isinstance(node.value.left.func, ast.Name) and
-                    node.value.left.func.id in self.i18n_names):
+        if isinstance(node.value, ast.BinOp) and isinstance(
+            node.value.op, ast.Mod
+        ):
+            if (
+                isinstance(node.value.left, ast.Call)
+                and isinstance(node.value.left.func, ast.Name)
+                and node.value.left.func.id in self.i18n_names
+            ):
                 # NOTE(dstanek): this is done to match cases like:
                 # `msg = _('something %s') % x`
                 node = ast.Assign(value=node.value.left)
@@ -235,13 +242,16 @@ class CheckForTranslationIssues(BaseASTChecker):
             return super(CheckForTranslationIssues, self).generic_visit(node)
 
         # is this a call to an i18n function?
-        if (isinstance(node.value.func, ast.Name)
-                and node.value.func.id in self.i18n_names):
+        if (
+            isinstance(node.value.func, ast.Name)
+            and node.value.func.id in self.i18n_names
+        ):
             self.assignments[target_name] = node.value.func.id
             return super(CheckForTranslationIssues, self).generic_visit(node)
 
-        if (not isinstance(node.value.func, ast.Attribute)
-                or not isinstance(node.value.func.value, attr_node_types)):
+        if not isinstance(node.value.func, ast.Attribute) or not isinstance(
+            node.value.func.value, attr_node_types
+        ):
             # function must be an attribute on an object like
             # logging.getLogger
             return super(CheckForTranslationIssues, self).generic_visit(node)
@@ -249,8 +259,10 @@ class CheckForTranslationIssues(BaseASTChecker):
         object_name = self._find_name(node.value.func.value)
         func_name = node.value.func.attr
 
-        if (object_name in self.logger_module_names
-                and func_name == 'getLogger'):
+        if (
+            object_name in self.logger_module_names
+            and func_name == 'getLogger'
+        ):
             self.logger_names.append(target_name)
 
         return super(CheckForTranslationIssues, self).generic_visit(node)
@@ -266,8 +278,9 @@ class CheckForTranslationIssues(BaseASTChecker):
                 obj_name = self._find_name(node.func.value)
                 method_name = node.func.attr
             else:  # could be Subscript, Call or many more
-                return (super(CheckForTranslationIssues, self)
-                        .generic_visit(node))
+                return super(CheckForTranslationIssues, self).generic_visit(
+                    node
+                )
 
             # if dealing with a logger the method can't be "warn"
             if obj_name in self.logger_names and method_name == 'warn':
@@ -275,15 +288,19 @@ class CheckForTranslationIssues(BaseASTChecker):
                 self.add_error(msg, message=self.USING_DEPRECATED_WARN)
 
             # must be a logger instance and one of the support logging methods
-            if (obj_name not in self.logger_names
-                    or method_name not in self.TRANS_HELPER_MAP):
-                return (super(CheckForTranslationIssues, self)
-                        .generic_visit(node))
+            if (
+                obj_name not in self.logger_names
+                or method_name not in self.TRANS_HELPER_MAP
+            ):
+                return super(CheckForTranslationIssues, self).generic_visit(
+                    node
+                )
 
             # the call must have arguments
             if not node.args:
-                return (super(CheckForTranslationIssues, self)
-                        .generic_visit(node))
+                return super(CheckForTranslationIssues, self).generic_visit(
+                    node
+                )
 
             self._process_log_messages(node)
 
@@ -293,14 +310,15 @@ class CheckForTranslationIssues(BaseASTChecker):
         msg = node.args[0]  # first arg to a logging method is the msg
 
         # if first arg is a call to a i18n name
-        if (isinstance(msg, ast.Call)
-                and isinstance(msg.func, ast.Name)
-                and msg.func.id in self.i18n_names):
+        if (
+            isinstance(msg, ast.Call)
+            and isinstance(msg.func, ast.Name)
+            and msg.func.id in self.i18n_names
+        ):
             self.add_error(msg, message=self.LOGGING_CHECK_DESC)
 
         # if the first arg is a reference to a i18n call
-        elif (isinstance(msg, ast.Name)
-                and msg.id in self.assignments):
+        elif isinstance(msg, ast.Name) and msg.id in self.assignments:
             self.add_error(msg, message=self.LOGGING_CHECK_DESC)
 
 
@@ -318,11 +336,14 @@ def dict_constructor_with_sequence_copy(logical_line):
     K008: dict([[i,i] for i in range(3)])
 
     """
-    MESSAGE = ("K008 Must use a dict comprehension instead of a dict"
-               " constructor with a sequence of key-value pairs.")
+    MESSAGE = (
+        "K008 Must use a dict comprehension instead of a dict"
+        " constructor with a sequence of key-value pairs."
+    )
 
-    dict_constructor_with_sequence_re = (
-        re.compile(r".*\bdict\((\[)?(\(|\[)(?!\{)"))
+    dict_constructor_with_sequence_re = re.compile(
+        r".*\bdict\((\[)?(\(|\[)(?!\{)"
+    )
 
     if dict_constructor_with_sequence_re.match(logical_line):
         yield (0, MESSAGE)

@@ -75,25 +75,23 @@ class IdentityDriverTests(object):
         return self.driver.create_group(group_id, group)
 
     def test_is_domain_aware(self):
-        self.assertIs(self.expected_is_domain_aware,
-                      self.driver.is_domain_aware())
+        self.assertIs(
+            self.expected_is_domain_aware, self.driver.is_domain_aware()
+        )
 
     def test_is_sql(self):
         self.assertIs(self.expected_is_sql, self.driver.is_sql)
 
     def test_generates_uuids(self):
-        self.assertIs(self.expected_generates_uuids,
-                      self.driver.generates_uuids())
+        self.assertIs(
+            self.expected_generates_uuids, self.driver.generates_uuids()
+        )
 
     def test_create_user(self):
         # Don't use self.create_user since this needs to test the driver
         # interface and create_user might not use the driver.
         user_id = uuid.uuid4().hex
-        user = {
-            'id': user_id,
-            'name': uuid.uuid4().hex,
-            'enabled': True
-        }
+        user = {'id': user_id, 'name': uuid.uuid4().hex, 'enabled': True}
         if self.driver.is_domain_aware():
             user['domain_id'] = uuid.uuid4().hex
         ret = self.driver.create_user(user_id, user)
@@ -108,7 +106,7 @@ class IdentityDriverTests(object):
             'enabled': True,
             'default_project_id': uuid.uuid4().hex,
             'password_expires_at': None,
-            'options': {}
+            'options': {},
         }
         if self.driver.is_domain_aware():
             user['domain_id'] = uuid.uuid4().hex
@@ -127,8 +125,9 @@ class IdentityDriverTests(object):
         if self.driver.is_domain_aware():
             user['domain_id'] = uuid.uuid4().hex
         self.driver.create_user(user_id, user)
-        self.assertRaises(exception.Conflict,
-                          self.driver.create_user, user_id, user)
+        self.assertRaises(
+            exception.Conflict, self.driver.create_user, user_id, user
+        )
 
     def test_create_user_same_name_and_domain_exc(self):
         user1_id = uuid.uuid4().hex
@@ -151,8 +150,9 @@ class IdentityDriverTests(object):
         }
         if self.driver.is_domain_aware():
             user['domain_id'] = domain_id
-        self.assertRaises(exception.Conflict,
-                          self.driver.create_user, user2_id, user)
+        self.assertRaises(
+            exception.Conflict, self.driver.create_user, user2_id, user
+        )
 
     def test_list_users_no_users(self):
         hints = driver_hints.Hints()
@@ -172,8 +172,9 @@ class IdentityDriverTests(object):
         self.assertEqual(user['id'], actual_user['id'])
 
     def test_get_user_no_user_exc(self):
-        self.assertRaises(exception.UserNotFound,
-                          self.driver.get_user, uuid.uuid4().hex)
+        self.assertRaises(
+            exception.UserNotFound, self.driver.get_user, uuid.uuid4().hex
+        )
 
     def test_get_user_by_name(self):
         domain_id = uuid.uuid4().hex
@@ -185,8 +186,11 @@ class IdentityDriverTests(object):
     def test_get_user_by_name_no_user_exc(self):
         # When the user doesn't exist, UserNotFound is raised.
         self.assertRaises(
-            exception.UserNotFound, self.driver.get_user_by_name,
-            user_name=uuid.uuid4().hex, domain_id=uuid.uuid4().hex)
+            exception.UserNotFound,
+            self.driver.get_user_by_name,
+            user_name=uuid.uuid4().hex,
+            domain_id=uuid.uuid4().hex,
+        )
 
     def test_update_user(self):
         user = self.create_user()
@@ -217,14 +221,16 @@ class IdentityDriverTests(object):
         user2 = self.create_user(domain_id=domain_id)
 
         user_mod = {'name': user2['name']}
-        self.assertRaises(exception.Conflict, self.driver.update_user,
-                          user1['id'], user_mod)
+        self.assertRaises(
+            exception.Conflict, self.driver.update_user, user1['id'], user_mod
+        )
 
     def test_update_user_no_user_exc(self):
         user_id = uuid.uuid4().hex
         user_mod = {'enabled': False}
-        self.assertRaises(exception.UserNotFound,
-                          self.driver.update_user, user_id, user_mod)
+        self.assertRaises(
+            exception.UserNotFound, self.driver.update_user, user_id, user_mod
+        )
 
     def test_update_user_name_not_allowed_exc(self):
         # For drivers that do not allow name update, attempting to change the
@@ -235,8 +241,9 @@ class IdentityDriverTests(object):
 
         user = self.create_user()
         user_mod = {'name': uuid.uuid4().hex}
-        self.assertRaises(exception.Conflict, self.driver.update_user,
-                          user['id'], user_mod)
+        self.assertRaises(
+            exception.Conflict, self.driver.update_user, user['id'], user_mod
+        )
 
     def test_change_password(self):
         if not self.allows_self_service_change_password:
@@ -254,13 +261,17 @@ class IdentityDriverTests(object):
         user = self.create_user()
 
         self.driver.delete_user(user['id'])
-        self.assertRaises(exception.UserNotFound, self.driver.get_user,
-                          user['id'])
+        self.assertRaises(
+            exception.UserNotFound, self.driver.get_user, user['id']
+        )
 
     def test_delete_user_no_user_exc(self):
         # When the user doesn't exist, UserNotFound is raised.
-        self.assertRaises(exception.UserNotFound, self.driver.delete_user,
-                          user_id=uuid.uuid4().hex)
+        self.assertRaises(
+            exception.UserNotFound,
+            self.driver.delete_user,
+            user_id=uuid.uuid4().hex,
+        )
 
     def test_create_group(self):
         group_id = uuid.uuid4().hex
@@ -304,8 +315,9 @@ class IdentityDriverTests(object):
         }
         if self.driver.is_domain_aware():
             group2['domain_id'] = domain
-        self.assertRaises(exception.Conflict, self.driver.create_group,
-                          group2_id, group2)
+        self.assertRaises(
+            exception.Conflict, self.driver.create_group, group2_id, group2
+        )
 
     def test_get_group(self):
         group = self.create_group()
@@ -315,8 +327,11 @@ class IdentityDriverTests(object):
 
     def test_get_group_no_group_exc(self):
         # When the group doesn't exist, get_group raises GroupNotFound.
-        self.assertRaises(exception.GroupNotFound, self.driver.get_group,
-                          group_id=uuid.uuid4().hex)
+        self.assertRaises(
+            exception.GroupNotFound,
+            self.driver.get_group,
+            group_id=uuid.uuid4().hex,
+        )
 
     def test_get_group_by_name(self):
         domain_id = uuid.uuid4().hex
@@ -328,8 +343,11 @@ class IdentityDriverTests(object):
     def test_get_group_by_name_no_user_exc(self):
         # When the group doesn't exist, get_group raises GroupNotFound.
         self.assertRaises(
-            exception.GroupNotFound, self.driver.get_group_by_name,
-            group_name=uuid.uuid4().hex, domain_id=uuid.uuid4().hex)
+            exception.GroupNotFound,
+            self.driver.get_group_by_name,
+            group_name=uuid.uuid4().hex,
+            domain_id=uuid.uuid4().hex,
+        )
 
     def test_update_group(self):
         group = self.create_group()
@@ -342,8 +360,12 @@ class IdentityDriverTests(object):
     def test_update_group_no_group(self):
         # When the group doesn't exist, GroupNotFound is raised.
         group_mod = {'description': uuid.uuid4().hex}
-        self.assertRaises(exception.GroupNotFound, self.driver.update_group,
-                          group_id=uuid.uuid4().hex, group=group_mod)
+        self.assertRaises(
+            exception.GroupNotFound,
+            self.driver.update_group,
+            group_id=uuid.uuid4().hex,
+            group=group_mod,
+        )
 
     def test_update_group_name_already_exists(self):
         # For drivers that support renaming, when the group is renamed to a
@@ -357,8 +379,12 @@ class IdentityDriverTests(object):
         group2 = self.create_group(domain_id=domain_id)
 
         group_mod = {'name': group1['name']}
-        self.assertRaises(exception.Conflict, self.driver.update_group,
-                          group2['id'], group_mod)
+        self.assertRaises(
+            exception.Conflict,
+            self.driver.update_group,
+            group2['id'],
+            group_mod,
+        )
 
     def test_update_group_name_not_allowed(self):
         # For drivers that do not support renaming, when the group is attempted
@@ -370,18 +396,26 @@ class IdentityDriverTests(object):
         group = self.create_group()
 
         group_mod = {'name': uuid.uuid4().hex}
-        self.assertRaises(exception.ValidationError, self.driver.update_group,
-                          group['id'], group_mod)
+        self.assertRaises(
+            exception.ValidationError,
+            self.driver.update_group,
+            group['id'],
+            group_mod,
+        )
 
     def test_delete_group(self):
         group = self.create_group()
         self.driver.delete_group(group['id'])
-        self.assertRaises(exception.GroupNotFound, self.driver.get_group,
-                          group['id'])
+        self.assertRaises(
+            exception.GroupNotFound, self.driver.get_group, group['id']
+        )
 
     def test_delete_group_doesnt_exist_exc(self):
-        self.assertRaises(exception.GroupNotFound, self.driver.delete_group,
-                          group_id=uuid.uuid4().hex)
+        self.assertRaises(
+            exception.GroupNotFound,
+            self.driver.delete_group,
+            group_id=uuid.uuid4().hex,
+        )
 
     def test_list_groups_no_groups(self):
         groups = self.driver.list_groups(driver_hints.Hints())
@@ -405,15 +439,23 @@ class IdentityDriverTests(object):
         group = self.create_group()
 
         user_id = uuid.uuid4().hex
-        self.assertRaises(exception.UserNotFound,
-                          self.driver.add_user_to_group, user_id, group['id'])
+        self.assertRaises(
+            exception.UserNotFound,
+            self.driver.add_user_to_group,
+            user_id,
+            group['id'],
+        )
 
     def test_add_user_to_group_no_group_exc(self):
         user = self.create_user()
 
         group_id = uuid.uuid4().hex
-        self.assertRaises(exception.GroupNotFound,
-                          self.driver.add_user_to_group, user['id'], group_id)
+        self.assertRaises(
+            exception.GroupNotFound,
+            self.driver.add_user_to_group,
+            user['id'],
+            group_id,
+        )
 
     def test_check_user_in_group(self):
         user = self.create_user()
@@ -427,8 +469,12 @@ class IdentityDriverTests(object):
         user = self.create_user()
         group = self.create_group()
 
-        self.assertRaises(exception.NotFound, self.driver.check_user_in_group,
-                          user['id'], group['id'])
+        self.assertRaises(
+            exception.NotFound,
+            self.driver.check_user_in_group,
+            user['id'],
+            group['id'],
+        )
 
     def test_check_user_in_group_user_doesnt_exist_exc(self):
         # When the user doesn't exist, UserNotFound is raised.
@@ -436,8 +482,11 @@ class IdentityDriverTests(object):
 
         user_id = uuid.uuid4().hex
         self.assertRaises(
-            exception.UserNotFound, self.driver.check_user_in_group, user_id,
-            group['id'])
+            exception.UserNotFound,
+            self.driver.check_user_in_group,
+            user_id,
+            group['id'],
+        )
 
     def test_check_user_in_group_group_doesnt_exist_exc(self):
         # When the group doesn't exist, UserNotFound is raised.
@@ -445,14 +494,18 @@ class IdentityDriverTests(object):
 
         group_id = uuid.uuid4().hex
         self.assertRaises(
-            exception.GroupNotFound, self.driver.check_user_in_group,
-            user['id'], group_id)
+            exception.GroupNotFound,
+            self.driver.check_user_in_group,
+            user['id'],
+            group_id,
+        )
 
     def test_list_users_in_group_no_users(self):
         group = self.create_group()
 
-        users = self.driver.list_users_in_group(group['id'],
-                                                driver_hints.Hints())
+        users = self.driver.list_users_in_group(
+            group['id'], driver_hints.Hints()
+        )
         self.assertEqual([], users)
 
     def test_list_users_in_group_user(self):
@@ -460,21 +513,26 @@ class IdentityDriverTests(object):
         user = self.create_user()
         self.driver.add_user_to_group(user['id'], group['id'])
 
-        users = self.driver.list_users_in_group(group['id'],
-                                                driver_hints.Hints())
+        users = self.driver.list_users_in_group(
+            group['id'], driver_hints.Hints()
+        )
         self.assertEqual([user['id']], [u['id'] for u in users])
 
     def test_list_users_in_group_no_group(self):
         group_id = uuid.uuid4().hex
         self.assertRaises(
-            exception.GroupNotFound, self.driver.list_users_in_group, group_id,
-            driver_hints.Hints())
+            exception.GroupNotFound,
+            self.driver.list_users_in_group,
+            group_id,
+            driver_hints.Hints(),
+        )
 
     def test_list_groups_for_user_no_groups(self):
         user = self.create_user()
 
-        groups = self.driver.list_groups_for_user(user['id'],
-                                                  driver_hints.Hints())
+        groups = self.driver.list_groups_for_user(
+            user['id'], driver_hints.Hints()
+        )
         self.assertEqual([], groups)
 
     def test_list_groups_for_user_group(self):
@@ -482,15 +540,19 @@ class IdentityDriverTests(object):
         group = self.create_group()
         self.driver.add_user_to_group(user['id'], group['id'])
 
-        groups = self.driver.list_groups_for_user(user['id'],
-                                                  driver_hints.Hints())
+        groups = self.driver.list_groups_for_user(
+            user['id'], driver_hints.Hints()
+        )
         self.assertEqual([group['id']], [g['id'] for g in groups])
 
     def test_list_groups_for_user_no_user(self):
         user_id = uuid.uuid4().hex
         self.assertRaises(
-            exception.UserNotFound, self.driver.list_groups_for_user,
-            user_id, driver_hints.Hints())
+            exception.UserNotFound,
+            self.driver.list_groups_for_user,
+            user_id,
+            driver_hints.Hints(),
+        )
 
     def test_remove_user_from_group(self):
         user = self.create_user()
@@ -499,8 +561,12 @@ class IdentityDriverTests(object):
 
         self.driver.remove_user_from_group(user['id'], group['id'])
 
-        self.assertRaises(exception.NotFound, self.driver.check_user_in_group,
-                          user['id'], group['id'])
+        self.assertRaises(
+            exception.NotFound,
+            self.driver.check_user_in_group,
+            user['id'],
+            group['id'],
+        )
 
     def test_remove_user_from_group_not_in_group(self):
         user = self.create_user()
@@ -509,24 +575,33 @@ class IdentityDriverTests(object):
         # FIXME(blk-u): ldap is returning UserNotFound rather than NotFound,
         # fix this.
         self.assertRaises(
-            exception.NotFound, self.driver.remove_user_from_group, user['id'],
-            group['id'])
+            exception.NotFound,
+            self.driver.remove_user_from_group,
+            user['id'],
+            group['id'],
+        )
 
     def test_remove_user_from_group_no_user(self):
         group = self.create_group()
 
         user_id = uuid.uuid4().hex
         self.assertRaises(
-            exception.UserNotFound, self.driver.remove_user_from_group,
-            user_id, group['id'])
+            exception.UserNotFound,
+            self.driver.remove_user_from_group,
+            user_id,
+            group['id'],
+        )
 
     def test_remove_user_from_group_no_group(self):
         user = self.create_user()
 
         group_id = uuid.uuid4().hex
         self.assertRaises(
-            exception.GroupNotFound, self.driver.remove_user_from_group,
-            user['id'], group_id)
+            exception.GroupNotFound,
+            self.driver.remove_user_from_group,
+            user['id'],
+            group_id,
+        )
 
     def test_authenticate(self):
         password = uuid.uuid4().hex
@@ -539,11 +614,13 @@ class IdentityDriverTests(object):
         user = self.create_user(password=uuid.uuid4().hex)
 
         password = uuid.uuid4().hex
-        self.assertRaises(AssertionError, self.driver.authenticate, user['id'],
-                          password)
+        self.assertRaises(
+            AssertionError, self.driver.authenticate, user['id'], password
+        )
 
     def test_authenticate_no_user(self):
         user_id = uuid.uuid4().hex
         password = uuid.uuid4().hex
-        self.assertRaises(AssertionError, self.driver.authenticate, user_id,
-                          password)
+        self.assertRaises(
+            AssertionError, self.driver.authenticate, user_id, password
+        )

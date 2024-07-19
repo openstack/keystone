@@ -49,12 +49,14 @@ class Manager(manager.Manager):
     def __init__(self):
         super(Manager, self).__init__(CONF.federation.driver)
         notifications.register_event_callback(
-            notifications.ACTIONS.internal, notifications.DOMAIN_DELETED,
-            self._cleanup_identity_provider
+            notifications.ACTIONS.internal,
+            notifications.DOMAIN_DELETED,
+            self._cleanup_identity_provider,
         )
 
-    def _cleanup_identity_provider(self, service, resource_type, operation,
-                                   payload):
+    def _cleanup_identity_provider(
+        self, service, resource_type, operation, payload
+    ):
         domain_id = payload['resource_info']
         hints = driver_hints.Hints()
         hints.add_filter('domain_id', domain_id)
@@ -63,10 +65,14 @@ class Manager(manager.Manager):
             try:
                 self.delete_idp(idp['id'])
             except exception.IdentityProviderNotFound:
-                LOG.debug(('Identity Provider %(idpid)s not found when '
-                           'deleting domain contents for %(domainid)s, '
-                           'continuing with cleanup.'),
-                          {'idpid': idp['id'], 'domainid': domain_id})
+                LOG.debug(
+                    (
+                        'Identity Provider %(idpid)s not found when '
+                        'deleting domain contents for %(domainid)s, '
+                        'continuing with cleanup.'
+                    ),
+                    {'idpid': idp['id'], 'domainid': domain_id},
+                )
 
     def create_idp(self, idp_id, idp):
         auto_created_domain = False
@@ -113,7 +119,7 @@ class Manager(manager.Manager):
             'id': domain_id,
             'name': domain_id,
             'description': desc,
-            'enabled': True
+            'enabled': True,
         }
         PROVIDERS.resource_api.create_domain(domain['id'], domain)
         return domain_id
@@ -137,12 +143,9 @@ class Manager(manager.Manager):
         :rtype: list of dicts
 
         """
+
         def normalize(sp):
-            ref = {
-                'auth_url': sp.auth_url,
-                'id': sp.id,
-                'sp_url': sp.sp_url
-            }
+            ref = {'auth_url': sp.auth_url, 'id': sp.id, 'sp_url': sp.sp_url}
             return ref
 
         service_providers = self.driver.get_enabled_service_providers()
@@ -166,7 +169,8 @@ class Manager(manager.Manager):
         mapping = self.get_mapping_from_idp_and_protocol(idp_id, protocol_id)
 
         rule_processor = utils.create_attribute_mapping_rules_processor(
-            mapping)
+            mapping
+        )
 
         mapped_properties = rule_processor.process(assertion_data)
         return mapped_properties, mapping['id']

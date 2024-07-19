@@ -28,9 +28,7 @@ LOG = log.getLogger(__name__)
 class Policy(base.PolicyDriverBase):
     def enforce(self, credentials, action, target):
         msg = 'enforce %(action)s: %(credentials)s'
-        LOG.debug(msg, {
-            'action': action,
-            'credentials': credentials})
+        LOG.debug(msg, {'action': action, 'credentials': credentials})
         policy.enforce(credentials, action, target)
 
     def create_policy(self, policy_id, policy):

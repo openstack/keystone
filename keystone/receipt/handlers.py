@@ -26,17 +26,17 @@ PROVIDERS = provider_api.ProviderAPIs
 
 def extract_receipt(auth_context):
     receipt_id = flask.request.headers.get(
-        authorization.AUTH_RECEIPT_HEADER, None)
+        authorization.AUTH_RECEIPT_HEADER, None
+    )
     if receipt_id:
-        receipt = PROVIDERS.receipt_provider_api.validate_receipt(
-            receipt_id)
+        receipt = PROVIDERS.receipt_provider_api.validate_receipt(receipt_id)
 
         if auth_context['user_id'] != receipt.user_id:
             raise exception.ReceiptNotFound(
                 "AuthContext user_id: %s does not match "
-                "user_id for supplied auth receipt: %s" %
-                (auth_context['user_id'], receipt.user_id),
-                receipt_id=receipt_id
+                "user_id for supplied auth receipt: %s"
+                % (auth_context['user_id'], receipt.user_id),
+                receipt_id=receipt_id,
             )
     else:
         receipt = None
@@ -53,7 +53,7 @@ def _render_receipt_response_from_model(receipt):
                 'domain': {
                     'id': receipt.user_domain['id'],
                     'name': receipt.user_domain['name'],
-                }
+                },
             },
             'expires_at': receipt.expires_at,
             'issued_at': receipt.issued_at,
@@ -64,8 +64,9 @@ def _render_receipt_response_from_model(receipt):
 
 
 def build_receipt(mfa_error):
-    receipt = PROVIDERS.receipt_provider_api. \
-        issue_receipt(mfa_error.user_id, mfa_error.methods)
+    receipt = PROVIDERS.receipt_provider_api.issue_receipt(
+        mfa_error.user_id, mfa_error.methods
+    )
     resp_data = _render_receipt_response_from_model(receipt)
     resp_body = jsonutils.dumps(resp_data)
     response = flask.make_response(resp_body, http.client.UNAUTHORIZED)
