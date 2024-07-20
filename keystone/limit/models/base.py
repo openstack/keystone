@@ -31,7 +31,7 @@ def load_driver(driver_name, *args):
         raise ImportError(msg % {'name': driver_name, 'namespace': namespace})
 
 
-class ModelBase(object, metaclass=abc.ABCMeta):
+class ModelBase(metaclass=abc.ABCMeta):
     """Interface for a limit model driver."""
 
     NAME = None

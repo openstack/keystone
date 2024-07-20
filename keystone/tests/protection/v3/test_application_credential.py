@@ -67,7 +67,7 @@ class _TestAppCredBase(base_classes.TestCaseWithBootstrap):
         return app_cred_data
 
     def setUp(self):
-        super(_TestAppCredBase, self).setUp()
+        super().setUp()
 
         # create a user and project for app cred testing
         new_user_ref = unit.new_user_ref(
@@ -122,7 +122,7 @@ class _TestAppCredBase(base_classes.TestCaseWithBootstrap):
             f.write(jsonutils.dumps(overridden_policies))
 
 
-class _DomainAndProjectUserTests(object):
+class _DomainAndProjectUserTests:
     """Domain and project user tests.
 
     Domain and project users should not be able to manage application
@@ -208,7 +208,7 @@ class _DomainAndProjectUserTests(object):
             )
 
 
-class _SystemUserAndOwnerTests(object):
+class _SystemUserAndOwnerTests:
     """Common default functionality for all system users and owner."""
 
     def test_user_can_list_application_credentials(self):
@@ -291,7 +291,7 @@ class SystemReaderTests(
 ):
 
     def setUp(self):
-        super(SystemReaderTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -328,7 +328,7 @@ class SystemMemberTests(
 ):
 
     def setUp(self):
-        super(SystemMemberTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -365,7 +365,7 @@ class SystemAdminTests(
 ):
 
     def setUp(self):
-        super(SystemAdminTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -393,7 +393,7 @@ class OwnerTests(
 ):
 
     def setUp(self):
-        super(OwnerTests, self).setUp()
+        super().setUp()
         self.loadapp()
 
         self.policy_file = self.useFixture(temporaryfile.SecureTempFile())
@@ -509,7 +509,7 @@ class DomainAdminTests(
 ):
 
     def setUp(self):
-        super(DomainAdminTests, self).setUp()
+        super().setUp()
         self.loadapp()
 
         self.policy_file = self.useFixture(temporaryfile.SecureTempFile())
@@ -552,7 +552,7 @@ class DomainReaderTests(
 ):
 
     def setUp(self):
-        super(DomainReaderTests, self).setUp()
+        super().setUp()
         self.loadapp()
 
         self.policy_file = self.useFixture(temporaryfile.SecureTempFile())
@@ -595,7 +595,7 @@ class DomainMemberTests(
 ):
 
     def setUp(self):
-        super(DomainMemberTests, self).setUp()
+        super().setUp()
         self.loadapp()
 
         self.policy_file = self.useFixture(temporaryfile.SecureTempFile())
@@ -638,7 +638,7 @@ class ProjectAdminTests(
 ):
 
     def setUp(self):
-        super(ProjectAdminTests, self).setUp()
+        super().setUp()
         self.loadapp()
 
         self.policy_file = self.useFixture(temporaryfile.SecureTempFile())
@@ -682,7 +682,7 @@ class ProjectReaderTests(
 ):
 
     def setUp(self):
-        super(ProjectReaderTests, self).setUp()
+        super().setUp()
         self.loadapp()
 
         self.policy_file = self.useFixture(temporaryfile.SecureTempFile())
@@ -726,7 +726,7 @@ class ProjectMemberTests(
 ):
 
     def setUp(self):
-        super(ProjectMemberTests, self).setUp()
+        super().setUp()
         self.loadapp()
 
         self.policy_file = self.useFixture(temporaryfile.SecureTempFile())

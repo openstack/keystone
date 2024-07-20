@@ -258,7 +258,7 @@ class User(sql.ModelBase, sql.ModelDictMixinWithExtras):
         return None
 
     def to_dict(self, include_extra_dict=False):
-        d = super(User, self).to_dict(include_extra_dict=include_extra_dict)
+        d = super().to_dict(include_extra_dict=include_extra_dict)
         if 'default_project_id' in d and d['default_project_id'] is None:
             del d['default_project_id']
         # NOTE(notmorgan): Eventually it may make sense to drop the empty
@@ -291,7 +291,7 @@ class User(sql.ModelBase, sql.ModelDictMixinWithExtras):
                 if opt_value is not None:
                     opt.validator(opt_value)
                 resource_options[opt.option_id] = opt_value
-        user_obj = super(User, cls).from_dict(new_dict)
+        user_obj = super().from_dict(new_dict)
         setattr(user_obj, '_resource_options', resource_options)
         return user_obj
 

@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -171,7 +170,7 @@ class CommonValidationTestCase(unit.BaseTestCase):
 class EntityValidationTestCase(unit.BaseTestCase):
 
     def setUp(self):
-        super(EntityValidationTestCase, self).setUp()
+        super().setUp()
         self.resource_name = 'some resource name'
         self.description = 'Some valid description'
         self.valid_enabled = True
@@ -229,7 +228,7 @@ class EntityValidationTestCase(unit.BaseTestCase):
 
     def test_create_entity_with_unicode_name_validates(self):
         """Test that we successfully validate a unicode string."""
-        request_to_validate = {'name': u'αβγδ'}
+        request_to_validate = {'name': 'αβγδ'}
         self.create_schema_validator.validate(request_to_validate)
 
     def test_create_entity_with_invalid_enabled_format_raises_exception(self):
@@ -415,7 +414,7 @@ class ProjectValidationTestCase(unit.BaseTestCase):
     """Test for V3 Project API validation."""
 
     def setUp(self):
-        super(ProjectValidationTestCase, self).setUp()
+        super().setUp()
 
         self.project_name = 'My Project'
 
@@ -672,7 +671,7 @@ class DomainValidationTestCase(unit.BaseTestCase):
     """Test for V3 Domain API validation."""
 
     def setUp(self):
-        super(DomainValidationTestCase, self).setUp()
+        super().setUp()
 
         self.domain_name = 'My Domain'
 
@@ -877,7 +876,7 @@ class RoleValidationTestCase(unit.BaseTestCase):
     """Test for V3 Role API validation."""
 
     def setUp(self):
-        super(RoleValidationTestCase, self).setUp()
+        super().setUp()
 
         self.role_name = 'My Role'
 
@@ -967,7 +966,7 @@ class PolicyValidationTestCase(unit.BaseTestCase):
     """Test for V3 Policy API validation."""
 
     def setUp(self):
-        super(PolicyValidationTestCase, self).setUp()
+        super().setUp()
 
         create = policy_schema.policy_create
         update = policy_schema.policy_update
@@ -1060,7 +1059,7 @@ class CredentialValidationTestCase(unit.BaseTestCase):
     """Test for V3 Credential API validation."""
 
     def setUp(self):
-        super(CredentialValidationTestCase, self).setUp()
+        super().setUp()
 
         create = credential_schema.credential_create
         update = credential_schema.credential_update
@@ -1201,7 +1200,7 @@ class RegionValidationTestCase(unit.BaseTestCase):
     """Test for V3 Region API validation."""
 
     def setUp(self):
-        super(RegionValidationTestCase, self).setUp()
+        super().setUp()
 
         self.region_name = 'My Region'
 
@@ -1283,7 +1282,7 @@ class ServiceValidationTestCase(unit.BaseTestCase):
     """Test for V3 Service API validation."""
 
     def setUp(self):
-        super(ServiceValidationTestCase, self).setUp()
+        super().setUp()
 
         create = catalog_schema.service_create
         update = catalog_schema.service_update
@@ -1470,7 +1469,7 @@ class EndpointValidationTestCase(unit.BaseTestCase):
     """Test for V3 Endpoint API validation."""
 
     def setUp(self):
-        super(EndpointValidationTestCase, self).setUp()
+        super().setUp()
 
         create = catalog_schema.endpoint_create
         update = catalog_schema.endpoint_update
@@ -1757,7 +1756,7 @@ class EndpointGroupValidationTestCase(unit.BaseTestCase):
     """Test for V3 Endpoint Group API validation."""
 
     def setUp(self):
-        super(EndpointGroupValidationTestCase, self).setUp()
+        super().setUp()
 
         create = catalog_schema.endpoint_group_create
         update = catalog_schema.endpoint_group_update
@@ -1893,7 +1892,7 @@ class TrustValidationTestCase(unit.BaseTestCase):
     _invalid_roles = [False, True, 123, None]
 
     def setUp(self):
-        super(TrustValidationTestCase, self).setUp()
+        super().setUp()
 
         create = trust_schema.trust_create
         self.create_trust_validator = validators.SchemaValidator(create)
@@ -2067,7 +2066,7 @@ class ServiceProviderValidationTestCase(unit.BaseTestCase):
     """Test for V3 Service Provider API validation."""
 
     def setUp(self):
-        super(ServiceProviderValidationTestCase, self).setUp()
+        super().setUp()
 
         self.valid_auth_url = 'https://' + uuid.uuid4().hex + '.com'
         self.valid_sp_url = 'https://' + uuid.uuid4().hex + '.com'
@@ -2254,7 +2253,7 @@ class UserValidationTestCase(unit.BaseTestCase):
     """Test for V3 User API validation."""
 
     def setUp(self):
-        super(UserValidationTestCase, self).setUp()
+        super().setUp()
 
         self.user_name = uuid.uuid4().hex
 
@@ -2527,7 +2526,7 @@ class GroupValidationTestCase(unit.BaseTestCase):
     """Test for V3 Group API validation."""
 
     def setUp(self):
-        super(GroupValidationTestCase, self).setUp()
+        super().setUp()
 
         self.group_name = uuid.uuid4().hex
 
@@ -2611,7 +2610,7 @@ class ChangePasswordValidationTestCase(unit.BaseTestCase):
     """Test for Change Password API validation."""
 
     def setUp(self):
-        super(ChangePasswordValidationTestCase, self).setUp()
+        super().setUp()
 
         self.original_password = uuid.uuid4().hex
         self.password = uuid.uuid4().hex
@@ -2662,7 +2661,7 @@ class IdentityProviderValidationTestCase(unit.BaseTestCase):
     """Test for V3 Identity Provider API validation."""
 
     def setUp(self):
-        super(IdentityProviderValidationTestCase, self).setUp()
+        super().setUp()
 
         create = federation_schema.identity_provider_create
         update = federation_schema.identity_provider_update
@@ -2786,7 +2785,7 @@ class FederationProtocolValidationTestCase(unit.BaseTestCase):
     """Test for V3 Federation Protocol API validation."""
 
     def setUp(self):
-        super(FederationProtocolValidationTestCase, self).setUp()
+        super().setUp()
 
         create = federation_schema.protocol_create
         update = federation_schema.protocol_update
@@ -2875,7 +2874,7 @@ class OAuth1ValidationTestCase(unit.BaseTestCase):
     """Test for V3 Identity OAuth1 API validation."""
 
     def setUp(self):
-        super(OAuth1ValidationTestCase, self).setUp()
+        super().setUp()
 
         create = oauth1_schema.consumer_create
         update = oauth1_schema.consumer_update
@@ -2982,7 +2981,7 @@ class OAuth1ValidationTestCase(unit.BaseTestCase):
 
 class PasswordValidationTestCase(unit.TestCase):
     def setUp(self):
-        super(PasswordValidationTestCase, self).setUp()
+        super().setUp()
         # passwords requires: 1 letter, 1 digit, 7 chars
         self.config_fixture.config(
             group='security_compliance',
@@ -3038,7 +3037,7 @@ class LimitValidationTestCase(unit.BaseTestCase):
     """Test for V3 Limits API validation."""
 
     def setUp(self):
-        super(LimitValidationTestCase, self).setUp()
+        super().setUp()
 
         create_registered_limits = limit_schema.registered_limit_create
         update_registered_limits = limit_schema.registered_limit_update
@@ -3443,7 +3442,7 @@ class ApplicationCredentialValidatorTestCase(unit.TestCase):
     _invalid_roles = [True, 123, None, {'badkey': 'badval'}]
 
     def setUp(self):
-        super(ApplicationCredentialValidatorTestCase, self).setUp()
+        super().setUp()
 
         create = app_cred_schema.application_credential_create
         self.create_app_cred_validator = validators.SchemaValidator(create)

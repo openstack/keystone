@@ -61,7 +61,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-copyright = u'2010-present, OpenStack Foundation'
+copyright = '2010-present, OpenStack Foundation'
 
 # -- Options for openstackdocstheme -------------------------------------------
 openstackdocs_repo_name = 'openstack/keystone'

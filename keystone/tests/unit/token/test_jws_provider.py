@@ -31,7 +31,7 @@ PROVIDERS = provider_api.ProviderAPIs
 class TestJWSProvider(unit.TestCase):
 
     def setUp(self):
-        super(TestJWSProvider, self).setUp()
+        super().setUp()
         self.config_fixture.config(group='token', provider='jws')
         self.useFixture(ksfixtures.JWSKeyRepository(self.config_fixture))
         self.provider = jws.Provider()

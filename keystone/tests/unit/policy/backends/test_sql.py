@@ -37,7 +37,7 @@ class SQLDriverTestCase(test_base.DriverTestCase, unit.TestCase):
     def setUp(self):
         # Load database first since parent's setUp will use it
         self.useFixture(database.Database())
-        super(SQLDriverTestCase, self).setUp()
+        super().setUp()
 
     @property
     def driver(self):

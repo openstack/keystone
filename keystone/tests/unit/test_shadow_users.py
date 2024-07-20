@@ -29,7 +29,7 @@ class ShadowUsersTests(
     test_core.ShadowUsersCoreTests,
 ):
     def setUp(self):
-        super(ShadowUsersTests, self).setUp()
+        super().setUp()
         self.useFixture(database.Database())
         self.load_backends()
         PROVIDERS.resource_api.create_domain(
@@ -70,7 +70,7 @@ class ShadowUsersTests(
 class TestUserWithFederatedUser(ShadowUsersTests):
 
     def setUp(self):
-        super(TestUserWithFederatedUser, self).setUp()
+        super().setUp()
         self.useFixture(database.Database())
         self.load_backends()
 

@@ -28,7 +28,7 @@ class Project(sql.ModelBase, sql.ModelDictMixinWithExtras):
     # to represent null, as defined in NULL_DOMAIN_ID above.
 
     def to_dict(self, include_extra_dict=False):
-        d = super(Project, self).to_dict(include_extra_dict=include_extra_dict)
+        d = super().to_dict(include_extra_dict=include_extra_dict)
         if d['domain_id'] == base.NULL_DOMAIN_ID:
             d['domain_id'] = None
         # NOTE(notmorgan): Eventually it may make sense to drop the empty
@@ -49,7 +49,7 @@ class Project(sql.ModelBase, sql.ModelDictMixinWithExtras):
                 if opt_value is not None:
                     opt.validator(opt_value)
                 resource_options[opt.option_id] = opt_value
-        project_obj = super(Project, cls).from_dict(new_dict)
+        project_obj = super().from_dict(new_dict)
         setattr(project_obj, '_resource_options', resource_options)
         return project_obj
 
@@ -118,7 +118,7 @@ class Project(sql.ModelBase, sql.ModelDictMixinWithExtras):
 class ProjectTag(sql.ModelBase, sql.ModelDictMixin):
 
     def to_dict(self):
-        d = super(ProjectTag, self).to_dict()
+        d = super().to_dict()
         return d
 
     __tablename__ = 'project_tag'

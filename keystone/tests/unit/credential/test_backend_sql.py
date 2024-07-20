@@ -30,7 +30,7 @@ PROVIDERS = provider_api.ProviderAPIs
 class SqlTests(unit.SQLDriverOverrides, unit.TestCase):
 
     def setUp(self):
-        super(SqlTests, self).setUp()
+        super().setUp()
         self.useFixture(database.Database())
         self.load_backends()
         # populate the engine with tables & fixtures
@@ -39,7 +39,7 @@ class SqlTests(unit.SQLDriverOverrides, unit.TestCase):
         self.user_foo['enabled'] = True
 
     def config_files(self):
-        config_files = super(SqlTests, self).config_files()
+        config_files = super().config_files()
         config_files.append(unit.dirs.tests_conf('backend_sql.conf'))
         return config_files
 
@@ -66,7 +66,7 @@ class SqlCredential(SqlTests):
             self.assertIn(cred['id'], retrieved_ids)
 
     def setUp(self):
-        super(SqlCredential, self).setUp()
+        super().setUp()
         self.useFixture(
             ksfixtures.KeyRepository(
                 self.config_fixture,

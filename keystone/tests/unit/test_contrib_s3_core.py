@@ -30,7 +30,7 @@ PROVIDERS = provider_api.ProviderAPIs
 
 class S3ContribCore(test_v3.RestfulTestCase):
     def setUp(self):
-        super(S3ContribCore, self).setUp()
+        super().setUp()
 
         self.load_backends()
 
@@ -107,7 +107,7 @@ class S3ContribCore(test_v3.RestfulTestCase):
         )
 
     def test_good_signature_v1(self):
-        creds_ref = {'secret': u'b121dd41cdcc42fe9f70e572e84295aa'}
+        creds_ref = {'secret': 'b121dd41cdcc42fe9f70e572e84295aa'}
         credentials = {
             'token': 'UFVUCjFCMk0yWThBc2dUcGdBbVk3UGhDZmc9PQphcHB'
             'saWNhdGlvbi9vY3RldC1zdHJlYW0KVHVlLCAxMSBEZWMgMjAxM'
@@ -121,7 +121,7 @@ class S3ContribCore(test_v3.RestfulTestCase):
         )
 
     def test_bad_signature_v1(self):
-        creds_ref = {'secret': u'b121dd41cdcc42fe9f70e572e84295aa'}
+        creds_ref = {'secret': 'b121dd41cdcc42fe9f70e572e84295aa'}
         credentials = {
             'token': 'UFVUCjFCMk0yWThBc2dUcGdBbVk3UGhDZmc9PQphcHB'
             'saWNhdGlvbi9vY3RldC1zdHJlYW0KVHVlLCAxMSBEZWMgMjAxM'
@@ -138,7 +138,7 @@ class S3ContribCore(test_v3.RestfulTestCase):
         )
 
     def test_good_signature_v4(self):
-        creds_ref = {'secret': u'e7a7a2240136494986991a6598d9fb9f'}
+        creds_ref = {'secret': 'e7a7a2240136494986991a6598d9fb9f'}
         credentials = {
             'token': 'QVdTNC1ITUFDLVNIQTI1NgoyMDE1MDgyNFQxMTIwNDFaCjIw'
             'MTUwODI0L1JlZ2lvbk9uZS9zMy9hd3M0X3JlcXVlc3QKZjIy'
@@ -153,7 +153,7 @@ class S3ContribCore(test_v3.RestfulTestCase):
         )
 
     def test_good_iam_signature_v4(self):
-        creds_ref = {'secret': u'e7a7a2240136494986991a6598d9fb9f'}
+        creds_ref = {'secret': 'e7a7a2240136494986991a6598d9fb9f'}
         credentials = {
             'token': 'QVdTNC1ITUFDLVNIQTI1NgoyMDE1MDgyNFQxMTIwNDFaCjIw'
             'MTUwODI0L1JlZ2lvbk9uZS9pYW0vYXdzNF9yZXF1ZXN0CmYy'
@@ -168,7 +168,7 @@ class S3ContribCore(test_v3.RestfulTestCase):
         )
 
     def test_good_sts_signature_v4(self):
-        creds_ref = {'secret': u'e7a7a2240136494986991a6598d9fb9f'}
+        creds_ref = {'secret': 'e7a7a2240136494986991a6598d9fb9f'}
         credentials = {
             'token': 'QVdTNC1ITUFDLVNIQTI1NgoyMDE1MDgyNFQxMTIwNDFaCjIw'
             'MTUwODI0L1JlZ2lvbk9uZS9zdHMvYXdzNF9yZXF1ZXN0CmYy'
@@ -183,7 +183,7 @@ class S3ContribCore(test_v3.RestfulTestCase):
         )
 
     def test_bad_signature_v4(self):
-        creds_ref = {'secret': u'e7a7a2240136494986991a6598d9fb9f'}
+        creds_ref = {'secret': 'e7a7a2240136494986991a6598d9fb9f'}
         # the signature is wrong on an otherwise correctly formed token
         credentials = {
             'token': 'QVdTNC1ITUFDLVNIQTI1NgoyMDE1MDgyNFQxMTIwNDFaCjIw'
@@ -201,7 +201,7 @@ class S3ContribCore(test_v3.RestfulTestCase):
         )
 
     def test_bad_service_v4(self):
-        creds_ref = {'secret': u'e7a7a2240136494986991a6598d9fb9f'}
+        creds_ref = {'secret': 'e7a7a2240136494986991a6598d9fb9f'}
         # use 'bad' as the service scope instead of a recognised service
         credentials = {
             'token': 'QVdTNC1ITUFDLVNIQTI1NgoyMDE1MDgyNFQxMTIwNDFaCjIw'
@@ -220,7 +220,7 @@ class S3ContribCore(test_v3.RestfulTestCase):
         )
 
     def test_bad_signing_key_v4(self):
-        creds_ref = {'secret': u'e7a7a2240136494986991a6598d9fb9f'}
+        creds_ref = {'secret': 'e7a7a2240136494986991a6598d9fb9f'}
         # signed with aws4_badrequest instead of aws4_request
         credentials = {
             'token': 'QVdTNC1ITUFDLVNIQTI1NgoyMDE1MDgyNFQxMTIwNDFaCjIw'
@@ -239,7 +239,7 @@ class S3ContribCore(test_v3.RestfulTestCase):
         )
 
     def test_bad_short_scope_v4(self):
-        creds_ref = {'secret': u'e7a7a2240136494986991a6598d9fb9f'}
+        creds_ref = {'secret': 'e7a7a2240136494986991a6598d9fb9f'}
         # credential scope has too few parts, missing final /aws4_request
         credentials = {
             'token': 'QVdTNC1ITUFDLVNIQTI1NgoyMDE1MDgyNFQxMTIwNDFaCjIw'
@@ -258,7 +258,7 @@ class S3ContribCore(test_v3.RestfulTestCase):
         )
 
     def test_bad_token_v4(self):
-        creds_ref = {'secret': u'e7a7a2240136494986991a6598d9fb9f'}
+        creds_ref = {'secret': 'e7a7a2240136494986991a6598d9fb9f'}
         # token has invalid format of first part
         credentials = {'token': 'QVdTNC1BQUEKWApYClg=', 'signature': ''}
         self.assertRaises(

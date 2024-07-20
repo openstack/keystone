@@ -82,7 +82,7 @@ class Catalog(base.CatalogDriverBase):
     """
 
     def __init__(self, templates=None):
-        super(Catalog, self).__init__()
+        super().__init__()
         LOG.warning(
             'The templated catalog driver has been deprecated and '
             'will be removed in a future release.'
@@ -99,7 +99,7 @@ class Catalog(base.CatalogDriverBase):
         try:
             with open(template_file) as f:
                 self.templates = parse_templates(f)
-        except IOError:
+        except OSError:
             LOG.critical('Unable to open template file %s', template_file)
             raise
 
@@ -167,7 +167,7 @@ class Catalog(base.CatalogDriverBase):
                 for key in service_ref:
                     if key.endswith('URL'):
                         interface = key[:-3]
-                        endpoint_id = '%s-%s-%s' % (
+                        endpoint_id = '{}-{}-{}'.format(
                             region_id,
                             service_type,
                             interface,

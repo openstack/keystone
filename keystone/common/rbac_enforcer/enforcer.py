@@ -50,7 +50,7 @@ DEFAULT_POLICY_FILE = 'policy.yaml'
 opts.set_defaults(CONF, DEFAULT_POLICY_FILE)
 
 
-class RBACEnforcer(object):
+class RBACEnforcer:
     """Enforce RBAC on API calls."""
 
     __shared_state__ = {}
@@ -184,7 +184,7 @@ class RBACEnforcer(object):
             if LOG.logger.getEffectiveLevel() <= log.DEBUG:
                 LOG.debug(
                     'RBAC: Adding query filter params (%s)',
-                    ', '.join(['%s=%s' % (k, v) for k, v in target.items()]),
+                    ', '.join([f'{k}={v}' for k, v in target.items()]),
                 )
         return target
 
@@ -496,7 +496,7 @@ class RBACEnforcer(object):
             # LOG the Args
             args_str = ', '.join(
                 [
-                    '%s=%s' % (k, v)
+                    f'{k}={v}'
                     for k, v in (flask.request.view_args or {}).items()
                 ]
             )

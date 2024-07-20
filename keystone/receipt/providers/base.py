@@ -17,7 +17,7 @@ import abc
 from keystone import exception
 
 
-class Provider(object, metaclass=abc.ABCMeta):
+class Provider(metaclass=abc.ABCMeta):
     """Interface description for a Receipt provider."""
 
     @abc.abstractmethod

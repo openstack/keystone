@@ -46,7 +46,7 @@ def filter_user(user_ref):
     return user_ref
 
 
-class IdentityDriverBase(object, metaclass=abc.ABCMeta):
+class IdentityDriverBase(metaclass=abc.ABCMeta):
     """Interface description for an Identity driver.
 
     The schema for users and groups is different depending on whether the

@@ -40,7 +40,7 @@ PROVIDERS = provider_api.ProviderAPIs
 
 class TestFernetReceiptProvider(unit.TestCase):
     def setUp(self):
-        super(TestFernetReceiptProvider, self).setUp()
+        super().setUp()
         self.provider = fernet.Provider()
 
     def test_invalid_receipt_raises_receipt_not_found(self):
@@ -50,12 +50,12 @@ class TestFernetReceiptProvider(unit.TestCase):
             self.provider.validate_receipt,
             receipt_id,
         )
-        self.assertIn(receipt_id, u'%s' % e)
+        self.assertIn(receipt_id, '%s' % e)
 
 
 class TestValidate(unit.TestCase):
     def setUp(self):
-        super(TestValidate, self).setUp()
+        super().setUp()
         self.useFixture(database.Database())
         self.useFixture(
             ksfixtures.ConfigAuthPlugins(
@@ -68,7 +68,7 @@ class TestValidate(unit.TestCase):
         )
 
     def config_overrides(self):
-        super(TestValidate, self).config_overrides()
+        super().config_overrides()
         self.config_fixture.config(group='receipt', provider='fernet')
 
     def test_validate_v3_receipt_simple(self):
@@ -101,8 +101,8 @@ class TestValidate(unit.TestCase):
         self.assertIsInstance(receipt.issued_at, str)
         self.assertEqual(set(method_names), set(receipt.methods))
         self.assertEqual(
-            set(frozenset(r) for r in rule_list),
-            set(frozenset(r) for r in receipt.required_methods),
+            {frozenset(r) for r in rule_list},
+            {frozenset(r) for r in receipt.required_methods},
         )
         self.assertEqual(user_ref['id'], receipt.user_id)
 
@@ -143,7 +143,7 @@ class TestReceiptFormatter(unit.TestCase):
 class TestPayloads(unit.TestCase):
 
     def setUp(self):
-        super(TestPayloads, self).setUp()
+        super().setUp()
         self.useFixture(
             ksfixtures.ConfigAuthPlugins(
                 self.config_fixture, ['totp', 'token', 'password']
@@ -246,7 +246,7 @@ class TestPayloads(unit.TestCase):
 
 class TestFernetKeyRotation(unit.TestCase):
     def setUp(self):
-        super(TestFernetKeyRotation, self).setUp()
+        super().setUp()
 
         # A collection of all previously-seen signatures of the key
         # repository's contents.

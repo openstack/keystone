@@ -1,4 +1,3 @@
-# encoding: utf-8
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
 # not use this file except in compliance with the License. You may obtain
 # a copy of the License at
@@ -39,30 +38,30 @@ class UtilsTestCase(unit.BaseTestCase):
     OPTIONAL = object()
 
     def setUp(self):
-        super(UtilsTestCase, self).setUp()
+        super().setUp()
         self.config_fixture = self.useFixture(config_fixture.Config(CONF))
 
     def test_resource_uuid(self):
         # Basic uuid test, most IDs issued by keystone look like this:
-        value = u'536e28c2017e405e89b25a1ed777b952'
+        value = '536e28c2017e405e89b25a1ed777b952'
         self.assertEqual(value, common_utils.resource_uuid(value))
 
     def test_resource_64_char_uuid(self):
         # Exact 64 length string, like ones used by mapping_id backend, are not
         # valid UUIDs, so they will be UUID5 namespaced
-        value = u'f13de678ac714bb1b7d1e9a007c10db5' * 2
+        value = 'f13de678ac714bb1b7d1e9a007c10db5' * 2
         expected_id = uuid.uuid5(common_utils.RESOURCE_ID_NAMESPACE, value).hex
         self.assertEqual(expected_id, common_utils.resource_uuid(value))
 
     def test_resource_non_ascii_chars(self):
         # IDs with non-ASCII characters will be UUID5 namespaced
-        value = u'ß' * 32
+        value = 'ß' * 32
         expected_id = uuid.uuid5(common_utils.RESOURCE_ID_NAMESPACE, value).hex
         self.assertEqual(expected_id, common_utils.resource_uuid(value))
 
     def test_resource_invalid_id(self):
         # This input is invalid because it's length is more than 64.
-        value = u'x' * 65
+        value = 'x' * 65
         self.assertRaises(ValueError, common_utils.resource_uuid, value)
 
     def test_hash(self):
@@ -110,7 +109,7 @@ class UtilsTestCase(unit.BaseTestCase):
         )
 
     def test_verify_length_and_trunc_password_throws_validation_error(self):
-        class SpecialObject(object):
+        class SpecialObject:
             pass
 
         special_object = SpecialObject()
@@ -195,7 +194,7 @@ class UtilsTestCase(unit.BaseTestCase):
         self.assertFalse(common_utils.check_password(None, hashed))
 
     def test_hash_unicode(self):
-        password = u'Comment \xe7a va'
+        password = 'Comment \xe7a va'
         wrong = 'Comment ?a va'
         hashed = common_utils.hash_password(password)
         self.assertTrue(common_utils.check_password(password, hashed))
@@ -214,7 +213,7 @@ class UtilsTestCase(unit.BaseTestCase):
             self.assertTrue(common_utils.is_not_url_safe(base_str + i))
 
     def test_url_safe_with_unicode_check(self):
-        base_str = u'i am \xe7afe'
+        base_str = 'i am \xe7afe'
         self.assertFalse(common_utils.is_not_url_safe(base_str))
         for i in common_utils.URL_RESERVED_CHARS:
             self.assertTrue(common_utils.is_not_url_safe(base_str + i))
@@ -375,7 +374,7 @@ class ServiceHelperTests(unit.BaseTestCase):
 class FernetUtilsTestCase(unit.BaseTestCase):
 
     def setUp(self):
-        super(FernetUtilsTestCase, self).setUp()
+        super().setUp()
         self.config_fixture = self.useFixture(config_fixture.Config(CONF))
 
     def test_debug_message_logged_when_loading_fernet_token_keys(self):

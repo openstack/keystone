@@ -34,7 +34,7 @@ PROVIDERS = provider_api.ProviderAPIs
 
 class UserPasswordCreatedAtIntTests(test_backend_sql.SqlTests):
     def config_overrides(self):
-        super(UserPasswordCreatedAtIntTests, self).config_overrides()
+        super().config_overrides()
         self.config_fixture.config(
             group='security_compliance', password_expires_days=1
         )
@@ -66,7 +66,7 @@ class UserPasswordCreatedAtIntTests(test_backend_sql.SqlTests):
 
 class UserPasswordHashingTestsNoCompat(test_backend_sql.SqlTests):
     def config_overrides(self):
-        super(UserPasswordHashingTestsNoCompat, self).config_overrides()
+        super().config_overrides()
         self.config_fixture.config(
             group='identity', password_hash_algorithm='scrypt'
         )
@@ -84,7 +84,7 @@ class UserPasswordHashingTestsNoCompat(test_backend_sql.SqlTests):
 
 class UserResourceOptionTests(test_backend_sql.SqlTests):
     def setUp(self):
-        super(UserResourceOptionTests, self).setUp()
+        super().setUp()
         # RESET STATE OF REGISTRY OPTIONS
         self.addCleanup(iro.register_user_options)
         self.addCleanup(iro.USER_OPTIONS_REGISTRY._registered_options.clear)
@@ -285,7 +285,7 @@ class UserResourceOptionTests(test_backend_sql.SqlTests):
 
 class DisableInactiveUserTests(test_backend_sql.SqlTests):
     def setUp(self):
-        super(DisableInactiveUserTests, self).setUp()
+        super().setUp()
         self.password = uuid.uuid4().hex
         self.user_dict = self._get_user_dict(self.password)
         self.max_inactive_days = 90
@@ -454,7 +454,7 @@ class DisableInactiveUserTests(test_backend_sql.SqlTests):
 
 class PasswordHistoryValidationTests(test_backend_sql.SqlTests):
     def setUp(self):
-        super(PasswordHistoryValidationTests, self).setUp()
+        super().setUp()
         self.max_cnt = 3
         self.config_fixture.config(
             group='security_compliance',
@@ -652,7 +652,7 @@ class PasswordHistoryValidationTests(test_backend_sql.SqlTests):
 
 class LockingOutUserTests(test_backend_sql.SqlTests):
     def setUp(self):
-        super(LockingOutUserTests, self).setUp()
+        super().setUp()
         self.config_fixture.config(
             group='security_compliance', lockout_failure_attempts=6
         )
@@ -804,7 +804,7 @@ class LockingOutUserTests(test_backend_sql.SqlTests):
 
 class PasswordExpiresValidationTests(test_backend_sql.SqlTests):
     def setUp(self):
-        super(PasswordExpiresValidationTests, self).setUp()
+        super().setUp()
         self.password = uuid.uuid4().hex
         self.user_dict = self._get_test_user_dict(self.password)
         self.config_fixture.config(
@@ -890,7 +890,7 @@ class PasswordExpiresValidationTests(test_backend_sql.SqlTests):
 
 class MinimumPasswordAgeTests(test_backend_sql.SqlTests):
     def setUp(self):
-        super(MinimumPasswordAgeTests, self).setUp()
+        super().setUp()
         self.config_fixture.config(
             group='security_compliance', minimum_password_age=1
         )

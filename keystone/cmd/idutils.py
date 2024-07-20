@@ -27,7 +27,7 @@ LOG = log.getLogger(__name__)
 PROVIDERS = provider_api.ProviderAPIs
 
 
-class Identity(object):
+class Identity:
 
     def __init__(self):
         backends.load_backends()

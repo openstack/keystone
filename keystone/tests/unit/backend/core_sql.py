@@ -31,7 +31,7 @@ class BaseBackendSqlTests(unit.SQLDriverOverrides, unit.TestCase):
         self.user_foo['enabled'] = True
 
     def config_files(self):
-        config_files = super(BaseBackendSqlTests, self).config_files()
+        config_files = super().config_files()
         config_files.append(unit.dirs.tests_conf('backend_sql.conf'))
         return config_files
 

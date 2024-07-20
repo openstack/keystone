@@ -22,9 +22,7 @@ from keystone import exception
 CONF = keystone.conf.CONF
 
 
-class CatalogDriverBase(
-    provider_api.ProviderAPIMixin, object, metaclass=abc.ABCMeta
-):
+class CatalogDriverBase(provider_api.ProviderAPIMixin, metaclass=abc.ABCMeta):
     """Interface description for the Catalog driver."""
 
     def _get_list_limit(self):

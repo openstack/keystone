@@ -32,7 +32,7 @@ class Cache(fixtures.Fixture):
     """
 
     def setUp(self):
-        super(Cache, self).setUp()
+        super().setUp()
 
         # NOTE(dstanek):  We must remove the existing cache backend in the
         # setUp instead of the tearDown because it defaults to a no-op cache

@@ -23,7 +23,7 @@ from keystone.i18n import _
 CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
-KEYSTONE_API_EXCEPTIONS = set([])
+KEYSTONE_API_EXCEPTIONS = set()
 
 # Tests use this to make exception message format errors fatal
 _FATAL_EXCEPTION_FORMAT_ERRORS = False
@@ -81,7 +81,7 @@ class Error(Exception, metaclass=_KeystoneExceptionMeta):
                 LOG.warning('missing exception kwargs (programmer error)')
                 message = self.message_format
 
-        super(Error, self).__init__(message)
+        super().__init__(message)
 
     def _build_message(self, message, **kwargs):
         """Build and returns an exception message.
@@ -328,9 +328,7 @@ class InsufficientAuthMethods(Error):
 
     def __init__(self, message=None, user_id=None, methods=None):
         methods_str = '[%s]' % ','.join(methods)
-        super(InsufficientAuthMethods, self).__init__(
-            message, user_id=user_id, methods=methods_str
-        )
+        super().__init__(message, user_id=user_id, methods=methods_str)
 
         self.user_id = user_id
         self.methods = methods
@@ -351,7 +349,7 @@ class AuthPluginException(Unauthorized):
     message_format = _("Authentication plugin error.")
 
     def __init__(self, *args, **kwargs):
-        super(AuthPluginException, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.authentication = {}
 
 
@@ -367,7 +365,7 @@ class AuthMethodNotSupported(AuthPluginException):
     message_format = _("Attempted to authenticate with an unsupported method.")
 
     def __init__(self, *args, **kwargs):
-        super(AuthMethodNotSupported, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.authentication = {'methods': CONF.auth.methods}
 
 
@@ -381,7 +379,7 @@ class AdditionalAuthRequired(AuthPluginException):
     message_format = _("Additional authentications steps required.")
 
     def __init__(self, auth_response=None, **kwargs):
-        super(AdditionalAuthRequired, self).__init__(message=None, **kwargs)
+        super().__init__(message=None, **kwargs)
         self.authentication = auth_response
 
 
@@ -427,7 +425,7 @@ class InvalidLimit(Forbidden):
 
 class LimitTreeExceedError(Exception):
     def __init__(self, project_id, max_limit_depth):
-        super(LimitTreeExceedError, self).__init__(
+        super().__init__(
             _(
                 "Keystone cannot start due to project hierarchical depth in the "
                 "current deployment (project_ids: %(project_id)s) exceeds the "
@@ -646,7 +644,7 @@ class UnexpectedError(SecurityError):
         # exception.
         kwargs.setdefault('exception', '')
 
-        return super(UnexpectedError, self)._build_message(
+        return super()._build_message(
             message or self.debug_message_format, **kwargs
         )
 
@@ -734,7 +732,7 @@ class MultipleSQLDriversInConfig(UnexpectedError):
 
 class MigrationNotProvided(Exception):
     def __init__(self, mod_name, path):
-        super(MigrationNotProvided, self).__init__(
+        super().__init__(
             _(
                 "%(mod_name)s doesn't provide database migrations. The migration"
                 " repository path at %(path)s doesn't exist or isn't a directory."
@@ -806,7 +804,7 @@ class LDAPSizeLimitExceeded(UnexpectedError):
 class CacheDeserializationError(Exception):
 
     def __init__(self, obj, data):
-        super(CacheDeserializationError, self).__init__(
+        super().__init__(
             _('Failed to deserialize %(obj)s. Data is %(data)s')
             % {'obj': obj, 'data': data}
         )
@@ -875,4 +873,4 @@ class RedirectRequired(Exception):
     def __init__(self, redirect_url, **kwargs):
         self.redirect_url = redirect_url
 
-        super(RedirectRequired, self).__init__(**kwargs)
+        super().__init__(**kwargs)

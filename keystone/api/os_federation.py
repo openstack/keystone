@@ -438,9 +438,9 @@ class SAML2MetadataResource(flask_restful.Resource):
         """
         metadata_path = CONF.saml.idp_metadata_path
         try:
-            with open(metadata_path, 'r') as metadata_handler:
+            with open(metadata_path) as metadata_handler:
                 metadata = metadata_handler.read()
-        except IOError as e:
+        except OSError as e:
             # Raise HTTP 500 in case Metadata file cannot be read.
             raise exception.MetadataFileError(reason=e)
         resp = flask.make_response(metadata, http.client.OK)

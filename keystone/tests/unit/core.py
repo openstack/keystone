@@ -95,7 +95,7 @@ os.makedirs(TMPDIR)
 atexit.register(shutil.rmtree, TMPDIR)
 
 
-class dirs(object):
+class dirs:
     @staticmethod
     def root(*p):
         return os.path.join(ROOTDIR, *p)
@@ -408,7 +408,7 @@ def new_cert_credential(user_id, project_id=None, blob=None, **kwargs):
         project_id=project_id,
         blob=json.dumps(blob),
         type='cert',
-        **kwargs
+        **kwargs,
     )
     return blob, credential
 
@@ -430,7 +430,7 @@ def new_ec2_credential(user_id, project_id=None, blob=None, **kwargs):
         project_id=project_id,
         blob=json.dumps(blob),
         type='ec2',
-        **kwargs
+        **kwargs,
     )
     return blob, credential
 
@@ -598,7 +598,7 @@ def new_trust_ref(
     remaining_uses=None,
     allow_redelegation=False,
     redelegation_count=None,
-    **kwargs
+    **kwargs,
 ):
     ref = {
         'id': uuid.uuid4().hex,
@@ -738,27 +738,27 @@ class KeystoneFlaskTestClient(flask_testing.FlaskClient):
 
     @_assert_expected_status
     def get(self, *args, **kwargs):
-        return super(KeystoneFlaskTestClient, self).get(*args, **kwargs)
+        return super().get(*args, **kwargs)
 
     @_assert_expected_status
     def head(self, *args, **kwargs):
-        return super(KeystoneFlaskTestClient, self).head(*args, **kwargs)
+        return super().head(*args, **kwargs)
 
     @_assert_expected_status
     def post(self, *args, **kwargs):
-        return super(KeystoneFlaskTestClient, self).post(*args, **kwargs)
+        return super().post(*args, **kwargs)
 
     @_assert_expected_status
     def patch(self, *args, **kwargs):
-        return super(KeystoneFlaskTestClient, self).patch(*args, **kwargs)
+        return super().patch(*args, **kwargs)
 
     @_assert_expected_status
     def put(self, *args, **kwargs):
-        return super(KeystoneFlaskTestClient, self).put(*args, **kwargs)
+        return super().put(*args, **kwargs)
 
     @_assert_expected_status
     def delete(self, *args, **kwargs):
-        return super(KeystoneFlaskTestClient, self).delete(*args, **kwargs)
+        return super().delete(*args, **kwargs)
 
 
 class BaseTestCase(testtools.TestCase):
@@ -771,7 +771,7 @@ class BaseTestCase(testtools.TestCase):
     """
 
     def setUp(self):
-        super(BaseTestCase, self).setUp()
+        super().setUp()
 
         self.useFixture(fixtures.NestedTempfile())
         self.useFixture(fixtures.TempHomeDir())
@@ -834,7 +834,7 @@ class BaseTestCase(testtools.TestCase):
 
     def skip_test_overrides(self, *args, **kwargs):
         if self._check_for_method_in_parents(self._testMethodName):
-            return super(BaseTestCase, self).skipTest(*args, **kwargs)
+            return super().skipTest(*args, **kwargs)
         raise Exception(
             '%r is not a previously defined test method' % self._testMethodName
         )
@@ -889,7 +889,7 @@ class TestCase(BaseTestCase):
         query_string = kwargs.pop('query_string', None)
         if query_string:
             # Make sure query string is properly added to the context
-            path = '{path}?{qs}'.format(path=path, qs=query_string)
+            path = f'{path}?{query_string}'
 
         if not environ.get(context.REQUEST_CONTEXT_ENV):
             environ[context.REQUEST_CONTEXT_ENV] = context.RequestContext(
@@ -973,7 +973,7 @@ class TestCase(BaseTestCase):
         assert self.__config_overrides_called is True
 
     def setUp(self):
-        super(TestCase, self).setUp()
+        super().setUp()
         self.__config_overrides_called = False
         self.__load_backends_called = False
         self.config_fixture = self.useFixture(config_fixture.Config(CONF))
@@ -1126,7 +1126,7 @@ class TestCase(BaseTestCase):
             # Short-circuit if the values are the same.
             return
 
-        msg = '%s != %s within %s delta' % (a, b, delta)
+        msg = f'{a} != {b} within {delta} delta'
 
         self.assertLessEqual(abs(a - b).seconds, delta, msg)
 
@@ -1136,7 +1136,7 @@ class TestCase(BaseTestCase):
         # is working to eliminate microseconds from it's datetimes used.
         expected = timeutils.parse_isotime(expected).replace(microsecond=0)
         value = timeutils.parse_isotime(value).replace(microsecond=0)
-        self.assertEqual(expected, value, "%s != %s" % (expected, value))
+        self.assertEqual(expected, value, f"{expected} != {value}")
 
     def assertNotEmpty(self, iterable):
         self.assertGreater(len(iterable), 0)
@@ -1171,7 +1171,7 @@ class TestCase(BaseTestCase):
                 # NOTE(Mouad): Try to bind to IPv6 loopback ip address.
                 sock.bind(("::1", 0))
                 return True
-            except socket.error:
+            except OSError:
                 pass
             finally:
                 if sock:
@@ -1183,11 +1183,11 @@ class TestCase(BaseTestCase):
             raise self.skipTest("IPv6 is not enabled in the system")
 
 
-class SQLDriverOverrides(object):
+class SQLDriverOverrides:
     """A mixin for consolidating sql-specific test overrides."""
 
     def config_overrides(self):
-        super(SQLDriverOverrides, self).config_overrides()
+        super().config_overrides()
         # SQL specific driver overrides
         self.config_fixture.config(group='catalog', driver='sql')
         self.config_fixture.config(group='identity', driver='sql')

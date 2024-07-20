@@ -30,7 +30,7 @@ PROVIDERS = provider_api.ProviderAPIs
 
 class EC2ContribCoreV3(test_v3.RestfulTestCase):
     def setUp(self):
-        super(EC2ContribCoreV3, self).setUp()
+        super().setUp()
 
         self.cred_blob, self.credential = unit.new_ec2_credential(
             self.user['id'], self.project_id

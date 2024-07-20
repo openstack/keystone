@@ -7,7 +7,7 @@ KEYCLOAK_URL = os.environ.get('KEYCLOAK_URL')
 HOST_IP = os.environ.get('HOST_IP', 'localhost')
 
 
-class KeycloakClient(object):
+class KeycloakClient:
     def __init__(self):
         self.session = requests.session()
 

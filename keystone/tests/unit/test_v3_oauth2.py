@@ -45,7 +45,7 @@ class OAuth2AuthnMethodsTests(test_v3.OAuth2RestfulTestCase):
     ACCESS_TOKEN_URL = '/OS-OAUTH2/token'
 
     def setUp(self):
-        super(OAuth2AuthnMethodsTests, self).setUp()
+        super().setUp()
         self.config_fixture.config(
             group='oauth2',
             oauth2_authn_methods=['client_secret_basic', 'tls_client_auth'],
@@ -214,7 +214,7 @@ class OAuth2SecretBasicTests(test_v3.OAuth2RestfulTestCase):
     ACCESS_TOKEN_URL = '/OS-OAUTH2/token'
 
     def setUp(self):
-        super(OAuth2SecretBasicTests, self).setUp()
+        super().setUp()
         log.set_defaults(
             logging_context_format_string='%(asctime)s.%(msecs)03d %('
             'color)s%(levelname)s %(name)s [^[['
@@ -720,7 +720,7 @@ class OAuth2CertificateTests(test_v3.OAuth2RestfulTestCase):
     ACCESS_TOKEN_URL = '/OS-OAUTH2/token'
 
     def setUp(self):
-        super(OAuth2CertificateTests, self).setUp()
+        super().setUp()
         self.log_fix = self.useFixture(fixtures.FakeLogger(level=log.DEBUG))
         self.config_fixture.config(
             group='oauth2', oauth2_authn_methods=['tls_client_auth']

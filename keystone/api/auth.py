@@ -95,7 +95,7 @@ def _get_sso_origin_host():
     ]
 
     if host not in trusted_dashboards:
-        msg = '%(host)s is not a trusted dashboard host' % {'host': host}
+        msg = f'{host} is not a trusted dashboard host'
         tr_msg = _('%(host)s is not a trusted dashboard host') % {'host': host}
         LOG.error(msg)
         raise exception.Unauthorized(tr_msg)

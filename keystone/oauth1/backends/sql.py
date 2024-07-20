@@ -131,7 +131,7 @@ class OAuth1(base.Oauth1DriverBase):
     def _delete_request_tokens(self, session, consumer_id):
         q = session.query(RequestToken)
         req_tokens = q.filter_by(consumer_id=consumer_id)
-        req_tokens_list = set([x.id for x in req_tokens])
+        req_tokens_list = {x.id for x in req_tokens}
         for token_id in req_tokens_list:
             token_ref = self._get_request_token(session, token_id)
             session.delete(token_ref)
@@ -139,7 +139,7 @@ class OAuth1(base.Oauth1DriverBase):
     def _delete_access_tokens(self, session, consumer_id):
         q = session.query(AccessToken)
         acc_tokens = q.filter_by(consumer_id=consumer_id)
-        acc_tokens_list = set([x.id for x in acc_tokens])
+        acc_tokens_list = {x.id for x in acc_tokens}
         for token_id in acc_tokens_list:
             token_ref = self._get_access_token(session, token_id)
             session.delete(token_ref)

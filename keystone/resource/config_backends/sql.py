@@ -24,7 +24,7 @@ class WhiteListedConfig(sql.ModelBase, sql.ModelDictMixin):
     value = sql.Column(sql.JsonBlob(), nullable=False)
 
     def to_dict(self):
-        d = super(WhiteListedConfig, self).to_dict()
+        d = super().to_dict()
         d.pop('domain_id')
         return d
 
@@ -37,7 +37,7 @@ class SensitiveConfig(sql.ModelBase, sql.ModelDictMixin):
     value = sql.Column(sql.JsonBlob(), nullable=False)
 
     def to_dict(self):
-        d = super(SensitiveConfig, self).to_dict()
+        d = super().to_dict()
         d.pop('domain_id')
         return d
 

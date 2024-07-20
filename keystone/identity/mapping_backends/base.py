@@ -18,9 +18,7 @@ from keystone.common import provider_api
 from keystone import exception
 
 
-class MappingDriverBase(
-    provider_api.ProviderAPIMixin, object, metaclass=abc.ABCMeta
-):
+class MappingDriverBase(provider_api.ProviderAPIMixin, metaclass=abc.ABCMeta):
     """Interface description for an ID Mapping driver."""
 
     @abc.abstractmethod

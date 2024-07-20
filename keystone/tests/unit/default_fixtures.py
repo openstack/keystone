@@ -186,10 +186,10 @@ ROOT_DOMAIN = {
 
 DOMAINS = [
     {
-        'description': (u'The default domain'),
+        'description': ('The default domain'),
         'enabled': True,
         'id': DEFAULT_DOMAIN_ID,
-        'name': u'Default',
+        'name': 'Default',
     }
 ]
 

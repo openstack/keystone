@@ -241,7 +241,7 @@ class FakeLdap(common.LDAPHandler):
     __prefix = 'ldap:'
 
     def __init__(self, conn=None):
-        super(FakeLdap, self).__init__(conn=conn)
+        super().__init__(conn=conn)
         self._ldap_options = {ldap.OPT_DEREF: ldap.DEREF_NEVER}
 
     def connect(
@@ -306,7 +306,7 @@ class FakeLdap(common.LDAPHandler):
         return ldap.dn.str2dn(dn)[0][0][1]
 
     def key(self, dn):
-        return '%s%s' % (self.__prefix, dn)
+        return f'{self.__prefix}{dn}'
 
     def simple_bind_s(
         self, who='', cred='', serverctrls=None, clientctrls=None
@@ -392,9 +392,7 @@ class FakeLdap(common.LDAPHandler):
         return [
             k
             for k, v in self.db.items()
-            if re.match(
-                '%s.*,%s' % (re.escape(self.__prefix), re.escape(dn)), k
-            )
+            if re.match(f'{re.escape(self.__prefix)}.*,{re.escape(dn)}', k)
         ]
 
     def delete_ext_s(self, dn, serverctrls, clientctrls=None):
@@ -522,7 +520,10 @@ class FakeLdap(common.LDAPHandler):
                 (k[len(self.__prefix) :], v)
                 for k, v in self.db.items()
                 if re.match(
-                    '%s.*,%s' % (re.escape(self.__prefix), re.escape(base)), k
+                    '{}.*,{}'.format(
+                        re.escape(self.__prefix), re.escape(base)
+                    ),
+                    k,
                 )
             ]
             results.extend(extraresults)
@@ -658,7 +659,7 @@ class FakeLdapPool(FakeLdap):
     """
 
     def __init__(self, uri, retry_max=None, retry_delay=None, conn=None):
-        super(FakeLdapPool, self).__init__(conn=conn)
+        super().__init__(conn=conn)
         self.url = uri
         self._uri = uri
         self.connected = None
@@ -683,7 +684,7 @@ class FakeLdapPool(FakeLdap):
         if not cred:
             cred = 'password'
 
-        super(FakeLdapPool, self).simple_bind_s(
+        super().simple_bind_s(
             who=who,
             cred=cred,
             serverctrls=serverctrls,
@@ -716,6 +717,4 @@ class FakeLdapNoSubtreeDelete(FakeLdap):
         except KeyError:
             LOG.debug('delete item failed: dn=%s not found.', dn)
             raise ldap.NO_SUCH_OBJECT
-        super(FakeLdapNoSubtreeDelete, self).delete_ext_s(
-            dn, serverctrls, clientctrls
-        )
+        super().delete_ext_s(dn, serverctrls, clientctrls)

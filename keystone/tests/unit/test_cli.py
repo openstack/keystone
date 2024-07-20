@@ -72,11 +72,11 @@ class CliLoggingTestCase(unit.BaseTestCase):
         )
         fd = self.useFixture(temporaryfile.SecureTempFile())
         self.fake_config_file = fd.file_name
-        super(CliLoggingTestCase, self).setUp()
+        super().setUp()
 
         # NOTE(crinkle): the command call doesn't have to actually work,
         # that's what the other unit tests are for. So just mock it out.
-        class FakeConfCommand(object):
+        class FakeConfCommand:
             def __init__(self):
                 self.cmd_class = mock.Mock()
 
@@ -107,12 +107,12 @@ class CliBootStrapTestCase(unit.SQLDriverOverrides, unit.TestCase):
 
     def setUp(self):
         self.useFixture(database.Database())
-        super(CliBootStrapTestCase, self).setUp()
+        super().setUp()
         self.bootstrap = cli.BootStrap()
 
     def config_files(self):
         self.config_fixture.register_cli_opt(cli.command_opt)
-        config_files = super(CliBootStrapTestCase, self).config_files()
+        config_files = super().config_files()
         config_files.append(unit.dirs.tests_conf('backend_sql.conf'))
         return config_files
 
@@ -183,7 +183,7 @@ class CliBootStrapTestCase(unit.SQLDriverOverrides, unit.TestCase):
             self.assertEqual(self.service_name, svc['name'])
 
             self.assertEqual(
-                set(['admin', 'public', 'internal']), set(bootstrap.endpoints)
+                {'admin', 'public', 'internal'}, set(bootstrap.endpoints)
             )
 
             urls = {
@@ -419,7 +419,7 @@ class CliBootStrapTestCaseWithEnvironment(CliBootStrapTestCase):
         )
 
     def setUp(self):
-        super(CliBootStrapTestCaseWithEnvironment, self).setUp()
+        super().setUp()
         self.password = uuid.uuid4().hex
         self.username = uuid.uuid4().hex
         self.project_name = uuid.uuid4().hex
@@ -578,7 +578,7 @@ class CliDomainConfigAllTestCase(unit.SQLDriverOverrides, unit.TestCase):
 
     def setUp(self):
         self.useFixture(database.Database())
-        super(CliDomainConfigAllTestCase, self).setUp()
+        super().setUp()
         self.load_backends()
         self.config_fixture.config(
             group='identity',
@@ -590,7 +590,7 @@ class CliDomainConfigAllTestCase(unit.SQLDriverOverrides, unit.TestCase):
 
     def config_files(self):
         self.config_fixture.register_cli_opt(cli.command_opt)
-        config_files = super(CliDomainConfigAllTestCase, self).config_files()
+        config_files = super().config_files()
         config_files.append(unit.dirs.tests_conf('backend_sql.conf'))
         return config_files
 
@@ -635,9 +635,9 @@ class CliDomainConfigAllTestCase(unit.SQLDriverOverrides, unit.TestCase):
                 {'id': uuid.uuid4().hex, 'name': domain}
             )
         self.default_domain = unit.new_domain_ref(
-            description=u'The default domain',
+            description='The default domain',
             id=CONF.identity.default_domain_id,
-            name=u'Default',
+            name='Default',
         )
         self.domains['domain_default'] = create_domain(self.default_domain)
 
@@ -849,7 +849,7 @@ class CliDomainConfigInvalidDomainTestCase(CliDomainConfigAllTestCase):
 class TestDomainConfigFinder(unit.BaseTestCase):
 
     def setUp(self):
-        super(TestDomainConfigFinder, self).setUp()
+        super().setUp()
         self.logging = self.useFixture(fixtures.LoggerFixture())
 
     @mock.patch('os.walk')
@@ -880,7 +880,7 @@ class TestDomainConfigFinder(unit.BaseTestCase):
 
 class CliDBSyncTestCase(unit.BaseTestCase):
 
-    class FakeConfCommand(object):
+    class FakeConfCommand:
         def __init__(self, parent):
             self.extension = False
             self.check = parent.command_check
@@ -968,7 +968,7 @@ class TestMappingPopulate(unit.SQLDriverOverrides, unit.TestCase):
 
     def setUp(self):
         sqldb = self.useFixture(database.Database())
-        super(TestMappingPopulate, self).setUp()
+        super().setUp()
         self.ldapdb = self.useFixture(ldapdb.LDAPDatabase())
         self.ldapdb.clear()
 
@@ -979,12 +979,12 @@ class TestMappingPopulate(unit.SQLDriverOverrides, unit.TestCase):
 
     def config_files(self):
         self.config_fixture.register_cli_opt(cli.command_opt)
-        config_files = super(TestMappingPopulate, self).config_files()
+        config_files = super().config_files()
         config_files.append(unit.dirs.tests_conf('backend_ldap_sql.conf'))
         return config_files
 
     def config_overrides(self):
-        super(TestMappingPopulate, self).config_overrides()
+        super().config_overrides()
         self.config_fixture.config(group='identity', driver='ldap')
         self.config_fixture.config(
             group='identity_mapping', backward_compatible_ids=False
@@ -1047,7 +1047,7 @@ class TestMappingPopulate(unit.SQLDriverOverrides, unit.TestCase):
 class CliDomainConfigUploadNothing(unit.BaseTestCase):
 
     def setUp(self):
-        super(CliDomainConfigUploadNothing, self).setUp()
+        super().setUp()
 
         config_fixture = self.useFixture(oslo_config.fixture.Config(CONF))
         config_fixture.register_cli_opt(cli.command_opt)
@@ -1714,7 +1714,7 @@ class TokenFernetDoctorTests(unit.TestCase):
 
 class TestMappingPurge(unit.SQLDriverOverrides, unit.BaseTestCase):
 
-    class FakeConfCommand(object):
+    class FakeConfCommand:
         def __init__(self, parent):
             self.extension = False
             self.all = parent.command_all
@@ -1725,7 +1725,7 @@ class TestMappingPurge(unit.SQLDriverOverrides, unit.BaseTestCase):
 
     def setUp(self):
         # Set up preset cli options and a parser
-        super(TestMappingPurge, self).setUp()
+        super().setUp()
         self.config_fixture = self.useFixture(oslo_config.fixture.Config(CONF))
         self.config_fixture.register_cli_opt(cli.command_opt)
         # For unit tests that should not throw any erorrs,
@@ -1840,7 +1840,7 @@ class TestUserMappingPurgeFunctional(unit.SQLDriverOverrides, unit.TestCase):
 
     def setUp(self):
         sqldb = self.useFixture(database.Database())
-        super(TestUserMappingPurgeFunctional, self).setUp()
+        super().setUp()
         self.ldapdb = self.useFixture(ldapdb.LDAPDatabase())
         self.ldapdb.clear()
 
@@ -1851,14 +1851,12 @@ class TestUserMappingPurgeFunctional(unit.SQLDriverOverrides, unit.TestCase):
 
     def config_files(self):
         self.config_fixture.register_cli_opt(cli.command_opt)
-        config_files = super(
-            TestUserMappingPurgeFunctional, self
-        ).config_files()
+        config_files = super().config_files()
         config_files.append(unit.dirs.tests_conf('backend_ldap_sql.conf'))
         return config_files
 
     def config_overrides(self):
-        super(TestUserMappingPurgeFunctional, self).config_overrides()
+        super().config_overrides()
         self.config_fixture.config(group='identity', driver='ldap')
         self.config_fixture.config(
             group='identity_mapping', backward_compatible_ids=False
@@ -1936,7 +1934,7 @@ class TestGroupMappingPurgeFunctional(unit.SQLDriverOverrides, unit.TestCase):
 
     def setUp(self):
         sqldb = self.useFixture(database.Database())
-        super(TestGroupMappingPurgeFunctional, self).setUp()
+        super().setUp()
         self.ldapdb = self.useFixture(ldapdb.LDAPDatabase())
         self.ldapdb.clear()
 
@@ -1947,14 +1945,12 @@ class TestGroupMappingPurgeFunctional(unit.SQLDriverOverrides, unit.TestCase):
 
     def config_files(self):
         self.config_fixture.register_cli_opt(cli.command_opt)
-        config_files = super(
-            TestGroupMappingPurgeFunctional, self
-        ).config_files()
+        config_files = super().config_files()
         config_files.append(unit.dirs.tests_conf('backend_ldap_sql.conf'))
         return config_files
 
     def config_overrides(self):
-        super(TestGroupMappingPurgeFunctional, self).config_overrides()
+        super().config_overrides()
         self.config_fixture.config(group='identity', driver='ldap')
         self.config_fixture.config(
             group='identity_mapping', backward_compatible_ids=False
@@ -2028,7 +2024,7 @@ class TestGroupMappingPurgeFunctional(unit.SQLDriverOverrides, unit.TestCase):
 
 class TestTrustFlush(unit.SQLDriverOverrides, unit.BaseTestCase):
 
-    class FakeConfCommand(object):
+    class FakeConfCommand:
         def __init__(self, parent):
             self.extension = False
             self.project_id = parent.command_project_id
@@ -2038,7 +2034,7 @@ class TestTrustFlush(unit.SQLDriverOverrides, unit.BaseTestCase):
 
     def setUp(self):
         # Set up preset cli options and a parser
-        super(TestTrustFlush, self).setUp()
+        super().setUp()
         self.useFixture(database.Database())
         self.config_fixture = self.useFixture(oslo_config.fixture.Config(CONF))
         self.config_fixture.register_cli_opt(cli.command_opt)
@@ -2049,7 +2045,7 @@ class TestTrustFlush(unit.SQLDriverOverrides, unit.BaseTestCase):
         self.parser = cli.TrustFlush.add_argument_parser(subparsers)
 
     def config_files(self):
-        config_files = super(TestTrustFlush, self).config_files()
+        config_files = super().config_files()
         config_files.append(unit.dirs.tests_conf('backend_sql.conf'))
         return config_files
 
@@ -2104,7 +2100,7 @@ class TestTrustFlush(unit.SQLDriverOverrides, unit.BaseTestCase):
 
 class TestMappingEngineTester(unit.BaseTestCase):
 
-    class FakeConfCommand(object):
+    class FakeConfCommand:
         def __init__(self, parent):
             self.extension = False
             self.rules = parent.command_rules
@@ -2115,7 +2111,7 @@ class TestMappingEngineTester(unit.BaseTestCase):
 
     def setUp(self):
         # Set up preset cli options and a parser
-        super(TestMappingEngineTester, self).setUp()
+        super().setUp()
         self.mapping_id = uuid.uuid4().hex
         self.rules_pathname = None
         self.rules = None
@@ -2134,7 +2130,7 @@ class TestMappingEngineTester(unit.BaseTestCase):
         self.mapping_schema_version = '1.0'
 
     def config_files(self):
-        config_files = super(TestMappingEngineTester, self).config_files()
+        config_files = super().config_files()
         config_files.append(unit.dirs.tests_conf('backend_sql.conf'))
         return config_files
 
@@ -2279,7 +2275,7 @@ class CliStatusTestCase(unit.SQLDriverOverrides, unit.TestCase):
 
     def setUp(self):
         self.useFixture(database.Database())
-        super(CliStatusTestCase, self).setUp()
+        super().setUp()
         self.load_backends()
         self.policy_file = self.useFixture(temporaryfile.SecureTempFile())
         self.policy_file_name = self.policy_file.file_name

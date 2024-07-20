@@ -50,7 +50,7 @@ def build_v3_extension_parameter_relation(
     )
 
 
-class Parameters(object):
+class Parameters:
     """Relationships for Common parameters."""
 
     DOMAIN_ID = build_v3_parameter_relation('domain_id')
@@ -71,7 +71,7 @@ class Parameters(object):
     ACCESS_RULE_ID = build_v3_parameter_relation('access_rule_id')
 
 
-class Status(object):
+class Status:
     """Status values supported."""
 
     DEPRECATED = 'deprecated'
@@ -95,7 +95,7 @@ class Status(object):
         )
 
 
-class JsonHomeResources(object):
+class JsonHomeResources:
     """JSON Home resource data."""
 
     __resources = {}

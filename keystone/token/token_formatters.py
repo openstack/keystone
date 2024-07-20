@@ -37,7 +37,7 @@ TIMESTAMP_START = 1
 TIMESTAMP_END = 9
 
 
-class TokenFormatter(object):
+class TokenFormatter:
     """Packs and unpacks payloads into tokens for transport."""
 
     @property
@@ -266,7 +266,7 @@ class TokenFormatter(object):
         )
 
 
-class BasePayload(object):
+class BasePayload:
     # each payload variant should have a unique version
     version = None
 

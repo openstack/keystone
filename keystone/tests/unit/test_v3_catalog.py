@@ -84,7 +84,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         self.assertValidRegionResponse(r, ref)
 
         # we should be able to get the region, having defined the ID ourselves
-        r = self.get('/regions/%(region_id)s' % {'region_id': ref['id']})
+        r = self.get('/regions/{region_id}'.format(region_id=ref['id']))
         self.assertValidRegionResponse(r, ref)
 
     def test_create_region_with_empty_id(self):
@@ -194,7 +194,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
 
     def test_get_head_region(self):
         """Call ``GET & HEAD /regions/{region_id}``."""
-        resource_url = '/regions/%(region_id)s' % {'region_id': self.region_id}
+        resource_url = f'/regions/{self.region_id}'
         r = self.get(resource_url)
         self.assertValidRegionResponse(r, self.region)
         self.head(resource_url, expected_status=http.client.OK)
@@ -204,7 +204,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         region = unit.new_region_ref()
         del region['id']
         r = self.patch(
-            '/regions/%(region_id)s' % {'region_id': self.region_id},
+            f'/regions/{self.region_id}',
             body={'region': region},
         )
         self.assertValidRegionResponse(r, region)
@@ -233,7 +233,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         region = unit.new_region_ref(description=None)
         del region['id']
         r = self.patch(
-            '/regions/%(region_id)s' % {'region_id': self.region_id},
+            f'/regions/{self.region_id}',
             body={'region': region},
         )
 
@@ -248,7 +248,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         r = self.post('/regions', body={'region': ref})
         self.assertValidRegionResponse(r, ref)
 
-        self.delete('/regions/%(region_id)s' % {'region_id': ref['id']})
+        self.delete('/regions/{region_id}'.format(region_id=ref['id']))
 
     # service crud tests
 
@@ -371,9 +371,9 @@ class CatalogTestCase(test_v3.RestfulTestCase):
 
     def test_get_head_service(self):
         """Call ``GET & HEAD /services/{service_id}``."""
-        resource_url = '/services/%(service_id)s' % {
-            'service_id': self.service_id
-        }
+        resource_url = '/services/{service_id}'.format(
+            service_id=self.service_id
+        )
         r = self.get(resource_url)
         self.assertValidServiceResponse(r, self.service)
         self.head(resource_url, expected_status=http.client.OK)
@@ -383,16 +383,14 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         service = unit.new_service_ref()
         del service['id']
         r = self.patch(
-            '/services/%(service_id)s' % {'service_id': self.service_id},
+            f'/services/{self.service_id}',
             body={'service': service},
         )
         self.assertValidServiceResponse(r, service)
 
     def test_delete_service(self):
         """Call ``DELETE /services/{service_id}``."""
-        self.delete(
-            '/services/%(service_id)s' % {'service_id': self.service_id}
-        )
+        self.delete(f'/services/{self.service_id}')
 
     # endpoint crud tests
 
@@ -629,7 +627,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         )
         self.post('/endpoints', body={'endpoint': ref})
         # Make sure the region is created
-        self.get('/regions/%(region_id)s' % {'region_id': ref["region"]})
+        self.get('/regions/{region_id}'.format(region_id=ref["region"]))
 
     def test_create_endpoint_with_no_region(self):
         """EndpointV3 allows to creates the endpoint without region."""
@@ -648,9 +646,9 @@ class CatalogTestCase(test_v3.RestfulTestCase):
 
     def test_get_head_endpoint(self):
         """Call ``GET & HEAD /endpoints/{endpoint_id}``."""
-        resource_url = '/endpoints/%(endpoint_id)s' % {
-            'endpoint_id': self.endpoint_id
-        }
+        resource_url = '/endpoints/{endpoint_id}'.format(
+            endpoint_id=self.endpoint_id
+        )
         r = self.get(resource_url)
         self.assertValidEndpointResponse(r, self.endpoint)
         self.head(resource_url, expected_status=http.client.OK)
@@ -664,7 +662,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         )
         del ref['id']
         r = self.patch(
-            '/endpoints/%(endpoint_id)s' % {'endpoint_id': self.endpoint_id},
+            f'/endpoints/{self.endpoint_id}',
             body={'endpoint': ref},
         )
         ref['enabled'] = True
@@ -673,7 +671,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
     def test_update_endpoint_enabled_true(self):
         """Call ``PATCH /endpoints/{endpoint_id}`` with enabled: True."""
         r = self.patch(
-            '/endpoints/%(endpoint_id)s' % {'endpoint_id': self.endpoint_id},
+            f'/endpoints/{self.endpoint_id}',
             body={'endpoint': {'enabled': True}},
         )
         self.assertValidEndpointResponse(r, self.endpoint)
@@ -681,7 +679,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
     def test_update_endpoint_enabled_false(self):
         """Call ``PATCH /endpoints/{endpoint_id}`` with enabled: False."""
         r = self.patch(
-            '/endpoints/%(endpoint_id)s' % {'endpoint_id': self.endpoint_id},
+            f'/endpoints/{self.endpoint_id}',
             body={'endpoint': {'enabled': False}},
         )
         exp_endpoint = copy.copy(self.endpoint)
@@ -691,7 +689,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
     def test_update_endpoint_enabled_str_true(self):
         """Call ``PATCH /endpoints/{endpoint_id}`` with enabled: 'True'."""
         self.patch(
-            '/endpoints/%(endpoint_id)s' % {'endpoint_id': self.endpoint_id},
+            f'/endpoints/{self.endpoint_id}',
             body={'endpoint': {'enabled': 'True'}},
             expected_status=http.client.BAD_REQUEST,
         )
@@ -699,7 +697,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
     def test_update_endpoint_enabled_str_false(self):
         """Call ``PATCH /endpoints/{endpoint_id}`` with enabled: 'False'."""
         self.patch(
-            '/endpoints/%(endpoint_id)s' % {'endpoint_id': self.endpoint_id},
+            f'/endpoints/{self.endpoint_id}',
             body={'endpoint': {'enabled': 'False'}},
             expected_status=http.client.BAD_REQUEST,
         )
@@ -707,16 +705,14 @@ class CatalogTestCase(test_v3.RestfulTestCase):
     def test_update_endpoint_enabled_str_random(self):
         """Call ``PATCH /endpoints/{endpoint_id}`` with enabled: 'kitties'."""
         self.patch(
-            '/endpoints/%(endpoint_id)s' % {'endpoint_id': self.endpoint_id},
+            f'/endpoints/{self.endpoint_id}',
             body={'endpoint': {'enabled': 'kitties'}},
             expected_status=http.client.BAD_REQUEST,
         )
 
     def test_delete_endpoint(self):
         """Call ``DELETE /endpoints/{endpoint_id}``."""
-        self.delete(
-            '/endpoints/%(endpoint_id)s' % {'endpoint_id': self.endpoint_id}
-        )
+        self.delete(f'/endpoints/{self.endpoint_id}')
 
     def test_deleting_endpoint_with_space_in_url(self):
         # add a space to all urls (intentional "i d" to test bug)
@@ -863,7 +859,7 @@ class TestCatalogAPISQL(unit.TestCase):
     """Test for the catalog Manager against the SQL backend."""
 
     def setUp(self):
-        super(TestCatalogAPISQL, self).setUp()
+        super().setUp()
         self.useFixture(database.Database())
         self.load_backends()
 
@@ -886,7 +882,7 @@ class TestCatalogAPISQL(unit.TestCase):
         return endpoint
 
     def config_overrides(self):
-        super(TestCatalogAPISQL, self).config_overrides()
+        super().config_overrides()
         self.config_fixture.config(group='catalog', driver='sql')
 
     def test_get_catalog_ignores_endpoints_with_invalid_urls(self):
@@ -977,7 +973,7 @@ class TestCatalogAPISQLRegions(unit.TestCase):
     """Test for the catalog Manager against the SQL backend."""
 
     def setUp(self):
-        super(TestCatalogAPISQLRegions, self).setUp()
+        super().setUp()
         self.useFixture(database.Database())
         self.load_backends()
         PROVIDERS.resource_api.create_domain(
@@ -985,7 +981,7 @@ class TestCatalogAPISQLRegions(unit.TestCase):
         )
 
     def config_overrides(self):
-        super(TestCatalogAPISQLRegions, self).config_overrides()
+        super().config_overrides()
         self.config_fixture.config(group='catalog', driver='sql')
 
     def test_get_catalog_returns_proper_endpoints_with_no_region(self):
@@ -1050,7 +1046,7 @@ class TestCatalogAPITemplatedProject(test_v3.RestfulTestCase):
     """
 
     def config_overrides(self):
-        super(TestCatalogAPITemplatedProject, self).config_overrides()
+        super().config_overrides()
         self.config_fixture.config(group='catalog', driver='templated')
 
     def load_fixtures(self, fixtures):
@@ -1070,6 +1066,4 @@ class TestCatalogAPITemplatedProject(test_v3.RestfulTestCase):
         mechanism, but since we do not allow deletion of endpoints with the
         templated catalog, there is no testing to do for that action.
         """
-        self.delete(
-            '/projects/%(project_id)s' % {'project_id': self.project_id}
-        )
+        self.delete(f'/projects/{self.project_id}')

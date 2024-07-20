@@ -38,7 +38,7 @@ CURRENT_DATE = timeutils.utcnow()
 
 class TestReceiptProvider(unit.TestCase):
     def setUp(self):
-        super(TestReceiptProvider, self).setUp()
+        super().setUp()
         self.useFixture(database.Database())
         self.useFixture(
             ksfixtures.KeyRepository(

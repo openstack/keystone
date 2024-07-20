@@ -45,7 +45,7 @@ def federated_objects_to_list(fed_ref):
     return list(fed.values())
 
 
-class ShadowUsersDriverBase(object, metaclass=abc.ABCMeta):
+class ShadowUsersDriverBase(metaclass=abc.ABCMeta):
     """Interface description for an Shadow Users driver."""
 
     @abc.abstractmethod

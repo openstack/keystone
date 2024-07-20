@@ -26,7 +26,7 @@ CONF = keystone.conf.CONF
 
 class Provider(base.Provider):
     def __init__(self, *args, **kwargs):
-        super(Provider, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # NOTE(lbragstad): We add these checks here because if the fernet
         # provider is going to be used and either the `key_repository` is empty

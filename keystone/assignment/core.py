@@ -68,7 +68,7 @@ class Manager(manager.Manager):
 
     def __init__(self):
         assignment_driver = CONF.assignment.driver
-        super(Manager, self).__init__(assignment_driver)
+        super().__init__(assignment_driver)
 
         self.event_callbacks = {
             notifications.ACTIONS.deleted: {
@@ -96,7 +96,7 @@ class Manager(manager.Manager):
             project_id=project_id, effective=True
         )
         # Use set() to process the list to remove any duplicates
-        return list(set([x['user_id'] for x in assignment_list]))
+        return list({x['user_id'] for x in assignment_list})
 
     def _send_app_cred_notification_for_role_removal(self, role_id):
         """Delete all application credential for a specific role.
@@ -133,7 +133,7 @@ class Manager(manager.Manager):
             user_id=user_id, project_id=project_id, effective=True
         )
         # Use set() to process the list to remove any duplicates
-        return list(set([x['role_id'] for x in assignment_list]))
+        return list({x['role_id'] for x in assignment_list})
 
     @MEMOIZE_COMPUTED_ASSIGNMENTS
     def get_roles_for_trustor_and_project(self, trustor_id, project_id):
@@ -156,7 +156,7 @@ class Manager(manager.Manager):
             strip_domain_roles=False,
         )
         # Use set() to process the list to remove any duplicates
-        return list(set([x['role_id'] for x in assignment_list]))
+        return list({x['role_id'] for x in assignment_list})
 
     @MEMOIZE_COMPUTED_ASSIGNMENTS
     def get_roles_for_user_and_domain(self, user_id, domain_id):
@@ -171,7 +171,7 @@ class Manager(manager.Manager):
             user_id=user_id, domain_id=domain_id, effective=True
         )
         # Use set() to process the list to remove any duplicates
-        return list(set([x['role_id'] for x in assignment_list]))
+        return list({x['role_id'] for x in assignment_list})
 
     def get_roles_for_groups(self, group_ids, project_id=None, domain_id=None):
         """Get a list of roles for this group on domain and/or project."""
@@ -196,7 +196,7 @@ class Manager(manager.Manager):
         else:
             raise AttributeError(_("Must specify either domain or project"))
 
-        role_ids = list(set([x['role_id'] for x in assignment_list]))
+        role_ids = list({x['role_id'] for x in assignment_list})
         return PROVIDERS.role_api.list_roles_from_ids(role_ids)
 
     @notifications.role_assignment('created')
@@ -241,13 +241,7 @@ class Manager(manager.Manager):
         )
         # Use set() to process the list to remove any duplicates
         project_ids = list(
-            set(
-                [
-                    x['project_id']
-                    for x in assignment_list
-                    if x.get('project_id')
-                ]
-            )
+            {x['project_id'] for x in assignment_list if x.get('project_id')}
         )
         return PROVIDERS.resource_api.list_projects_from_ids(project_ids)
 
@@ -260,9 +254,7 @@ class Manager(manager.Manager):
         )
         # Use set() to process the list to remove any duplicates
         domain_ids = list(
-            set(
-                [x['domain_id'] for x in assignment_list if x.get('domain_id')]
-            )
+            {x['domain_id'] for x in assignment_list if x.get('domain_id')}
         )
         return PROVIDERS.resource_api.list_domains_from_ids(domain_ids)
 
@@ -271,9 +263,7 @@ class Manager(manager.Manager):
             source_from_group_ids=group_ids, effective=True
         )
         domain_ids = list(
-            set(
-                [x['domain_id'] for x in assignment_list if x.get('domain_id')]
-            )
+            {x['domain_id'] for x in assignment_list if x.get('domain_id')}
         )
         return PROVIDERS.resource_api.list_domains_from_ids(domain_ids)
 
@@ -282,13 +272,7 @@ class Manager(manager.Manager):
             source_from_group_ids=group_ids, effective=True
         )
         project_ids = list(
-            set(
-                [
-                    x['project_id']
-                    for x in assignment_list
-                    if x.get('project_id')
-                ]
-            )
+            {x['project_id'] for x in assignment_list if x.get('project_id')}
         )
         return PROVIDERS.resource_api.list_projects_from_ids(project_ids)
 
@@ -1497,7 +1481,7 @@ class RoleManager(manager.Manager):
             )
             role_driver = assignment_manager_obj.default_role_driver()
 
-        super(RoleManager, self).__init__(role_driver)
+        super().__init__(role_driver)
 
     @MEMOIZE
     def get_role(self, role_id):

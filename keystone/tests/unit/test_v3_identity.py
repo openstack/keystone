@@ -46,7 +46,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
     """Test users and groups."""
 
     def setUp(self):
-        super(IdentityTestCase, self).setUp()
+        super().setUp()
         self.useFixture(
             ksfixtures.KeyRepository(
                 self.config_fixture,
@@ -282,9 +282,9 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         )
 
         # Now try with an explicit filter
-        resource_url = '/users?domain_id=%(domain_id)s' % {
-            'domain_id': domain['id']
-        }
+        resource_url = '/users?domain_id={domain_id}'.format(
+            domain_id=domain['id']
+        )
         r = self.get(resource_url)
         self.assertValidUserListResponse(
             r, ref=user, resource_url=resource_url
@@ -302,7 +302,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
 
     def test_get_head_user(self):
         """Call ``GET & HEAD /users/{user_id}``."""
-        resource_url = '/users/%(user_id)s' % {'user_id': self.user['id']}
+        resource_url = '/users/{user_id}'.format(user_id=self.user['id'])
         r = self.get(resource_url)
         self.assertValidUserResponse(r, self.user)
         self.head(resource_url, expected_status=http.client.OK)
@@ -326,7 +326,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         self.assertIn('name', user)
         self.assertIn('enabled', user)
         self.assertIn('password_expires_at', user)
-        r = self.get('/users/%(user_id)s' % {'user_id': user['id']})
+        r = self.get('/users/{user_id}'.format(user_id=user['id']))
         self.assertValidUserResponse(r, user)
 
     def test_get_user_with_default_project(self):
@@ -335,7 +335,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
             domain_id=self.domain_id, project_id=self.project_id
         )
         user = PROVIDERS.identity_api.create_user(user)
-        r = self.get('/users/%(user_id)s' % {'user_id': user['id']})
+        r = self.get('/users/{user_id}'.format(user_id=user['id']))
         self.assertValidUserResponse(r, user)
 
     def test_add_user_to_group(self):
@@ -365,7 +365,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         auth = self.build_authentication_request(
             user_id=user1['id'], password=user1['password']
         )
-        resource_url = '/users/%(user_id)s/groups' % {'user_id': user1['id']}
+        resource_url = '/users/{user_id}/groups'.format(user_id=user1['id'])
         r = self.get(resource_url, auth=auth)
         self.assertValidGroupListResponse(
             r, ref=self.group, resource_url=resource_url
@@ -373,7 +373,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         self.head(resource_url, auth=auth, expected_status=http.client.OK)
 
         # Administrator is allowed to list others' groups
-        resource_url = '/users/%(user_id)s/groups' % {'user_id': user1['id']}
+        resource_url = '/users/{user_id}/groups'.format(user_id=user1['id'])
         r = self.get(resource_url)
         self.assertValidGroupListResponse(
             r, ref=self.group, resource_url=resource_url
@@ -384,7 +384,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         auth = self.build_authentication_request(
             user_id=user2['id'], password=user2['password']
         )
-        resource_url = '/users/%(user_id)s/groups' % {'user_id': user1['id']}
+        resource_url = '/users/{user_id}/groups'.format(user_id=user1['id'])
         self.get(
             resource_url,
             auth=auth,
@@ -413,15 +413,15 @@ class IdentityTestCase(test_v3.RestfulTestCase):
             '/groups/%(group_id)s/users/%(user_id)s'
             % {'group_id': self.group_id, 'user_id': self.user['id']}
         )
-        resource_url = '/groups/%(group_id)s/users' % {
-            'group_id': self.group_id
-        }
+        resource_url = '/groups/{group_id}/users'.format(
+            group_id=self.group_id
+        )
         r = self.get(resource_url)
         self.assertValidUserListResponse(
             r, ref=self.user, resource_url=resource_url
         )
         self.assertIn(
-            '/groups/%(group_id)s/users' % {'group_id': self.group_id},
+            f'/groups/{self.group_id}/users',
             r.result['links']['self'],
         )
         self.head(resource_url, expected_status=http.client.OK)
@@ -462,7 +462,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         user = unit.new_user_ref(domain_id=self.domain_id)
         del user['id']
         r = self.patch(
-            '/users/%(user_id)s' % {'user_id': self.user['id']},
+            '/users/{user_id}'.format(user_id=self.user['id']),
             body={'user': user},
         )
         self.assertValidUserResponse(r, user)
@@ -562,7 +562,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         user = PROVIDERS.identity_api.create_user(user)
         user['domain_id'] = CONF.identity.default_domain_id
         self.patch(
-            '/users/%(user_id)s' % {'user_id': user['id']},
+            '/users/{user_id}'.format(user_id=user['id']),
             body={'user': user},
             expected_status=exception.ValidationError.code,
         )
@@ -608,7 +608,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         )
 
         # Now delete the user
-        self.delete('/users/%(user_id)s' % {'user_id': self.user['id']})
+        self.delete('/users/{user_id}'.format(user_id=self.user['id']))
 
         # Deleting the user should have deleted any credentials
         # that reference this project
@@ -626,7 +626,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
             'sqlalchemy.orm.query.Query.delete', autospec=True
         )
 
-        class FakeDeadlock(object):
+        class FakeDeadlock:
             def __init__(self, mock_patcher):
                 self.deadlock_count = 2
                 self.mock_patcher = mock_patcher
@@ -688,7 +688,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
 
     def test_get_head_group(self):
         """Call ``GET & HEAD /groups/{group_id}``."""
-        resource_url = '/groups/%(group_id)s' % {'group_id': self.group_id}
+        resource_url = f'/groups/{self.group_id}'
         r = self.get(resource_url)
         self.assertValidGroupResponse(r, self.group)
         self.head(resource_url, expected_status=http.client.OK)
@@ -698,7 +698,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         group = unit.new_group_ref(domain_id=self.domain_id)
         del group['id']
         r = self.patch(
-            '/groups/%(group_id)s' % {'group_id': self.group_id},
+            f'/groups/{self.group_id}',
             body={'group': group},
         )
         self.assertValidGroupResponse(r, group)
@@ -711,14 +711,14 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         """
         self.group['domain_id'] = CONF.identity.default_domain_id
         self.patch(
-            '/groups/%(group_id)s' % {'group_id': self.group['id']},
+            '/groups/{group_id}'.format(group_id=self.group['id']),
             body={'group': self.group},
             expected_status=exception.ValidationError.code,
         )
 
     def test_delete_group(self):
         """Call ``DELETE /groups/{group_id}``."""
-        self.delete('/groups/%(group_id)s' % {'group_id': self.group_id})
+        self.delete(f'/groups/{self.group_id}')
 
     def test_create_user_password_not_logged(self):
         # When a user is created, the password isn't logged at any level.
@@ -778,7 +778,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         # in HTTP 400
         user = {'default_project_id': self.domain_id}
         self.patch(
-            '/users/%(user_id)s' % {'user_id': self.user['id']},
+            '/users/{user_id}'.format(user_id=self.user['id']),
             body={'user': user},
             token=CONF.admin_token,
             expected_status=http.client.BAD_REQUEST,
@@ -788,7 +788,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
 class ChangePasswordTestCase(test_v3.RestfulTestCase):
 
     def setUp(self):
-        super(ChangePasswordTestCase, self).setUp()
+        super().setUp()
         self.user_ref = unit.create_user(
             PROVIDERS.identity_api, domain_id=self.domain['id']
         )
@@ -1137,7 +1137,7 @@ class UserSelfServiceChangingPasswordsTestCase(ChangePasswordTestCase):
 class PasswordValidationTestCase(ChangePasswordTestCase):
 
     def setUp(self):
-        super(PasswordValidationTestCase, self).setUp()
+        super().setUp()
         # passwords requires: 1 letter, 1 digit, 7 chars
         self.config_fixture.config(
             group='security_compliance',
@@ -1160,7 +1160,7 @@ class PasswordValidationTestCase(ChangePasswordTestCase):
         )
         user['password'] = 'simple'
         self.patch(
-            '/users/%(user_id)s' % {'user_id': user['id']},
+            '/users/{user_id}'.format(user_id=user['id']),
             body={'user': user},
             expected_status=http.client.BAD_REQUEST,
         )
@@ -1236,7 +1236,7 @@ class UserFederatedAttributesTests(test_v3.RestfulTestCase):
             return identity_base.filter_user(user_ref.to_dict())
 
     def setUp(self):
-        super(UserFederatedAttributesTests, self).setUp()
+        super().setUp()
         self.useFixture(database.Database())
         self.load_backends()
         # Create the federated object
@@ -1275,12 +1275,12 @@ class UserFederatedAttributesTests(test_v3.RestfulTestCase):
 
     def _test_list_users_with_federated_parameter(self, parameter):
         # construct the resource url based off what's passed in parameter
-        resource_url = '/users?%s=%s' % (
+        resource_url = '/users?{}={}'.format(
             parameter[0],
             self.fed_dict[parameter[0]],
         )
         for attr in parameter[1:]:
-            resource_url += '&%s=%s' % (attr, self.fed_dict[attr])
+            resource_url += f'&{attr}={self.fed_dict[attr]}'
         r = self.get(resource_url)
         # Check that only one out of 3 fed_users is matched by calling the api
         # and that it is a valid response
@@ -1293,12 +1293,12 @@ class UserFederatedAttributesTests(test_v3.RestfulTestCase):
         if not any('unique_id' in x for x in parameter):
             # Check that we get two matches here since fed_user2 and fed_user3
             # both have the same idp and protocol
-            resource_url = '/users?%s=%s' % (
+            resource_url = '/users?{}={}'.format(
                 parameter[0],
                 self.fed_dict2[parameter[0]],
             )
             for attr in parameter[1:]:
-                resource_url += '&%s=%s' % (attr, self.fed_dict2[attr])
+                resource_url += f'&{attr}={self.fed_dict2[attr]}'
             r = self.get(resource_url)
             self.assertEqual(2, len(r.result['users']))
             self.assertValidUserListResponse(
@@ -1340,7 +1340,7 @@ class UserFederatedAttributesTests(test_v3.RestfulTestCase):
         self.assertIn('protocols', user['federated'][0])
         self.assertIn('protocol_id', user['federated'][0]['protocols'][0])
         self.assertIn('unique_id', user['federated'][0]['protocols'][0])
-        r = self.get('/users/%(user_id)s' % {'user_id': user['id']})
+        r = self.get('/users/{user_id}'.format(user_id=user['id']))
         self.assertValidUserResponse(r, user)
 
     def test_create_user_with_federated_attributes(self):
@@ -1409,7 +1409,7 @@ class UserFederatedAttributesTests(test_v3.RestfulTestCase):
             }
         ]
         r = self.patch(
-            '/users/%(user_id)s' % {'user_id': self.fed_user['id']},
+            '/users/{user_id}'.format(user_id=self.fed_user['id']),
             body={'user': user},
         )
         resp_user = r.result['user']
@@ -1435,13 +1435,13 @@ class UserFederatedAttributesTests(test_v3.RestfulTestCase):
         ]
 
         self.patch(
-            '/users/%(user_id)s' % {'user_id': self.fed_user['id']},
+            '/users/{user_id}'.format(user_id=self.fed_user['id']),
             body={'user': user},
             expected_status=http.client.BAD_REQUEST,
         )
         user['federated'][0]['idp_id'] = idp['id']
         self.patch(
-            '/users/%(user_id)s' % {'user_id': self.fed_user['id']},
+            '/users/{user_id}'.format(user_id=self.fed_user['id']),
             body={'user': user},
             expected_status=http.client.BAD_REQUEST,
         )

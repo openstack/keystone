@@ -54,7 +54,7 @@ class Manager(manager.Manager):
 
     def __init__(self):
         resource_driver = CONF.resource.driver
-        super(Manager, self).__init__(resource_driver)
+        super().__init__(resource_driver)
 
     def _get_hierarchy_depth(self, parents_list):
         return len(parents_list) + 1
@@ -625,7 +625,7 @@ class Manager(manager.Manager):
         user_projects = PROVIDERS.assignment_api.list_projects_for_user(
             user_id
         )
-        user_projects_ids = set([proj['id'] for proj in user_projects])
+        user_projects_ids = {proj['id'] for proj in user_projects}
         # Keep only the projects present in user_projects
         return [
             proj for proj in projects_list if proj['id'] in user_projects_ids
@@ -1229,7 +1229,7 @@ class DomainConfigManager(manager.Manager):
     sensitive_options = {'identity': [], 'ldap': ['password']}
 
     def __init__(self):
-        super(DomainConfigManager, self).__init__(CONF.domain_config.driver)
+        super().__init__(CONF.domain_config.driver)
 
     def _assert_valid_config(self, config):
         """Ensure the options in the config are valid.

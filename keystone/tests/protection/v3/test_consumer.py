@@ -25,7 +25,7 @@ CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
 
 
-class _SystemUserOauth1ConsumerTests(object):
+class _SystemUserOauth1ConsumerTests:
     """Common default functionality for all system users."""
 
     def test_user_can_get_consumer(self):
@@ -41,7 +41,7 @@ class _SystemUserOauth1ConsumerTests(object):
             c.get('/v3/OS-OAUTH1/consumers', headers=self.headers)
 
 
-class _SystemReaderAndMemberOauth1ConsumerTests(object):
+class _SystemReaderAndMemberOauth1ConsumerTests:
 
     def test_user_cannot_create_consumer(self):
         with self.test_client() as c:
@@ -80,7 +80,7 @@ class SystemReaderTests(
 ):
 
     def setUp(self):
-        super(SystemReaderTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -115,7 +115,7 @@ class SystemMemberTests(
 ):
 
     def setUp(self):
-        super(SystemMemberTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -149,7 +149,7 @@ class SystemAdminTests(
 ):
 
     def setUp(self):
-        super(SystemAdminTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)

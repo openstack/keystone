@@ -22,7 +22,7 @@ from keystone.tests.unit.ksfixtures import hacking as hacking_fixtures
 class BaseStyleCheck(unit.BaseTestCase):
 
     def setUp(self):
-        super(BaseStyleCheck, self).setUp()
+        super().setUp()
         self.code_ex = self.useFixture(self.get_fixture())
         self.addCleanup(delattr, self, 'code_ex')
 

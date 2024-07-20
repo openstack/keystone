@@ -50,7 +50,7 @@ CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
 
-class BaseApp(object):
+class BaseApp:
 
     name = None
 
@@ -71,7 +71,7 @@ class BootStrap(BaseApp):
 
     @classmethod
     def add_argument_parser(cls, subparsers):
-        parser = super(BootStrap, cls).add_argument_parser(subparsers)
+        parser = super().add_argument_parser(subparsers)
         parser.add_argument(
             '--bootstrap-username',
             default='admin',
@@ -272,7 +272,7 @@ class ProjectSetup(BaseApp):
 
     @classmethod
     def add_argument_parser(cls, subparsers):
-        parser = super(ProjectSetup, cls).add_argument_parser(subparsers)
+        parser = super().add_argument_parser(subparsers)
         parser.add_argument(
             '--project-name',
             default=None,
@@ -308,7 +308,7 @@ class UserSetup(BaseApp):
 
     @classmethod
     def add_argument_parser(cls, subparsers):
-        parser = super(UserSetup, cls).add_argument_parser(subparsers)
+        parser = super().add_argument_parser(subparsers)
         parser.add_argument(
             '--username',
             default=None,
@@ -349,7 +349,7 @@ class Doctor(BaseApp):
 
     @classmethod
     def add_argument_parser(cls, subparsers):
-        parser = super(Doctor, cls).add_argument_parser(subparsers)
+        parser = super().add_argument_parser(subparsers)
         return parser
 
     @staticmethod
@@ -365,7 +365,7 @@ class DbSync(BaseApp):
 
     @classmethod
     def add_argument_parser(cls, subparsers):
-        parser = super(DbSync, cls).add_argument_parser(subparsers)
+        parser = super().add_argument_parser(subparsers)
         parser.add_argument(
             'version',
             default=None,
@@ -507,9 +507,7 @@ class BasePermissionsSetup(BaseApp):
 
     @classmethod
     def add_argument_parser(cls, subparsers):
-        parser = super(BasePermissionsSetup, cls).add_argument_parser(
-            subparsers
-        )
+        parser = super().add_argument_parser(subparsers)
         running_as_root = os.geteuid() == 0
         parser.add_argument('--keystone-user', required=running_as_root)
         parser.add_argument('--keystone-group', required=running_as_root)
@@ -651,7 +649,7 @@ class CreateJWSKeyPair(BasePermissionsSetup):
 
     @classmethod
     def add_argument_parser(cls, subparsers):
-        parser = super(CreateJWSKeyPair, cls).add_argument_parser(subparsers)
+        parser = super().add_argument_parser(subparsers)
 
         parser.add_argument(
             '--force',
@@ -934,7 +932,7 @@ class TrustFlush(BaseApp):
 
     @classmethod
     def add_argument_parser(cls, subparsers):
-        parser = super(TrustFlush, cls).add_argument_parser(subparsers)
+        parser = super().add_argument_parser(subparsers)
 
         parser.add_argument(
             '--project-id',
@@ -1013,7 +1011,7 @@ class MappingPurge(BaseApp):
 
     @classmethod
     def add_argument_parser(cls, subparsers):
-        parser = super(MappingPurge, cls).add_argument_parser(subparsers)
+        parser = super().add_argument_parser(subparsers)
         parser.add_argument(
             '--all',
             default=False,
@@ -1139,10 +1137,10 @@ def _domain_config_finder(conf_dir):
             )
 
 
-class DomainConfigUploadFiles(object):
+class DomainConfigUploadFiles:
 
     def __init__(self, domain_config_finder=_domain_config_finder):
-        super(DomainConfigUploadFiles, self).__init__()
+        super().__init__()
         self.load_backends()
         self._domain_config_finder = domain_config_finder
 
@@ -1324,7 +1322,7 @@ class DomainConfigUpload(BaseApp):
 
     @classmethod
     def add_argument_parser(cls, subparsers):
-        parser = super(DomainConfigUpload, cls).add_argument_parser(subparsers)
+        parser = super().add_argument_parser(subparsers)
         parser.add_argument(
             '--all',
             default=False,
@@ -1369,7 +1367,7 @@ class MappingEngineTester(BaseApp):
     name = 'mapping_engine'
 
     def __init__(self):
-        super(MappingEngineTester, self).__init__()
+        super().__init__()
         self.mapping_id = uuid.uuid4().hex
         self.rules_pathname = None
         self.rules = None
@@ -1392,7 +1390,7 @@ class MappingEngineTester(BaseApp):
         try:
             with open(path) as file:
                 self.assertion = file.read().strip()
-        except IOError as e:
+        except OSError as e:
             raise SystemExit(
                 _("Error while opening file " "%(path)s: %(err)s")
                 % {'path': path, 'err': e}
@@ -1496,9 +1494,7 @@ class MappingEngineTester(BaseApp):
 
     @classmethod
     def add_argument_parser(cls, subparsers):
-        parser = super(MappingEngineTester, cls).add_argument_parser(
-            subparsers
-        )
+        parser = super().add_argument_parser(subparsers)
 
         parser.formatter_class = argparse.RawTextHelpFormatter
         parser.add_argument(
@@ -1579,7 +1575,7 @@ class MappingPopulate(BaseApp):
 
     @classmethod
     def add_argument_parser(cls, subparsers):
-        parser = super(MappingPopulate, cls).add_argument_parser(subparsers)
+        parser = super().add_argument_parser(subparsers)
 
         parser.add_argument(
             '--domain-name',

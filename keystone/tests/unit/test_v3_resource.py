@@ -33,7 +33,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
     """Test domains and projects."""
 
     def setUp(self):
-        super(ResourceTestCase, self).setUp()
+        super().setUp()
         self.useFixture(
             ksfixtures.KeyRepository(
                 self.config_fixture,
@@ -134,7 +134,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
 
         # Retrieve its correspondent domain
         r = self.get(
-            '/domains/%(domain_id)s' % {'domain_id': r.result['project']['id']}
+            '/domains/{domain_id}'.format(domain_id=r.result['project']['id'])
         )
         self.assertValidDomainResponse(r)
         self.assertIsNotNone(r.result['domain'])
@@ -148,9 +148,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         r = self.post('/domains', body={'domain': ref})
         self.assertValidDomainResponse(r, ref)
 
-        r = self.get(
-            '/domains/%(domain_id)s' % {'domain_id': explicit_domain_id}
-        )
+        r = self.get(f'/domains/{explicit_domain_id}')
         self.assertValidDomainResponse(r)
         self.assertIsNotNone(r.result['domain'])
 
@@ -214,7 +212,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
 
     def test_get_head_domain(self):
         """Call ``GET /domains/{domain_id}``."""
-        resource_url = '/domains/%(domain_id)s' % {'domain_id': self.domain_id}
+        resource_url = f'/domains/{self.domain_id}'
         r = self.get(resource_url)
         self.assertValidDomainResponse(r, self.domain)
         self.head(resource_url, expected_status=http.client.OK)
@@ -224,7 +222,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         ref = unit.new_domain_ref()
         del ref['id']
         r = self.patch(
-            '/domains/%(domain_id)s' % {'domain_id': self.domain_id},
+            f'/domains/{self.domain_id}',
             body={'domain': ref},
         )
         self.assertValidDomainResponse(r, ref)
@@ -239,7 +237,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         ref = unit.new_domain_ref(name=unsafe_name)
         del ref['id']
         self.patch(
-            '/domains/%(domain_id)s' % {'domain_id': self.domain_id},
+            f'/domains/{self.domain_id}',
             body={'domain': ref},
         )
 
@@ -251,7 +249,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
             ref = unit.new_domain_ref(name=unsafe_name)
             del ref['id']
             self.patch(
-                '/domains/%(domain_id)s' % {'domain_id': self.domain_id},
+                f'/domains/{self.domain_id}',
                 body={'domain': ref},
                 expected_status=http.client.BAD_REQUEST,
             )
@@ -264,7 +262,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         ref = unit.new_domain_ref(name=unsafe_name)
         del ref['id']
         self.patch(
-            '/domains/%(domain_id)s' % {'domain_id': self.domain_id},
+            f'/domains/{self.domain_id}',
             body={'domain': ref},
         )
 
@@ -327,7 +325,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         # Now disable the domain
         domain2['enabled'] = False
         r = self.patch(
-            '/domains/%(domain_id)s' % {'domain_id': domain2['id']},
+            '/domains/{domain_id}'.format(domain_id=domain2['id']),
             body={'domain': {'enabled': False}},
         )
         self.assertValidDomainResponse(r, domain2)
@@ -356,7 +354,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         """Call ``DELETE /domains/{domain_id}`` (when domain enabled)."""
         # Try deleting an enabled domain, which should fail
         self.delete(
-            '/domains/%(domain_id)s' % {'domain_id': self.domain['id']},
+            '/domains/{domain_id}'.format(domain_id=self.domain['id']),
             expected_status=exception.ForbiddenAction.code,
         )
 
@@ -418,11 +416,11 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         # Now disable the new domain and delete it
         domain2['enabled'] = False
         r = self.patch(
-            '/domains/%(domain_id)s' % {'domain_id': domain2['id']},
+            '/domains/{domain_id}'.format(domain_id=domain2['id']),
             body={'domain': {'enabled': False}},
         )
         self.assertValidDomainResponse(r, domain2)
-        self.delete('/domains/%(domain_id)s' % {'domain_id': domain2['id']})
+        self.delete('/domains/{domain_id}'.format(domain_id=domain2['id']))
 
         # Check all the domain2 relevant entities are gone
         self.assertRaises(
@@ -478,7 +476,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         )
         # Disable and delete the domain with no error.
         self.patch(
-            '/domains/%(domain_id)s' % {'domain_id': domain_id},
+            f'/domains/{domain_id}',
             body={'domain': {'enabled': False}},
         )
         self.delete('/domains/%s' % domain_id)
@@ -564,7 +562,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
 
         # now disable the domain
         domain['enabled'] = False
-        url = "/domains/%(domain_id)s" % {'domain_id': domain['id']}
+        url = "/domains/{domain_id}".format(domain_id=domain['id'])
         self.patch(url, body={'domain': {'enabled': False}})
 
         # validates the same token again and it should be 'not found'
@@ -592,11 +590,11 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
 
         # Need to disable it first.
         self.patch(
-            '/domains/%(domain_id)s' % {'domain_id': domain['id']},
+            '/domains/{domain_id}'.format(domain_id=domain['id']),
             body={'domain': {'enabled': False}},
         )
 
-        self.delete('/domains/%(domain_id)s' % {'domain_id': domain['id']})
+        self.delete('/domains/{domain_id}'.format(domain_id=domain['id']))
 
         self.assertRaises(
             exception.DomainNotFound,
@@ -771,14 +769,14 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
     def test_create_project_with_parent_id_none_and_domain_id_none(self):
         """Call ``POST /projects``."""
         # Grant a domain role for the user
-        collection_url = '/domains/%(domain_id)s/users/%(user_id)s/roles' % {
-            'domain_id': self.domain_id,
-            'user_id': self.user['id'],
-        }
-        member_url = '%(collection_url)s/%(role_id)s' % {
-            'collection_url': collection_url,
-            'role_id': self.role_id,
-        }
+        collection_url = '/domains/{domain_id}/users/{user_id}/roles'.format(
+            domain_id=self.domain_id,
+            user_id=self.user['id'],
+        )
+        member_url = '{collection_url}/{role_id}'.format(
+            collection_url=collection_url,
+            role_id=self.role_id,
+        )
         self.put(member_url)
 
         # Create an authentication request for a domain scoped token
@@ -799,14 +797,14 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
     def test_create_project_without_parent_id_and_without_domain_id(self):
         """Call ``POST /projects``."""
         # Grant a domain role for the user
-        collection_url = '/domains/%(domain_id)s/users/%(user_id)s/roles' % {
-            'domain_id': self.domain_id,
-            'user_id': self.user['id'],
-        }
-        member_url = '%(collection_url)s/%(role_id)s' % {
-            'collection_url': collection_url,
-            'role_id': self.role_id,
-        }
+        collection_url = '/domains/{domain_id}/users/{user_id}/roles'.format(
+            domain_id=self.domain_id,
+            user_id=self.user['id'],
+        )
+        member_url = '{collection_url}/{role_id}'.format(
+            collection_url=collection_url,
+            role_id=self.role_id,
+        )
         self.put(member_url)
 
         # Create an authentication request for a domain scoped token
@@ -898,7 +896,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         """Call ``GET /projects?tags={tags}``."""
         project, tags = self._create_project_and_tags(num_of_tags=2)
         tag_string = ','.join(tags)
-        resp = self.get('/projects?tags=%(values)s' % {'values': tag_string})
+        resp = self.get(f'/projects?tags={tag_string}')
         self.assertValidProjectListResponse(resp)
         self.assertEqual(project['id'], resp.result['projects'][0]['id'])
 
@@ -907,9 +905,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         project, tags = self._create_project_and_tags(num_of_tags=2)
         project1, tags1 = self._create_project_and_tags(num_of_tags=2)
         tag_string = tags[0] + ',' + tags1[0]
-        resp = self.get(
-            '/projects?tags-any=%(values)s' % {'values': tag_string}
-        )
+        resp = self.get(f'/projects?tags-any={tag_string}')
         pids = [p['id'] for p in resp.result['projects']]
         self.assertValidProjectListResponse(resp)
         self.assertIn(project['id'], pids)
@@ -920,9 +916,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         project1, tags1 = self._create_project_and_tags(num_of_tags=2)
         project2, tags2 = self._create_project_and_tags(num_of_tags=2)
         tag_string = ','.join(tags1)
-        resp = self.get(
-            '/projects?not-tags=%(values)s' % {'values': tag_string}
-        )
+        resp = self.get(f'/projects?not-tags={tag_string}')
         self.assertValidProjectListResponse(resp)
         pids = [p['id'] for p in resp.result['projects']]
         self.assertNotIn(project1['id'], pids)
@@ -934,9 +928,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         project2, tags2 = self._create_project_and_tags(num_of_tags=2)
         project3, tags3 = self._create_project_and_tags(num_of_tags=2)
         tag_string = tags1[0] + ',' + tags2[0]
-        resp = self.get(
-            '/projects?not-tags-any=%(values)s' % {'values': tag_string}
-        )
+        resp = self.get(f'/projects?not-tags-any={tag_string}')
         self.assertValidProjectListResponse(resp)
         pids = [p['id'] for p in resp.result['projects']]
         self.assertNotIn(project1['id'], pids)
@@ -950,12 +942,12 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         project3, tags3 = self._create_project_and_tags(num_of_tags=2)
         tags1_query = ','.join(tags1)
         resp = self.patch(
-            '/projects/%(project_id)s' % {'project_id': project3['id']},
+            '/projects/{project_id}'.format(project_id=project3['id']),
             body={'project': {'tags': tags1}},
         )
         tags1.append(tags2[0])
         resp = self.patch(
-            '/projects/%(project_id)s' % {'project_id': project1['id']},
+            '/projects/{project_id}'.format(project_id=project1['id']),
             body={'project': {'tags': tags1}},
         )
         url = '/projects?tags=%(value1)s&tags-any=%(value2)s'
@@ -1000,7 +992,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         project, tags = self._create_project_and_tags(num_of_tags=2)
         ref = {'project': {'name': 'tags and name'}}
         resp = self.patch(
-            '/projects/%(project_id)s' % {'project_id': project['id']},
+            '/projects/{project_id}'.format(project_id=project['id']),
             body=ref,
         )
         url = '/projects?tags-any=%(values)s&name=%(name)s'
@@ -1073,9 +1065,9 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
 
     def test_get_head_project(self):
         """Call ``GET & HEAD /projects/{project_id}``."""
-        resource_url = '/projects/%(project_id)s' % {
-            'project_id': self.project_id
-        }
+        resource_url = '/projects/{project_id}'.format(
+            project_id=self.project_id
+        )
         r = self.get(resource_url)
         self.assertValidProjectResponse(r, self.project)
         self.head(resource_url, expected_status=http.client.OK)
@@ -1083,7 +1075,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
     def test_get_project_with_parents_as_list_with_invalid_id(self):
         """Call ``GET /projects/{project_id}?parents_as_list``."""
         self.get(
-            '/projects/%(project_id)s?parents_as_list' % {'project_id': None},
+            f'/projects/{None}?parents_as_list',
             expected_status=http.client.NOT_FOUND,
         )
 
@@ -1096,7 +1088,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
     def test_get_project_with_subtree_as_list_with_invalid_id(self):
         """Call ``GET /projects/{project_id}?subtree_as_list``."""
         self.get(
-            '/projects/%(project_id)s?subtree_as_list' % {'project_id': None},
+            f'/projects/{None}?subtree_as_list',
             expected_status=http.client.NOT_FOUND,
         )
 
@@ -1606,7 +1598,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         )
         del ref['id']
         r = self.patch(
-            '/projects/%(project_id)s' % {'project_id': self.project_id},
+            f'/projects/{self.project_id}',
             body={'project': ref},
         )
         self.assertValidProjectResponse(r, ref)
@@ -1625,7 +1617,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         )
         del ref['id']
         self.patch(
-            '/projects/%(project_id)s' % {'project_id': self.project_id},
+            f'/projects/{self.project_id}',
             body={'project': ref},
         )
 
@@ -1641,7 +1633,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
             )
             del ref['id']
             self.patch(
-                '/projects/%(project_id)s' % {'project_id': self.project_id},
+                f'/projects/{self.project_id}',
                 body={'project': ref},
                 expected_status=http.client.BAD_REQUEST,
             )
@@ -1658,7 +1650,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         )
         del ref['id']
         self.patch(
-            '/projects/%(project_id)s' % {'project_id': self.project_id},
+            f'/projects/{self.project_id}',
             body={'project': ref},
         )
 
@@ -1672,7 +1664,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         project = PROVIDERS.resource_api.create_project(project['id'], project)
         project['domain_id'] = CONF.identity.default_domain_id
         self.patch(
-            '/projects/%(project_id)s' % {'project_id': project['id']},
+            '/projects/{project_id}'.format(project_id=project['id']),
             body={'project': project},
             expected_status=exception.ValidationError.code,
         )
@@ -1683,7 +1675,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         leaf_project = projects[1]['project']
         leaf_project['parent_id'] = None
         self.patch(
-            '/projects/%(project_id)s' % {'project_id': leaf_project['id']},
+            '/projects/{project_id}'.format(project_id=leaf_project['id']),
             body={'project': leaf_project},
             expected_status=http.client.FORBIDDEN,
         )
@@ -1712,7 +1704,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         leaf_project = projects[1]['project']
         leaf_project['enabled'] = False
         r = self.patch(
-            '/projects/%(project_id)s' % {'project_id': leaf_project['id']},
+            '/projects/{project_id}'.format(project_id=leaf_project['id']),
             body={'project': leaf_project},
         )
         self.assertEqual(
@@ -1725,7 +1717,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         root_project = projects[0]['project']
         root_project['enabled'] = False
         self.patch(
-            '/projects/%(project_id)s' % {'project_id': root_project['id']},
+            '/projects/{project_id}'.format(project_id=root_project['id']),
             body={'project': root_project},
             expected_status=http.client.FORBIDDEN,
         )
@@ -1759,9 +1751,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         )
 
         # Now delete the project
-        self.delete(
-            '/projects/%(project_id)s' % {'project_id': self.project_id}
-        )
+        self.delete(f'/projects/{self.project_id}')
 
         # Deleting the project should have deleted any credentials
         # that reference this project
@@ -1786,7 +1776,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
     def test_create_project_with_tags(self):
         project, tags = self._create_project_and_tags(num_of_tags=10)
         ref = self.get(
-            '/projects/%(project_id)s' % {'project_id': project['id']},
+            '/projects/{project_id}'.format(project_id=project['id']),
             expected_status=http.client.OK,
         )
         self.assertIn('tags', ref.result['project'])
@@ -1798,7 +1788,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         tag = uuid.uuid4().hex
         project['tags'].append(tag)
         ref = self.patch(
-            '/projects/%(project_id)s' % {'project_id': self.project_id},
+            f'/projects/{self.project_id}',
             body={'project': {'tags': project['tags']}},
         )
         self.assertIn(tag, ref.result['project']['tags'])
@@ -1824,7 +1814,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
                 expected_status=http.client.CREATED,
             )
         resp = self.get(
-            '/projects/%(project_id)s' % {'project_id': self.project_id},
+            f'/projects/{self.project_id}',
             expected_status=http.client.OK,
         )
         for tag in case_tags:
@@ -1867,7 +1857,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
     def test_delete_project_tags(self):
         project, tags = self._create_project_and_tags(num_of_tags=5)
         self.delete(
-            '/projects/%(project_id)s/tags/' % {'project_id': project['id']},
+            '/projects/{project_id}/tags/'.format(project_id=project['id']),
             expected_status=http.client.NO_CONTENT,
         )
         self.get(
@@ -1876,7 +1866,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
             expected_status=http.client.NOT_FOUND,
         )
         resp = self.get(
-            '/projects/%(project_id)s/tags/' % {'project_id': self.project_id},
+            f'/projects/{self.project_id}/tags/',
             expected_status=http.client.OK,
         )
         self.assertEqual(len(resp.result['tags']), 0)
@@ -1937,7 +1927,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
     def test_list_project_tags(self):
         project, tags = self._create_project_and_tags(num_of_tags=5)
         resp = self.get(
-            '/projects/%(project_id)s/tags' % {'project_id': project['id']},
+            '/projects/{project_id}/tags'.format(project_id=project['id']),
             expected_status=http.client.OK,
         )
         for tag in tags:
@@ -1953,7 +1943,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
 
     def test_list_project_tags_for_project_with_no_tags(self):
         resp = self.get(
-            '/projects/%(project_id)s/tags' % {'project_id': self.project_id},
+            f'/projects/{self.project_id}/tags',
             expected_status=http.client.OK,
         )
         self.assertEqual([], resp.result['tags'])
@@ -1968,7 +1958,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
     def test_update_project_tags(self):
         project, tags = self._create_project_and_tags(num_of_tags=5)
         resp = self.put(
-            '/projects/%(project_id)s/tags' % {'project_id': project['id']},
+            '/projects/{project_id}/tags'.format(project_id=project['id']),
             body={'tags': tags},
             expected_status=http.client.OK,
         )
@@ -1983,7 +1973,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
             expected_status=http.client.CREATED,
         )
         resp = self.put(
-            '/projects/%(project_id)s/tags' % {'project_id': project['id']},
+            '/projects/{project_id}/tags'.format(project_id=project['id']),
             body={'tags': tags},
             expected_status=http.client.OK,
         )
@@ -2007,7 +1997,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         tags = [uuid.uuid4().hex for i in range(81)]
         tags.append(uuid.uuid4().hex)
         self.put(
-            '/projects/%(project_id)s/tags' % {'project_id': project['id']},
+            '/projects/{project_id}/tags'.format(project_id=project['id']),
             body={'tags': tags},
             expected_status=http.client.BAD_REQUEST,
         )
@@ -2036,7 +2026,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
             }
         )
 
-        resp = self.get('/users/%(user)s/projects' % {'user': user['id']})
+        resp = self.get('/users/{user}/projects'.format(user=user['id']))
         self.assertValidProjectListResponse(resp)
         self.assertEqual([], resp.result['projects'])
 
@@ -2044,17 +2034,17 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         resp = self.post('/projects', body={'project': project_ref})
         project = resp.result['project']
 
-        resp = self.get('/users/%(user)s/projects' % {'user': user['id']})
+        resp = self.get('/users/{user}/projects'.format(user=user['id']))
         self.assertValidProjectListResponse(resp)
         self.assertEqual(project['id'], resp.result['projects'][0]['id'])
 
 
 class StrictTwoLevelLimitsResourceTestCase(ResourceTestCase):
     def setUp(self):
-        super(StrictTwoLevelLimitsResourceTestCase, self).setUp()
+        super().setUp()
 
     def config_overrides(self):
-        super(StrictTwoLevelLimitsResourceTestCase, self).config_overrides()
+        super().config_overrides()
         self.config_fixture.config(
             group='unified_limit', enforcement_model='strict_two_level'
         )
@@ -2065,9 +2055,7 @@ class StrictTwoLevelLimitsResourceTestCase(ResourceTestCase):
                 "Strict two level limit enforcement model doesn't allow the"
                 "project tree depth > 2"
             )
-        return super(
-            StrictTwoLevelLimitsResourceTestCase, self
-        )._create_projects_hierarchy(hierarchy_size)
+        return super()._create_projects_hierarchy(hierarchy_size)
 
     def test_create_hierarchical_project(self):
         projects = self._create_projects_hierarchy()

@@ -44,7 +44,7 @@ class Manager(manager.Manager):
     _CRED = 'credential'
 
     def __init__(self):
-        super(Manager, self).__init__(CONF.credential.driver)
+        super().__init__(CONF.credential.driver)
 
     def _decrypt_credential(self, credential):
         """Return a decrypted credential reference."""

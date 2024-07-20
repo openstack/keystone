@@ -53,7 +53,7 @@ class RestfulTestCase(unit.TestCase):
     content_type = 'json'
 
     def setUp(self):
-        super(RestfulTestCase, self).setUp()
+        super().setUp()
 
         self.auth_plugin_config_override()
 

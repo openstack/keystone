@@ -39,7 +39,7 @@ class PolicyFileTestCase(unit.TestCase):
         # the config_overrides call.
         self.tempfile = self.useFixture(temporaryfile.SecureTempFile())
         self.tmpfilename = self.tempfile.file_name
-        super(PolicyFileTestCase, self).setUp()
+        super().setUp()
         self.target = {}
 
     def _policy_fixture(self):
@@ -67,7 +67,7 @@ class PolicyFileTestCase(unit.TestCase):
 
 class PolicyTestCase(unit.TestCase):
     def setUp(self):
-        super(PolicyTestCase, self).setUp()
+        super().setUp()
         self.rules = {
             "true": [],
             "example:allowed": [],
@@ -157,7 +157,7 @@ class PolicyTestCase(unit.TestCase):
 class PolicyScopeTypesEnforcementTestCase(unit.TestCase):
 
     def setUp(self):
-        super(PolicyScopeTypesEnforcementTestCase, self).setUp()
+        super().setUp()
         rule = common_policy.RuleDefault(
             name='foo', check_str='', scope_types=['system']
         )
@@ -217,7 +217,7 @@ class PolicyJsonTestCase(unit.TestCase):
             'token': uuid.uuid4().hex,
             'project_name': None,
             'user_id': uuid.uuid4().hex,
-            'roles': [u'admin'],
+            'roles': ['admin'],
             'is_admin': True,
             'is_admin_project': True,
             'project_id': None,

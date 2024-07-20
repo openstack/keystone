@@ -22,7 +22,7 @@ from keystone import exception
 CONF = keystone.conf.CONF
 
 
-class UnifiedLimitDriverBase(object, metaclass=abc.ABCMeta):
+class UnifiedLimitDriverBase(metaclass=abc.ABCMeta):
 
     def _get_list_limit(self):
         return CONF.unified_limit.list_limit or CONF.list_limit

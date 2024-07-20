@@ -62,7 +62,7 @@ def dummy_validator(*args, **kwargs):
     pass
 
 
-class FederatedSetupMixin(object):
+class FederatedSetupMixin:
 
     ACTION = 'authenticate'
     IDP = 'ORG_IDP'
@@ -90,7 +90,7 @@ class FederatedSetupMixin(object):
         return (project['id'], project['name'])
 
     def _roles(self, roles):
-        return set([(r['id'], r['name']) for r in roles])
+        return {(r['id'], r['name']) for r in roles}
 
     def _check_projects_and_roles(self, token, roles, projects):
         """Check whether the projects and the roles match."""
@@ -749,7 +749,7 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
         url=None,
         mapping_id=None,
         validate=True,
-        **kwargs
+        **kwargs,
     ):
         if url is None:
             url = self.base_url(suffix='%(idp_id)s/protocols/%(protocol_id)s')
@@ -774,7 +774,7 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
         return (resp, idp_id, proto)
 
     def _get_protocol(self, idp_id, protocol_id):
-        url = '%s/protocols/%s' % (idp_id, protocol_id)
+        url = f'{idp_id}/protocols/{protocol_id}'
         url = self.base_url(suffix=url)
         r = self.get(url)
         return r
@@ -1223,7 +1223,7 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
         entities = self._fetch_attribute_from_response(
             resp, 'identity_providers'
         )
-        entities_ids = set([e['id'] for e in entities])
+        entities_ids = {e['id'] for e in entities}
         ids_intersection = entities_ids.intersection(ids)
         self.assertEqual(ids_intersection, ids)
 
@@ -1599,7 +1599,7 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
             expected_status=http.client.CREATED
         )
         proto_id = self._fetch_attribute_from_response(resp, 'protocol')['id']
-        url = "%s/protocols/%s" % (idp_id, proto_id)
+        url = f"{idp_id}/protocols/{proto_id}"
         url = self.base_url(suffix=url)
 
         resp = self.get(url)
@@ -1644,7 +1644,7 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
             resp, 'protocols', dummy_validator, keys_to_check=['id']
         )
         entities = self._fetch_attribute_from_response(resp, 'protocols')
-        entities = set([entity['id'] for entity in entities])
+        entities = {entity['id'] for entity in entities}
         protocols_intersection = entities.intersection(protocol_ids)
         self.assertEqual(protocols_intersection, set(protocol_ids))
 
@@ -1658,7 +1658,7 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
         new_mapping_id = uuid.uuid4().hex
         self._create_mapping(mapping_id=new_mapping_id)
 
-        url = "%s/protocols/%s" % (idp_id, proto)
+        url = f"{idp_id}/protocols/{proto}"
         url = self.base_url(suffix=url)
         body = {'mapping_id': new_mapping_id}
         resp = self.patch(url, body={'protocol': body})
@@ -1698,7 +1698,7 @@ class MappingCRUDTests(test_v3.RestfulTestCase):
             self.assertValidMapping,
             keys_to_check=[],
             *args,
-            **kwargs
+            **kwargs,
         )
 
     def assertValidMappingResponse(self, resp, *args, **kwargs):
@@ -1708,7 +1708,7 @@ class MappingCRUDTests(test_v3.RestfulTestCase):
             self.assertValidMapping,
             keys_to_check=[],
             *args,
-            **kwargs
+            **kwargs,
         )
 
     def assertValidMapping(self, entity, ref=None):
@@ -1987,10 +1987,10 @@ class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
 
     def auth_plugin_config_override(self):
         methods = ['saml2', 'token']
-        super(FederatedTokenTests, self).auth_plugin_config_override(methods)
+        super().auth_plugin_config_override(methods)
 
     def setUp(self):
-        super(FederatedTokenTests, self).setUp()
+        super().setUp()
         self._notifications = []
 
         def fake_saml_notify(
@@ -2030,7 +2030,7 @@ class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
         self.assertTrue(note['send_notification_called'])
 
     def load_fixtures(self, fixtures):
-        super(FederatedTokenTests, self).load_fixtures(fixtures)
+        super().load_fixtures(fixtures)
         self.load_federation_sample_data()
 
     def test_issue_unscoped_token_notify(self):
@@ -2114,9 +2114,9 @@ class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
 
     def test_issue_unscoped_token_group_names_in_mapping(self):
         r = self._issue_unscoped_token(assertion='ANOTHER_CUSTOMER_ASSERTION')
-        ref_groups = set([self.group_customers['id'], self.group_admins['id']])
+        ref_groups = {self.group_customers['id'], self.group_admins['id']}
         token_groups = r.federated_groups
-        token_groups = set([group['id'] for group in token_groups])
+        token_groups = {group['id'] for group in token_groups}
         self.assertEqual(ref_groups, token_groups)
 
     def test_issue_unscoped_tokens_nonexisting_group(self):
@@ -2476,23 +2476,21 @@ class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
         )
 
         projects_refs = (
-            set([self.proj_customers['id'], self.project_inherited['id']]),
-            set([self.proj_employees['id'], self.project_all['id']]),
-            set(
-                [
-                    self.proj_employees['id'],
-                    self.project_all['id'],
-                    self.proj_customers['id'],
-                    self.project_inherited['id'],
-                ]
-            ),
+            {self.proj_customers['id'], self.project_inherited['id']},
+            {self.proj_employees['id'], self.project_all['id']},
+            {
+                self.proj_employees['id'],
+                self.project_all['id'],
+                self.proj_customers['id'],
+                self.project_inherited['id'],
+            },
         )
 
         for token, projects_ref in zip(token, projects_refs):
             for url in urls:
                 r = self.get(url, token=token)
                 projects_resp = r.result['projects']
-                projects = set(p['id'] for p in projects_resp)
+                projects = {p['id'] for p in projects_resp}
                 self.assertEqual(
                     projects_ref, projects, 'match failed for url %s' % url
                 )
@@ -2554,16 +2552,16 @@ class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
         # within the domain)
 
         domain_refs = (
-            set([self.domainA['id']]),
-            set([self.domainA['id'], self.domainB['id']]),
-            set([self.domainA['id'], self.domainB['id'], self.domainC['id']]),
+            {self.domainA['id']},
+            {self.domainA['id'], self.domainB['id']},
+            {self.domainA['id'], self.domainB['id'], self.domainC['id']},
         )
 
         for token, domains_ref in zip(tokens, domain_refs):
             for url in urls:
                 r = self.get(url, token=token)
                 domains_resp = r.result['domains']
-                domains = set(p['id'] for p in domains_resp)
+                domains = {p['id'] for p in domains_resp}
                 self.assertEqual(
                     domains_ref, domains, 'match failed for url %s' % url
                 )
@@ -2728,7 +2726,7 @@ class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
         )
         group_no_exists = PROVIDERS.identity_api.create_group(group_no_exists)
 
-        group_ids = set([group_exists['id'], group_no_exists['id']])
+        group_ids = {group_exists['id'], group_no_exists['id']}
 
         rules = {
             'rules': [
@@ -2785,7 +2783,7 @@ class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
         )
         group_no_exists = PROVIDERS.identity_api.create_group(group_no_exists)
 
-        group_ids = set([group_exists['id'], group_no_exists['id']])
+        group_ids = {group_exists['id'], group_no_exists['id']}
 
         rules = {
             'rules': [
@@ -2886,7 +2884,7 @@ class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
         )
         group_no_exists = PROVIDERS.identity_api.create_group(group_no_exists)
 
-        group_ids = set([group_exists['id'], group_no_exists['id']])
+        group_ids = {group_exists['id'], group_no_exists['id']}
 
         rules = {
             'rules': [
@@ -3035,11 +3033,11 @@ class FernetFederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
     AUTH_METHOD = 'token'
 
     def load_fixtures(self, fixtures):
-        super(FernetFederatedTokenTests, self).load_fixtures(fixtures)
+        super().load_fixtures(fixtures)
         self.load_federation_sample_data()
 
     def config_overrides(self):
-        super(FernetFederatedTokenTests, self).config_overrides()
+        super().config_overrides()
         self.config_fixture.config(group='token', provider='fernet')
         self.useFixture(
             ksfixtures.KeyRepository(
@@ -3051,9 +3049,7 @@ class FernetFederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
 
     def auth_plugin_config_override(self):
         methods = ['saml2', 'token', 'password']
-        super(FernetFederatedTokenTests, self).auth_plugin_config_override(
-            methods
-        )
+        super().auth_plugin_config_override(methods)
 
     def test_federated_unscoped_token(self):
         resp = self._issue_unscoped_token()
@@ -3105,19 +3101,17 @@ class JWSFederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
     AUTH_METHOD = 'token'
 
     def load_fixtures(self, fixtures):
-        super(JWSFederatedTokenTests, self).load_fixtures(fixtures)
+        super().load_fixtures(fixtures)
         self.load_federation_sample_data()
 
     def config_overrides(self):
-        super(JWSFederatedTokenTests, self).config_overrides()
+        super().config_overrides()
         self.config_fixture.config(group='token', provider='jws')
         self.useFixture(ksfixtures.JWSKeyRepository(self.config_fixture))
 
     def auth_plugin_config_override(self):
         methods = ['saml2', 'token', 'password']
-        super(JWSFederatedTokenTests, self).auth_plugin_config_override(
-            methods
-        )
+        super().auth_plugin_config_override(methods)
 
     def test_federated_unscoped_token(self):
         token_model = self._issue_unscoped_token()
@@ -3218,10 +3212,10 @@ class FederatedUserTests(test_v3.RestfulTestCase, FederatedSetupMixin):
 
     def auth_plugin_config_override(self):
         methods = ['saml2', 'token']
-        super(FederatedUserTests, self).auth_plugin_config_override(methods)
+        super().auth_plugin_config_override(methods)
 
     def load_fixtures(self, fixtures):
-        super(FederatedUserTests, self).load_fixtures(fixtures)
+        super().load_fixtures(fixtures)
         self.load_federation_sample_data()
 
     def test_user_id_persistense(self):
@@ -3268,7 +3262,7 @@ class FederatedUserTests(test_v3.RestfulTestCase, FederatedSetupMixin):
         scoped_token = r.headers['X-Subject-Token']
 
         # ensure user can access resource based on role assignment
-        path = '/projects/%(project_id)s' % {'project_id': project_ref['id']}
+        path = '/projects/{project_id}'.format(project_id=project_ref['id'])
         r = self.v3_request(
             path=path,
             method='GET',
@@ -3284,7 +3278,7 @@ class FederatedUserTests(test_v3.RestfulTestCase, FederatedSetupMixin):
         PROVIDERS.resource_api.create_project(project_ref2['id'], project_ref2)
 
         # ensure the user cannot access the 2nd resource (forbidden)
-        path = '/projects/%(project_id)s' % {'project_id': project_ref2['id']}
+        path = '/projects/{project_id}'.format(project_id=project_ref2['id'])
         r = self.v3_request(
             path=path,
             method='GET',
@@ -3570,7 +3564,7 @@ class ShadowMappingTests(test_v3.RestfulTestCase, FederatedSetupMixin):
     """
 
     def setUp(self):
-        super(ShadowMappingTests, self).setUp()
+        super().setUp()
         # update the mapping we have already setup to have specific projects
         # and roles.
         PROVIDERS.federation_api.update_mapping(
@@ -3608,10 +3602,10 @@ class ShadowMappingTests(test_v3.RestfulTestCase, FederatedSetupMixin):
 
     def auth_plugin_config_override(self):
         methods = ['saml2', 'token']
-        super(ShadowMappingTests, self).auth_plugin_config_override(methods)
+        super().auth_plugin_config_override(methods)
 
     def load_fixtures(self, fixtures):
-        super(ShadowMappingTests, self).load_fixtures(fixtures)
+        super().load_fixtures(fixtures)
         self.load_federation_sample_data()
 
     def test_shadow_mapping_creates_projects(self):
@@ -3854,7 +3848,7 @@ def _is_xmlsec1_installed():
 
 
 def _load_xml(filename):
-    with open(os.path.join(XMLDIR, filename), 'r') as xml:
+    with open(os.path.join(XMLDIR, filename)) as xml:
         return xml.read()
 
 
@@ -3886,7 +3880,7 @@ class SAMLGenerationTests(test_v3.RestfulTestCase):
     SERVICE_PROVDIER_ID = 'ACME'
 
     def setUp(self):
-        super(SAMLGenerationTests, self).setUp()
+        super().setUp()
         self.signed_assertion = saml2.create_class_from_xml_string(
             saml.Assertion, _load_xml(self.ASSERTION_FILE)
         )
@@ -4075,7 +4069,7 @@ class SAMLGenerationTests(test_v3.RestfulTestCase):
             # the last option is the assertion file to be signed
             if popenargs[0] != ['/usr/bin/which', CONF.saml.xmlsec1_binary]:
                 filename = popenargs[0][-1]
-                with open(filename, 'r') as f:
+                with open(filename) as f:
                     assertion_content = f.read()
                 # since we are not testing the signature itself, we can return
                 # the assertion as is without signing it
@@ -4491,11 +4485,11 @@ class IdPMetadataGenerationTests(test_v3.RestfulTestCase):
     METADATA_URL = '/OS-FEDERATION/saml2/metadata'
 
     def setUp(self):
-        super(IdPMetadataGenerationTests, self).setUp()
+        super().setUp()
         self.generator = keystone_idp.MetadataGenerator()
 
     def config_overrides(self):
-        super(IdPMetadataGenerationTests, self).config_overrides()
+        super().config_overrides()
         self.config_fixture.config(
             group='saml',
             idp_entity_id=federation_fixtures.IDP_ENTITY_ID,
@@ -4652,7 +4646,7 @@ class ServiceProviderTests(test_v3.RestfulTestCase):
     ]
 
     def setUp(self):
-        super(ServiceProviderTests, self).setUp()
+        super().setUp()
         # Add a Service Provider
         url = self.base_url(suffix=self.SERVICE_PROVIDER_ID)
         self.SP_REF = core.new_service_provider_ref()
@@ -5023,7 +5017,7 @@ class WebSSOTests(FederatedTokenTests):
     PROTOCOL_REMOTE_ID_ATTR = uuid.uuid4().hex
 
     def config_overrides(self):
-        super(WebSSOTests, self).config_overrides()
+        super().config_overrides()
         self.config_fixture.config(
             group='federation',
             trusted_dashboard=[self.TRUSTED_DASHBOARD],
@@ -5221,7 +5215,7 @@ class K2KServiceCatalogTests(test_v3.RestfulTestCase):
     SP3 = 'SP3'
 
     def setUp(self):
-        super(K2KServiceCatalogTests, self).setUp()
+        super().setUp()
 
         sp = core.new_service_provider_ref()
         PROVIDERS.federation_api.create_sp(self.SP1, sp)

@@ -100,7 +100,7 @@ class Endpoint(sql.ModelBase, sql.ModelDictMixinWithExtras):
         new_dict = endpoint_dict.copy()
         if new_dict.get('enabled') is None:
             new_dict['enabled'] = True
-        return super(Endpoint, cls).from_dict(new_dict)
+        return super().from_dict(new_dict)
 
 
 class Catalog(base.CatalogDriverBase):

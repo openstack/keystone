@@ -39,13 +39,13 @@ class LiveLDAPPoolIdentity(
     """
 
     def setUp(self):
-        super(LiveLDAPPoolIdentity, self).setUp()
+        super().setUp()
         self.addCleanup(self.cleanup_pools)
         # storing to local variable to avoid long references
         self.conn_pools = ldap_common.PooledLDAPHandler.connection_pools
 
     def config_files(self):
-        config_files = super(LiveLDAPPoolIdentity, self).config_files()
+        config_files = super().config_files()
         config_files.append(unit.dirs.tests_conf('backend_pool_liveldap.conf'))
         return config_files
 

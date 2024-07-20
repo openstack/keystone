@@ -36,7 +36,7 @@ class SQLModelTestCase(core_sql.BaseBackendSqlModels):
 class SQLDriverTestCase(test_base.DriverTestCase, unit.TestCase):
 
     def setUp(self):
-        super(SQLDriverTestCase, self).setUp()
+        super().setUp()
         self.useFixture(database.Database())
         self._driver = sql_driver.EndpointPolicy()
 

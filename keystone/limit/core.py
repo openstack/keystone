@@ -34,7 +34,7 @@ class Manager(manager.Manager):
 
     def __init__(self):
         unified_limit_driver = CONF.unified_limit.driver
-        super(Manager, self).__init__(unified_limit_driver)
+        super().__init__(unified_limit_driver)
 
         self.enforcement_model = base.load_driver(
             CONF.unified_limit.enforcement_model

@@ -25,7 +25,7 @@ class Policy(fixtures.Fixture):
         self._config_fixture = config_fixture
 
     def setUp(self):
-        super(Policy, self).setUp()
+        super().setUp()
         opts.set_defaults(self._config_fixture.conf)
         self._config_fixture.config(
             group='oslo_policy', policy_file=self._policy_file

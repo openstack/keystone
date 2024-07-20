@@ -20,12 +20,12 @@ from keystone.common import utils
 
 class JWSKeyRepository(fixtures.Fixture):
     def __init__(self, config_fixture):
-        super(JWSKeyRepository, self).__init__()
+        super().__init__()
         self.config_fixture = config_fixture
         self.key_group = 'jwt_tokens'
 
     def setUp(self):
-        super(JWSKeyRepository, self).setUp()
+        super().setUp()
 
         # grab a couple of temporary directory file paths
         private_key_directory = self.useFixture(fixtures.TempDir()).path

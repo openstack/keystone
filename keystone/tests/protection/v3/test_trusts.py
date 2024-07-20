@@ -36,7 +36,7 @@ class TrustTests(
     """
 
     def setUp(self):
-        super(TrustTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.policy_file = self.useFixture(temporaryfile.SecureTempFile())
         self.policy_file_name = self.policy_file.file_name
@@ -124,7 +124,7 @@ class TrustTests(
             f.write(jsonutils.dumps(overridden_policies))
 
 
-class _AdminTestsMixin(object):
+class _AdminTestsMixin:
     """Tests for all admin users.
 
     This exercises both the is_admin user and users granted the admin role on
@@ -159,7 +159,7 @@ class AdminTokenTests(TrustTests, _AdminTestsMixin):
     """
 
     def setUp(self):
-        super(AdminTokenTests, self).setUp()
+        super().setUp()
         self.config_fixture.config(admin_token='ADMIN')
         self.headers = {'X-Auth-Token': 'ADMIN'}
 
@@ -218,7 +218,7 @@ class AdminTokenTests(TrustTests, _AdminTestsMixin):
             )
 
 
-class _SystemUserTests(object):
+class _SystemUserTests:
     """Tests for system admin, member, and reader."""
 
     def test_user_can_get_non_existent_trust(self):
@@ -320,7 +320,7 @@ class SystemReaderTests(TrustTests, _SystemReaderMemberTests):
     """Tests for system reader users."""
 
     def setUp(self):
-        super(SystemReaderTests, self).setUp()
+        super().setUp()
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         system_reader = unit.new_user_ref(
@@ -349,7 +349,7 @@ class SystemMemberTests(TrustTests, _SystemReaderMemberTests):
     """Tests for system member users."""
 
     def setUp(self):
-        super(SystemMemberTests, self).setUp()
+        super().setUp()
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         system_member = unit.new_user_ref(
@@ -378,7 +378,7 @@ class SystemAdminTests(TrustTests, _AdminTestsMixin, _SystemUserTests):
     """Tests for system admin users."""
 
     def setUp(self):
-        super(SystemAdminTests, self).setUp()
+        super().setUp()
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         self.user_id = self.bootstrapper.admin_user_id
@@ -468,7 +468,7 @@ class ProjectUserTests(TrustTests):
     """Tests for all project users."""
 
     def setUp(self):
-        super(ProjectUserTests, self).setUp()
+        super().setUp()
         other_user = unit.new_user_ref(domain_id=self.domain_id)
         self.other_user_id = PROVIDERS.identity_api.create_user(other_user)[
             'id'
@@ -967,7 +967,7 @@ class DomainUserTests(TrustTests):
     """
 
     def setUp(self):
-        super(DomainUserTests, self).setUp()
+        super().setUp()
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
         domain_admin = unit.new_user_ref(domain_id=self.domain_id)
         self.user_id = PROVIDERS.identity_api.create_user(domain_admin)['id']

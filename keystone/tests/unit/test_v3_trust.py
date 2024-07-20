@@ -35,7 +35,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
     """
 
     def setUp(self):
-        super(TestTrustOperations, self).setUp()
+        super().setUp()
         # create a trustee to delegate stuff to
         self.trustee_user = unit.create_user(
             PROVIDERS.identity_api, domain_id=self.domain_id
@@ -98,13 +98,13 @@ class TestTrustOperations(test_v3.RestfulTestCase):
             )
             trust_id = r.json['trust']['id']
             c.patch(
-                '/v3/OS-TRUST/trusts/%(trust_id)s' % {'trust_id': trust_id},
+                f'/v3/OS-TRUST/trusts/{trust_id}',
                 json={'trust': ref},
                 headers={'X-Auth-Token': token},
                 expected_status_code=http.client.METHOD_NOT_ALLOWED,
             )
             c.put(
-                '/v3/OS-TRUST/trusts/%(trust_id)s' % {'trust_id': trust_id},
+                f'/v3/OS-TRUST/trusts/{trust_id}',
                 json={'trust': ref},
                 headers={'X-Auth-Token': token},
                 expected_status_code=http.client.METHOD_NOT_ALLOWED,
@@ -123,13 +123,13 @@ class TestTrustOperations(test_v3.RestfulTestCase):
 
         # get the trust
         r = self.get(
-            '/OS-TRUST/trusts/%(trust_id)s' % {'trust_id': trust['id']}
+            '/OS-TRUST/trusts/{trust_id}'.format(trust_id=trust['id'])
         )
         self.assertValidTrustResponse(r, ref)
 
         # validate roles on the trust
         r = self.get(
-            '/OS-TRUST/trusts/%(trust_id)s/roles' % {'trust_id': trust['id']}
+            '/OS-TRUST/trusts/{trust_id}/roles'.format(trust_id=trust['id'])
         )
         roles = self.assertValidRoleListResponse(r, self.role)
         self.assertIn(self.role['id'], [x['id'] for x in roles])
@@ -149,13 +149,11 @@ class TestTrustOperations(test_v3.RestfulTestCase):
         self.assertValidTrustListResponse(r, trust)
 
         # delete the trust
-        self.delete(
-            '/OS-TRUST/trusts/%(trust_id)s' % {'trust_id': trust['id']}
-        )
+        self.delete('/OS-TRUST/trusts/{trust_id}'.format(trust_id=trust['id']))
 
         # ensure the trust is not found
         self.get(
-            '/OS-TRUST/trusts/%(trust_id)s' % {'trust_id': trust['id']},
+            '/OS-TRUST/trusts/{trust_id}'.format(trust_id=trust['id']),
             expected_status=http.client.NOT_FOUND,
         )
 
@@ -251,13 +249,11 @@ class TestTrustOperations(test_v3.RestfulTestCase):
         trust = self.assertValidTrustResponse(r, ref)
 
         # delete the trust
-        self.delete(
-            '/OS-TRUST/trusts/%(trust_id)s' % {'trust_id': trust['id']}
-        )
+        self.delete('/OS-TRUST/trusts/{trust_id}'.format(trust_id=trust['id']))
 
         # ensure the trust isn't found
         self.get(
-            '/OS-TRUST/trusts/%(trust_id)s' % {'trust_id': trust['id']},
+            '/OS-TRUST/trusts/{trust_id}'.format(trust_id=trust['id']),
             expected_status=http.client.NOT_FOUND,
         )
 
@@ -546,11 +542,11 @@ class TestTrustOperations(test_v3.RestfulTestCase):
 
         # delete the trustee will delete the trust
         self.delete(
-            '/users/%(user_id)s' % {'user_id': trust['trustee_user_id']}
+            '/users/{user_id}'.format(user_id=trust['trustee_user_id'])
         )
 
         self.get(
-            '/OS-TRUST/trusts/%(trust_id)s' % {'trust_id': trust['id']},
+            '/OS-TRUST/trusts/{trust_id}'.format(trust_id=trust['id']),
             expected_status=http.client.NOT_FOUND,
         )
 
@@ -569,7 +565,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
 
         # delete the trustor will delete the trust
         self.delete(
-            '/users/%(user_id)s' % {'user_id': trust['trustor_user_id']}
+            '/users/{user_id}'.format(user_id=trust['trustor_user_id'])
         )
 
         # call the backend method directly to bypass authentication since the
@@ -598,7 +594,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
 
         # delete the project will delete the trust.
         self.delete(
-            '/projects/%(project_id)s' % {'project_id': trust['project_id']}
+            '/projects/{project_id}'.format(project_id=trust['project_id'])
         )
 
         # call the backend method directly to bypass authentication since the
@@ -611,14 +607,14 @@ class TestTrustOperations(test_v3.RestfulTestCase):
 class TrustsWithApplicationCredentials(test_v3.RestfulTestCase):
 
     def setUp(self):
-        super(TrustsWithApplicationCredentials, self).setUp()
+        super().setUp()
         self.trustee_user = unit.create_user(
             PROVIDERS.identity_api, domain_id=self.domain_id
         )
         self.trustee_user_id = self.trustee_user['id']
 
     def config_overrides(self):
-        super(TrustsWithApplicationCredentials, self).config_overrides()
+        super().config_overrides()
         self.config_fixture.config(
             group='auth', methods='password,application_credential'
         )
@@ -683,7 +679,7 @@ class TrustsWithApplicationCredentials(test_v3.RestfulTestCase):
         )
         # delete the trust
         self.delete(
-            path='/OS-TRUST/trusts/%(trust_id)s' % {'trust_id': trust['id']},
+            path='/OS-TRUST/trusts/{trust_id}'.format(trust_id=trust['id']),
             token=token_data.headers['x-subject-token'],
             expected_status=http.client.FORBIDDEN,
         )

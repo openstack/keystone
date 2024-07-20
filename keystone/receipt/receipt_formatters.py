@@ -39,7 +39,7 @@ TIMESTAMP_START = 1
 TIMESTAMP_END = 9
 
 
-class ReceiptFormatter(object):
+class ReceiptFormatter:
     """Packs and unpacks payloads into receipts for transport."""
 
     @property
@@ -181,7 +181,7 @@ class ReceiptFormatter(object):
         return (user_id, methods, issued_at, expires_at)
 
 
-class ReceiptPayload(object):
+class ReceiptPayload:
 
     @classmethod
     def assemble(cls, user_id, methods, expires_at):

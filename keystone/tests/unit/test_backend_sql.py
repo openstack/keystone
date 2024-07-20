@@ -65,7 +65,7 @@ class SqlTests(unit.SQLDriverOverrides, unit.TestCase):
         self.user_foo['enabled'] = True
 
     def config_files(self):
-        config_files = super(SqlTests, self).config_files()
+        config_files = super().config_files()
         config_files.append(unit.dirs.tests_conf('backend_sql.conf'))
         return config_files
 
@@ -1010,7 +1010,7 @@ class SqlIdentity(
         # sqlalchemy emits various events and allows to listen to them. Here
         # bound method `query_counter` will be called each time when a query
         # is compiled
-        class CallCounter(object):
+        class CallCounter:
             def __init__(self):
                 self.calls = 0
 
@@ -1398,7 +1398,7 @@ class SqlFilterTests(SqlTests, identity_tests.FilterTests):
 
 class SqlLimitTests(SqlTests, identity_tests.LimitTests):
     def setUp(self):
-        super(SqlLimitTests, self).setUp()
+        super().setUp()
         identity_tests.LimitTests.setUp(self)
 
 
@@ -1472,7 +1472,7 @@ class SqlCredential(SqlTests):
 
     def setUp(self):
         self.useFixture(database.Database())
-        super(SqlCredential, self).setUp()
+        super().setUp()
         self.useFixture(
             ksfixtures.KeyRepository(
                 self.config_fixture,
@@ -1558,7 +1558,7 @@ class SqlCredential(SqlTests):
 class SqlRegisteredLimit(SqlTests, limit_tests.RegisteredLimitTests):
 
     def setUp(self):
-        super(SqlRegisteredLimit, self).setUp()
+        super().setUp()
 
         fixtures_to_cleanup = []
         for service in default_fixtures.SERVICES:
@@ -1578,7 +1578,7 @@ class SqlRegisteredLimit(SqlTests, limit_tests.RegisteredLimitTests):
 class SqlLimit(SqlTests, limit_tests.LimitTests):
 
     def setUp(self):
-        super(SqlLimit, self).setUp()
+        super().setUp()
 
         fixtures_to_cleanup = []
         for service in default_fixtures.SERVICES:

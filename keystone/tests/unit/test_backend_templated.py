@@ -51,13 +51,13 @@ class TestTemplatedCatalog(unit.TestCase, catalog_tests.CatalogTests):
     }
 
     def setUp(self):
-        super(TestTemplatedCatalog, self).setUp()
+        super().setUp()
         self.useFixture(database.Database())
         self.load_backends()
         self.load_fixtures(default_fixtures)
 
     def config_overrides(self):
-        super(TestTemplatedCatalog, self).config_overrides()
+        super().config_overrides()
         self.config_fixture.config(
             group='catalog',
             driver='templated',
@@ -387,15 +387,13 @@ class TestTemplatedCatalog(unit.TestCase, catalog_tests.CatalogTests):
         self.skip_test_overrides(BROKEN_WRITE_FUNCTIONALITY_MSG)
 
     def test_list_endpoints(self):
-        expected_urls = set(
-            [
-                'http://localhost:5000/v3',
-                'http://localhost:35357/v3',
-                'http://localhost:8774/v1.1/$(tenant_id)s',
-            ]
-        )
+        expected_urls = {
+            'http://localhost:5000/v3',
+            'http://localhost:35357/v3',
+            'http://localhost:8774/v1.1/$(tenant_id)s',
+        }
         endpoints = PROVIDERS.catalog_api.list_endpoints()
-        self.assertEqual(expected_urls, set(e['url'] for e in endpoints))
+        self.assertEqual(expected_urls, {e['url'] for e in endpoints})
 
     @unit.skip_if_cache_disabled('catalog')
     def test_invalidate_cache_when_updating_endpoint(self):

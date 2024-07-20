@@ -99,7 +99,7 @@ def convert_integer_to_method_list(method_int):
     return methods
 
 
-class BaseUserInfo(provider_api.ProviderAPIMixin, object):
+class BaseUserInfo(provider_api.ProviderAPIMixin):
 
     @classmethod
     def create(cls, auth_payload, method_name):
@@ -216,13 +216,11 @@ class BaseUserInfo(provider_api.ProviderAPIMixin, object):
 class UserAuthInfo(BaseUserInfo):
 
     def __init__(self):
-        super(UserAuthInfo, self).__init__()
+        super().__init__()
         self.password = None
 
     def _validate_and_normalize_auth_data(self, auth_payload):
-        super(UserAuthInfo, self)._validate_and_normalize_auth_data(
-            auth_payload
-        )
+        super()._validate_and_normalize_auth_data(auth_payload)
         user_info = auth_payload['user']
         self.password = user_info.get('password')
 
@@ -230,20 +228,18 @@ class UserAuthInfo(BaseUserInfo):
 class TOTPUserInfo(BaseUserInfo):
 
     def __init__(self):
-        super(TOTPUserInfo, self).__init__()
+        super().__init__()
         self.passcode = None
 
     def _validate_and_normalize_auth_data(self, auth_payload):
-        super(TOTPUserInfo, self)._validate_and_normalize_auth_data(
-            auth_payload
-        )
+        super()._validate_and_normalize_auth_data(auth_payload)
         user_info = auth_payload['user']
         self.passcode = user_info.get('passcode')
 
 
 class AppCredInfo(BaseUserInfo):
     def __init__(self):
-        super(AppCredInfo, self).__init__()
+        super().__init__()
         self.id = None
         self.secret = None
 
@@ -257,13 +253,9 @@ class AppCredInfo(BaseUserInfo):
             if not auth_payload.get('user'):
                 auth_payload['user'] = {}
                 auth_payload['user']['id'] = self.user_id
-            super(AppCredInfo, self)._validate_and_normalize_auth_data(
-                auth_payload
-            )
+            super()._validate_and_normalize_auth_data(auth_payload)
         elif auth_payload.get('name'):
-            super(AppCredInfo, self)._validate_and_normalize_auth_data(
-                auth_payload
-            )
+            super()._validate_and_normalize_auth_data(auth_payload)
             hints = driver_hints.Hints()
             hints.add_filter('name', auth_payload['name'])
             app_cred = app_cred_api.list_application_credentials(

@@ -26,7 +26,7 @@ LOG = log.getLogger(__name__)
 PROVIDERS = provider_api.ProviderAPIs
 
 
-class ReceiptModel(object):
+class ReceiptModel:
     """An object that represents a receipt emitted by keystone.
 
     This is a queryable object that other parts of keystone can use to reason
@@ -121,7 +121,7 @@ class ReceiptModel(object):
         self.issued_at = issued_at
 
 
-class _ReceiptModelHandler(object):
+class _ReceiptModelHandler:
     identity = 125
     handles = (ReceiptModel,)
 

@@ -84,7 +84,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
     """Test registered_limits CRUD."""
 
     def setUp(self):
-        super(RegisteredLimitsTestCase, self).setUp()
+        super().setUp()
 
         # Most of these tests require system-scoped tokens. Let's have one on
         # hand so that we can use it in tests when we need it.
@@ -664,7 +664,7 @@ class LimitsTestCase(test_v3.RestfulTestCase):
     """Test limits CRUD."""
 
     def setUp(self):
-        super(LimitsTestCase, self).setUp()
+        super().setUp()
         # FIXME(lbragstad): Remove all this duplicated logic once we get all
         # keystone tests using bootstrap consistently. This is something the
         # bootstrap utility already does for us.
@@ -1376,7 +1376,7 @@ class LimitsTestCase(test_v3.RestfulTestCase):
 class StrictTwoLevelLimitsTestCase(LimitsTestCase):
 
     def setUp(self):
-        super(StrictTwoLevelLimitsTestCase, self).setUp()
+        super().setUp()
         # Most of these tests require system-scoped tokens. Let's have one on
         # hand so that we can use it in tests when we need it.
         PROVIDERS.assignment_api.create_system_grant_for_user(
@@ -1434,7 +1434,7 @@ class StrictTwoLevelLimitsTestCase(LimitsTestCase):
         self.project_F = response.json_body['project']
 
     def config_overrides(self):
-        super(StrictTwoLevelLimitsTestCase, self).config_overrides()
+        super().config_overrides()
         self.config_fixture.config(
             group='unified_limit', enforcement_model='strict_two_level'
         )

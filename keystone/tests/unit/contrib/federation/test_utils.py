@@ -34,7 +34,7 @@ class MappingRuleEngineTests(unit.BaseTestCase):
     """A class for testing the mapping rule engine."""
 
     def setUp(self):
-        super(MappingRuleEngineTests, self).setUp()
+        super().setUp()
         # create dummy app so we can setup a request context for our
         # tests.
         self.flask_app = flask.Flask(__name__)
@@ -77,7 +77,7 @@ class MappingRuleEngineTests(unit.BaseTestCase):
 
         fn = assertion.get('FirstName')
         ln = assertion.get('LastName')
-        full_name = '%s %s' % (fn, ln)
+        full_name = f'{fn} {ln}'
         group_ids = values.get('group_ids')
         user_name = values.get('user', {}).get('name')
 
@@ -962,7 +962,7 @@ class TestUnicodeAssertionData(unit.BaseTestCase):
     """
 
     def setUp(self):
-        super(TestUnicodeAssertionData, self).setUp()
+        super().setUp()
         self.config_fixture = self.useFixture(config_fixture.Config(CONF))
         self.config_fixture.config(group='federation', assertion_prefix='PFX')
 
@@ -1001,7 +1001,7 @@ class TestUnicodeAssertionData(unit.BaseTestCase):
 
         fn = assertion.get('PFX_FirstName')
         ln = assertion.get('PFX_LastName')
-        full_name = '%s %s' % (fn, ln)
+        full_name = f'{fn} {ln}'
         user_name = values.get('user', {}).get('name')
         self.assertEqual(full_name, user_name)
 

@@ -54,7 +54,7 @@ class TestRBACEnforcer(unit.TestCase):
 class _TestRBACEnforcerBase(rest.RestfulTestCase):
 
     def setUp(self):
-        super(_TestRBACEnforcerBase, self).setUp()
+        super().setUp()
         self._setup_enforcer_object()
         self._setup_dynamic_flask_blueprint_api()
         self._setup_flask_restful_api()
@@ -198,7 +198,7 @@ class _TestRBACEnforcerBase(rest.RestfulTestCase):
 class TestRBACEnforcerRestAdminAuthToken(_TestRBACEnforcerBase):
 
     def config_overrides(self):
-        super(TestRBACEnforcerRestAdminAuthToken, self).config_overrides()
+        super().config_overrides()
         self.config_fixture.config(admin_token='ADMIN')
 
     def test_enforcer_is_admin_check_with_token(self):
@@ -297,12 +297,12 @@ class TestRBACEnforcerRest(_TestRBACEnforcerBase):
             # Populate the query-string with two params, one that should
             # exist and one that should not in the resulting policy
             # dict.
-            qs = '%(expected)s=EXPECTED&%(unexpected)s=UNEXPECTED' % {
-                'expected': expected_param,
-                'unexpected': unexpected_param,
-            }
+            qs = '{expected}=EXPECTED&{unexpected}=UNEXPECTED'.format(
+                expected=expected_param,
+                unexpected=unexpected_param,
+            )
             # Perform the get with the query-string
-            c.get('%(path)s?%(qs)s' % {'path': get_path, 'qs': qs})
+            c.get(f'{get_path}?{qs}')
             # Extract the filter values.
             extracted_filter = self.enforcer._extract_filter_values(
                 [expected_param]
@@ -386,7 +386,9 @@ class TestRBACEnforcerRest(_TestRBACEnforcerBase):
 
         with self.test_client() as c:
             c.get(
-                '%s/argument/%s' % (self.restful_api_url_prefix, argument_id)
+                '{}/argument/{}'.format(
+                    self.restful_api_url_prefix, argument_id
+                )
             )
             extracted = self.enforcer._extract_member_target_data(
                 member_target_type=None, member_target=None
@@ -430,7 +432,9 @@ class TestRBACEnforcerRest(_TestRBACEnforcerBase):
             token_id = r.headers['X-Subject-Token']
 
             c.get(
-                '%s/argument/%s' % (self.restful_api_url_prefix, argument_id),
+                '{}/argument/{}'.format(
+                    self.restful_api_url_prefix, argument_id
+                ),
                 headers={'X-Auth-Token': token_id},
             )
 
@@ -508,7 +512,9 @@ class TestRBACEnforcerRest(_TestRBACEnforcerBase):
             token_id = r.headers['X-Subject-Token']
 
             c.get(
-                '%s/argument/%s' % (self.restful_api_url_prefix, argument_id),
+                '{}/argument/{}'.format(
+                    self.restful_api_url_prefix, argument_id
+                ),
                 headers={'X-Auth-Token': token_id},
             )
             self.enforcer.enforce_call(

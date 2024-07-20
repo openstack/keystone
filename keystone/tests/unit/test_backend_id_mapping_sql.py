@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 # Copyright 2014 IBM Corp.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may
@@ -43,7 +42,7 @@ class SqlIDMappingTable(test_backend_sql.SqlModels):
 class SqlIDMapping(test_backend_sql.SqlTests):
 
     def setUp(self):
-        super(SqlIDMapping, self).setUp()
+        super().setUp()
         self.load_sample_data()
 
     def load_sample_data(self):
@@ -155,7 +154,7 @@ class SqlIDMapping(test_backend_sql.SqlTests):
 
     def test_id_mapping_handles_unicode(self):
         initial_mappings = len(mapping_sql.list_id_mappings())
-        local_id = u'fäké1'
+        local_id = 'fäké1'
         local_entity = {
             'domain_id': self.domainA['id'],
             'local_id': local_id,

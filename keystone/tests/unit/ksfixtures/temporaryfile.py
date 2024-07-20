@@ -21,7 +21,7 @@ class SecureTempFile(fixtures.Fixture):
     """A fixture for creating a secure temp file."""
 
     def setUp(self):
-        super(SecureTempFile, self).setUp()
+        super().setUp()
 
         _fd, self.file_name = tempfile.mkstemp()
         # Make sure no file descriptors are leaked, close the unused FD.

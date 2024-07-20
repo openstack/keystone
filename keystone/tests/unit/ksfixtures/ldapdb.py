@@ -24,7 +24,7 @@ class LDAPDatabase(fixtures.Fixture):
         self._dbclass = dbclass
 
     def setUp(self):
-        super(LDAPDatabase, self).setUp()
+        super().setUp()
         self.clear()
         common_ldap.WRITABLE = True
         common_ldap._HANDLERS.clear()

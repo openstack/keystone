@@ -28,7 +28,7 @@ class TestIdentityDriver(core.BaseTestCase, test_base.IdentityDriverTests):
     expected_generates_uuids = False
 
     def setUp(self):
-        super(TestIdentityDriver, self).setUp()
+        super().setUp()
 
         config_fixture_ = self.useFixture(config_fixture.Config())
         config_fixture_.config(

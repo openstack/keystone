@@ -45,7 +45,7 @@ class IdentityTestFilteredCase(filtering.FilterTests, test_v3.RestfulTestCase):
         """Setup for Identity Filter Test Cases."""
         self.tempfile = self.useFixture(temporaryfile.SecureTempFile())
         self.tmpfilename = self.tempfile.file_name
-        super(IdentityTestFilteredCase, self).setUp()
+        super().setUp()
 
     def load_sample_data(self):
         """Create sample data for these tests.
@@ -352,7 +352,7 @@ class IdentityPasswordExpiryFilteredTestCase(
     def setUp(self):
         """Setup for Identity Filter Test Cases."""
         self.config_fixture = self.useFixture(config_fixture.Config(CONF))
-        super(IdentityPasswordExpiryFilteredTestCase, self).setUp()
+        super().setUp()
 
     def load_sample_data(self):
         """Create sample data for password expiry tests.
@@ -450,7 +450,7 @@ class IdentityPasswordExpiryFilteredTestCase(
         {operator}:{timestamp}
 
         """
-        url = '/users?password_expires_at=%s:%s&password_expires_at=%s:%s' % (
+        url = '/users?password_expires_at={}:{}&password_expires_at={}:{}'.format(
             first_operator,
             first_time,
             second_operator,
@@ -837,7 +837,7 @@ class IdentityTestListLimitCase(IdentityTestFilteredCase):
 
     def setUp(self):
         """Setup for Identity Limit Test Cases."""
-        super(IdentityTestListLimitCase, self).setUp()
+        super().setUp()
 
         # Create 10 entries for each of the entities we are going to test
         self.ENTITY_TYPES = ['user', 'group', 'project']

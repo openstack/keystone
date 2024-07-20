@@ -26,7 +26,7 @@ CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
 
 
-class _UserAccessRuleTests(object):
+class _UserAccessRuleTests:
     """Test cases for anyone that has a valid user token."""
 
     def test_user_can_get_their_access_rules(self):
@@ -50,7 +50,7 @@ class _UserAccessRuleTests(object):
             app_cred
         )
         with self.test_client() as c:
-            path = '/v3/users/%s/access_rules/%s' % (
+            path = '/v3/users/{}/access_rules/{}'.format(
                 self.user_id,
                 app_cred['access_rules'][0]['id'],
             )
@@ -106,14 +106,14 @@ class _UserAccessRuleTests(object):
             app_cred['id']
         )
         with self.test_client() as c:
-            path = '/v3/users/%s/access_rules/%s' % (
+            path = '/v3/users/{}/access_rules/{}'.format(
                 self.user_id,
                 access_rule_id,
             )
             c.delete(path, headers=self.headers)
 
 
-class _ProjectUsersTests(object):
+class _ProjectUsersTests:
     """Users who have project role authorization observe the same behavior."""
 
     def test_user_cannot_get_access_rules_for_other_users(self):
@@ -149,7 +149,7 @@ class _ProjectUsersTests(object):
             app_cred
         )
         with self.test_client() as c:
-            path = '/v3/users/%s/access_rules/%s' % (
+            path = '/v3/users/{}/access_rules/{}'.format(
                 user['id'],
                 access_rule_id,
             )
@@ -253,7 +253,7 @@ class _ProjectUsersTests(object):
             app_cred['id']
         )
         with self.test_client() as c:
-            path = '/v3/users/%s/access_rules/%s' % (
+            path = '/v3/users/{}/access_rules/{}'.format(
                 user['id'],
                 access_rule_id,
             )
@@ -275,7 +275,7 @@ class _ProjectUsersTests(object):
             )
 
 
-class _SystemUserAccessRuleTests(object):
+class _SystemUserAccessRuleTests:
     """Tests that are common across all system users."""
 
     def test_user_can_list_access_rules_for_other_users(self):
@@ -335,7 +335,7 @@ class SystemReaderTests(
 ):
 
     def setUp(self):
-        super(SystemReaderTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -397,7 +397,7 @@ class SystemReaderTests(
             app_cred['id']
         )
         with self.test_client() as c:
-            path = '/v3/users/%s/access_rules/%s' % (
+            path = '/v3/users/{}/access_rules/{}'.format(
                 user['id'],
                 access_rule_id,
             )
@@ -426,7 +426,7 @@ class SystemMemberTests(
 ):
 
     def setUp(self):
-        super(SystemMemberTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -488,7 +488,7 @@ class SystemMemberTests(
             app_cred['id']
         )
         with self.test_client() as c:
-            path = '/v3/users/%s/access_rules/%s' % (
+            path = '/v3/users/{}/access_rules/{}'.format(
                 user['id'],
                 access_rule_id,
             )
@@ -499,7 +499,7 @@ class SystemMemberTests(
             )
 
         with self.test_client() as c:
-            path = '/v3/users/%s/access_rules/%s' % (
+            path = '/v3/users/{}/access_rules/{}'.format(
                 user['id'],
                 access_rule_id,
             )
@@ -528,7 +528,7 @@ class SystemAdminTests(
 ):
 
     def setUp(self):
-        super(SystemAdminTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -585,7 +585,7 @@ class SystemAdminTests(
         )
 
         with self.test_client() as c:
-            path = '/v3/users/%s/access_rules/%s' % (
+            path = '/v3/users/{}/access_rules/{}'.format(
                 user['id'],
                 access_rule_id,
             )
@@ -611,7 +611,7 @@ class ProjectReaderTests(
 ):
 
     def setUp(self):
-        super(ProjectReaderTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -654,7 +654,7 @@ class ProjectMemberTests(
 ):
 
     def setUp(self):
-        super(ProjectMemberTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -697,7 +697,7 @@ class ProjectAdminTests(
 ):
 
     def setUp(self):
-        super(ProjectAdminTests, self).setUp()
+        super().setUp()
         self.loadapp()
 
         self.policy_file = self.useFixture(temporaryfile.SecureTempFile())

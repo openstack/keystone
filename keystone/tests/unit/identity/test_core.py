@@ -38,7 +38,7 @@ PROVIDERS = provider_api.ProviderAPIs
 class TestDomainConfigs(unit.BaseTestCase):
 
     def setUp(self):
-        super(TestDomainConfigs, self).setUp()
+        super().setUp()
         self.addCleanup(CONF.reset)
 
         self.tmp_dir = unit.dirs.tmp()
@@ -108,7 +108,7 @@ class TestDomainConfigs(unit.BaseTestCase):
         for idx, is_sql in enumerate((True, False, True)):
             drv = mock.Mock(is_sql=is_sql)
             drivers.append(drv)
-            name = 'dummy.{0}'.format(idx)
+            name = f'dummy.{idx}'
             files.append(
                 ''.join(
                     (
@@ -150,7 +150,7 @@ class TestDomainConfigs(unit.BaseTestCase):
 class TestDatabaseDomainConfigs(unit.TestCase):
 
     def setUp(self):
-        super(TestDatabaseDomainConfigs, self).setUp()
+        super().setUp()
         self.useFixture(database.Database())
         self.load_backends()
         PROVIDERS.resource_api.create_domain(

@@ -136,7 +136,7 @@ class Resource(base.ResourceDriverBase):
         with sql.session_for_read() as session:
             children = self._get_children(session, [project_id])
             subtree = []
-            examined = set([project_id])
+            examined = {project_id}
             while children:
                 children_ids = set()
                 for ref in children:

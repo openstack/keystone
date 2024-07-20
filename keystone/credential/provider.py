@@ -23,4 +23,4 @@ class Manager(manager.Manager):
     _provides_api = 'credential_provider_api'
 
     def __init__(self):
-        super(Manager, self).__init__(CONF.credential.provider)
+        super().__init__(CONF.credential.provider)

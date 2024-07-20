@@ -25,7 +25,7 @@ from keystone.tests.unit.ksfixtures import database
 
 class TestFernetCredentialProvider(unit.TestCase):
     def setUp(self):
-        super(TestFernetCredentialProvider, self).setUp()
+        super().setUp()
         self.provider = credential_fernet.Provider()
         self.useFixture(database.Database())
         self.useFixture(
@@ -48,7 +48,7 @@ class TestFernetCredentialProvider(unit.TestCase):
 
 class TestFernetCredentialProviderWithNullKey(unit.TestCase):
     def setUp(self):
-        super(TestFernetCredentialProviderWithNullKey, self).setUp()
+        super().setUp()
         self.provider = credential_fernet.Provider()
         self.useFixture(database.Database())
         # Only do this to set the key_repository location in configuration. To

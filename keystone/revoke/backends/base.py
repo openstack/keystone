@@ -32,7 +32,7 @@ def revoked_before_cutoff_time():
     return oldest
 
 
-class RevokeDriverBase(object, metaclass=abc.ABCMeta):
+class RevokeDriverBase(metaclass=abc.ABCMeta):
     """Interface for recording and reporting revocation events."""
 
     @abc.abstractmethod

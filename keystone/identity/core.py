@@ -605,7 +605,7 @@ class Manager(manager.Manager):
     _GROUP = 'group'
 
     def __init__(self):
-        super(Manager, self).__init__(CONF.identity.driver)
+        super().__init__(CONF.identity.driver)
         self.domain_configs = DomainConfigs()
         notifications.register_event_callback(
             notifications.ACTIONS.internal,
@@ -1785,7 +1785,7 @@ class MappingManager(manager.Manager):
     _provides_api = 'id_mapping_api'
 
     def __init__(self):
-        super(MappingManager, self).__init__(CONF.identity_mapping.driver)
+        super().__init__(CONF.identity_mapping.driver)
 
     @MEMOIZE_ID_MAPPING
     def _get_public_id(self, domain_id, local_id, entity_type):
@@ -1851,4 +1851,4 @@ class ShadowUsersManager(manager.Manager):
     def __init__(self):
         shadow_driver = CONF.shadow_users.driver
 
-        super(ShadowUsersManager, self).__init__(shadow_driver)
+        super().__init__(shadow_driver)

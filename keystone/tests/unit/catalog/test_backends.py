@@ -25,7 +25,7 @@ from keystone.tests import unit
 PROVIDERS = provider_api.ProviderAPIs
 
 
-class CatalogTests(object):
+class CatalogTests:
 
     _legacy_endpoint_id_in_endpoint = True
     _enabled_default_to_true_when_creating_endpoint = False
@@ -657,7 +657,7 @@ class CatalogTests(object):
         service = unit.new_service_ref()
         PROVIDERS.catalog_api.create_service(service['id'], service)
 
-        expected_ids = set([uuid.uuid4().hex for _ in range(3)])
+        expected_ids = {uuid.uuid4().hex for _ in range(3)}
         for endpoint_id in expected_ids:
             endpoint = unit.new_endpoint_ref(
                 service_id=service['id'], id=endpoint_id, region_id=None
@@ -665,7 +665,7 @@ class CatalogTests(object):
             PROVIDERS.catalog_api.create_endpoint(endpoint['id'], endpoint)
 
         endpoints = PROVIDERS.catalog_api.list_endpoints()
-        self.assertEqual(expected_ids, set(e['id'] for e in endpoints))
+        self.assertEqual(expected_ids, {e['id'] for e in endpoints})
 
     def test_get_v3_catalog_endpoint_disabled(self):
         """Get back only enabled endpoints when get the v3 catalog."""

@@ -41,7 +41,7 @@ LDAP_MATCHING_RULE_IN_CHAIN = "1.2.840.113556.1.4.1941"
 
 class Identity(base.IdentityDriverBase):
     def __init__(self, conf=None):
-        super(Identity, self).__init__()
+        super().__init__()
         if conf is None:
             self.conf = CONF
         else:
@@ -256,14 +256,14 @@ class UserApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
     model = models.User
 
     def __init__(self, conf):
-        super(UserApi, self).__init__(conf)
+        super().__init__(conf)
         self.enabled_mask = conf.ldap.user_enabled_mask
         self.enabled_default = conf.ldap.user_enabled_default
         self.enabled_invert = conf.ldap.user_enabled_invert
         self.enabled_emulation = conf.ldap.user_enabled_emulation
 
     def _ldap_res_to_model(self, res):
-        obj = super(UserApi, self)._ldap_res_to_model(res)
+        obj = super()._ldap_res_to_model(res)
         if self.enabled_mask != 0:
             enabled = int(obj.get('enabled', self.enabled_default))
             obj['enabled'] = (enabled & self.enabled_mask) != self.enabled_mask
@@ -303,7 +303,7 @@ class UserApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
                 values['enabled'] = not orig_enabled
             else:
                 values['enabled'] = self.enabled_default
-        values = super(UserApi, self).create(values)
+        values = super().create(values)
         if self.enabled_mask or (
             self.enabled_invert and not self.enabled_emulation
         ):
@@ -312,7 +312,7 @@ class UserApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
         return values
 
     def get(self, user_id, ldap_filter=None):
-        obj = super(UserApi, self).get(user_id, ldap_filter=ldap_filter)
+        obj = super().get(user_id, ldap_filter=ldap_filter)
         obj['options'] = {}  # options always empty
         return obj
 
@@ -324,9 +324,7 @@ class UserApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
             raise self.NotFound(user_id=user_id)
 
     def get_all(self, ldap_filter=None, hints=None):
-        objs = super(UserApi, self).get_all(
-            ldap_filter=ldap_filter, hints=hints
-        )
+        objs = super().get_all(ldap_filter=ldap_filter, hints=hints)
         for obj in objs:
             obj['options'] = {}  # options always empty
         return objs
@@ -357,7 +355,7 @@ class UserApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
             old_obj.pop('options')
         if 'options' in values:
             values.pop('options')
-        values = super(UserApi, self).update(user_id, values, old_obj)
+        values = super().update(user_id, values, old_obj)
         values['options'] = {}  # options always empty
         return values
 
@@ -375,12 +373,12 @@ class GroupApi(common_ldap.BaseLdap):
     model = models.Group
 
     def _ldap_res_to_model(self, res):
-        model = super(GroupApi, self)._ldap_res_to_model(res)
+        model = super()._ldap_res_to_model(res)
         model['dn'] = res[0]
         return model
 
     def __init__(self, conf):
-        super(GroupApi, self).__init__(conf)
+        super().__init__(conf)
         self.group_ad_nesting = conf.ldap.group_ad_nesting
         self.member_attribute = (
             conf.ldap.group_member_attribute or self.DEFAULT_MEMBER_ATTRIBUTE
@@ -392,17 +390,17 @@ class GroupApi(common_ldap.BaseLdap):
             data['id'] = uuid.uuid4().hex
         if 'description' in data and data['description'] in ['', None]:
             data.pop('description')
-        return super(GroupApi, self).create(data)
+        return super().create(data)
 
     def update(self, group_id, values):
         old_obj = self.get(group_id)
-        return super(GroupApi, self).update(group_id, values, old_obj)
+        return super().update(group_id, values, old_obj)
 
     def add_user(self, user_dn, group_id, user_id):
         group_ref = self.get(group_id)
         group_dn = group_ref['dn']
         try:
-            super(GroupApi, self).add_member(user_dn, group_dn)
+            super().add_member(user_dn, group_dn)
         except exception.Conflict:
             raise exception.Conflict(
                 _('User %(user_id)s is already a member of group %(group_id)s')
@@ -413,13 +411,13 @@ class GroupApi(common_ldap.BaseLdap):
         """Return a list of groups for which the user is a member."""
         user_dn_esc = ldap.filter.escape_filter_chars(user_dn)
         if self.group_ad_nesting:
-            query = '(%s:%s:=%s)' % (
+            query = '({}:{}:={})'.format(
                 self.member_attribute,
                 LDAP_MATCHING_RULE_IN_CHAIN,
                 user_dn_esc,
             )
         else:
-            query = '(%s=%s)' % (self.member_attribute, user_dn_esc)
+            query = f'({self.member_attribute}={user_dn_esc})'
         return self.get_all(query)
 
     def list_user_groups_filtered(self, user_dn, hints):
@@ -429,12 +427,12 @@ class GroupApi(common_ldap.BaseLdap):
             # Hardcoded to member as that is how the Matching Rule in Chain
             # Mechanisms expects it.  The member_attribute might actually be
             # member_of elsewhere, so they are not the same.
-            query = '(member:%s:=%s)' % (
+            query = '(member:{}:={})'.format(
                 LDAP_MATCHING_RULE_IN_CHAIN,
                 user_dn_esc,
             )
         else:
-            query = '(%s=%s)' % (self.member_attribute, user_dn_esc)
+            query = f'({self.member_attribute}={user_dn_esc})'
         return self.get_all_filtered(hints, query)
 
     def list_group_users(self, group_id):

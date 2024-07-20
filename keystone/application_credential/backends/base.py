@@ -17,7 +17,7 @@ import abc
 from keystone import exception
 
 
-class ApplicationCredentialDriverBase(object, metaclass=abc.ABCMeta):
+class ApplicationCredentialDriverBase(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def authenticate(self, application_credential_id, secret):

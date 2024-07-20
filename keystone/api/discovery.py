@@ -44,7 +44,7 @@ def _get_versions_list(identity_url):
     return versions
 
 
-class MimeTypes(object):
+class MimeTypes:
     JSON = 'application/json'
     JSON_HOME = 'application/json-home'
 
@@ -107,7 +107,7 @@ def get_version_v3():
         )
 
 
-class DiscoveryAPI(object):
+class DiscoveryAPI:
     # NOTE(morgan): The Discovery Bits are so special they cannot conform to
     # Flask-RESTful-isms. We are using straight flask Blueprint(s) here so that
     # we have a lot more control over what the heck is going on. This is just

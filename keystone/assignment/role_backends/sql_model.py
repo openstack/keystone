@@ -21,9 +21,7 @@ from keystone.common import sql
 class RoleTable(sql.ModelBase, sql.ModelDictMixinWithExtras):
 
     def to_dict(self, include_extra_dict=False):
-        d = super(RoleTable, self).to_dict(
-            include_extra_dict=include_extra_dict
-        )
+        d = super().to_dict(include_extra_dict=include_extra_dict)
         if d['domain_id'] == base.NULL_DOMAIN_ID:
             d['domain_id'] = None
         # NOTE(notmorgan): Eventually it may make sense to drop the empty
@@ -48,7 +46,7 @@ class RoleTable(sql.ModelBase, sql.ModelDictMixinWithExtras):
                 if opt_value is not None:
                     opt.validator(opt_value)
                 resource_options[opt.option_id] = opt_value
-        role_obj = super(RoleTable, cls).from_dict(new_dict)
+        role_obj = super().from_dict(new_dict)
         setattr(role_obj, '_resource_options', resource_options)
         return role_obj
 

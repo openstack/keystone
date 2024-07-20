@@ -63,7 +63,7 @@ def truncated(f):
     return wrapper
 
 
-class Hints(object):
+class Hints:
     """Encapsulate driver hints for listing entities.
 
     Hints are modifiers that affect the return of entities from a

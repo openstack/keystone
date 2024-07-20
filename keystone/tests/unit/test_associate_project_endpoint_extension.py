@@ -28,7 +28,7 @@ PROVIDERS = provider_api.ProviderAPIs
 class EndpointFilterTestCase(test_v3.RestfulTestCase):
 
     def setUp(self):
-        super(EndpointFilterTestCase, self).setUp()
+        super().setUp()
         self.default_request_url = (
             '/OS-EP-FILTER/projects/%(project_id)s'
             '/endpoints/%(endpoint_id)s'
@@ -201,9 +201,9 @@ class EndpointFilterCRUDTestCase(EndpointFilterTestCase):
 
         """
         self.put(self.default_request_url)
-        resource_url = '/OS-EP-FILTER/projects/%(project_id)s/endpoints' % {
-            'project_id': self.default_domain_project_id
-        }
+        resource_url = '/OS-EP-FILTER/projects/{project_id}/endpoints'.format(
+            project_id=self.default_domain_project_id
+        )
         r = self.get(resource_url)
         self.assertValidEndpointListResponse(
             r, self.endpoint, resource_url=resource_url
@@ -217,9 +217,9 @@ class EndpointFilterCRUDTestCase(EndpointFilterTestCase):
 
         """
         self.put(self.default_request_url)
-        url = '/OS-EP-FILTER/projects/%(project_id)s/endpoints' % {
-            'project_id': uuid.uuid4().hex
-        }
+        url = '/OS-EP-FILTER/projects/{project_id}/endpoints'.format(
+            project_id=uuid.uuid4().hex
+        )
         self.get(url, expected_status=http.client.NOT_FOUND)
         self.head(url, expected_status=http.client.NOT_FOUND)
 
@@ -230,9 +230,9 @@ class EndpointFilterCRUDTestCase(EndpointFilterTestCase):
 
         """
         self.put(self.default_request_url)
-        resource_url = '/OS-EP-FILTER/endpoints/%(endpoint_id)s/projects' % {
-            'endpoint_id': self.endpoint_id
-        }
+        resource_url = '/OS-EP-FILTER/endpoints/{endpoint_id}/projects'.format(
+            endpoint_id=self.endpoint_id
+        )
         r = self.get(resource_url, expected_status=http.client.OK)
         self.assertValidProjectListResponse(
             r, self.default_domain_project, resource_url=resource_url
@@ -245,9 +245,9 @@ class EndpointFilterCRUDTestCase(EndpointFilterTestCase):
         Valid endpoint id but no endpoint-project associations test case.
 
         """
-        url = '/OS-EP-FILTER/endpoints/%(endpoint_id)s/projects' % {
-            'endpoint_id': self.endpoint_id
-        }
+        url = '/OS-EP-FILTER/endpoints/{endpoint_id}/projects'.format(
+            endpoint_id=self.endpoint_id
+        )
         r = self.get(url, expected_status=http.client.OK)
         self.assertValidProjectListResponse(r, expected_length=0)
         self.head(url, expected_status=http.client.OK)
@@ -258,9 +258,9 @@ class EndpointFilterCRUDTestCase(EndpointFilterTestCase):
         Invalid endpoint id test case.
 
         """
-        url = '/OS-EP-FILTER/endpoints/%(endpoint_id)s/projects' % {
-            'endpoint_id': uuid.uuid4().hex
-        }
+        url = '/OS-EP-FILTER/endpoints/{endpoint_id}/projects'.format(
+            endpoint_id=uuid.uuid4().hex
+        )
         self.get(url, expected_status=http.client.NOT_FOUND)
         self.head(url, expected_status=http.client.NOT_FOUND)
 
@@ -333,15 +333,15 @@ class EndpointFilterCRUDTestCase(EndpointFilterTestCase):
 
     def test_endpoint_project_association_cleanup_when_endpoint_deleted(self):
         self.put(self.default_request_url)
-        association_url = '/OS-EP-FILTER/projects/%(project_id)s/endpoints' % {
-            'project_id': self.default_domain_project_id
-        }
+        association_url = (
+            '/OS-EP-FILTER/projects/{project_id}/endpoints'.format(
+                project_id=self.default_domain_project_id
+            )
+        )
         r = self.get(association_url)
         self.assertValidEndpointListResponse(r, expected_length=1)
 
-        self.delete(
-            '/endpoints/%(endpoint_id)s' % {'endpoint_id': self.endpoint_id}
-        )
+        self.delete(f'/endpoints/{self.endpoint_id}')
 
         r = self.get(association_url)
         self.assertValidEndpointListResponse(r, expected_length=0)
@@ -521,7 +521,7 @@ class EndpointFilterTokenRequestTestCase(EndpointFilterTestCase):
         # set the user's preferred project
         body = {'user': {'default_project_id': project['id']}}
         r = self.patch(
-            '/users/%(user_id)s' % {'user_id': self.user['id']}, body=body
+            '/users/{user_id}'.format(user_id=self.user['id']), body=body
         )
         self.assertValidUserResponse(r)
 
@@ -898,9 +898,9 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
         endpoint_group_id = response.result['endpoint_group']['id']
         endpoint_group_filters = response.result['endpoint_group']['filters']
         endpoint_group_name = response.result['endpoint_group']['name']
-        url = '/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s' % {
-            'endpoint_group_id': endpoint_group_id
-        }
+        url = '/OS-EP-FILTER/endpoint_groups/{endpoint_group_id}'.format(
+            endpoint_group_id=endpoint_group_id
+        )
         self.get(url)
         self.assertEqual(
             endpoint_group_id, response.result['endpoint_group']['id']
@@ -924,9 +924,9 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
 
         """
         endpoint_group_id = 'foobar'
-        url = '/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s' % {
-            'endpoint_group_id': endpoint_group_id
-        }
+        url = '/OS-EP-FILTER/endpoint_groups/{endpoint_group_id}'.format(
+            endpoint_group_id=endpoint_group_id
+        )
         self.get(url, expected_status=http.client.NOT_FOUND)
 
     def test_check_endpoint_group(self):
@@ -939,9 +939,9 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
         endpoint_group_id = self._create_valid_endpoint_group(
             self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY
         )
-        url = '/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s' % {
-            'endpoint_group_id': endpoint_group_id
-        }
+        url = '/OS-EP-FILTER/endpoint_groups/{endpoint_group_id}'.format(
+            endpoint_group_id=endpoint_group_id
+        )
         self.head(url, expected_status=http.client.OK)
 
     def test_check_invalid_endpoint_group(self):
@@ -951,9 +951,9 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
 
         """
         endpoint_group_id = 'foobar'
-        url = '/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s' % {
-            'endpoint_group_id': endpoint_group_id
-        }
+        url = '/OS-EP-FILTER/endpoint_groups/{endpoint_group_id}'.format(
+            endpoint_group_id=endpoint_group_id
+        )
         self.head(url, expected_status=http.client.NOT_FOUND)
 
     def test_patch_endpoint_group(self):
@@ -969,9 +969,9 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
         endpoint_group_id = self._create_valid_endpoint_group(
             self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY
         )
-        url = '/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s' % {
-            'endpoint_group_id': endpoint_group_id
-        }
+        url = '/OS-EP-FILTER/endpoint_groups/{endpoint_group_id}'.format(
+            endpoint_group_id=endpoint_group_id
+        )
         r = self.patch(url, body=body)
         self.assertEqual(endpoint_group_id, r.result['endpoint_group']['id'])
         self.assertEqual(
@@ -989,9 +989,9 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
 
         """
         body = {'endpoint_group': {'name': 'patch_test'}}
-        url = '/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s' % {
-            'endpoint_group_id': 'ABC'
-        }
+        url = '/OS-EP-FILTER/endpoint_groups/{endpoint_group_id}'.format(
+            endpoint_group_id='ABC'
+        )
         self.patch(url, body=body, expected_status=http.client.NOT_FOUND)
 
     def test_patch_invalid_endpoint_group(self):
@@ -1011,17 +1011,17 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
         endpoint_group_id = self._create_valid_endpoint_group(
             self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY
         )
-        url = '/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s' % {
-            'endpoint_group_id': endpoint_group_id
-        }
+        url = '/OS-EP-FILTER/endpoint_groups/{endpoint_group_id}'.format(
+            endpoint_group_id=endpoint_group_id
+        )
         self.patch(url, body=body, expected_status=http.client.BAD_REQUEST)
 
         # Perform a GET call to ensure that the content remains
         # the same (as DEFAULT_ENDPOINT_GROUP_BODY) after attempting to update
         # with an invalid filter
-        url = '/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s' % {
-            'endpoint_group_id': endpoint_group_id
-        }
+        url = '/OS-EP-FILTER/endpoint_groups/{endpoint_group_id}'.format(
+            endpoint_group_id=endpoint_group_id
+        )
         r = self.get(url)
         del r.result['endpoint_group']['id']
         del r.result['endpoint_group']['links']
@@ -1037,9 +1037,9 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
         endpoint_group_id = self._create_valid_endpoint_group(
             self.DEFAULT_ENDPOINT_GROUP_URL, self.DEFAULT_ENDPOINT_GROUP_BODY
         )
-        url = '/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s' % {
-            'endpoint_group_id': endpoint_group_id
-        }
+        url = '/OS-EP-FILTER/endpoint_groups/{endpoint_group_id}'.format(
+            endpoint_group_id=endpoint_group_id
+        )
         self.delete(url)
         self.get(url, expected_status=http.client.NOT_FOUND)
 
@@ -1050,9 +1050,9 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
 
         """
         endpoint_group_id = 'foobar'
-        url = '/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s' % {
-            'endpoint_group_id': endpoint_group_id
-        }
+        url = '/OS-EP-FILTER/endpoint_groups/{endpoint_group_id}'.format(
+            endpoint_group_id=endpoint_group_id
+        )
         self.delete(url, expected_status=http.client.NOT_FOUND)
 
     def test_add_endpoint_group_to_project(self):
@@ -1122,9 +1122,9 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
         )
         self.put(url)
 
-        url = '/OS-EP-FILTER/projects/%(project_id)s/endpoint_groups' % {
-            'project_id': self.project_id
-        }
+        url = '/OS-EP-FILTER/projects/{project_id}/endpoint_groups'.format(
+            project_id=self.project_id
+        )
         response = self.get(url, expected_status=http.client.OK)
 
         self.assertEqual(
@@ -1136,17 +1136,17 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
     def test_list_endpoint_groups_in_invalid_project(self):
         """Test retrieving from invalid project."""
         project_id = uuid.uuid4().hex
-        url = '/OS-EP-FILTER/projects/%(project_id)s/endpoint_groups' % {
-            'project_id': project_id
-        }
+        url = '/OS-EP-FILTER/projects/{project_id}/endpoint_groups'.format(
+            project_id=project_id
+        )
         self.get(url, expected_status=http.client.NOT_FOUND)
         self.head(url, expected_status=http.client.NOT_FOUND)
 
     def test_empty_endpoint_groups_in_project(self):
         """Test when no endpoint groups associated with the project."""
-        url = '/OS-EP-FILTER/projects/%(project_id)s/endpoint_groups' % {
-            'project_id': self.project_id
-        }
+        url = '/OS-EP-FILTER/projects/{project_id}/endpoint_groups'.format(
+            project_id=self.project_id
+        )
         response = self.get(url, expected_status=http.client.OK)
 
         self.assertEqual(0, len(response.result['endpoint_groups']))
@@ -1211,9 +1211,9 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
         )
 
         # retrieve the single endpointgroup by name
-        url = '/OS-EP-FILTER/endpoint_groups?name=%(name)s' % {
-            'name': 'endpoint_group_name'
-        }
+        url = '/OS-EP-FILTER/endpoint_groups?name={name}'.format(
+            name='endpoint_group_name'
+        )
         r = self.get(url, expected_status=http.client.OK)
         self.assertNotEmpty(r.result['endpoint_groups'])
         self.assertEqual(1, len(r.result['endpoint_groups']))
@@ -1224,7 +1224,7 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
         self.head(url, expected_status=http.client.OK)
 
         # try to retrieve a non existant one
-        url = '/OS-EP-FILTER/endpoint_groups?name=%(name)s' % {'name': 'fake'}
+        url = '/OS-EP-FILTER/endpoint_groups?name={name}'.format(name='fake')
         r = self.get(url, expected_status=http.client.OK)
         self.assertEqual(0, len(r.result['endpoint_groups']))
 
@@ -1326,9 +1326,9 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
         )
 
         # Now get a list of the filtered endpoints
-        endpoints_url = '/OS-EP-FILTER/projects/%(project_id)s/endpoints' % {
-            'project_id': self.default_domain_project_id
-        }
+        endpoints_url = '/OS-EP-FILTER/projects/{project_id}/endpoints'.format(
+            project_id=self.default_domain_project_id
+        )
         r = self.get(endpoints_url, expected_status=http.client.OK)
         endpoints = self.assertValidEndpointListResponse(r)
         self.assertEqual(2, len(endpoints))
@@ -1350,9 +1350,9 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
         self.delete(url)
 
         # Now remove endpoint group
-        url = '/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s' % {
-            'endpoint_group_id': endpoint_group_id
-        }
+        url = '/OS-EP-FILTER/endpoint_groups/{endpoint_group_id}'.format(
+            endpoint_group_id=endpoint_group_id
+        )
         self.delete(url)
 
         r = self.get(endpoints_url)
@@ -1385,7 +1385,7 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
 
         # Now delete the project and then try and retrieve the project
         # endpoint group association again
-        self.delete('/projects/%(project_id)s' % {'project_id': project['id']})
+        self.delete('/projects/{project_id}'.format(project_id=project['id']))
         self.get(url, expected_status=http.client.NOT_FOUND)
         self.head(url, expected_status=http.client.NOT_FOUND)
 

@@ -19,7 +19,7 @@ from keystone.tests import unit
 PROVIDERS = provider_api.ProviderAPIs
 
 
-class PolicyTests(object):
+class PolicyTests:
     def test_create(self):
         ref = unit.new_policy_ref()
         res = PROVIDERS.policy_api.create_policy(ref['id'], ref)

@@ -842,7 +842,7 @@ V3_JSON_HOME_RESOURCES = {
 }
 
 
-class TestClient(object):
+class TestClient:
     def __init__(self, app=None, token=None):
         self.app = app
         self.token = token
@@ -874,7 +874,7 @@ class TestClient(object):
 
 class _VersionsEqual(tt_matchers.MatchesListwise):
     def __init__(self, expected):
-        super(_VersionsEqual, self).__init__(
+        super().__init__(
             [
                 tt_matchers.KeysEqual(expected),
                 tt_matchers.KeysEqual(expected['versions']),
@@ -884,7 +884,7 @@ class _VersionsEqual(tt_matchers.MatchesListwise):
         )
 
     def match(self, other):
-        return super(_VersionsEqual, self).match(
+        return super().match(
             [
                 other,
                 other['versions'],
@@ -896,7 +896,7 @@ class _VersionsEqual(tt_matchers.MatchesListwise):
 
 class VersionTestCase(unit.TestCase):
     def setUp(self):
-        super(VersionTestCase, self).setUp()
+        super().setUp()
         self.load_backends()
         self.public_app = self.loadapp('public')
         self.public_port = random.randint(40000, 60000)
@@ -906,7 +906,7 @@ class VersionTestCase(unit.TestCase):
         )
 
     def config_overrides(self):
-        super(VersionTestCase, self).config_overrides()
+        super().config_overrides()
 
     def _paste_in_port(self, response, port):
         for link in response['links']:
@@ -1059,15 +1059,15 @@ class VersionTestCase(unit.TestCase):
         self.assertThat(make_request(JSON_HOME), JSON_HOME_MATCHER)
 
         # If request JSON, JSON Home get JSON.
-        accept_types = '%s, %s' % (JSON, JSON_HOME)
+        accept_types = f'{JSON}, {JSON_HOME}'
         self.assertThat(make_request(accept_types), JSON_MATCHER)
 
         # If request JSON Home, JSON get JSON.
-        accept_types = '%s, %s' % (JSON_HOME, JSON)
+        accept_types = f'{JSON_HOME}, {JSON}'
         self.assertThat(make_request(accept_types), JSON_MATCHER)
 
         # If request JSON Home, JSON;q=0.5 get JSON Home.
-        accept_types = '%s, %s;q=0.5' % (JSON_HOME, JSON)
+        accept_types = f'{JSON_HOME}, {JSON};q=0.5'
         self.assertThat(make_request(accept_types), JSON_HOME_MATCHER)
 
         # If request some unknown mime-type, get JSON.
@@ -1083,7 +1083,7 @@ class VersionSingleAppTestCase(unit.TestCase):
     """
 
     def setUp(self):
-        super(VersionSingleAppTestCase, self).setUp()
+        super().setUp()
         self.load_backends()
 
         self.public_port = random.randint(40000, 60000)
@@ -1093,7 +1093,7 @@ class VersionSingleAppTestCase(unit.TestCase):
         )
 
     def config_overrides(self):
-        super(VersionSingleAppTestCase, self).config_overrides()
+        super().config_overrides()
 
     def _paste_in_port(self, response, port):
         for link in response['links']:

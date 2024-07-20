@@ -66,7 +66,7 @@ class Manager(manager.Manager):
     _provides_api = 'receipt_provider_api'
 
     def __init__(self):
-        super(Manager, self).__init__(CONF.receipt.provider)
+        super().__init__(CONF.receipt.provider)
         self._register_callback_listeners()
 
     def _register_callback_listeners(self):

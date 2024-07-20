@@ -52,7 +52,7 @@ def validate_password(password):
             raise exception.PasswordValidationError(detail=detail)
 
 
-class SchemaValidator(object):
+class SchemaValidator:
     """Resource reference validator class."""
 
     validator_org = jsonschema.Draft4Validator

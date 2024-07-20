@@ -58,7 +58,7 @@ class Manager(manager.Manager):
     _REGION = 'region'
 
     def __init__(self):
-        super(Manager, self).__init__(CONF.catalog.driver)
+        super().__init__(CONF.catalog.driver)
         notifications.register_event_callback(
             notifications.ACTIONS.deleted,
             'project',

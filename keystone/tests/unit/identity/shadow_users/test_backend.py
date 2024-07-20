@@ -27,7 +27,7 @@ CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
 
 
-class ShadowUsersBackendTests(object):
+class ShadowUsersBackendTests:
     def test_create_nonlocal_user_unique_constraint(self):
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
         user_created = PROVIDERS.shadow_users_api.create_nonlocal_user(user)

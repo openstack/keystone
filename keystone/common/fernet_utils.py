@@ -34,7 +34,7 @@ CONF = keystone.conf.CONF
 NULL_KEY = base64.urlsafe_b64encode(b'\x00' * 32)
 
 
-class FernetUtils(object):
+class FernetUtils:
 
     def __init__(self, key_repository, max_active_keys, config_group):
         self.key_repository = key_repository
@@ -128,7 +128,7 @@ class FernetUtils(object):
                 f.write(key.decode('utf-8'))
                 f.flush()
                 create_success = True
-        except IOError:
+        except OSError:
             LOG.error('Failed to create new temporary key: %s', key_file)
             raise
         finally:
@@ -163,7 +163,7 @@ class FernetUtils(object):
         for filename in os.listdir(key_repo):
             path = os.path.join(key_repo, str(filename))
             if os.path.isfile(path):
-                with open(path, 'r') as key_file:
+                with open(path) as key_file:
                     try:
                         key_id = int(filename)
                     except ValueError:  # nosec : name is not a number

@@ -87,11 +87,11 @@ class _TraceMeta(type):
     @staticmethod
     def wrapper(__f, __classname):
         __argspec = inspect.getfullargspec(__f)
-        __fn_info = '%(module)s.%(classname)s.%(funcname)s' % {
-            'module': inspect.getmodule(__f).__name__,
-            'classname': __classname,
-            'funcname': __f.__name__,
-        }
+        __fn_info = '{module}.{classname}.{funcname}'.format(
+            module=inspect.getmodule(__f).__name__,
+            classname=__classname,
+            funcname=__f.__name__,
+        )
         # NOTE(morganfainberg): Omit "cls" and "self" when printing trace logs
         # the index can be calculated at wrap time rather than at runtime.
         if __argspec.args and __argspec.args[0] in ('self', 'cls'):
@@ -120,10 +120,7 @@ class _TraceMeta(type):
                             [
                                 ', '.join([repr(a) for a in args[__arg_idx:]]),
                                 ', '.join(
-                                    [
-                                        '%(k)s=%(v)r' % {'k': k, 'v': v}
-                                        for k, v in kwargs.items()
-                                    ]
+                                    [f'{k}={v!r}' for k, v in kwargs.items()]
                                 ),
                             ]
                         ),
@@ -161,7 +158,7 @@ class _TraceMeta(type):
         return type.__new__(meta, classname, bases, final_cls_dict)
 
 
-class Manager(object, metaclass=_TraceMeta):
+class Manager(metaclass=_TraceMeta):
     """Base class for intermediary request layer.
 
     The Manager layer exists to support additional logic that applies to all

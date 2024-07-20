@@ -28,7 +28,7 @@ CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
 
 
-class _UserCredentialTests(object):
+class _UserCredentialTests:
     """Test cases for anyone that has a valid user token."""
 
     def test_user_can_create_credentials_for_themselves(self):
@@ -147,7 +147,7 @@ class _UserCredentialTests(object):
             c.delete(path, headers=self.headers)
 
 
-class _ProjectUsersTests(object):
+class _ProjectUsersTests:
     """Users who have project role authorization observe the same behavior."""
 
     def test_user_cannot_get_credentials_for_other_users(self):
@@ -444,7 +444,7 @@ class _ProjectUsersTests(object):
             )
 
 
-class _SystemUserCredentialTests(object):
+class _SystemUserCredentialTests:
     """Tests that are common across all system users."""
 
     def test_user_can_list_credentials_for_other_users(self):
@@ -599,7 +599,7 @@ class SystemReaderTests(
 ):
 
     def setUp(self):
-        super(SystemReaderTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -759,7 +759,7 @@ class SystemMemberTests(
 ):
 
     def setUp(self):
-        super(SystemMemberTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -919,7 +919,7 @@ class SystemAdminTests(
 ):
 
     def setUp(self):
-        super(SystemAdminTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -1063,7 +1063,7 @@ class ProjectReaderTests(
 ):
 
     def setUp(self):
-        super(ProjectReaderTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -1106,7 +1106,7 @@ class ProjectMemberTests(
 ):
 
     def setUp(self):
-        super(ProjectMemberTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -1149,7 +1149,7 @@ class ProjectAdminTests(
 ):
 
     def setUp(self):
-        super(ProjectAdminTests, self).setUp()
+        super().setUp()
         self.loadapp()
 
         self.policy_file = self.useFixture(temporaryfile.SecureTempFile())
@@ -1206,7 +1206,7 @@ class ProjectReaderTestsEnforceScopeFalse(
 ):
 
     def setUp(self):
-        super(ProjectReaderTestsEnforceScopeFalse, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=False)
@@ -1249,7 +1249,7 @@ class ProjectMemberTestsEnforceScopeFalse(
 ):
 
     def setUp(self):
-        super(ProjectMemberTestsEnforceScopeFalse, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=False)
@@ -1292,7 +1292,7 @@ class ProjectAdminTestsEnforceScopeFalse(
 ):
 
     def setUp(self):
-        super(ProjectAdminTestsEnforceScopeFalse, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=False)

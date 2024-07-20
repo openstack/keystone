@@ -40,7 +40,7 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
 
     def setUp(self):
         self._ldap_skip_live()
-        super(LiveLDAPIdentity, self).setUp()
+        super().setUp()
 
     def _ldap_skip_live(self):
         self.skip_if_env_not_set('ENABLE_LDAP_LIVE_TEST')
@@ -85,7 +85,7 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
         )
 
     def config_files(self):
-        config_files = super(LiveLDAPIdentity, self).config_files()
+        config_files = super().config_files()
         config_files.append(unit.dirs.tests_conf('backend_liveldap.conf'))
         return config_files
 
@@ -214,7 +214,7 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
             user_enabled_emulation=False,
             user_enabled_attribute='employeeType',
         )
-        super(LiveLDAPIdentity, self).test_user_enable_attribute_mask()
+        super().test_user_enable_attribute_mask()
 
     def test_create_project_case_sensitivity(self):
         # The attribute used for the live LDAP tests is case insensitive.

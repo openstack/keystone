@@ -120,7 +120,7 @@ def build_audit_initiator():
     return initiator
 
 
-class Audit(object):
+class Audit:
     """Namespace for audit notification functions.
 
     This is a namespace object to contain all of the direct notification
@@ -567,8 +567,8 @@ def _create_cadf_payload(
     target = resource.Resource(typeURI=target_uri, id=resource_id)
 
     audit_kwargs = {'resource_info': resource_id}
-    cadf_action = '%s.%s' % (operation, resource_type)
-    event_type = '%s.%s.%s' % (SERVICE, resource_type, operation)
+    cadf_action = f'{operation}.{resource_type}'
+    event_type = f'{SERVICE}.{resource_type}.{operation}'
 
     _send_audit_notification(
         cadf_action,
@@ -577,7 +577,7 @@ def _create_cadf_payload(
         target,
         event_type,
         reason=reason,
-        **audit_kwargs
+        **audit_kwargs,
     )
 
 
@@ -625,11 +625,11 @@ def _send_notification(
         notifier = _get_notifier()
         if notifier:
             context = {}
-            event_type = '%(service)s.%(resource_type)s.%(operation)s' % {
-                'service': SERVICE,
-                'resource_type': resource_type,
-                'operation': operation,
-            }
+            event_type = '{service}.{resource_type}.{operation}'.format(
+                service=SERVICE,
+                resource_type=resource_type,
+                operation=operation,
+            )
             if _check_notification_opt_out(event_type, outcome=None):
                 return
             try:
@@ -685,7 +685,7 @@ def _get_request_audit_info(context, user_id=None):
     return initiator
 
 
-class CadfNotificationWrapper(object):
+class CadfNotificationWrapper:
     """Send CADF event notifications for various methods.
 
     This function is only used for Authentication events. Its ``action`` and
@@ -703,7 +703,7 @@ class CadfNotificationWrapper(object):
 
     def __init__(self, operation):
         self.action = operation
-        self.event_type = '%s.%s' % (SERVICE, operation)
+        self.event_type = f'{SERVICE}.{operation}'
 
     def __call__(self, f):
         @functools.wraps(f)
@@ -754,7 +754,7 @@ class CadfNotificationWrapper(object):
         return wrapper
 
 
-class CadfRoleAssignmentNotificationWrapper(object):
+class CadfRoleAssignmentNotificationWrapper:
     """Send CADF notifications for ``role_assignment`` methods.
 
     This function is only used for role assignment events. Its ``action`` and
@@ -773,8 +773,8 @@ class CadfRoleAssignmentNotificationWrapper(object):
     ROLE_ASSIGNMENT = 'role_assignment'
 
     def __init__(self, operation):
-        self.action = '%s.%s' % (operation, self.ROLE_ASSIGNMENT)
-        self.event_type = '%s.%s.%s' % (
+        self.action = f'{operation}.{self.ROLE_ASSIGNMENT}'
+        self.event_type = '{}.{}.{}'.format(
             SERVICE,
             self.ROLE_ASSIGNMENT,
             operation,
@@ -849,7 +849,7 @@ class CadfRoleAssignmentNotificationWrapper(object):
                     taxonomy.OUTCOME_FAILURE,
                     target,
                     self.event_type,
-                    **audit_kwargs
+                    **audit_kwargs,
                 )
                 raise
             else:
@@ -859,7 +859,7 @@ class CadfRoleAssignmentNotificationWrapper(object):
                     taxonomy.OUTCOME_SUCCESS,
                     target,
                     self.event_type,
-                    **audit_kwargs
+                    **audit_kwargs,
                 )
                 return result
 
@@ -900,11 +900,11 @@ def send_saml_audit_notification(
         groups=group_ids,
     )
     initiator.credential = cred
-    event_type = '%s.%s' % (SERVICE, action)
+    event_type = f'{SERVICE}.{action}'
     _send_audit_notification(action, initiator, outcome, target, event_type)
 
 
-class _CatalogHelperObj(provider_api.ProviderAPIMixin, object):
+class _CatalogHelperObj(provider_api.ProviderAPIMixin):
     """A helper object to allow lookups of identity service id."""
 
 

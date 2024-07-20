@@ -105,13 +105,13 @@ class Database(fixtures.Fixture):
     """A fixture for setting up and tearing down a database."""
 
     def __init__(self):
-        super(Database, self).__init__()
+        super().__init__()
         initialize_sql_session()
         _load_sqlalchemy_models()
         sql.enable_sqlite_foreign_key()
 
     def setUp(self):
-        super(Database, self).setUp()
+        super().setUp()
 
         with sql.session_for_write() as session:
             self.engine = session.get_bind()

@@ -22,7 +22,7 @@ from keystone import exception
 LOG = log.getLogger(__name__)
 
 
-class CredentialDriverBase(object, metaclass=abc.ABCMeta):
+class CredentialDriverBase(metaclass=abc.ABCMeta):
     # credential crud
 
     @abc.abstractmethod

@@ -136,13 +136,13 @@ class TestAuthPlugin(unit.SQLDriverOverrides, unit.TestCase):
 
 class TestAuthPluginDynamicOptions(TestAuthPlugin):
     def config_overrides(self):
-        super(TestAuthPluginDynamicOptions, self).config_overrides()
+        super().config_overrides()
         # Clear the override for the [auth] ``methods`` option so it is
         # possible to load the options from the config file.
         self.config_fixture.conf.clear_override('methods', group='auth')
 
     def config_files(self):
-        config_files = super(TestAuthPluginDynamicOptions, self).config_files()
+        config_files = super().config_files()
         config_files.append(unit.dirs.tests_conf('test_auth_plugin.conf'))
         return config_files
 
@@ -150,7 +150,7 @@ class TestAuthPluginDynamicOptions(TestAuthPlugin):
 class TestMapped(unit.TestCase):
 
     def config_files(self):
-        config_files = super(TestMapped, self).config_files()
+        config_files = super().config_files()
         config_files.append(unit.dirs.tests_conf('test_auth_plugin.conf'))
         return config_files
 

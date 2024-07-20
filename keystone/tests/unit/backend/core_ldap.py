@@ -36,11 +36,11 @@ def create_group_container(identity_api):
     )
 
 
-class BaseBackendLdapCommon(object):
+class BaseBackendLdapCommon:
     """Mixin class to set up generic LDAP backends."""
 
     def setUp(self):
-        super(BaseBackendLdapCommon, self).setUp()
+        super().setUp()
         self.useFixture(ldapdb.LDAPDatabase())
 
         self.load_backends()
@@ -57,11 +57,11 @@ class BaseBackendLdapCommon(object):
         return CONF
 
     def config_overrides(self):
-        super(BaseBackendLdapCommon, self).config_overrides()
+        super().config_overrides()
         self.config_fixture.config(group='identity', driver='ldap')
 
     def config_files(self):
-        config_files = super(BaseBackendLdapCommon, self).config_files()
+        config_files = super().config_files()
         config_files.append(unit.dirs.tests_conf('backend_ldap.conf'))
         return config_files
 
@@ -73,7 +73,7 @@ class BaseBackendLdapCommon(object):
 
         ldap_ = PROVIDERS.identity_api.driver.user.get_connection()
         res = ldap_.search_s(
-            user_dn, ldap.SCOPE_BASE, u'(sn=%s)' % user['name']
+            user_dn, ldap.SCOPE_BASE, '(sn=%s)' % user['name']
         )
         if enabled_attr_name in res[0][1]:
             return res[0][1][enabled_attr_name]
@@ -81,7 +81,7 @@ class BaseBackendLdapCommon(object):
             return None
 
 
-class BaseBackendLdap(object):
+class BaseBackendLdap:
     """Mixin class to set up an all-LDAP configuration."""
 
     def setUp(self):
@@ -89,27 +89,25 @@ class BaseBackendLdap(object):
         # parent's setUp. The parent's setUp uses services (like
         # credentials) that require a database.
         self.useFixture(database.Database())
-        super(BaseBackendLdap, self).setUp()
+        super().setUp()
 
     def load_fixtures(self, fixtures):
         # Override super impl since need to create group container.
         create_group_container(PROVIDERS.identity_api)
-        super(BaseBackendLdap, self).load_fixtures(fixtures)
+        super().load_fixtures(fixtures)
 
 
 class BaseBackendLdapIdentitySqlEverythingElse(unit.SQLDriverOverrides):
     """Mixin base for Identity LDAP, everything else SQL backend tests."""
 
     def config_files(self):
-        config_files = super(
-            BaseBackendLdapIdentitySqlEverythingElse, self
-        ).config_files()
+        config_files = super().config_files()
         config_files.append(unit.dirs.tests_conf('backend_ldap_sql.conf'))
         return config_files
 
     def setUp(self):
         sqldb = self.useFixture(database.Database())
-        super(BaseBackendLdapIdentitySqlEverythingElse, self).setUp()
+        super().setUp()
         self.load_backends()
         cache.configure_cache()
 
@@ -119,15 +117,13 @@ class BaseBackendLdapIdentitySqlEverythingElse(unit.SQLDriverOverrides):
         self.user_foo['enabled'] = True
 
     def config_overrides(self):
-        super(
-            BaseBackendLdapIdentitySqlEverythingElse, self
-        ).config_overrides()
+        super().config_overrides()
         self.config_fixture.config(group='identity', driver='ldap')
         self.config_fixture.config(group='resource', driver='sql')
         self.config_fixture.config(group='assignment', driver='sql')
 
 
-class BaseBackendLdapIdentitySqlEverythingElseWithMapping(object):
+class BaseBackendLdapIdentitySqlEverythingElseWithMapping:
     """Mixin base class to test mapping of default LDAP backend.
 
     The default configuration is not to enable mapping when using a single
@@ -138,9 +134,7 @@ class BaseBackendLdapIdentitySqlEverythingElseWithMapping(object):
     """
 
     def config_overrides(self):
-        super(
-            BaseBackendLdapIdentitySqlEverythingElseWithMapping, self
-        ).config_overrides()
+        super().config_overrides()
         self.config_fixture.config(
             group='identity_mapping', backward_compatible_ids=False
         )

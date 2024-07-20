@@ -49,7 +49,7 @@ class RegisteredLimitModel(sql.ModelBase, sql.ModelDictMixin):
     description = sql.Column(sql.Text())
 
     def to_dict(self):
-        ref = super(RegisteredLimitModel, self).to_dict()
+        ref = super().to_dict()
         ref.pop('internal_id')
         return ref
 
@@ -112,7 +112,7 @@ class LimitModel(sql.ModelBase, sql.ModelDictMixin):
         return RegisteredLimitModel.resource_name
 
     def to_dict(self):
-        ref = super(LimitModel, self).to_dict()
+        ref = super().to_dict()
         if self.registered_limit:
             ref['service_id'] = self.registered_limit.service_id
             ref['region_id'] = self.registered_limit.region_id

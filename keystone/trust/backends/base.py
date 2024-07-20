@@ -17,7 +17,7 @@ import abc
 from keystone import exception
 
 
-class TrustDriverBase(object, metaclass=abc.ABCMeta):
+class TrustDriverBase(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def create_trust(self, trust_id, trust, roles):

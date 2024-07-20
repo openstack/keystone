@@ -23,7 +23,7 @@ from keystone.tests import unit
 PROVIDERS = provider_api.ProviderAPIs
 
 
-class PolicyAssociationTests(object):
+class PolicyAssociationTests:
 
     def _assert_correct_policy(self, endpoint, policy):
         ref = PROVIDERS.endpoint_policy_api.get_policy_for_endpoint(

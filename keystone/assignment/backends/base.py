@@ -21,7 +21,7 @@ from keystone import exception
 CONF = keystone.conf.CONF
 
 
-class AssignmentDriverBase(object, metaclass=abc.ABCMeta):
+class AssignmentDriverBase(metaclass=abc.ABCMeta):
 
     def _get_list_limit(self):
         return CONF.assignment.list_limit or CONF.list_limit

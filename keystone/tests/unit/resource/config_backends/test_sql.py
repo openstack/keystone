@@ -44,7 +44,7 @@ class SqlDomainConfigDriver(
     unit.BaseTestCase, test_core.DomainConfigDriverTests
 ):
     def setUp(self):
-        super(SqlDomainConfigDriver, self).setUp()
+        super().setUp()
         self.useFixture(database.Database())
         self.driver = config_sql.DomainConfig()
 
@@ -53,7 +53,7 @@ class SqlDomainConfig(
     core_sql.BaseBackendSqlTests, test_core.DomainConfigTests
 ):
     def setUp(self):
-        super(SqlDomainConfig, self).setUp()
+        super().setUp()
         # test_core.DomainConfigTests is effectively a mixin class, so make
         # sure we call its setup
         test_core.DomainConfigTests.setUp(self)

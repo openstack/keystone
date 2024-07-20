@@ -102,7 +102,7 @@ class CredentialResource(ks_flask.ResourceBase):
                 ref['blob'] = jsonutils.dumps(blob)
             return ref
         else:
-            return super(CredentialResource, self)._assign_unique_id(ref)
+            return super()._assign_unique_id(ref)
 
     def _list_credentials(self):
         filters = ['user_id', 'type']

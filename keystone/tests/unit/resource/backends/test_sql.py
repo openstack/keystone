@@ -21,7 +21,7 @@ class TestSqlResourceDriver(
     unit.BaseTestCase, test_backends.ResourceDriverTests
 ):
     def setUp(self):
-        super(TestSqlResourceDriver, self).setUp()
+        super().setUp()
         self.useFixture(database.Database())
         self.driver = sql.Resource()
         root_domain = default_fixtures.ROOT_DOMAIN
