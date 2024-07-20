@@ -92,7 +92,8 @@ class ApplicationCredentialTestCase(test_v3.RestfulTestCase):
                 '/v3/users/%s/application_credentials' % self.user_id,
                 json=app_cred_body,
                 expected_status_code=http.client.CREATED,
-                headers={'X-Auth-Token': token})
+                headers={'X-Auth-Token': token},
+            )
         # Create operation returns the secret
         self.assertIn('secret', resp.json['application_credential'])
         # But not the stored hash
@@ -100,7 +101,7 @@ class ApplicationCredentialTestCase(test_v3.RestfulTestCase):
         # Ensure implied role is also granted
         self.assertIn(
             implied_role_id,
-            [x['id'] for x in resp.json["application_credential"]["roles"]]
+            [x['id'] for x in resp.json["application_credential"]["roles"]],
         )
 
     def test_create_application_credential_with_secret(self):

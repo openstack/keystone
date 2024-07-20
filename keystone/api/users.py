@@ -644,9 +644,11 @@ class UserAppCredListCreateResource(ks_flask.ResourceBase):
             # explicitly if not already there
             for role in roles:
                 for implied_role in PROVIDERS.role_api.list_implied_roles(
-                        role['id']):
+                    role['id']
+                ):
                     imp_role_obj = PROVIDERS.role_api.get_role(
-                        implied_role['implied_role_id'])
+                        implied_role['implied_role_id']
+                    )
                     if imp_role_obj['id'] not in [x['id'] for x in roles]:
                         roles.append(imp_role_obj)
             # NOTE(cmurphy): The user is not allowed to add a role that is not
