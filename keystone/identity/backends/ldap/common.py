@@ -79,7 +79,7 @@ def utf8_encode(value):
         value_cls_name = reflection.get_class_name(
             value, fully_qualified=False
         )
-        raise TypeError("value must be basestring, " "not %s" % value_cls_name)
+        raise TypeError("value must be basestring, not %s" % value_cls_name)
 
 
 _utf8_decoder = codecs.getdecoder('utf-8')
@@ -692,7 +692,7 @@ def _common_ldap_initialization(
     if use_tls or using_ldaps:
         if not ldap.TLS_AVAIL:
             raise ValueError(
-                _('Invalid LDAP TLS_AVAIL option: %s. TLS ' 'not available')
+                _('Invalid LDAP TLS_AVAIL option: %s. TLS not available')
                 % ldap.TLS_AVAIL
             )
         if not tls_cacertfile and not tls_cacertdir:
@@ -713,7 +713,7 @@ def _common_ldap_initialization(
             # connection
             if not os.path.isfile(tls_cacertfile):
                 raise OSError(
-                    _("tls_cacertfile %s not found " "or is not a file")
+                    _("tls_cacertfile %s not found or is not a file")
                     % tls_cacertfile
                 )
             ldap.set_option(ldap.OPT_X_TLS_CACERTFILE, tls_cacertfile)
@@ -726,7 +726,7 @@ def _common_ldap_initialization(
             # connection
             if not os.path.isdir(tls_cacertdir):
                 raise OSError(
-                    _("tls_cacertdir %s not found " "or is not a directory")
+                    _("tls_cacertdir %s not found or is not a directory")
                     % tls_cacertdir
                 )
             ldap.set_option(ldap.OPT_X_TLS_CACERTDIR, tls_cacertdir)
@@ -1620,7 +1620,7 @@ class BaseLdap:
         id_attrs = lower_res.get(self.id_attr.lower())
         if not id_attrs:
             message = _(
-                'ID attribute %(id_attr)s not found in LDAP ' 'object %(dn)s'
+                'ID attribute %(id_attr)s not found in LDAP object %(dn)s'
             ) % ({'id_attr': self.id_attr, 'dn': res[0]})
             raise exception.NotFound(message=message)
         if len(id_attrs) > 1:

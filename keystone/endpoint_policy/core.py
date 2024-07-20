@@ -314,7 +314,7 @@ class Manager(manager.Manager):
             # No policy is associated with endpoint, handled below.
             pass
 
-        msg = _(
-            'No policy is associated with endpoint ' '%(endpoint_id)s.'
-        ) % {'endpoint_id': endpoint_id}
+        msg = _('No policy is associated with endpoint %(endpoint_id)s.') % {
+            'endpoint_id': endpoint_id
+        }
         raise exception.NotFound(msg)

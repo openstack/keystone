@@ -866,7 +866,7 @@ class TestDomainConfigFinder(unit.BaseTestCase):
         )
 
         expected_msg_template = (
-            'Ignoring file (%s) while scanning ' 'domain config directory'
+            'Ignoring file (%s) while scanning domain config directory'
         )
         self.assertThat(
             self.logging.output,

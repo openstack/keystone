@@ -30,7 +30,7 @@ from keystone.tests import unit
 v3_MEDIA_TYPES = [
     {
         "base": "application/json",
-        "type": "application/" "vnd.openstack.identity-v3+json",
+        "type": "application/vnd.openstack.identity-v3+json",
     }
 ]
 
@@ -171,7 +171,7 @@ FEDERATED_IDP_SPECIFIC_WEBSSO = (
 )
 
 APPLICATION_CREDENTIAL = (
-    '/users/{user_id}/application_credentials/' '{application_credential_id}'
+    '/users/{user_id}/application_credentials/{application_credential_id}'
 )
 APPLICATION_CREDENTIALS = '/users/{user_id}/application_credentials'
 APPLICATION_CREDENTIAL_RELATION = json_home.build_v3_parameter_relation(
@@ -665,7 +665,7 @@ V3_JSON_HOME_RESOURCES = {
     },
     _build_ep_filter_rel(resource_name='project_endpoint'): {
         'href-template': (
-            '/OS-EP-FILTER/projects/{project_id}' '/endpoints/{endpoint_id}'
+            '/OS-EP-FILTER/projects/{project_id}/endpoints/{endpoint_id}'
         ),
         'href-vars': {
             'endpoint_id': json_home.Parameters.ENDPOINT_ID,

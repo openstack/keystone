@@ -134,9 +134,9 @@ class EndpointPolicyTestCase(test_v3.RestfulTestCase):
 
     def test_list_endpoints_for_policy(self):
         """GET & HEAD /policies/%(policy_id}/endpoints."""
-        url = '/policies/%(policy_id)s/OS-ENDPOINT-POLICY' '/endpoints' % {
-            'policy_id': self.policy['id']
-        }
+        url = '/policies/{policy_id}/OS-ENDPOINT-POLICY/endpoints'.format(
+            policy_id=self.policy['id']
+        )
         self.put(url + '/' + self.endpoint['id'])
         r = self.get(url)
         self.assertValidEndpointListResponse(r, ref=self.endpoint)
@@ -234,7 +234,7 @@ class JsonHomeTests(test_v3.JsonHomeTestMixin):
         '/ext/OS-ENDPOINT-POLICY/1.0/rel'
     )
     PARAM_LOCATION = (
-        'https://docs.openstack.org/api/openstack-identity/3/' 'param'
+        'https://docs.openstack.org/api/openstack-identity/3/param'
     )
 
     JSON_HOME_DATA = {

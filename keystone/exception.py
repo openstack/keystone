@@ -107,7 +107,7 @@ class ValidationError(Error):
 
 class URLValidationError(ValidationError):
     message_format = _(
-        "Cannot create an endpoint with an invalid URL:" " %(url)s."
+        "Cannot create an endpoint with an invalid URL: %(url)s."
     )
 
 
@@ -117,7 +117,7 @@ class PasswordValidationError(ValidationError):
 
 class PasswordRequirementsValidationError(PasswordValidationError):
     message_format = _(
-        "The password does not match the requirements:" " %(detail)s."
+        "The password does not match the requirements: %(detail)s."
     )
 
 
@@ -385,7 +385,7 @@ class AdditionalAuthRequired(AuthPluginException):
 
 class Forbidden(SecurityError):
     message_format = _(
-        "You are not authorized to perform the" " requested action."
+        "You are not authorized to perform the requested action."
     )
     code = int(http.client.FORBIDDEN)
     title = http.client.responses[http.client.FORBIDDEN]
@@ -618,7 +618,7 @@ class AccessRuleNotFound(NotFound):
 
 class Conflict(Error):
     message_format = _(
-        "Conflict occurred attempting to store %(type)s -" " %(details)s."
+        "Conflict occurred attempting to store %(type)s - %(details)s."
     )
     code = int(http.client.CONFLICT)
     title = http.client.responses[http.client.CONFLICT]
@@ -654,13 +654,13 @@ class UnexpectedError(SecurityError):
 
 class TrustConsumeMaximumAttempt(UnexpectedError):
     debug_message_format = _(
-        "Unable to consume trust %(trust_id)s. Unable to " "acquire lock."
+        "Unable to consume trust %(trust_id)s. Unable to acquire lock."
     )
 
 
 class MalformedEndpoint(UnexpectedError):
     debug_message_format = _(
-        "Malformed endpoint URL (%(endpoint)s)," " see ERROR log for details."
+        "Malformed endpoint URL (%(endpoint)s), see ERROR log for details."
     )
 
 
@@ -693,7 +693,7 @@ class AssignmentTypeCalculationError(UnexpectedError):
 
 class NotImplemented(Error):
     message_format = _(
-        "The action you have requested has not" " been implemented."
+        "The action you have requested has not been implemented."
     )
     code = int(http.client.NOT_IMPLEMENTED)
     title = http.client.responses[http.client.NOT_IMPLEMENTED]
@@ -742,9 +742,7 @@ class MigrationNotProvided(Exception):
 
 
 class UnsupportedTokenVersionException(UnexpectedError):
-    debug_message_format = _(
-        'Token version is unrecognizable or ' 'unsupported.'
-    )
+    debug_message_format = _('Token version is unrecognizable or unsupported.')
 
 
 class SAMLSigningError(UnexpectedError):
@@ -782,7 +780,7 @@ class CredentialEncryptionError(Exception):
 
 class LDAPServerConnectionError(UnexpectedError):
     debug_message_format = _(
-        'Unable to establish a connection to ' 'LDAP Server (%(url)s).'
+        'Unable to establish a connection to LDAP Server (%(url)s).'
     )
 
 

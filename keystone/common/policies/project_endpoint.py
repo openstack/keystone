@@ -67,9 +67,7 @@ project_endpoint_policies = [
         description='List projects allowed to access an endpoint.',
         operations=[
             {
-                'path': (
-                    '/v3/OS-EP-FILTER/endpoints/{endpoint_id}/' 'projects'
-                ),
+                'path': ('/v3/OS-EP-FILTER/endpoints/{endpoint_id}/projects'),
                 'method': 'GET',
             }
         ],
@@ -121,9 +119,7 @@ project_endpoint_policies = [
         description='List the endpoints a project is allowed to access.',
         operations=[
             {
-                'path': (
-                    '/v3/OS-EP-FILTER/projects/{project_id}/' 'endpoints'
-                ),
+                'path': ('/v3/OS-EP-FILTER/projects/{project_id}/endpoints'),
                 'method': 'GET',
             }
         ],

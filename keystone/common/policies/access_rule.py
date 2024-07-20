@@ -20,11 +20,11 @@ collection_path = '/v3/users/{user_id}/access_rules'
 resource_path = collection_path + '/{access_rule_id}'
 
 SYSTEM_READER_OR_OWNER = (
-    '(' + base.SYSTEM_READER + ') or ' 'user_id:%(target.user.id)s'
+    '(' + base.SYSTEM_READER + ') or user_id:%(target.user.id)s'
 )
 
 SYSTEM_ADMIN_OR_OWNER = (
-    '(' + base.SYSTEM_ADMIN + ') or ' 'user_id:%(target.user.id)s'
+    '(' + base.SYSTEM_ADMIN + ') or user_id:%(target.user.id)s'
 )
 
 access_rule_policies = [

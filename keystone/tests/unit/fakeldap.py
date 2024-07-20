@@ -465,7 +465,7 @@ class FakeLdap(common.LDAPHandler):
             else:
                 LOG.debug('modify item failed: unknown command %s', cmd)
                 raise NotImplementedError(
-                    'modify_s action %s not' ' implemented' % cmd
+                    'modify_s action %s not implemented' % cmd
                 )
         self.db[key] = entry
         self.db.sync()
@@ -492,7 +492,7 @@ class FakeLdap(common.LDAPHandler):
 
         if (not filterstr) and (scope != ldap.SCOPE_BASE):
             raise AssertionError(
-                'Search without filter on onelevel or ' 'subtree scope'
+                'Search without filter on onelevel or subtree scope'
             )
 
         if scope == ldap.SCOPE_BASE:

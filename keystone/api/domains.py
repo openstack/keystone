@@ -538,16 +538,14 @@ class DomainAPI(ks_flask.APIBase):
         ),
         ks_flask.construct_resource_map(
             resource=DefaultConfigOptionResource,
-            url=('/domains/config/<string:group>' '/<string:option>/default'),
+            url=('/domains/config/<string:group>/<string:option>/default'),
             resource_kwargs={},
             rel='domain_config_default_option',
             path_vars={'group': CONFIG_GROUP, 'option': CONFIG_OPTION},
         ),
         ks_flask.construct_resource_map(
             resource=DomainUserListResource,
-            url=(
-                '/domains/<string:domain_id>/users' '/<string:user_id>/roles'
-            ),
+            url=('/domains/<string:domain_id>/users/<string:user_id>/roles'),
             resource_kwargs={},
             rel='domain_user_roles',
             path_vars={
@@ -571,9 +569,7 @@ class DomainAPI(ks_flask.APIBase):
         ),
         ks_flask.construct_resource_map(
             resource=DomainGroupListResource,
-            url=(
-                '/domains/<string:domain_id>/groups' '/<string:group_id>/roles'
-            ),
+            url=('/domains/<string:domain_id>/groups/<string:group_id>/roles'),
             resource_kwargs={},
             rel='domain_group_roles',
             path_vars={

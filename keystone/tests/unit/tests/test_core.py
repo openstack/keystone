@@ -65,7 +65,7 @@ class TestOverrideSkipping(unit.BaseTestCase):
         observed_error = result.decorated.errors[0]
         observed_error_msg = observed_error[1]
         expected_error_msg = (
-            "'test_not_in_parent' is not a previously " "defined test method"
+            "'test_not_in_parent' is not a previously defined test method"
         )
         self.assertIn(expected_error_msg, observed_error_msg)
 

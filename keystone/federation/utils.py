@@ -339,9 +339,7 @@ def validate_idp(idp, protocol, assertion):
     try:
         idp_remote_identifier = assertion[remote_id_parameter]
     except KeyError:
-        msg = _(
-            'Could not find Identity Provider identifier in ' 'environment'
-        )
+        msg = _('Could not find Identity Provider identifier in environment')
         raise exception.ValidationError(msg)
     if idp_remote_identifier not in idp['remote_ids']:
         msg = _(

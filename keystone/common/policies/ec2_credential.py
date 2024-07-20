@@ -54,7 +54,7 @@ ec2_credential_policies = [
         operations=[
             {
                 'path': (
-                    '/v3/users/{user_id}/credentials/OS-EC2/' '{credential_id}'
+                    '/v3/users/{user_id}/credentials/OS-EC2/{credential_id}'
                 ),
                 'method': 'GET',
             }
@@ -92,7 +92,7 @@ ec2_credential_policies = [
         operations=[
             {
                 'path': (
-                    '/v3/users/{user_id}/credentials/OS-EC2/' '{credential_id}'
+                    '/v3/users/{user_id}/credentials/OS-EC2/{credential_id}'
                 ),
                 'method': 'DELETE',
             }

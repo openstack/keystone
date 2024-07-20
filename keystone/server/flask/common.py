@@ -1020,7 +1020,7 @@ class ResourceBase(flask_restful.Resource):
         else:
             msg = 'No domain information specified as part of list request'
             tr_msg = _(
-                'No domain information specified as part of list ' 'request'
+                'No domain information specified as part of list request'
             )
             LOG.warning(msg)
             raise exception.Unauthorized(tr_msg)

@@ -574,7 +574,7 @@ def handle_conflicts(conflict_type='object'):
                     ) % {'field': field, 'name': name, 'domain_id': domain_id}
                 elif name:
                     msg = _(
-                        'Duplicate entry found with %(field)s ' '%(name)s'
+                        'Duplicate entry found with %(field)s %(name)s'
                     ) % {'field': field, 'name': name}
                 elif domain_id:
                     msg = _('Duplicate entry at domain ID %s') % domain_id

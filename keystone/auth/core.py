@@ -168,7 +168,7 @@ class AuthInfo(provider_api.ProviderAPIMixin):
                 ):
                     msg = 'Domain name cannot contain reserved characters.'
                     tr_msg = _(
-                        'Domain name cannot contain reserved ' 'characters.'
+                        'Domain name cannot contain reserved characters.'
                     )
                     LOG.warning(msg)
                     raise exception.Unauthorized(message=tr_msg)
@@ -194,7 +194,7 @@ class AuthInfo(provider_api.ProviderAPIMixin):
                 ):
                     msg = 'Project name cannot contain reserved characters.'
                     tr_msg = _(
-                        'Project name cannot contain reserved ' 'characters.'
+                        'Project name cannot contain reserved characters.'
                     )
                     LOG.warning(msg)
                     raise exception.Unauthorized(message=tr_msg)

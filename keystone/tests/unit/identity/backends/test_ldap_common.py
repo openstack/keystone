@@ -558,7 +558,8 @@ class CommonLdapTestCase(unit.BaseTestCase):
             'false',
             'True',
             'False',
-            'TrUe' 'FaLse',
+            'TrUe',
+            'FaLse',
         ]
         for user_name in boolean_strings:
             user_id = uuid.uuid4().hex
