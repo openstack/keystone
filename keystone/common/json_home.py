@@ -19,27 +19,35 @@ from keystone.i18n import _
 
 
 def build_v3_resource_relation(resource_name):
-    return ('https://docs.openstack.org/api/openstack-identity/3/rel/%s' %
-            resource_name)
+    return (
+        'https://docs.openstack.org/api/openstack-identity/3/rel/%s'
+        % resource_name
+    )
 
 
-def build_v3_extension_resource_relation(extension_name, extension_version,
-                                         resource_name):
+def build_v3_extension_resource_relation(
+    extension_name, extension_version, resource_name
+):
     return (
         'https://docs.openstack.org/api/openstack-identity/3/ext/%s/%s/rel/'
-        '%s' % (extension_name, extension_version, resource_name))
+        '%s' % (extension_name, extension_version, resource_name)
+    )
 
 
 def build_v3_parameter_relation(parameter_name):
-    return ('https://docs.openstack.org/api/openstack-identity/3/param/%s' %
-            parameter_name)
+    return (
+        'https://docs.openstack.org/api/openstack-identity/3/param/%s'
+        % parameter_name
+    )
 
 
-def build_v3_extension_parameter_relation(extension_name, extension_version,
-                                          parameter_name):
+def build_v3_extension_parameter_relation(
+    extension_name, extension_version, parameter_name
+):
     return (
         'https://docs.openstack.org/api/openstack-identity/3/ext/%s/%s/param/'
-        '%s' % (extension_name, extension_version, parameter_name))
+        '%s' % (extension_name, extension_version, parameter_name)
+    )
 
 
 class Parameters(object):
@@ -58,9 +66,9 @@ class Parameters(object):
     REGISTERED_LIMIT_ID = build_v3_parameter_relation('registered_limit_id')
     LIMIT_ID = build_v3_parameter_relation('limit_id')
     APPLICATION_CRED_ID = build_v3_parameter_relation(
-        'application_credential_id')
-    ACCESS_RULE_ID = build_v3_parameter_relation(
-        'access_rule_id')
+        'application_credential_id'
+    )
+    ACCESS_RULE_ID = build_v3_parameter_relation('access_rule_id')
 
 
 class Status(object):
@@ -81,8 +89,10 @@ class Status(object):
             resource_data['hints'] = {'status': status}
             return
 
-        raise exception.Error(message=_(
-            'Unexpected status requested for JSON Home response, %s') % status)
+        raise exception.Error(
+            message=_('Unexpected status requested for JSON Home response, %s')
+            % status
+        )
 
 
 class JsonHomeResources(object):

@@ -32,7 +32,7 @@ class TestFernetCredentialProvider(unit.TestCase):
             ksfixtures.KeyRepository(
                 self.config_fixture,
                 'credential',
-                credential_fernet.MAX_ACTIVE_KEYS
+                credential_fernet.MAX_ACTIVE_KEYS,
             )
         )
 
@@ -59,7 +59,7 @@ class TestFernetCredentialProviderWithNullKey(unit.TestCase):
         # default.
         self.config_fixture.config(
             group='credential',
-            key_repository=self.useFixture(fixtures.TempDir()).path
+            key_repository=self.useFixture(fixtures.TempDir()).path,
         )
 
     def test_encryption_with_null_key(self):

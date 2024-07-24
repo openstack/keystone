@@ -18,7 +18,8 @@ from keystone.conf import utils
 trusted_issuer = cfg.MultiStrOpt(
     'trusted_issuer',
     default=[],
-    help=utils.fmt("""
+    help=utils.fmt(
+        """
 The list of distinguished names which identify trusted issuers of client
 certificates allowed to use X.509 tokenless authorization. If the option is
 absent then no certificates will be allowed. The format for the values of a
@@ -28,28 +29,36 @@ option may be repeated multiple times to represent multiple values. For
 example, keystone.conf would include two consecutive lines in order to trust
 two different DNs, such as `trusted_issuer = CN=john,OU=keystone,O=openstack`
 and `trusted_issuer = CN=mary,OU=eng,O=abc`.
-"""))
+"""
+    ),
+)
 
 protocol = cfg.StrOpt(
     'protocol',
     default='x509',
-    help=utils.fmt("""
+    help=utils.fmt(
+        """
 The federated protocol ID used to represent X.509 tokenless authorization. This
 is used in combination with the value of `[tokenless_auth] issuer_attribute` to
 find a corresponding federated mapping. In a typical deployment, there is no
 reason to change this value.
-"""))
+"""
+    ),
+)
 
 issuer_attribute = cfg.StrOpt(
     'issuer_attribute',
     default='SSL_CLIENT_I_DN',
-    help=utils.fmt("""
+    help=utils.fmt(
+        """
 The name of the WSGI environment variable used to pass the issuer of the client
 certificate to keystone. This attribute is used as an identity provider ID
 for the X.509 tokenless authorization along with the protocol to look up its
 corresponding mapping. In a typical deployment, there is no reason to change
 this value.
-"""))
+"""
+    ),
+)
 
 
 GROUP_NAME = __name__.split('.')[-1]

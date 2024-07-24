@@ -38,6 +38,7 @@ def timezone(func):
                     if 'TZ' in os.environ:
                         del os.environ['TZ']
                 time.tzset()
+
     return wrapper
 
 
@@ -84,25 +85,32 @@ def wip(message, expected_exception=Exception, bug=None):
             try:
                 f(*args, **kwargs)
             except Exception as __e:  # noqa F841
-                if (expected_exception != Exception and
-                        not isinstance(__e, expected_exception)):
+                if expected_exception != Exception and not isinstance(
+                    __e, expected_exception
+                ):
                     raise AssertionError(
                         'Work In Progress Test Failed%(bugstr)s with '
                         'unexpected exception. Expected "%(expected)s" '
-                        'got "%(exception)s": %(message)s ' %
-                        {'message': message, 'bugstr': bugstr,
-                         'expected': expected_exception.__class__.__name__,
-                         'exception': __e.__class__.__name__})
+                        'got "%(exception)s": %(message)s '
+                        % {
+                            'message': message,
+                            'bugstr': bugstr,
+                            'expected': expected_exception.__class__.__name__,
+                            'exception': __e.__class__.__name__,
+                        }
+                    )
                 # NOTE(notmorgan): We got the expected exception we can safely
                 # skip this test.
                 raise unittest.SkipTest(
                     'Work In Progress Test Failed as '
-                    'expected%(bugstr)s: %(message)s' %
-                    {'message': message, 'bugstr': bugstr})
+                    'expected%(bugstr)s: %(message)s'
+                    % {'message': message, 'bugstr': bugstr}
+                )
 
-            raise AssertionError('Work In Progress Test Passed%(bugstr)s: '
-                                 '%(message)s' % {'message': message,
-                                                  'bugstr': bugstr})
+            raise AssertionError(
+                'Work In Progress Test Passed%(bugstr)s: '
+                '%(message)s' % {'message': message, 'bugstr': bugstr}
+            )
 
         return run_test
 

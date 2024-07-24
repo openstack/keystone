@@ -59,11 +59,12 @@ class TestTokenSerialization(base_classes.TestCaseWithBootstrap):
         self.assertEqual(self.exp_token.issued_at, token.issued_at)
 
     @mock.patch.object(
-        token_model.TokenModel, '__init__', side_effect=Exception)
+        token_model.TokenModel, '__init__', side_effect=Exception
+    )
     def test_error_handling_in_deserialize(self, handler_mock):
         serialized = self.token_handler.serialize(self.exp_token)
         self.assertRaises(
             exception.CacheDeserializationError,
             self.token_handler.deserialize,
-            serialized
+            serialized,
         )

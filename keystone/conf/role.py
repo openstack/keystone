@@ -19,34 +19,46 @@ from keystone.conf import utils
 # driver is not specified, the assignment driver chooses the backend.
 driver = cfg.StrOpt(
     'driver',
-    help=utils.fmt("""
+    help=utils.fmt(
+        """
 Entry point for the role backend driver in the `keystone.role` namespace.
 Keystone only provides a `sql` driver, so there's no reason to change this
 unless you are providing a custom entry point.
-"""))
+"""
+    ),
+)
 
 caching = cfg.BoolOpt(
     'caching',
     default=True,
-    help=utils.fmt("""
+    help=utils.fmt(
+        """
 Toggle for role caching. This has no effect unless global caching is enabled.
 In a typical deployment, there is no reason to disable this.
-"""))
+"""
+    ),
+)
 
 cache_time = cfg.IntOpt(
     'cache_time',
-    help=utils.fmt("""
+    help=utils.fmt(
+        """
 Time to cache role data, in seconds. This has no effect unless both global
 caching and `[role] caching` are enabled.
-"""))
+"""
+    ),
+)
 
 list_limit = cfg.IntOpt(
     'list_limit',
-    help=utils.fmt("""
+    help=utils.fmt(
+        """
 Maximum number of entities that will be returned in a role collection. This may
 be useful to tune if you have a large number of discrete roles in your
 deployment.
-"""))
+"""
+    ),
+)
 
 
 GROUP_NAME = __name__.split('.')[-1]

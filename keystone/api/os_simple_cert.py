@@ -31,16 +31,22 @@ class SimpleCertCAResource(flask_restful.Resource):
     @ks_flask.unenforced_api
     def get(self):
         raise exception.Gone(
-            message=_('This API is no longer available due to the removal '
-                      'of support for PKI tokens.'))
+            message=_(
+                'This API is no longer available due to the removal '
+                'of support for PKI tokens.'
+            )
+        )
 
 
 class SimpleCertListResource(flask_restful.Resource):
     @ks_flask.unenforced_api
     def get(self):
         raise exception.Gone(
-            message=_('This API is no longer available due to the removal '
-                      'of support for PKI tokens.'))
+            message=_(
+                'This API is no longer available due to the removal '
+                'of support for PKI tokens.'
+            )
+        )
 
 
 class SimpleCertAPI(ks_flask.APIBase):
@@ -53,13 +59,15 @@ class SimpleCertAPI(ks_flask.APIBase):
             url='/OS-SIMPLE-CERT/ca',
             resource_kwargs={},
             rel='ca_certificate',
-            resource_relation_func=_build_resource_relation),
+            resource_relation_func=_build_resource_relation,
+        ),
         ks_flask.construct_resource_map(
             resource=SimpleCertListResource,
             url='/OS-SIMPLE-CERT/certificates',
             resource_kwargs={},
             rel='certificates',
-            resource_relation_func=_build_resource_relation),
+            resource_relation_func=_build_resource_relation,
+        ),
     ]
 
 

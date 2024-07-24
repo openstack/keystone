@@ -38,9 +38,14 @@ class Provider(base.Provider):
             raise SystemExit(_('%(key_repo)s does not exist') % subs)
         if not os.listdir(CONF.fernet_tokens.key_repository):
             subs = {'key_repo': CONF.fernet_tokens.key_repository}
-            raise SystemExit(_('%(key_repo)s does not contain keys, use '
-                               'keystone-manage fernet_setup to create '
-                               'Fernet keys.') % subs)
+            raise SystemExit(
+                _(
+                    '%(key_repo)s does not contain keys, use '
+                    'keystone-manage fernet_setup to create '
+                    'Fernet keys.'
+                )
+                % subs
+            )
 
         self.token_formatter = tf.TokenFormatter()
 
@@ -89,9 +94,7 @@ class Provider(base.Provider):
             thumbprint=token.oauth2_thumbprint,
         )
         creation_datetime_obj = self.token_formatter.creation_time(token_id)
-        issued_at = ks_utils.isotime(
-            at=creation_datetime_obj, subsecond=True
-        )
+        issued_at = ks_utils.isotime(at=creation_datetime_obj, subsecond=True)
         return token_id, issued_at
 
     def validate_token(self, token_id):

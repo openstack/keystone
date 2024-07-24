@@ -43,8 +43,8 @@ MEMOIZE = cache.get_memoization_decorator(group='role')
 # any role assignment should invalidate this entire cache region.
 COMPUTED_ASSIGNMENTS_REGION = cache.create_region(name='computed assignments')
 MEMOIZE_COMPUTED_ASSIGNMENTS = cache.get_memoization_decorator(
-    group='role',
-    region=COMPUTED_ASSIGNMENTS_REGION)
+    group='role', region=COMPUTED_ASSIGNMENTS_REGION
+)
 
 
 @notifications.listener
@@ -76,21 +76,25 @@ class Manager(manager.Manager):
             },
         }
 
-    def _delete_domain_assignments(self, service, resource_type, operations,
-                                   payload):
+    def _delete_domain_assignments(
+        self, service, resource_type, operations, payload
+    ):
         domain_id = payload['resource_info']
         self.driver.delete_domain_assignments(domain_id)
 
     def _get_group_ids_for_user_id(self, user_id):
         # TODO(morganfainberg): Implement a way to get only group_ids
         # instead of the more expensive to_dict() call for each record.
-        return [x['id'] for
-                x in PROVIDERS.identity_api.list_groups_for_user(user_id)]
+        return [
+            x['id']
+            for x in PROVIDERS.identity_api.list_groups_for_user(user_id)
+        ]
 
     def list_user_ids_for_project(self, project_id):
         PROVIDERS.resource_api.get_project(project_id)
         assignment_list = self.list_role_assignments(
-            project_id=project_id, effective=True)
+            project_id=project_id, effective=True
+        )
         # Use set() to process the list to remove any duplicates
         return list(set([x['user_id'] for x in assignment_list]))
 
@@ -105,7 +109,7 @@ class Manager(manager.Manager):
             if 'user_id' in assignment and 'project_id' in assignment:
                 payload = {
                     'user_id': assignment['user_id'],
-                    'project_id': assignment['project_id']
+                    'project_id': assignment['project_id'],
                 }
                 notifications.Audit.internal(
                     notifications.REMOVE_APP_CREDS_FOR_USER, payload
@@ -126,7 +130,8 @@ class Manager(manager.Manager):
         """
         PROVIDERS.resource_api.get_project(project_id)
         assignment_list = self.list_role_assignments(
-            user_id=user_id, project_id=project_id, effective=True)
+            user_id=user_id, project_id=project_id, effective=True
+        )
         # Use set() to process the list to remove any duplicates
         return list(set([x['role_id'] for x in assignment_list]))
 
@@ -145,8 +150,11 @@ class Manager(manager.Manager):
         """
         PROVIDERS.resource_api.get_project(project_id)
         assignment_list = self.list_role_assignments(
-            user_id=trustor_id, project_id=project_id, effective=True,
-            strip_domain_roles=False)
+            user_id=trustor_id,
+            project_id=project_id,
+            effective=True,
+            strip_domain_roles=False,
+        )
         # Use set() to process the list to remove any duplicates
         return list(set([x['role_id'] for x in assignment_list]))
 
@@ -160,7 +168,8 @@ class Manager(manager.Manager):
         """
         PROVIDERS.resource_api.get_domain(domain_id)
         assignment_list = self.list_role_assignments(
-            user_id=user_id, domain_id=domain_id, effective=True)
+            user_id=user_id, domain_id=domain_id, effective=True
+        )
         # Use set() to process the list to remove any duplicates
         return list(set([x['role_id'] for x in assignment_list]))
 
@@ -174,12 +183,16 @@ class Manager(manager.Manager):
         if project_id is not None:
             PROVIDERS.resource_api.get_project(project_id)
             assignment_list = self.list_role_assignments(
-                source_from_group_ids=group_ids, project_id=project_id,
-                effective=True)
+                source_from_group_ids=group_ids,
+                project_id=project_id,
+                effective=True,
+            )
         elif domain_id is not None:
             assignment_list = self.list_role_assignments(
-                source_from_group_ids=group_ids, domain_id=domain_id,
-                effective=True)
+                source_from_group_ids=group_ids,
+                domain_id=domain_id,
+                effective=True,
+            )
         else:
             raise AttributeError(_("Must specify either domain or project"))
 
@@ -187,11 +200,16 @@ class Manager(manager.Manager):
         return PROVIDERS.role_api.list_roles_from_ids(role_ids)
 
     @notifications.role_assignment('created')
-    def _add_role_to_user_and_project_adapter(self, role_id, user_id=None,
-                                              group_id=None, domain_id=None,
-                                              project_id=None,
-                                              inherited_to_projects=False,
-                                              context=None):
+    def _add_role_to_user_and_project_adapter(
+        self,
+        role_id,
+        user_id=None,
+        group_id=None,
+        domain_id=None,
+        project_id=None,
+        inherited_to_projects=False,
+        context=None,
+    ):
 
         # The parameters for this method must match the parameters for
         # create_grant so that the notifications.role_assignment decorator
@@ -203,7 +221,8 @@ class Manager(manager.Manager):
 
     def add_role_to_user_and_project(self, user_id, project_id, role_id):
         self._add_role_to_user_and_project_adapter(
-            role_id, user_id=user_id, project_id=project_id)
+            role_id, user_id=user_id, project_id=project_id
+        )
         COMPUTED_ASSIGNMENTS_REGION.invalidate()
 
     # TODO(henry-nash): We might want to consider list limiting this at some
@@ -218,10 +237,18 @@ class Manager(manager.Manager):
         # caching. Please see https://bugs.launchpad.net/keystone/+bug/1700852
         # for more details.
         assignment_list = self.list_role_assignments(
-            user_id=user_id, effective=True)
+            user_id=user_id, effective=True
+        )
         # Use set() to process the list to remove any duplicates
-        project_ids = list(set([x['project_id'] for x in assignment_list
-                                if x.get('project_id')]))
+        project_ids = list(
+            set(
+                [
+                    x['project_id']
+                    for x in assignment_list
+                    if x.get('project_id')
+                ]
+            )
+        )
         return PROVIDERS.resource_api.list_projects_from_ids(project_ids)
 
     # TODO(henry-nash): We might want to consider list limiting this at some
@@ -229,44 +256,64 @@ class Manager(manager.Manager):
     @MEMOIZE_COMPUTED_ASSIGNMENTS
     def list_domains_for_user(self, user_id):
         assignment_list = self.list_role_assignments(
-            user_id=user_id, effective=True)
+            user_id=user_id, effective=True
+        )
         # Use set() to process the list to remove any duplicates
-        domain_ids = list(set([x['domain_id'] for x in assignment_list
-                               if x.get('domain_id')]))
+        domain_ids = list(
+            set(
+                [x['domain_id'] for x in assignment_list if x.get('domain_id')]
+            )
+        )
         return PROVIDERS.resource_api.list_domains_from_ids(domain_ids)
 
     def list_domains_for_groups(self, group_ids):
         assignment_list = self.list_role_assignments(
-            source_from_group_ids=group_ids, effective=True)
-        domain_ids = list(set([x['domain_id'] for x in assignment_list
-                               if x.get('domain_id')]))
+            source_from_group_ids=group_ids, effective=True
+        )
+        domain_ids = list(
+            set(
+                [x['domain_id'] for x in assignment_list if x.get('domain_id')]
+            )
+        )
         return PROVIDERS.resource_api.list_domains_from_ids(domain_ids)
 
     def list_projects_for_groups(self, group_ids):
         assignment_list = self.list_role_assignments(
-            source_from_group_ids=group_ids, effective=True)
-        project_ids = list(set([x['project_id'] for x in assignment_list
-                               if x.get('project_id')]))
+            source_from_group_ids=group_ids, effective=True
+        )
+        project_ids = list(
+            set(
+                [
+                    x['project_id']
+                    for x in assignment_list
+                    if x.get('project_id')
+                ]
+            )
+        )
         return PROVIDERS.resource_api.list_projects_from_ids(project_ids)
 
     @notifications.role_assignment('deleted')
-    def _remove_role_from_user_and_project_adapter(self, role_id, user_id=None,
-                                                   group_id=None,
-                                                   domain_id=None,
-                                                   project_id=None,
-                                                   inherited_to_projects=False,
-                                                   context=None):
+    def _remove_role_from_user_and_project_adapter(
+        self,
+        role_id,
+        user_id=None,
+        group_id=None,
+        domain_id=None,
+        project_id=None,
+        inherited_to_projects=False,
+        context=None,
+    ):
 
         # The parameters for this method must match the parameters for
         # delete_grant so that the notifications.role_assignment decorator
         # will work.
 
-        self.driver.remove_role_from_user_and_project(user_id, project_id,
-                                                      role_id)
+        self.driver.remove_role_from_user_and_project(
+            user_id, project_id, role_id
+        )
         payload = {'user_id': user_id, 'project_id': project_id}
         notifications.Audit.internal(
-            notifications.REMOVE_APP_CREDS_FOR_USER,
-            payload
+            notifications.REMOVE_APP_CREDS_FOR_USER, payload
         )
         self._invalidate_token_cache(
             role_id, group_id, user_id, project_id, domain_id
@@ -274,11 +321,13 @@ class Manager(manager.Manager):
 
     def remove_role_from_user_and_project(self, user_id, project_id, role_id):
         self._remove_role_from_user_and_project_adapter(
-            role_id, user_id=user_id, project_id=project_id)
+            role_id, user_id=user_id, project_id=project_id
+        )
         COMPUTED_ASSIGNMENTS_REGION.invalidate()
 
-    def _invalidate_token_cache(self, role_id, group_id, user_id, project_id,
-                                domain_id):
+    def _invalidate_token_cache(
+        self, role_id, group_id, user_id, project_id, domain_id
+    ):
         if group_id:
             actor_type = 'group'
             actor_id = group_id
@@ -296,18 +345,28 @@ class Manager(manager.Manager):
         reason = (
             'Invalidating the token cache because role %(role_id)s was '
             'removed from %(actor_type)s %(actor_id)s on %(target_type)s '
-            '%(target_id)s.' %
-            {'role_id': role_id, 'actor_type': actor_type,
-             'actor_id': actor_id, 'target_type': target_type,
-             'target_id': target_id}
+            '%(target_id)s.'
+            % {
+                'role_id': role_id,
+                'actor_type': actor_type,
+                'actor_id': actor_id,
+                'target_type': target_type,
+                'target_id': target_id,
+            }
         )
         notifications.invalidate_token_cache_notification(reason)
 
     @notifications.role_assignment('created')
-    def create_grant(self, role_id, user_id=None, group_id=None,
-                     domain_id=None, project_id=None,
-                     inherited_to_projects=False,
-                     initiator=None):
+    def create_grant(
+        self,
+        role_id,
+        user_id=None,
+        group_id=None,
+        domain_id=None,
+        project_id=None,
+        inherited_to_projects=False,
+        initiator=None,
+    ):
         role = PROVIDERS.role_api.get_role(role_id)
         if domain_id:
             PROVIDERS.resource_api.get_domain(domain_id)
@@ -318,47 +377,75 @@ class Manager(manager.Manager):
             # and role must match
             if role['domain_id'] and project['domain_id'] != role['domain_id']:
                 raise exception.DomainSpecificRoleMismatch(
-                    role_id=role_id,
-                    project_id=project_id)
+                    role_id=role_id, project_id=project_id
+                )
 
         self.driver.create_grant(
-            role_id, user_id=user_id, group_id=group_id, domain_id=domain_id,
-            project_id=project_id, inherited_to_projects=inherited_to_projects
+            role_id,
+            user_id=user_id,
+            group_id=group_id,
+            domain_id=domain_id,
+            project_id=project_id,
+            inherited_to_projects=inherited_to_projects,
         )
         COMPUTED_ASSIGNMENTS_REGION.invalidate()
 
-    def get_grant(self, role_id, user_id=None, group_id=None,
-                  domain_id=None, project_id=None,
-                  inherited_to_projects=False):
+    def get_grant(
+        self,
+        role_id,
+        user_id=None,
+        group_id=None,
+        domain_id=None,
+        project_id=None,
+        inherited_to_projects=False,
+    ):
         role_ref = PROVIDERS.role_api.get_role(role_id)
         if domain_id:
             PROVIDERS.resource_api.get_domain(domain_id)
         if project_id:
             PROVIDERS.resource_api.get_project(project_id)
         self.check_grant_role_id(
-            role_id, user_id=user_id, group_id=group_id, domain_id=domain_id,
-            project_id=project_id, inherited_to_projects=inherited_to_projects
+            role_id,
+            user_id=user_id,
+            group_id=group_id,
+            domain_id=domain_id,
+            project_id=project_id,
+            inherited_to_projects=inherited_to_projects,
         )
         return role_ref
 
-    def list_grants(self, user_id=None, group_id=None,
-                    domain_id=None, project_id=None,
-                    inherited_to_projects=False):
+    def list_grants(
+        self,
+        user_id=None,
+        group_id=None,
+        domain_id=None,
+        project_id=None,
+        inherited_to_projects=False,
+    ):
         if domain_id:
             PROVIDERS.resource_api.get_domain(domain_id)
         if project_id:
             PROVIDERS.resource_api.get_project(project_id)
         grant_ids = self.list_grant_role_ids(
-            user_id=user_id, group_id=group_id, domain_id=domain_id,
-            project_id=project_id, inherited_to_projects=inherited_to_projects
+            user_id=user_id,
+            group_id=group_id,
+            domain_id=domain_id,
+            project_id=project_id,
+            inherited_to_projects=inherited_to_projects,
         )
         return PROVIDERS.role_api.list_roles_from_ids(grant_ids)
 
     @notifications.role_assignment('deleted')
-    def delete_grant(self, role_id, user_id=None, group_id=None,
-                     domain_id=None, project_id=None,
-                     inherited_to_projects=False,
-                     initiator=None):
+    def delete_grant(
+        self,
+        role_id,
+        user_id=None,
+        group_id=None,
+        domain_id=None,
+        project_id=None,
+        inherited_to_projects=False,
+        initiator=None,
+    ):
 
         # check if role exist before any processing
         PROVIDERS.role_api.get_role(role_id)
@@ -366,9 +453,12 @@ class Manager(manager.Manager):
         if group_id is None:
             # check if role exists on the user before revoke
             self.check_grant_role_id(
-                role_id, user_id=user_id, group_id=None, domain_id=domain_id,
+                role_id,
+                user_id=user_id,
+                group_id=None,
+                domain_id=domain_id,
                 project_id=project_id,
-                inherited_to_projects=inherited_to_projects
+                inherited_to_projects=inherited_to_projects,
             )
             self._invalidate_token_cache(
                 role_id, group_id, user_id, project_id, domain_id
@@ -377,25 +467,33 @@ class Manager(manager.Manager):
             try:
                 # check if role exists on the group before revoke
                 self.check_grant_role_id(
-                    role_id, user_id=None, group_id=group_id,
-                    domain_id=domain_id, project_id=project_id,
-                    inherited_to_projects=inherited_to_projects
+                    role_id,
+                    user_id=None,
+                    group_id=group_id,
+                    domain_id=domain_id,
+                    project_id=project_id,
+                    inherited_to_projects=inherited_to_projects,
                 )
                 if CONF.token.revoke_by_id:
                     self._invalidate_token_cache(
                         role_id, group_id, user_id, project_id, domain_id
                     )
             except exception.GroupNotFound:
-                LOG.debug('Group %s not found, no tokens to invalidate.',
-                          group_id)
+                LOG.debug(
+                    'Group %s not found, no tokens to invalidate.', group_id
+                )
 
         if domain_id:
             PROVIDERS.resource_api.get_domain(domain_id)
         if project_id:
             PROVIDERS.resource_api.get_project(project_id)
         self.driver.delete_grant(
-            role_id, user_id=user_id, group_id=group_id, domain_id=domain_id,
-            project_id=project_id, inherited_to_projects=inherited_to_projects
+            role_id,
+            user_id=user_id,
+            group_id=group_id,
+            domain_id=domain_id,
+            project_id=project_id,
+            inherited_to_projects=inherited_to_projects,
         )
         COMPUTED_ASSIGNMENTS_REGION.invalidate()
 
@@ -406,8 +504,14 @@ class Manager(manager.Manager):
     # kept as it is in order to detect unnecessarily complex code, which is not
     # this case.
 
-    def _expand_indirect_assignment(self, ref, user_id=None, project_id=None,
-                                    subtree_ids=None, expand_groups=True):
+    def _expand_indirect_assignment(
+        self,
+        ref,
+        user_id=None,
+        project_id=None,
+        subtree_ids=None,
+        expand_groups=True,
+    ):
         """Return a list of expanded role assignments.
 
         This methods is called for each discovered assignment that either needs
@@ -429,6 +533,7 @@ class Manager(manager.Manager):
         assignments, one for each member of that group.
 
         """
+
         def create_group_assignment(base_ref, user_id):
             """Create a group assignment from the provided ref."""
             ref = copy.deepcopy(base_ref)
@@ -483,17 +588,23 @@ class Manager(manager.Manager):
             # as empty list.
             try:
                 users = PROVIDERS.identity_api.list_users_in_group(
-                    ref['group_id'])
+                    ref['group_id']
+                )
             except exception.GroupNotFound:
-                LOG.warning('Group %(group)s was not found but still has role '
-                            'assignments.', {'group': ref['group_id']})
+                LOG.warning(
+                    'Group %(group)s was not found but still has role '
+                    'assignments.',
+                    {'group': ref['group_id']},
+                )
                 users = []
 
-            return [create_group_assignment(ref, user_id=m['id'])
-                    for m in users]
+            return [
+                create_group_assignment(ref, user_id=m['id']) for m in users
+            ]
 
-        def expand_inherited_assignment(ref, user_id, project_id, subtree_ids,
-                                        expand_groups):
+        def expand_inherited_assignment(
+            ref, user_id, project_id, subtree_ids, expand_groups
+        ):
             """Expand inherited role assignments.
 
             If expand_groups is True and this is a group role assignment on a
@@ -543,6 +654,7 @@ class Manager(manager.Manager):
             main body of the dict and 'parent_id' in the 'indirect' subdict.
 
             """
+
             def create_inherited_assignment(base_ref, project_id):
                 """Create a project assignment from the provided ref.
 
@@ -581,23 +693,29 @@ class Manager(manager.Manager):
                     resource_api = PROVIDERS.resource_api
                     if ref.get('project_id'):
                         if ref['project_id'] in project_ids:
-                            project_ids = (
-                                [x['id'] for x in
-                                 resource_api.list_projects_in_subtree(
-                                     ref['project_id'])])
+                            project_ids = [
+                                x['id']
+                                for x in resource_api.list_projects_in_subtree(
+                                    ref['project_id']
+                                )
+                            ]
             elif ref.get('domain_id'):
                 # A domain inherited assignment, so apply it to all projects
                 # in this domain
-                project_ids = (
-                    [x['id'] for x in
-                        PROVIDERS.resource_api.list_projects_in_domain(
-                            ref['domain_id'])])
+                project_ids = [
+                    x['id']
+                    for x in PROVIDERS.resource_api.list_projects_in_domain(
+                        ref['domain_id']
+                    )
+                ]
             else:
                 # It must be a project assignment, so apply it to its subtree
-                project_ids = (
-                    [x['id'] for x in
-                        PROVIDERS.resource_api.list_projects_in_subtree(
-                            ref['project_id'])])
+                project_ids = [
+                    x['id']
+                    for x in PROVIDERS.resource_api.list_projects_in_subtree(
+                        ref['project_id']
+                    )
+                ]
 
             new_refs = []
             if 'group_id' in ref:
@@ -605,23 +723,30 @@ class Manager(manager.Manager):
                     # Expand role assignment to all group members on any
                     # inherited target of any of the projects
                     for ref in expand_group_assignment(ref, user_id):
-                        new_refs += [create_inherited_assignment(ref, proj_id)
-                                     for proj_id in project_ids]
+                        new_refs += [
+                            create_inherited_assignment(ref, proj_id)
+                            for proj_id in project_ids
+                        ]
                 else:
                     # Just place the group assignment on any inherited target
                     # of any of the projects
-                    new_refs += [create_inherited_assignment(ref, proj_id)
-                                 for proj_id in project_ids]
+                    new_refs += [
+                        create_inherited_assignment(ref, proj_id)
+                        for proj_id in project_ids
+                    ]
             else:
                 # Expand role assignment for all projects
-                new_refs += [create_inherited_assignment(ref, proj_id)
-                             for proj_id in project_ids]
+                new_refs += [
+                    create_inherited_assignment(ref, proj_id)
+                    for proj_id in project_ids
+                ]
 
             return new_refs
 
         if ref.get('inherited_to_projects') == 'projects':
             return expand_inherited_assignment(
-                ref, user_id, project_id, subtree_ids, expand_groups)
+                ref, user_id, project_id, subtree_ids, expand_groups
+            )
         elif 'group_id' in ref and expand_groups:
             return expand_group_assignment(ref, user_id)
         return [ref]
@@ -637,6 +762,7 @@ class Manager(manager.Manager):
         caller can determine where the assignment came from.
 
         """
+
         def _make_implied_ref_copy(prior_ref, implied_role_id):
             # Create a ref for an implied role from the ref of a prior role,
             # setting the new role_id to be the implied role and the indirect
@@ -659,13 +785,14 @@ class Manager(manager.Manager):
                 if next_role_id in implied_roles_cache:
                     implied_roles = implied_roles_cache[next_role_id]
                 else:
-                    implied_roles = (
-                        PROVIDERS.role_api.list_implied_roles(next_role_id))
+                    implied_roles = PROVIDERS.role_api.list_implied_roles(
+                        next_role_id
+                    )
                     implied_roles_cache[next_role_id] = implied_roles
                 for implied_role in implied_roles:
-                    implied_ref = (
-                        _make_implied_ref_copy(
-                            next_ref, implied_role['implied_role_id']))
+                    implied_ref = _make_implied_ref_copy(
+                        next_ref, implied_role['implied_role_id']
+                    )
                     if implied_ref in checked_role_refs:
                         # Avoid traversing a cycle
                         continue
@@ -693,9 +820,10 @@ class Manager(manager.Manager):
         remove any assignments that include a domain role.
 
         """
+
         def _role_is_global(role_id):
             ref = PROVIDERS.role_api.get_role(role_id)
-            return (ref['domain_id'] is None)
+            return ref['domain_id'] is None
 
         filter_results = []
         for ref in role_refs:
@@ -703,10 +831,18 @@ class Manager(manager.Manager):
                 filter_results.append(ref)
         return filter_results
 
-    def _list_effective_role_assignments(self, role_id, user_id, group_id,
-                                         domain_id, project_id, subtree_ids,
-                                         inherited, source_from_group_ids,
-                                         strip_domain_roles):
+    def _list_effective_role_assignments(
+        self,
+        role_id,
+        user_id,
+        group_id,
+        domain_id,
+        project_id,
+        subtree_ids,
+        inherited,
+        source_from_group_ids,
+        strip_domain_roles,
+    ):
         """List role assignments in effective mode.
 
         When using effective mode, besides the direct assignments, the indirect
@@ -725,9 +861,16 @@ class Manager(manager.Manager):
         specified, hence avoiding retrieving a huge list.
 
         """
+
         def list_role_assignments_for_actor(
-                role_id, inherited, user_id=None, group_ids=None,
-                project_id=None, subtree_ids=None, domain_id=None):
+            role_id,
+            inherited,
+            user_id=None,
+            group_ids=None,
+            project_id=None,
+            subtree_ids=None,
+            domain_id=None,
+        ):
             """List role assignments for actor on target.
 
             List direct and indirect assignments for an actor, optionally
@@ -774,9 +917,13 @@ class Manager(manager.Manager):
             if inherited is False or inherited is None:
                 # Get non inherited assignments
                 non_inherited_refs = self.driver.list_role_assignments(
-                    role_id=role_id, domain_id=domain_id,
-                    project_ids=project_ids_of_interest, user_id=user_id,
-                    group_ids=group_ids, inherited_to_projects=False)
+                    role_id=role_id,
+                    domain_id=domain_id,
+                    project_ids=project_ids_of_interest,
+                    user_id=user_id,
+                    group_ids=group_ids,
+                    inherited_to_projects=False,
+                )
 
             inherited_refs = []
             if inherited is True or inherited is None:
@@ -790,31 +937,44 @@ class Manager(manager.Manager):
 
                     # List inherited assignments from the project's domain
                     proj_domain_id = PROVIDERS.resource_api.get_project(
-                        project_id)['domain_id']
+                        project_id
+                    )['domain_id']
                     inherited_refs += self.driver.list_role_assignments(
-                        role_id=role_id, domain_id=proj_domain_id,
-                        user_id=user_id, group_ids=group_ids,
-                        inherited_to_projects=True)
+                        role_id=role_id,
+                        domain_id=proj_domain_id,
+                        user_id=user_id,
+                        group_ids=group_ids,
+                        inherited_to_projects=True,
+                    )
 
                     # For inherited assignments from projects, since we know
                     # they are from the same tree the only places these can
                     # come from are from parents of the main project or
                     # inherited assignments on the project or subtree itself.
-                    source_ids = [project['id'] for project in
-                                  PROVIDERS.resource_api.list_project_parents(
-                                      project_id)]
+                    source_ids = [
+                        project['id']
+                        for project in PROVIDERS.resource_api.list_project_parents(
+                            project_id
+                        )
+                    ]
                     if subtree_ids:
                         source_ids += project_ids_of_interest
                     if source_ids:
                         inherited_refs += self.driver.list_role_assignments(
-                            role_id=role_id, project_ids=source_ids,
-                            user_id=user_id, group_ids=group_ids,
-                            inherited_to_projects=True)
+                            role_id=role_id,
+                            project_ids=source_ids,
+                            user_id=user_id,
+                            group_ids=group_ids,
+                            inherited_to_projects=True,
+                        )
                 else:
                     # List inherited assignments without filtering by target
                     inherited_refs = self.driver.list_role_assignments(
-                        role_id=role_id, user_id=user_id, group_ids=group_ids,
-                        inherited_to_projects=True)
+                        role_id=role_id,
+                        user_id=user_id,
+                        group_ids=group_ids,
+                        inherited_to_projects=True,
+                    )
 
             return non_inherited_refs + inherited_refs
 
@@ -826,8 +986,10 @@ class Manager(manager.Manager):
         if user_id and source_from_group_ids:
             # You can't do both - and since source_from_group_ids is only used
             # internally, this must be a coding error by the caller.
-            msg = _('Cannot list assignments sourced from groups and filtered '
-                    'by user ID.')
+            msg = _(
+                'Cannot list assignments sourced from groups and filtered '
+                'by user ID.'
+            )
             raise exception.UnexpectedError(msg)
 
         # If filtering by domain, then only non-inherited assignments are
@@ -839,9 +1001,14 @@ class Manager(manager.Manager):
         # filtering by role_id and instead return the whole set of roles.
         # Matching on the specified role is performed at the end.
         direct_refs = list_role_assignments_for_actor(
-            role_id=None, user_id=user_id, group_ids=source_from_group_ids,
-            project_id=project_id, subtree_ids=subtree_ids,
-            domain_id=domain_id, inherited=inherited)
+            role_id=None,
+            user_id=user_id,
+            group_ids=source_from_group_ids,
+            project_id=project_id,
+            subtree_ids=subtree_ids,
+            domain_id=domain_id,
+            inherited=inherited,
+        )
 
         # And those from the user's groups, so long as we are not restricting
         # to a set of source groups (in which case we already got those
@@ -851,16 +1018,21 @@ class Manager(manager.Manager):
             group_ids = self._get_group_ids_for_user_id(user_id)
             if group_ids:
                 group_refs = list_role_assignments_for_actor(
-                    role_id=None, project_id=project_id,
-                    subtree_ids=subtree_ids, group_ids=group_ids,
-                    domain_id=domain_id, inherited=inherited)
+                    role_id=None,
+                    project_id=project_id,
+                    subtree_ids=subtree_ids,
+                    group_ids=group_ids,
+                    domain_id=domain_id,
+                    inherited=inherited,
+                )
 
         # Expand grouping and inheritance on retrieved role assignments
         refs = []
-        expand_groups = (source_from_group_ids is None)
-        for ref in (direct_refs + group_refs):
+        expand_groups = source_from_group_ids is None
+        for ref in direct_refs + group_refs:
             refs += self._expand_indirect_assignment(
-                ref, user_id, project_id, subtree_ids, expand_groups)
+                ref, user_id, project_id, subtree_ids, expand_groups
+            )
 
         refs = self.add_implied_roles(refs)
         if strip_domain_roles:
@@ -870,9 +1042,17 @@ class Manager(manager.Manager):
 
         return refs
 
-    def _list_direct_role_assignments(self, role_id, user_id, group_id, system,
-                                      domain_id, project_id, subtree_ids,
-                                      inherited):
+    def _list_direct_role_assignments(
+        self,
+        role_id,
+        user_id,
+        group_id,
+        system,
+        domain_id,
+        project_id,
+        subtree_ids,
+        inherited,
+    ):
         """List role assignments without applying expansion.
 
         Returns a list of direct role assignments, where their attributes match
@@ -891,9 +1071,13 @@ class Manager(manager.Manager):
         project_and_domain_assignments = []
         if not system:
             project_and_domain_assignments = self.driver.list_role_assignments(
-                role_id=role_id, user_id=user_id, group_ids=group_ids,
-                domain_id=domain_id, project_ids=project_ids_of_interest,
-                inherited_to_projects=inherited)
+                role_id=role_id,
+                user_id=user_id,
+                group_ids=group_ids,
+                domain_id=domain_id,
+                project_ids=project_ids_of_interest,
+                inherited_to_projects=inherited,
+            )
 
         system_assignments = []
         if system or (not project_id and not domain_id and not system):
@@ -901,17 +1085,21 @@ class Manager(manager.Manager):
                 assignments = self.list_system_grants_for_user(user_id)
                 for assignment in assignments:
                     system_assignments.append(
-                        {'system': {'all': True},
-                         'user_id': user_id,
-                         'role_id': assignment['id']}
+                        {
+                            'system': {'all': True},
+                            'user_id': user_id,
+                            'role_id': assignment['id'],
+                        }
                     )
             elif group_id:
                 assignments = self.list_system_grants_for_group(group_id)
                 for assignment in assignments:
                     system_assignments.append(
-                        {'system': {'all': True},
-                         'group_id': group_id,
-                         'role_id': assignment['id']}
+                        {
+                            'system': {'all': True},
+                            'group_id': group_id,
+                            'role_id': assignment['id'],
+                        }
                     )
             else:
                 assignments = self.list_all_system_grants()
@@ -927,24 +1115,33 @@ class Manager(manager.Manager):
 
             if role_id:
                 system_assignments = [
-                    sa for sa in system_assignments
-                    if role_id == sa['role_id']
+                    sa for sa in system_assignments if role_id == sa['role_id']
                 ]
 
         assignments = []
         for assignment in itertools.chain(
-                project_and_domain_assignments, system_assignments):
+            project_and_domain_assignments, system_assignments
+        ):
             assignments.append(assignment)
 
         return assignments
 
     @MEMOIZE_COMPUTED_ASSIGNMENTS
-    def list_role_assignments(self, role_id=None, user_id=None, group_id=None,
-                              system=None, domain_id=None, project_id=None,
-                              include_subtree=False, inherited=None,
-                              effective=None, include_names=False,
-                              source_from_group_ids=None,
-                              strip_domain_roles=True):
+    def list_role_assignments(
+        self,
+        role_id=None,
+        user_id=None,
+        group_id=None,
+        system=None,
+        domain_id=None,
+        project_id=None,
+        include_subtree=False,
+        inherited=None,
+        effective=None,
+        include_names=False,
+        source_from_group_ids=None,
+        strip_domain_roles=True,
+    ):
         """List role assignments, honoring effective mode and provided filters.
 
         Returns a list of role assignments, where their attributes match the
@@ -984,23 +1181,39 @@ class Manager(manager.Manager):
         """
         subtree_ids = None
         if project_id and include_subtree:
-            subtree_ids = (
-                [x['id'] for x in
-                    PROVIDERS.resource_api.list_projects_in_subtree(
-                        project_id)])
+            subtree_ids = [
+                x['id']
+                for x in PROVIDERS.resource_api.list_projects_in_subtree(
+                    project_id
+                )
+            ]
 
         if system != 'all':
             system = None
 
         if effective:
             role_assignments = self._list_effective_role_assignments(
-                role_id, user_id, group_id, domain_id, project_id,
-                subtree_ids, inherited, source_from_group_ids,
-                strip_domain_roles)
+                role_id,
+                user_id,
+                group_id,
+                domain_id,
+                project_id,
+                subtree_ids,
+                inherited,
+                source_from_group_ids,
+                strip_domain_roles,
+            )
         else:
             role_assignments = self._list_direct_role_assignments(
-                role_id, user_id, group_id, system, domain_id, project_id,
-                subtree_ids, inherited)
+                role_id,
+                user_id,
+                group_id,
+                system,
+                domain_id,
+                project_id,
+                subtree_ids,
+                inherited,
+            )
 
         if include_names:
             return self._get_names_from_role_assignments(role_assignments)
@@ -1022,8 +1235,10 @@ class Manager(manager.Manager):
                         # use empty values.
                         _user = PROVIDERS.identity_api.get_user(value)
                     except exception.UserNotFound:
-                        msg = ('User %(user)s not found in the'
-                               ' backend but still has role assignments.')
+                        msg = (
+                            'User %(user)s not found in the'
+                            ' backend but still has role assignments.'
+                        )
                         LOG.warning(msg, {'user': value})
                         new_assign['user_name'] = ''
                         new_assign['user_domain_id'] = ''
@@ -1033,7 +1248,9 @@ class Manager(manager.Manager):
                         new_assign['user_domain_id'] = _user['domain_id']
                         new_assign['user_domain_name'] = (
                             PROVIDERS.resource_api.get_domain(
-                                _user['domain_id'])['name'])
+                                _user['domain_id']
+                            )['name']
+                        )
                 elif key == 'group_id':
                     try:
                         # Note(knikolla): Try to get the group, otherwise
@@ -1041,8 +1258,10 @@ class Manager(manager.Manager):
                         # use empty values.
                         _group = PROVIDERS.identity_api.get_group(value)
                     except exception.GroupNotFound:
-                        msg = ('Group %(group)s not found in the'
-                               ' backend but still has role assignments.')
+                        msg = (
+                            'Group %(group)s not found in the'
+                            ' backend but still has role assignments.'
+                        )
                         LOG.warning(msg, {'group': value})
                         new_assign['group_name'] = ''
                         new_assign['group_domain_id'] = ''
@@ -1052,14 +1271,18 @@ class Manager(manager.Manager):
                         new_assign['group_domain_id'] = _group['domain_id']
                         new_assign['group_domain_name'] = (
                             PROVIDERS.resource_api.get_domain(
-                                _group['domain_id'])['name'])
+                                _group['domain_id']
+                            )['name']
+                        )
                 elif key == 'project_id':
                     _project = PROVIDERS.resource_api.get_project(value)
                     new_assign['project_name'] = _project['name']
                     new_assign['project_domain_id'] = _project['domain_id']
                     new_assign['project_domain_name'] = (
                         PROVIDERS.resource_api.get_domain(
-                            _project['domain_id'])['name'])
+                            _project['domain_id']
+                        )['name']
+                    )
                 elif key == 'role_id':
                     _role = PROVIDERS.role_api.get_role(value)
                     new_assign['role_name'] = _role['name']
@@ -1067,7 +1290,9 @@ class Manager(manager.Manager):
                         new_assign['role_domain_id'] = _role['domain_id']
                         new_assign['role_domain_name'] = (
                             PROVIDERS.resource_api.get_domain(
-                                _role['domain_id'])['name'])
+                                _role['domain_id']
+                            )['name']
+                        )
             role_assign_list.append(new_assign)
         return role_assign_list
 
@@ -1141,9 +1366,8 @@ class Manager(manager.Manager):
         if role.get('domain_id'):
             raise exception.ValidationError(
                 'Role %(role_id)s is a domain-specific role. Unable to use '
-                'a domain-specific role in a system assignment.' % {
-                    'role_id': role_id
-                }
+                'a domain-specific role in a system assignment.'
+                % {'role_id': role_id}
             )
         target_id = self._SYSTEM_SCOPE_TOKEN
         assignment_type = self._USER_SYSTEM
@@ -1214,9 +1438,8 @@ class Manager(manager.Manager):
         if role.get('domain_id'):
             raise exception.ValidationError(
                 'Role %(role_id)s is a domain-specific role. Unable to use '
-                'a domain-specific role in a system assignment.' % {
-                    'role_id': role_id
-                }
+                'a domain-specific role in a system assignment.'
+                % {'role_id': role_id}
             )
         target_id = self._SYSTEM_SCOPE_TOKEN
         assignment_type = self._GROUP_SYSTEM
@@ -1270,8 +1493,8 @@ class RoleManager(manager.Manager):
             # Explicitly load the assignment manager object
             assignment_driver = CONF.assignment.driver
             assignment_manager_obj = manager.load_driver(
-                Manager.driver_namespace,
-                assignment_driver)
+                Manager.driver_namespace, assignment_driver
+            )
             role_driver = assignment_manager_obj.default_role_driver()
 
         super(RoleManager, self).__init__(role_driver)
@@ -1292,8 +1515,7 @@ class RoleManager(manager.Manager):
         elif len(found_roles) == 1:
             return {'id': found_roles[0]['id']}
         else:
-            raise exception.AmbiguityError(resource='role',
-                                           name=role_name)
+            raise exception.AmbiguityError(resource='role', name=role_name)
 
     def create_role(self, role_id, role, initiator=None):
         # Shallow copy to help mitigate in-line changes that might impact
@@ -1321,12 +1543,16 @@ class RoleManager(manager.Manager):
             original_resource_ref=original_role,
             new_resource_ref=role,
             type='role',
-            resource_id=role_id)
+            resource_id=role_id,
+        )
 
-        if ('domain_id' in role and
-                role['domain_id'] != original_role['domain_id']):
+        if (
+            'domain_id' in role
+            and role['domain_id'] != original_role['domain_id']
+        ):
             raise exception.ValidationError(
-                message=_('Update of `domain_id` is not allowed.'))
+                message=_('Update of `domain_id` is not allowed.')
+            )
 
         ret = self.driver.update_role(role_id, role)
         notifications.Audit.updated(self._ROLE, role_id, initiator)
@@ -1336,9 +1562,9 @@ class RoleManager(manager.Manager):
     def delete_role(self, role_id, initiator=None):
         role = self.driver.get_role(role_id)
         # Prevent deletion of immutable roles.
-        ro_opt.check_immutable_delete(resource_ref=role,
-                                      resource_type='role',
-                                      resource_id=role_id)
+        ro_opt.check_immutable_delete(
+            resource_ref=role, resource_type='role', resource_id=role_id
+        )
         PROVIDERS.assignment_api._send_app_cred_notification_for_role_removal(
             role_id
         )
@@ -1363,10 +1589,10 @@ class RoleManager(manager.Manager):
             raise exception.InvalidImpliedRole(role_id=implied_role_id)
         if prior_role['domain_id'] is None and implied_role['domain_id']:
             msg = _('Global role cannot imply a domain-specific role')
-            raise exception.InvalidImpliedRole(msg,
-                                               role_id=implied_role_id)
+            raise exception.InvalidImpliedRole(msg, role_id=implied_role_id)
         response = self.driver.create_implied_role(
-            prior_role_id, implied_role_id)
+            prior_role_id, implied_role_id
+        )
         COMPUTED_ASSIGNMENTS_REGION.invalidate()
         return response
 

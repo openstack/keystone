@@ -35,8 +35,10 @@ def create_base_saml_assertion(auth):
     token = PROVIDERS.token_provider_api.validate_token(token_id)
 
     if not token.project_scoped:
-        action = _('Use a project scoped token when attempting to create '
-                   'a SAML assertion')
+        action = _(
+            'Use a project scoped token when attempting to create '
+            'a SAML assertion'
+        )
         raise exception.ForbiddenAction(action=action)
 
     subject = token.user['name']
@@ -58,19 +60,27 @@ def create_base_saml_assertion(auth):
         'JSON:{"name":"group2","domain":{"name":"Default"}}']
         """
         user_groups = []
-        groups = PROVIDERS.identity_api.list_groups_for_user(
-            token.user_id)
+        groups = PROVIDERS.identity_api.list_groups_for_user(token.user_id)
         for group in groups:
             user_group = {}
             group_domain_name = PROVIDERS.resource_api.get_domain(
-                group['domain_id'])['name']
+                group['domain_id']
+            )['name']
             user_group["name"] = group['name']
             user_group["domain"] = {'name': group_domain_name}
             user_groups.append('JSON:' + jsonutils.dumps(user_group))
         return user_groups
+
     groups = group_membership()
     generator = keystone_idp.SAMLGenerator()
     response = generator.samlize_token(
-        issuer, sp_url, subject, subject_domain_name,
-        role_names, project, project_domain_name, groups)
+        issuer,
+        sp_url,
+        subject,
+        subject_domain_name,
+        role_names,
+        project,
+        project_domain_name,
+        groups,
+    )
     return response, service_provider

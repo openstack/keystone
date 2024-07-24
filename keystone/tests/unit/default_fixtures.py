@@ -35,8 +35,9 @@ PROJECTS = [
         'parent_id': DEFAULT_DOMAIN_ID,
         'is_domain': False,
         'tags': [],
-        'options': {}
-    }, {
+        'options': {},
+    },
+    {
         'id': BAZ_PROJECT_ID,
         'name': 'BAZ',
         'domain_id': DEFAULT_DOMAIN_ID,
@@ -45,8 +46,9 @@ PROJECTS = [
         'parent_id': DEFAULT_DOMAIN_ID,
         'is_domain': False,
         'tags': [],
-        'options': {}
-    }, {
+        'options': {},
+    },
+    {
         'id': MTU_PROJECT_ID,
         'name': 'MTU',
         'description': 'description',
@@ -55,8 +57,9 @@ PROJECTS = [
         'parent_id': DEFAULT_DOMAIN_ID,
         'is_domain': False,
         'tags': [],
-        'options': {}
-    }, {
+        'options': {},
+    },
+    {
         'id': SERVICE_PROJECT_ID,
         'name': 'service',
         'description': 'description',
@@ -65,8 +68,8 @@ PROJECTS = [
         'parent_id': DEFAULT_DOMAIN_ID,
         'is_domain': False,
         'tags': [],
-        'options': {}
-    }
+        'options': {},
+    },
 ]
 
 # NOTE(ja): a role of keystone_admin is done in setUp
@@ -90,7 +93,8 @@ USERS = [
         'enabled': True,
         'email': 'foo@bar.com',
         'options': {},
-    }, {
+    },
+    {
         'id': uuid.uuid4().hex,
         'name': 'two',
         'domain_id': DEFAULT_DOMAIN_ID,
@@ -100,7 +104,8 @@ USERS = [
         'projects': [BAZ_PROJECT_ID],
         'email': 'two@three.com',
         'options': {},
-    }, {
+    },
+    {
         'id': uuid.uuid4().hex,
         'name': 'badguy',
         'domain_id': DEFAULT_DOMAIN_ID,
@@ -110,7 +115,8 @@ USERS = [
         'projects': [BAZ_PROJECT_ID],
         'email': 'bad@guy.com',
         'options': {},
-    }, {
+    },
+    {
         'id': uuid.uuid4().hex,
         'name': 'sna',
         'domain_id': DEFAULT_DOMAIN_ID,
@@ -119,7 +125,7 @@ USERS = [
         'projects': [BAR_PROJECT_ID],
         'email': 'sna@snl.coom',
         'options': {},
-    }
+    },
 ]
 
 ROLES = [
@@ -127,31 +133,37 @@ ROLES = [
         'id': ADMIN_ROLE_ID,
         'name': 'admin',
         'domain_id': None,
-    }, {
+    },
+    {
         'id': MEMBER_ROLE_ID,
         'name': 'member',
         'domain_id': None,
-    }, {
+    },
+    {
         'id': '9fe2ff9ee4384b1894a90878d3e92bab',
         'name': '_member_',
         'domain_id': None,
-    }, {
+    },
+    {
         'id': OTHER_ROLE_ID,
         'name': 'other',
         'domain_id': None,
-    }, {
+    },
+    {
         'id': uuid.uuid4().hex,
         'name': 'browser',
         'domain_id': None,
-    }, {
+    },
+    {
         'id': uuid.uuid4().hex,
         'name': 'writer',
         'domain_id': None,
-    }, {
+    },
+    {
         'id': uuid.uuid4().hex,
         'name': 'service',
         'domain_id': None,
-    }
+    },
 ]
 
 # NOTE(morganfainberg): Admin assignment for replacing admin_token_auth
@@ -159,28 +171,38 @@ ROLE_ASSIGNMENTS = [
     {
         'user': 'req_admin',
         'project_id': SERVICE_PROJECT_ID,
-        'role_id': ADMIN_ROLE_ID
+        'role_id': ADMIN_ROLE_ID,
     },
 ]
 
 # TODO(wxy): We should add the root domain ``<<keystone.domain.root>>`` as well
 # when the FKs is enabled for the test. Merge ROOT_DOMAIN into DOMAINS once all
 # test enable FKs.
-ROOT_DOMAIN = {'enabled': True,
-               'id': '<<keystone.domain.root>>',
-               'name': '<<keystone.domain.root>>'}
+ROOT_DOMAIN = {
+    'enabled': True,
+    'id': '<<keystone.domain.root>>',
+    'name': '<<keystone.domain.root>>',
+}
 
-DOMAINS = [{'description':
-            (u'The default domain'),
-            'enabled': True,
-            'id': DEFAULT_DOMAIN_ID,
-            'name': u'Default'}]
+DOMAINS = [
+    {
+        'description': (u'The default domain'),
+        'enabled': True,
+        'id': DEFAULT_DOMAIN_ID,
+        'name': u'Default',
+    }
+]
 
-SERVICES = [{'id': uuid.uuid4().hex,
-             'type': 'type_one',
-             'enabled': True,
-             'extra': {'description': 'This is a service for test.',
-                       'name': 'service_one'}
-             }]
+SERVICES = [
+    {
+        'id': uuid.uuid4().hex,
+        'type': 'type_one',
+        'enabled': True,
+        'extra': {
+            'description': 'This is a service for test.',
+            'name': 'service_one',
+        },
+    }
+]
 
 REGIONS = [{'id': 'region_one'}, {'id': 'region_two'}]

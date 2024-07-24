@@ -33,16 +33,19 @@ class EC2ContribCoreV3(test_v3.RestfulTestCase):
         super(EC2ContribCoreV3, self).setUp()
 
         self.cred_blob, self.credential = unit.new_ec2_credential(
-            self.user['id'], self.project_id)
+            self.user['id'], self.project_id
+        )
         PROVIDERS.credential_api.create_credential(
-            self.credential['id'], self.credential)
+            self.credential['id'], self.credential
+        )
 
     def test_http_get_method_not_allowed(self):
-        resp = self.get('/ec2tokens',
-                        expected_status=http.client.METHOD_NOT_ALLOWED,
-                        convert=False)
-        self.assertEqual(http.client.METHOD_NOT_ALLOWED,
-                         resp.status_code)
+        resp = self.get(
+            '/ec2tokens',
+            expected_status=http.client.METHOD_NOT_ALLOWED,
+            convert=False,
+        )
+        self.assertEqual(http.client.METHOD_NOT_ALLOWED, resp.status_code)
 
     def _test_valid_authentication_response_with_proper_secret(self, **kwargs):
         signer = ec2_utils.Ec2Signer(self.cred_blob['secret'])
@@ -56,7 +59,7 @@ class EC2ContribCoreV3(test_v3.RestfulTestCase):
             'params': {
                 'SignatureVersion': '2',
                 'Action': 'Test',
-                'Timestamp': timestamp
+                'Timestamp': timestamp,
             },
         }
         credentials['signature'] = signer.generate(credentials)
@@ -64,7 +67,8 @@ class EC2ContribCoreV3(test_v3.RestfulTestCase):
             '/ec2tokens',
             body={'credentials': credentials},
             expected_status=http.client.OK,
-            **kwargs)
+            **kwargs
+        )
         self.assertValidProjectScopedTokenResponse(resp, self.user)
 
     def test_valid_authentication_response_with_proper_secret(self):
@@ -72,7 +76,8 @@ class EC2ContribCoreV3(test_v3.RestfulTestCase):
 
     def test_valid_authentication_response_with_proper_secret_noauth(self):
         self._test_valid_authentication_response_with_proper_secret(
-            noauth=True)
+            noauth=True
+        )
 
     def test_valid_authentication_response_with_signature_v4(self):
         signer = ec2_utils.Ec2Signer(self.cred_blob['secret'])
@@ -89,8 +94,9 @@ class EC2ContribCoreV3(test_v3.RestfulTestCase):
         )
         body_hash = hashlib.sha256(hashed_payload.encode()).hexdigest()
         amz_credential = (
-            'AKIAIOSFODNN7EXAMPLE/%s/us-east-1/iam/aws4_request,' %
-            timestamp[:8])
+            'AKIAIOSFODNN7EXAMPLE/%s/us-east-1/iam/aws4_request,'
+            % timestamp[:8]
+        )
 
         credentials = {
             'access': self.cred_blob['access'],
@@ -102,36 +108,33 @@ class EC2ContribCoreV3(test_v3.RestfulTestCase):
                 'Action': 'Test',
                 'X-Amz-Algorithm': 'AWS4-HMAC-SHA256',
                 'X-Amz-SignedHeaders': 'host,x-amz-date,',
-                'X-Amz-Credential': amz_credential
+                'X-Amz-Credential': amz_credential,
             },
-            'headers': {
-                'X-Amz-Date': timestamp
-            },
-            'body_hash': body_hash
+            'headers': {'X-Amz-Date': timestamp},
+            'body_hash': body_hash,
         }
         credentials['signature'] = signer.generate(credentials)
         resp = self.post(
             '/ec2tokens',
             body={'credentials': credentials},
-            expected_status=http.client.OK)
+            expected_status=http.client.OK,
+        )
         self.assertValidProjectScopedTokenResponse(resp, self.user)
 
     def test_authenticate_with_empty_body_returns_bad_request(self):
         self.post(
-            '/ec2tokens',
-            body={},
-            expected_status=http.client.BAD_REQUEST)
+            '/ec2tokens', body={}, expected_status=http.client.BAD_REQUEST
+        )
 
     def test_authenticate_without_json_request_returns_bad_request(self):
         self.post(
             '/ec2tokens',
             body='not json',
-            expected_status=http.client.BAD_REQUEST)
+            expected_status=http.client.BAD_REQUEST,
+        )
 
     def test_authenticate_without_request_body_returns_bad_request(self):
-        self.post(
-            '/ec2tokens',
-            expected_status=http.client.BAD_REQUEST)
+        self.post('/ec2tokens', expected_status=http.client.BAD_REQUEST)
 
     def test_authenticate_without_proper_secret_returns_unauthorized(self):
         signer = ec2_utils.Ec2Signer('totally not the secret')
@@ -145,20 +148,18 @@ class EC2ContribCoreV3(test_v3.RestfulTestCase):
             'params': {
                 'SignatureVersion': '2',
                 'Action': 'Test',
-                'Timestamp': timestamp
+                'Timestamp': timestamp,
             },
         }
         credentials['signature'] = signer.generate(credentials)
         self.post(
             '/ec2tokens',
             body={'credentials': credentials},
-            expected_status=http.client.UNAUTHORIZED)
+            expected_status=http.client.UNAUTHORIZED,
+        )
 
     def test_authenticate_expired_request(self):
-        self.config_fixture.config(
-            group='credential',
-            auth_ttl=5
-        )
+        self.config_fixture.config(group='credential', auth_ttl=5)
         signer = ec2_utils.Ec2Signer(self.cred_blob['secret'])
         past = timeutils.utcnow() - datetime.timedelta(minutes=10)
         timestamp = utils.isotime(past)
@@ -171,20 +172,18 @@ class EC2ContribCoreV3(test_v3.RestfulTestCase):
             'params': {
                 'SignatureVersion': '2',
                 'Action': 'Test',
-                'Timestamp': timestamp
+                'Timestamp': timestamp,
             },
         }
         credentials['signature'] = signer.generate(credentials)
         self.post(
             '/ec2tokens',
             body={'credentials': credentials},
-            expected_status=http.client.UNAUTHORIZED)
+            expected_status=http.client.UNAUTHORIZED,
+        )
 
     def test_authenticate_expired_request_v4(self):
-        self.config_fixture.config(
-            group='credential',
-            auth_ttl=5
-        )
+        self.config_fixture.config(group='credential', auth_ttl=5)
         signer = ec2_utils.Ec2Signer(self.cred_blob['secret'])
         past = timeutils.utcnow() - datetime.timedelta(minutes=10)
         timestamp = utils.isotime(past)
@@ -200,8 +199,9 @@ class EC2ContribCoreV3(test_v3.RestfulTestCase):
         )
         body_hash = hashlib.sha256(hashed_payload.encode()).hexdigest()
         amz_credential = (
-            'AKIAIOSFODNN7EXAMPLE/%s/us-east-1/iam/aws4_request,' %
-            timestamp[:8])
+            'AKIAIOSFODNN7EXAMPLE/%s/us-east-1/iam/aws4_request,'
+            % timestamp[:8]
+        )
 
         credentials = {
             'access': self.cred_blob['access'],
@@ -213,15 +213,14 @@ class EC2ContribCoreV3(test_v3.RestfulTestCase):
                 'Action': 'Test',
                 'X-Amz-Algorithm': 'AWS4-HMAC-SHA256',
                 'X-Amz-SignedHeaders': 'host,x-amz-date,',
-                'X-Amz-Credential': amz_credential
+                'X-Amz-Credential': amz_credential,
             },
-            'headers': {
-                'X-Amz-Date': timestamp
-            },
-            'body_hash': body_hash
+            'headers': {'X-Amz-Date': timestamp},
+            'body_hash': body_hash,
         }
         credentials['signature'] = signer.generate(credentials)
         self.post(
             '/ec2tokens',
             body={'credentials': credentials},
-            expected_status=http.client.UNAUTHORIZED)
+            expected_status=http.client.UNAUTHORIZED,
+        )

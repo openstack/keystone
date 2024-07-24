@@ -29,8 +29,12 @@ class ConfigTestCase(unit.TestCase):
         config_files = super(ConfigTestCase, self).config_files()
 
         sample_file = 'keystone.conf.sample'
-        args = ['--namespace', 'keystone', '--output-file',
-                unit.dirs.etc(sample_file)]
+        args = [
+            '--namespace',
+            'keystone',
+            '--output-file',
+            unit.dirs.etc(sample_file),
+        ]
 
         generator.main(args=args)
         config_files.insert(0, unit.dirs.etc(sample_file))

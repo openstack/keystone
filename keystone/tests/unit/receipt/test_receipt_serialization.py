@@ -50,11 +50,12 @@ class TestReceiptSerialization(base_classes.TestCaseWithBootstrap):
         self.assertEqual(self.exp_receipt.issued_at, receipt.issued_at)
 
     @mock.patch.object(
-        receipt_model.ReceiptModel, '__init__', side_effect=Exception)
+        receipt_model.ReceiptModel, '__init__', side_effect=Exception
+    )
     def test_error_handling_in_deserialize(self, handler_mock):
         serialized = self.receipt_handler.serialize(self.exp_receipt)
         self.assertRaises(
             exception.CacheDeserializationError,
             self.receipt_handler.deserialize,
-            serialized
+            serialized,
         )

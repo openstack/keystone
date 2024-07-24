@@ -24,14 +24,18 @@ class IDMapping(sql.ModelBase, sql.ModelDictMixin):
     local_id = sql.Column(sql.String(255), nullable=False)
     # NOTE(henry-nash): Postgres requires a name to be defined for an Enum
     entity_type = sql.Column(
-        sql.Enum(identity_mapping.EntityType.USER,
-                 identity_mapping.EntityType.GROUP,
-                 name='entity_type'),
-        nullable=False)
+        sql.Enum(
+            identity_mapping.EntityType.USER,
+            identity_mapping.EntityType.GROUP,
+            name='entity_type',
+        ),
+        nullable=False,
+    )
     # Unique constraint to ensure you can't store more than one mapping to the
     # same underlying values
     __table_args__ = (
-        sql.UniqueConstraint('domain_id', 'local_id', 'entity_type'),)
+        sql.UniqueConstraint('domain_id', 'local_id', 'entity_type'),
+    )
 
 
 class Mapping(base.MappingDriverBase):
@@ -74,7 +78,8 @@ class Mapping(base.MappingDriverBase):
             with sql.session_for_write() as session:
                 if public_id is None:
                     public_id = self.id_generator_api.generate_public_ID(
-                        entity)
+                        entity
+                    )
                 entity['public_id'] = public_id
                 mapping_ref = IDMapping.from_dict(entity)
                 session.add(mapping_ref)
@@ -87,7 +92,8 @@ class Mapping(base.MappingDriverBase):
         with sql.session_for_write() as session:
             try:
                 session.query(IDMapping).filter(
-                    IDMapping.public_id == public_id).delete()
+                    IDMapping.public_id == public_id
+                ).delete()
             except sql.NotFound:  # nosec
                 # NOTE(morganfainberg): There is nothing to delete and nothing
                 # to do.
@@ -104,5 +110,6 @@ class Mapping(base.MappingDriverBase):
                 query = query.filter_by(local_id=purge_filter['local_id'])
             if 'entity_type' in purge_filter:
                 query = query.filter_by(
-                    entity_type=purge_filter['entity_type'])
+                    entity_type=purge_filter['entity_type']
+                )
             query.delete()

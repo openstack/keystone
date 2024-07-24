@@ -39,12 +39,21 @@ class RevocationEvent(sql.ModelBase, sql.ModelDictMixin):
     audit_id = sql.Column(sql.String(32))
     audit_chain_id = sql.Column(sql.String(32))
     __table_args__ = (
-        sql.Index('ix_revocation_event_project_id_issued_before', 'project_id',
-                  'issued_before'),
-        sql.Index('ix_revocation_event_user_id_issued_before', 'user_id',
-                  'issued_before'),
-        sql.Index('ix_revocation_event_audit_id_issued_before',
-                  'audit_id', 'issued_before'),
+        sql.Index(
+            'ix_revocation_event_project_id_issued_before',
+            'project_id',
+            'issued_before',
+        ),
+        sql.Index(
+            'ix_revocation_event_user_id_issued_before',
+            'user_id',
+            'issued_before',
+        ),
+        sql.Index(
+            'ix_revocation_event_audit_id_issued_before',
+            'audit_id',
+            'issued_before',
+        ),
     )
 
 
@@ -77,8 +86,9 @@ class Revoke(base.RevokeDriverBase):
                 query = session.query(RevocationEvent.id)
                 query = query.filter(RevocationEvent.revoked_at < oldest)
                 query = query.limit(batch_size).subquery()
-                delete_query = (session.query(RevocationEvent).
-                                filter(RevocationEvent.id.in_(query)))
+                delete_query = session.query(RevocationEvent).filter(
+                    RevocationEvent.id.in_(query)
+                )
                 while True:
                     rowcount = delete_query.delete(synchronize_session=False)
                     if rowcount == 0:
@@ -93,7 +103,8 @@ class Revoke(base.RevokeDriverBase):
     def _list_token_events(self, token):
         with sql.session_for_read() as session:
             query = session.query(RevocationEvent).filter(
-                RevocationEvent.issued_before >= token['issued_at'])
+                RevocationEvent.issued_before >= token['issued_at']
+            )
             user = [RevocationEvent.user_id.is_(None)]
             proj = [RevocationEvent.project_id.is_(None)]
             audit = [RevocationEvent.audit_id.is_(None)]
@@ -110,17 +121,22 @@ class Revoke(base.RevokeDriverBase):
                 audit.append(RevocationEvent.audit_id == token['audit_id'])
             if token['trust_id']:
                 trust.append(RevocationEvent.trust_id == token['trust_id'])
-            query = query.filter(sqlalchemy.and_(sqlalchemy.or_(*user),
-                                                 sqlalchemy.or_(*proj),
-                                                 sqlalchemy.or_(*audit),
-                                                 sqlalchemy.or_(*trust)))
+            query = query.filter(
+                sqlalchemy.and_(
+                    sqlalchemy.or_(*user),
+                    sqlalchemy.or_(*proj),
+                    sqlalchemy.or_(*audit),
+                    sqlalchemy.or_(*trust),
+                )
+            )
             events = [revoke_model.RevokeEvent(**e.to_dict()) for e in query]
             return events
 
     def _list_last_fetch_events(self, last_fetch=None):
         with sql.session_for_read() as session:
             query = session.query(RevocationEvent).order_by(
-                RevocationEvent.revoked_at)
+                RevocationEvent.revoked_at
+            )
 
             if last_fetch:
                 query = query.filter(RevocationEvent.revoked_at > last_fetch)

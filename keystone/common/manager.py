@@ -51,6 +51,7 @@ def response_truncated(f):
     project).
 
     """
+
     @functools.wraps(f)
     def wrapper(self, *args, **kwargs):
         if kwargs.get('hints') is None:
@@ -60,18 +61,18 @@ def response_truncated(f):
         if list_limit:
             kwargs['hints'].set_limit(list_limit)
         return f(self, *args, **kwargs)
+
     return wrapper
 
 
 def load_driver(namespace, driver_name, *args):
     try:
-        driver_manager = stevedore.DriverManager(namespace,
-                                                 driver_name,
-                                                 invoke_on_load=True,
-                                                 invoke_args=args)
+        driver_manager = stevedore.DriverManager(
+            namespace, driver_name, invoke_on_load=True, invoke_args=args
+        )
         return driver_manager.driver
     except stevedore.exception.NoMatches:
-        msg = (_('Unable to find %(name)r driver in %(namespace)r.'))
+        msg = _('Unable to find %(name)r driver in %(namespace)r.')
         raise ImportError(msg % {'name': driver_name, 'namespace': namespace})
 
 
@@ -89,7 +90,7 @@ class _TraceMeta(type):
         __fn_info = '%(module)s.%(classname)s.%(funcname)s' % {
             'module': inspect.getmodule(__f).__name__,
             'classname': __classname,
-            'funcname': __f.__name__
+            'funcname': __f.__name__,
         }
         # NOTE(morganfainberg): Omit "cls" and "self" when printing trace logs
         # the index can be calculated at wrap time rather than at runtime.
@@ -115,35 +116,46 @@ class _TraceMeta(type):
                 if __do_trace:
                     __subst = {
                         'run_time': (time.time() - __t),
-                        'passed_args': ', '.join([
-                            ', '.join([repr(a)
-                                       for a in args[__arg_idx:]]),
-                            ', '.join(['%(k)s=%(v)r' % {'k': k, 'v': v}
-                                       for k, v in kwargs.items()]),
-                        ]),
+                        'passed_args': ', '.join(
+                            [
+                                ', '.join([repr(a) for a in args[__arg_idx:]]),
+                                ', '.join(
+                                    [
+                                        '%(k)s=%(v)r' % {'k': k, 'v': v}
+                                        for k, v in kwargs.items()
+                                    ]
+                                ),
+                            ]
+                        ),
                         'function': __fn_info,
                         'exception': __exc,
                         'ret_val': __ret_val,
                     }
                     if __exc is not None:
-                        __msg = ('[%(run_time)ss] %(function)s '
-                                 '(%(passed_args)s) => raised '
-                                 '%(exception)r')
+                        __msg = (
+                            '[%(run_time)ss] %(function)s '
+                            '(%(passed_args)s) => raised '
+                            '%(exception)r'
+                        )
                     else:
                         # TODO(morganfainberg): find a way to indicate if this
                         # was a cache hit or cache miss.
-                        __msg = ('[%(run_time)ss] %(function)s'
-                                 '(%(passed_args)s) => %(ret_val)r')
+                        __msg = (
+                            '[%(run_time)ss] %(function)s'
+                            '(%(passed_args)s) => %(ret_val)r'
+                        )
                     LOG.trace(__msg, __subst)
             return __ret_val
+
         return wrapped
 
     def __new__(meta, classname, bases, class_dict):
         final_cls_dict = {}
         for attr_name, attr in class_dict.items():
             # NOTE(morganfainberg): only wrap public instances and methods.
-            if (isinstance(attr, types.FunctionType) and
-                    not attr_name.startswith('_')):
+            if isinstance(
+                attr, types.FunctionType
+            ) and not attr_name.startswith('_'):
                 attr = _TraceMeta.wrapper(attr, classname)
             final_cls_dict[attr_name] = attr
         return type.__new__(meta, classname, bases, final_cls_dict)
@@ -167,16 +179,19 @@ class Manager(object, metaclass=_TraceMeta):
 
     def __init__(self, driver_name):
         if self._provides_api is None:
-            raise ValueError('Programming Error: All managers must provide an '
-                             'API that can be referenced by other components '
-                             'of Keystone.')
+            raise ValueError(
+                'Programming Error: All managers must provide an '
+                'API that can be referenced by other components '
+                'of Keystone.'
+            )
         if driver_name is not None:
             self.driver = load_driver(self.driver_namespace, driver_name)
         self.__register_provider_api()
 
     def __register_provider_api(self):
         provider_api.ProviderAPIs._register_provider_api(
-            name=self._provides_api, obj=self)
+            name=self._provides_api, obj=self
+        )
 
     def __getattr__(self, name):
         """Forward calls to the underlying driver.

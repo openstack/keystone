@@ -84,8 +84,9 @@ class KeystoneModelsMigrationsSync(test_migrations.ModelsMigrationsSync):
         # Override keystone's context manager to be oslo.db's global context
         # manager.
         sql.core._TESTING_USE_GLOBAL_CONTEXT_MANAGER = True
-        self.addCleanup(setattr,
-                        sql.core, '_TESTING_USE_GLOBAL_CONTEXT_MANAGER', False)
+        self.addCleanup(
+            setattr, sql.core, '_TESTING_USE_GLOBAL_CONTEXT_MANAGER', False
+        )
         self.addCleanup(sql.cleanup)
 
     def db_sync(self, engine):

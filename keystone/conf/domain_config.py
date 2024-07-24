@@ -18,46 +18,59 @@ from keystone.conf import utils
 driver = cfg.StrOpt(
     'driver',
     default='sql',
-    help=utils.fmt("""
+    help=utils.fmt(
+        """
 Entry point for the domain-specific configuration driver in the
 `keystone.resource.domain_config` namespace. Only a `sql` option is provided by
 keystone, so there is no reason to set this unless you are providing a custom
 entry point.
-"""))
+"""
+    ),
+)
 
 caching = cfg.BoolOpt(
     'caching',
     default=True,
-    help=utils.fmt("""
+    help=utils.fmt(
+        """
 Toggle for caching of the domain-specific configuration backend. This has no
 effect unless global caching is enabled. There is normally no reason to disable
 this.
-"""))
+"""
+    ),
+)
 
 cache_time = cfg.IntOpt(
     'cache_time',
     default=300,
-    help=utils.fmt("""
+    help=utils.fmt(
+        """
 Time-to-live (TTL, in seconds) to cache domain-specific configuration data.
 This has no effect unless `[domain_config] caching` is enabled.
-"""))
+"""
+    ),
+)
 
 additional_whitelisted_options = cfg.Opt(
     'additional_whitelisted_options',
     type=cfg.types.Dict(value_type=cfg.types.List(bounds=True)),
-    help=utils.fmt("""
+    help=utils.fmt(
+        """
 Additional whitelisted domain-specific options for out-of-tree drivers.
 This is a dictonary of lists with the key being the group name and value a list
-of group options.""")
+of group options."""
+    ),
 )
 
 additional_sensitive_options = cfg.Opt(
     'additional_sensitive_options',
     type=cfg.types.Dict(value_type=cfg.types.List(bounds=True)),
-    help=utils.fmt("""
+    help=utils.fmt(
+        """
 Additional sensitive domain-specific options for out-of-tree drivers.
 This is a dictonary of lists with the key being the group name and value a list
-of group options.""")
+of group options."""
+    ),
 )
 
 
@@ -67,7 +80,7 @@ ALL_OPTS = [
     caching,
     cache_time,
     additional_whitelisted_options,
-    additional_sensitive_options
+    additional_sensitive_options,
 ]
 
 

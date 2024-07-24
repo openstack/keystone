@@ -37,12 +37,14 @@ class Manager(manager.Manager):
         super(Manager, self).__init__(unified_limit_driver)
 
         self.enforcement_model = base.load_driver(
-            CONF.unified_limit.enforcement_model)
+            CONF.unified_limit.enforcement_model
+        )
 
     def check_project_depth(self):
         """Check if project depth satisfies current enforcement model."""
         PROVIDERS.resource_api.check_project_depth(
-            self.enforcement_model.MAX_PROJECT_TREE_DEPTH)
+            self.enforcement_model.MAX_PROJECT_TREE_DEPTH
+        )
 
     def _assert_resource_exist(self, unified_limit, target):
         try:
@@ -58,29 +60,34 @@ class Manager(manager.Manager):
                 if project['is_domain']:
                     # Treat the input limit as domain level limit.
                     unified_limit['domain_id'] = unified_limit.pop(
-                        'project_id')
+                        'project_id'
+                    )
             domain_id = unified_limit.get('domain_id')
             if domain_id is not None:
                 PROVIDERS.resource_api.get_domain(domain_id)
 
         except exception.ServiceNotFound:
-            raise exception.ValidationError(attribute='service_id',
-                                            target=target)
+            raise exception.ValidationError(
+                attribute='service_id', target=target
+            )
         except exception.RegionNotFound:
-            raise exception.ValidationError(attribute='region_id',
-                                            target=target)
+            raise exception.ValidationError(
+                attribute='region_id', target=target
+            )
         except exception.ProjectNotFound:
-            raise exception.ValidationError(attribute='project_id',
-                                            target=target)
+            raise exception.ValidationError(
+                attribute='project_id', target=target
+            )
         except exception.DomainNotFound:
-            raise exception.ValidationError(attribute='domain_id',
-                                            target=target)
+            raise exception.ValidationError(
+                attribute='domain_id', target=target
+            )
 
     def get_model(self):
         """Return information of the configured enforcement model."""
         return {
             'name': self.enforcement_model.NAME,
-            'description': self.enforcement_model.DESCRIPTION
+            'description': self.enforcement_model.DESCRIPTION,
         }
 
     def create_registered_limits(self, registered_limits):
@@ -91,15 +98,18 @@ class Manager(manager.Manager):
     def update_registered_limit(self, registered_limit_id, registered_limit):
         self._assert_resource_exist(registered_limit, 'registered_limit')
         updated_registered_limit = self.driver.update_registered_limit(
-            registered_limit_id, registered_limit)
-        self.get_registered_limit.invalidate(self,
-                                             updated_registered_limit['id'])
+            registered_limit_id, registered_limit
+        )
+        self.get_registered_limit.invalidate(
+            self, updated_registered_limit['id']
+        )
         return updated_registered_limit
 
     @manager.response_truncated
     def list_registered_limits(self, hints=None):
         return self.driver.list_registered_limits(
-            hints or driver_hints.Hints())
+            hints or driver_hints.Hints()
+        )
 
     @MEMOIZE
     def get_registered_limit(self, registered_limit_id):

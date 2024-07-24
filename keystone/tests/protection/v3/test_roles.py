@@ -56,8 +56,10 @@ class _SystemReaderAndMemberRoleTests(object):
 
         with self.test_client() as c:
             c.post(
-                '/v3/roles', json=create, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/roles',
+                json=create,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_update_roles(self):
@@ -69,8 +71,10 @@ class _SystemReaderAndMemberRoleTests(object):
 
         with self.test_client() as c:
             c.patch(
-                '/v3/roles/%s' % role['id'], json=update, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/roles/%s' % role['id'],
+                json=update,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_roles(self):
@@ -80,8 +84,9 @@ class _SystemReaderAndMemberRoleTests(object):
 
         with self.test_client() as c:
             c.delete(
-                '/v3/roles/%s' % role['id'], headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/roles/%s' % role['id'],
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
 
@@ -93,8 +98,9 @@ class _DomainAndProjectUserRoleTests(object):
 
         with self.test_client() as c:
             c.get(
-                '/v3/roles', headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/roles',
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_get_a_role(self):
@@ -104,8 +110,9 @@ class _DomainAndProjectUserRoleTests(object):
 
         with self.test_client() as c:
             c.get(
-                '/v3/roles/%s' % role['id'], headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/roles/%s' % role['id'],
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_create_roles(self):
@@ -113,8 +120,10 @@ class _DomainAndProjectUserRoleTests(object):
 
         with self.test_client() as c:
             c.post(
-                '/v3/roles', json=create, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/roles',
+                json=create,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_update_roles(self):
@@ -126,8 +135,10 @@ class _DomainAndProjectUserRoleTests(object):
 
         with self.test_client() as c:
             c.patch(
-                '/v3/roles/%s' % role['id'], json=update, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/roles/%s' % role['id'],
+                json=update,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_roles(self):
@@ -137,15 +148,18 @@ class _DomainAndProjectUserRoleTests(object):
 
         with self.test_client() as c:
             c.delete(
-                '/v3/roles/%s' % role['id'], headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/roles/%s' % role['id'],
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
 
-class SystemReaderTests(base_classes.TestCaseWithBootstrap,
-                        common_auth.AuthTestMixin,
-                        _SystemUserRoleTests,
-                        _SystemReaderAndMemberRoleTests):
+class SystemReaderTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _SystemUserRoleTests,
+    _SystemReaderAndMemberRoleTests,
+):
 
     def setUp(self):
         super(SystemReaderTests, self).setUp()
@@ -156,16 +170,15 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
         system_reader = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
         )
-        self.user_id = PROVIDERS.identity_api.create_user(
-            system_reader
-        )['id']
+        self.user_id = PROVIDERS.identity_api.create_user(system_reader)['id']
         PROVIDERS.assignment_api.create_system_grant_for_user(
             self.user_id, self.bootstrapper.reader_role_id
         )
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=system_reader['password'],
-            system=True
+            user_id=self.user_id,
+            password=system_reader['password'],
+            system=True,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -176,10 +189,12 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class SystemMemberTests(base_classes.TestCaseWithBootstrap,
-                        common_auth.AuthTestMixin,
-                        _SystemUserRoleTests,
-                        _SystemReaderAndMemberRoleTests):
+class SystemMemberTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _SystemUserRoleTests,
+    _SystemReaderAndMemberRoleTests,
+):
 
     def setUp(self):
         super(SystemMemberTests, self).setUp()
@@ -190,16 +205,15 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
         system_member = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
         )
-        self.user_id = PROVIDERS.identity_api.create_user(
-            system_member
-        )['id']
+        self.user_id = PROVIDERS.identity_api.create_user(system_member)['id']
         PROVIDERS.assignment_api.create_system_grant_for_user(
             self.user_id, self.bootstrapper.member_role_id
         )
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=system_member['password'],
-            system=True
+            user_id=self.user_id,
+            password=system_member['password'],
+            system=True,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -210,9 +224,11 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class SystemAdminTests(base_classes.TestCaseWithBootstrap,
-                       common_auth.AuthTestMixin,
-                       _SystemUserRoleTests):
+class SystemAdminTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _SystemUserRoleTests,
+):
 
     def setUp(self):
         super(SystemAdminTests, self).setUp()
@@ -226,7 +242,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
         auth = self.build_authentication_request(
             user_id=self.user_id,
             password=self.bootstrapper.admin_password,
-            system=True
+            system=True,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -251,7 +267,9 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
 
         with self.test_client() as c:
             c.patch(
-                '/v3/roles/%s' % role['id'], json=update, headers=self.headers,
+                '/v3/roles/%s' % role['id'],
+                json=update,
+                headers=self.headers,
             )
 
     def test_user_can_delete_roles(self):
@@ -263,9 +281,11 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
             c.delete('/v3/roles/%s' % role['id'], headers=self.headers)
 
 
-class DomainUserTests(base_classes.TestCaseWithBootstrap,
-                      common_auth.AuthTestMixin,
-                      _DomainAndProjectUserRoleTests):
+class DomainUserTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _DomainAndProjectUserRoleTests,
+):
 
     def setUp(self):
         super(DomainUserTests, self).setUp()
@@ -280,14 +300,15 @@ class DomainUserTests(base_classes.TestCaseWithBootstrap,
         domain_admin = unit.new_user_ref(domain_id=self.domain_id)
         self.user_id = PROVIDERS.identity_api.create_user(domain_admin)['id']
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.admin_role_id, user_id=self.user_id,
-            domain_id=self.domain_id
+            self.bootstrapper.admin_role_id,
+            user_id=self.user_id,
+            domain_id=self.domain_id,
         )
 
         auth = self.build_authentication_request(
             user_id=self.user_id,
             password=domain_admin['password'],
-            domain_id=self.domain_id
+            domain_id=self.domain_id,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -298,9 +319,11 @@ class DomainUserTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class ProjectUserTests(base_classes.TestCaseWithBootstrap,
-                       common_auth.AuthTestMixin,
-                       _DomainAndProjectUserRoleTests):
+class ProjectUserTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _DomainAndProjectUserRoleTests,
+):
 
     def setUp(self):
         super(ProjectUserTests, self).setUp()
@@ -312,7 +335,7 @@ class ProjectUserTests(base_classes.TestCaseWithBootstrap,
         auth = self.build_authentication_request(
             user_id=self.user_id,
             password=self.bootstrapper.admin_password,
-            project_id=self.bootstrapper.project_id
+            project_id=self.bootstrapper.project_id,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -324,9 +347,10 @@ class ProjectUserTests(base_classes.TestCaseWithBootstrap,
 
 
 class ProjectUserTestsWithoutEnforceScope(
-        base_classes.TestCaseWithBootstrap,
-        common_auth.AuthTestMixin,
-        _DomainAndProjectUserRoleTests):
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _DomainAndProjectUserRoleTests,
+):
 
     def setUp(self):
         super(ProjectUserTestsWithoutEnforceScope, self).setUp()
@@ -348,14 +372,15 @@ class ProjectUserTestsWithoutEnforceScope(
         )['id']
 
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.member_role_id, user_id=self.user_id,
-            project_id=self.project_id
+            self.bootstrapper.member_role_id,
+            user_id=self.user_id,
+            project_id=self.project_id,
         )
 
         auth = self.build_authentication_request(
             user_id=self.user_id,
             password=user['password'],
-            project_id=self.project_id
+            project_id=self.project_id,
         )
 
         # Grab a token using the persona we're testing and prepare headers

@@ -83,8 +83,10 @@ class Catalog(base.CatalogDriverBase):
 
     def __init__(self, templates=None):
         super(Catalog, self).__init__()
-        LOG.warning('The templated catalog driver has been deprecated and '
-                    'will be removed in a future release.')
+        LOG.warning(
+            'The templated catalog driver has been deprecated and '
+            'will be removed in a future release.'
+        )
         if templates:
             self.templates = templates
         else:
@@ -107,8 +109,10 @@ class Catalog(base.CatalogDriverBase):
         raise exception.NotImplemented()
 
     def list_regions(self, hints):
-        return [{'id': region_id, 'description': '', 'parent_region_id': ''}
-                for region_id in self.templates]
+        return [
+            {'id': region_id, 'description': '', 'parent_region_id': ''}
+            for region_id in self.templates
+        ]
 
     def get_region(self, region_id):
         if region_id in self.templates:
@@ -163,8 +167,11 @@ class Catalog(base.CatalogDriverBase):
                 for key in service_ref:
                     if key.endswith('URL'):
                         interface = key[:-3]
-                        endpoint_id = ('%s-%s-%s' %
-                                       (region_id, service_type, interface))
+                        endpoint_id = '%s-%s-%s' % (
+                            region_id,
+                            service_type,
+                            interface,
+                        )
                         yield {
                             'id': endpoint_id,
                             'service_id': service_type,
@@ -208,12 +215,17 @@ class Catalog(base.CatalogDriverBase):
         substitutions.update({'user_id': user_id})
         silent_keyerror_failures = []
         if project_id:
-            substitutions.update({
-                'tenant_id': project_id,
-                'project_id': project_id,
-            })
+            substitutions.update(
+                {
+                    'tenant_id': project_id,
+                    'project_id': project_id,
+                }
+            )
         else:
-            silent_keyerror_failures = ['tenant_id', 'project_id', ]
+            silent_keyerror_failures = [
+                'tenant_id',
+                'project_id',
+            ]
 
         catalog = {}
         # TODO(davechen): If there is service with no endpoints, we should
@@ -226,8 +238,10 @@ class Catalog(base.CatalogDriverBase):
                 try:
                     for k, v in service_ref.items():
                         formatted_value = utils.format_url(
-                            v, substitutions,
-                            silent_keyerror_failures=silent_keyerror_failures)
+                            v,
+                            substitutions,
+                            silent_keyerror_failures=silent_keyerror_failures,
+                        )
                         if formatted_value:
                             service_data[k] = formatted_value
                 except exception.MalformedEndpoint:  # nosec(tkelsey)
@@ -259,7 +273,7 @@ class Catalog(base.CatalogDriverBase):
                 if service_type not in v3_catalog:
                     v3_catalog[service_type] = {
                         'type': service_type,
-                        'endpoints': []
+                        'endpoints': [],
                     }
 
                 for attr, value in service.items():
@@ -270,12 +284,14 @@ class Catalog(base.CatalogDriverBase):
                     # { 'interface': 'public', 'url': '<URL>', 'region':
                     #   'region: '<region_name>' }
                     if attr.endswith('URL'):
-                        v3_interface = attr[:-len('URL')]
-                        v3_catalog[service_type]['endpoints'].append({
-                            'interface': v3_interface,
-                            'region': region_name,
-                            'url': value,
-                        })
+                        v3_interface = attr[: -len('URL')]
+                        v3_catalog[service_type]['endpoints'].append(
+                            {
+                                'interface': v3_interface,
+                                'region': region_name,
+                                'url': value,
+                            }
+                        )
                         continue
 
                     # Other attributes are copied to the service.
@@ -331,8 +347,9 @@ class Catalog(base.CatalogDriverBase):
     def list_projects_associated_with_endpoint_group(self, endpoint_group_id):
         raise exception.NotImplemented()
 
-    def remove_endpoint_group_from_project(self, endpoint_group_id,
-                                           project_id):
+    def remove_endpoint_group_from_project(
+        self, endpoint_group_id, project_id
+    ):
         raise exception.NotImplemented()
 
     def delete_endpoint_group_association_by_project(self, project_id):

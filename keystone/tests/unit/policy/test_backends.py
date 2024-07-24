@@ -48,10 +48,12 @@ class PolicyTests(object):
         ref = unit.new_policy_ref()
 
         # (cannot change policy ID)
-        self.assertRaises(exception.ValidationError,
-                          PROVIDERS.policy_api.update_policy,
-                          orig['id'],
-                          ref)
+        self.assertRaises(
+            exception.ValidationError,
+            PROVIDERS.policy_api.update_policy,
+            orig['id'],
+            ref,
+        )
 
         ref['id'] = orig['id']
         res = PROVIDERS.policy_api.update_policy(orig['id'], ref)
@@ -62,28 +64,38 @@ class PolicyTests(object):
         PROVIDERS.policy_api.create_policy(ref['id'], ref)
 
         PROVIDERS.policy_api.delete_policy(ref['id'])
-        self.assertRaises(exception.PolicyNotFound,
-                          PROVIDERS.policy_api.delete_policy,
-                          ref['id'])
-        self.assertRaises(exception.PolicyNotFound,
-                          PROVIDERS.policy_api.get_policy,
-                          ref['id'])
+        self.assertRaises(
+            exception.PolicyNotFound,
+            PROVIDERS.policy_api.delete_policy,
+            ref['id'],
+        )
+        self.assertRaises(
+            exception.PolicyNotFound,
+            PROVIDERS.policy_api.get_policy,
+            ref['id'],
+        )
         res = PROVIDERS.policy_api.list_policies()
         self.assertFalse(len([x for x in res if x['id'] == ref['id']]))
 
     def test_get_policy_returns_not_found(self):
-        self.assertRaises(exception.PolicyNotFound,
-                          PROVIDERS.policy_api.get_policy,
-                          uuid.uuid4().hex)
+        self.assertRaises(
+            exception.PolicyNotFound,
+            PROVIDERS.policy_api.get_policy,
+            uuid.uuid4().hex,
+        )
 
     def test_update_policy_returns_not_found(self):
         ref = unit.new_policy_ref()
-        self.assertRaises(exception.PolicyNotFound,
-                          PROVIDERS.policy_api.update_policy,
-                          ref['id'],
-                          ref)
+        self.assertRaises(
+            exception.PolicyNotFound,
+            PROVIDERS.policy_api.update_policy,
+            ref['id'],
+            ref,
+        )
 
     def test_delete_policy_returns_not_found(self):
-        self.assertRaises(exception.PolicyNotFound,
-                          PROVIDERS.policy_api.delete_policy,
-                          uuid.uuid4().hex)
+        self.assertRaises(
+            exception.PolicyNotFound,
+            PROVIDERS.policy_api.delete_policy,
+            uuid.uuid4().hex,
+        )

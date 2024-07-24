@@ -30,8 +30,14 @@ class StrictTwoLevelModel(base.ModelBase):
     )
     MAX_PROJECT_TREE_DEPTH = 2
 
-    def _get_specified_limit_value(self, resource_name, service_id,
-                                   region_id, project_id=None, domain_id=None):
+    def _get_specified_limit_value(
+        self,
+        resource_name,
+        service_id,
+        region_id,
+        project_id=None,
+        domain_id=None,
+    ):
         """Get the specified limit value.
 
         Try to give the resource limit first. If the specified limit is a
@@ -58,8 +64,15 @@ class StrictTwoLevelModel(base.ModelBase):
             limit_value = limits[0]['default_limit'] if limits else None
         return limit_value
 
-    def _check_limit(self, resource_name, service_id, region_id,
-                     resource_limit, domain_id=None, parent_id=None):
+    def _check_limit(
+        self,
+        resource_name,
+        service_id,
+        region_id,
+        resource_limit,
+        domain_id=None,
+        parent_id=None,
+    ):
         """Check the specified limit value satisfies the related project tree.
 
         1. Ensure the limit is smaller than its parent.
@@ -70,22 +83,29 @@ class StrictTwoLevelModel(base.ModelBase):
             # This is a project limit, need make sure its limit is not bigger
             # than its parent.
             parent_limit_value = self._get_specified_limit_value(
-                resource_name, service_id, region_id, domain_id=parent_id)
+                resource_name, service_id, region_id, domain_id=parent_id
+            )
             if parent_limit_value and resource_limit > parent_limit_value:
                 raise exception.InvalidLimit(
-                    reason="Limit is bigger than parent.")
+                    reason="Limit is bigger than parent."
+                )
         else:
             # This is a domain limit, need make sure its limit is not smaller
             # than its children.
             sub_projects = PROVIDERS.resource_api.list_projects_in_subtree(
-                domain_id)
+                domain_id
+            )
             for sub_project in sub_projects:
                 sub_limit_value = self._get_specified_limit_value(
-                    resource_name, service_id, region_id,
-                    project_id=sub_project['id'])
+                    resource_name,
+                    service_id,
+                    region_id,
+                    project_id=sub_project['id'],
+                )
                 if sub_limit_value and resource_limit < sub_limit_value:
                     raise exception.InvalidLimit(
-                        reason="Limit is smaller than child.")
+                        reason="Limit is smaller than child."
+                    )
 
     def check_limit(self, limits):
         """Check the input limits satisfy the related project tree or not.
@@ -106,20 +126,29 @@ class StrictTwoLevelModel(base.ModelBase):
                 # limit is project level, its parent must be a domain.
                 if project_id:
                     parent_id = PROVIDERS.resource_api.get_project(project_id)[
-                        'parent_id']
-                    parent_limit = list(filter(
-                        lambda x: (x.get('domain_id') == parent_id and
-                                   x['service_id'] == service_id and
-                                   x.get('region_id') == region_id and
-                                   x['resource_name'] == resource_name),
-                        limits))
+                        'parent_id'
+                    ]
+                    parent_limit = list(
+                        filter(
+                            lambda x: (
+                                x.get('domain_id') == parent_id
+                                and x['service_id'] == service_id
+                                and x.get('region_id') == region_id
+                                and x['resource_name'] == resource_name
+                            ),
+                            limits,
+                        )
+                    )
                     if parent_limit:
                         if resource_limit > parent_limit[0]['resource_limit']:
-                            error = _("The value of the limit which project is"
-                                      " %(project_id)s should not bigger than "
-                                      "its parent domain %(domain_id)s.") % {
+                            error = _(
+                                "The value of the limit which project is"
+                                " %(project_id)s should not bigger than "
+                                "its parent domain %(domain_id)s."
+                            ) % {
                                 "project_id": project_id,
-                                "domain_id": parent_limit[0]['domain_id']}
+                                "domain_id": parent_limit[0]['domain_id'],
+                            }
                             raise exception.InvalidLimit(reason=error)
                         # The limit's parent is in request body, no need to
                         # check the backend limit any more.
@@ -127,35 +156,44 @@ class StrictTwoLevelModel(base.ModelBase):
                 else:
                     parent_id = None
 
-                self._check_limit(resource_name, service_id, region_id,
-                                  resource_limit, domain_id=domain_id,
-                                  parent_id=parent_id)
+                self._check_limit(
+                    resource_name,
+                    service_id,
+                    region_id,
+                    resource_limit,
+                    domain_id=domain_id,
+                    parent_id=parent_id,
+                )
             except exception.InvalidLimit:
-                error = ("The resource limit (%(level)s: %(id)s, "
-                         "resource_name: %(resource_name)s, "
-                         "resource_limit: %(resource_limit)s, "
-                         "service_id: %(service_id)s, "
-                         "region_id: %(region_id)s) doesn't satisfy "
-                         "current hierarchy model.") % {
+                error = (
+                    "The resource limit (%(level)s: %(id)s, "
+                    "resource_name: %(resource_name)s, "
+                    "resource_limit: %(resource_limit)s, "
+                    "service_id: %(service_id)s, "
+                    "region_id: %(region_id)s) doesn't satisfy "
+                    "current hierarchy model."
+                ) % {
                     'level': 'project_id' if project_id else 'domain_id',
                     'id': project_id or domain_id,
                     'resource_name': resource_name,
                     'resource_limit': resource_limit,
                     'service_id': service_id,
-                    'region_id': region_id
+                    'region_id': region_id,
                 }
-                tr_error = _("The resource limit (%(level)s: %(id)s, "
-                             "resource_name: %(resource_name)s, "
-                             "resource_limit: %(resource_limit)s, "
-                             "service_id: %(service_id)s, "
-                             "region_id: %(region_id)s) doesn't satisfy "
-                             "current hierarchy model.") % {
+                tr_error = _(
+                    "The resource limit (%(level)s: %(id)s, "
+                    "resource_name: %(resource_name)s, "
+                    "resource_limit: %(resource_limit)s, "
+                    "service_id: %(service_id)s, "
+                    "region_id: %(region_id)s) doesn't satisfy "
+                    "current hierarchy model."
+                ) % {
                     'level': 'project_id' if project_id else 'domain_id',
                     'id': project_id or domain_id,
                     'resource_name': resource_name,
                     'resource_limit': resource_limit,
                     'service_id': service_id,
-                    'region_id': region_id
+                    'region_id': region_id,
                 }
                 LOG.error(error)
                 raise exception.InvalidLimit(reason=tr_error)

@@ -23,19 +23,19 @@ deprecated_create_region = policy.DeprecatedRule(
     name=base.IDENTITY % 'create_region',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.STEIN
+    deprecated_since=versionutils.deprecated.STEIN,
 )
 deprecated_update_region = policy.DeprecatedRule(
     name=base.IDENTITY % 'update_region',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.STEIN
+    deprecated_since=versionutils.deprecated.STEIN,
 )
 deprecated_delete_region = policy.DeprecatedRule(
     name=base.IDENTITY % 'delete_region',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.STEIN
+    deprecated_since=versionutils.deprecated.STEIN,
 )
 
 
@@ -51,45 +51,48 @@ region_policies = [
         # `system` scope.
         scope_types=['system', 'domain', 'project'],
         description='Show region details.',
-        operations=[{'path': '/v3/regions/{region_id}',
-                     'method': 'GET'},
-                    {'path': '/v3/regions/{region_id}',
-                     'method': 'HEAD'}]),
+        operations=[
+            {'path': '/v3/regions/{region_id}', 'method': 'GET'},
+            {'path': '/v3/regions/{region_id}', 'method': 'HEAD'},
+        ],
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_regions',
         check_str='',
         scope_types=['system', 'domain', 'project'],
         description='List regions.',
-        operations=[{'path': '/v3/regions',
-                     'method': 'GET'},
-                    {'path': '/v3/regions',
-                     'method': 'HEAD'}]),
+        operations=[
+            {'path': '/v3/regions', 'method': 'GET'},
+            {'path': '/v3/regions', 'method': 'HEAD'},
+        ],
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_region',
         check_str=base.RULE_ADMIN_REQUIRED,
         scope_types=['system', 'project'],
         description='Create region.',
-        operations=[{'path': '/v3/regions',
-                     'method': 'POST'},
-                    {'path': '/v3/regions/{region_id}',
-                     'method': 'PUT'}],
-        deprecated_rule=deprecated_create_region),
+        operations=[
+            {'path': '/v3/regions', 'method': 'POST'},
+            {'path': '/v3/regions/{region_id}', 'method': 'PUT'},
+        ],
+        deprecated_rule=deprecated_create_region,
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_region',
         check_str=base.RULE_ADMIN_REQUIRED,
         scope_types=['system', 'project'],
         description='Update region.',
-        operations=[{'path': '/v3/regions/{region_id}',
-                     'method': 'PATCH'}],
-        deprecated_rule=deprecated_update_region),
+        operations=[{'path': '/v3/regions/{region_id}', 'method': 'PATCH'}],
+        deprecated_rule=deprecated_update_region,
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_region',
         check_str=base.RULE_ADMIN_REQUIRED,
         scope_types=['system', 'project'],
         description='Delete region.',
-        operations=[{'path': '/v3/regions/{region_id}',
-                     'method': 'DELETE'}],
-        deprecated_rule=deprecated_delete_region),
+        operations=[{'path': '/v3/regions/{region_id}', 'method': 'DELETE'}],
+        deprecated_rule=deprecated_delete_region,
+    ),
 ]
 
 

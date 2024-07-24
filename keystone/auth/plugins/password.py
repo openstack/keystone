@@ -32,8 +32,8 @@ class Password(base.AuthMethodHandler):
 
         try:
             PROVIDERS.identity_api.authenticate(
-                user_id=user_info.user_id,
-                password=user_info.password)
+                user_id=user_info.user_id, password=user_info.password
+            )
         except AssertionError:
             # authentication failed because of invalid username or password
             msg = _('Invalid username or password')
@@ -41,5 +41,6 @@ class Password(base.AuthMethodHandler):
 
         response_data['user_id'] = user_info.user_id
 
-        return base.AuthHandlerResponse(status=True, response_body=None,
-                                        response_data=response_data)
+        return base.AuthHandlerResponse(
+            status=True, response_body=None, response_data=response_data
+        )

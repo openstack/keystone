@@ -20,7 +20,9 @@ class TestValidateIssueTokenAuth(unit.BaseTestCase):
     def _expect_failure(self, post_data):
         self.assertRaises(
             exception.SchemaValidationError,
-            schema.validate_issue_token_auth, post_data)
+            schema.validate_issue_token_auth,
+            post_data,
+        )
 
     def test_auth_not_object_ex(self):
         self._expect_failure('something')
@@ -166,9 +168,7 @@ class TestValidateIssueTokenAuth(unit.BaseTestCase):
                 'password': {
                     'user': {
                         'id': 'something',
-                        'domain': {
-                            'name': {}
-                        },
+                        'domain': {'name': {}},
                     },
                 },
             },
@@ -183,9 +183,7 @@ class TestValidateIssueTokenAuth(unit.BaseTestCase):
                 'password': {
                     'user': {
                         'id': 'something',
-                        'domain': {
-                            'id': {}
-                        },
+                        'domain': {'id': {}},
                     },
                 },
             },
@@ -238,14 +236,18 @@ class TestValidateIssueTokenAuth(unit.BaseTestCase):
 
     def test_scope_not_object_or_string_ex(self):
         p = {
-            'identity': {'methods': [], },
+            'identity': {
+                'methods': [],
+            },
             'scope': 1,
         }
         self._expect_failure(p)
 
     def test_project_not_object_ex(self):
         p = {
-            'identity': {'methods': [], },
+            'identity': {
+                'methods': [],
+            },
             'scope': {
                 'project': 'something',
             },
@@ -254,7 +256,9 @@ class TestValidateIssueTokenAuth(unit.BaseTestCase):
 
     def test_project_name_not_string_ex(self):
         p = {
-            'identity': {'methods': [], },
+            'identity': {
+                'methods': [],
+            },
             'scope': {
                 'project': {
                     'name': {},
@@ -265,7 +269,9 @@ class TestValidateIssueTokenAuth(unit.BaseTestCase):
 
     def test_project_id_not_string_ex(self):
         p = {
-            'identity': {'methods': [], },
+            'identity': {
+                'methods': [],
+            },
             'scope': {
                 'project': {
                     'id': {},
@@ -276,7 +282,9 @@ class TestValidateIssueTokenAuth(unit.BaseTestCase):
 
     def test_project_no_id_or_name_ex(self):
         p = {
-            'identity': {'methods': [], },
+            'identity': {
+                'methods': [],
+            },
             'scope': {
                 'project': {},
             },
@@ -285,7 +293,9 @@ class TestValidateIssueTokenAuth(unit.BaseTestCase):
 
     def test_project_domain_not_object_ex(self):
         p = {
-            'identity': {'methods': [], },
+            'identity': {
+                'methods': [],
+            },
             'scope': {
                 'project': {
                     'id': 'something',
@@ -297,11 +307,15 @@ class TestValidateIssueTokenAuth(unit.BaseTestCase):
 
     def test_project_domain_name_not_string_ex(self):
         p = {
-            'identity': {'methods': [], },
+            'identity': {
+                'methods': [],
+            },
             'scope': {
                 'project': {
                     'id': 'something',
-                    'domain': {'name': {}, },
+                    'domain': {
+                        'name': {},
+                    },
                 },
             },
         }
@@ -309,11 +323,15 @@ class TestValidateIssueTokenAuth(unit.BaseTestCase):
 
     def test_project_domain_id_not_string_ex(self):
         p = {
-            'identity': {'methods': [], },
+            'identity': {
+                'methods': [],
+            },
             'scope': {
                 'project': {
                     'id': 'something',
-                    'domain': {'id': {}, },
+                    'domain': {
+                        'id': {},
+                    },
                 },
             },
         }
@@ -321,7 +339,9 @@ class TestValidateIssueTokenAuth(unit.BaseTestCase):
 
     def test_project_domain_no_id_or_name_ex(self):
         p = {
-            'identity': {'methods': [], },
+            'identity': {
+                'methods': [],
+            },
             'scope': {
                 'project': {
                     'id': 'something',
@@ -333,7 +353,9 @@ class TestValidateIssueTokenAuth(unit.BaseTestCase):
 
     def test_domain_not_object_ex(self):
         p = {
-            'identity': {'methods': [], },
+            'identity': {
+                'methods': [],
+            },
             'scope': {
                 'domain': 'something',
             },
@@ -342,25 +364,35 @@ class TestValidateIssueTokenAuth(unit.BaseTestCase):
 
     def test_domain_id_not_string_ex(self):
         p = {
-            'identity': {'methods': [], },
+            'identity': {
+                'methods': [],
+            },
             'scope': {
-                'domain': {'id': {}, },
+                'domain': {
+                    'id': {},
+                },
             },
         }
         self._expect_failure(p)
 
     def test_domain_name_not_string_ex(self):
         p = {
-            'identity': {'methods': [], },
+            'identity': {
+                'methods': [],
+            },
             'scope': {
-                'domain': {'name': {}, },
+                'domain': {
+                    'name': {},
+                },
             },
         }
         self._expect_failure(p)
 
     def test_domain_no_id_or_name_ex(self):
         p = {
-            'identity': {'methods': [], },
+            'identity': {
+                'methods': [],
+            },
             'scope': {
                 'domain': {},
             },
@@ -369,7 +401,9 @@ class TestValidateIssueTokenAuth(unit.BaseTestCase):
 
     def test_trust_not_object_ex(self):
         p = {
-            'identity': {'methods': [], },
+            'identity': {
+                'methods': [],
+            },
             'scope': {
                 'OS-TRUST:trust': 'something',
             },

@@ -18,8 +18,7 @@ from keystone.tests.unit.identity.backends import test_base
 from keystone.tests.unit.ksfixtures import ldapdb
 
 
-class TestIdentityDriver(core.BaseTestCase,
-                         test_base.IdentityDriverTests):
+class TestIdentityDriver(core.BaseTestCase, test_base.IdentityDriverTests):
 
     allows_name_update = False
     allows_self_service_change_password = False
@@ -37,7 +36,8 @@ class TestIdentityDriver(core.BaseTestCase,
             url='fake://memory',
             user='cn=Admin',
             password='password',
-            suffix='cn=example,cn=com')
+            suffix='cn=example,cn=com',
+        )
 
         self.useFixture(ldapdb.LDAPDatabase())
 

@@ -48,43 +48,50 @@ class Manager(manager.Manager):
 
     def _register_callback_listeners(self):
         notifications.register_event_callback(
-            notifications.ACTIONS.deleted, 'user',
-            self._delete_app_creds_on_user_delete_callback)
+            notifications.ACTIONS.deleted,
+            'user',
+            self._delete_app_creds_on_user_delete_callback,
+        )
         notifications.register_event_callback(
-            notifications.ACTIONS.disabled, 'user',
-            self._delete_app_creds_on_user_delete_callback)
+            notifications.ACTIONS.disabled,
+            'user',
+            self._delete_app_creds_on_user_delete_callback,
+        )
         notifications.register_event_callback(
             notifications.ACTIONS.internal,
             notifications.REMOVE_APP_CREDS_FOR_USER,
-            self._delete_app_creds_on_assignment_removal)
+            self._delete_app_creds_on_assignment_removal,
+        )
 
     def _delete_app_creds_on_user_delete_callback(
-            self, service, resource_type, operation, payload):
+        self, service, resource_type, operation, payload
+    ):
         user_id = payload['resource_info']
         self._delete_application_credentials_for_user(user_id)
         self._delete_access_rules_for_user(user_id)
 
     def _delete_app_creds_on_assignment_removal(
-            self, service, resource_type, operation, payload):
+        self, service, resource_type, operation, payload
+    ):
         user_id = payload['resource_info']['user_id']
         project_id = payload['resource_info']['project_id']
-        self._delete_application_credentials_for_user_on_project(user_id,
-                                                                 project_id)
+        self._delete_application_credentials_for_user_on_project(
+            user_id, project_id
+        )
 
     def _get_user_roles(self, user_id, project_id):
         assignment_list = self.assignment_api.list_role_assignments(
-            user_id=user_id,
-            project_id=project_id,
-            effective=True)
+            user_id=user_id, project_id=project_id, effective=True
+        )
         return list(set([x['role_id'] for x in assignment_list]))
 
     def _require_user_has_role_in_project(self, roles, user_id, project_id):
         user_roles = self._get_user_roles(user_id, project_id)
         for role in roles:
             if role['id'] not in user_roles:
-                raise exception.RoleAssignmentNotFound(role_id=role['id'],
-                                                       actor_id=user_id,
-                                                       target_id=project_id)
+                raise exception.RoleAssignmentNotFound(
+                    role_id=role['id'], actor_id=user_id, target_id=project_id
+                )
 
     def _assert_limit_not_exceeded(self, user_id):
         user_limit = CONF.application_credential.user_limit
@@ -92,7 +99,8 @@ class Manager(manager.Manager):
             app_cred_count = len(self.list_application_credentials(user_id))
             if app_cred_count >= user_limit:
                 raise exception.ApplicationCredentialLimitExceeded(
-                    limit=user_limit)
+                    limit=user_limit
+                )
 
     def _get_role_list(self, app_cred_roles):
         roles = []
@@ -112,12 +120,12 @@ class Manager(manager.Manager):
     def _process_app_cred(self, app_cred_ref):
         app_cred_ref = app_cred_ref.copy()
         app_cred_ref.pop('secret_hash')
-        app_cred_ref['roles'] = self._get_role_list(
-            app_cred_ref['roles'])
+        app_cred_ref['roles'] = self._get_role_list(app_cred_ref['roles'])
         return app_cred_ref
 
-    def create_application_credential(self, application_credential,
-                                      initiator=None):
+    def create_application_credential(
+        self, application_credential, initiator=None
+    ):
         """Create a new application credential.
 
         :param dict application_credential: Application Credential data
@@ -135,13 +143,13 @@ class Manager(manager.Manager):
         self._require_user_has_role_in_project(roles, user_id, project_id)
         unhashed_secret = application_credential['secret']
         ref = self.driver.create_application_credential(
-            application_credential, roles, access_rules)
+            application_credential, roles, access_rules
+        )
         ref['secret'] = unhashed_secret
         ref = self._process_app_cred(ref)
         notifications.Audit.created(
-            self._APP_CRED,
-            application_credential['id'],
-            initiator)
+            self._APP_CRED, application_credential['id'], initiator
+        )
         return ref
 
     @MEMOIZE
@@ -153,7 +161,8 @@ class Manager(manager.Manager):
         :returns: an application credential
         """
         app_cred = self.driver.get_application_credential(
-            application_credential_id)
+            application_credential_id
+        )
         return self._process_app_cred(app_cred)
 
     def list_application_credentials(self, user_id, hints=None):
@@ -166,7 +175,8 @@ class Manager(manager.Manager):
         """
         hints = hints or driver_hints.Hints()
         app_cred_list = self.driver.list_application_credentials_for_user(
-            user_id, hints)
+            user_id, hints
+        )
         return [self._process_app_cred(app_cred) for app_cred in app_cred_list]
 
     @MEMOIZE
@@ -189,8 +199,9 @@ class Manager(manager.Manager):
         hints = hints or driver_hints.Hints()
         return self.driver.list_access_rules_for_user(user_id, hints)
 
-    def delete_application_credential(self, application_credential_id,
-                                      initiator=None):
+    def delete_application_credential(
+        self, application_credential_id, initiator=None
+    ):
         """Delete an application credential.
 
         :param str application_credential_id: Application Credential ID
@@ -200,13 +211,16 @@ class Manager(manager.Manager):
             application credential doesn't exist.
         """
         self.driver.delete_application_credential(application_credential_id)
-        self.get_application_credential.invalidate(self,
-                                                   application_credential_id)
+        self.get_application_credential.invalidate(
+            self, application_credential_id
+        )
         notifications.Audit.deleted(
-            self._APP_CRED, application_credential_id, initiator)
+            self._APP_CRED, application_credential_id, initiator
+        )
 
-    def _delete_application_credentials_for_user(self, user_id,
-                                                 initiator=None):
+    def _delete_application_credentials_for_user(
+        self, user_id, initiator=None
+    ):
         """Delete all application credentials for a user.
 
         :param str user_id: User ID
@@ -214,15 +228,18 @@ class Manager(manager.Manager):
         This is triggered when a user is deleted.
         """
         app_creds = self.driver.list_application_credentials_for_user(
-            user_id, driver_hints.Hints())
+            user_id, driver_hints.Hints()
+        )
         self.driver.delete_application_credentials_for_user(user_id)
         for app_cred in app_creds:
             self.get_application_credential.invalidate(self, app_cred['id'])
-            notifications.Audit.deleted(self._APP_CRED, app_cred['id'],
-                                        initiator)
+            notifications.Audit.deleted(
+                self._APP_CRED, app_cred['id'], initiator
+            )
 
-    def _delete_application_credentials_for_user_on_project(self, user_id,
-                                                            project_id):
+    def _delete_application_credentials_for_user_on_project(
+        self, user_id, project_id
+    ):
         """Delete all application credentials for a user on a given project.
 
         :param str user_id: User ID
@@ -233,10 +250,12 @@ class Manager(manager.Manager):
         hints = driver_hints.Hints()
         hints.add_filter('project_id', project_id)
         app_creds = self.driver.list_application_credentials_for_user(
-            user_id, hints)
+            user_id, hints
+        )
 
         self.driver.delete_application_credentials_for_user_on_project(
-            user_id, project_id)
+            user_id, project_id
+        )
         for app_cred in app_creds:
             self.get_application_credential.invalidate(self, app_cred['id'])
 
@@ -252,7 +271,8 @@ class Manager(manager.Manager):
         self.driver.delete_access_rule(access_rule_id)
         self.get_access_rule.invalidate(self, access_rule_id)
         notifications.Audit.deleted(
-            self._ACCESS_RULE, access_rule_id, initiator)
+            self._ACCESS_RULE, access_rule_id, initiator
+        )
 
     def _delete_access_rules_for_user(self, user_id, initiator=None):
         """Delete all access rules for a user.
@@ -262,9 +282,11 @@ class Manager(manager.Manager):
         This is triggered when a user is deleted.
         """
         access_rules = self.driver.list_access_rules_for_user(
-            user_id, driver_hints.Hints())
+            user_id, driver_hints.Hints()
+        )
         self.driver.delete_access_rules_for_user(user_id)
         for rule in access_rules:
             self.get_access_rule.invalidate(self, rule['id'])
-            notifications.Audit.deleted(self._ACCESS_RULE, rule['id'],
-                                        initiator)
+            notifications.Audit.deleted(
+                self._ACCESS_RULE, rule['id'], initiator
+            )

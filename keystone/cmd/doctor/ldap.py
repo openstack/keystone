@@ -30,7 +30,8 @@ def symptom_LDAP_user_enabled_emulation_dn_ignored():
     """
     return (
         not CONF.ldap.user_enabled_emulation
-        and CONF.ldap.user_enabled_emulation_dn is not None)
+        and CONF.ldap.user_enabled_emulation_dn is not None
+    )
 
 
 def symptom_LDAP_user_enabled_emulation_use_group_config_ignored():
@@ -41,7 +42,8 @@ def symptom_LDAP_user_enabled_emulation_use_group_config_ignored():
     """
     return (
         not CONF.ldap.user_enabled_emulation
-        and CONF.ldap.user_enabled_emulation_use_group_config)
+        and CONF.ldap.user_enabled_emulation_use_group_config
+    )
 
 
 def symptom_LDAP_group_members_are_ids_disabled():
@@ -55,7 +57,8 @@ def symptom_LDAP_group_members_are_ids_disabled():
     """
     return (
         CONF.ldap.group_objectclass == 'posixGroup'
-        and not CONF.ldap.group_members_are_ids)
+        and not CONF.ldap.group_members_are_ids
+    )
 
 
 def symptom_LDAP_file_based_domain_specific_configs():
@@ -69,8 +72,10 @@ def symptom_LDAP_file_based_domain_specific_configs():
     `keystone.conf [identity] domain_configurations_from_database`
     being set to `false`.
     """
-    if (not CONF.identity.domain_specific_drivers_enabled or
-            CONF.identity.domain_configurations_from_database):
+    if (
+        not CONF.identity.domain_specific_drivers_enabled
+        or CONF.identity.domain_configurations_from_database
+    ):
         return False
 
     invalid_files = []
@@ -81,10 +86,12 @@ def symptom_LDAP_file_based_domain_specific_configs():
                 invalid_files.append(filename)
         if invalid_files:
             invalid_str = ', '.join(invalid_files)
-            print('Warning: The following non-config files were found: %s\n'
-                  'If they are intended to be config files then rename them '
-                  'to the form of `keystone.<domain_name>.conf`. '
-                  'Otherwise, ignore this warning' % invalid_str)
+            print(
+                'Warning: The following non-config files were found: %s\n'
+                'If they are intended to be config files then rename them '
+                'to the form of `keystone.<domain_name>.conf`. '
+                'Otherwise, ignore this warning' % invalid_str
+            )
             return True
     else:
         print('Could not find directory ', filedir)
@@ -122,9 +129,11 @@ def symptom_LDAP_file_based_domain_specific_configs_formatted_correctly():
     # there is no point in continuing with this check.
     # symptom_LDAP_file_based_domain_specific_config will catch and
     # report this issue.
-    if (not CONF.identity.domain_specific_drivers_enabled or
-            CONF.identity.domain_configurations_from_database or
-            not os.path.isdir(filedir)):
+    if (
+        not CONF.identity.domain_specific_drivers_enabled
+        or CONF.identity.domain_configurations_from_database
+        or not os.path.isdir(filedir)
+    ):
         return False
 
     invalid_files = []
@@ -138,8 +147,10 @@ def symptom_LDAP_file_based_domain_specific_configs_formatted_correctly():
 
     if invalid_files:
         invalid_str = ', '.join(invalid_files)
-        print('Error: The following config files are formatted incorrectly: ',
-              invalid_str)
+        print(
+            'Error: The following config files are formatted incorrectly: ',
+            invalid_str,
+        )
         return True
 
     return False

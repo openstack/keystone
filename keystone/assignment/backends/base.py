@@ -48,9 +48,15 @@ class AssignmentDriverBase(object, metaclass=abc.ABCMeta):
     # assignment/grant crud
 
     @abc.abstractmethod
-    def create_grant(self, role_id, user_id=None, group_id=None,
-                     domain_id=None, project_id=None,
-                     inherited_to_projects=False):
+    def create_grant(
+        self,
+        role_id,
+        user_id=None,
+        group_id=None,
+        domain_id=None,
+        project_id=None,
+        inherited_to_projects=False,
+    ):
         """Create a new assignment/grant.
 
         If the assignment is to a domain, then optionally it may be
@@ -61,16 +67,27 @@ class AssignmentDriverBase(object, metaclass=abc.ABCMeta):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def list_grant_role_ids(self, user_id=None, group_id=None,
-                            domain_id=None, project_id=None,
-                            inherited_to_projects=False):
+    def list_grant_role_ids(
+        self,
+        user_id=None,
+        group_id=None,
+        domain_id=None,
+        project_id=None,
+        inherited_to_projects=False,
+    ):
         """List role ids for assignments/grants."""
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def check_grant_role_id(self, role_id, user_id=None, group_id=None,
-                            domain_id=None, project_id=None,
-                            inherited_to_projects=False):
+    def check_grant_role_id(
+        self,
+        role_id,
+        user_id=None,
+        group_id=None,
+        domain_id=None,
+        project_id=None,
+        inherited_to_projects=False,
+    ):
         """Check an assignment/grant role id.
 
         :raises keystone.exception.RoleAssignmentNotFound: If the role
@@ -81,9 +98,15 @@ class AssignmentDriverBase(object, metaclass=abc.ABCMeta):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def delete_grant(self, role_id, user_id=None, group_id=None,
-                     domain_id=None, project_id=None,
-                     inherited_to_projects=False):
+    def delete_grant(
+        self,
+        role_id,
+        user_id=None,
+        group_id=None,
+        domain_id=None,
+        project_id=None,
+        inherited_to_projects=False,
+    ):
         """Delete assignments/grants.
 
         :raises keystone.exception.RoleAssignmentNotFound: If the role
@@ -93,10 +116,15 @@ class AssignmentDriverBase(object, metaclass=abc.ABCMeta):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def list_role_assignments(self, role_id=None,
-                              user_id=None, group_ids=None,
-                              domain_id=None, project_ids=None,
-                              inherited_to_projects=None):
+    def list_role_assignments(
+        self,
+        role_id=None,
+        user_id=None,
+        group_ids=None,
+        domain_id=None,
+        project_ids=None,
+        inherited_to_projects=None,
+    ):
         """Return a list of role assignments for actors on targets.
 
         Available parameters represent values in which the returned role
@@ -144,8 +172,9 @@ class AssignmentDriverBase(object, metaclass=abc.ABCMeta):
         raise exception.NotImplemented()
 
     @abc.abstractmethod
-    def create_system_grant(self, role_id, actor_id, target_id,
-                            assignment_type, inherited):
+    def create_system_grant(
+        self, role_id, actor_id, target_id, assignment_type, inherited
+    ):
         """Grant a user or group  a role on the system.
 
         :param role_id: the unique ID of the role to grant to the user

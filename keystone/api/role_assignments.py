@@ -46,8 +46,13 @@ class RoleAssignmentsResource(ks_flask.ResourceBase):
 
     def _list_role_assignments(self):
         filters = [
-            'group.id', 'role.id', 'scope.domain.id', 'scope.project.id',
-            'scope.OS-INHERIT:inherited_to', 'user.id', 'scope.system'
+            'group.id',
+            'role.id',
+            'scope.domain.id',
+            'scope.project.id',
+            'scope.OS-INHERIT:inherited_to',
+            'user.id',
+            'scope.system',
         ]
         target = None
         if self.oslo_context.domain_id:
@@ -58,9 +63,11 @@ class RoleAssignmentsResource(ks_flask.ResourceBase):
             # so we reflect the domain_id from the context into the target
             # to validate domain-scoped tokens.
             target = {'domain_id': self.oslo_context.domain_id}
-        ENFORCER.enforce_call(action='identity:list_role_assignments',
-                              filters=filters,
-                              target_attr=target)
+        ENFORCER.enforce_call(
+            action='identity:list_role_assignments',
+            filters=filters,
+            target_attr=target,
+        )
 
         assignments = self._build_role_assignments_list()
 
@@ -83,8 +90,12 @@ class RoleAssignmentsResource(ks_flask.ResourceBase):
 
     def _list_role_assignments_for_tree(self):
         filters = [
-            'group.id', 'role.id', 'scope.domain.id', 'scope.project.id',
-            'scope.OS-INHERIT:inherited_to', 'user.id'
+            'group.id',
+            'role.id',
+            'scope.domain.id',
+            'scope.project.id',
+            'scope.OS-INHERIT:inherited_to',
+            'user.id',
         ]
         project_id = flask.request.args.get('scope.project.id')
         target = None
@@ -95,11 +106,16 @@ class RoleAssignmentsResource(ks_flask.ResourceBase):
             # Add target.domain_id to validate domain-scoped tokens
             target['domain_id'] = target['project']['domain_id']
 
-        ENFORCER.enforce_call(action='identity:list_role_assignments_for_tree',
-                              filters=filters, target_attr=target)
+        ENFORCER.enforce_call(
+            action='identity:list_role_assignments_for_tree',
+            filters=filters,
+            target_attr=target,
+        )
         if not project_id:
-            msg = _('scope.project.id must be specified if include_subtree '
-                    'is also specified')
+            msg = _(
+                'scope.project.id must be specified if include_subtree '
+                'is also specified'
+            )
             raise exception.ValidationError(message=msg)
         return self._build_role_assignments_list(include_subtree=True)
 
@@ -144,31 +160,36 @@ class RoleAssignmentsResource(ks_flask.ResourceBase):
             include_subtree=include_subtree,
             inherited=self._inherited,
             effective=self._effective,
-            include_names=include_names)
+            include_names=include_names,
+        )
         formatted_refs = [self._format_entity(ref) for ref in refs]
         return self.wrap_collection(formatted_refs)
 
     def _assert_domain_nand_project(self):
-        if (flask.request.args.get('scope.domain.id') and
-                flask.request.args.get('scope.project.id')):
+        if flask.request.args.get(
+            'scope.domain.id'
+        ) and flask.request.args.get('scope.project.id'):
             msg = _('Specify a domain or project, not both')
             raise exception.ValidationError(msg)
 
     def _assert_system_nand_domain(self):
-        if (flask.request.args.get('scope.domain.id') and
-                flask.request.args.get('scope.system')):
+        if flask.request.args.get(
+            'scope.domain.id'
+        ) and flask.request.args.get('scope.system'):
             msg = _('Specify system or domain, not both')
             raise exception.ValidationError(msg)
 
     def _assert_system_nand_project(self):
-        if (flask.request.args.get('scope.project.id') and
-                flask.request.args.get('scope.system')):
+        if flask.request.args.get(
+            'scope.project.id'
+        ) and flask.request.args.get('scope.system'):
             msg = _('Specify system or project, not both')
             raise exception.ValidationError(msg)
 
     def _assert_user_nand_group(self):
-        if (flask.request.args.get('user.id') and
-                flask.request.args.get('group.id')):
+        if flask.request.args.get('user.id') and flask.request.args.get(
+            'group.id'
+        ):
             msg = _('Specify a user or group, not both')
             raise exception.ValidationError(msg)
 
@@ -184,14 +205,17 @@ class RoleAssignmentsResource(ks_flask.ResourceBase):
         """
         if self._effective:
             if flask.request.args.get('group.id'):
-                msg = _('Combining effective and group filter will always '
-                        'result in an empty list.')
+                msg = _(
+                    'Combining effective and group filter will always '
+                    'result in an empty list.'
+                )
                 raise exception.ValidationError(msg)
 
             if self._inherited and flask.request.args.get('scope.domain.id'):
                 msg = _(
                     'Combining effective, domain and inherited filters will '
-                    'always result in an empty list.')
+                    'always result in an empty list.'
+                )
                 raise exception.ValidationError(msg)
 
     @property
@@ -275,33 +299,45 @@ class RoleAssignmentsResource(ks_flask.ResourceBase):
 
         if 'project_id' in entity:
             if 'project_name' in entity:
-                formatted_entity['scope'] = {'project': {
-                    'id': entity['project_id'],
-                    'name': entity['project_name'],
-                    'domain': {'id': entity['project_domain_id'],
-                               'name': entity['project_domain_name']}}}
+                formatted_entity['scope'] = {
+                    'project': {
+                        'id': entity['project_id'],
+                        'name': entity['project_name'],
+                        'domain': {
+                            'id': entity['project_domain_id'],
+                            'name': entity['project_domain_name'],
+                        },
+                    }
+                }
             else:
                 formatted_entity['scope'] = {
-                    'project': {'id': entity['project_id']}}
+                    'project': {'id': entity['project_id']}
+                }
 
             if 'domain_id' in entity.get('indirect', {}):
                 inherited_assignment = True
-                formatted_link = ('/domains/%s' %
-                                  entity['indirect']['domain_id'])
+                formatted_link = (
+                    '/domains/%s' % entity['indirect']['domain_id']
+                )
             elif 'project_id' in entity.get('indirect', {}):
                 inherited_assignment = True
-                formatted_link = ('/projects/%s' %
-                                  entity['indirect']['project_id'])
+                formatted_link = (
+                    '/projects/%s' % entity['indirect']['project_id']
+                )
             else:
                 formatted_link = '/projects/%s' % entity['project_id']
         elif 'domain_id' in entity:
             if 'domain_name' in entity:
                 formatted_entity['scope'] = {
-                    'domain': {'id': entity['domain_id'],
-                               'name': entity['domain_name']}}
+                    'domain': {
+                        'id': entity['domain_id'],
+                        'name': entity['domain_name'],
+                    }
+                }
             else:
                 formatted_entity['scope'] = {
-                    'domain': {'id': entity['domain_id']}}
+                    'domain': {'id': entity['domain_id']}
+                }
             formatted_link = '/domains/%s' % entity['domain_id']
         elif 'system' in entity:
             formatted_link = '/system'
@@ -312,14 +348,18 @@ class RoleAssignmentsResource(ks_flask.ResourceBase):
                 formatted_entity['user'] = {
                     'id': entity['user_id'],
                     'name': entity['user_name'],
-                    'domain': {'id': entity['user_domain_id'],
-                               'name': entity['user_domain_name']}}
+                    'domain': {
+                        'id': entity['user_domain_id'],
+                        'name': entity['user_domain_name'],
+                    },
+                }
             else:
                 formatted_entity['user'] = {'id': entity['user_id']}
             if 'group_id' in entity.get('indirect', {}):
-                membership_url = (
-                    ks_flask.base_url(path='/groups/%s/users/%s' % (
-                        entity['indirect']['group_id'], entity['user_id'])))
+                membership_url = ks_flask.base_url(
+                    path='/groups/%s/users/%s'
+                    % (entity['indirect']['group_id'], entity['user_id'])
+                )
                 formatted_entity['links']['membership'] = membership_url
                 formatted_link += '/groups/%s' % entity['indirect']['group_id']
             else:
@@ -329,43 +369,54 @@ class RoleAssignmentsResource(ks_flask.ResourceBase):
                 formatted_entity['group'] = {
                     'id': entity['group_id'],
                     'name': entity['group_name'],
-                    'domain': {'id': entity['group_domain_id'],
-                               'name': entity['group_domain_name']}}
+                    'domain': {
+                        'id': entity['group_domain_id'],
+                        'name': entity['group_domain_name'],
+                    },
+                }
             else:
                 formatted_entity['group'] = {'id': entity['group_id']}
             formatted_link += '/groups/%s' % entity['group_id']
 
         if 'role_name' in entity:
-            formatted_entity['role'] = {'id': entity['role_id'],
-                                        'name': entity['role_name']}
+            formatted_entity['role'] = {
+                'id': entity['role_id'],
+                'name': entity['role_name'],
+            }
             if 'role_domain_id' in entity and 'role_domain_name' in entity:
                 formatted_entity['role'].update(
-                    {'domain': {'id': entity['role_domain_id'],
-                                'name': entity['role_domain_name']}})
+                    {
+                        'domain': {
+                            'id': entity['role_domain_id'],
+                            'name': entity['role_domain_name'],
+                        }
+                    }
+                )
         else:
             formatted_entity['role'] = {'id': entity['role_id']}
         prior_role_link = ''
         if 'role_id' in entity.get('indirect', {}):
             formatted_link += '/roles/%s' % entity['indirect']['role_id']
-            prior_role_link = (
-                '/prior_role/%(prior)s/implies/%(implied)s' % {
-                    'prior': entity['role_id'],
-                    'implied': entity['indirect']['role_id']
-                })
+            prior_role_link = '/prior_role/%(prior)s/implies/%(implied)s' % {
+                'prior': entity['role_id'],
+                'implied': entity['indirect']['role_id'],
+            }
         else:
             formatted_link += '/roles/%s' % entity['role_id']
 
         if inherited_assignment:
-            formatted_entity['scope']['OS-INHERIT:inherited_to'] = (
-                'projects')
-            formatted_link = ('/OS-INHERIT%s/inherited_to_projects' %
-                              formatted_link)
+            formatted_entity['scope']['OS-INHERIT:inherited_to'] = 'projects'
+            formatted_link = (
+                '/OS-INHERIT%s/inherited_to_projects' % formatted_link
+            )
 
         formatted_entity['links']['assignment'] = ks_flask.base_url(
-            path=formatted_link)
+            path=formatted_link
+        )
         if prior_role_link:
-            formatted_entity['links']['prior_role'] = (
-                ks_flask.base_url(path=prior_role_link))
+            formatted_entity['links']['prior_role'] = ks_flask.base_url(
+                path=prior_role_link
+            )
 
         return formatted_entity
 
@@ -379,7 +430,8 @@ class RoleAssignmentsAPI(ks_flask.APIBase):
             resource=RoleAssignmentsResource,
             url='/role_assignments',
             resource_kwargs={},
-            rel='role_assignments')
+            rel='role_assignments',
+        )
     ]
 
 

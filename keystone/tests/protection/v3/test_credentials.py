@@ -36,7 +36,7 @@ class _UserCredentialTests(object):
             'credential': {
                 'blob': uuid.uuid4().hex,
                 'user_id': self.user_id,
-                'type': uuid.uuid4().hex
+                'type': uuid.uuid4().hex,
             }
         }
         with self.test_client() as c:
@@ -48,7 +48,7 @@ class _UserCredentialTests(object):
                 'credential': {
                     'blob': uuid.uuid4().hex,
                     'type': uuid.uuid4().hex,
-                    'user_id': self.user_id
+                    'user_id': self.user_id,
                 }
             }
             r = c.post('/v3/credentials', json=create, headers=self.headers)
@@ -56,9 +56,7 @@ class _UserCredentialTests(object):
 
             path = '/v3/credentials/%s' % credential_id
             r = c.get(path, headers=self.headers)
-            self.assertEqual(
-                self.user_id, r.json['credential']['user_id']
-            )
+            self.assertEqual(self.user_id, r.json['credential']['user_id'])
 
     def test_user_can_list_their_credentials(self):
         with self.test_client() as c:
@@ -68,7 +66,7 @@ class _UserCredentialTests(object):
                     'credential': {
                         'blob': uuid.uuid4().hex,
                         'type': uuid.uuid4().hex,
-                        'user_id': self.user_id
+                        'user_id': self.user_id,
                     }
                 }
                 r = c.post(
@@ -87,24 +85,20 @@ class _UserCredentialTests(object):
                 'credential': {
                     'blob': uuid.uuid4().hex,
                     'type': credential_type,
-                    'user_id': self.user_id
+                    'user_id': self.user_id,
                 }
             }
-            r = c.post(
-                '/v3/credentials', json=create, headers=self.headers
-            )
+            r = c.post('/v3/credentials', json=create, headers=self.headers)
             expected_credential_id = r.json['credential']['id']
 
             create = {
                 'credential': {
                     'blob': uuid.uuid4().hex,
                     'type': uuid.uuid4().hex,
-                    'user_id': self.user_id
+                    'user_id': self.user_id,
                 }
             }
-            r = c.post(
-                '/v3/credentials', json=create, headers=self.headers
-            )
+            r = c.post('/v3/credentials', json=create, headers=self.headers)
 
             path = '/v3/credentials?type=%s' % credential_type
             r = c.get(path, headers=self.headers)
@@ -124,7 +118,7 @@ class _UserCredentialTests(object):
                 'credential': {
                     'blob': uuid.uuid4().hex,
                     'type': uuid.uuid4().hex,
-                    'user_id': self.user_id
+                    'user_id': self.user_id,
                 }
             }
 
@@ -143,7 +137,7 @@ class _UserCredentialTests(object):
                 'credential': {
                     'blob': uuid.uuid4().hex,
                     'type': uuid.uuid4().hex,
-                    'user_id': self.user_id
+                    'user_id': self.user_id,
                 }
             }
             r = c.post('/v3/credentials', json=create, headers=self.headers)
@@ -165,12 +159,14 @@ class _ProjectUsersTests(object):
         )
         project = PROVIDERS.resource_api.create_project(project['id'], project)
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.member_role_id, user_id=user['id'],
-            project_id=project['id']
+            self.bootstrapper.member_role_id,
+            user_id=user['id'],
+            project_id=project['id'],
         )
         user_auth = self.build_authentication_request(
-            user_id=user['id'], password=user_password,
-            project_id=project['id']
+            user_id=user['id'],
+            password=user_password,
+            project_id=project['id'],
         )
 
         with self.test_client() as c:
@@ -182,7 +178,7 @@ class _ProjectUsersTests(object):
                 'credential': {
                     'blob': uuid.uuid4().hex,
                     'type': uuid.uuid4().hex,
-                    'user_id': user['id']
+                    'user_id': user['id'],
                 }
             }
             r = c.post('/v3/credentials', json=create, headers=headers)
@@ -191,15 +187,17 @@ class _ProjectUsersTests(object):
         with self.test_client() as c:
             path = '/v3/credentials/%s' % credential_id
             c.get(
-                path, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                path,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_get_non_existant_credential_forbidden(self):
         with self.test_client() as c:
             c.get(
-                '/v3/credentials/%s' % uuid.uuid4().hex, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/credentials/%s' % uuid.uuid4().hex,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_list_credentials_for_other_users(self):
@@ -211,12 +209,14 @@ class _ProjectUsersTests(object):
         )
         project = PROVIDERS.resource_api.create_project(project['id'], project)
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.member_role_id, user_id=user['id'],
-            project_id=project['id']
+            self.bootstrapper.member_role_id,
+            user_id=user['id'],
+            project_id=project['id'],
         )
         user_auth = self.build_authentication_request(
-            user_id=user['id'], password=user_password,
-            project_id=project['id']
+            user_id=user['id'],
+            password=user_password,
+            project_id=project['id'],
         )
 
         with self.test_client() as c:
@@ -228,7 +228,7 @@ class _ProjectUsersTests(object):
                 'credential': {
                     'blob': uuid.uuid4().hex,
                     'type': uuid.uuid4().hex,
-                    'user_id': user['id']
+                    'user_id': user['id'],
                 }
             }
             c.post('/v3/credentials', json=create, headers=headers)
@@ -247,12 +247,14 @@ class _ProjectUsersTests(object):
         )
         project = PROVIDERS.resource_api.create_project(project['id'], project)
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.member_role_id, user_id=user['id'],
-            project_id=project['id']
+            self.bootstrapper.member_role_id,
+            user_id=user['id'],
+            project_id=project['id'],
         )
         user_auth = self.build_authentication_request(
-            user_id=user['id'], password=user_password,
-            project_id=project['id']
+            user_id=user['id'],
+            password=user_password,
+            project_id=project['id'],
         )
 
         credential_type = uuid.uuid4().hex
@@ -265,7 +267,7 @@ class _ProjectUsersTests(object):
                 'credential': {
                     'blob': uuid.uuid4().hex,
                     'type': credential_type,
-                    'user_id': user['id']
+                    'user_id': user['id'],
                 }
             }
             c.post('/v3/credentials', json=create, headers=headers)
@@ -284,12 +286,14 @@ class _ProjectUsersTests(object):
         )
         project = PROVIDERS.resource_api.create_project(project['id'], project)
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.member_role_id, user_id=user['id'],
-            project_id=project['id']
+            self.bootstrapper.member_role_id,
+            user_id=user['id'],
+            project_id=project['id'],
         )
         user_auth = self.build_authentication_request(
-            user_id=user['id'], password=user_password,
-            project_id=project['id']
+            user_id=user['id'],
+            password=user_password,
+            project_id=project['id'],
         )
 
         with self.test_client() as c:
@@ -303,7 +307,7 @@ class _ProjectUsersTests(object):
                     'credential': {
                         'blob': uuid.uuid4().hex,
                         'type': uuid.uuid4().hex,
-                        'user_id': user['id']
+                        'user_id': user['id'],
                     }
                 }
                 r = c.post('/v3/credentials', json=create, headers=headers)
@@ -323,12 +327,14 @@ class _ProjectUsersTests(object):
         )
         project = PROVIDERS.resource_api.create_project(project['id'], project)
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.member_role_id, user_id=user['id'],
-            project_id=project['id']
+            self.bootstrapper.member_role_id,
+            user_id=user['id'],
+            project_id=project['id'],
         )
         user_auth = self.build_authentication_request(
-            user_id=user['id'], password=user_password,
-            project_id=project['id']
+            user_id=user['id'],
+            password=user_password,
+            project_id=project['id'],
         )
 
         with self.test_client() as c:
@@ -340,7 +346,7 @@ class _ProjectUsersTests(object):
                 'credential': {
                     'blob': uuid.uuid4().hex,
                     'type': uuid.uuid4().hex,
-                    'user_id': user['id']
+                    'user_id': user['id'],
                 }
             }
             r = c.post('/v3/credentials', json=create, headers=headers)
@@ -350,8 +356,10 @@ class _ProjectUsersTests(object):
             update = {'credential': {'blob': uuid.uuid4().hex}}
             path = '/v3/credentials/%s' % credential_id
             c.patch(
-                path, json=update, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                path,
+                json=update,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_update_non_existant_credential_forbidden(self):
@@ -359,9 +367,10 @@ class _ProjectUsersTests(object):
             update = {'credential': {'blob': uuid.uuid4().hex}}
 
             c.patch(
-                '/v3/credentials/%s' % uuid.uuid4().hex, json=update,
+                '/v3/credentials/%s' % uuid.uuid4().hex,
+                json=update,
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_create_credentials_for_other_users(self):
@@ -374,12 +383,14 @@ class _ProjectUsersTests(object):
                 'credential': {
                     'blob': uuid.uuid4().hex,
                     'type': uuid.uuid4().hex,
-                    'user_id': user['id']
+                    'user_id': user['id'],
                 }
             }
             c.post(
-                '/v3/credentials', json=create, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/credentials',
+                json=create,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_credentials_for_others(self):
@@ -391,12 +402,14 @@ class _ProjectUsersTests(object):
         )
         project = PROVIDERS.resource_api.create_project(project['id'], project)
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.member_role_id, user_id=user['id'],
-            project_id=project['id']
+            self.bootstrapper.member_role_id,
+            user_id=user['id'],
+            project_id=project['id'],
         )
         user_auth = self.build_authentication_request(
-            user_id=user['id'], password=user_password,
-            project_id=project['id']
+            user_id=user['id'],
+            password=user_password,
+            project_id=project['id'],
         )
 
         with self.test_client() as c:
@@ -408,7 +421,7 @@ class _ProjectUsersTests(object):
                 'credential': {
                     'blob': uuid.uuid4().hex,
                     'type': uuid.uuid4().hex,
-                    'user_id': user['id']
+                    'user_id': user['id'],
                 }
             }
             r = c.post('/v3/credentials', json=create, headers=headers)
@@ -417,15 +430,17 @@ class _ProjectUsersTests(object):
         with self.test_client() as c:
             path = '/v3/credentials/%s' % credential_id
             c.delete(
-                path, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                path,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_non_existant_credential_forbidden(self):
         with self.test_client() as c:
             c.delete(
-                '/v3/credentials/%s' % uuid.uuid4().hex, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/credentials/%s' % uuid.uuid4().hex,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
 
@@ -441,12 +456,14 @@ class _SystemUserCredentialTests(object):
         )
         project = PROVIDERS.resource_api.create_project(project['id'], project)
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.member_role_id, user_id=user['id'],
-            project_id=project['id']
+            self.bootstrapper.member_role_id,
+            user_id=user['id'],
+            project_id=project['id'],
         )
         user_auth = self.build_authentication_request(
-            user_id=user['id'], password=user_password,
-            project_id=project['id']
+            user_id=user['id'],
+            password=user_password,
+            project_id=project['id'],
         )
 
         with self.test_client() as c:
@@ -458,7 +475,7 @@ class _SystemUserCredentialTests(object):
                 'credential': {
                     'blob': uuid.uuid4().hex,
                     'type': uuid.uuid4().hex,
-                    'user_id': user['id']
+                    'user_id': user['id'],
                 }
             }
             r = c.post('/v3/credentials', json=create, headers=headers)
@@ -473,8 +490,9 @@ class _SystemUserCredentialTests(object):
     def test_user_cannot_get_non_existant_credential_not_found(self):
         with self.test_client() as c:
             c.get(
-                '/v3/credentials/%s' % uuid.uuid4().hex, headers=self.headers,
-                expected_status_code=http.client.NOT_FOUND
+                '/v3/credentials/%s' % uuid.uuid4().hex,
+                headers=self.headers,
+                expected_status_code=http.client.NOT_FOUND,
             )
 
     def test_user_can_filter_credentials_by_type_for_others(self):
@@ -486,12 +504,14 @@ class _SystemUserCredentialTests(object):
         )
         project = PROVIDERS.resource_api.create_project(project['id'], project)
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.member_role_id, user_id=user['id'],
-            project_id=project['id']
+            self.bootstrapper.member_role_id,
+            user_id=user['id'],
+            project_id=project['id'],
         )
         user_auth = self.build_authentication_request(
-            user_id=user['id'], password=user_password,
-            project_id=project['id']
+            user_id=user['id'],
+            password=user_password,
+            project_id=project['id'],
         )
 
         credential_type = uuid.uuid4().hex
@@ -504,7 +524,7 @@ class _SystemUserCredentialTests(object):
                 'credential': {
                     'blob': uuid.uuid4().hex,
                     'type': credential_type,
-                    'user_id': user['id']
+                    'user_id': user['id'],
                 }
             }
             r = c.post('/v3/credentials', json=create, headers=headers)
@@ -514,7 +534,7 @@ class _SystemUserCredentialTests(object):
                 'credential': {
                     'blob': uuid.uuid4().hex,
                     'type': uuid.uuid4().hex,
-                    'user_id': user['id']
+                    'user_id': user['id'],
                 }
             }
             c.post('/v3/credentials', json=create, headers=headers)
@@ -535,12 +555,14 @@ class _SystemUserCredentialTests(object):
         )
         project = PROVIDERS.resource_api.create_project(project['id'], project)
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.member_role_id, user_id=user['id'],
-            project_id=project['id']
+            self.bootstrapper.member_role_id,
+            user_id=user['id'],
+            project_id=project['id'],
         )
         user_auth = self.build_authentication_request(
-            user_id=user['id'], password=user_password,
-            project_id=project['id']
+            user_id=user['id'],
+            password=user_password,
+            project_id=project['id'],
         )
 
         with self.test_client() as c:
@@ -554,7 +576,7 @@ class _SystemUserCredentialTests(object):
                     'credential': {
                         'blob': uuid.uuid4().hex,
                         'type': uuid.uuid4().hex,
-                        'user_id': user['id']
+                        'user_id': user['id'],
                     }
                 }
                 r = c.post('/v3/credentials', json=create, headers=headers)
@@ -569,10 +591,12 @@ class _SystemUserCredentialTests(object):
                 self.assertEqual(user['id'], credential['user_id'])
 
 
-class SystemReaderTests(base_classes.TestCaseWithBootstrap,
-                        common_auth.AuthTestMixin,
-                        _UserCredentialTests,
-                        _SystemUserCredentialTests):
+class SystemReaderTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _UserCredentialTests,
+    _SystemUserCredentialTests,
+):
 
     def setUp(self):
         super(SystemReaderTests, self).setUp()
@@ -583,16 +607,15 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
         system_reader = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
         )
-        self.user_id = PROVIDERS.identity_api.create_user(
-            system_reader
-        )['id']
+        self.user_id = PROVIDERS.identity_api.create_user(system_reader)['id']
         PROVIDERS.assignment_api.create_system_grant_for_user(
             self.user_id, self.bootstrapper.reader_role_id
         )
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=system_reader['password'],
-            system=True
+            user_id=self.user_id,
+            password=system_reader['password'],
+            system=True,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -612,12 +635,14 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
                 'credential': {
                     'blob': uuid.uuid4().hex,
                     'type': uuid.uuid4().hex,
-                    'user_id': user['id']
+                    'user_id': user['id'],
                 }
             }
             c.post(
-                '/v3/credentials', json=create, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/credentials',
+                json=create,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_update_credentials_for_others(self):
@@ -629,12 +654,14 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
         )
         project = PROVIDERS.resource_api.create_project(project['id'], project)
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.member_role_id, user_id=user['id'],
-            project_id=project['id']
+            self.bootstrapper.member_role_id,
+            user_id=user['id'],
+            project_id=project['id'],
         )
         user_auth = self.build_authentication_request(
-            user_id=user['id'], password=user_password,
-            project_id=project['id']
+            user_id=user['id'],
+            password=user_password,
+            project_id=project['id'],
         )
 
         with self.test_client() as c:
@@ -646,7 +673,7 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
                 'credential': {
                     'blob': uuid.uuid4().hex,
                     'type': uuid.uuid4().hex,
-                    'user_id': user['id']
+                    'user_id': user['id'],
                 }
             }
             r = c.post('/v3/credentials', json=create, headers=headers)
@@ -656,8 +683,10 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
             update = {'credential': {'blob': uuid.uuid4().hex}}
             path = '/v3/credentials/%s' % credential_id
             c.patch(
-                path, json=update, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                path,
+                json=update,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_update_non_existant_credential_forbidden(self):
@@ -665,9 +694,10 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
             update = {'credential': {'blob': uuid.uuid4().hex}}
 
             c.patch(
-                '/v3/credentials/%s' % uuid.uuid4().hex, json=update,
+                '/v3/credentials/%s' % uuid.uuid4().hex,
+                json=update,
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_credentials_for_others(self):
@@ -679,12 +709,14 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
         )
         project = PROVIDERS.resource_api.create_project(project['id'], project)
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.member_role_id, user_id=user['id'],
-            project_id=project['id']
+            self.bootstrapper.member_role_id,
+            user_id=user['id'],
+            project_id=project['id'],
         )
         user_auth = self.build_authentication_request(
-            user_id=user['id'], password=user_password,
-            project_id=project['id']
+            user_id=user['id'],
+            password=user_password,
+            project_id=project['id'],
         )
 
         with self.test_client() as c:
@@ -696,7 +728,7 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
                 'credential': {
                     'blob': uuid.uuid4().hex,
                     'type': uuid.uuid4().hex,
-                    'user_id': user['id']
+                    'user_id': user['id'],
                 }
             }
             r = c.post('/v3/credentials', json=create, headers=headers)
@@ -705,22 +737,26 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             path = '/v3/credentials/%s' % credential_id
             c.delete(
-                path, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                path,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_non_existant_credential_forbidden(self):
         with self.test_client() as c:
             c.delete(
-                '/v3/credentials/%s' % uuid.uuid4().hex, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/credentials/%s' % uuid.uuid4().hex,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
 
-class SystemMemberTests(base_classes.TestCaseWithBootstrap,
-                        common_auth.AuthTestMixin,
-                        _UserCredentialTests,
-                        _SystemUserCredentialTests):
+class SystemMemberTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _UserCredentialTests,
+    _SystemUserCredentialTests,
+):
 
     def setUp(self):
         super(SystemMemberTests, self).setUp()
@@ -731,16 +767,15 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
         system_member = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
         )
-        self.user_id = PROVIDERS.identity_api.create_user(
-            system_member
-        )['id']
+        self.user_id = PROVIDERS.identity_api.create_user(system_member)['id']
         PROVIDERS.assignment_api.create_system_grant_for_user(
             self.user_id, self.bootstrapper.member_role_id
         )
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=system_member['password'],
-            system=True
+            user_id=self.user_id,
+            password=system_member['password'],
+            system=True,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -760,12 +795,14 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
                 'credential': {
                     'blob': uuid.uuid4().hex,
                     'type': uuid.uuid4().hex,
-                    'user_id': user['id']
+                    'user_id': user['id'],
                 }
             }
             c.post(
-                '/v3/credentials', json=create, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/credentials',
+                json=create,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_update_credentials_for_others(self):
@@ -777,12 +814,14 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
         )
         project = PROVIDERS.resource_api.create_project(project['id'], project)
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.member_role_id, user_id=user['id'],
-            project_id=project['id']
+            self.bootstrapper.member_role_id,
+            user_id=user['id'],
+            project_id=project['id'],
         )
         user_auth = self.build_authentication_request(
-            user_id=user['id'], password=user_password,
-            project_id=project['id']
+            user_id=user['id'],
+            password=user_password,
+            project_id=project['id'],
         )
 
         with self.test_client() as c:
@@ -794,7 +833,7 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
                 'credential': {
                     'blob': uuid.uuid4().hex,
                     'type': uuid.uuid4().hex,
-                    'user_id': user['id']
+                    'user_id': user['id'],
                 }
             }
             r = c.post('/v3/credentials', json=create, headers=headers)
@@ -804,8 +843,10 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
             update = {'credential': {'blob': uuid.uuid4().hex}}
             path = '/v3/credentials/%s' % credential_id
             c.patch(
-                path, json=update, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                path,
+                json=update,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_update_non_existant_credential_forbidden(self):
@@ -813,9 +854,10 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
             update = {'credential': {'blob': uuid.uuid4().hex}}
 
             c.patch(
-                '/v3/credentials/%s' % uuid.uuid4().hex, json=update,
+                '/v3/credentials/%s' % uuid.uuid4().hex,
+                json=update,
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_credentials_for_others(self):
@@ -827,12 +869,14 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
         )
         project = PROVIDERS.resource_api.create_project(project['id'], project)
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.member_role_id, user_id=user['id'],
-            project_id=project['id']
+            self.bootstrapper.member_role_id,
+            user_id=user['id'],
+            project_id=project['id'],
         )
         user_auth = self.build_authentication_request(
-            user_id=user['id'], password=user_password,
-            project_id=project['id']
+            user_id=user['id'],
+            password=user_password,
+            project_id=project['id'],
         )
 
         with self.test_client() as c:
@@ -844,7 +888,7 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
                 'credential': {
                     'blob': uuid.uuid4().hex,
                     'type': uuid.uuid4().hex,
-                    'user_id': user['id']
+                    'user_id': user['id'],
                 }
             }
             r = c.post('/v3/credentials', json=create, headers=headers)
@@ -853,22 +897,26 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
         with self.test_client() as c:
             path = '/v3/credentials/%s' % credential_id
             c.delete(
-                path, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                path,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_non_existant_credential_forbidden(self):
         with self.test_client() as c:
             c.delete(
-                '/v3/credentials/%s' % uuid.uuid4().hex, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/credentials/%s' % uuid.uuid4().hex,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
 
-class SystemAdminTests(base_classes.TestCaseWithBootstrap,
-                       common_auth.AuthTestMixin,
-                       _UserCredentialTests,
-                       _SystemUserCredentialTests):
+class SystemAdminTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _UserCredentialTests,
+    _SystemUserCredentialTests,
+):
 
     def setUp(self):
         super(SystemAdminTests, self).setUp()
@@ -882,7 +930,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
         auth = self.build_authentication_request(
             user_id=self.user_id,
             password=self.bootstrapper.admin_password,
-            system=True
+            system=True,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -902,7 +950,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
                 'credential': {
                     'blob': uuid.uuid4().hex,
                     'type': uuid.uuid4().hex,
-                    'user_id': user['id']
+                    'user_id': user['id'],
                 }
             }
             c.post('/v3/credentials', json=create, headers=self.headers)
@@ -916,12 +964,14 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
         )
         project = PROVIDERS.resource_api.create_project(project['id'], project)
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.member_role_id, user_id=user['id'],
-            project_id=project['id']
+            self.bootstrapper.member_role_id,
+            user_id=user['id'],
+            project_id=project['id'],
         )
         user_auth = self.build_authentication_request(
-            user_id=user['id'], password=user_password,
-            project_id=project['id']
+            user_id=user['id'],
+            password=user_password,
+            project_id=project['id'],
         )
 
         with self.test_client() as c:
@@ -933,7 +983,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
                 'credential': {
                     'blob': uuid.uuid4().hex,
                     'type': uuid.uuid4().hex,
-                    'user_id': user['id']
+                    'user_id': user['id'],
                 }
             }
             r = c.post('/v3/credentials', json=create, headers=headers)
@@ -952,9 +1002,10 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
             update = {'credential': {'blob': uuid.uuid4().hex}}
 
             c.patch(
-                '/v3/credentials/%s' % uuid.uuid4().hex, json=update,
+                '/v3/credentials/%s' % uuid.uuid4().hex,
+                json=update,
                 headers=self.headers,
-                expected_status_code=http.client.NOT_FOUND
+                expected_status_code=http.client.NOT_FOUND,
             )
 
     def test_user_can_delete_credentials_for_others(self):
@@ -966,12 +1017,14 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
         )
         project = PROVIDERS.resource_api.create_project(project['id'], project)
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.member_role_id, user_id=user['id'],
-            project_id=project['id']
+            self.bootstrapper.member_role_id,
+            user_id=user['id'],
+            project_id=project['id'],
         )
         user_auth = self.build_authentication_request(
-            user_id=user['id'], password=user_password,
-            project_id=project['id']
+            user_id=user['id'],
+            password=user_password,
+            project_id=project['id'],
         )
 
         with self.test_client() as c:
@@ -983,7 +1036,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
                 'credential': {
                     'blob': uuid.uuid4().hex,
                     'type': uuid.uuid4().hex,
-                    'user_id': user['id']
+                    'user_id': user['id'],
                 }
             }
             r = c.post('/v3/credentials', json=create, headers=headers)
@@ -996,15 +1049,18 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
     def test_user_cannot_delete_non_existant_credential_not_found(self):
         with self.test_client() as c:
             c.delete(
-                '/v3/credentials/%s' % uuid.uuid4().hex, headers=self.headers,
-                expected_status_code=http.client.NOT_FOUND
+                '/v3/credentials/%s' % uuid.uuid4().hex,
+                headers=self.headers,
+                expected_status_code=http.client.NOT_FOUND,
             )
 
 
-class ProjectReaderTests(base_classes.TestCaseWithBootstrap,
-                         common_auth.AuthTestMixin,
-                         _UserCredentialTests,
-                         _ProjectUsersTests):
+class ProjectReaderTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _UserCredentialTests,
+    _ProjectUsersTests,
+):
 
     def setUp(self):
         super(ProjectReaderTests, self).setUp()
@@ -1015,9 +1071,7 @@ class ProjectReaderTests(base_classes.TestCaseWithBootstrap,
         project_reader = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
         )
-        self.user_id = PROVIDERS.identity_api.create_user(
-            project_reader
-        )['id']
+        self.user_id = PROVIDERS.identity_api.create_user(project_reader)['id']
         project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id
         )
@@ -1025,14 +1079,15 @@ class ProjectReaderTests(base_classes.TestCaseWithBootstrap,
             project['id'], project
         )['id']
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.reader_role_id, user_id=self.user_id,
-            project_id=self.project_id
+            self.bootstrapper.reader_role_id,
+            user_id=self.user_id,
+            project_id=self.project_id,
         )
 
         auth = self.build_authentication_request(
             user_id=self.user_id,
             password=project_reader['password'],
-            project_id=self.project_id
+            project_id=self.project_id,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -1043,10 +1098,12 @@ class ProjectReaderTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class ProjectMemberTests(base_classes.TestCaseWithBootstrap,
-                         common_auth.AuthTestMixin,
-                         _UserCredentialTests,
-                         _ProjectUsersTests):
+class ProjectMemberTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _UserCredentialTests,
+    _ProjectUsersTests,
+):
 
     def setUp(self):
         super(ProjectMemberTests, self).setUp()
@@ -1057,9 +1114,7 @@ class ProjectMemberTests(base_classes.TestCaseWithBootstrap,
         project_member = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
         )
-        self.user_id = PROVIDERS.identity_api.create_user(
-            project_member
-        )['id']
+        self.user_id = PROVIDERS.identity_api.create_user(project_member)['id']
         project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id
         )
@@ -1067,14 +1122,15 @@ class ProjectMemberTests(base_classes.TestCaseWithBootstrap,
             project['id'], project
         )['id']
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.member_role_id, user_id=self.user_id,
-            project_id=self.project_id
+            self.bootstrapper.member_role_id,
+            user_id=self.user_id,
+            project_id=self.project_id,
         )
 
         auth = self.build_authentication_request(
             user_id=self.user_id,
             password=project_member['password'],
-            project_id=self.project_id
+            project_id=self.project_id,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -1085,10 +1141,12 @@ class ProjectMemberTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class ProjectAdminTests(base_classes.TestCaseWithBootstrap,
-                        common_auth.AuthTestMixin,
-                        _UserCredentialTests,
-                        _ProjectUsersTests):
+class ProjectAdminTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _UserCredentialTests,
+    _ProjectUsersTests,
+):
 
     def setUp(self):
         super(ProjectAdminTests, self).setUp()
@@ -1110,7 +1168,7 @@ class ProjectAdminTests(base_classes.TestCaseWithBootstrap,
         auth = self.build_authentication_request(
             user_id=self.user_id,
             password=self.bootstrapper.admin_password,
-            project_id=self.bootstrapper.project_id
+            project_id=self.bootstrapper.project_id,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -1131,21 +1189,21 @@ class ProjectAdminTests(base_classes.TestCaseWithBootstrap,
         # broken behavior with better scope checking.
         with open(self.policy_file_name, 'w') as f:
             overridden_policies = {
-                'identity:get_credential':
-                bp.ADMIN_OR_SYSTEM_READER_OR_CRED_OWNER,
-                'identity:list_credentials':
-                bp.ADMIN_OR_SYSTEM_READER_OR_CRED_OWNER,
+                'identity:get_credential': bp.ADMIN_OR_SYSTEM_READER_OR_CRED_OWNER,
+                'identity:list_credentials': bp.ADMIN_OR_SYSTEM_READER_OR_CRED_OWNER,
                 'identity:create_credential': bp.ADMIN_OR_CRED_OWNER,
                 'identity:update_credential': bp.ADMIN_OR_CRED_OWNER,
-                'identity:delete_credential': bp.ADMIN_OR_CRED_OWNER
+                'identity:delete_credential': bp.ADMIN_OR_CRED_OWNER,
             }
             f.write(jsonutils.dumps(overridden_policies))
 
 
-class ProjectReaderTestsEnforceScopeFalse(base_classes.TestCaseWithBootstrap,
-                                          common_auth.AuthTestMixin,
-                                          _UserCredentialTests,
-                                          _ProjectUsersTests):
+class ProjectReaderTestsEnforceScopeFalse(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _UserCredentialTests,
+    _ProjectUsersTests,
+):
 
     def setUp(self):
         super(ProjectReaderTestsEnforceScopeFalse, self).setUp()
@@ -1156,9 +1214,7 @@ class ProjectReaderTestsEnforceScopeFalse(base_classes.TestCaseWithBootstrap,
         project_reader = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
         )
-        self.user_id = PROVIDERS.identity_api.create_user(
-            project_reader
-        )['id']
+        self.user_id = PROVIDERS.identity_api.create_user(project_reader)['id']
         project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id
         )
@@ -1166,14 +1222,15 @@ class ProjectReaderTestsEnforceScopeFalse(base_classes.TestCaseWithBootstrap,
             project['id'], project
         )['id']
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.reader_role_id, user_id=self.user_id,
-            project_id=self.project_id
+            self.bootstrapper.reader_role_id,
+            user_id=self.user_id,
+            project_id=self.project_id,
         )
 
         auth = self.build_authentication_request(
             user_id=self.user_id,
             password=project_reader['password'],
-            project_id=self.project_id
+            project_id=self.project_id,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -1184,10 +1241,12 @@ class ProjectReaderTestsEnforceScopeFalse(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class ProjectMemberTestsEnforceScopeFalse(base_classes.TestCaseWithBootstrap,
-                                          common_auth.AuthTestMixin,
-                                          _UserCredentialTests,
-                                          _ProjectUsersTests):
+class ProjectMemberTestsEnforceScopeFalse(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _UserCredentialTests,
+    _ProjectUsersTests,
+):
 
     def setUp(self):
         super(ProjectMemberTestsEnforceScopeFalse, self).setUp()
@@ -1198,9 +1257,7 @@ class ProjectMemberTestsEnforceScopeFalse(base_classes.TestCaseWithBootstrap,
         project_member = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
         )
-        self.user_id = PROVIDERS.identity_api.create_user(
-            project_member
-        )['id']
+        self.user_id = PROVIDERS.identity_api.create_user(project_member)['id']
         project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id
         )
@@ -1208,14 +1265,15 @@ class ProjectMemberTestsEnforceScopeFalse(base_classes.TestCaseWithBootstrap,
             project['id'], project
         )['id']
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.member_role_id, user_id=self.user_id,
-            project_id=self.project_id
+            self.bootstrapper.member_role_id,
+            user_id=self.user_id,
+            project_id=self.project_id,
         )
 
         auth = self.build_authentication_request(
             user_id=self.user_id,
             password=project_member['password'],
-            project_id=self.project_id
+            project_id=self.project_id,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -1226,10 +1284,12 @@ class ProjectMemberTestsEnforceScopeFalse(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class ProjectAdminTestsEnforceScopeFalse(base_classes.TestCaseWithBootstrap,
-                                         common_auth.AuthTestMixin,
-                                         _UserCredentialTests,
-                                         _SystemUserCredentialTests):
+class ProjectAdminTestsEnforceScopeFalse(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _UserCredentialTests,
+    _SystemUserCredentialTests,
+):
 
     def setUp(self):
         super(ProjectAdminTestsEnforceScopeFalse, self).setUp()
@@ -1243,7 +1303,7 @@ class ProjectAdminTestsEnforceScopeFalse(base_classes.TestCaseWithBootstrap,
         auth = self.build_authentication_request(
             user_id=self.user_id,
             password=self.bootstrapper.admin_password,
-            project_id=self.bootstrapper.project_id
+            project_id=self.bootstrapper.project_id,
         )
 
         # Grab a token using the persona we're testing and prepare headers

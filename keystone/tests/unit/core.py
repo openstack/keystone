@@ -149,6 +149,7 @@ def skip_if_cache_disabled(*sections):
     section of the configuration is true.
 
     """
+
     def wrapper(f):
         @functools.wraps(f)
         def inner(*args, **kwargs):
@@ -160,7 +161,9 @@ def skip_if_cache_disabled(*sections):
                     if not getattr(conf_sec, 'caching', True):
                         raise unittest.SkipTest('%s caching disabled.' % s)
             return f(*args, **kwargs)
+
         return inner
+
     return wrapper
 
 
@@ -175,18 +178,22 @@ def skip_if_cache_is_enabled(*sections):
                         if getattr(conf_sec, 'caching', True):
                             raise unittest.SkipTest('%s caching enabled.' % s)
             return f(*args, **kwargs)
+
         return inner
+
     return wrapper
 
 
 def skip_if_no_multiple_domains_support(f):
     """Decorator to skip tests for identity drivers limited to one domain."""
+
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
         test_obj = args[0]
         if not test_obj.identity_api.multiple_domains_supported:
             raise unittest.SkipTest('No multiple domains support')
         return f(*args, **kwargs)
+
     return wrapper
 
 
@@ -198,7 +205,8 @@ def new_region_ref(parent_region_id=None, **kwargs):
     ref = {
         'id': uuid.uuid4().hex,
         'description': uuid.uuid4().hex,
-        'parent_region_id': parent_region_id}
+        'parent_region_id': parent_region_id,
+    }
 
     ref.update(kwargs)
     return ref
@@ -219,8 +227,9 @@ def new_service_ref(**kwargs):
 NEEDS_REGION_ID = object()
 
 
-def new_endpoint_ref(service_id, interface='public',
-                     region_id=NEEDS_REGION_ID, **kwargs):
+def new_endpoint_ref(
+    service_id, interface='public', region_id=NEEDS_REGION_ID, **kwargs
+):
 
     ref = {
         'id': uuid.uuid4().hex,
@@ -247,20 +256,22 @@ def new_endpoint_group_ref(filters, **kwargs):
         'id': uuid.uuid4().hex,
         'description': uuid.uuid4().hex,
         'filters': filters,
-        'name': uuid.uuid4().hex
+        'name': uuid.uuid4().hex,
     }
     ref.update(kwargs)
     return ref
 
 
-def new_endpoint_ref_with_region(service_id, region, interface='public',
-                                 **kwargs):
+def new_endpoint_ref_with_region(
+    service_id, region, interface='public', **kwargs
+):
     """Define an endpoint_ref having a pre-3.2 form.
 
     Contains the deprecated 'region' instead of 'region_id'.
     """
-    ref = new_endpoint_ref(service_id, interface, region=region,
-                           region_id='invalid', **kwargs)
+    ref = new_endpoint_ref(
+        service_id, interface, region=region, region_id='invalid', **kwargs
+    )
     del ref['region_id']
     return ref
 
@@ -272,7 +283,7 @@ def new_domain_ref(**kwargs):
         'description': uuid.uuid4().hex,
         'enabled': True,
         'tags': [],
-        'options': {}
+        'options': {},
     }
     ref.update(kwargs)
     return ref
@@ -287,7 +298,7 @@ def new_project_ref(domain_id=None, is_domain=False, **kwargs):
         'domain_id': domain_id,
         'is_domain': is_domain,
         'tags': [],
-        'options': {}
+        'options': {},
     }
     # NOTE(henry-nash): We don't include parent_id in the initial list above
     # since specifying it is optional depending on where the project sits in
@@ -324,10 +335,7 @@ def new_federated_user_ref(idp_id=None, protocol_id=None, **kwargs):
 
 
 def new_mapping_ref(mapping_id=None, rules=None, **kwargs):
-    ref = {
-        'id': mapping_id or uuid.uuid4().hex,
-        'rules': rules or []
-    }
+    ref = {'id': mapping_id or uuid.uuid4().hex, 'rules': rules or []}
     ref.update(kwargs)
     return ref
 
@@ -336,7 +344,7 @@ def new_protocol_ref(protocol_id=None, idp_id=None, mapping_id=None, **kwargs):
     ref = {
         'id': protocol_id or 'saml2',
         'idp_id': idp_id or 'ORG_IDP',
-        'mapping_id': mapping_id or uuid.uuid4().hex
+        'mapping_id': mapping_id or uuid.uuid4().hex,
     }
     ref.update(kwargs)
     return ref
@@ -358,7 +366,7 @@ def new_service_provider_ref(**kwargs):
         'enabled': True,
         'description': uuid.uuid4().hex,
         'sp_url': 'https://' + uuid.uuid4().hex + '.com',
-        'relay_state_prefix': CONF.saml.relay_state_prefix
+        'relay_state_prefix': CONF.saml.relay_state_prefix,
     }
     ref.update(kwargs)
     return ref
@@ -369,7 +377,7 @@ def new_group_ref(domain_id, **kwargs):
         'id': uuid.uuid4().hex,
         'name': uuid.uuid4().hex,
         'description': uuid.uuid4().hex,
-        'domain_id': domain_id
+        'domain_id': domain_id,
     }
     ref.update(kwargs)
     return ref
@@ -395,11 +403,13 @@ def new_cert_credential(user_id, project_id=None, blob=None, **kwargs):
     if blob is None:
         blob = {'access': uuid.uuid4().hex, 'secret': uuid.uuid4().hex}
 
-    credential = new_credential_ref(user_id=user_id,
-                                    project_id=project_id,
-                                    blob=json.dumps(blob),
-                                    type='cert',
-                                    **kwargs)
+    credential = new_credential_ref(
+        user_id=user_id,
+        project_id=project_id,
+        blob=json.dumps(blob),
+        type='cert',
+        **kwargs
+    )
     return blob, credential
 
 
@@ -408,18 +418,20 @@ def new_ec2_credential(user_id, project_id=None, blob=None, **kwargs):
         blob = {
             'access': uuid.uuid4().hex,
             'secret': uuid.uuid4().hex,
-            'trust_id': None
+            'trust_id': None,
         }
 
     if 'id' not in kwargs:
         access = blob['access'].encode('utf-8')
         kwargs['id'] = hashlib.sha256(access).hexdigest()
 
-    credential = new_credential_ref(user_id=user_id,
-                                    project_id=project_id,
-                                    blob=json.dumps(blob),
-                                    type='ec2',
-                                    **kwargs)
+    credential = new_credential_ref(
+        user_id=user_id,
+        project_id=project_id,
+        blob=json.dumps(blob),
+        type='ec2',
+        **kwargs
+    )
     return blob, credential
 
 
@@ -428,10 +440,9 @@ def new_totp_credential(user_id, project_id=None, blob=None):
         # NOTE(notmorgan): 20 bytes of data from secrets.token_bytes for
         # a totp secret.
         blob = base64.b32encode(secrets.token_bytes(20)).decode('utf-8')
-    credential = new_credential_ref(user_id=user_id,
-                                    project_id=project_id,
-                                    blob=blob,
-                                    type='totp')
+    credential = new_credential_ref(
+        user_id=user_id, project_id=project_id, blob=blob, type='totp'
+    )
     return credential
 
 
@@ -506,10 +517,9 @@ def create_pem_certificate(subject_dn, ca=None, ca_key=None):
     return cert.public_bytes(Encoding.PEM).decode('ascii')
 
 
-def new_application_credential_ref(roles=None,
-                                   name=None,
-                                   expires=None,
-                                   secret=None):
+def new_application_credential_ref(
+    roles=None, name=None, expires=None, secret=None
+):
     ref = {
         'id': uuid.uuid4().hex,
         'name': uuid.uuid4().hex,
@@ -553,7 +563,11 @@ def new_policy_ref(**kwargs):
         'description': uuid.uuid4().hex,
         'enabled': True,
         # Store serialized JSON data as the blob to mimic real world usage.
-        'blob': json.dumps({'data': uuid.uuid4().hex, }),
+        'blob': json.dumps(
+            {
+                'data': uuid.uuid4().hex,
+            }
+        ),
         'type': uuid.uuid4().hex,
     }
 
@@ -563,22 +577,29 @@ def new_policy_ref(**kwargs):
 
 def new_domain_config_ref(**kwargs):
     ref = {
-        "identity": {
-            "driver": "ldap"
-        },
+        "identity": {"driver": "ldap"},
         "ldap": {
             "url": "ldap://myldap.com:389/",
-            "user_tree_dn": "ou=Users,dc=my_new_root,dc=org"
-        }
+            "user_tree_dn": "ou=Users,dc=my_new_root,dc=org",
+        },
     }
     ref.update(kwargs)
     return ref
 
 
-def new_trust_ref(trustor_user_id, trustee_user_id, project_id=None,
-                  impersonation=None, expires=None, role_ids=None,
-                  role_names=None, remaining_uses=None,
-                  allow_redelegation=False, redelegation_count=None, **kwargs):
+def new_trust_ref(
+    trustor_user_id,
+    trustee_user_id,
+    project_id=None,
+    impersonation=None,
+    expires=None,
+    role_ids=None,
+    role_names=None,
+    remaining_uses=None,
+    allow_redelegation=False,
+    redelegation_count=None,
+    **kwargs
+):
     ref = {
         'id': uuid.uuid4().hex,
         'trustor_user_id': trustor_user_id,
@@ -621,7 +642,7 @@ def new_registered_limit_ref(**kwargs):
         'service_id': uuid.uuid4().hex,
         'resource_name': uuid.uuid4().hex,
         'default_limit': 10,
-        'description': uuid.uuid4().hex
+        'description': uuid.uuid4().hex,
     }
 
     ref.update(kwargs)
@@ -633,7 +654,7 @@ def new_limit_ref(**kwargs):
         'service_id': uuid.uuid4().hex,
         'resource_name': uuid.uuid4().hex,
         'resource_limit': 10,
-        'description': uuid.uuid4().hex
+        'description': uuid.uuid4().hex,
     }
 
     ref.update(kwargs)
@@ -678,7 +699,9 @@ def _assert_expected_status(f):
         expected_status_code = kwargs.pop(
             'expected_status_code',
             _default_expected_responses.get(
-                f.__name__.lower(), http.client.OK))
+                f.__name__.lower(), http.client.OK
+            ),
+        )
         response = f(*args, **kwargs)
 
         # Logic to verify the response object is sane. Expand as needed
@@ -692,13 +715,17 @@ def _assert_expected_status(f):
         if response.status_code != expected_status_code:
             raise AssertionError(
                 'Expected HTTP Status does not match observed HTTP '
-                'Status: %(expected)s != %(observed)s (%(data)s)' % {
+                'Status: %(expected)s != %(observed)s (%(data)s)'
+                % {
                     'expected': expected_status_code,
                     'observed': response.status_code,
-                    'data': response.data})
+                    'data': response.data,
+                }
+            )
 
         # return the original response object
         return response
+
     return inner
 
 
@@ -749,8 +776,9 @@ class BaseTestCase(testtools.TestCase):
         self.useFixture(fixtures.NestedTempfile())
         self.useFixture(fixtures.TempHomeDir())
 
-        self.useFixture(fixtures.MockPatchObject(sys, 'exit',
-                                                 side_effect=UnexpectedExit))
+        self.useFixture(
+            fixtures.MockPatchObject(sys, 'exit', side_effect=UnexpectedExit)
+        )
         self.useFixture(log_fixture.get_logging_handle_error_fixture())
         self.stdlog = self.useFixture(ksfixtures.StandardLogging())
         self.useFixture(ksfixtures.WarningsFixture())
@@ -761,22 +789,26 @@ class BaseTestCase(testtools.TestCase):
         self.useFixture(oslo_ctx_fixture.ClearRequestContext())
 
         orig_debug_level = ldap.get_option(ldap.OPT_DEBUG_LEVEL)
-        self.addCleanup(ldap.set_option, ldap.OPT_DEBUG_LEVEL,
-                        orig_debug_level)
+        self.addCleanup(
+            ldap.set_option, ldap.OPT_DEBUG_LEVEL, orig_debug_level
+        )
         orig_tls_cacertfile = ldap.get_option(ldap.OPT_X_TLS_CACERTFILE)
         if orig_tls_cacertfile is None:
             orig_tls_cacertfile = ''
-        self.addCleanup(ldap.set_option, ldap.OPT_X_TLS_CACERTFILE,
-                        orig_tls_cacertfile)
+        self.addCleanup(
+            ldap.set_option, ldap.OPT_X_TLS_CACERTFILE, orig_tls_cacertfile
+        )
         orig_tls_cacertdir = ldap.get_option(ldap.OPT_X_TLS_CACERTDIR)
         # Setting orig_tls_cacertdir to None is not allowed.
         if orig_tls_cacertdir is None:
             orig_tls_cacertdir = ''
-        self.addCleanup(ldap.set_option, ldap.OPT_X_TLS_CACERTDIR,
-                        orig_tls_cacertdir)
+        self.addCleanup(
+            ldap.set_option, ldap.OPT_X_TLS_CACERTDIR, orig_tls_cacertdir
+        )
         orig_tls_require_cert = ldap.get_option(ldap.OPT_X_TLS_REQUIRE_CERT)
-        self.addCleanup(ldap.set_option, ldap.OPT_X_TLS_REQUIRE_CERT,
-                        orig_tls_require_cert)
+        self.addCleanup(
+            ldap.set_option, ldap.OPT_X_TLS_REQUIRE_CERT, orig_tls_require_cert
+        )
         self.addCleanup(ks_ldap.PooledLDAPHandler.connection_pools.clear)
 
     def cleanup_instance(self, *names):
@@ -785,6 +817,7 @@ class BaseTestCase(testtools.TestCase):
         :returns: a callable that uses a closure to delete instance attributes
 
         """
+
         def cleanup():
             for name in names:
                 # TODO(dstanek): remove this 'if' statement once
@@ -792,6 +825,7 @@ class BaseTestCase(testtools.TestCase):
                 # per test
                 if hasattr(self, name):
                     delattr(self, name)
+
         return cleanup
 
     def skip_if_env_not_set(self, env_var):
@@ -801,8 +835,9 @@ class BaseTestCase(testtools.TestCase):
     def skip_test_overrides(self, *args, **kwargs):
         if self._check_for_method_in_parents(self._testMethodName):
             return super(BaseTestCase, self).skipTest(*args, **kwargs)
-        raise Exception('%r is not a previously defined test method'
-                        % self._testMethodName)
+        raise Exception(
+            '%r is not a previously defined test method' % self._testMethodName
+        )
 
     def _check_for_method_in_parents(self, name):
         # skip first to get to parents
@@ -822,8 +857,9 @@ class BaseTestCase(testtools.TestCase):
             content = (
                 'TEST PROGRAMMING ERROR - Reached a 404 from an unrouted (`%s`'
                 ') path. Be sure the test is requesting the right resource '
-                'and that all blueprints are registered with the flask app.' %
-                flask.request.url)
+                'and that all blueprints are registered with the flask app.'
+                % flask.request.url
+            )
             return content, 418
 
         app.register_error_handler(404, page_not_found_teapot)
@@ -858,7 +894,8 @@ class TestCase(BaseTestCase):
         if not environ.get(context.REQUEST_CONTEXT_ENV):
             environ[context.REQUEST_CONTEXT_ENV] = context.RequestContext(
                 is_admin=is_admin,
-                authenticated=kwargs.pop('authenticated', True))
+                authenticated=kwargs.pop('authenticated', True),
+            )
 
         # Create a dummy flask app to work with
         app = flask.Flask(__name__)
@@ -882,13 +919,16 @@ class TestCase(BaseTestCase):
             group='cache',
             backend='dogpile.cache.memory',
             enabled=True,
-            proxies=['oslo_cache.testing.CacheIsolatingProxy'])
+            proxies=['oslo_cache.testing.CacheIsolatingProxy'],
+        )
         self.config_fixture.config(
             group='catalog',
             driver='sql',
-            template_file=dirs.tests('default_catalog.templates'))
+            template_file=dirs.tests('default_catalog.templates'),
+        )
         self.config_fixture.config(
-            group='saml', certfile=signing_certfile, keyfile=signing_keyfile)
+            group='saml', certfile=signing_certfile, keyfile=signing_keyfile
+        )
         self.config_fixture.config(
             default_log_levels=[
                 'amqp=WARN',
@@ -904,7 +944,8 @@ class TestCase(BaseTestCase):
                 'stevedore.extension=INFO',
                 'keystone.notifications=INFO',
                 'keystone.identity.backends.ldap.common=INFO',
-            ])
+            ]
+        )
         # NOTE(notmorgan): Set password rounds low here to ensure speedy
         # tests. This is explicitly set because the tests here are not testing
         # the integrity of the password hashing, just that the correct form
@@ -916,7 +957,7 @@ class TestCase(BaseTestCase):
             ksfixtures.KeyRepository(
                 self.config_fixture,
                 'fernet_tokens',
-                CONF.fernet_tokens.max_active_keys
+                CONF.fernet_tokens.max_active_keys,
             )
         )
 
@@ -924,7 +965,7 @@ class TestCase(BaseTestCase):
             ksfixtures.KeyRepository(
                 self.config_fixture,
                 'fernet_receipts',
-                CONF.fernet_receipts.max_active_keys
+                CONF.fernet_receipts.max_active_keys,
             )
         )
 
@@ -944,9 +985,14 @@ class TestCase(BaseTestCase):
         # cleanup.
         def mocked_register_auth_plugin_opt(conf, opt):
             self.config_fixture.register_opt(opt, group='auth')
-        self.useFixture(fixtures.MockPatchObject(
-            keystone.conf.auth, '_register_auth_plugin_opt',
-            new=mocked_register_auth_plugin_opt))
+
+        self.useFixture(
+            fixtures.MockPatchObject(
+                keystone.conf.auth,
+                '_register_auth_plugin_opt',
+                new=mocked_register_auth_plugin_opt,
+            )
+        )
 
         self.config_overrides()
         # explicitly load auth configuration
@@ -1004,12 +1050,15 @@ class TestCase(BaseTestCase):
 
         # TODO(termie): doing something from json, probably based on Django's
         #               loaddata will be much preferred.
-        if (hasattr(self, 'identity_api') and
-            hasattr(self, 'assignment_api') and
-                hasattr(self, 'resource_api')):
+        if (
+            hasattr(self, 'identity_api')
+            and hasattr(self, 'assignment_api')
+            and hasattr(self, 'resource_api')
+        ):
             try:
                 PROVIDERS.resource_api.create_domain(
-                    resource_base.NULL_DOMAIN_ID, fixtures.ROOT_DOMAIN)
+                    resource_base.NULL_DOMAIN_ID, fixtures.ROOT_DOMAIN
+                )
             except exception.Conflict:
                 # the root domain already exists, skip now.
                 pass
@@ -1022,7 +1071,8 @@ class TestCase(BaseTestCase):
             for project in fixtures.PROJECTS:
                 project_attr_name = 'project_%s' % project['name'].lower()
                 rv = PROVIDERS.resource_api.create_project(
-                    project['id'], project)
+                    project['id'], project
+                )
                 setattr(self, project_attr_name, rv)
                 fixtures_to_cleanup.append(project_attr_name)
 
@@ -1046,7 +1096,8 @@ class TestCase(BaseTestCase):
                 # fixtures.ROLES[2] is the _member_ role.
                 for project_id in projects:
                     PROVIDERS.assignment_api.add_role_to_user_and_project(
-                        user_copy['id'], project_id, fixtures.ROLES[2]['id'])
+                        user_copy['id'], project_id, fixtures.ROLES[2]['id']
+                    )
 
                 # Use the ID from the fixture as the attribute name, so
                 # that our tests can easily reference each user dict, while
@@ -1061,7 +1112,8 @@ class TestCase(BaseTestCase):
                 project_id = role_assignment['project_id']
                 user_id = getattr(self, 'user_%s' % user)['id']
                 PROVIDERS.assignment_api.add_role_to_user_and_project(
-                    user_id, project_id, role_id)
+                    user_id, project_id, role_id
+                )
 
             self.addCleanup(self.cleanup_instance(*fixtures_to_cleanup))
 
@@ -1084,10 +1136,7 @@ class TestCase(BaseTestCase):
         # is working to eliminate microseconds from it's datetimes used.
         expected = timeutils.parse_isotime(expected).replace(microsecond=0)
         value = timeutils.parse_isotime(value).replace(microsecond=0)
-        self.assertEqual(
-            expected,
-            value,
-            "%s != %s" % (expected, value))
+        self.assertEqual(expected, value, "%s != %s" % (expected, value))
 
     def assertNotEmpty(self, iterable):
         self.assertGreater(len(iterable), 0)
@@ -1103,8 +1152,11 @@ class TestCase(BaseTestCase):
         # NOTE(notmorgan): An empty option list is the same as no options being
         # specified in the user_ref. This removes options if it is empty in
         # observed if options is not specified in the expected value.
-        if ('options' in observed and not observed['options'] and
-                'options' not in expected):
+        if (
+            'options' in observed
+            and not observed['options']
+            and 'options' not in expected
+        ):
             observed = observed.copy()
             del observed['options']
 

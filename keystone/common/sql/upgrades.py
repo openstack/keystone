@@ -77,7 +77,8 @@ def _find_alembic_conf():
     :returns: An instance of ``alembic.config.Config``
     """
     path = os.path.join(
-        os.path.abspath(os.path.dirname(__file__)), 'alembic.ini',
+        os.path.abspath(os.path.dirname(__file__)),
+        'alembic.ini',
     )
 
     config = alembic_config.Config(os.path.abspath(path))
@@ -138,8 +139,9 @@ def get_current_heads():
     # design) uses *python* interpolation to write the string out ... where
     # "%" is the special python interpolation character! Avoid this
     # mismatch by quoting all %'s for the set below.
-    engine_url = engine.url.render_as_string(
-        hide_password=False).replace('%', '%%')
+    engine_url = engine.url.render_as_string(hide_password=False).replace(
+        '%', '%%'
+    )
     config.set_main_option('sqlalchemy.url', engine_url)
 
     heads = _get_current_heads(engine, config)
@@ -180,8 +182,9 @@ def get_db_version(branch=EXPAND_BRANCH, *, engine=None):
     # design) uses *python* interpolation to write the string out ... where
     # "%" is the special python interpolation character! Avoid this
     # mismatch by quoting all %'s for the set below.
-    engine_url = engine.url.render_as_string(
-        hide_password=False).replace('%', '%%')
+    engine_url = engine.url.render_as_string(hide_password=False).replace(
+        '%', '%%'
+    )
     config.set_main_option('sqlalchemy.url', engine_url)
 
     # we use '.get' since the particular branch might not have been created
@@ -206,8 +209,9 @@ def _db_sync(branch=None, *, engine=None):
     # design) uses *python* interpolation to write the string out ... where
     # "%" is the special python interpolation character! Avoid this
     # mismatch by quoting all %'s for the set below.
-    engine_url = engine.url.render_as_string(
-        hide_password=False).replace('%', '%%')
+    engine_url = engine.url.render_as_string(hide_password=False).replace(
+        '%', '%%'
+    )
     config.set_main_option('sqlalchemy.url', engine_url)
 
     _upgrade_alembic(engine, config, branch)

@@ -22,8 +22,9 @@ from keystone import exception
 CONF = keystone.conf.CONF
 
 
-class CatalogDriverBase(provider_api.ProviderAPIMixin, object,
-                        metaclass=abc.ABCMeta):
+class CatalogDriverBase(
+    provider_api.ProviderAPIMixin, object, metaclass=abc.ABCMeta
+):
     """Interface description for the Catalog driver."""
 
     def _get_list_limit(self):
@@ -41,7 +42,8 @@ class CatalogDriverBase(provider_api.ProviderAPIMixin, object,
             # self circle
             if parent_region_id == root_region_id:
                 raise exception.CircularRegionHierarchyError(
-                    parent_region_id=parent_region_id)
+                    parent_region_id=parent_region_id
+                )
             parent_region = self.get_region(parent_region_id)
             parent_region_id = parent_region.get('parent_region_id')
 
@@ -470,8 +472,9 @@ class CatalogDriverBase(provider_api.ProviderAPIMixin, object,
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def remove_endpoint_group_from_project(self, endpoint_group_id,
-                                           project_id):
+    def remove_endpoint_group_from_project(
+        self, endpoint_group_id, project_id
+    ):
         """Remove an endpoint to project association.
 
         :param endpoint_group_id: identity of endpoint to associate

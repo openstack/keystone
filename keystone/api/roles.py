@@ -35,7 +35,8 @@ class RoleResource(ks_flask.ResourceBase):
     collection_key = 'roles'
     member_key = 'role'
     get_member_from_driver = PROVIDERS.deferred_provider_lookup(
-        api='role_api', method='get_role')
+        api='role_api', method='get_role'
+    )
 
     def _is_domain_role(self, role):
         return bool(role.get('domain_id'))
@@ -72,20 +73,24 @@ class RoleResource(ks_flask.ResourceBase):
                     # reraise the error after enforcement if needed.
                     raise err
             else:
-                ENFORCER.enforce_call(action='identity:get_domain_role',
-                                      member_target_type='role',
-                                      member_target=role)
+                ENFORCER.enforce_call(
+                    action='identity:get_domain_role',
+                    member_target_type='role',
+                    member_target=role,
+                )
         return self.wrap_member(role)
 
     def _list_roles(self):
         filters = ['name', 'domain_id']
         domain_filter = flask.request.args.get('domain_id')
         if domain_filter:
-            ENFORCER.enforce_call(action='identity:list_domain_roles',
-                                  filters=filters)
+            ENFORCER.enforce_call(
+                action='identity:list_domain_roles', filters=filters
+            )
         else:
-            ENFORCER.enforce_call(action='identity:list_roles',
-                                  filters=filters)
+            ENFORCER.enforce_call(
+                action='identity:list_roles', filters=filters
+            )
 
         hints = self.build_driver_hints(filters)
         if not domain_filter:
@@ -113,7 +118,8 @@ class RoleResource(ks_flask.ResourceBase):
         role = self._assign_unique_id(role)
         role = self._normalize_dict(role)
         ref = PROVIDERS.role_api.create_role(
-            role['id'], role, initiator=self.audit_initiator)
+            role['id'], role, initiator=self.audit_initiator
+        )
         return self.wrap_member(ref), http.client.CREATED
 
     def patch(self, role_id):
@@ -136,14 +142,17 @@ class RoleResource(ks_flask.ResourceBase):
                 if err:
                     raise err
             else:
-                ENFORCER.enforce_call(action='identity:update_domain_role',
-                                      member_target_type='role',
-                                      member_target=role)
+                ENFORCER.enforce_call(
+                    action='identity:update_domain_role',
+                    member_target_type='role',
+                    member_target=role,
+                )
         request_body_role = self.request_body_json.get('role', {})
         validation.lazy_validate(schema.role_update, request_body_role)
         self._require_matching_id(request_body_role)
         ref = PROVIDERS.role_api.update_role(
-            role_id, request_body_role, initiator=self.audit_initiator)
+            role_id, request_body_role, initiator=self.audit_initiator
+        )
         return self.wrap_member(ref)
 
     def delete(self, role_id):
@@ -166,9 +175,11 @@ class RoleResource(ks_flask.ResourceBase):
                 if err:
                     raise err
             else:
-                ENFORCER.enforce_call(action='identity:delete_domain_role',
-                                      member_target_type='role',
-                                      member_target=role)
+                ENFORCER.enforce_call(
+                    action='identity:delete_domain_role',
+                    member_target_type='role',
+                    member_target=role,
+                )
         PROVIDERS.role_api.delete_role(role_id, initiator=self.audit_initiator)
         return None, http.client.NO_CONTENT
 
@@ -177,10 +188,12 @@ def _build_enforcement_target_ref():
     ref = {}
     if flask.request.view_args:
         ref['prior_role'] = PROVIDERS.role_api.get_role(
-            flask.request.view_args.get('prior_role_id'))
+            flask.request.view_args.get('prior_role_id')
+        )
         if flask.request.view_args.get('implied_role_id'):
             ref['implied_role'] = PROVIDERS.role_api.get_role(
-                flask.request.view_args['implied_role_id'])
+                flask.request.view_args['implied_role_id']
+            )
     return ref
 
 
@@ -190,8 +203,10 @@ class RoleImplicationListResource(flask_restful.Resource):
 
         GET/HEAD /v3/roles/{prior_role_id}/implies
         """
-        ENFORCER.enforce_call(action='identity:list_implied_roles',
-                              build_target=_build_enforcement_target_ref)
+        ENFORCER.enforce_call(
+            action='identity:list_implied_roles',
+            build_target=_build_enforcement_target_ref,
+        )
         ref = PROVIDERS.role_api.list_implied_roles(prior_role_id)
         implied_ids = [r['implied_role_id'] for r in ref]
         response_json = shared.role_inference_response(prior_role_id)
@@ -199,10 +214,11 @@ class RoleImplicationListResource(flask_restful.Resource):
         for implied_id in implied_ids:
             implied_role = PROVIDERS.role_api.get_role(implied_id)
             response_json['role_inference']['implies'].append(
-                shared.build_implied_role_response_data(implied_role))
+                shared.build_implied_role_response_data(implied_role)
+            )
         response_json['links'] = {
-            'self': ks_flask.base_url(
-                path='/roles/%s/implies' % prior_role_id)}
+            'self': ks_flask.base_url(path='/roles/%s/implies' % prior_role_id)
+        }
         return response_json
 
 
@@ -215,8 +231,10 @@ class RoleImplicationResource(flask_restful.Resource):
         # consistent policy enforcement behavior even if it is superfluous.
         # Alternatively we can keep check_implied_role and reference
         # ._get_implied_role instead.
-        ENFORCER.enforce_call(action='identity:check_implied_role',
-                              build_target=_build_enforcement_target_ref)
+        ENFORCER.enforce_call(
+            action='identity:check_implied_role',
+            build_target=_build_enforcement_target_ref,
+        )
         self.get(prior_role_id, implied_role_id)
         # NOTE(morgan): Our API here breaks HTTP Spec. This should be evaluated
         # for a future fix. This should just return the above "get" however,
@@ -231,22 +249,24 @@ class RoleImplicationResource(flask_restful.Resource):
         """
         ENFORCER.enforce_call(
             action='identity:get_implied_role',
-            build_target=_build_enforcement_target_ref)
+            build_target=_build_enforcement_target_ref,
+        )
         return self._get_implied_role(prior_role_id, implied_role_id)
 
     def _get_implied_role(self, prior_role_id, implied_role_id):
         # Isolate this logic so it can be re-used without added enforcement
-        PROVIDERS.role_api.get_implied_role(
-            prior_role_id, implied_role_id)
+        PROVIDERS.role_api.get_implied_role(prior_role_id, implied_role_id)
         implied_role_ref = PROVIDERS.role_api.get_role(implied_role_id)
         response_json = shared.role_inference_response(prior_role_id)
-        response_json['role_inference'][
-            'implies'] = shared.build_implied_role_response_data(
-            implied_role_ref)
+        response_json['role_inference']['implies'] = (
+            shared.build_implied_role_response_data(implied_role_ref)
+        )
         response_json['links'] = {
             'self': ks_flask.base_url(
-                path='/roles/%(prior)s/implies/%(implies)s' % {
-                    'prior': prior_role_id, 'implies': implied_role_id})}
+                path='/roles/%(prior)s/implies/%(implies)s'
+                % {'prior': prior_role_id, 'implies': implied_role_id}
+            )
+        }
         return response_json
 
     def put(self, prior_role_id, implied_role_id):
@@ -254,8 +274,10 @@ class RoleImplicationResource(flask_restful.Resource):
 
         PUT /v3/roles/{prior_role_id}/implies/{implied_role_id}
         """
-        ENFORCER.enforce_call(action='identity:create_implied_role',
-                              build_target=_build_enforcement_target_ref)
+        ENFORCER.enforce_call(
+            action='identity:create_implied_role',
+            build_target=_build_enforcement_target_ref,
+        )
         PROVIDERS.role_api.create_implied_role(prior_role_id, implied_role_id)
         response_json = self._get_implied_role(prior_role_id, implied_role_id)
         return response_json, http.client.CREATED
@@ -265,8 +287,10 @@ class RoleImplicationResource(flask_restful.Resource):
 
         DELETE /v3/roles/{prior_role_id}/implies/{implied_role_id}
         """
-        ENFORCER.enforce_call(action='identity:delete_implied_role',
-                              build_target=_build_enforcement_target_ref)
+        ENFORCER.enforce_call(
+            action='identity:delete_implied_role',
+            build_target=_build_enforcement_target_ref,
+        )
         PROVIDERS.role_api.delete_implied_role(prior_role_id, implied_role_id)
         return None, http.client.NO_CONTENT
 
@@ -281,16 +305,21 @@ class RoleAPI(ks_flask.APIBase):
             url='/roles/<string:prior_role_id>/implies',
             resource_kwargs={},
             rel='implied_roles',
-            path_vars={'prior_role_id': json_home.Parameters.ROLE_ID}),
+            path_vars={'prior_role_id': json_home.Parameters.ROLE_ID},
+        ),
         ks_flask.construct_resource_map(
             resource=RoleImplicationResource,
             resource_kwargs={},
-            url=('/roles/<string:prior_role_id>/'
-                 'implies/<string:implied_role_id>'),
+            url=(
+                '/roles/<string:prior_role_id>/'
+                'implies/<string:implied_role_id>'
+            ),
             rel='implied_role',
             path_vars={
                 'prior_role_id': json_home.Parameters.ROLE_ID,
-                'implied_role_id': json_home.Parameters.ROLE_ID})
+                'implied_role_id': json_home.Parameters.ROLE_ID,
+            },
+        ),
     ]
 
 

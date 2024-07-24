@@ -78,10 +78,13 @@ class TrustDriverBase(object, metaclass=abc.ABCMeta):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def flush_expired_and_soft_deleted_trusts(self, project_id=None,
-                                              trustor_user_id=None,
-                                              trustee_user_id=None,
-                                              date=None):
+    def flush_expired_and_soft_deleted_trusts(
+        self,
+        project_id=None,
+        trustor_user_id=None,
+        trustee_user_id=None,
+        date=None,
+    ):
         """Flush expired and non-expired soft deleted trusts from the backend.
 
         :param project_id: ID of a project to filter trusts by.

@@ -32,8 +32,10 @@ class RoleInferencesResource(flask_restful.Resource):
         """
         ENFORCER.enforce_call(action='identity:list_role_inference_rules')
         refs = PROVIDERS.role_api.list_role_inference_rules()
-        role_dict = {role_ref['id']: role_ref
-                     for role_ref in PROVIDERS.role_api.list_roles()}
+        role_dict = {
+            role_ref['id']: role_ref
+            for role_ref in PROVIDERS.role_api.list_roles()
+        }
 
         rules = dict()
         for ref in refs:
@@ -42,15 +44,22 @@ class RoleInferencesResource(flask_restful.Resource):
             implied = rules.get(prior_role_id, [])
             implied.append(
                 shared.build_implied_role_response_data(
-                    role_dict[implied_role_id]))
+                    role_dict[implied_role_id]
+                )
+            )
             rules[prior_role_id] = implied
 
         inferences = []
-        for prior_id, implied, in rules.items():
+        for (
+            prior_id,
+            implied,
+        ) in rules.items():
             prior_response = shared.build_prior_role_response_data(
-                prior_id, role_dict[prior_id]['name'])
-            inferences.append({'prior_role': prior_response,
-                               'implies': implied})
+                prior_id, role_dict[prior_id]['name']
+            )
+            inferences.append(
+                {'prior_role': prior_response, 'implies': implied}
+            )
         results = {'role_inferences': inferences}
         return results
 
@@ -64,7 +73,8 @@ class RoleInferencesAPI(ks_flask.APIBase):
             resource=RoleInferencesResource,
             url='/role_inferences',
             resource_kwargs={},
-            rel='role_inferences')
+            rel='role_inferences',
+        )
     ]
 
 

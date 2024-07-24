@@ -27,23 +27,34 @@ class RegisteredLimitTests(object):
         registered_limit_1 = unit.new_registered_limit_ref(
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', default_limit=10, id=uuid.uuid4().hex,
-            description='test description')
+            resource_name='volume',
+            default_limit=10,
+            id=uuid.uuid4().hex,
+            description='test description',
+        )
         reg_limits = PROVIDERS.unified_limit_api.create_registered_limits(
-            [registered_limit_1])
+            [registered_limit_1]
+        )
         self.assertDictEqual(registered_limit_1, reg_limits[0])
 
         # create another two, return them.
         registered_limit_2 = unit.new_registered_limit_ref(
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='snapshot', default_limit=5, id=uuid.uuid4().hex)
+            resource_name='snapshot',
+            default_limit=5,
+            id=uuid.uuid4().hex,
+        )
         registered_limit_3 = unit.new_registered_limit_ref(
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='backup', default_limit=5, id=uuid.uuid4().hex)
+            resource_name='backup',
+            default_limit=5,
+            id=uuid.uuid4().hex,
+        )
         reg_limits = PROVIDERS.unified_limit_api.create_registered_limits(
-            [registered_limit_2, registered_limit_3])
+            [registered_limit_2, registered_limit_3]
+        )
         self.assertEqual(2, len(reg_limits))
         for reg_limit in reg_limits:
             if reg_limit['id'] == registered_limit_2['id']:
@@ -55,39 +66,60 @@ class RegisteredLimitTests(object):
         registered_limit_1 = unit.new_registered_limit_ref(
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', default_limit=10, id=uuid.uuid4().hex)
+            resource_name='volume',
+            default_limit=10,
+            id=uuid.uuid4().hex,
+        )
         PROVIDERS.unified_limit_api.create_registered_limits(
-            [registered_limit_1])
+            [registered_limit_1]
+        )
 
         registered_limit_2 = unit.new_registered_limit_ref(
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', default_limit=10, id=uuid.uuid4().hex)
-        self.assertRaises(exception.Conflict,
-                          PROVIDERS.unified_limit_api.create_registered_limits,
-                          [registered_limit_2])
+            resource_name='volume',
+            default_limit=10,
+            id=uuid.uuid4().hex,
+        )
+        self.assertRaises(
+            exception.Conflict,
+            PROVIDERS.unified_limit_api.create_registered_limits,
+            [registered_limit_2],
+        )
 
     def test_create_multi_registered_limits_duplicate(self):
         registered_limit_1 = unit.new_registered_limit_ref(
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', default_limit=10, id=uuid.uuid4().hex)
+            resource_name='volume',
+            default_limit=10,
+            id=uuid.uuid4().hex,
+        )
         PROVIDERS.unified_limit_api.create_registered_limits(
-            [registered_limit_1])
+            [registered_limit_1]
+        )
 
         # Create with a duplicated one and a normal one. Both of them will not
         # be created.
         registered_limit_2 = unit.new_registered_limit_ref(
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', default_limit=10, id=uuid.uuid4().hex)
+            resource_name='volume',
+            default_limit=10,
+            id=uuid.uuid4().hex,
+        )
         registered_limit_3 = unit.new_registered_limit_ref(
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='snapshot', default_limit=10, id=uuid.uuid4().hex)
-        self.assertRaises(exception.Conflict,
-                          PROVIDERS.unified_limit_api.create_registered_limits,
-                          [registered_limit_2, registered_limit_3])
+            resource_name='snapshot',
+            default_limit=10,
+            id=uuid.uuid4().hex,
+        )
+        self.assertRaises(
+            exception.Conflict,
+            PROVIDERS.unified_limit_api.create_registered_limits,
+            [registered_limit_2, registered_limit_3],
+        )
 
         reg_limits = PROVIDERS.unified_limit_api.list_registered_limits()
         self.assertEqual(1, len(reg_limits))
@@ -97,38 +129,56 @@ class RegisteredLimitTests(object):
         registered_limit_1 = unit.new_registered_limit_ref(
             service_id=uuid.uuid4().hex,
             region_id=self.region_one['id'],
-            resource_name='volume', default_limit=10, id=uuid.uuid4().hex)
-        self.assertRaises(exception.ValidationError,
-                          PROVIDERS.unified_limit_api.create_registered_limits,
-                          [registered_limit_1])
+            resource_name='volume',
+            default_limit=10,
+            id=uuid.uuid4().hex,
+        )
+        self.assertRaises(
+            exception.ValidationError,
+            PROVIDERS.unified_limit_api.create_registered_limits,
+            [registered_limit_1],
+        )
 
     def test_create_registered_limit_invalid_region(self):
         registered_limit_1 = unit.new_registered_limit_ref(
             service_id=self.service_one['id'],
             region_id=uuid.uuid4().hex,
-            resource_name='volume', default_limit=10, id=uuid.uuid4().hex)
-        self.assertRaises(exception.ValidationError,
-                          PROVIDERS.unified_limit_api.create_registered_limits,
-                          [registered_limit_1])
+            resource_name='volume',
+            default_limit=10,
+            id=uuid.uuid4().hex,
+        )
+        self.assertRaises(
+            exception.ValidationError,
+            PROVIDERS.unified_limit_api.create_registered_limits,
+            [registered_limit_1],
+        )
 
     def test_create_registered_limit_description_none(self):
         registered_limit = unit.new_registered_limit_ref(
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', default_limit=10, id=uuid.uuid4().hex,
-            description=None)
+            resource_name='volume',
+            default_limit=10,
+            id=uuid.uuid4().hex,
+            description=None,
+        )
         res = PROVIDERS.unified_limit_api.create_registered_limits(
-            [registered_limit])
+            [registered_limit]
+        )
         self.assertIsNone(res[0]['description'])
 
     def test_create_registered_limit_without_description(self):
         registered_limit = unit.new_registered_limit_ref(
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', default_limit=10, id=uuid.uuid4().hex)
+            resource_name='volume',
+            default_limit=10,
+            id=uuid.uuid4().hex,
+        )
         registered_limit.pop('description')
         res = PROVIDERS.unified_limit_api.create_registered_limits(
-            [registered_limit])
+            [registered_limit]
+        )
         self.assertIsNone(res[0]['description'])
 
     def test_update_registered_limit(self):
@@ -136,118 +186,183 @@ class RegisteredLimitTests(object):
         registered_limit_1 = unit.new_registered_limit_ref(
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', default_limit=10, id=uuid.uuid4().hex)
+            resource_name='volume',
+            default_limit=10,
+            id=uuid.uuid4().hex,
+        )
         registered_limit_2 = unit.new_registered_limit_ref(
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='snapshot', default_limit=5, id=uuid.uuid4().hex)
+            resource_name='snapshot',
+            default_limit=5,
+            id=uuid.uuid4().hex,
+        )
         PROVIDERS.unified_limit_api.create_registered_limits(
-            [registered_limit_1, registered_limit_2])
+            [registered_limit_1, registered_limit_2]
+        )
 
         expect_region = 'region_two'
-        registered_limit_update = {'id': registered_limit_1['id'],
-                                   'region_id': expect_region}
+        registered_limit_update = {
+            'id': registered_limit_1['id'],
+            'region_id': expect_region,
+        }
         res = PROVIDERS.unified_limit_api.update_registered_limit(
-            registered_limit_1['id'], registered_limit_update)
+            registered_limit_1['id'], registered_limit_update
+        )
         self.assertEqual(expect_region, res['region_id'])
 
         # 'id' can be omitted in the update body
         registered_limit_update = {'region_id': expect_region}
         res = PROVIDERS.unified_limit_api.update_registered_limit(
-            registered_limit_2['id'], registered_limit_update)
+            registered_limit_2['id'], registered_limit_update
+        )
         self.assertEqual(expect_region, res['region_id'])
 
     def test_update_registered_limit_invalid_input_return_bad_request(self):
         registered_limit_1 = unit.new_registered_limit_ref(
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', default_limit=10, id=uuid.uuid4().hex)
+            resource_name='volume',
+            default_limit=10,
+            id=uuid.uuid4().hex,
+        )
         PROVIDERS.unified_limit_api.create_registered_limits(
-            [registered_limit_1])
+            [registered_limit_1]
+        )
 
-        update_ref = {'id': registered_limit_1['id'],
-                      'service_id': uuid.uuid4().hex}
-        self.assertRaises(exception.ValidationError,
-                          PROVIDERS.unified_limit_api.update_registered_limit,
-                          registered_limit_1['id'], update_ref)
+        update_ref = {
+            'id': registered_limit_1['id'],
+            'service_id': uuid.uuid4().hex,
+        }
+        self.assertRaises(
+            exception.ValidationError,
+            PROVIDERS.unified_limit_api.update_registered_limit,
+            registered_limit_1['id'],
+            update_ref,
+        )
 
-        update_ref = {'id': registered_limit_1['id'],
-                      'region_id': 'fake_id'}
-        self.assertRaises(exception.ValidationError,
-                          PROVIDERS.unified_limit_api.update_registered_limit,
-                          registered_limit_1['id'], update_ref)
+        update_ref = {'id': registered_limit_1['id'], 'region_id': 'fake_id'}
+        self.assertRaises(
+            exception.ValidationError,
+            PROVIDERS.unified_limit_api.update_registered_limit,
+            registered_limit_1['id'],
+            update_ref,
+        )
 
     def test_update_registered_limit_duplicate(self):
         registered_limit_1 = unit.new_registered_limit_ref(
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', default_limit=10, id=uuid.uuid4().hex)
+            resource_name='volume',
+            default_limit=10,
+            id=uuid.uuid4().hex,
+        )
         registered_limit_2 = unit.new_registered_limit_ref(
             service_id=self.service_one['id'],
             region_id=self.region_two['id'],
-            resource_name='snapshot', default_limit=10, id=uuid.uuid4().hex)
+            resource_name='snapshot',
+            default_limit=10,
+            id=uuid.uuid4().hex,
+        )
         PROVIDERS.unified_limit_api.create_registered_limits(
-            [registered_limit_1, registered_limit_2])
+            [registered_limit_1, registered_limit_2]
+        )
 
         # Update registered_limit1 to registered_limit2
-        update_ref = {'id': registered_limit_1['id'],
-                      'region_id': self.region_two['id'],
-                      'resource_name': 'snapshot'}
-        self.assertRaises(exception.Conflict,
-                          PROVIDERS.unified_limit_api.update_registered_limit,
-                          registered_limit_1['id'], update_ref)
+        update_ref = {
+            'id': registered_limit_1['id'],
+            'region_id': self.region_two['id'],
+            'resource_name': 'snapshot',
+        }
+        self.assertRaises(
+            exception.Conflict,
+            PROVIDERS.unified_limit_api.update_registered_limit,
+            registered_limit_1['id'],
+            update_ref,
+        )
 
     def test_update_registered_limit_when_reference_limit_exist(self):
         registered_limit_1 = unit.new_registered_limit_ref(
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', default_limit=10, id=uuid.uuid4().hex)
+            resource_name='volume',
+            default_limit=10,
+            id=uuid.uuid4().hex,
+        )
         PROVIDERS.unified_limit_api.create_registered_limits(
-            [registered_limit_1])
+            [registered_limit_1]
+        )
         limit_1 = unit.new_limit_ref(
             project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', resource_limit=10, id=uuid.uuid4().hex)
+            resource_name='volume',
+            resource_limit=10,
+            id=uuid.uuid4().hex,
+        )
         PROVIDERS.unified_limit_api.create_limits([limit_1])
 
-        registered_limit_update = {'id': registered_limit_1['id'],
-                                   'region_id': 'region_two'}
+        registered_limit_update = {
+            'id': registered_limit_1['id'],
+            'region_id': 'region_two',
+        }
 
-        self.assertRaises(exception.RegisteredLimitError,
-                          PROVIDERS.unified_limit_api.update_registered_limit,
-                          registered_limit_1['id'], registered_limit_update)
+        self.assertRaises(
+            exception.RegisteredLimitError,
+            PROVIDERS.unified_limit_api.update_registered_limit,
+            registered_limit_1['id'],
+            registered_limit_update,
+        )
 
         registered_limit_2 = unit.new_registered_limit_ref(
             service_id=self.service_one['id'],
-            resource_name='volume', default_limit=10, id=uuid.uuid4().hex)
+            resource_name='volume',
+            default_limit=10,
+            id=uuid.uuid4().hex,
+        )
         PROVIDERS.unified_limit_api.create_registered_limits(
-            [registered_limit_2])
+            [registered_limit_2]
+        )
         limit_2 = unit.new_limit_ref(
             project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
-            resource_name='volume', resource_limit=10, id=uuid.uuid4().hex)
+            resource_name='volume',
+            resource_limit=10,
+            id=uuid.uuid4().hex,
+        )
         PROVIDERS.unified_limit_api.create_limits([limit_2])
 
-        registered_limit_update = {'id': registered_limit_2['id'],
-                                   'region_id': 'region_two'}
+        registered_limit_update = {
+            'id': registered_limit_2['id'],
+            'region_id': 'region_two',
+        }
 
-        self.assertRaises(exception.RegisteredLimitError,
-                          PROVIDERS.unified_limit_api.update_registered_limit,
-                          registered_limit_2['id'], registered_limit_update)
+        self.assertRaises(
+            exception.RegisteredLimitError,
+            PROVIDERS.unified_limit_api.update_registered_limit,
+            registered_limit_2['id'],
+            registered_limit_update,
+        )
 
     def test_list_registered_limits(self):
         # create two registered limits
         registered_limit_1 = unit.new_registered_limit_ref(
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', default_limit=10, id=uuid.uuid4().hex)
+            resource_name='volume',
+            default_limit=10,
+            id=uuid.uuid4().hex,
+        )
         registered_limit_2 = unit.new_registered_limit_ref(
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='snapshot', default_limit=5, id=uuid.uuid4().hex)
+            resource_name='snapshot',
+            default_limit=5,
+            id=uuid.uuid4().hex,
+        )
         reg_limits_1 = PROVIDERS.unified_limit_api.create_registered_limits(
-            [registered_limit_1, registered_limit_2])
+            [registered_limit_1, registered_limit_2]
+        )
 
         # list
         reg_limits_2 = PROVIDERS.unified_limit_api.list_registered_limits()
@@ -261,18 +376,26 @@ class RegisteredLimitTests(object):
         registered_limit_1 = unit.new_registered_limit_ref(
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', default_limit=10, id=uuid.uuid4().hex)
+            resource_name='volume',
+            default_limit=10,
+            id=uuid.uuid4().hex,
+        )
         registered_limit_2 = unit.new_registered_limit_ref(
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='snapshot', default_limit=5, id=uuid.uuid4().hex)
+            resource_name='snapshot',
+            default_limit=5,
+            id=uuid.uuid4().hex,
+        )
         PROVIDERS.unified_limit_api.create_registered_limits(
-            [registered_limit_1, registered_limit_2])
+            [registered_limit_1, registered_limit_2]
+        )
 
         # list, limit is 1
         hints = driver_hints.Hints()
         reg_limits = PROVIDERS.unified_limit_api.list_registered_limits(
-            hints=hints)
+            hints=hints
+        )
         self.assertEqual(1, len(reg_limits))
 
         if reg_limits[0]['id'] == registered_limit_1['id']:
@@ -284,13 +407,20 @@ class RegisteredLimitTests(object):
         registered_limit_1 = unit.new_registered_limit_ref(
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', default_limit=10, id=uuid.uuid4().hex)
+            resource_name='volume',
+            default_limit=10,
+            id=uuid.uuid4().hex,
+        )
         registered_limit_2 = unit.new_registered_limit_ref(
             service_id=self.service_one['id'],
             region_id=self.region_two['id'],
-            resource_name='snapshot', default_limit=10, id=uuid.uuid4().hex)
+            resource_name='snapshot',
+            default_limit=10,
+            id=uuid.uuid4().hex,
+        )
         PROVIDERS.unified_limit_api.create_registered_limits(
-            [registered_limit_1, registered_limit_2])
+            [registered_limit_1, registered_limit_2]
+        )
 
         hints = driver_hints.Hints()
         hints.add_filter('service_id', self.service_one['id'])
@@ -312,100 +442,144 @@ class RegisteredLimitTests(object):
         registered_limit_1 = unit.new_registered_limit_ref(
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', default_limit=10, id=uuid.uuid4().hex)
+            resource_name='volume',
+            default_limit=10,
+            id=uuid.uuid4().hex,
+        )
         registered_limit_2 = unit.new_registered_limit_ref(
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='snapshot', default_limit=5, id=uuid.uuid4().hex)
+            resource_name='snapshot',
+            default_limit=5,
+            id=uuid.uuid4().hex,
+        )
         PROVIDERS.unified_limit_api.create_registered_limits(
-            [registered_limit_1, registered_limit_2])
+            [registered_limit_1, registered_limit_2]
+        )
 
         # show one
         res = PROVIDERS.unified_limit_api.get_registered_limit(
-            registered_limit_2['id'])
+            registered_limit_2['id']
+        )
         self.assertDictEqual(registered_limit_2, res)
 
     def test_get_registered_limit_returns_not_found(self):
-        self.assertRaises(exception.RegisteredLimitNotFound,
-                          PROVIDERS.unified_limit_api.get_registered_limit,
-                          uuid.uuid4().hex)
+        self.assertRaises(
+            exception.RegisteredLimitNotFound,
+            PROVIDERS.unified_limit_api.get_registered_limit,
+            uuid.uuid4().hex,
+        )
 
     def test_delete_registered_limit(self):
         # create two registered limits
         registered_limit_1 = unit.new_registered_limit_ref(
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', default_limit=10, id=uuid.uuid4().hex)
+            resource_name='volume',
+            default_limit=10,
+            id=uuid.uuid4().hex,
+        )
         registered_limit_2 = unit.new_registered_limit_ref(
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='snapshot', default_limit=5, id=uuid.uuid4().hex)
+            resource_name='snapshot',
+            default_limit=5,
+            id=uuid.uuid4().hex,
+        )
         PROVIDERS.unified_limit_api.create_registered_limits(
-            [registered_limit_1, registered_limit_2])
+            [registered_limit_1, registered_limit_2]
+        )
 
         # delete one
         PROVIDERS.unified_limit_api.delete_registered_limit(
-            registered_limit_1['id'])
-        self.assertRaises(exception.RegisteredLimitNotFound,
-                          PROVIDERS.unified_limit_api.get_registered_limit,
-                          registered_limit_1['id'])
+            registered_limit_1['id']
+        )
+        self.assertRaises(
+            exception.RegisteredLimitNotFound,
+            PROVIDERS.unified_limit_api.get_registered_limit,
+            registered_limit_1['id'],
+        )
         reg_limits = PROVIDERS.unified_limit_api.list_registered_limits()
         self.assertEqual(1, len(reg_limits))
         self.assertEqual(registered_limit_2['id'], reg_limits[0]['id'])
 
     def test_delete_registered_limit_returns_not_found(self):
-        self.assertRaises(exception.RegisteredLimitNotFound,
-                          PROVIDERS.unified_limit_api.delete_registered_limit,
-                          uuid.uuid4().hex)
+        self.assertRaises(
+            exception.RegisteredLimitNotFound,
+            PROVIDERS.unified_limit_api.delete_registered_limit,
+            uuid.uuid4().hex,
+        )
 
     def test_delete_registered_limit_when_reference_limit_exist(self):
         registered_limit_1 = unit.new_registered_limit_ref(
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', default_limit=10, id=uuid.uuid4().hex)
+            resource_name='volume',
+            default_limit=10,
+            id=uuid.uuid4().hex,
+        )
         PROVIDERS.unified_limit_api.create_registered_limits(
-            [registered_limit_1])
+            [registered_limit_1]
+        )
         limit_1 = unit.new_limit_ref(
             project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', resource_limit=10, id=uuid.uuid4().hex)
+            resource_name='volume',
+            resource_limit=10,
+            id=uuid.uuid4().hex,
+        )
         PROVIDERS.unified_limit_api.create_limits([limit_1])
 
-        self.assertRaises(exception.RegisteredLimitError,
-                          PROVIDERS.unified_limit_api.delete_registered_limit,
-                          registered_limit_1['id'])
+        self.assertRaises(
+            exception.RegisteredLimitError,
+            PROVIDERS.unified_limit_api.delete_registered_limit,
+            registered_limit_1['id'],
+        )
 
         registered_limit_2 = unit.new_registered_limit_ref(
             service_id=self.service_one['id'],
-            resource_name='volume', default_limit=10, id=uuid.uuid4().hex)
+            resource_name='volume',
+            default_limit=10,
+            id=uuid.uuid4().hex,
+        )
         PROVIDERS.unified_limit_api.create_registered_limits(
-            [registered_limit_2])
+            [registered_limit_2]
+        )
         limit_2 = unit.new_limit_ref(
             project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
-            resource_name='volume', resource_limit=10, id=uuid.uuid4().hex)
+            resource_name='volume',
+            resource_limit=10,
+            id=uuid.uuid4().hex,
+        )
         PROVIDERS.unified_limit_api.create_limits([limit_2])
 
-        self.assertRaises(exception.RegisteredLimitError,
-                          PROVIDERS.unified_limit_api.delete_registered_limit,
-                          registered_limit_2['id'])
+        self.assertRaises(
+            exception.RegisteredLimitError,
+            PROVIDERS.unified_limit_api.delete_registered_limit,
+            registered_limit_2['id'],
+        )
 
 
 class LimitTests(object):
 
     def test_default_enforcement_model_is_flat(self):
         expected = {
-            'description': ('Limit enforcement and validation does not take '
-                            'project hierarchy into consideration.'),
-            'name': 'flat'
+            'description': (
+                'Limit enforcement and validation does not take '
+                'project hierarchy into consideration.'
+            ),
+            'name': 'flat',
         }
         self.assertEqual(expected, PROVIDERS.unified_limit_api.get_model())
 
     def test_registering_unsupported_enforcement_model_fails(self):
         self.assertRaises(
-            ValueError, self.config_fixture.config, group='unified_limit',
-            enforcement_model=uuid.uuid4().hex
+            ValueError,
+            self.config_fixture.config,
+            group='unified_limit',
+            enforcement_model=uuid.uuid4().hex,
         )
 
     def test_create_project_limit(self):
@@ -414,9 +588,12 @@ class LimitTests(object):
             project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', resource_limit=10, id=uuid.uuid4().hex,
+            resource_name='volume',
+            resource_limit=10,
+            id=uuid.uuid4().hex,
             description='test description',
-            domain_id=None)
+            domain_id=None,
+        )
         limits = PROVIDERS.unified_limit_api.create_limits([limit_1])
         self.assertDictEqual(limit_1, limits[0])
 
@@ -425,14 +602,20 @@ class LimitTests(object):
             project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_two['id'],
-            resource_name='snapshot', resource_limit=5, id=uuid.uuid4().hex,
-            domain_id=None)
+            resource_name='snapshot',
+            resource_limit=5,
+            id=uuid.uuid4().hex,
+            domain_id=None,
+        )
         limit_3 = unit.new_limit_ref(
             project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_two['id'],
-            resource_name='backup', resource_limit=5, id=uuid.uuid4().hex,
-            domain_id=None)
+            resource_name='backup',
+            resource_limit=5,
+            id=uuid.uuid4().hex,
+            domain_id=None,
+        )
 
         limits = PROVIDERS.unified_limit_api.create_limits([limit_2, limit_3])
         for limit in limits:
@@ -446,9 +629,12 @@ class LimitTests(object):
             project_id=None,
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', resource_limit=10, id=uuid.uuid4().hex,
+            resource_name='volume',
+            resource_limit=10,
+            id=uuid.uuid4().hex,
             description='test description',
-            domain_id=self.domain_default['id'])
+            domain_id=self.domain_default['id'],
+        )
         limits = PROVIDERS.unified_limit_api.create_limits([limit_1])
         self.assertDictEqual(limit_1, limits[0])
 
@@ -457,7 +643,10 @@ class LimitTests(object):
             project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', resource_limit=10, id=uuid.uuid4().hex)
+            resource_name='volume',
+            resource_limit=10,
+            id=uuid.uuid4().hex,
+        )
         PROVIDERS.unified_limit_api.create_limits([limit_1])
 
         # use different id but the same project_id, service_id and region_id
@@ -465,18 +654,26 @@ class LimitTests(object):
             project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', resource_limit=10, id=uuid.uuid4().hex)
-        self.assertRaises(exception.Conflict,
-                          PROVIDERS.unified_limit_api.create_limits,
-                          [limit_1])
+            resource_name='volume',
+            resource_limit=10,
+            id=uuid.uuid4().hex,
+        )
+        self.assertRaises(
+            exception.Conflict,
+            PROVIDERS.unified_limit_api.create_limits,
+            [limit_1],
+        )
 
     def test_create_domain_limit_duplicate(self):
         limit_1 = unit.new_limit_ref(
             project_id=None,
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', resource_limit=10, id=uuid.uuid4().hex,
-            domain_id=self.domain_default['id'])
+            resource_name='volume',
+            resource_limit=10,
+            id=uuid.uuid4().hex,
+            domain_id=self.domain_default['id'],
+        )
         PROVIDERS.unified_limit_api.create_limits([limit_1])
 
         # use different id but the same domain_id, service_id and region_id
@@ -484,49 +681,72 @@ class LimitTests(object):
             project_id=None,
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', resource_limit=10, id=uuid.uuid4().hex,
-            domain_id=self.domain_default['id'])
-        self.assertRaises(exception.Conflict,
-                          PROVIDERS.unified_limit_api.create_limits,
-                          [limit_1])
+            resource_name='volume',
+            resource_limit=10,
+            id=uuid.uuid4().hex,
+            domain_id=self.domain_default['id'],
+        )
+        self.assertRaises(
+            exception.Conflict,
+            PROVIDERS.unified_limit_api.create_limits,
+            [limit_1],
+        )
 
     def test_create_limit_with_invalid_service_raises_validation_error(self):
         limit = unit.new_limit_ref(
             project_id=self.project_bar['id'],
             service_id=uuid.uuid4().hex,
             region_id=self.region_one['id'],
-            resource_name='volume', resource_limit=10, id=uuid.uuid4().hex)
-        self.assertRaises(exception.ValidationError,
-                          PROVIDERS.unified_limit_api.create_limits,
-                          [limit])
+            resource_name='volume',
+            resource_limit=10,
+            id=uuid.uuid4().hex,
+        )
+        self.assertRaises(
+            exception.ValidationError,
+            PROVIDERS.unified_limit_api.create_limits,
+            [limit],
+        )
 
     def test_create_limit_with_invalid_region_raises_validation_error(self):
         limit = unit.new_limit_ref(
             project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=uuid.uuid4().hex,
-            resource_name='volume', resource_limit=10, id=uuid.uuid4().hex)
-        self.assertRaises(exception.ValidationError,
-                          PROVIDERS.unified_limit_api.create_limits,
-                          [limit])
+            resource_name='volume',
+            resource_limit=10,
+            id=uuid.uuid4().hex,
+        )
+        self.assertRaises(
+            exception.ValidationError,
+            PROVIDERS.unified_limit_api.create_limits,
+            [limit],
+        )
 
     def test_create_limit_without_reference_registered_limit(self):
         limit_1 = unit.new_limit_ref(
             project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_two['id'],
-            resource_name='volume', resource_limit=10, id=uuid.uuid4().hex)
-        self.assertRaises(exception.NoLimitReference,
-                          PROVIDERS.unified_limit_api.create_limits,
-                          [limit_1])
+            resource_name='volume',
+            resource_limit=10,
+            id=uuid.uuid4().hex,
+        )
+        self.assertRaises(
+            exception.NoLimitReference,
+            PROVIDERS.unified_limit_api.create_limits,
+            [limit_1],
+        )
 
     def test_create_limit_description_none(self):
         limit = unit.new_limit_ref(
             project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', resource_limit=10, id=uuid.uuid4().hex,
-            description=None)
+            resource_name='volume',
+            resource_limit=10,
+            id=uuid.uuid4().hex,
+            description=None,
+        )
         res = PROVIDERS.unified_limit_api.create_limits([limit])
         self.assertIsNone(res[0]['description'])
 
@@ -535,7 +755,10 @@ class LimitTests(object):
             project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', resource_limit=10, id=uuid.uuid4().hex)
+            resource_name='volume',
+            resource_limit=10,
+            id=uuid.uuid4().hex,
+        )
         limit.pop('description')
         res = PROVIDERS.unified_limit_api.create_limits([limit])
         self.assertIsNone(res[0]['description'])
@@ -546,25 +769,32 @@ class LimitTests(object):
             project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', resource_limit=10, id=uuid.uuid4().hex)
+            resource_name='volume',
+            resource_limit=10,
+            id=uuid.uuid4().hex,
+        )
         limit_2 = unit.new_limit_ref(
             project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_two['id'],
-            resource_name='snapshot', resource_limit=5, id=uuid.uuid4().hex)
+            resource_name='snapshot',
+            resource_limit=5,
+            id=uuid.uuid4().hex,
+        )
         PROVIDERS.unified_limit_api.create_limits([limit_1, limit_2])
 
         expect_limit = 8
-        limit_update = {'id': limit_1['id'],
-                        'resource_limit': expect_limit}
-        res = PROVIDERS.unified_limit_api.update_limit(limit_1['id'],
-                                                       limit_update)
+        limit_update = {'id': limit_1['id'], 'resource_limit': expect_limit}
+        res = PROVIDERS.unified_limit_api.update_limit(
+            limit_1['id'], limit_update
+        )
         self.assertEqual(expect_limit, res['resource_limit'])
 
         # 'id' can be omitted in the update body
         limit_update = {'resource_limit': expect_limit}
-        res = PROVIDERS.unified_limit_api.update_limit(limit_2['id'],
-                                                       limit_update)
+        res = PROVIDERS.unified_limit_api.update_limit(
+            limit_2['id'], limit_update
+        )
         self.assertEqual(expect_limit, res['resource_limit'])
 
     def test_list_limits(self):
@@ -573,14 +803,20 @@ class LimitTests(object):
             project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', resource_limit=10, id=uuid.uuid4().hex,
-            domain_id=None)
+            resource_name='volume',
+            resource_limit=10,
+            id=uuid.uuid4().hex,
+            domain_id=None,
+        )
         limit_2 = unit.new_limit_ref(
             project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_two['id'],
-            resource_name='snapshot', resource_limit=5, id=uuid.uuid4().hex,
-            domain_id=None)
+            resource_name='snapshot',
+            resource_limit=5,
+            id=uuid.uuid4().hex,
+            domain_id=None,
+        )
         PROVIDERS.unified_limit_api.create_limits([limit_1, limit_2])
 
         # list
@@ -601,14 +837,20 @@ class LimitTests(object):
             project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', resource_limit=10, id=uuid.uuid4().hex,
-            domain_id=None)
+            resource_name='volume',
+            resource_limit=10,
+            id=uuid.uuid4().hex,
+            domain_id=None,
+        )
         limit_2 = unit.new_limit_ref(
             project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_two['id'],
-            resource_name='snapshot', resource_limit=5, id=uuid.uuid4().hex,
-            domain_id=None)
+            resource_name='snapshot',
+            resource_limit=5,
+            id=uuid.uuid4().hex,
+            domain_id=None,
+        )
         PROVIDERS.unified_limit_api.create_limits([limit_1, limit_2])
 
         # list, limit is 1
@@ -625,20 +867,29 @@ class LimitTests(object):
             project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', resource_limit=10, id=uuid.uuid4().hex,
-            domain_id=None)
+            resource_name='volume',
+            resource_limit=10,
+            id=uuid.uuid4().hex,
+            domain_id=None,
+        )
         limit_2 = unit.new_limit_ref(
             project_id=self.project_baz['id'],
             service_id=self.service_one['id'],
             region_id=self.region_two['id'],
-            resource_name='snapshot', resource_limit=10, id=uuid.uuid4().hex,
-            domain_id=None)
+            resource_name='snapshot',
+            resource_limit=10,
+            id=uuid.uuid4().hex,
+            domain_id=None,
+        )
         limit_3 = unit.new_limit_ref(
             project_id=None,
             service_id=self.service_one['id'],
             region_id=self.region_two['id'],
-            resource_name='snapshot', resource_limit=10, id=uuid.uuid4().hex,
-            domain_id=self.domain_default['id'])
+            resource_name='snapshot',
+            resource_limit=10,
+            id=uuid.uuid4().hex,
+            domain_id=self.domain_default['id'],
+        )
         PROVIDERS.unified_limit_api.create_limits([limit_1, limit_2, limit_3])
 
         hints = driver_hints.Hints()
@@ -672,12 +923,18 @@ class LimitTests(object):
             project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', resource_limit=10, id=uuid.uuid4().hex)
+            resource_name='volume',
+            resource_limit=10,
+            id=uuid.uuid4().hex,
+        )
         limit_2 = unit.new_limit_ref(
             project_id=self.project_baz['id'],
             service_id=self.service_one['id'],
             region_id=self.region_two['id'],
-            resource_name='snapshot', resource_limit=10, id=uuid.uuid4().hex)
+            resource_name='snapshot',
+            resource_limit=10,
+            id=uuid.uuid4().hex,
+        )
         PROVIDERS.unified_limit_api.create_limits([limit_1, limit_2])
 
         hints = driver_hints.Hints()
@@ -692,14 +949,20 @@ class LimitTests(object):
             project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', resource_limit=10, id=uuid.uuid4().hex,
-            domain_id=None)
+            resource_name='volume',
+            resource_limit=10,
+            id=uuid.uuid4().hex,
+            domain_id=None,
+        )
         limit_2 = unit.new_limit_ref(
             project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_two['id'],
-            resource_name='snapshot', resource_limit=5, id=uuid.uuid4().hex,
-            domain_id=None)
+            resource_name='snapshot',
+            resource_limit=5,
+            id=uuid.uuid4().hex,
+            domain_id=None,
+        )
         PROVIDERS.unified_limit_api.create_limits([limit_1, limit_2])
 
         # show one
@@ -707,9 +970,11 @@ class LimitTests(object):
         self.assertDictEqual(limit_2, res)
 
     def test_get_limit_returns_not_found(self):
-        self.assertRaises(exception.LimitNotFound,
-                          PROVIDERS.unified_limit_api.get_limit,
-                          uuid.uuid4().hex)
+        self.assertRaises(
+            exception.LimitNotFound,
+            PROVIDERS.unified_limit_api.get_limit,
+            uuid.uuid4().hex,
+        )
 
     def test_delete_limit(self):
         # create two limits
@@ -717,24 +982,34 @@ class LimitTests(object):
             project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', resource_limit=10, id=uuid.uuid4().hex)
+            resource_name='volume',
+            resource_limit=10,
+            id=uuid.uuid4().hex,
+        )
         limit_2 = unit.new_limit_ref(
             project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_two['id'],
-            resource_name='snapshot', resource_limit=5, id=uuid.uuid4().hex)
+            resource_name='snapshot',
+            resource_limit=5,
+            id=uuid.uuid4().hex,
+        )
         PROVIDERS.unified_limit_api.create_limits([limit_1, limit_2])
         # delete one
         PROVIDERS.unified_limit_api.delete_limit(limit_1['id'])
         # delete again
-        self.assertRaises(exception.LimitNotFound,
-                          PROVIDERS.unified_limit_api.get_limit,
-                          limit_1['id'])
+        self.assertRaises(
+            exception.LimitNotFound,
+            PROVIDERS.unified_limit_api.get_limit,
+            limit_1['id'],
+        )
 
     def test_delete_limit_returns_not_found(self):
-        self.assertRaises(exception.LimitNotFound,
-                          PROVIDERS.unified_limit_api.delete_limit,
-                          uuid.uuid4().hex)
+        self.assertRaises(
+            exception.LimitNotFound,
+            PROVIDERS.unified_limit_api.delete_limit,
+            uuid.uuid4().hex,
+        )
 
     def test_delete_limit_project(self):
         # create two limits
@@ -742,12 +1017,18 @@ class LimitTests(object):
             project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_one['id'],
-            resource_name='volume', resource_limit=10, id=uuid.uuid4().hex)
+            resource_name='volume',
+            resource_limit=10,
+            id=uuid.uuid4().hex,
+        )
         limit_2 = unit.new_limit_ref(
             project_id=self.project_bar['id'],
             service_id=self.service_one['id'],
             region_id=self.region_two['id'],
-            resource_name='snapshot', resource_limit=5, id=uuid.uuid4().hex)
+            resource_name='snapshot',
+            resource_limit=5,
+            id=uuid.uuid4().hex,
+        )
         PROVIDERS.unified_limit_api.create_limits([limit_1, limit_2])
 
         # delete a unrelated project, the limits should still be there.

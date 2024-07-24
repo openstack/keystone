@@ -51,14 +51,12 @@ class EC2TokensResource(EC2_S3_Resource.ResourceBase):
                 # other programming language libraries, JAVA for example.
                 signer = ec2_utils.Ec2Signer(creds_ref['secret'])
                 signature = signer.generate(credentials)
-                if utils.auth_str_equal(
-                        credentials['signature'], signature):
+                if utils.auth_str_equal(credentials['signature'], signature):
                     return True
             raise exception.Unauthorized(_('Invalid EC2 signature.'))
         # Raise the exception when credentials.get('signature') is None
         else:
-            raise exception.Unauthorized(
-                _('EC2 signature not supplied.'))
+            raise exception.Unauthorized(_('EC2 signature not supplied.'))
 
     @ks_flask.unenforced_api
     def post(self):
@@ -86,7 +84,9 @@ class EC2TokensAPI(ks_flask.APIBase):
             resource_kwargs={},
             rel='ec2tokens',
             resource_relation_func=(
-                json_home_relations.os_ec2_resource_rel_func))
+                json_home_relations.os_ec2_resource_rel_func
+            ),
+        )
     ]
 
 

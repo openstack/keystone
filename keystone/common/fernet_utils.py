@@ -36,8 +36,7 @@ NULL_KEY = base64.urlsafe_b64encode(b'\x00' * 32)
 
 class FernetUtils(object):
 
-    def __init__(self, key_repository, max_active_keys,
-                 config_group):
+    def __init__(self, key_repository, max_active_keys, config_group):
         self.key_repository = key_repository
         self.max_active_keys = max_active_keys
         self.config_group = config_group
@@ -48,36 +47,43 @@ class FernetUtils(object):
         # passed in as None because we don't set allow_no_values to True.
 
         # ensure current user has sufficient access to the key repository
-        is_valid = (os.access(self.key_repository, os.R_OK) and
-                    os.access(self.key_repository, os.X_OK))
+        is_valid = os.access(self.key_repository, os.R_OK) and os.access(
+            self.key_repository, os.X_OK
+        )
         if requires_write:
-            is_valid = (is_valid and
-                        os.access(self.key_repository, os.W_OK))
+            is_valid = is_valid and os.access(self.key_repository, os.W_OK)
 
         if not is_valid:
             LOG.error(
                 'Either [%(config_group)s] key_repository does not exist '
                 'or Keystone does not have sufficient permission to '
                 'access it: %(key_repo)s',
-                {'key_repo': self.key_repository,
-                 'config_group': self.config_group})
+                {
+                    'key_repo': self.key_repository,
+                    'config_group': self.config_group,
+                },
+            )
         else:
             # ensure the key repository isn't world-readable
             stat_info = os.stat(self.key_repository)
-            if (stat_info.st_mode & stat.S_IROTH or
-                    stat_info.st_mode & stat.S_IXOTH):
+            if (
+                stat_info.st_mode & stat.S_IROTH
+                or stat_info.st_mode & stat.S_IXOTH
+            ):
                 LOG.warning(
-                    'key_repository is world readable: %s',
-                    self.key_repository)
+                    'key_repository is world readable: %s', self.key_repository
+                )
 
         return is_valid
 
-    def create_key_directory(self, keystone_user_id=None,
-                             keystone_group_id=None):
+    def create_key_directory(
+        self, keystone_user_id=None, keystone_group_id=None
+    ):
         """Attempt to create the key directory if it doesn't exist."""
         utils.create_directory(
-            self.key_repository, keystone_user_id=keystone_user_id,
-            keystone_group_id=keystone_group_id
+            self.key_repository,
+            keystone_user_id=keystone_user_id,
+            keystone_group_id=keystone_group_id,
         )
 
     def _create_new_key(self, keystone_user_id, keystone_group_id):
@@ -110,7 +116,9 @@ class FernetUtils(object):
             LOG.warning(
                 'Unable to change the ownership of the new key without a '
                 'keystone user ID and keystone group ID both being provided: '
-                '%s', self.key_repository)
+                '%s',
+                self.key_repository,
+            )
         # Determine the file name of the new key
         key_file = os.path.join(self.key_repository, '0.tmp')
         create_success = False
@@ -163,15 +171,19 @@ class FernetUtils(object):
                     else:
                         key = key_file.read()
                         if len(key) == 0:
-                            LOG.warning('Ignoring empty key found in key '
-                                        'repository: %s', path)
+                            LOG.warning(
+                                'Ignoring empty key found in key '
+                                'repository: %s',
+                                path,
+                            )
                             continue
                         key_files[key_id] = path
                         keys[key_id] = key
         return key_files, keys
 
-    def initialize_key_repository(self, keystone_user_id=None,
-                                  keystone_group_id=None):
+    def initialize_key_repository(
+        self, keystone_user_id=None, keystone_group_id=None
+    ):
         """Create a key repository and bootstrap it with a key.
 
         :param keystone_user_id: User ID of the Keystone user.
@@ -179,8 +191,7 @@ class FernetUtils(object):
 
         """
         # make sure we have work to do before proceeding
-        if os.access(os.path.join(self.key_repository, '0'),
-                     os.F_OK):
+        if os.access(os.path.join(self.key_repository, '0'), os.F_OK):
             LOG.info('Key repository is already initialized; aborting.')
             return
 
@@ -213,10 +224,10 @@ class FernetUtils(object):
         # read the list of key files
         key_files, _ = self._get_key_files(self.key_repository)
 
-        LOG.info('Starting key rotation with %(count)s key files: '
-                 '%(list)s', {
-                     'count': len(key_files),
-                     'list': list(key_files.values())})
+        LOG.info(
+            'Starting key rotation with %(count)s key files: ' '%(list)s',
+            {'count': len(key_files), 'list': list(key_files.values())},
+        )
 
         # add a tmp new key to the rotation, which will be the *next* primary
         self._create_tmp_new_key(keystone_user_id, keystone_group_id)
@@ -230,12 +241,12 @@ class FernetUtils(object):
         # promote the next primary key to be the primary
         os.rename(
             os.path.join(self.key_repository, '0'),
-            os.path.join(self.key_repository, str(new_primary_key))
+            os.path.join(self.key_repository, str(new_primary_key)),
         )
         key_files.pop(0)
         key_files[new_primary_key] = os.path.join(
-            self.key_repository,
-            str(new_primary_key))
+            self.key_repository, str(new_primary_key)
+        )
         LOG.info('Promoted key 0 to be the primary: %s', new_primary_key)
 
         # rename the tmp key to the real staged key
@@ -279,14 +290,20 @@ class FernetUtils(object):
             # sense to log this message for tokens since credentials doesn't
             # have a `max_active_key` configuration option.
             if self.key_repository == CONF.fernet_tokens.key_repository:
-                msg = ('Loaded %(count)d Fernet keys from %(dir)s, but '
-                       '`[fernet_tokens] max_active_keys = %(max)d`; perhaps '
-                       'there have not been enough key rotations to reach '
-                       '`max_active_keys` yet?')
-                LOG.debug(msg, {
-                    'count': len(keys),
-                    'max': self.max_active_keys,
-                    'dir': self.key_repository})
+                msg = (
+                    'Loaded %(count)d Fernet keys from %(dir)s, but '
+                    '`[fernet_tokens] max_active_keys = %(max)d`; perhaps '
+                    'there have not been enough key rotations to reach '
+                    '`max_active_keys` yet?'
+                )
+                LOG.debug(
+                    msg,
+                    {
+                        'count': len(keys),
+                        'max': self.max_active_keys,
+                        'dir': self.key_repository,
+                    },
+                )
 
         # return the encryption_keys, sorted by key number, descending
         key_list = [keys[x] for x in sorted(keys.keys(), reverse=True)]

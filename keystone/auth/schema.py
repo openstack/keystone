@@ -24,7 +24,9 @@ token_issue = {
             'properties': {
                 'methods': {
                     'type': 'array',
-                    'items': {'type': 'string', },
+                    'items': {
+                        'type': 'string',
+                    },
                 },
                 'password': {
                     'type': 'object',
@@ -32,14 +34,24 @@ token_issue = {
                         'user': {
                             'type': 'object',
                             'properties': {
-                                'id': {'type': 'string', },
-                                'name': {'type': 'string', },
-                                'password': {'type': 'string', },
+                                'id': {
+                                    'type': 'string',
+                                },
+                                'name': {
+                                    'type': 'string',
+                                },
+                                'password': {
+                                    'type': 'string',
+                                },
                                 'domain': {
                                     'type': 'object',
                                     'properties': {
-                                        'id': {'type': 'string', },
-                                        'name': {'type': 'string', },
+                                        'id': {
+                                            'type': 'string',
+                                        },
+                                        'name': {
+                                            'type': 'string',
+                                        },
                                     },
                                 },
                             },
@@ -53,10 +65,14 @@ token_issue = {
                             'type': 'string',
                         },
                     },
-                    'required': ['id', ],
+                    'required': [
+                        'id',
+                    ],
                 },
             },
-            'required': ['methods', ],
+            'required': [
+                'methods',
+            ],
         },
         'scope': {
             # For explicit unscoped authentication the type should not be
@@ -70,13 +86,21 @@ token_issue = {
                 'project': {
                     'type': 'object',
                     'properties': {
-                        'name': {'type': 'string', },
-                        'id': {'type': 'string', },
+                        'name': {
+                            'type': 'string',
+                        },
+                        'id': {
+                            'type': 'string',
+                        },
                         'domain': {
                             'type': 'object',
                             'properties': {
-                                'id': {'type': 'string', },
-                                'name': {'type': 'string', },
+                                'id': {
+                                    'type': 'string',
+                                },
+                                'name': {
+                                    'type': 'string',
+                                },
                             },
                         },
                     },
@@ -84,26 +108,32 @@ token_issue = {
                 'domain': {
                     'type': 'object',
                     'properties': {
-                        'id': {'type': 'string', },
-                        'name': {'type': 'string', },
+                        'id': {
+                            'type': 'string',
+                        },
+                        'name': {
+                            'type': 'string',
+                        },
                     },
                 },
                 'OS-TRUST:trust': {
                     'type': 'object',
                     'properties': {
-                        'id': {'type': 'string', },
-                    }
+                        'id': {
+                            'type': 'string',
+                        },
+                    },
                 },
                 'system': {
                     'type': 'object',
-                    'properties': {
-                        'all': parameter_types.boolean
-                    }
-                }
+                    'properties': {'all': parameter_types.boolean},
+                },
             },
         },
     },
-    'required': ['identity', ],
+    'required': [
+        'identity',
+    ],
 }
 
 
@@ -115,8 +145,10 @@ def validate_issue_token_auth(auth=None):
     user = auth['identity'].get('password', {}).get('user')
     if user is not None:
         if 'id' not in user and 'name' not in user:
-            msg = _('Invalid input for field identity/password/user: '
-                    'id or name must be present.')
+            msg = _(
+                'Invalid input for field identity/password/user: '
+                'id or name must be present.'
+            )
             raise exception.SchemaValidationError(detail=msg)
 
         domain = user.get('domain')
@@ -124,7 +156,8 @@ def validate_issue_token_auth(auth=None):
             if 'id' not in domain and 'name' not in domain:
                 msg = _(
                     'Invalid input for field identity/password/user/domain: '
-                    'id or name must be present.')
+                    'id or name must be present.'
+                )
                 raise exception.SchemaValidationError(detail=msg)
 
     scope = auth.get('scope')
@@ -134,19 +167,22 @@ def validate_issue_token_auth(auth=None):
             if 'id' not in project and 'name' not in project:
                 msg = _(
                     'Invalid input for field scope/project: '
-                    'id or name must be present.')
+                    'id or name must be present.'
+                )
                 raise exception.SchemaValidationError(detail=msg)
             domain = project.get('domain')
             if domain is not None:
                 if 'id' not in domain and 'name' not in domain:
                     msg = _(
                         'Invalid input for field scope/project/domain: '
-                        'id or name must be present.')
+                        'id or name must be present.'
+                    )
                     raise exception.SchemaValidationError(detail=msg)
         domain = scope.get('domain')
         if domain is not None:
             if 'id' not in domain and 'name' not in domain:
                 msg = _(
                     'Invalid input for field scope/domain: '
-                    'id or name must be present.')
+                    'id or name must be present.'
+                )
                 raise exception.SchemaValidationError(detail=msg)

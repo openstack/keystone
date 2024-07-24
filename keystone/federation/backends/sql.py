@@ -32,8 +32,11 @@ class FederationProtocolModel(sql.ModelBase, sql.ModelDictMixin):
     mutable_attributes = frozenset(['mapping_id', 'remote_id_attribute'])
 
     id = sql.Column(sql.String(64), primary_key=True)
-    idp_id = sql.Column(sql.String(64), sql.ForeignKey('identity_provider.id',
-                        ondelete='CASCADE'), primary_key=True)
+    idp_id = sql.Column(
+        sql.String(64),
+        sql.ForeignKey('identity_provider.id', ondelete='CASCADE'),
+        primary_key=True,
+    )
     mapping_id = sql.Column(sql.String(64), nullable=False)
     remote_id_attribute = sql.Column(sql.String(64))
 
@@ -52,10 +55,17 @@ class FederationProtocolModel(sql.ModelBase, sql.ModelDictMixin):
 
 class IdentityProviderModel(sql.ModelBase, sql.ModelDictMixin):
     __tablename__ = 'identity_provider'
-    attributes = ['id', 'domain_id', 'enabled', 'description', 'remote_ids',
-                  'authorization_ttl']
-    mutable_attributes = frozenset(['description', 'enabled', 'remote_ids',
-                                    'authorization_ttl'])
+    attributes = [
+        'id',
+        'domain_id',
+        'enabled',
+        'description',
+        'remote_ids',
+        'authorization_ttl',
+    ]
+    mutable_attributes = frozenset(
+        ['description', 'enabled', 'remote_ids', 'authorization_ttl']
+    )
 
     id = sql.Column(sql.String(64), primary_key=True)
     domain_id = sql.Column(sql.String(64), nullable=False)
@@ -63,13 +73,15 @@ class IdentityProviderModel(sql.ModelBase, sql.ModelDictMixin):
     description = sql.Column(sql.Text(), nullable=True)
     authorization_ttl = sql.Column(sql.Integer, nullable=True)
 
-    remote_ids = orm.relationship('IdPRemoteIdsModel',
-                                  order_by='IdPRemoteIdsModel.remote_id',
-                                  cascade='all, delete-orphan')
+    remote_ids = orm.relationship(
+        'IdPRemoteIdsModel',
+        order_by='IdPRemoteIdsModel.remote_id',
+        cascade='all, delete-orphan',
+    )
     expiring_user_group_memberships = orm.relationship(
         'ExpiringUserGroupMembership',
         cascade='all, delete-orphan',
-        backref="idp"
+        backref="idp",
     )
 
     @classmethod
@@ -104,11 +116,11 @@ class IdPRemoteIdsModel(sql.ModelBase, sql.ModelDictMixin):
     attributes = ['idp_id', 'remote_id']
     mutable_attributes = frozenset(['idp_id', 'remote_id'])
 
-    idp_id = sql.Column(sql.String(64),
-                        sql.ForeignKey('identity_provider.id',
-                                       ondelete='CASCADE'))
-    remote_id = sql.Column(sql.String(255),
-                           primary_key=True)
+    idp_id = sql.Column(
+        sql.String(64),
+        sql.ForeignKey('identity_provider.id', ondelete='CASCADE'),
+    )
+    remote_id = sql.Column(sql.String(255), primary_key=True)
 
     @classmethod
     def from_dict(cls, dictionary):
@@ -129,8 +141,9 @@ class MappingModel(sql.ModelBase, sql.ModelDictMixin):
 
     id = sql.Column(sql.String(64), primary_key=True)
     rules = sql.Column(sql.JsonBlob(), nullable=False)
-    schema_version = sql.Column(sql.String(5), nullable=False,
-                                server_default='1.0')
+    schema_version = sql.Column(
+        sql.String(5), nullable=False, server_default='1.0'
+    )
 
     @classmethod
     def from_dict(cls, dictionary):
@@ -149,10 +162,17 @@ class MappingModel(sql.ModelBase, sql.ModelDictMixin):
 
 class ServiceProviderModel(sql.ModelBase, sql.ModelDictMixin):
     __tablename__ = 'service_provider'
-    attributes = ['auth_url', 'id', 'enabled', 'description',
-                  'relay_state_prefix', 'sp_url']
-    mutable_attributes = frozenset(['auth_url', 'description', 'enabled',
-                                    'relay_state_prefix', 'sp_url'])
+    attributes = [
+        'auth_url',
+        'id',
+        'enabled',
+        'description',
+        'relay_state_prefix',
+        'sp_url',
+    ]
+    mutable_attributes = frozenset(
+        ['auth_url', 'description', 'enabled', 'relay_state_prefix', 'sp_url']
+    )
 
     id = sql.Column(sql.String(64), primary_key=True)
     enabled = sql.Column(sql.Boolean, nullable=False)
@@ -181,8 +201,10 @@ class Federation(base.FederationDriverBase):
     def _handle_idp_conflict(self, e):
         conflict_type = 'identity_provider'
         details = str(e)
-        LOG.debug(self._CONFLICT_LOG_MSG, {'conflict_type': conflict_type,
-                                           'details': details})
+        LOG.debug(
+            self._CONFLICT_LOG_MSG,
+            {'conflict_type': conflict_type, 'details': details},
+        )
         if 'remote_id' in details:
             msg = _('Duplicate remote ID: %s')
         else:
@@ -258,8 +280,7 @@ class Federation(base.FederationDriverBase):
         try:
             return q.one()
         except sql.NotFound:
-            kwargs = {'protocol_id': protocol_id,
-                      'idp_id': idp_id}
+            kwargs = {'protocol_id': protocol_id, 'idp_id': idp_id}
             raise exception.FederatedProtocolNotFound(**kwargs)
 
     @sql.handle_conflicts(conflict_type='federation_protocol')

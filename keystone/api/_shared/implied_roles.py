@@ -25,20 +25,19 @@ PROVIDERS = provider_api.ProviderAPIs
 def build_prior_role_response_data(prior_role_id, prior_role_name):
     return {
         'id': prior_role_id,
-        'links': {
-            'self': ks_flask.base_url(path='/roles/%s' % prior_role_id)
-        },
-        'name': prior_role_name}
+        'links': {'self': ks_flask.base_url(path='/roles/%s' % prior_role_id)},
+        'name': prior_role_name,
+    }
 
 
 def build_implied_role_response_data(implied_role):
     return {
         'id': implied_role['id'],
         'links': {
-            'self': ks_flask.base_url(
-                path='/roles/%s' % implied_role['id'])
+            'self': ks_flask.base_url(path='/roles/%s' % implied_role['id'])
         },
-        'name': implied_role['name']}
+        'name': implied_role['name'],
+    }
 
 
 def role_inference_response(prior_role_id):
@@ -46,5 +45,8 @@ def role_inference_response(prior_role_id):
     response = {
         'role_inference': {
             'prior_role': build_prior_role_response_data(
-                prior_role_id, prior_role['name'])}}
+                prior_role_id, prior_role['name']
+            )
+        }
+    }
     return response

@@ -35,9 +35,7 @@ def symptom_unique_key_repositories():
     Ensure `keystone.conf [credential] key_repository` and `keystone.conf
     [fernet_tokens] key_repository` are not pointing to the same location.
     """
-    return (
-        CONF.credential.key_repository == CONF.fernet_tokens.key_repository
-    )
+    return CONF.credential.key_repository == CONF.fernet_tokens.key_repository
 
 
 def symptom_usability_of_credential_fernet_key_repository():
@@ -50,11 +48,12 @@ def symptom_usability_of_credential_fernet_key_repository():
     fernet_utils = utils.FernetUtils(
         CONF.credential.key_repository,
         credential_fernet.MAX_ACTIVE_KEYS,
-        'credential'
+        'credential',
     )
     return (
         'fernet' in CONF.credential.provider
-        and not fernet_utils.validate_key_repository())
+        and not fernet_utils.validate_key_repository()
+    )
 
 
 def symptom_keys_in_credential_fernet_key_repository():
@@ -68,8 +67,8 @@ def symptom_keys_in_credential_fernet_key_repository():
     fernet_utils = utils.FernetUtils(
         CONF.credential.key_repository,
         credential_fernet.MAX_ACTIVE_KEYS,
-        'credential'
+        'credential',
     )
     return (
-        'fernet' in CONF.credential.provider
-        and not fernet_utils.load_keys())
+        'fernet' in CONF.credential.provider and not fernet_utils.load_keys()
+    )

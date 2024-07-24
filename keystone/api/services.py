@@ -51,7 +51,8 @@ class ServicesResource(ks_flask.ResourceBase):
         validation.lazy_validate(schema.service_create, service)
         service = self._assign_unique_id(self._normalize_dict(service))
         ref = PROVIDERS.catalog_api.create_service(
-            service['id'], service, initiator=self.audit_initiator)
+            service['id'], service, initiator=self.audit_initiator
+        )
         return self.wrap_member(ref), http.client.CREATED
 
     def patch(self, service_id):
@@ -60,13 +61,18 @@ class ServicesResource(ks_flask.ResourceBase):
         validation.lazy_validate(schema.service_update, service)
         self._require_matching_id(service)
         ref = PROVIDERS.catalog_api.update_service(
-            service_id, service, initiator=self.audit_initiator)
+            service_id, service, initiator=self.audit_initiator
+        )
         return self.wrap_member(ref)
 
     def delete(self, service_id):
         ENFORCER.enforce_call(action='identity:delete_service')
-        return PROVIDERS.catalog_api.delete_service(
-            service_id, initiator=self.audit_initiator), http.client.NO_CONTENT
+        return (
+            PROVIDERS.catalog_api.delete_service(
+                service_id, initiator=self.audit_initiator
+            ),
+            http.client.NO_CONTENT,
+        )
 
 
 class ServiceAPI(ks_flask.APIBase):

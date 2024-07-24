@@ -41,7 +41,7 @@ class Role(base.RoleDriverBase):
         # filter_limit_query() below, which will remove the filter from the
         # hints (hence ensuring our substitution is not exposed to the caller).
         for f in hints.filters:
-            if (f['name'] == 'domain_id' and f['value'] is None):
+            if f['name'] == 'domain_id' and f['value'] is None:
                 f['value'] = base.NULL_DOMAIN_ID
 
         with sql.session_for_read() as session:
@@ -85,11 +85,15 @@ class Role(base.RoleDriverBase):
             # Move the "_resource_options" attribute over to the real ref
             # so that resource_options.resource_options_ref_to_mapper can
             # handle the work.
-            setattr(ref, '_resource_options',
-                    getattr(new_role, '_resource_options', {}))
+            setattr(
+                ref,
+                '_resource_options',
+                getattr(new_role, '_resource_options', {}),
+            )
             # Move options into the propper attribute mapper construct
             resource_options.resource_options_ref_to_mapper(
-                ref, sql_model.RoleOption)
+                ref, sql_model.RoleOption
+            )
             return ref.to_dict()
 
     def delete_role(self, role_id):
@@ -98,22 +102,28 @@ class Role(base.RoleDriverBase):
             session.delete(ref)
 
     def _get_implied_role(self, session, prior_role_id, implied_role_id):
-        query = session.query(sql_model.ImpliedRoleTable).filter(
-            sql_model.ImpliedRoleTable.prior_role_id == prior_role_id).filter(
-            sql_model.ImpliedRoleTable.implied_role_id == implied_role_id)
+        query = (
+            session.query(sql_model.ImpliedRoleTable)
+            .filter(sql_model.ImpliedRoleTable.prior_role_id == prior_role_id)
+            .filter(
+                sql_model.ImpliedRoleTable.implied_role_id == implied_role_id
+            )
+        )
         try:
             ref = query.one()
         except sql.NotFound:
             raise exception.ImpliedRoleNotFound(
-                prior_role_id=prior_role_id,
-                implied_role_id=implied_role_id)
+                prior_role_id=prior_role_id, implied_role_id=implied_role_id
+            )
         return ref
 
     @sql.handle_conflicts(conflict_type='implied_role')
     def create_implied_role(self, prior_role_id, implied_role_id):
         with sql.session_for_write() as session:
-            inference = {'prior_role_id': prior_role_id,
-                         'implied_role_id': implied_role_id}
+            inference = {
+                'prior_role_id': prior_role_id,
+                'implied_role_id': implied_role_id,
+            }
             ref = sql_model.ImpliedRoleTable.from_dict(inference)
             try:
                 session.add(ref)
@@ -126,15 +136,16 @@ class Role(base.RoleDriverBase):
 
     def delete_implied_role(self, prior_role_id, implied_role_id):
         with sql.session_for_write() as session:
-            ref = self._get_implied_role(session, prior_role_id,
-                                         implied_role_id)
+            ref = self._get_implied_role(
+                session, prior_role_id, implied_role_id
+            )
             session.delete(ref)
 
     def list_implied_roles(self, prior_role_id):
         with sql.session_for_read() as session:
-            query = session.query(
-                sql_model.ImpliedRoleTable).filter(
-                    sql_model.ImpliedRoleTable.prior_role_id == prior_role_id)
+            query = session.query(sql_model.ImpliedRoleTable).filter(
+                sql_model.ImpliedRoleTable.prior_role_id == prior_role_id
+            )
             refs = query.all()
             return [ref.to_dict() for ref in refs]
 
@@ -146,6 +157,7 @@ class Role(base.RoleDriverBase):
 
     def get_implied_role(self, prior_role_id, implied_role_id):
         with sql.session_for_read() as session:
-            ref = self._get_implied_role(session, prior_role_id,
-                                         implied_role_id)
+            ref = self._get_implied_role(
+                session, prior_role_id, implied_role_id
+            )
             return ref.to_dict()

@@ -35,13 +35,15 @@ class RegisteredLimitResource(ks_flask.ResourceBase):
     def _get_registered_limit(self, registered_limit_id):
         ENFORCER.enforce_call(action='identity:get_registered_limit')
         ref = PROVIDERS.unified_limit_api.get_registered_limit(
-            registered_limit_id)
+            registered_limit_id
+        )
         return self.wrap_member(ref)
 
     def _list_registered_limits(self):
         filters = ['service_id', 'region_id', 'resource_name']
-        ENFORCER.enforce_call(action='identity:list_registered_limits',
-                              filters=filters)
+        ENFORCER.enforce_call(
+            action='identity:list_registered_limits', filters=filters
+        )
         hints = self.build_driver_hints(filters)
         refs = PROVIDERS.unified_limit_api.list_registered_limits(hints)
         return self.wrap_collection(refs, hints=hints)
@@ -53,32 +55,42 @@ class RegisteredLimitResource(ks_flask.ResourceBase):
 
     def post(self):
         ENFORCER.enforce_call(action='identity:create_registered_limits')
-        reg_limits = (flask.request.get_json(
-            silent=True, force=True) or {}).get('registered_limits', {})
+        reg_limits = (
+            flask.request.get_json(silent=True, force=True) or {}
+        ).get('registered_limits', {})
         validation.lazy_validate(schema.registered_limit_create, reg_limits)
-        registered_limits = [self._assign_unique_id(self._normalize_dict(r))
-                             for r in reg_limits]
+        registered_limits = [
+            self._assign_unique_id(self._normalize_dict(r)) for r in reg_limits
+        ]
         refs = PROVIDERS.unified_limit_api.create_registered_limits(
-            registered_limits)
+            registered_limits
+        )
         refs = self.wrap_collection(refs)
         refs.pop('links')
         return refs, http.client.CREATED
 
     def patch(self, registered_limit_id):
         ENFORCER.enforce_call(action='identity:update_registered_limit')
-        registered_limit = (flask.request.get_json(
-            silent=True, force=True) or {}).get('registered_limit', {})
-        validation.lazy_validate(schema.registered_limit_update,
-                                 registered_limit)
+        registered_limit = (
+            flask.request.get_json(silent=True, force=True) or {}
+        ).get('registered_limit', {})
+        validation.lazy_validate(
+            schema.registered_limit_update, registered_limit
+        )
         self._require_matching_id(registered_limit)
         ref = PROVIDERS.unified_limit_api.update_registered_limit(
-            registered_limit_id, registered_limit)
+            registered_limit_id, registered_limit
+        )
         return self.wrap_member(ref)
 
     def delete(self, registered_limit_id):
         ENFORCER.enforce_call(action='identity:delete_registered_limit')
-        return (PROVIDERS.unified_limit_api.delete_registered_limit(
-            registered_limit_id), http.client.NO_CONTENT)
+        return (
+            PROVIDERS.unified_limit_api.delete_registered_limit(
+                registered_limit_id
+            ),
+            http.client.NO_CONTENT,
+        )
 
 
 class RegisteredLimitsAPI(ks_flask.APIBase):

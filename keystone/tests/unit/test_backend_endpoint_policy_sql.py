@@ -21,17 +21,20 @@ class SqlPolicyAssociationTable(test_backend_sql.SqlModels):
     """Set of tests for checking SQL Policy Association Mapping."""
 
     def test_policy_association_mapping(self):
-        cols = (('id', sql.String, 64),
-                ('policy_id', sql.String, 64),
-                ('endpoint_id', sql.String, 64),
-                ('service_id', sql.String, 64),
-                ('region_id', sql.String, 64))
+        cols = (
+            ('id', sql.String, 64),
+            ('policy_id', sql.String, 64),
+            ('endpoint_id', sql.String, 64),
+            ('service_id', sql.String, 64),
+            ('region_id', sql.String, 64),
+        )
         self.assertExpectedSchema('policy_association', cols)
 
 
 class SqlPolicyAssociationTests(
     test_backend_sql.SqlTests,
-        test_backend_endpoint_policy.PolicyAssociationTests):
+    test_backend_endpoint_policy.PolicyAssociationTests,
+):
 
     def load_fixtures(self, fixtures):
         super(SqlPolicyAssociationTests, self).load_fixtures(fixtures)

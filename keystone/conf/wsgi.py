@@ -18,7 +18,8 @@ from keystone.conf import utils
 debug_middleware = cfg.BoolOpt(
     'debug_middleware',
     default=False,
-    help=utils.fmt("""
+    help=utils.fmt(
+        """
 If set to true, this enables the oslo debug middleware in Keystone. This
 Middleware prints a lot of information about the request and the response. It
 is useful for getting information about the data on the wire (decoded) and
@@ -34,7 +35,9 @@ and will show the data closest to the wire.
 
 WARNING: NOT INTENDED FOR USE IN PRODUCTION. THIS MIDDLEWARE CAN AND WILL EMIT
 SENSITIVE/PRIVILEGED DATA.
-"""))
+"""
+    ),
+)
 
 GROUP_NAME = __name__.split('.')[-1]
 ALL_OPTS = [

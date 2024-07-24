@@ -50,8 +50,7 @@ CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
 
-JSON_ENCODE_CONTENT_TYPES = set(['application/json',
-                                 'application/json-home'])
+JSON_ENCODE_CONTENT_TYPES = set(['application/json', 'application/json-home'])
 
 # minimum access rules support
 ACCESS_RULES_MIN_VERSION = token_model.ACCESS_RULES_MIN_VERSION
@@ -66,7 +65,8 @@ def best_match_language(req):
     if not req.accept_language:
         return None
     return req.accept_language.best_match(
-        oslo_i18n.get_available_languages('keystone'))
+        oslo_i18n.get_available_languages('keystone')
+    )
 
 
 def base_url(context):
@@ -94,18 +94,23 @@ def middleware_exceptions(method):
             return method(self, request)
         except exception.Error as e:
             LOG.warning(e)
-            return render_exception(e, request=request,
-                                    user_locale=best_match_language(request))
+            return render_exception(
+                e, request=request, user_locale=best_match_language(request)
+            )
         except TypeError as e:
             LOG.exception(e)
-            return render_exception(exception.ValidationError(e),
-                                    request=request,
-                                    user_locale=best_match_language(request))
+            return render_exception(
+                exception.ValidationError(e),
+                request=request,
+                user_locale=best_match_language(request),
+            )
         except Exception as e:
             LOG.exception(e)
-            return render_exception(exception.UnexpectedError(exception=e),
-                                    request=request,
-                                    user_locale=best_match_language(request))
+            return render_exception(
+                exception.UnexpectedError(exception=e),
+                request=request,
+                user_locale=best_match_language(request),
+            )
 
     return _inner
 
@@ -120,8 +125,10 @@ def render_response(body=None, status=None, headers=None, method=None):
 
     if body is None:
         body = b''
-        status = status or (http.client.NO_CONTENT,
-                            http.client.responses[http.client.NO_CONTENT])
+        status = status or (
+            http.client.NO_CONTENT,
+            http.client.responses[http.client.NO_CONTENT],
+        )
     else:
         content_types = [v for h, v in headers if h == 'Content-Type']
         if content_types:
@@ -133,8 +140,10 @@ def render_response(body=None, status=None, headers=None, method=None):
             body = jsonutils.dump_as_bytes(body, cls=utils.SmarterEncoder)
             if content_type is None:
                 headers.append(('Content-Type', 'application/json'))
-        status = status or (http.client.OK,
-                            http.client.responses[http.client.OK])
+        status = status or (
+            http.client.OK,
+            http.client.responses[http.client.OK],
+        )
 
     # NOTE(davechen): `mod_wsgi` follows the standards from pep-3333 and
     # requires the value in response header to be binary type(str) on python2,
@@ -166,10 +175,9 @@ def render_response(body=None, status=None, headers=None, method=None):
 
     headers = _convert_to_str(headers)
 
-    resp = webob.Response(body=body,
-                          status='%d %s' % status,
-                          headerlist=headers,
-                          charset='utf-8')
+    resp = webob.Response(
+        body=body, status='%d %s' % status, headerlist=headers, charset='utf-8'
+    )
 
     if method and method.upper() == 'HEAD':
         # NOTE(morganfainberg): HEAD requests should return the same status
@@ -197,11 +205,13 @@ def render_exception(error, context=None, request=None, user_locale=None):
         # convert to a string.
         message = str(message)
 
-    body = {'error': {
-        'code': error.code,
-        'title': error.title,
-        'message': message,
-    }}
+    body = {
+        'error': {
+            'code': error.code,
+            'title': error.title,
+            'message': message,
+        }
+    }
     headers = []
     if isinstance(error, exception.AuthPluginException):
         body['error']['identity'] = error.authentication
@@ -217,26 +227,29 @@ def render_exception(error, context=None, request=None, user_locale=None):
         url = base_url(local_context)
 
         headers.append(('WWW-Authenticate', 'Keystone uri="%s"' % url))
-    return render_response(status=(error.code, error.title),
-                           body=body,
-                           headers=headers)
+    return render_response(
+        status=(error.code, error.title), body=body, headers=headers
+    )
 
 
-class AuthContextMiddleware(provider_api.ProviderAPIMixin,
-                            auth_token.BaseAuthProtocol):
+class AuthContextMiddleware(
+    provider_api.ProviderAPIMixin, auth_token.BaseAuthProtocol
+):
     """Build the authentication context from the request auth token."""
 
     kwargs_to_fetch_token = True
 
     def __init__(self, app):
-        super(AuthContextMiddleware, self).__init__(app, log=LOG,
-                                                    service_type='identity')
+        super(AuthContextMiddleware, self).__init__(
+            app, log=LOG, service_type='identity'
+        )
         self.token = None
 
     def fetch_token(self, token, **kwargs):
         try:
             self.token = self.token_provider_api.validate_token(
-                token, access_rules_support=ACCESS_RULES_MIN_VERSION)
+                token, access_rules_support=ACCESS_RULES_MIN_VERSION
+            )
             return render_token.render_token_response_from_model(self.token)
         except exception.TokenNotFound:
             raise auth_token.InvalidToken(_('Could not find token'))
@@ -250,10 +263,9 @@ class AuthContextMiddleware(provider_api.ProviderAPIMixin,
         tokenless_helper = tokenless_auth.TokenlessAuthHelper(request.environ)
 
         (domain_id, project_id, trust_ref, unscoped, system) = (
-            tokenless_helper.get_scope())
-        user_ref = tokenless_helper.get_mapped_user(
-            project_id,
-            domain_id)
+            tokenless_helper.get_scope()
+        )
+        user_ref = tokenless_helper.get_mapped_user(project_id, domain_id)
 
         # NOTE(gyee): if it is an ephemeral user, the
         # given X.509 SSL client cert does not need to map to
@@ -261,10 +273,12 @@ class AuthContextMiddleware(provider_api.ProviderAPIMixin,
         if user_ref['type'] == federation_utils.UserType.EPHEMERAL:
             auth_context = {}
             auth_context['group_ids'] = user_ref['group_ids']
-            auth_context[federation_constants.IDENTITY_PROVIDER] = (
-                user_ref[federation_constants.IDENTITY_PROVIDER])
-            auth_context[federation_constants.PROTOCOL] = (
-                user_ref[federation_constants.PROTOCOL])
+            auth_context[federation_constants.IDENTITY_PROVIDER] = user_ref[
+                federation_constants.IDENTITY_PROVIDER
+            ]
+            auth_context[federation_constants.PROTOCOL] = user_ref[
+                federation_constants.PROTOCOL
+            ]
             if domain_id and project_id:
                 msg = _('Scoping to both domain and project is not allowed')
                 raise ValueError(msg)
@@ -306,19 +320,27 @@ class AuthContextMiddleware(provider_api.ProviderAPIMixin,
 
         issuer = request.environ.get(CONF.tokenless_auth.issuer_attribute)
         if not issuer:
-            msg = ('Cannot find client issuer in env by the '
-                   'issuer attribute - %s.')
+            msg = (
+                'Cannot find client issuer in env by the '
+                'issuer attribute - %s.'
+            )
             LOG.info(msg, CONF.tokenless_auth.issuer_attribute)
             return False
 
         if issuer in CONF.tokenless_auth.trusted_issuer:
             return True
 
-        msg = ('The client issuer %(client_issuer)s does not match with '
-               'the trusted issuer %(trusted_issuer)s')
+        msg = (
+            'The client issuer %(client_issuer)s does not match with '
+            'the trusted issuer %(trusted_issuer)s'
+        )
         LOG.info(
-            msg, {'client_issuer': issuer,
-                  'trusted_issuer': CONF.tokenless_auth.trusted_issuer})
+            msg,
+            {
+                'client_issuer': issuer,
+                'trusted_issuer': CONF.tokenless_auth.trusted_issuer,
+            },
+        )
 
         return False
 
@@ -337,15 +359,18 @@ class AuthContextMiddleware(provider_api.ProviderAPIMixin,
                 "option presents a significant security risk and should "
                 "not be set. This option is deprecated in favor of using "
                 "'keystone-manage bootstrap' and will be removed in a "
-                "future release.")
+                "future release."
+            )
             request.environ[CONTEXT_ENV] = context_env
 
         if not context_env.get('is_admin', False):
             resp = super(AuthContextMiddleware, self).process_request(request)
             if resp:
                 return resp
-            if request.token_auth.has_user_token and \
-                    not request.user_token_valid:
+            if (
+                request.token_auth.has_user_token
+                and not request.user_token_valid
+            ):
                 raise exception.Unauthorized(_('Not authorized.'))
             if request.token_auth.user is not None:
                 request.set_user_headers(request.token_auth.user)
@@ -370,9 +395,9 @@ class AuthContextMiddleware(provider_api.ProviderAPIMixin,
             request_context.domain_name = token.domain['name']
         if token.oauth_scoped:
             request_context.is_delegated_auth = True
-            request_context.oauth_consumer_id = (
-                token.access_token['consumer_id']
-            )
+            request_context.oauth_consumer_id = token.access_token[
+                'consumer_id'
+            ]
             request_context.oauth_access_token_id = token.access_token_id
         if token.trust_scoped:
             request_context.is_delegated_auth = True
@@ -388,17 +413,18 @@ class AuthContextMiddleware(provider_api.ProviderAPIMixin,
         # The request context stores itself in thread-local memory for logging.
 
         if authorization.AUTH_CONTEXT_ENV in request.environ:
-            msg = ('Auth context already exists in the request '
-                   'environment; it will be used for authorization '
-                   'instead of creating a new one.')
+            msg = (
+                'Auth context already exists in the request '
+                'environment; it will be used for authorization '
+                'instead of creating a new one.'
+            )
             LOG.warning(msg)
             return
 
-        kwargs = {
-            'authenticated': False,
-            'overwrite': True}
+        kwargs = {'authenticated': False, 'overwrite': True}
         request_context = context.RequestContext.from_environ(
-            request.environ, **kwargs)
+            request.environ, **kwargs
+        )
         request.environ[context.REQUEST_CONTEXT_ENV] = request_context
 
         # NOTE(gyee): token takes precedence over SSL client certificates.
@@ -418,7 +444,8 @@ class AuthContextMiddleware(provider_api.ProviderAPIMixin,
                 self.token = PROVIDERS.token_provider_api.validate_token(
                     request.user_token,
                     access_rules_support=request.headers.get(
-                        authorization.ACCESS_RULES_HEADER)
+                        authorization.ACCESS_RULES_HEADER
+                    ),
                 )
             self._keystone_specific_values(self.token, request_context)
             request_context.auth_token = request.user_token
@@ -430,7 +457,7 @@ class AuthContextMiddleware(provider_api.ProviderAPIMixin,
                 'domain_id': request_context._domain_id,
                 'domain_name': request_context.domain_name,
                 'group_ids': request_context.group_ids,
-                'token': self.token
+                'token': self.token,
             }
             auth_context.update(additional)
 
@@ -440,17 +467,31 @@ class AuthContextMiddleware(provider_api.ProviderAPIMixin,
             # the credentials for RBAC. Instead, we are using the (Oslo)
             # request context. So we'll need to set all the necessary
             # credential attributes in the request context here.
-            token_attributes = frozenset((
-                'user_id', 'project_id',
-                'domain_id', 'user_domain_id',
-                'project_domain_id', 'user_domain_name',
-                'project_domain_name', 'roles', 'is_admin',
-                'project_name', 'domain_name', 'system_scope',
-                'is_admin_project', 'service_user_id',
-                'service_user_name', 'service_project_id',
-                'service_project_name', 'service_user_domain_id'
-                'service_user_domain_name', 'service_project_domain_id',
-                'service_project_domain_name', 'service_roles'))
+            token_attributes = frozenset(
+                (
+                    'user_id',
+                    'project_id',
+                    'domain_id',
+                    'user_domain_id',
+                    'project_domain_id',
+                    'user_domain_name',
+                    'project_domain_name',
+                    'roles',
+                    'is_admin',
+                    'project_name',
+                    'domain_name',
+                    'system_scope',
+                    'is_admin_project',
+                    'service_user_id',
+                    'service_user_name',
+                    'service_project_id',
+                    'service_project_name',
+                    'service_user_domain_id' 'service_user_domain_name',
+                    'service_project_domain_id',
+                    'service_project_domain_name',
+                    'service_roles',
+                )
+            )
             for attr in token_attributes:
                 if attr in auth_context:
                     setattr(request_context, attr, auth_context[attr])
@@ -474,8 +515,10 @@ class AuthContextMiddleware(provider_api.ProviderAPIMixin,
     @classmethod
     def factory(cls, global_config, **local_config):
         """Used for loading in middleware (holdover from paste.deploy)."""
+
         def _factory(app):
             conf = global_config.copy()
             conf.update(local_config)
             return cls(app, **local_config)
+
         return _factory

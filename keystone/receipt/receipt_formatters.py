@@ -58,7 +58,7 @@ class ReceiptFormatter(object):
         fernet_utils = utils.FernetUtils(
             CONF.fernet_receipts.key_repository,
             CONF.fernet_receipts.max_active_keys,
-            'fernet_receipts'
+            'fernet_receipts',
         )
         keys = fernet_utils.load_keys()
 
@@ -91,7 +91,8 @@ class ReceiptFormatter(object):
             return self.crypto.decrypt(receipt.encode('utf-8'))
         except fernet.InvalidToken:
             raise exception.ValidationError(
-                _('This is not a recognized Fernet receipt %s') % receipt)
+                _('This is not a recognized Fernet receipt %s') % receipt
+            )
 
     @classmethod
     def restore_padding(cls, receipt):
@@ -122,7 +123,8 @@ class ReceiptFormatter(object):
         # Fernet receipts are base64 encoded, so we need to unpack them first
         # urlsafe_b64decode() requires bytes
         receipt_bytes = base64.urlsafe_b64decode(
-            fernet_receipt.encode('utf-8'))
+            fernet_receipt.encode('utf-8')
+        )
 
         # slice into the byte array to get just the timestamp
         timestamp_bytes = receipt_bytes[TIMESTAMP_START:TIMESTAMP_END]
@@ -150,9 +152,11 @@ class ReceiptFormatter(object):
         # anywhere, we can't say it isn't being stored somewhere else with
         # those kind of backend constraints.
         if len(receipt) > 255:
-            LOG.info('Fernet receipt created with length of %d '
-                     'characters, which exceeds 255 characters',
-                     len(receipt))
+            LOG.info(
+                'Fernet receipt created with length of %d '
+                'characters, which exceeds 255 characters',
+                len(receipt),
+            )
 
         return receipt
 
@@ -246,8 +250,10 @@ class ReceiptPayload(object):
 
         """
         time_object = timeutils.parse_isotime(time_string)
-        return (timeutils.normalize_time(time_object) -
-                datetime.datetime.utcfromtimestamp(0)).total_seconds()
+        return (
+            timeutils.normalize_time(time_object)
+            - datetime.datetime.utcfromtimestamp(0)
+        ).total_seconds()
 
     @classmethod
     def _convert_float_to_time_string(cls, time_float):

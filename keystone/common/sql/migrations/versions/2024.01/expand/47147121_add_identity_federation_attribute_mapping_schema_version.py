@@ -30,6 +30,9 @@ depends_on = None
 
 
 def upgrade():
-    op.add_column("mapping", Column('schema_version',
-                                    String(5), nullable=False,
-                                    server_default="1.0"))
+    op.add_column(
+        "mapping",
+        Column(
+            'schema_version', String(5), nullable=False, server_default="1.0"
+        ),
+    )

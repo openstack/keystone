@@ -19,9 +19,12 @@ included_previous_windows = cfg.IntOpt(
     default=1,
     min=0,
     max=10,
-    help=utils.fmt("""
+    help=utils.fmt(
+        """
 The number of previous windows to check when processing TOTP passcodes.
-"""))
+"""
+    ),
+)
 
 
 GROUP_NAME = __name__.split('.')[-1]

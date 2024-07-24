@@ -23,37 +23,37 @@ deprecated_get_implied_role = policy.DeprecatedRule(
     name=base.IDENTITY % 'get_implied_role',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.TRAIN
+    deprecated_since=versionutils.deprecated.TRAIN,
 )
 deprecated_list_implied_roles = policy.DeprecatedRule(
     name=base.IDENTITY % 'list_implied_roles',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.TRAIN
+    deprecated_since=versionutils.deprecated.TRAIN,
 )
 deprecated_list_role_inference_rules = policy.DeprecatedRule(
     name=base.IDENTITY % 'list_role_inference_rules',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.TRAIN
+    deprecated_since=versionutils.deprecated.TRAIN,
 )
 deprecated_check_implied_role = policy.DeprecatedRule(
     name=base.IDENTITY % 'check_implied_role',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.TRAIN
+    deprecated_since=versionutils.deprecated.TRAIN,
 )
 deprecated_create_implied_role = policy.DeprecatedRule(
     name=base.IDENTITY % 'create_implied_role',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.TRAIN
+    deprecated_since=versionutils.deprecated.TRAIN,
 )
 deprecated_delete_implied_role = policy.DeprecatedRule(
     name=base.IDENTITY % 'delete_implied_role',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.TRAIN
+    deprecated_since=versionutils.deprecated.TRAIN,
 )
 
 
@@ -67,76 +67,96 @@ implied_role_policies = [
         # files, scope_types should include 'project'.
         scope_types=['system', 'project'],
         description='Get information about an association between two roles. '
-                    'When a relationship exists between a prior role and an '
-                    'implied role and the prior role is assigned to a user, '
-                    'the user also assumes the implied role.',
+        'When a relationship exists between a prior role and an '
+        'implied role and the prior role is assigned to a user, '
+        'the user also assumes the implied role.',
         operations=[
-            {'path': '/v3/roles/{prior_role_id}/implies/{implied_role_id}',
-             'method': 'GET'}],
-        deprecated_rule=deprecated_get_implied_role),
+            {
+                'path': '/v3/roles/{prior_role_id}/implies/{implied_role_id}',
+                'method': 'GET',
+            }
+        ],
+        deprecated_rule=deprecated_get_implied_role,
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_implied_roles',
         check_str=base.RULE_ADMIN_OR_SYSTEM_READER,
         scope_types=['system', 'project'],
         description='List associations between two roles. When a relationship '
-                    'exists between a prior role and an implied role and the '
-                    'prior role is assigned to a user, the user also assumes '
-                    'the implied role. This will return all the implied roles '
-                    'that would be assumed by the user who gets the specified '
-                    'prior role.',
+        'exists between a prior role and an implied role and the '
+        'prior role is assigned to a user, the user also assumes '
+        'the implied role. This will return all the implied roles '
+        'that would be assumed by the user who gets the specified '
+        'prior role.',
         operations=[
             {'path': '/v3/roles/{prior_role_id}/implies', 'method': 'GET'},
-            {'path': '/v3/roles/{prior_role_id}/implies', 'method': 'HEAD'}],
-        deprecated_rule=deprecated_list_implied_roles),
+            {'path': '/v3/roles/{prior_role_id}/implies', 'method': 'HEAD'},
+        ],
+        deprecated_rule=deprecated_list_implied_roles,
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_implied_role',
         check_str=base.RULE_ADMIN_REQUIRED,
         scope_types=['system', 'project'],
         description='Create an association between two roles. When a '
-                    'relationship exists between a prior role and an implied '
-                    'role and the prior role is assigned to a user, the user '
-                    'also assumes the implied role.',
+        'relationship exists between a prior role and an implied '
+        'role and the prior role is assigned to a user, the user '
+        'also assumes the implied role.',
         operations=[
-            {'path': '/v3/roles/{prior_role_id}/implies/{implied_role_id}',
-             'method': 'PUT'}],
-        deprecated_rule=deprecated_create_implied_role),
+            {
+                'path': '/v3/roles/{prior_role_id}/implies/{implied_role_id}',
+                'method': 'PUT',
+            }
+        ],
+        deprecated_rule=deprecated_create_implied_role,
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_implied_role',
         check_str=base.RULE_ADMIN_REQUIRED,
         scope_types=['system', 'project'],
         description='Delete the association between two roles. When a '
-                    'relationship exists between a prior role and an implied '
-                    'role and the prior role is assigned to a user, the user '
-                    'also assumes the implied role. Removing the association '
-                    'will cause that effect to be eliminated.',
+        'relationship exists between a prior role and an implied '
+        'role and the prior role is assigned to a user, the user '
+        'also assumes the implied role. Removing the association '
+        'will cause that effect to be eliminated.',
         operations=[
-            {'path': '/v3/roles/{prior_role_id}/implies/{implied_role_id}',
-             'method': 'DELETE'}],
-        deprecated_rule=deprecated_delete_implied_role),
+            {
+                'path': '/v3/roles/{prior_role_id}/implies/{implied_role_id}',
+                'method': 'DELETE',
+            }
+        ],
+        deprecated_rule=deprecated_delete_implied_role,
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_role_inference_rules',
         check_str=base.RULE_ADMIN_OR_SYSTEM_READER,
         scope_types=['system', 'project'],
         description='List all associations between two roles in the system. '
-                    'When a relationship exists between a prior role and an '
-                    'implied role and the prior role is assigned to a user, '
-                    'the user also assumes the implied role.',
+        'When a relationship exists between a prior role and an '
+        'implied role and the prior role is assigned to a user, '
+        'the user also assumes the implied role.',
         operations=[
             {'path': '/v3/role_inferences', 'method': 'GET'},
-            {'path': '/v3/role_inferences', 'method': 'HEAD'}],
-        deprecated_rule=deprecated_list_role_inference_rules),
+            {'path': '/v3/role_inferences', 'method': 'HEAD'},
+        ],
+        deprecated_rule=deprecated_list_role_inference_rules,
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'check_implied_role',
         check_str=base.RULE_ADMIN_OR_SYSTEM_READER,
         scope_types=['system', 'project'],
         description='Check an association between two roles. When a '
-                    'relationship exists between a prior role and an implied '
-                    'role and the prior role is assigned to a user, the user '
-                    'also assumes the implied role.',
+        'relationship exists between a prior role and an implied '
+        'role and the prior role is assigned to a user, the user '
+        'also assumes the implied role.',
         operations=[
-            {'path': '/v3/roles/{prior_role_id}/implies/{implied_role_id}',
-             'method': 'HEAD'}],
-        deprecated_rule=deprecated_check_implied_role),
+            {
+                'path': '/v3/roles/{prior_role_id}/implies/{implied_role_id}',
+                'method': 'HEAD',
+            }
+        ],
+        deprecated_rule=deprecated_check_implied_role,
+    ),
 ]
 
 

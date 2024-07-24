@@ -26,11 +26,15 @@ from keystone.i18n import _
 CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
-SUPPORTED_HASHERS = frozenset([passlib.hash.bcrypt,
-                               passlib.hash.bcrypt_sha256,
-                               passlib.hash.scrypt,
-                               passlib.hash.pbkdf2_sha512,
-                               passlib.hash.sha512_crypt])
+SUPPORTED_HASHERS = frozenset(
+    [
+        passlib.hash.bcrypt,
+        passlib.hash.bcrypt_sha256,
+        passlib.hash.scrypt,
+        passlib.hash.pbkdf2_sha512,
+        passlib.hash.sha512_crypt,
+    ]
+)
 
 _HASHER_NAME_MAP = {hasher.name: hasher for hasher in SUPPORTED_HASHERS}
 
@@ -55,20 +59,24 @@ def _get_hash_ident(hashers):
 
 
 _HASHER_IDENT_MAP = {
-    prefix: module for module, prefix in itertools.chain(
-        *[zip([mod] * len(ident), ident)
-            for mod, ident in _get_hash_ident(SUPPORTED_HASHERS)]
+    prefix: module
+    for module, prefix in itertools.chain(
+        *[
+            zip([mod] * len(ident), ident)
+            for mod, ident in _get_hash_ident(SUPPORTED_HASHERS)
+        ]
     )
 }
 
 
 def _get_hasher_from_ident(hashed):
     try:
-        return _HASHER_IDENT_MAP[hashed[0:hashed.index('$', 1) + 1]]
+        return _HASHER_IDENT_MAP[hashed[0 : hashed.index('$', 1) + 1]]
     except KeyError:
         raise ValueError(
-            _('Unsupported password hashing algorithm ident: %s') %
-            hashed[0:hashed.index('$', 1) + 1])
+            _('Unsupported password hashing algorithm ident: %s')
+            % hashed[0 : hashed.index('$', 1) + 1]
+        )
 
 
 def verify_length_and_trunc_password(password):
@@ -84,8 +92,10 @@ def verify_length_and_trunc_password(password):
     # bytes are fully mixed. See:
     # https://passlib.readthedocs.io/en/stable/lib/passlib.hash.bcrypt.html#security-issues
     BCRYPT_MAX_LENGTH = 72
-    if (CONF.identity.password_hash_algorithm == 'bcrypt' and  # nosec: B105
-            CONF.identity.max_password_length > BCRYPT_MAX_LENGTH):
+    if (
+        CONF.identity.password_hash_algorithm == 'bcrypt'  # nosec: B105
+        and CONF.identity.max_password_length > BCRYPT_MAX_LENGTH
+    ):
         msg = "Truncating password to algorithm specific maximum length %d characters."
         LOG.warning(msg, BCRYPT_MAX_LENGTH)
         max_length = BCRYPT_MAX_LENGTH
@@ -139,8 +149,9 @@ def hash_password(password):
 
     if hasher is None:
         raise RuntimeError(
-            _('Password Hash Algorithm %s not found') %
-            CONF.identity.password_hash_algorithm)
+            _('Password Hash Algorithm %s not found')
+            % CONF.identity.password_hash_algorithm
+        )
 
     if CONF.identity.password_hash_rounds:
         params['rounds'] = CONF.identity.password_hash_rounds

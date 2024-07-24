@@ -20,40 +20,58 @@ registered_limit_policies = [
         check_str='',
         scope_types=['system', 'domain', 'project'],
         description='Show registered limit details.',
-        operations=[{'path': '/v3/registered_limits/{registered_limit_id}',
-                     'method': 'GET'},
-                    {'path': '/v3/registered_limits/{registered_limit_id}',
-                     'method': 'HEAD'}]),
+        operations=[
+            {
+                'path': '/v3/registered_limits/{registered_limit_id}',
+                'method': 'GET',
+            },
+            {
+                'path': '/v3/registered_limits/{registered_limit_id}',
+                'method': 'HEAD',
+            },
+        ],
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_registered_limits',
         check_str='',
         scope_types=['system', 'domain', 'project'],
         description='List registered limits.',
-        operations=[{'path': '/v3/registered_limits',
-                     'method': 'GET'},
-                    {'path': '/v3/registered_limits',
-                     'method': 'HEAD'}]),
+        operations=[
+            {'path': '/v3/registered_limits', 'method': 'GET'},
+            {'path': '/v3/registered_limits', 'method': 'HEAD'},
+        ],
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_registered_limits',
         check_str=base.RULE_ADMIN_REQUIRED,
         scope_types=['system', 'project'],
         description='Create registered limits.',
-        operations=[{'path': '/v3/registered_limits',
-                     'method': 'POST'}]),
+        operations=[{'path': '/v3/registered_limits', 'method': 'POST'}],
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_registered_limit',
         check_str=base.RULE_ADMIN_REQUIRED,
         scope_types=['system', 'project'],
         description='Update registered limit.',
-        operations=[{'path': '/v3/registered_limits/{registered_limit_id}',
-                     'method': 'PATCH'}]),
+        operations=[
+            {
+                'path': '/v3/registered_limits/{registered_limit_id}',
+                'method': 'PATCH',
+            }
+        ],
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_registered_limit',
         check_str=base.RULE_ADMIN_REQUIRED,
         scope_types=['system', 'project'],
         description='Delete registered limit.',
-        operations=[{'path': '/v3/registered_limits/{registered_limit_id}',
-                     'method': 'DELETE'}])
+        operations=[
+            {
+                'path': '/v3/registered_limits/{registered_limit_id}',
+                'method': 'DELETE',
+            }
+        ],
+    ),
 ]
 
 

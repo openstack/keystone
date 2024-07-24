@@ -51,8 +51,8 @@ class _SystemUserProtocolTests(object):
 
         with self.test_client() as c:
             path = (
-                '/v3/OS-FEDERATION/identity_providers/%s/protocols' %
-                identity_provider['id']
+                '/v3/OS-FEDERATION/identity_providers/%s/protocols'
+                % identity_provider['id']
             )
             r = c.get(path, headers=self.headers)
             self.assertEqual(1, len(r.json['protocols']))
@@ -62,9 +62,9 @@ class _SystemUserProtocolTests(object):
         protocol, mapping, identity_provider = self._create_protocol_and_deps()
 
         with self.test_client() as c:
-            path = (
-                '/v3/OS-FEDERATION/identity_providers/%s/protocols/%s' %
-                (identity_provider['id'], protocol['id'])
+            path = '/v3/OS-FEDERATION/identity_providers/%s/protocols/%s' % (
+                identity_provider['id'],
+                protocol['id'],
             )
             c.get(path, headers=self.headers)
 
@@ -85,13 +85,15 @@ class _SystemReaderAndMemberProtocolTests(object):
         create = {'protocol': {'mapping_id': mapping['id']}}
 
         with self.test_client() as c:
-            path = (
-                '/v3/OS-FEDERATION/identity_providers/%s/protocols/%s' %
-                (identity_provider['id'], protocol_id)
+            path = '/v3/OS-FEDERATION/identity_providers/%s/protocols/%s' % (
+                identity_provider['id'],
+                protocol_id,
             )
             c.put(
-                path, json=create, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                path,
+                json=create,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_update_protocols(self):
@@ -103,26 +105,29 @@ class _SystemReaderAndMemberProtocolTests(object):
 
         update = {'protocol': {'mapping_id': new_mapping['id']}}
         with self.test_client() as c:
-            path = (
-                '/v3/OS-FEDERATION/identity_providers/%s/protocols/%s' %
-                (identity_provider['id'], protocol['id'])
+            path = '/v3/OS-FEDERATION/identity_providers/%s/protocols/%s' % (
+                identity_provider['id'],
+                protocol['id'],
             )
             c.patch(
-                path, json=update, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                path,
+                json=update,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_protocol(self):
         protocol, mapping, identity_provider = self._create_protocol_and_deps()
 
         with self.test_client() as c:
-            path = (
-                '/v3/OS-FEDERATION/identity_providers/%s/protocols/%s' %
-                (identity_provider['id'], protocol['id'])
+            path = '/v3/OS-FEDERATION/identity_providers/%s/protocols/%s' % (
+                identity_provider['id'],
+                protocol['id'],
             )
             c.delete(
-                path, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                path,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
 
@@ -142,13 +147,15 @@ class _DomainAndProjectUserProtocolTests(object):
         create = {'protocol': {'mapping_id': mapping['id']}}
 
         with self.test_client() as c:
-            path = (
-                '/v3/OS-FEDERATION/identity_providers/%s/protocols/%s' %
-                (identity_provider['id'], protocol_id)
+            path = '/v3/OS-FEDERATION/identity_providers/%s/protocols/%s' % (
+                identity_provider['id'],
+                protocol_id,
             )
             c.put(
-                path, json=create, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                path,
+                json=create,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_update_protocols(self):
@@ -160,26 +167,29 @@ class _DomainAndProjectUserProtocolTests(object):
 
         update = {'protocol': {'mapping_id': new_mapping['id']}}
         with self.test_client() as c:
-            path = (
-                '/v3/OS-FEDERATION/identity_providers/%s/protocols/%s' %
-                (identity_provider['id'], protocol['id'])
+            path = '/v3/OS-FEDERATION/identity_providers/%s/protocols/%s' % (
+                identity_provider['id'],
+                protocol['id'],
             )
             c.patch(
-                path, json=update, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                path,
+                json=update,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_protocol(self):
         protocol, mapping, identity_provider = self._create_protocol_and_deps()
 
         with self.test_client() as c:
-            path = (
-                '/v3/OS-FEDERATION/identity_providers/%s/protocols/%s' %
-                (identity_provider['id'], protocol['id'])
+            path = '/v3/OS-FEDERATION/identity_providers/%s/protocols/%s' % (
+                identity_provider['id'],
+                protocol['id'],
             )
             c.delete(
-                path, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                path,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_list_protocols(self):
@@ -187,33 +197,37 @@ class _DomainAndProjectUserProtocolTests(object):
 
         with self.test_client() as c:
             path = (
-                '/v3/OS-FEDERATION/identity_providers/%s/protocols' %
-                identity_provider['id']
+                '/v3/OS-FEDERATION/identity_providers/%s/protocols'
+                % identity_provider['id']
             )
             c.get(
-                path, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                path,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_get_a_protocol(self):
         protocol, mapping, identity_provider = self._create_protocol_and_deps()
 
         with self.test_client() as c:
-            path = (
-                '/v3/OS-FEDERATION/identity_providers/%s/protocols/%s' %
-                (identity_provider['id'], protocol['id'])
+            path = '/v3/OS-FEDERATION/identity_providers/%s/protocols/%s' % (
+                identity_provider['id'],
+                protocol['id'],
             )
             c.get(
-                path, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                path,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
 
-class SystemReaderTests(base_classes.TestCaseWithBootstrap,
-                        common_auth.AuthTestMixin,
-                        _CommonUtilities,
-                        _SystemUserProtocolTests,
-                        _SystemReaderAndMemberProtocolTests):
+class SystemReaderTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _CommonUtilities,
+    _SystemUserProtocolTests,
+    _SystemReaderAndMemberProtocolTests,
+):
 
     def setUp(self):
         super(SystemReaderTests, self).setUp()
@@ -224,16 +238,15 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
         system_reader = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
         )
-        self.user_id = PROVIDERS.identity_api.create_user(
-            system_reader
-        )['id']
+        self.user_id = PROVIDERS.identity_api.create_user(system_reader)['id']
         PROVIDERS.assignment_api.create_system_grant_for_user(
             self.user_id, self.bootstrapper.reader_role_id
         )
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=system_reader['password'],
-            system=True
+            user_id=self.user_id,
+            password=system_reader['password'],
+            system=True,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -244,11 +257,13 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class SystemMemberTests(base_classes.TestCaseWithBootstrap,
-                        common_auth.AuthTestMixin,
-                        _CommonUtilities,
-                        _SystemUserProtocolTests,
-                        _SystemReaderAndMemberProtocolTests):
+class SystemMemberTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _CommonUtilities,
+    _SystemUserProtocolTests,
+    _SystemReaderAndMemberProtocolTests,
+):
 
     def setUp(self):
         super(SystemMemberTests, self).setUp()
@@ -259,16 +274,15 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
         system_member = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
         )
-        self.user_id = PROVIDERS.identity_api.create_user(
-            system_member
-        )['id']
+        self.user_id = PROVIDERS.identity_api.create_user(system_member)['id']
         PROVIDERS.assignment_api.create_system_grant_for_user(
             self.user_id, self.bootstrapper.member_role_id
         )
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=system_member['password'],
-            system=True
+            user_id=self.user_id,
+            password=system_member['password'],
+            system=True,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -279,10 +293,12 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class SystemAdminTests(base_classes.TestCaseWithBootstrap,
-                       common_auth.AuthTestMixin,
-                       _CommonUtilities,
-                       _SystemUserProtocolTests):
+class SystemAdminTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _CommonUtilities,
+    _SystemUserProtocolTests,
+):
 
     def setUp(self):
         super(SystemAdminTests, self).setUp()
@@ -296,7 +312,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
         auth = self.build_authentication_request(
             user_id=self.user_id,
             password=self.bootstrapper.admin_password,
-            system=True
+            system=True,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -320,13 +336,15 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
         create = {'protocol': {'mapping_id': mapping['id']}}
 
         with self.test_client() as c:
-            path = (
-                '/v3/OS-FEDERATION/identity_providers/%s/protocols/%s' %
-                (identity_provider['id'], protocol_id)
+            path = '/v3/OS-FEDERATION/identity_providers/%s/protocols/%s' % (
+                identity_provider['id'],
+                protocol_id,
             )
             c.put(
-                path, json=create, headers=self.headers,
-                expected_status_code=http.client.CREATED
+                path,
+                json=create,
+                headers=self.headers,
+                expected_status_code=http.client.CREATED,
             )
 
     def test_user_can_update_protocols(self):
@@ -338,9 +356,9 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
 
         update = {'protocol': {'mapping_id': new_mapping['id']}}
         with self.test_client() as c:
-            path = (
-                '/v3/OS-FEDERATION/identity_providers/%s/protocols/%s' %
-                (identity_provider['id'], protocol['id'])
+            path = '/v3/OS-FEDERATION/identity_providers/%s/protocols/%s' % (
+                identity_provider['id'],
+                protocol['id'],
             )
             c.patch(path, json=update, headers=self.headers)
 
@@ -348,17 +366,19 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
         protocol, mapping, identity_provider = self._create_protocol_and_deps()
 
         with self.test_client() as c:
-            path = (
-                '/v3/OS-FEDERATION/identity_providers/%s/protocols/%s' %
-                (identity_provider['id'], protocol['id'])
+            path = '/v3/OS-FEDERATION/identity_providers/%s/protocols/%s' % (
+                identity_provider['id'],
+                protocol['id'],
             )
             c.delete(path, headers=self.headers)
 
 
-class DomainUserTests(base_classes.TestCaseWithBootstrap,
-                      common_auth.AuthTestMixin,
-                      _CommonUtilities,
-                      _DomainAndProjectUserProtocolTests):
+class DomainUserTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _CommonUtilities,
+    _DomainAndProjectUserProtocolTests,
+):
 
     def setUp(self):
         super(DomainUserTests, self).setUp()
@@ -373,14 +393,15 @@ class DomainUserTests(base_classes.TestCaseWithBootstrap,
         domain_admin = unit.new_user_ref(domain_id=self.domain_id)
         self.user_id = PROVIDERS.identity_api.create_user(domain_admin)['id']
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.admin_role_id, user_id=self.user_id,
-            domain_id=self.domain_id
+            self.bootstrapper.admin_role_id,
+            user_id=self.user_id,
+            domain_id=self.domain_id,
         )
 
         auth = self.build_authentication_request(
             user_id=self.user_id,
             password=domain_admin['password'],
-            domain_id=self.domain_id
+            domain_id=self.domain_id,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -391,10 +412,12 @@ class DomainUserTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class ProjectUserTests(base_classes.TestCaseWithBootstrap,
-                       common_auth.AuthTestMixin,
-                       _CommonUtilities,
-                       _DomainAndProjectUserProtocolTests):
+class ProjectUserTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _CommonUtilities,
+    _DomainAndProjectUserProtocolTests,
+):
 
     def setUp(self):
         super(ProjectUserTests, self).setUp()
@@ -406,7 +429,7 @@ class ProjectUserTests(base_classes.TestCaseWithBootstrap,
         auth = self.build_authentication_request(
             user_id=self.user_id,
             password=self.bootstrapper.admin_password,
-            project_id=self.bootstrapper.project_id
+            project_id=self.bootstrapper.project_id,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -418,10 +441,11 @@ class ProjectUserTests(base_classes.TestCaseWithBootstrap,
 
 
 class ProjectUserTestsWithoutEnforceScope(
-        base_classes.TestCaseWithBootstrap,
-        common_auth.AuthTestMixin,
-        _CommonUtilities,
-        _DomainAndProjectUserProtocolTests):
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _CommonUtilities,
+    _DomainAndProjectUserProtocolTests,
+):
 
     def setUp(self):
         super(ProjectUserTestsWithoutEnforceScope, self).setUp()
@@ -443,14 +467,15 @@ class ProjectUserTestsWithoutEnforceScope(
         )['id']
 
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.member_role_id, user_id=self.user_id,
-            project_id=self.project_id
+            self.bootstrapper.member_role_id,
+            user_id=self.user_id,
+            project_id=self.project_id,
         )
 
         auth = self.build_authentication_request(
             user_id=self.user_id,
             password=user['password'],
-            project_id=self.project_id
+            project_id=self.project_id,
         )
 
         # Grab a token using the persona we're testing and prepare headers

@@ -92,7 +92,8 @@ class Identity(base.IdentityDriverBase):
 
         """
         ignore_option = user_ref.get_resource_option(
-            options.IGNORE_LOCKOUT_ATTEMPT_OPT.option_id)
+            options.IGNORE_LOCKOUT_ATTEMPT_OPT.option_id
+        )
         if ignore_option and ignore_option.option_value is True:
             return False
 
@@ -137,14 +138,16 @@ class Identity(base.IdentityDriverBase):
             session.add(user_ref)
             # Set resource options passed on creation
             resource_options.resource_options_ref_to_mapper(
-                user_ref, model.UserOption)
+                user_ref, model.UserOption
+            )
             return base.filter_user(user_ref.to_dict())
 
     def _change_password_required(self, user):
         if not CONF.security_compliance.change_password_upon_first_use:
             return False
         ignore_option = user.get_resource_option(
-            options.IGNORE_CHANGE_PASSWORD_OPT.option_id)
+            options.IGNORE_CHANGE_PASSWORD_OPT.option_id
+        )
         return not (ignore_option and ignore_option.option_value is True)
 
     def _create_password_expires_query(self, session, query, hints):
@@ -152,16 +155,21 @@ class Identity(base.IdentityDriverBase):
             if 'password_expires_at' == filter_['name']:
                 # Filter on users who's password expires based on the operator
                 # specified in `filter_['comparator']`
-                query = query.filter(sqlalchemy.and_(
-                    model.LocalUser.id == model.Password.local_user_id,
-                    filter_['comparator'](model.Password.expires_at,
-                                          filter_['value'])))
+                query = query.filter(
+                    sqlalchemy.and_(
+                        model.LocalUser.id == model.Password.local_user_id,
+                        filter_['comparator'](
+                            model.Password.expires_at, filter_['value']
+                        ),
+                    )
+                )
         # Removes the `password_expired_at` filters so there are no errors
         # if the call is filtered further. This is because the
         # `password_expires_at` value is not stored in the `User` table but
         # derived from the `Password` table's value `expires_at`.
-        hints.filters = [x for x in hints.filters if x['name'] !=
-                         'password_expires_at']
+        hints.filters = [
+            x for x in hints.filters if x['name'] != 'password_expires_at'
+        ]
         return query, hints
 
     @staticmethod
@@ -169,14 +177,15 @@ class Identity(base.IdentityDriverBase):
         if not hints.limit:
             return collection
 
-        return collection[:hints.limit['limit']]
+        return collection[: hints.limit['limit']]
 
     @driver_hints.truncated
     def list_users(self, hints):
         with sql.session_for_read() as session:
             query = session.query(model.User).outerjoin(model.LocalUser)
-            query, hints = self._create_password_expires_query(session, query,
-                                                               hints)
+            query, hints = self._create_password_expires_query(
+                session, query, hints
+            )
             user_refs = sql.filter_limit_query(model.User, query, hints)
             return [base.filter_user(x.to_dict()) for x in user_refs]
 
@@ -196,15 +205,17 @@ class Identity(base.IdentityDriverBase):
 
     def get_user(self, user_id):
         with sql.session_for_read() as session:
-            return base.filter_user(
-                self._get_user(session, user_id).to_dict())
+            return base.filter_user(self._get_user(session, user_id).to_dict())
 
     def get_user_by_name(self, user_name, domain_id):
         with sql.session_for_read() as session:
             query = session.query(model.User).join(model.LocalUser)
-            query = query.filter(sqlalchemy.and_(
-                model.LocalUser.name == user_name,
-                model.LocalUser.domain_id == domain_id))
+            query = query.filter(
+                sqlalchemy.and_(
+                    model.LocalUser.name == user_name,
+                    model.LocalUser.domain_id == domain_id,
+                )
+            )
             try:
                 user_ref = query.one()
             except sql.NotFound:
@@ -229,12 +240,16 @@ class Identity(base.IdentityDriverBase):
             # Move the "_resource_options" attribute over to the real user_ref
             # so that resource_options.resource_options_ref_to_mapper can
             # handle the work.
-            setattr(user_ref, '_resource_options',
-                    getattr(new_user, '_resource_options', {}))
+            setattr(
+                user_ref,
+                '_resource_options',
+                getattr(new_user, '_resource_options', {}),
+            )
 
             # Move options into the proper attribute mapper construct
             resource_options.resource_options_ref_to_mapper(
-                user_ref, model.UserOption)
+                user_ref, model.UserOption
+            )
 
             if 'password' in user:
                 user_ref.password = user['password']
@@ -243,8 +258,7 @@ class Identity(base.IdentityDriverBase):
                     user_ref.password_ref.expires_at = expires_now
 
             user_ref.extra = new_user.extra
-            return base.filter_user(
-                user_ref.to_dict(include_extra_dict=True))
+            return base.filter_user(user_ref.to_dict(include_extra_dict=True))
 
     def _validate_password_history(self, password, user_ref):
         unique_cnt = CONF.security_compliance.unique_last_password_count
@@ -252,15 +266,18 @@ class Identity(base.IdentityDriverBase):
         if unique_cnt > 0:
             for password_ref in user_ref.local_user.passwords[-unique_cnt:]:
                 if password_hashing.check_password(
-                        password, password_ref.password_hash):
+                    password, password_ref.password_hash
+                ):
                     raise exception.PasswordHistoryValidationError(
-                        unique_count=unique_cnt)
+                        unique_count=unique_cnt
+                    )
 
     def change_password(self, user_id, new_password):
         with sql.session_for_write() as session:
             user_ref = session.get(model.User, user_id)
             lock_pw_opt = user_ref.get_resource_option(
-                options.LOCK_PASSWORD_OPT.option_id)
+                options.LOCK_PASSWORD_OPT.option_id
+            )
             if lock_pw_opt is not None and lock_pw_opt.option_value is True:
                 raise exception.PasswordSelfServiceDisabled()
             if user_ref.password_ref and user_ref.password_ref.self_service:
@@ -271,12 +288,14 @@ class Identity(base.IdentityDriverBase):
 
     def _validate_minimum_password_age(self, user_ref):
         min_age_days = CONF.security_compliance.minimum_password_age
-        min_age = (user_ref.password_created_at +
-                   datetime.timedelta(days=min_age_days))
+        min_age = user_ref.password_created_at + datetime.timedelta(
+            days=min_age_days
+        )
         if datetime.datetime.utcnow() < min_age:
             days_left = (min_age - datetime.datetime.utcnow()).days
             raise exception.PasswordAgeValidationError(
-                min_age_days=min_age_days, days_left=days_left)
+                min_age_days=min_age_days, days_left=days_left
+            )
 
     def add_user_to_group(self, user_id, group_id):
         with sql.session_for_write() as session:
@@ -289,8 +308,9 @@ class Identity(base.IdentityDriverBase):
             if rv:
                 return
 
-            session.add(model.UserGroupMembership(user_id=user_id,
-                                                  group_id=group_id))
+            session.add(
+                model.UserGroupMembership(user_id=user_id, group_id=group_id)
+            )
 
     def check_user_in_group(self, user_id, group_id):
         with sql.session_for_read() as session:
@@ -307,17 +327,19 @@ class Identity(base.IdentityDriverBase):
             # Note(knikolla): Check for expiring group membership
             query = session.query(model.ExpiringUserGroupMembership)
             query = query.filter(
-                model.ExpiringUserGroupMembership.user_id == user_id)
+                model.ExpiringUserGroupMembership.user_id == user_id
+            )
             query = query.filter(
-                model.ExpiringUserGroupMembership.group_id == group_id)
+                model.ExpiringUserGroupMembership.group_id == group_id
+            )
             active = [q for q in query.all() if not q.expired]
             if active:
                 return
 
-            raise exception.NotFound(_("User '%(user_id)s' not found in"
-                                       " group '%(group_id)s'") %
-                                     {'user_id': user_id,
-                                      'group_id': group_id})
+            raise exception.NotFound(
+                _("User '%(user_id)s' not found in" " group '%(group_id)s'")
+                % {'user_id': user_id, 'group_id': group_id}
+            )
 
     def remove_user_from_group(self, user_id, group_id):
         # We don't check if user or group are still valid and let the remove
@@ -332,10 +354,13 @@ class Identity(base.IdentityDriverBase):
                 # exceptions.
                 self.get_group(group_id)
                 self.get_user(user_id)
-                raise exception.NotFound(_("User '%(user_id)s' not found in"
-                                           " group '%(group_id)s'") %
-                                         {'user_id': user_id,
-                                          'group_id': group_id})
+                raise exception.NotFound(
+                    _(
+                        "User '%(user_id)s' not found in"
+                        " group '%(group_id)s'"
+                    )
+                    % {'user_id': user_id, 'group_id': group_id}
+                )
             session.delete(membership_ref)
 
     def list_groups_for_user(self, user_id, hints):
@@ -355,11 +380,14 @@ class Identity(base.IdentityDriverBase):
             # so that we can access the expired property.
             query = session.query(model.ExpiringUserGroupMembership)
             query = query.filter(
-                model.ExpiringUserGroupMembership.user_id == user_id)
+                model.ExpiringUserGroupMembership.user_id == user_id
+            )
             query = sql.filter_limit_query(
-                model.UserGroupMembership, query, hints)
-            expiring_groups = [row_to_group_dict(r) for r in query.all()
-                               if not r.expired]
+                model.UserGroupMembership, query, hints
+            )
+            expiring_groups = [
+                row_to_group_dict(r) for r in query.all() if not r.expired
+            ]
 
             # Note(knikolla): I would have loved to be able to merge the two
             # queries together and use filter_limit_query on the union, but
@@ -373,9 +401,11 @@ class Identity(base.IdentityDriverBase):
             query = session.query(model.User).outerjoin(model.LocalUser)
             query = query.join(model.UserGroupMembership)
             query = query.filter(
-                model.UserGroupMembership.group_id == group_id)
-            query, hints = self._create_password_expires_query(session, query,
-                                                               hints)
+                model.UserGroupMembership.group_id == group_id
+            )
+            query, hints = self._create_password_expires_query(
+                session, query, hints
+            )
             query = sql.filter_limit_query(model.User, query, hints)
             return [base.filter_user(u.to_dict()) for u in query]
 

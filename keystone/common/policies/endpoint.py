@@ -20,29 +20,34 @@ DEPRECATED_REASON = (
 )
 
 deprecated_get_endpoint = policy.DeprecatedRule(
-    name=base.IDENTITY % 'get_endpoint', check_str=base.RULE_ADMIN_REQUIRED,
+    name=base.IDENTITY % 'get_endpoint',
+    check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.STEIN
+    deprecated_since=versionutils.deprecated.STEIN,
 )
 deprecated_list_endpoints = policy.DeprecatedRule(
-    name=base.IDENTITY % 'list_endpoints', check_str=base.RULE_ADMIN_REQUIRED,
+    name=base.IDENTITY % 'list_endpoints',
+    check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.STEIN
+    deprecated_since=versionutils.deprecated.STEIN,
 )
 deprecated_update_endpoint = policy.DeprecatedRule(
-    name=base.IDENTITY % 'update_endpoint', check_str=base.RULE_ADMIN_REQUIRED,
+    name=base.IDENTITY % 'update_endpoint',
+    check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.STEIN
+    deprecated_since=versionutils.deprecated.STEIN,
 )
 deprecated_create_endpoint = policy.DeprecatedRule(
-    name=base.IDENTITY % 'create_endpoint', check_str=base.RULE_ADMIN_REQUIRED,
+    name=base.IDENTITY % 'create_endpoint',
+    check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.STEIN
+    deprecated_since=versionutils.deprecated.STEIN,
 )
 deprecated_delete_endpoint = policy.DeprecatedRule(
-    name=base.IDENTITY % 'delete_endpoint', check_str=base.RULE_ADMIN_REQUIRED,
+    name=base.IDENTITY % 'delete_endpoint',
+    check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.STEIN
+    deprecated_since=versionutils.deprecated.STEIN,
 )
 
 
@@ -52,41 +57,45 @@ endpoint_policies = [
         check_str=base.RULE_ADMIN_OR_SYSTEM_READER,
         scope_types=['system', 'project'],
         description='Show endpoint details.',
-        operations=[{'path': '/v3/endpoints/{endpoint_id}',
-                     'method': 'GET'}],
-        deprecated_rule=deprecated_get_endpoint),
+        operations=[{'path': '/v3/endpoints/{endpoint_id}', 'method': 'GET'}],
+        deprecated_rule=deprecated_get_endpoint,
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_endpoints',
         check_str=base.RULE_ADMIN_OR_SYSTEM_READER,
         scope_types=['system', 'project'],
         description='List endpoints.',
-        operations=[{'path': '/v3/endpoints',
-                     'method': 'GET'}],
-        deprecated_rule=deprecated_list_endpoints),
+        operations=[{'path': '/v3/endpoints', 'method': 'GET'}],
+        deprecated_rule=deprecated_list_endpoints,
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_endpoint',
         check_str=base.RULE_ADMIN_REQUIRED,
         scope_types=['system', 'project'],
         description='Create endpoint.',
-        operations=[{'path': '/v3/endpoints',
-                     'method': 'POST'}],
-        deprecated_rule=deprecated_create_endpoint),
+        operations=[{'path': '/v3/endpoints', 'method': 'POST'}],
+        deprecated_rule=deprecated_create_endpoint,
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_endpoint',
         check_str=base.RULE_ADMIN_REQUIRED,
         scope_types=['system', 'project'],
         description='Update endpoint.',
-        operations=[{'path': '/v3/endpoints/{endpoint_id}',
-                     'method': 'PATCH'}],
-        deprecated_rule=deprecated_update_endpoint),
+        operations=[
+            {'path': '/v3/endpoints/{endpoint_id}', 'method': 'PATCH'}
+        ],
+        deprecated_rule=deprecated_update_endpoint,
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_endpoint',
         check_str=base.RULE_ADMIN_REQUIRED,
         scope_types=['system', 'project'],
         description='Delete endpoint.',
-        operations=[{'path': '/v3/endpoints/{endpoint_id}',
-                     'method': 'DELETE'}],
-        deprecated_rule=deprecated_delete_endpoint)
+        operations=[
+            {'path': '/v3/endpoints/{endpoint_id}', 'method': 'DELETE'}
+        ],
+        deprecated_rule=deprecated_delete_endpoint,
+    ),
 ]
 
 

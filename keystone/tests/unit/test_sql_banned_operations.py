@@ -72,7 +72,8 @@ class BannedDBSchemaOperations(fixtures.Fixture):
         for op in self._banned_ops:
             self.useFixture(
                 fixtures.MonkeyPatch(
-                    'alembic.op.%s' % op, self._explode(op, self._revision),
+                    'alembic.op.%s' % op,
+                    self._explode(op, self._revision),
                 )
             )
 
@@ -128,8 +129,9 @@ class KeystoneMigrationsWalk(
         # Override keystone's context manager to be oslo.db's global context
         # manager.
         sql.core._TESTING_USE_GLOBAL_CONTEXT_MANAGER = True
-        self.addCleanup(setattr,
-                        sql.core, '_TESTING_USE_GLOBAL_CONTEXT_MANAGER', False)
+        self.addCleanup(
+            setattr, sql.core, '_TESTING_USE_GLOBAL_CONTEXT_MANAGER', False
+        )
         self.addCleanup(sql.cleanup)
 
     def _migrate_up(self, connection, revision):
@@ -141,9 +143,8 @@ class KeystoneMigrationsWalk(
 
         self.assertIsNotNone(
             getattr(self, '_check_%s' % version, None),
-            (
-                'DB Migration %s does not have a test; you must add one'
-            ) % version,
+            ('DB Migration %s does not have a test; you must add one')
+            % version,
         )
 
         pre_upgrade = getattr(self, '_pre_upgrade_%s' % version, None)
@@ -194,23 +195,23 @@ class KeystoneMigrationsWalk(
 
     def _pre_upgrade_99de3849d860(self, connection):
         inspector = sqlalchemy.inspect(connection)
-        for table, constraint in (
-            self._99de3849d860_removed_constraints.items()
-        ):
+        for (
+            table,
+            constraint,
+        ) in self._99de3849d860_removed_constraints.items():
             constraints = [
-                x['name'] for x in
-                inspector.get_unique_constraints(table)
+                x['name'] for x in inspector.get_unique_constraints(table)
             ]
             self.assertIn(constraint, constraints)
 
     def _check_99de3849d860(self, connection):
         inspector = sqlalchemy.inspect(connection)
-        for table, constraint in (
-            self._99de3849d860_removed_constraints.items()
-        ):
+        for (
+            table,
+            constraint,
+        ) in self._99de3849d860_removed_constraints.items():
             constraints = [
-                x['name'] for x in
-                inspector.get_unique_constraints(table)
+                x['name'] for x in inspector.get_unique_constraints(table)
             ]
             self.assertNotIn(constraint, constraints)
 
@@ -226,9 +227,13 @@ class KeystoneMigrationsWalk(
         for c in constraints:
             all_constraints + c.get('column_names', [])
 
-        not_allowed_constraints = ['trustor_user_id', 'trustee_user_id',
-                                   'project_id', 'impersonation', 'expires_at',
-                                   ]
+        not_allowed_constraints = [
+            'trustor_user_id',
+            'trustee_user_id',
+            'project_id',
+            'impersonation',
+            'expires_at',
+        ]
         for not_c in not_allowed_constraints:
             self.assertNotIn(not_c, all_constraints)
 
@@ -240,8 +245,7 @@ class KeystoneMigrationsWalk(
             {x['name'] for x in constraints},
         )
         constraint = [
-            x for x in constraints if x['name'] ==
-            'duplicate_trust_constraint'
+            x for x in constraints if x['name'] == 'duplicate_trust_constraint'
         ][0]
         self.assertEqual(
             [

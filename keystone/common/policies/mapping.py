@@ -23,31 +23,31 @@ deprecated_get_mapping = policy.DeprecatedRule(
     name=base.IDENTITY % 'get_mapping',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.STEIN
+    deprecated_since=versionutils.deprecated.STEIN,
 )
 deprecated_list_mappings = policy.DeprecatedRule(
     name=base.IDENTITY % 'list_mappings',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.STEIN
+    deprecated_since=versionutils.deprecated.STEIN,
 )
 deprecated_update_mapping = policy.DeprecatedRule(
     name=base.IDENTITY % 'update_mapping',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.STEIN
+    deprecated_since=versionutils.deprecated.STEIN,
 )
 deprecated_create_mapping = policy.DeprecatedRule(
     name=base.IDENTITY % 'create_mapping',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.STEIN
+    deprecated_since=versionutils.deprecated.STEIN,
 )
 deprecated_delete_mapping = policy.DeprecatedRule(
     name=base.IDENTITY % 'delete_mapping',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.STEIN
+    deprecated_since=versionutils.deprecated.STEIN,
 )
 
 
@@ -56,11 +56,18 @@ mapping_policies = [
         name=base.IDENTITY % 'create_mapping',
         check_str=base.RULE_ADMIN_REQUIRED,
         scope_types=['system', 'project'],
-        description=('Create a new federated mapping containing one or '
-                     'more sets of rules.'),
-        operations=[{'path': '/v3/OS-FEDERATION/mappings/{mapping_id}',
-                     'method': 'PUT'}],
-        deprecated_rule=deprecated_create_mapping),
+        description=(
+            'Create a new federated mapping containing one or '
+            'more sets of rules.'
+        ),
+        operations=[
+            {
+                'path': '/v3/OS-FEDERATION/mappings/{mapping_id}',
+                'method': 'PUT',
+            }
+        ],
+        deprecated_rule=deprecated_create_mapping,
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_mapping',
         check_str=base.RULE_ADMIN_OR_SYSTEM_READER,
@@ -69,14 +76,14 @@ mapping_policies = [
         operations=[
             {
                 'path': '/v3/OS-FEDERATION/mappings/{mapping_id}',
-                'method': 'GET'
+                'method': 'GET',
             },
             {
                 'path': '/v3/OS-FEDERATION/mappings/{mapping_id}',
-                'method': 'HEAD'
-            }
+                'method': 'HEAD',
+            },
         ],
-        deprecated_rule=deprecated_get_mapping
+        deprecated_rule=deprecated_get_mapping,
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_mappings',
@@ -84,14 +91,8 @@ mapping_policies = [
         scope_types=['system', 'project'],
         description='List federated mappings.',
         operations=[
-            {
-                'path': '/v3/OS-FEDERATION/mappings',
-                'method': 'GET'
-            },
-            {
-                'path': '/v3/OS-FEDERATION/mappings',
-                'method': 'HEAD'
-            }
+            {'path': '/v3/OS-FEDERATION/mappings', 'method': 'GET'},
+            {'path': '/v3/OS-FEDERATION/mappings', 'method': 'HEAD'},
         ],
         deprecated_rule=deprecated_list_mappings,
     ),
@@ -100,17 +101,27 @@ mapping_policies = [
         check_str=base.RULE_ADMIN_REQUIRED,
         scope_types=['system', 'project'],
         description='Delete a federated mapping.',
-        operations=[{'path': '/v3/OS-FEDERATION/mappings/{mapping_id}',
-                     'method': 'DELETE'}],
-        deprecated_rule=deprecated_delete_mapping),
+        operations=[
+            {
+                'path': '/v3/OS-FEDERATION/mappings/{mapping_id}',
+                'method': 'DELETE',
+            }
+        ],
+        deprecated_rule=deprecated_delete_mapping,
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_mapping',
         check_str=base.RULE_ADMIN_REQUIRED,
         scope_types=['system', 'project'],
         description='Update a federated mapping.',
-        operations=[{'path': '/v3/OS-FEDERATION/mappings/{mapping_id}',
-                     'method': 'PATCH'}],
-        deprecated_rule=deprecated_update_mapping)
+        operations=[
+            {
+                'path': '/v3/OS-FEDERATION/mappings/{mapping_id}',
+                'method': 'PATCH',
+            }
+        ],
+        deprecated_rule=deprecated_update_mapping,
+    ),
 ]
 
 

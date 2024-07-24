@@ -20,13 +20,11 @@ collection_path = '/v3/users/{user_id}/access_rules'
 resource_path = collection_path + '/{access_rule_id}'
 
 SYSTEM_READER_OR_OWNER = (
-    '(' + base.SYSTEM_READER + ') or '
-    'user_id:%(target.user.id)s'
+    '(' + base.SYSTEM_READER + ') or ' 'user_id:%(target.user.id)s'
 )
 
 SYSTEM_ADMIN_OR_OWNER = (
-    '(' + base.SYSTEM_ADMIN + ') or '
-    'user_id:%(target.user.id)s'
+    '(' + base.SYSTEM_ADMIN + ') or ' 'user_id:%(target.user.id)s'
 )
 
 access_rule_policies = [
@@ -35,26 +33,28 @@ access_rule_policies = [
         check_str=SYSTEM_READER_OR_OWNER,
         scope_types=['system', 'project'],
         description='Show access rule details.',
-        operations=[{'path': resource_path,
-                     'method': 'GET'},
-                    {'path': resource_path,
-                     'method': 'HEAD'}]),
+        operations=[
+            {'path': resource_path, 'method': 'GET'},
+            {'path': resource_path, 'method': 'HEAD'},
+        ],
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_access_rules',
         check_str=SYSTEM_READER_OR_OWNER,
         scope_types=['system', 'project'],
         description='List access rules for a user.',
-        operations=[{'path': collection_path,
-                     'method': 'GET'},
-                    {'path': collection_path,
-                     'method': 'HEAD'}]),
+        operations=[
+            {'path': collection_path, 'method': 'GET'},
+            {'path': collection_path, 'method': 'HEAD'},
+        ],
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_access_rule',
         check_str=SYSTEM_ADMIN_OR_OWNER,
         scope_types=['system', 'project'],
         description='Delete an access_rule.',
-        operations=[{'path': resource_path,
-                     'method': 'DELETE'}])
+        operations=[{'path': resource_path, 'method': 'DELETE'}],
+    ),
 ]
 
 

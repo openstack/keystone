@@ -23,20 +23,22 @@ class BaseTestCase(testtools.TestCase, common_auth.AuthTestMixin):
     request_headers = {'content-type': 'application/json'}
 
     def setUp(self):
-        self.ADMIN_URL = os.environ.get('KSTEST_ADMIN_URL',
-                                        'http://localhost:5000')
-        self.PUBLIC_URL = os.environ.get('KSTEST_PUBLIC_URL',
-                                         'http://localhost:5000')
+        self.ADMIN_URL = os.environ.get(
+            'KSTEST_ADMIN_URL', 'http://localhost:5000'
+        )
+        self.PUBLIC_URL = os.environ.get(
+            'KSTEST_PUBLIC_URL', 'http://localhost:5000'
+        )
         self.admin = {
             'name': os.environ.get('KSTEST_ADMIN_USERNAME', 'admin'),
             'password': os.environ.get('KSTEST_ADMIN_PASSWORD', ''),
-            'domain_id': os.environ.get('KSTEST_ADMIN_DOMAIN_ID', 'default')
+            'domain_id': os.environ.get('KSTEST_ADMIN_DOMAIN_ID', 'default'),
         }
 
         self.user = {
             'name': os.environ.get('KSTEST_USER_USERNAME', 'demo'),
             'password': os.environ.get('KSTEST_USER_PASSWORD', ''),
-            'domain_id': os.environ.get('KSTEST_USER_DOMAIN_ID', 'default')
+            'domain_id': os.environ.get('KSTEST_USER_DOMAIN_ID', 'default'),
         }
 
         self.project_id = os.environ.get('KSTEST_PROJECT_ID')
@@ -60,12 +62,17 @@ class BaseTestCase(testtools.TestCase, common_auth.AuthTestMixin):
 
         """
         body = self.build_authentication_request(
-            username=user['name'], user_domain_name=user['domain_id'],
-            password=user['password'], project_name=self.project_name,
-            project_domain_id=self.project_domain_id)
-        return requests.post(self.PUBLIC_URL + '/v3/auth/tokens',
-                             headers=self.request_headers,
-                             json=body)
+            username=user['name'],
+            user_domain_name=user['domain_id'],
+            password=user['password'],
+            project_name=self.project_name,
+            project_domain_id=self.project_domain_id,
+        )
+        return requests.post(
+            self.PUBLIC_URL + '/v3/auth/tokens',
+            headers=self.request_headers,
+            json=body,
+        )
 
     def get_scoped_token(self, user):
         """Convenience method for getting scoped token.

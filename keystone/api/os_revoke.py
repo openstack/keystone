@@ -39,10 +39,12 @@ class OSRevokeResource(flask_restful.Resource):
         if since:
             try:
                 last_fetch = timeutils.normalize_time(
-                    timeutils.parse_isotime(since))
+                    timeutils.parse_isotime(since)
+                )
             except ValueError:
                 raise exception.ValidationError(
-                    message=_('invalidate date format %s') % since)
+                    message=_('invalidate date format %s') % since
+                )
         # FIXME(notmorgan): The revocation events cannot have resource options
         # added to them or lazy-loaded relationships as long as to_dict
         # is called outside of an active session context. This API is unused
@@ -51,12 +53,14 @@ class OSRevokeResource(flask_restful.Resource):
         # events themselves.
         events = PROVIDERS.revoke_api.list_events(last_fetch=last_fetch)
         # Build the links by hand as the standard controller calls require ids
-        response = {'events': [event.to_dict() for event in events],
-                    'links': {
-                        'next': None,
-                        'self': ks_flask.base_url(path='/OS-REVOKE/events'),
-                        'previous': None}
-                    }
+        response = {
+            'events': [event.to_dict() for event in events],
+            'links': {
+                'next': None,
+                'self': ks_flask.base_url(path='/OS-REVOKE/events'),
+                'previous': None,
+            },
+        }
         return response
 
 
@@ -71,7 +75,7 @@ class OSRevokeAPI(ks_flask.APIBase):
             url='/events',
             resource_kwargs={},
             rel='events',
-            resource_relation_func=_build_resource_relation
+            resource_relation_func=_build_resource_relation,
         )
     ]
 

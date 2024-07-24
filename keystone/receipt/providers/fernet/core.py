@@ -40,9 +40,14 @@ class Provider(base.Provider):
             raise SystemExit(_('%(key_repo)s does not exist') % subs)
         if not os.listdir(CONF.fernet_receipts.key_repository):
             subs = {'key_repo': CONF.fernet_receipts.key_repository}
-            raise SystemExit(_('%(key_repo)s does not contain keys, use '
-                               'keystone-manage fernet_setup to create '
-                               'Fernet keys.') % subs)
+            raise SystemExit(
+                _(
+                    '%(key_repo)s does not contain keys, use '
+                    'keystone-manage fernet_setup to create '
+                    'Fernet keys.'
+                )
+                % subs
+            )
 
         self.receipt_formatter = tf.ReceiptFormatter()
 
@@ -59,8 +64,7 @@ class Provider(base.Provider):
             receipt.expires_at,
         )
         creation_datetime_obj = self.receipt_formatter.creation_time(
-            receipt_id)
-        issued_at = ks_utils.isotime(
-            at=creation_datetime_obj, subsecond=True
+            receipt_id
         )
+        issued_at = ks_utils.isotime(at=creation_datetime_obj, subsecond=True)
         return receipt_id, issued_at

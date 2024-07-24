@@ -23,31 +23,31 @@ deprecated_get_consumer = policy.DeprecatedRule(
     name=base.IDENTITY % 'get_consumer',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.TRAIN
+    deprecated_since=versionutils.deprecated.TRAIN,
 )
 deprecated_list_consumers = policy.DeprecatedRule(
     name=base.IDENTITY % 'list_consumers',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.TRAIN
+    deprecated_since=versionutils.deprecated.TRAIN,
 )
 deprecated_create_consumer = policy.DeprecatedRule(
     name=base.IDENTITY % 'create_consumer',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.TRAIN
+    deprecated_since=versionutils.deprecated.TRAIN,
 )
 deprecated_update_consumer = policy.DeprecatedRule(
     name=base.IDENTITY % 'update_consumer',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.TRAIN
+    deprecated_since=versionutils.deprecated.TRAIN,
 )
 deprecated_delete_consumer = policy.DeprecatedRule(
     name=base.IDENTITY % 'delete_consumer',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.TRAIN
+    deprecated_since=versionutils.deprecated.TRAIN,
 )
 
 
@@ -57,41 +57,53 @@ consumer_policies = [
         check_str=base.RULE_ADMIN_OR_SYSTEM_READER,
         scope_types=['system', 'project'],
         description='Show OAUTH1 consumer details.',
-        operations=[{'path': '/v3/OS-OAUTH1/consumers/{consumer_id}',
-                     'method': 'GET'}],
-        deprecated_rule=deprecated_get_consumer),
+        operations=[
+            {'path': '/v3/OS-OAUTH1/consumers/{consumer_id}', 'method': 'GET'}
+        ],
+        deprecated_rule=deprecated_get_consumer,
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_consumers',
         check_str=base.RULE_ADMIN_OR_SYSTEM_READER,
         scope_types=['system', 'project'],
         description='List OAUTH1 consumers.',
-        operations=[{'path': '/v3/OS-OAUTH1/consumers',
-                     'method': 'GET'}],
-        deprecated_rule=deprecated_list_consumers),
+        operations=[{'path': '/v3/OS-OAUTH1/consumers', 'method': 'GET'}],
+        deprecated_rule=deprecated_list_consumers,
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_consumer',
         check_str=base.RULE_ADMIN_REQUIRED,
         scope_types=['system', 'project'],
         description='Create OAUTH1 consumer.',
-        operations=[{'path': '/v3/OS-OAUTH1/consumers',
-                     'method': 'POST'}],
-        deprecated_rule=deprecated_create_consumer),
+        operations=[{'path': '/v3/OS-OAUTH1/consumers', 'method': 'POST'}],
+        deprecated_rule=deprecated_create_consumer,
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_consumer',
         check_str=base.RULE_ADMIN_REQUIRED,
         scope_types=['system', 'project'],
         description='Update OAUTH1 consumer.',
-        operations=[{'path': '/v3/OS-OAUTH1/consumers/{consumer_id}',
-                     'method': 'PATCH'}],
-        deprecated_rule=deprecated_update_consumer),
+        operations=[
+            {
+                'path': '/v3/OS-OAUTH1/consumers/{consumer_id}',
+                'method': 'PATCH',
+            }
+        ],
+        deprecated_rule=deprecated_update_consumer,
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_consumer',
         check_str=base.RULE_ADMIN_REQUIRED,
         scope_types=['system', 'project'],
         description='Delete OAUTH1 consumer.',
-        operations=[{'path': '/v3/OS-OAUTH1/consumers/{consumer_id}',
-                     'method': 'DELETE'}],
-        deprecated_rule=deprecated_delete_consumer),
+        operations=[
+            {
+                'path': '/v3/OS-OAUTH1/consumers/{consumer_id}',
+                'method': 'DELETE',
+            }
+        ],
+        deprecated_rule=deprecated_delete_consumer,
+    ),
 ]
 
 

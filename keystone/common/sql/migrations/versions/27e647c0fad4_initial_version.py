@@ -987,7 +987,8 @@ def upgrade():
             'Credential migration in progress. Cannot perform '
             'writes to credential table.'
         )
-        credential_update_trigger = textwrap.dedent(f"""
+        credential_update_trigger = textwrap.dedent(
+            f"""
         CREATE OR REPLACE FUNCTION keystone_read_only_update()
           RETURNS trigger AS
         $BODY$
@@ -1001,7 +1002,8 @@ def upgrade():
           RETURN NEW;
         END
         $BODY$ LANGUAGE plpgsql;
-        """)
+        """
+        )
         op.execute(credential_update_trigger)
 
         error_message = (
@@ -1009,7 +1011,8 @@ def upgrade():
             'insert new rows into the identity_provider table at '
             'this time.'
         )
-        identity_provider_insert_trigger = textwrap.dedent(f"""
+        identity_provider_insert_trigger = textwrap.dedent(
+            f"""
         CREATE OR REPLACE FUNCTION keystone_read_only_insert()
           RETURNS trigger AS
         $BODY$
@@ -1017,10 +1020,12 @@ def upgrade():
           RAISE EXCEPTION '{error_message}';
         END
         $BODY$ LANGUAGE plpgsql;
-        """)
+        """
+        )
         op.execute(identity_provider_insert_trigger)
 
-        federated_user_insert_trigger = textwrap.dedent("""
+        federated_user_insert_trigger = textwrap.dedent(
+            """
         CREATE OR REPLACE FUNCTION update_federated_user_domain_id()
             RETURNS trigger AS
         $BODY$
@@ -1031,10 +1036,12 @@ def upgrade():
             RETURN NULL;
         END
         $BODY$ LANGUAGE plpgsql;
-        """)
+        """
+        )
         op.execute(federated_user_insert_trigger)
 
-        local_user_insert_trigger = textwrap.dedent("""
+        local_user_insert_trigger = textwrap.dedent(
+            """
         CREATE OR REPLACE FUNCTION update_user_domain_id()
             RETURNS trigger AS
         $BODY$
@@ -1044,7 +1051,8 @@ def upgrade():
             RETURN NULL;
         END
         $BODY$ LANGUAGE plpgsql;
-        """)
+        """
+        )
         op.execute(local_user_insert_trigger)
 
     # FIXME(stephenfin): Remove these indexes. They're left over from attempts

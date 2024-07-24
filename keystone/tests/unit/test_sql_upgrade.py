@@ -61,164 +61,334 @@ CONF = keystone.conf.CONF
 # { <DB_TABLE_NAME>: [<COLUMN>, <COLUMN>, ...], ... }
 INITIAL_TABLE_STRUCTURE = {
     'config_register': [
-        'type', 'domain_id',
+        'type',
+        'domain_id',
     ],
     'credential': [
-        'id', 'user_id', 'project_id', 'type', 'extra', 'key_hash',
+        'id',
+        'user_id',
+        'project_id',
+        'type',
+        'extra',
+        'key_hash',
         'encrypted_blob',
     ],
     'endpoint': [
-        'id', 'legacy_endpoint_id', 'interface', 'region_id', 'service_id',
-        'url', 'enabled', 'extra',
+        'id',
+        'legacy_endpoint_id',
+        'interface',
+        'region_id',
+        'service_id',
+        'url',
+        'enabled',
+        'extra',
     ],
     'group': [
-        'id', 'domain_id', 'name', 'description', 'extra',
+        'id',
+        'domain_id',
+        'name',
+        'description',
+        'extra',
     ],
     'policy': [
-        'id', 'type', 'blob', 'extra',
+        'id',
+        'type',
+        'blob',
+        'extra',
     ],
     'project': [
-        'id', 'name', 'extra', 'description', 'enabled', 'domain_id',
-        'parent_id', 'is_domain',
+        'id',
+        'name',
+        'extra',
+        'description',
+        'enabled',
+        'domain_id',
+        'parent_id',
+        'is_domain',
     ],
     'project_option': [
-        'project_id', 'option_id', 'option_value',
+        'project_id',
+        'option_id',
+        'option_value',
     ],
     'project_tag': [
-        'project_id', 'name',
+        'project_id',
+        'name',
     ],
     'role': [
-        'id', 'name', 'extra', 'domain_id', 'description',
+        'id',
+        'name',
+        'extra',
+        'domain_id',
+        'description',
     ],
     'role_option': [
-        'role_id', 'option_id', 'option_value',
+        'role_id',
+        'option_id',
+        'option_value',
     ],
     'service': [
-        'id', 'type', 'extra', 'enabled',
+        'id',
+        'type',
+        'extra',
+        'enabled',
     ],
     'token': [
-        'id', 'expires', 'extra', 'valid', 'trust_id', 'user_id',
+        'id',
+        'expires',
+        'extra',
+        'valid',
+        'trust_id',
+        'user_id',
     ],
     'trust': [
-        'id', 'trustor_user_id', 'trustee_user_id', 'project_id',
-        'impersonation', 'deleted_at', 'expires_at', 'remaining_uses', 'extra',
-        'expires_at_int', 'redelegated_trust_id', 'redelegation_count',
+        'id',
+        'trustor_user_id',
+        'trustee_user_id',
+        'project_id',
+        'impersonation',
+        'deleted_at',
+        'expires_at',
+        'remaining_uses',
+        'extra',
+        'expires_at_int',
+        'redelegated_trust_id',
+        'redelegation_count',
     ],
     'trust_role': [
-        'trust_id', 'role_id',
+        'trust_id',
+        'role_id',
     ],
     'user': [
-        'id', 'extra', 'enabled', 'default_project_id', 'created_at',
-        'last_active_at', 'domain_id',
+        'id',
+        'extra',
+        'enabled',
+        'default_project_id',
+        'created_at',
+        'last_active_at',
+        'domain_id',
     ],
     'user_option': [
-        'user_id', 'option_id', 'option_value',
+        'user_id',
+        'option_id',
+        'option_value',
     ],
     'user_group_membership': [
-        'user_id', 'group_id',
+        'user_id',
+        'group_id',
     ],
     'region': [
-        'id', 'description', 'parent_region_id', 'extra',
+        'id',
+        'description',
+        'parent_region_id',
+        'extra',
     ],
     'assignment': [
-        'type', 'actor_id', 'target_id', 'role_id', 'inherited',
+        'type',
+        'actor_id',
+        'target_id',
+        'role_id',
+        'inherited',
     ],
     'id_mapping': [
-        'public_id', 'domain_id', 'local_id', 'entity_type',
+        'public_id',
+        'domain_id',
+        'local_id',
+        'entity_type',
     ],
     'whitelisted_config': [
-        'domain_id', 'group', 'option', 'value',
+        'domain_id',
+        'group',
+        'option',
+        'value',
     ],
     'sensitive_config': [
-        'domain_id', 'group', 'option', 'value',
+        'domain_id',
+        'group',
+        'option',
+        'value',
     ],
     'policy_association': [
-        'id', 'policy_id', 'endpoint_id', 'service_id', 'region_id',
+        'id',
+        'policy_id',
+        'endpoint_id',
+        'service_id',
+        'region_id',
     ],
     'identity_provider': [
-        'id', 'enabled', 'description', 'domain_id', 'authorization_ttl',
+        'id',
+        'enabled',
+        'description',
+        'domain_id',
+        'authorization_ttl',
     ],
     'federation_protocol': [
-        'id', 'idp_id', 'mapping_id', 'remote_id_attribute',
+        'id',
+        'idp_id',
+        'mapping_id',
+        'remote_id_attribute',
     ],
     'mapping': [
-        'id', 'rules', 'schema_version',
+        'id',
+        'rules',
+        'schema_version',
     ],
     'service_provider': [
-        'auth_url', 'id', 'enabled', 'description', 'sp_url',
+        'auth_url',
+        'id',
+        'enabled',
+        'description',
+        'sp_url',
         'relay_state_prefix',
     ],
     'idp_remote_ids': [
-        'idp_id', 'remote_id',
+        'idp_id',
+        'remote_id',
     ],
     'consumer': [
-        'id', 'description', 'secret', 'extra',
+        'id',
+        'description',
+        'secret',
+        'extra',
     ],
     'request_token': [
-        'id', 'request_secret', 'verifier', 'authorizing_user_id',
-        'requested_project_id', 'role_ids', 'consumer_id', 'expires_at',
+        'id',
+        'request_secret',
+        'verifier',
+        'authorizing_user_id',
+        'requested_project_id',
+        'role_ids',
+        'consumer_id',
+        'expires_at',
     ],
     'access_token': [
-        'id', 'access_secret', 'authorizing_user_id', 'project_id', 'role_ids',
-        'consumer_id', 'expires_at',
+        'id',
+        'access_secret',
+        'authorizing_user_id',
+        'project_id',
+        'role_ids',
+        'consumer_id',
+        'expires_at',
     ],
     'revocation_event': [
-        'id', 'domain_id', 'project_id', 'user_id', 'role_id', 'trust_id',
-        'consumer_id', 'access_token_id', 'issued_before', 'expires_at',
-        'revoked_at', 'audit_id', 'audit_chain_id',
+        'id',
+        'domain_id',
+        'project_id',
+        'user_id',
+        'role_id',
+        'trust_id',
+        'consumer_id',
+        'access_token_id',
+        'issued_before',
+        'expires_at',
+        'revoked_at',
+        'audit_id',
+        'audit_chain_id',
     ],
-    'project_endpoint': [
-        'endpoint_id', 'project_id'
-    ],
+    'project_endpoint': ['endpoint_id', 'project_id'],
     'endpoint_group': [
-        'id', 'name', 'description', 'filters',
+        'id',
+        'name',
+        'description',
+        'filters',
     ],
     'project_endpoint_group': [
-        'endpoint_group_id', 'project_id',
+        'endpoint_group_id',
+        'project_id',
     ],
     'implied_role': [
-        'prior_role_id', 'implied_role_id',
+        'prior_role_id',
+        'implied_role_id',
     ],
     'local_user': [
-        'id', 'user_id', 'domain_id', 'name', 'failed_auth_count',
+        'id',
+        'user_id',
+        'domain_id',
+        'name',
+        'failed_auth_count',
         'failed_auth_at',
     ],
     'password': [
-        'id', 'local_user_id', 'created_at', 'expires_at',
-        'self_service', 'password_hash', 'created_at_int', 'expires_at_int',
+        'id',
+        'local_user_id',
+        'created_at',
+        'expires_at',
+        'self_service',
+        'password_hash',
+        'created_at_int',
+        'expires_at_int',
     ],
     'federated_user': [
-        'id', 'user_id', 'idp_id', 'protocol_id', 'unique_id', 'display_name',
+        'id',
+        'user_id',
+        'idp_id',
+        'protocol_id',
+        'unique_id',
+        'display_name',
     ],
     'nonlocal_user': [
-        'domain_id', 'name', 'user_id',
+        'domain_id',
+        'name',
+        'user_id',
     ],
     'system_assignment': [
-        'type', 'actor_id', 'target_id', 'role_id', 'inherited',
+        'type',
+        'actor_id',
+        'target_id',
+        'role_id',
+        'inherited',
     ],
     'registered_limit': [
-        'internal_id', 'id', 'service_id', 'region_id', 'resource_name',
-        'default_limit', 'description',
+        'internal_id',
+        'id',
+        'service_id',
+        'region_id',
+        'resource_name',
+        'default_limit',
+        'description',
     ],
     'limit': [
-        'internal_id', 'id', 'project_id', 'resource_limit', 'description',
-        'registered_limit_id', 'domain_id',
+        'internal_id',
+        'id',
+        'project_id',
+        'resource_limit',
+        'description',
+        'registered_limit_id',
+        'domain_id',
     ],
     'application_credential': [
-        'internal_id', 'id', 'name', 'secret_hash', 'description', 'user_id',
-        'project_id', 'expires_at', 'system', 'unrestricted',
+        'internal_id',
+        'id',
+        'name',
+        'secret_hash',
+        'description',
+        'user_id',
+        'project_id',
+        'expires_at',
+        'system',
+        'unrestricted',
     ],
     'application_credential_role': [
-        'application_credential_id', 'role_id',
+        'application_credential_id',
+        'role_id',
     ],
     'access_rule': [
-        'id', 'service', 'path', 'method', 'external_id', 'user_id',
+        'id',
+        'service',
+        'path',
+        'method',
+        'external_id',
+        'user_id',
     ],
     'application_credential_access_rule': [
-        'application_credential_id', 'access_rule_id',
+        'application_credential_id',
+        'access_rule_id',
     ],
     'expiring_user_group_membership': [
-        'user_id', 'group_id', 'idp_id', 'last_verified',
+        'user_id',
+        'group_id',
+        'idp_id',
+        'last_verified',
     ],
 }
 
@@ -243,8 +413,9 @@ class MigrateBase(
         # Override keystone's context manager to be oslo.db's global context
         # manager.
         sql.core._TESTING_USE_GLOBAL_CONTEXT_MANAGER = True
-        self.addCleanup(setattr,
-                        sql.core, '_TESTING_USE_GLOBAL_CONTEXT_MANAGER', False)
+        self.addCleanup(
+            setattr, sql.core, '_TESTING_USE_GLOBAL_CONTEXT_MANAGER', False
+        )
         self.addCleanup(sql.cleanup)
 
     def expand(self):
@@ -262,7 +433,9 @@ class MigrateBase(
 
     def load_table(self, name):
         table = sqlalchemy.Table(
-            name, self.metadata, autoload_with=self.engine,
+            name,
+            self.metadata,
+            autoload_with=self.engine,
         )
         return table
 
@@ -272,7 +445,9 @@ class MigrateBase(
         # detect renamed or dropped tables
         try:
             sqlalchemy.Table(
-                table_name, self.metadata, autoload_with=self.engine,
+                table_name,
+                self.metadata,
+                autoload_with=self.engine,
             )
         except sqlalchemy.exc.NoSuchTableError:
             pass
@@ -285,8 +460,9 @@ class MigrateBase(
         actual_cols = [col.name for col in table.columns]
         # Check if the columns are equal, but allow for a different order,
         # which might occur after an upgrade followed by a downgrade
-        self.assertCountEqual(expected_cols, actual_cols,
-                              '%s table' % table_name)
+        self.assertCountEqual(
+            expected_cols, actual_cols, '%s table' % table_name
+        )
 
     def test_db_sync_check(self):
         checker = cli.DbSync()

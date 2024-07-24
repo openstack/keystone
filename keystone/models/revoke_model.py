@@ -22,16 +22,18 @@ LOG = log.getLogger(__name__)
 
 # The set of attributes common between the RevokeEvent
 # and the dictionaries created from the token Data.
-_NAMES = ['trust_id',
-          'consumer_id',
-          'access_token_id',
-          'audit_id',
-          'audit_chain_id',
-          'expires_at',
-          'domain_id',
-          'project_id',
-          'user_id',
-          'role_id']
+_NAMES = [
+    'trust_id',
+    'consumer_id',
+    'access_token_id',
+    'audit_id',
+    'audit_chain_id',
+    'expires_at',
+    'domain_id',
+    'project_id',
+    'user_id',
+    'role_id',
+]
 
 
 # Additional arguments for creating a RevokeEvent
@@ -44,11 +46,13 @@ _EVENT_NAMES = _NAMES + ['domain_scope_id']
 # Values that will be in the token data but not in the event.
 # These will compared with event values that have different names.
 # For example: both trustor_id and trustee_id are compared against user_id
-_TOKEN_KEYS = ['identity_domain_id',
-               'assignment_domain_id',
-               'issued_at',
-               'trustor_id',
-               'trustee_id']
+_TOKEN_KEYS = [
+    'identity_domain_id',
+    'assignment_domain_id',
+    'issued_at',
+    'trustor_id',
+    'trustee_id',
+]
 
 # Alternative names to be checked in token for every field in
 # revoke tree.
@@ -56,7 +60,9 @@ ALTERNATIVES = {
     'user_id': ['user_id', 'trustor_id', 'trustee_id'],
     'domain_id': ['identity_domain_id', 'assignment_domain_id'],
     # For a domain-scoped token, the domain is in assignment_domain_id.
-    'domain_scope_id': ['assignment_domain_id', ],
+    'domain_scope_id': [
+        'assignment_domain_id',
+    ],
 }
 
 
@@ -99,16 +105,20 @@ class RevokeEvent(object):
             self.issued_before = self.revoked_at
 
     def to_dict(self):
-        keys = ['user_id',
-                'role_id',
-                'domain_id',
-                'domain_scope_id',
-                'project_id',
-                'audit_id',
-                'audit_chain_id',
-                ]
-        event = {key: self.__dict__[key] for key in keys
-                 if self.__dict__[key] is not None}
+        keys = [
+            'user_id',
+            'role_id',
+            'domain_id',
+            'domain_scope_id',
+            'project_id',
+            'audit_id',
+            'audit_chain_id',
+        ]
+        event = {
+            key: self.__dict__[key]
+            for key in keys
+            if self.__dict__[key] is not None
+        }
         if self.trust_id is not None:
             event['OS-TRUST:trust_id'] = self.trust_id
         if self.consumer_id is not None:
@@ -118,11 +128,13 @@ class RevokeEvent(object):
         if self.expires_at is not None:
             event['expires_at'] = utils.isotime(self.expires_at)
         if self.issued_before is not None:
-            event['issued_before'] = utils.isotime(self.issued_before,
-                                                   subsecond=True)
+            event['issued_before'] = utils.isotime(
+                self.issued_before, subsecond=True
+            )
         if self.revoked_at is not None:
-            event['revoked_at'] = utils.isotime(self.revoked_at,
-                                                subsecond=True)
+            event['revoked_at'] = utils.isotime(
+                self.revoked_at, subsecond=True
+            )
         return event
 
 
@@ -171,34 +183,41 @@ def matches(event, token_values):
 
     # The token has two attributes that can match the domain_id.
     if event.domain_id is not None and event.domain_id not in (
-            token_values['identity_domain_id'],
-            token_values['assignment_domain_id'],):
+        token_values['identity_domain_id'],
+        token_values['assignment_domain_id'],
+    ):
         return False
 
     if event.domain_scope_id is not None and event.domain_scope_id not in (
-            token_values['assignment_domain_id'],):
+        token_values['assignment_domain_id'],
+    ):
         return False
 
     # If an event specifies an attribute name, but it does not match, the token
     # is not revoked.
     if event.expires_at is not None and event.expires_at not in (
-            token_values['expires_at'],):
+        token_values['expires_at'],
+    ):
         return False
 
     if event.trust_id is not None and event.trust_id not in (
-            token_values['trust_id'],):
+        token_values['trust_id'],
+    ):
         return False
 
     if event.consumer_id is not None and event.consumer_id not in (
-            token_values['consumer_id'],):
+        token_values['consumer_id'],
+    ):
         return False
 
     if event.audit_chain_id is not None and event.audit_chain_id not in (
-            token_values['audit_chain_id'],):
+        token_values['audit_chain_id'],
+    ):
         return False
 
     if event.role_id is not None and event.role_id not in (
-            token_values['roles']):
+        token_values['roles']
+    ):
         return False
 
     return True
@@ -215,7 +234,8 @@ def build_token_values(token):
     token_values = {
         'expires_at': timeutils.normalize_time(token_expires_at),
         'issued_at': timeutils.normalize_time(
-            timeutils.parse_isotime(token.issued_at)),
+            timeutils.parse_isotime(token.issued_at)
+        ),
         'audit_id': token.audit_id,
         'audit_chain_id': token.parent_audit_id,
     }
@@ -285,8 +305,10 @@ class _RevokeEventHandler(object):
         try:
             revoke_event = RevokeEvent(**revoke_event_data)
         except Exception:
-            LOG.debug("Failed to deserialize RevokeEvent. Data is %s",
-                      revoke_event_data)
+            LOG.debug(
+                "Failed to deserialize RevokeEvent. Data is %s",
+                revoke_event_data,
+            )
             raise
         return revoke_event
 

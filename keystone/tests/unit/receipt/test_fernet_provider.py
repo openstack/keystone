@@ -48,7 +48,8 @@ class TestFernetReceiptProvider(unit.TestCase):
         e = self.assertRaises(
             exception.ReceiptNotFound,
             self.provider.validate_receipt,
-            receipt_id)
+            receipt_id,
+        )
         self.assertIn(receipt_id, u'%s' % e)
 
 
@@ -58,11 +59,13 @@ class TestValidate(unit.TestCase):
         self.useFixture(database.Database())
         self.useFixture(
             ksfixtures.ConfigAuthPlugins(
-                self.config_fixture,
-                ['totp', 'token', 'password']))
+                self.config_fixture, ['totp', 'token', 'password']
+            )
+        )
         self.load_backends()
         PROVIDERS.resource_api.create_domain(
-            default_fixtures.ROOT_DOMAIN['id'], default_fixtures.ROOT_DOMAIN)
+            default_fixtures.ROOT_DOMAIN['id'], default_fixtures.ROOT_DOMAIN
+        )
 
     def config_overrides(self):
         super(TestValidate, self).config_overrides()
@@ -89,18 +92,18 @@ class TestValidate(unit.TestCase):
         PROVIDERS.identity_api.update_user(user_ref['id'], user_ref)
 
         method_names = ['password']
-        receipt = PROVIDERS.receipt_provider_api.\
-            issue_receipt(user_ref['id'], method_names)
+        receipt = PROVIDERS.receipt_provider_api.issue_receipt(
+            user_ref['id'], method_names
+        )
 
-        receipt = PROVIDERS.receipt_provider_api.validate_receipt(
-            receipt.id)
+        receipt = PROVIDERS.receipt_provider_api.validate_receipt(receipt.id)
         self.assertIsInstance(receipt.expires_at, str)
         self.assertIsInstance(receipt.issued_at, str)
         self.assertEqual(set(method_names), set(receipt.methods))
         self.assertEqual(
             set(frozenset(r) for r in rule_list),
-            set(frozenset(r) for r in
-                receipt.required_methods))
+            set(frozenset(r) for r in receipt.required_methods),
+        )
         self.assertEqual(user_ref['id'], receipt.user_id)
 
     def test_validate_v3_receipt_validation_error_exc(self):
@@ -111,7 +114,7 @@ class TestValidate(unit.TestCase):
         self.assertRaises(
             exception.ReceiptNotFound,
             PROVIDERS.receipt_provider_api.validate_receipt,
-            receipt_id
+            receipt_id,
         )
 
 
@@ -131,7 +134,8 @@ class TestReceiptFormatter(unit.TestCase):
             self.assertFalse(encoded_str_without_padding.endswith('='))
             encoded_str_with_padding_restored = (
                 receipt_formatters.ReceiptFormatter.restore_padding(
-                    encoded_str_without_padding)
+                    encoded_str_without_padding
+                )
             )
             self.assertEqual(encoded_string, encoded_str_with_padding_restored)
 
@@ -142,7 +146,9 @@ class TestPayloads(unit.TestCase):
         super(TestPayloads, self).setUp()
         self.useFixture(
             ksfixtures.ConfigAuthPlugins(
-                self.config_fixture, ['totp', 'token', 'password']))
+                self.config_fixture, ['totp', 'token', 'password']
+            )
+        )
 
     def assertTimestampsEqual(self, expected, actual):
         # The timestamp that we get back when parsing the payload may not
@@ -155,8 +161,9 @@ class TestPayloads(unit.TestCase):
         # the granularity of timestamp string is microseconds and it's only the
         # last digit in the representation that's different, so use a delta
         # just above nanoseconds.
-        return self.assertCloseEnoughForGovernmentWork(exp_time, actual_time,
-                                                       delta=1e-05)
+        return self.assertCloseEnoughForGovernmentWork(
+            exp_time, actual_time, delta=1e-05
+        )
 
     def test_strings_can_be_converted_to_bytes(self):
         s = token_provider.random_urlsafe_str()
@@ -172,10 +179,12 @@ class TestPayloads(unit.TestCase):
         uuid_obj = uuid.UUID(expected_hex_uuid)
         expected_uuid_in_bytes = uuid_obj.bytes
         actual_uuid_in_bytes = payload_cls.convert_uuid_hex_to_bytes(
-            expected_hex_uuid)
+            expected_hex_uuid
+        )
         self.assertEqual(expected_uuid_in_bytes, actual_uuid_in_bytes)
         actual_hex_uuid = payload_cls.convert_uuid_bytes_to_hex(
-            expected_uuid_in_bytes)
+            expected_uuid_in_bytes
+        )
         self.assertEqual(expected_hex_uuid, actual_hex_uuid)
 
     def test_time_string_to_float_conversions(self):
@@ -184,8 +193,9 @@ class TestPayloads(unit.TestCase):
         original_time_str = utils.isotime(subsecond=True)
         time_obj = timeutils.parse_isotime(original_time_str)
         expected_time_float = (
-            (timeutils.normalize_time(time_obj) -
-             datetime.datetime.utcfromtimestamp(0)).total_seconds())
+            timeutils.normalize_time(time_obj)
+            - datetime.datetime.utcfromtimestamp(0)
+        ).total_seconds()
 
         # NOTE(lbragstad): The receipt expiration time for Fernet receipts is
         # passed in the payload of the receipt. This is different from the
@@ -194,7 +204,8 @@ class TestPayloads(unit.TestCase):
         self.assertIsInstance(expected_time_float, float)
 
         actual_time_float = payload_cls._convert_time_string_to_float(
-            original_time_str)
+            original_time_str
+        )
         self.assertIsInstance(actual_time_float, float)
         self.assertEqual(expected_time_float, actual_time_float)
 
@@ -205,7 +216,8 @@ class TestPayloads(unit.TestCase):
         expected_time_str = utils.isotime(time_object, subsecond=True)
 
         actual_time_str = payload_cls._convert_float_to_time_string(
-            actual_time_float)
+            actual_time_float
+        )
         self.assertEqual(expected_time_str, actual_time_str)
 
     def _test_payload(self, payload_class, exp_user_id=None, exp_methods=None):
@@ -214,7 +226,8 @@ class TestPayloads(unit.TestCase):
         exp_expires_at = utils.isotime(timeutils.utcnow(), subsecond=True)
 
         payload = payload_class.assemble(
-            exp_user_id, exp_methods, exp_expires_at)
+            exp_user_id, exp_methods, exp_expires_at
+        )
 
         (user_id, methods, expires_at) = payload_class.disassemble(payload)
 
@@ -227,8 +240,8 @@ class TestPayloads(unit.TestCase):
 
     def test_payload_multiple_methods(self):
         self._test_payload(
-            receipt_formatters.ReceiptPayload,
-            exp_methods=['password', 'totp'])
+            receipt_formatters.ReceiptPayload, exp_methods=['password', 'totp']
+        )
 
 
 class TestFernetKeyRotation(unit.TestCase):
@@ -243,7 +256,8 @@ class TestFernetKeyRotation(unit.TestCase):
     def keys(self):
         """Key files converted to numbers."""
         return sorted(
-            int(x) for x in os.listdir(CONF.fernet_receipts.key_repository))
+            int(x) for x in os.listdir(CONF.fernet_receipts.key_repository)
+        )
 
     @property
     def key_repository_size(self):
@@ -266,7 +280,7 @@ class TestFernetKeyRotation(unit.TestCase):
         key_utils = fernet_utils.FernetUtils(
             CONF.fernet_receipts.key_repository,
             CONF.fernet_receipts.max_active_keys,
-            'fernet_receipts'
+            'fernet_receipts',
         )
         keys = key_utils.load_keys()
 
@@ -307,8 +321,9 @@ class TestFernetKeyRotation(unit.TestCase):
         # Simulate every rotation strategy up to "rotating once a week while
         # maintaining a year's worth of keys."
         for max_active_keys in range(min_active_keys, 52 + 1):
-            self.config_fixture.config(group='fernet_receipts',
-                                       max_active_keys=max_active_keys)
+            self.config_fixture.config(
+                group='fernet_receipts', max_active_keys=max_active_keys
+            )
 
             # Ensure that resetting the key repository always results in 2
             # active keys.
@@ -316,7 +331,7 @@ class TestFernetKeyRotation(unit.TestCase):
                 ksfixtures.KeyRepository(
                     self.config_fixture,
                     'fernet_receipts',
-                    CONF.fernet_receipts.max_active_keys
+                    CONF.fernet_receipts.max_active_keys,
                 )
             )
 
@@ -334,7 +349,7 @@ class TestFernetKeyRotation(unit.TestCase):
             key_utils = fernet_utils.FernetUtils(
                 CONF.fernet_receipts.key_repository,
                 CONF.fernet_receipts.max_active_keys,
-                'fernet_receipts'
+                'fernet_receipts',
             )
             for rotation in range(max_active_keys - min_active_keys):
                 key_utils.rotate_keys()
@@ -352,7 +367,7 @@ class TestFernetKeyRotation(unit.TestCase):
             key_utils = fernet_utils.FernetUtils(
                 CONF.fernet_receipts.key_repository,
                 CONF.fernet_receipts.max_active_keys,
-                'fernet_receipts'
+                'fernet_receipts',
             )
             for rotation in range(10):
                 key_utils.rotate_keys()
@@ -370,7 +385,7 @@ class TestFernetKeyRotation(unit.TestCase):
         key_utils = fernet_utils.FernetUtils(
             CONF.fernet_receipts.key_repository,
             CONF.fernet_receipts.max_active_keys,
-            'fernet_receipts'
+            'fernet_receipts',
         )
 
         # Simulate the disk full situation
@@ -407,7 +422,7 @@ class TestFernetKeyRotation(unit.TestCase):
         key_utils = fernet_utils.FernetUtils(
             CONF.fernet_receipts.key_repository,
             CONF.fernet_receipts.max_active_keys,
-            'fernet_receipts'
+            'fernet_receipts',
         )
         # Rotate the keys to overwrite the empty file
         key_utils.rotate_keys()
@@ -423,7 +438,7 @@ class TestFernetKeyRotation(unit.TestCase):
         key_utils = fernet_utils.FernetUtils(
             CONF.fernet_receipts.key_repository,
             CONF.fernet_receipts.max_active_keys,
-            'fernet_receipts'
+            'fernet_receipts',
         )
         key_utils.rotate_keys()
         self.assertTrue(os.path.isfile(evil_file))
@@ -450,7 +465,7 @@ class TestLoadKeys(unit.TestCase):
         key_utils = fernet_utils.FernetUtils(
             CONF.fernet_receipts.key_repository,
             CONF.fernet_receipts.max_active_keys,
-            'fernet_receipts'
+            'fernet_receipts',
         )
         keys = key_utils.load_keys()
         self.assertEqual(2, len(keys))
@@ -463,7 +478,7 @@ class TestLoadKeys(unit.TestCase):
         key_utils = fernet_utils.FernetUtils(
             CONF.fernet_receipts.key_repository,
             CONF.fernet_receipts.max_active_keys,
-            'fernet_receipts'
+            'fernet_receipts',
         )
         keys = key_utils.load_keys()
         self.assertEqual(2, len(keys))

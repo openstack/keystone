@@ -15,13 +15,12 @@ from keystone.common.resource_options import core as ro_core
 from keystone.common.validation import parameter_types
 from keystone import exception
 
-IMMUTABLE_OPT = (
-    ro_core.ResourceOption(
-        option_id='IMMU',
-        option_name='immutable',
-        validator=ro_core.boolean_validator,
-        json_schema_validation=parameter_types.boolean
-    ))
+IMMUTABLE_OPT = ro_core.ResourceOption(
+    option_id='IMMU',
+    option_name='immutable',
+    validator=ro_core.boolean_validator,
+    json_schema_validation=parameter_types.boolean,
+)
 
 
 def check_resource_immutable(resource_ref):
@@ -30,11 +29,13 @@ def check_resource_immutable(resource_ref):
     :param resource_ref: a dict reference of a resource to inspect
     """
     return resource_ref.get('options', {}).get(
-        IMMUTABLE_OPT.option_name, False)
+        IMMUTABLE_OPT.option_name, False
+    )
 
 
-def check_immutable_update(original_resource_ref, new_resource_ref, type,
-                           resource_id):
+def check_immutable_update(
+    original_resource_ref, new_resource_ref, type, resource_id
+):
     """Check if an update is allowed to an immutable resource.
 
     Valid cases where an update is allowed:
@@ -53,11 +54,14 @@ def check_immutable_update(original_resource_ref, new_resource_ref, type,
     immutable = check_resource_immutable(original_resource_ref)
     if immutable:
         new_options = new_resource_ref.get('options', {})
-        if ((len(new_resource_ref.keys()) > 1) or
-                (IMMUTABLE_OPT.option_name not in new_options) or
-                (new_options[IMMUTABLE_OPT.option_name] not in (False, None))):
+        if (
+            (len(new_resource_ref.keys()) > 1)
+            or (IMMUTABLE_OPT.option_name not in new_options)
+            or (new_options[IMMUTABLE_OPT.option_name] not in (False, None))
+        ):
             raise exception.ResourceUpdateForbidden(
-                type=type, resource_id=resource_id)
+                type=type, resource_id=resource_id
+            )
 
 
 def check_immutable_delete(resource_ref, resource_type, resource_id):
@@ -70,4 +74,5 @@ def check_immutable_delete(resource_ref, resource_type, resource_id):
     """
     if check_resource_immutable(resource_ref):
         raise exception.ResourceDeleteForbidden(
-            type=resource_type, resource_id=resource_id)
+            type=resource_type, resource_id=resource_id
+        )

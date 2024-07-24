@@ -59,14 +59,16 @@ def _build_enforcement_target(allow_non_existing=False):
         if flask.request.view_args.get('user_id'):
             try:
                 target['user'] = PROVIDERS.identity_api.get_user(
-                    flask.request.view_args['user_id'])
+                    flask.request.view_args['user_id']
+                )
             except exception.UserNotFound:
                 if not allow_non_existing:
                     raise
         else:
             try:
                 target['group'] = PROVIDERS.identity_api.get_group(
-                    flask.request.view_args.get('group_id'))
+                    flask.request.view_args.get('group_id')
+                )
             except exception.GroupNotFound:
                 if not allow_non_existing:
                     raise
@@ -77,7 +79,8 @@ class DomainResource(ks_flask.ResourceBase):
     collection_key = 'domains'
     member_key = 'domain'
     get_member_from_driver = PROVIDERS.deferred_provider_lookup(
-        api='resource_api', method='get_domain')
+        api='resource_api', method='get_domain'
+    )
 
     def get(self, domain_id=None):
         """Get domain or list domains.
@@ -92,7 +95,7 @@ class DomainResource(ks_flask.ResourceBase):
     def _get_domain(self, domain_id):
         ENFORCER.enforce_call(
             action='identity:get_domain',
-            build_target=_build_domain_enforcement_target
+            build_target=_build_domain_enforcement_target,
         )
         domain = PROVIDERS.resource_api.get_domain(domain_id)
         return self.wrap_member(domain)
@@ -102,16 +105,14 @@ class DomainResource(ks_flask.ResourceBase):
         target = None
         if self.oslo_context.domain_id:
             target = {'domain': {'id': self.oslo_context.domain_id}}
-        ENFORCER.enforce_call(action='identity:list_domains',
-                              filters=filters,
-                              target_attr=target)
+        ENFORCER.enforce_call(
+            action='identity:list_domains', filters=filters, target_attr=target
+        )
         hints = self.build_driver_hints(filters)
         refs = PROVIDERS.resource_api.list_domains(hints=hints)
         if self.oslo_context.domain_id:
             domain_id = self.oslo_context.domain_id
-            filtered_refs = [
-                ref for ref in refs if ref['id'] == domain_id
-            ]
+            filtered_refs = [ref for ref in refs if ref['id'] == domain_id]
         else:
             filtered_refs = refs
         return self.wrap_collection(filtered_refs, hints=hints)
@@ -137,7 +138,8 @@ class DomainResource(ks_flask.ResourceBase):
             domain['id'] = domain_id
         domain = self._normalize_dict(domain)
         ref = PROVIDERS.resource_api.create_domain(
-            domain['id'], domain, initiator=self.audit_initiator)
+            domain['id'], domain, initiator=self.audit_initiator
+        )
         return self.wrap_member(ref), http.client.CREATED
 
     def patch(self, domain_id):
@@ -150,7 +152,8 @@ class DomainResource(ks_flask.ResourceBase):
         validation.lazy_validate(schema.domain_update, domain)
         PROVIDERS.resource_api.get_domain(domain_id)
         ref = PROVIDERS.resource_api.update_domain(
-            domain_id, domain, initiator=self.audit_initiator)
+            domain_id, domain, initiator=self.audit_initiator
+        )
         return self.wrap_member(ref)
 
     def delete(self, domain_id):
@@ -160,7 +163,8 @@ class DomainResource(ks_flask.ResourceBase):
         """
         ENFORCER.enforce_call(action='identity:delete_domain')
         PROVIDERS.resource_api.delete_domain(
-            domain_id, initiator=self.audit_initiator)
+            domain_id, initiator=self.audit_initiator
+        )
         return None, http.client.NO_CONTENT
 
 
@@ -178,14 +182,15 @@ class DomainConfigBase(ks_flask.ResourceBase):
         config = {}
         try:
             PROVIDERS.resource_api.get_domain(domain_id)
-        except Exception as e:   # nosec
+        except Exception as e:  # nosec
             # We don't raise out here, we raise out after enforcement, this
             # ensures we do not leak domain existance.
             err = e
         finally:
             if group and group == 'security_compliance':
                 config = self._get_security_compliance_config(
-                    domain_id, group, option)
+                    domain_id, group, option
+                )
             else:
                 config = self._get_config(domain_id, group, option)
         if err is not None:
@@ -195,13 +200,16 @@ class DomainConfigBase(ks_flask.ResourceBase):
     def _get_config(self, domain_id, group, option):
         ENFORCER.enforce_call(action='identity:get_domain_config')
         return PROVIDERS.domain_config_api.get_config(
-            domain_id, group=group, option=option)
+            domain_id, group=group, option=option
+        )
 
     def _get_security_compliance_config(self, domain_id, group, option):
         ENFORCER.enforce_call(
-            action='identity:get_security_compliance_domain_config')
+            action='identity:get_security_compliance_domain_config'
+        )
         return PROVIDERS.domain_config_api.get_security_compliance_config(
-            domain_id, group, option=option)
+            domain_id, group, option=option
+        )
 
     def patch(self, domain_id=None, group=None, option=None):
         """Update domain config option.
@@ -214,7 +222,8 @@ class DomainConfigBase(ks_flask.ResourceBase):
         PROVIDERS.resource_api.get_domain(domain_id)
         config = self.request_body_json.get('config', {})
         ref = PROVIDERS.domain_config_api.update_config(
-            domain_id, config, group, option=option)
+            domain_id, config, group, option=option
+        )
         return {self.member_key: ref}
 
     def delete(self, domain_id=None, group=None, option=None):
@@ -227,7 +236,8 @@ class DomainConfigBase(ks_flask.ResourceBase):
         ENFORCER.enforce_call(action='identity:delete_domain_config')
         PROVIDERS.resource_api.get_domain(domain_id)
         PROVIDERS.domain_config_api.delete_config(
-            domain_id, group, option=option)
+            domain_id, group, option=option
+        )
         return None, http.client.NO_CONTENT
 
 
@@ -313,7 +323,8 @@ class DefaultConfigOptionResource(flask_restful.Resource):
         """
         ENFORCER.enforce_call(action='identity:get_domain_config_default')
         ref = PROVIDERS.domain_config_api.get_config_default(
-            group=group, option=option)
+            group=group, option=option
+        )
         return {'config': ref}
 
 
@@ -325,12 +336,14 @@ class DomainUserListResource(flask_restful.Resource):
         """
         ENFORCER.enforce_call(
             action='identity:list_grants',
-            build_target=_build_enforcement_target)
+            build_target=_build_enforcement_target,
+        )
         refs = PROVIDERS.assignment_api.list_grants(
-            domain_id=domain_id, user_id=user_id,
-            inherited_to_projects=False)
+            domain_id=domain_id, user_id=user_id, inherited_to_projects=False
+        )
         return ks_flask.ResourceBase.wrap_collection(
-            refs, collection_name='roles')
+            refs, collection_name='roles'
+        )
 
 
 class DomainUserResource(ks_flask.ResourceBase):
@@ -344,10 +357,14 @@ class DomainUserResource(ks_flask.ResourceBase):
         """
         ENFORCER.enforce_call(
             action='identity:check_grant',
-            build_target=_build_enforcement_target)
+            build_target=_build_enforcement_target,
+        )
         PROVIDERS.assignment_api.get_grant(
-            role_id, domain_id=domain_id, user_id=user_id,
-            inherited_to_projects=False)
+            role_id,
+            domain_id=domain_id,
+            user_id=user_id,
+            inherited_to_projects=False,
+        )
         return None, http.client.NO_CONTENT
 
     def put(self, domain_id=None, user_id=None, role_id=None):
@@ -357,10 +374,15 @@ class DomainUserResource(ks_flask.ResourceBase):
         """
         ENFORCER.enforce_call(
             action='identity:create_grant',
-            build_target=_build_enforcement_target)
+            build_target=_build_enforcement_target,
+        )
         PROVIDERS.assignment_api.create_grant(
-            role_id, domain_id=domain_id, user_id=user_id,
-            inherited_to_projects=False, initiator=self.audit_initiator)
+            role_id,
+            domain_id=domain_id,
+            user_id=user_id,
+            inherited_to_projects=False,
+            initiator=self.audit_initiator,
+        )
         return None, http.client.NO_CONTENT
 
     def delete(self, domain_id=None, user_id=None, role_id=None):
@@ -370,11 +392,17 @@ class DomainUserResource(ks_flask.ResourceBase):
         """
         ENFORCER.enforce_call(
             action='identity:revoke_grant',
-            build_target=functools.partial(_build_enforcement_target,
-                                           allow_non_existing=True))
+            build_target=functools.partial(
+                _build_enforcement_target, allow_non_existing=True
+            ),
+        )
         PROVIDERS.assignment_api.delete_grant(
-            role_id, domain_id=domain_id, user_id=user_id,
-            inherited_to_projects=False, initiator=self.audit_initiator)
+            role_id,
+            domain_id=domain_id,
+            user_id=user_id,
+            inherited_to_projects=False,
+            initiator=self.audit_initiator,
+        )
         return None, http.client.NO_CONTENT
 
 
@@ -386,12 +414,14 @@ class DomainGroupListResource(flask_restful.Resource):
         """
         ENFORCER.enforce_call(
             action='identity:list_grants',
-            build_target=_build_enforcement_target)
+            build_target=_build_enforcement_target,
+        )
         refs = PROVIDERS.assignment_api.list_grants(
-            domain_id=domain_id, group_id=group_id,
-            inherited_to_projects=False)
+            domain_id=domain_id, group_id=group_id, inherited_to_projects=False
+        )
         return ks_flask.ResourceBase.wrap_collection(
-            refs, collection_name='roles')
+            refs, collection_name='roles'
+        )
 
 
 class DomainGroupResource(ks_flask.ResourceBase):
@@ -405,10 +435,14 @@ class DomainGroupResource(ks_flask.ResourceBase):
         """
         ENFORCER.enforce_call(
             action='identity:check_grant',
-            build_target=_build_enforcement_target)
+            build_target=_build_enforcement_target,
+        )
         PROVIDERS.assignment_api.get_grant(
-            role_id, domain_id=domain_id, group_id=group_id,
-            inherited_to_projects=False)
+            role_id,
+            domain_id=domain_id,
+            group_id=group_id,
+            inherited_to_projects=False,
+        )
         return None, http.client.NO_CONTENT
 
     def put(self, domain_id=None, group_id=None, role_id=None):
@@ -418,10 +452,15 @@ class DomainGroupResource(ks_flask.ResourceBase):
         """
         ENFORCER.enforce_call(
             action='identity:create_grant',
-            build_target=_build_enforcement_target)
+            build_target=_build_enforcement_target,
+        )
         PROVIDERS.assignment_api.create_grant(
-            role_id, domain_id=domain_id, group_id=group_id,
-            inherited_to_projects=False, initiator=self.audit_initiator)
+            role_id,
+            domain_id=domain_id,
+            group_id=group_id,
+            inherited_to_projects=False,
+            initiator=self.audit_initiator,
+        )
         return None, http.client.NO_CONTENT
 
     def delete(self, domain_id=None, group_id=None, role_id=None):
@@ -431,11 +470,17 @@ class DomainGroupResource(ks_flask.ResourceBase):
         """
         ENFORCER.enforce_call(
             action='identity:revoke_grant',
-            build_target=functools.partial(_build_enforcement_target,
-                                           allow_non_existing=True))
+            build_target=functools.partial(
+                _build_enforcement_target, allow_non_existing=True
+            ),
+        )
         PROVIDERS.assignment_api.delete_grant(
-            role_id, domain_id=domain_id, group_id=group_id,
-            inherited_to_projects=False, initiator=self.audit_initiator)
+            role_id,
+            domain_id=domain_id,
+            group_id=group_id,
+            inherited_to_projects=False,
+            initiator=self.audit_initiator,
+        )
         return None, http.client.NO_CONTENT
 
 
@@ -451,8 +496,8 @@ class DomainAPI(ks_flask.APIBase):
             url=('/domains/<string:domain_id>/config'),
             resource_kwargs={},
             rel='domain_config',
-            path_vars={
-                'domain_id': json_home.Parameters.DOMAIN_ID}),
+            path_vars={'domain_id': json_home.Parameters.DOMAIN_ID},
+        ),
         ks_flask.construct_resource_map(
             resource=DomainConfigGroupResource,
             url='/domains/<string:domain_id>/config/<string:group>',
@@ -460,81 +505,96 @@ class DomainAPI(ks_flask.APIBase):
             rel='domain_config_group',
             path_vars={
                 'domain_id': json_home.Parameters.DOMAIN_ID,
-                'group': CONFIG_GROUP}),
+                'group': CONFIG_GROUP,
+            },
+        ),
         ks_flask.construct_resource_map(
             resource=DomainConfigOptionResource,
-            url=('/domains/<string:domain_id>/config/<string:group>'
-                 '/<string:option>'),
+            url=(
+                '/domains/<string:domain_id>/config/<string:group>'
+                '/<string:option>'
+            ),
             resource_kwargs={},
             rel='domain_config_option',
             path_vars={
                 'domain_id': json_home.Parameters.DOMAIN_ID,
                 'group': CONFIG_GROUP,
-                'option': CONFIG_OPTION}),
+                'option': CONFIG_OPTION,
+            },
+        ),
         ks_flask.construct_resource_map(
             resource=DefaultConfigResource,
             url=('/domains/config/default'),
             resource_kwargs={},
             rel='domain_config_default',
-            path_vars={}),
+            path_vars={},
+        ),
         ks_flask.construct_resource_map(
             resource=DefaultConfigGroupResource,
             url='/domains/config/<string:group>/default',
             resource_kwargs={},
             rel='domain_config_default_group',
-            path_vars={
-                'group': CONFIG_GROUP}),
+            path_vars={'group': CONFIG_GROUP},
+        ),
         ks_flask.construct_resource_map(
             resource=DefaultConfigOptionResource,
-            url=('/domains/config/<string:group>'
-                 '/<string:option>/default'),
+            url=('/domains/config/<string:group>' '/<string:option>/default'),
             resource_kwargs={},
             rel='domain_config_default_option',
-            path_vars={
-                'group': CONFIG_GROUP,
-                'option': CONFIG_OPTION}),
+            path_vars={'group': CONFIG_GROUP, 'option': CONFIG_OPTION},
+        ),
         ks_flask.construct_resource_map(
             resource=DomainUserListResource,
-            url=('/domains/<string:domain_id>/users'
-                 '/<string:user_id>/roles'),
+            url=(
+                '/domains/<string:domain_id>/users' '/<string:user_id>/roles'
+            ),
             resource_kwargs={},
             rel='domain_user_roles',
             path_vars={
                 'domain_id': json_home.Parameters.DOMAIN_ID,
                 'user_id': json_home.Parameters.USER_ID,
-            }),
+            },
+        ),
         ks_flask.construct_resource_map(
             resource=DomainUserResource,
-            url=('/domains/<string:domain_id>/users'
-                 '/<string:user_id>/roles/<string:role_id>'),
+            url=(
+                '/domains/<string:domain_id>/users'
+                '/<string:user_id>/roles/<string:role_id>'
+            ),
             resource_kwargs={},
             rel='domain_user_role',
             path_vars={
                 'domain_id': json_home.Parameters.DOMAIN_ID,
                 'user_id': json_home.Parameters.USER_ID,
-                'role_id': json_home.Parameters.ROLE_ID
-            }),
+                'role_id': json_home.Parameters.ROLE_ID,
+            },
+        ),
         ks_flask.construct_resource_map(
             resource=DomainGroupListResource,
-            url=('/domains/<string:domain_id>/groups'
-                 '/<string:group_id>/roles'),
+            url=(
+                '/domains/<string:domain_id>/groups' '/<string:group_id>/roles'
+            ),
             resource_kwargs={},
             rel='domain_group_roles',
             path_vars={
                 'domain_id': json_home.Parameters.DOMAIN_ID,
                 'group_id': json_home.Parameters.GROUP_ID,
-            }),
+            },
+        ),
         ks_flask.construct_resource_map(
             resource=DomainGroupResource,
-            url=('/domains/<string:domain_id>/groups'
-                 '/<string:group_id>/roles/<string:role_id>'),
+            url=(
+                '/domains/<string:domain_id>/groups'
+                '/<string:group_id>/roles/<string:role_id>'
+            ),
             resource_kwargs={},
             rel='domain_group_role',
             path_vars={
                 'domain_id': json_home.Parameters.DOMAIN_ID,
                 'group_id': json_home.Parameters.GROUP_ID,
-                'role_id': json_home.Parameters.ROLE_ID
-            })
+                'role_id': json_home.Parameters.ROLE_ID,
+            },
+        ),
     ]
 
 

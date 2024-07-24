@@ -23,31 +23,31 @@ deprecated_get_sp = policy.DeprecatedRule(
     name=base.IDENTITY % 'get_service_provider',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.STEIN
+    deprecated_since=versionutils.deprecated.STEIN,
 )
 deprecated_list_sp = policy.DeprecatedRule(
     name=base.IDENTITY % 'list_service_providers',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.STEIN
+    deprecated_since=versionutils.deprecated.STEIN,
 )
 deprecated_update_sp = policy.DeprecatedRule(
     name=base.IDENTITY % 'update_service_provider',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.STEIN
+    deprecated_since=versionutils.deprecated.STEIN,
 )
 deprecated_create_sp = policy.DeprecatedRule(
     name=base.IDENTITY % 'create_service_provider',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.STEIN
+    deprecated_since=versionutils.deprecated.STEIN,
 )
 deprecated_delete_sp = policy.DeprecatedRule(
     name=base.IDENTITY % 'delete_service_provider',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.STEIN
+    deprecated_since=versionutils.deprecated.STEIN,
 )
 
 
@@ -57,26 +57,27 @@ service_provider_policies = [
         check_str=base.RULE_ADMIN_REQUIRED,
         scope_types=['system', 'project'],
         description='Create federated service provider.',
-        operations=[{'path': ('/v3/OS-FEDERATION/service_providers/'
-                              '{service_provider_id}'),
-                     'method': 'PUT'}],
-        deprecated_rule=deprecated_create_sp),
+        operations=[
+            {
+                'path': (
+                    '/v3/OS-FEDERATION/service_providers/'
+                    '{service_provider_id}'
+                ),
+                'method': 'PUT',
+            }
+        ],
+        deprecated_rule=deprecated_create_sp,
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_service_providers',
         check_str=base.RULE_ADMIN_OR_SYSTEM_READER,
         scope_types=['system', 'project'],
         description='List federated service providers.',
         operations=[
-            {
-                'path': '/v3/OS-FEDERATION/service_providers',
-                'method': 'GET'
-            },
-            {
-                'path': '/v3/OS-FEDERATION/service_providers',
-                'method': 'HEAD'
-            }
+            {'path': '/v3/OS-FEDERATION/service_providers', 'method': 'GET'},
+            {'path': '/v3/OS-FEDERATION/service_providers', 'method': 'HEAD'},
         ],
-        deprecated_rule=deprecated_list_sp
+        deprecated_rule=deprecated_list_sp,
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_service_provider',
@@ -85,36 +86,54 @@ service_provider_policies = [
         description='Get federated service provider.',
         operations=[
             {
-                'path': ('/v3/OS-FEDERATION/service_providers/'
-                         '{service_provider_id}'),
-                'method': 'GET'
+                'path': (
+                    '/v3/OS-FEDERATION/service_providers/'
+                    '{service_provider_id}'
+                ),
+                'method': 'GET',
             },
             {
-                'path': ('/v3/OS-FEDERATION/service_providers/'
-                         '{service_provider_id}'),
-                'method': 'HEAD'
-            }
+                'path': (
+                    '/v3/OS-FEDERATION/service_providers/'
+                    '{service_provider_id}'
+                ),
+                'method': 'HEAD',
+            },
         ],
-        deprecated_rule=deprecated_get_sp
+        deprecated_rule=deprecated_get_sp,
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'update_service_provider',
         check_str=base.RULE_ADMIN_REQUIRED,
         scope_types=['system', 'project'],
         description='Update federated service provider.',
-        operations=[{'path': ('/v3/OS-FEDERATION/service_providers/'
-                              '{service_provider_id}'),
-                     'method': 'PATCH'}],
-        deprecated_rule=deprecated_update_sp),
+        operations=[
+            {
+                'path': (
+                    '/v3/OS-FEDERATION/service_providers/'
+                    '{service_provider_id}'
+                ),
+                'method': 'PATCH',
+            }
+        ],
+        deprecated_rule=deprecated_update_sp,
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'delete_service_provider',
         check_str=base.RULE_ADMIN_REQUIRED,
         scope_types=['system', 'project'],
         description='Delete federated service provider.',
-        operations=[{'path': ('/v3/OS-FEDERATION/service_providers/'
-                              '{service_provider_id}'),
-                     'method': 'DELETE'}],
-        deprecated_rule=deprecated_delete_sp)
+        operations=[
+            {
+                'path': (
+                    '/v3/OS-FEDERATION/service_providers/'
+                    '{service_provider_id}'
+                ),
+                'method': 'DELETE',
+            }
+        ],
+        deprecated_rule=deprecated_delete_sp,
+    ),
 ]
 
 

@@ -34,7 +34,8 @@ _build_resource_relation = json_home_relations.os_ep_filter_resource_rel_func
 _build_parameter_relation = json_home_relations.os_ep_filter_parameter_rel_func
 
 _ENDPOINT_GROUP_PARAMETER_RELATION = _build_parameter_relation(
-    parameter_name='endpoint_group_id')
+    parameter_name='endpoint_group_id'
+)
 
 
 # NOTE(morgan): This is shared from keystone.api.endpoint, this is a special
@@ -58,17 +59,20 @@ class EndpointGroupsResource(ks_flask.ResourceBase):
             if key not in valid_filter_keys:
                 raise exception.ValidationError(
                     attribute=' or '.join(valid_filter_keys),
-                    target='endpoint_group')
+                    target='endpoint_group',
+                )
 
     def _get_endpoint_group(self, endpoint_group_id):
         ENFORCER.enforce_call(action='identity:get_endpoint_group')
         return self.wrap_member(
-            PROVIDERS.catalog_api.get_endpoint_group(endpoint_group_id))
+            PROVIDERS.catalog_api.get_endpoint_group(endpoint_group_id)
+        )
 
     def _list_endpoint_groups(self):
-        filters = ('name')
-        ENFORCER.enforce_call(action='identity:list_endpoint_groups',
-                              filters=filters)
+        filters = 'name'
+        ENFORCER.enforce_call(
+            action='identity:list_endpoint_groups', filters=filters
+        )
         hints = self.build_driver_hints(filters)
         refs = PROVIDERS.catalog_api.list_endpoint_groups(hints)
         return self.wrap_collection(refs, hints=hints)
@@ -89,8 +93,14 @@ class EndpointGroupsResource(ks_flask.ResourceBase):
             raise exception.ValidationError(message=msg)
         self._require_valid_filter(ep_group)
         ep_group = self._assign_unique_id(ep_group)
-        return self.wrap_member(PROVIDERS.catalog_api.create_endpoint_group(
-            ep_group['id'], ep_group)), http.client.CREATED
+        return (
+            self.wrap_member(
+                PROVIDERS.catalog_api.create_endpoint_group(
+                    ep_group['id'], ep_group
+                )
+            ),
+            http.client.CREATED,
+        )
 
     def patch(self, endpoint_group_id):
         ENFORCER.enforce_call(action='identity:update_endpoint_group')
@@ -99,13 +109,18 @@ class EndpointGroupsResource(ks_flask.ResourceBase):
         if 'filters' in ep_group:
             self._require_valid_filter(ep_group)
         self._require_matching_id(ep_group)
-        return self.wrap_member(PROVIDERS.catalog_api.update_endpoint_group(
-            endpoint_group_id, ep_group))
+        return self.wrap_member(
+            PROVIDERS.catalog_api.update_endpoint_group(
+                endpoint_group_id, ep_group
+            )
+        )
 
     def delete(self, endpoint_group_id):
         ENFORCER.enforce_call(action='identity:delete_endpoint_group')
-        return (PROVIDERS.catalog_api.delete_endpoint_group(endpoint_group_id),
-                http.client.NO_CONTENT)
+        return (
+            PROVIDERS.catalog_api.delete_endpoint_group(endpoint_group_id),
+            http.client.NO_CONTENT,
+        )
 
 
 class EPFilterEndpointProjectsResource(flask_restful.Resource):
@@ -114,10 +129,13 @@ class EPFilterEndpointProjectsResource(flask_restful.Resource):
         ENFORCER.enforce_call(action='identity:list_projects_for_endpoint')
         PROVIDERS.catalog_api.get_endpoint(endpoint_id)
         refs = PROVIDERS.catalog_api.list_projects_for_endpoint(endpoint_id)
-        projects = [PROVIDERS.resource_api.get_project(ref['project_id'])
-                    for ref in refs]
+        projects = [
+            PROVIDERS.resource_api.get_project(ref['project_id'])
+            for ref in refs
+        ]
         return ks_flask.ResourceBase.wrap_collection(
-            projects, collection_name='projects')
+            projects, collection_name='projects'
+        )
 
 
 class EPFilterProjectsEndpointsResource(flask_restful.Resource):
@@ -126,7 +144,8 @@ class EPFilterProjectsEndpointsResource(flask_restful.Resource):
         PROVIDERS.catalog_api.get_endpoint(endpoint_id)
         PROVIDERS.resource_api.get_project(project_id)
         PROVIDERS.catalog_api.check_endpoint_in_project(
-            endpoint_id, project_id)
+            endpoint_id, project_id
+        )
         return None, http.client.NO_CONTENT
 
     def put(self, project_id, endpoint_id):
@@ -138,8 +157,12 @@ class EPFilterProjectsEndpointsResource(flask_restful.Resource):
 
     def delete(self, project_id, endpoint_id):
         ENFORCER.enforce_call(action='identity:remove_endpoint_from_project')
-        return (PROVIDERS.catalog_api.remove_endpoint_from_project(
-            endpoint_id, project_id), http.client.NO_CONTENT)
+        return (
+            PROVIDERS.catalog_api.remove_endpoint_from_project(
+                endpoint_id, project_id
+            ),
+            http.client.NO_CONTENT,
+        )
 
 
 class EPFilterProjectEndpointsListResource(flask_restful.Resource):
@@ -147,49 +170,62 @@ class EPFilterProjectEndpointsListResource(flask_restful.Resource):
         ENFORCER.enforce_call(action='identity:list_endpoints_for_project')
         PROVIDERS.resource_api.get_project(project_id)
         filtered_endpoints = PROVIDERS.catalog_api.list_endpoints_for_project(
-            project_id)
+            project_id
+        )
 
         return ks_flask.ResourceBase.wrap_collection(
             [_filter_endpoint(v) for v in filtered_endpoints.values()],
-            collection_name='endpoints')
+            collection_name='endpoints',
+        )
 
 
 class EndpointFilterProjectEndpointGroupsListResource(flask_restful.Resource):
     def get(self, project_id):
         ENFORCER.enforce_call(
-            action='identity:list_endpoint_groups_for_project')
+            action='identity:list_endpoint_groups_for_project'
+        )
         return EndpointGroupsResource.wrap_collection(
-            PROVIDERS.catalog_api.get_endpoint_groups_for_project(project_id))
+            PROVIDERS.catalog_api.get_endpoint_groups_for_project(project_id)
+        )
 
 
 class EndpointFilterEPGroupsProjects(flask_restful.Resource):
     def get(self, endpoint_group_id):
         ENFORCER.enforce_call(
-            action='identity:list_projects_associated_with_endpoint_group')
-        endpoint_group_refs = (PROVIDERS.catalog_api.
-                               list_projects_associated_with_endpoint_group(
-                                   endpoint_group_id))
+            action='identity:list_projects_associated_with_endpoint_group'
+        )
+        endpoint_group_refs = (
+            PROVIDERS.catalog_api.list_projects_associated_with_endpoint_group(
+                endpoint_group_id
+            )
+        )
         projects = []
         for endpoint_group_ref in endpoint_group_refs:
             project = PROVIDERS.resource_api.get_project(
-                endpoint_group_ref['project_id'])
+                endpoint_group_ref['project_id']
+            )
             if project:
                 projects.append(project)
 
         return ks_flask.ResourceBase.wrap_collection(
-            projects, collection_name='projects')
+            projects, collection_name='projects'
+        )
 
 
 class EndpointFilterEPGroupsEndpoints(flask_restful.Resource):
     def get(self, endpoint_group_id):
         ENFORCER.enforce_call(
-            action='identity:list_endpoints_associated_with_endpoint_group')
-        filtered_endpoints = (PROVIDERS.catalog_api.
-                              get_endpoints_filtered_by_endpoint_group(
-                                  endpoint_group_id))
+            action='identity:list_endpoints_associated_with_endpoint_group'
+        )
+        filtered_endpoints = (
+            PROVIDERS.catalog_api.get_endpoints_filtered_by_endpoint_group(
+                endpoint_group_id
+            )
+        )
         return ks_flask.ResourceBase.wrap_collection(
             [_filter_endpoint(e) for e in filtered_endpoints],
-            collection_name='endpoints')
+            collection_name='endpoints',
+        )
 
 
 class EPFilterGroupsProjectsResource(ks_flask.ResourceBase):
@@ -198,10 +234,14 @@ class EPFilterGroupsProjectsResource(ks_flask.ResourceBase):
 
     @classmethod
     def _add_self_referential_link(cls, ref, collection_name=None):
-        url = ('/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s'
-               '/projects/%(project_id)s' % {
-                   'endpoint_group_id': ref['endpoint_group_id'],
-                   'project_id': ref['project_id']})
+        url = (
+            '/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s'
+            '/projects/%(project_id)s'
+            % {
+                'endpoint_group_id': ref['endpoint_group_id'],
+                'project_id': ref['project_id'],
+            }
+        )
         ref.setdefault('links', {})
         ref['links']['self'] = url
 
@@ -210,7 +250,8 @@ class EPFilterGroupsProjectsResource(ks_flask.ResourceBase):
         PROVIDERS.resource_api.get_project(project_id)
         PROVIDERS.catalog_api.get_endpoint_group(endpoint_group_id)
         ref = PROVIDERS.catalog_api.get_endpoint_group_in_project(
-            endpoint_group_id, project_id)
+            endpoint_group_id, project_id
+        )
         return self.wrap_member(ref)
 
     def put(self, endpoint_group_id, project_id):
@@ -218,16 +259,19 @@ class EPFilterGroupsProjectsResource(ks_flask.ResourceBase):
         PROVIDERS.resource_api.get_project(project_id)
         PROVIDERS.catalog_api.get_endpoint_group(endpoint_group_id)
         PROVIDERS.catalog_api.add_endpoint_group_to_project(
-            endpoint_group_id, project_id)
+            endpoint_group_id, project_id
+        )
         return None, http.client.NO_CONTENT
 
     def delete(self, endpoint_group_id, project_id):
         ENFORCER.enforce_call(
-            action='identity:remove_endpoint_group_from_project')
+            action='identity:remove_endpoint_group_from_project'
+        )
         PROVIDERS.resource_api.get_project(project_id)
         PROVIDERS.catalog_api.get_endpoint_group(endpoint_group_id)
         PROVIDERS.catalog_api.remove_endpoint_group_from_project(
-            endpoint_group_id, project_id)
+            endpoint_group_id, project_id
+        )
         return None, http.client.NO_CONTENT
 
 
@@ -243,9 +287,8 @@ class EPFilterAPI(ks_flask.APIBase):
             resource_kwargs={},
             rel='endpoint_projects',
             resource_relation_func=_build_resource_relation,
-            path_vars={
-                'endpoint_id': json_home.Parameters.ENDPOINT_ID
-            }),
+            path_vars={'endpoint_id': json_home.Parameters.ENDPOINT_ID},
+        ),
         ks_flask.construct_resource_map(
             resource=EPFilterProjectsEndpointsResource,
             url='/projects/<string:project_id>/endpoints/<string:endpoint_id>',
@@ -254,21 +297,25 @@ class EPFilterAPI(ks_flask.APIBase):
             resource_relation_func=_build_resource_relation,
             path_vars={
                 'endpoint_id': json_home.Parameters.ENDPOINT_ID,
-                'project_id': json_home.Parameters.PROJECT_ID}),
+                'project_id': json_home.Parameters.PROJECT_ID,
+            },
+        ),
         ks_flask.construct_resource_map(
             resource=EPFilterProjectEndpointsListResource,
             url='/projects/<string:project_id>/endpoints',
             resource_kwargs={},
             rel='project_endpoints',
             resource_relation_func=_build_resource_relation,
-            path_vars={'project_id': json_home.Parameters.PROJECT_ID}),
+            path_vars={'project_id': json_home.Parameters.PROJECT_ID},
+        ),
         ks_flask.construct_resource_map(
             resource=EndpointFilterProjectEndpointGroupsListResource,
             url='/projects/<string:project_id>/endpoint_groups',
             resource_kwargs={},
             rel='project_endpoint_groups',
             resource_relation_func=_build_resource_relation,
-            path_vars={'project_id': json_home.Parameters.PROJECT_ID}),
+            path_vars={'project_id': json_home.Parameters.PROJECT_ID},
+        ),
         ks_flask.construct_resource_map(
             resource=EndpointFilterEPGroupsEndpoints,
             url='/endpoint_groups/<string:endpoint_group_id>/endpoints',
@@ -276,7 +323,9 @@ class EPFilterAPI(ks_flask.APIBase):
             rel='endpoints_in_endpoint_group',
             resource_relation_func=_build_resource_relation,
             path_vars={
-                'endpoint_group_id': _ENDPOINT_GROUP_PARAMETER_RELATION}),
+                'endpoint_group_id': _ENDPOINT_GROUP_PARAMETER_RELATION
+            },
+        ),
         ks_flask.construct_resource_map(
             resource=EndpointFilterEPGroupsProjects,
             url='/endpoint_groups/<string:endpoint_group_id>/projects',
@@ -284,17 +333,23 @@ class EPFilterAPI(ks_flask.APIBase):
             rel='projects_associated_with_endpoint_group',
             resource_relation_func=_build_resource_relation,
             path_vars={
-                'endpoint_group_id': _ENDPOINT_GROUP_PARAMETER_RELATION}),
+                'endpoint_group_id': _ENDPOINT_GROUP_PARAMETER_RELATION
+            },
+        ),
         ks_flask.construct_resource_map(
             resource=EPFilterGroupsProjectsResource,
-            url=('/endpoint_groups/<string:endpoint_group_id>/projects/'
-                 '<string:project_id>'),
+            url=(
+                '/endpoint_groups/<string:endpoint_group_id>/projects/'
+                '<string:project_id>'
+            ),
             resource_kwargs={},
             rel='endpoint_group_to_project_association',
             resource_relation_func=_build_resource_relation,
-            path_vars={'project_id': json_home.Parameters.PROJECT_ID,
-                       'endpoint_group_id': _ENDPOINT_GROUP_PARAMETER_RELATION
-                       }),
+            path_vars={
+                'project_id': json_home.Parameters.PROJECT_ID,
+                'endpoint_group_id': _ENDPOINT_GROUP_PARAMETER_RELATION,
+            },
+        ),
     ]
 
 

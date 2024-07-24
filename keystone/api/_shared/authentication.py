@@ -33,9 +33,7 @@ PROVIDERS = provider_api.ProviderAPIs
 
 
 def _check_and_set_default_scoping(auth_info, auth_context):
-    (domain_id, project_id, trust, unscoped, system) = (
-        auth_info.get_scope()
-    )
+    (domain_id, project_id, trust, unscoped, system) = auth_info.get_scope()
     if trust:
         project_id = trust['project_id']
     if system or domain_id or project_id or trust:
@@ -65,37 +63,53 @@ def _check_and_set_default_scoping(auth_info, auth_context):
     # make sure user's default project is legit before scoping to it
     try:
         default_project_ref = PROVIDERS.resource_api.get_project(
-            default_project_id)
+            default_project_id
+        )
         default_project_domain_ref = PROVIDERS.resource_api.get_domain(
-            default_project_ref['domain_id'])
-        if (default_project_ref.get('enabled', True) and
-                default_project_domain_ref.get('enabled', True)):
+            default_project_ref['domain_id']
+        )
+        if default_project_ref.get(
+            'enabled', True
+        ) and default_project_domain_ref.get('enabled', True):
             if PROVIDERS.assignment_api.get_roles_for_user_and_project(
-                    user_ref['id'], default_project_id):
+                user_ref['id'], default_project_id
+            ):
                 auth_info.set_scope(project_id=default_project_id)
             else:
-                msg = ("User %(user_id)s doesn't have access to"
-                       " default project %(project_id)s. The token"
-                       " will be unscoped rather than scoped to the"
-                       " project.")
-                LOG.debug(msg,
-                          {'user_id': user_ref['id'],
-                           'project_id': default_project_id})
+                msg = (
+                    "User %(user_id)s doesn't have access to"
+                    " default project %(project_id)s. The token"
+                    " will be unscoped rather than scoped to the"
+                    " project."
+                )
+                LOG.debug(
+                    msg,
+                    {
+                        'user_id': user_ref['id'],
+                        'project_id': default_project_id,
+                    },
+                )
         else:
-            msg = ("User %(user_id)s's default project %(project_id)s"
-                   " is disabled. The token will be unscoped rather"
-                   " than scoped to the project.")
-            LOG.debug(msg,
-                      {'user_id': user_ref['id'],
-                       'project_id': default_project_id})
+            msg = (
+                "User %(user_id)s's default project %(project_id)s"
+                " is disabled. The token will be unscoped rather"
+                " than scoped to the project."
+            )
+            LOG.debug(
+                msg,
+                {'user_id': user_ref['id'], 'project_id': default_project_id},
+            )
     except (exception.ProjectNotFound, exception.DomainNotFound):
         # default project or default project domain doesn't exist,
         # will issue unscoped token instead
-        msg = ("User %(user_id)s's default project %(project_id)s not"
-               " found. The token will be unscoped rather than"
-               " scoped to the project.")
-        LOG.debug(msg, {'user_id': user_ref['id'],
-                        'project_id': default_project_id})
+        msg = (
+            "User %(user_id)s's default project %(project_id)s not"
+            " found. The token will be unscoped rather than"
+            " scoped to the project."
+        )
+        LOG.debug(
+            msg, {'user_id': user_ref['id'], 'project_id': default_project_id}
+        )
 
 
 def authenticate(auth_info, auth_context):
@@ -112,9 +126,12 @@ def authenticate(auth_info, auth_context):
             '`authenticate` method is not of type '
             '`keystone.auth.core.AuthContext`. For security '
             'purposes this is required. This is likely a programming '
-            'error. Received object of type `%s`', type(auth_context))
+            'error. Received object of type `%s`',
+            type(auth_context),
+        )
         raise exception.Unauthorized(
-            _('Cannot Authenticate due to internal error.'))
+            _('Cannot Authenticate due to internal error.')
+        )
     # The 'external' method allows any 'REMOTE_USER' based authentication
     # In some cases the server can set REMOTE_USER as '' instead of
     # dropping it, so this must be filtered out
@@ -125,8 +142,9 @@ def authenticate(auth_info, auth_context):
             if resp and resp.status:
                 # NOTE(notmorgan): ``external`` plugin cannot be multi-step
                 # it is either a plain success/fail.
-                auth_context.setdefault(
-                    'method_names', []).insert(0, 'external')
+                auth_context.setdefault('method_names', []).insert(
+                    0, 'external'
+                )
                 # NOTE(notmorgan): All updates to auth_context is handled
                 # here in the .authenticate method.
                 auth_context.update(resp.response_data or {})
@@ -152,13 +170,13 @@ def authenticate(auth_info, auth_context):
         resp = method.authenticate(auth_info.get_method_data(method_name))
         if resp:
             if resp.status:
-                auth_context.setdefault(
-                    'method_names', []).insert(0, method_name)
+                auth_context.setdefault('method_names', []).insert(
+                    0, method_name
+                )
                 # NOTE(notmorgan): All updates to auth_context is handled
                 # here in the .authenticate method. If the auth attempt was
                 # not successful do not update the auth_context
-                resp_method_names = resp.response_data.pop(
-                    'method_names', [])
+                resp_method_names = resp.response_data.pop('method_names', [])
                 auth_context['method_names'].extend(resp_method_names)
                 auth_context.update(resp.response_data or {})
             elif resp.response_body:
@@ -180,8 +198,7 @@ def authenticate_for_token(auth=None):
     """Authenticate user and issue a token."""
     try:
         auth_info = core.AuthInfo.create(auth=auth)
-        auth_context = core.AuthContext(method_names=[],
-                                        bind={})
+        auth_context = core.AuthContext(method_names=[], bind={})
         authenticate(auth_info, auth_context)
         if auth_context.get('access_token_id'):
             auth_info.set_scope(None, auth_context['project_id'], None)
@@ -201,7 +218,8 @@ def authenticate_for_token(auth=None):
         # the given receipt.
         if receipt:
             method_names_set = set(
-                auth_context.get('method_names', []) + receipt.methods)
+                auth_context.get('method_names', []) + receipt.methods
+            )
         else:
             method_names_set = set(auth_context.get('method_names', []))
         method_names = list(method_names_set)
@@ -213,19 +231,27 @@ def authenticate_for_token(auth=None):
 
         # Do MFA Rule Validation for the user
         if not core.UserMFARulesValidator.check_auth_methods_against_rules(
-                auth_context['user_id'], method_names_set):
+            auth_context['user_id'], method_names_set
+        ):
             raise exception.InsufficientAuthMethods(
-                user_id=auth_context['user_id'],
-                methods=method_names)
+                user_id=auth_context['user_id'], methods=method_names
+            )
 
         expires_at = auth_context.get('expires_at')
         token_audit_id = auth_context.get('audit_id')
 
         token = PROVIDERS.token_provider_api.issue_token(
-            auth_context['user_id'], method_names, expires_at=expires_at,
-            system=system, project_id=project_id, domain_id=domain_id,
-            auth_context=auth_context, trust_id=trust_id,
-            app_cred_id=app_cred_id, parent_audit_id=token_audit_id)
+            auth_context['user_id'],
+            method_names,
+            expires_at=expires_at,
+            system=system,
+            project_id=project_id,
+            domain_id=domain_id,
+            auth_context=auth_context,
+            trust_id=trust_id,
+            app_cred_id=app_cred_id,
+            parent_audit_id=token_audit_id,
+        )
 
         # NOTE(wanghong): We consume a trust use only when we are using
         # trusts and have successfully issued a token.
@@ -244,8 +270,8 @@ def federated_authenticate_for_token(identity_provider, protocol_id):
             'methods': [protocol_id],
             protocol_id: {
                 'identity_provider': identity_provider,
-                'protocol': protocol_id
-            }
+                'protocol': protocol_id,
+            },
         }
     }
     return authenticate_for_token(auth)

@@ -58,9 +58,11 @@ def _combine_lists_uniquely(a, b):
 
 def _build_response_headers(service_provider):
     # URLs in header are encoded into bytes
-    return [('Content-Type', 'text/xml'),
-            ('X-sp-url', service_provider['sp_url'].encode('utf-8')),
-            ('X-auth-url', service_provider['auth_url'].encode('utf-8'))]
+    return [
+        ('Content-Type', 'text/xml'),
+        ('X-sp-url', service_provider['sp_url'].encode('utf-8')),
+        ('X-auth-url', service_provider['auth_url'].encode('utf-8')),
+    ]
 
 
 def _get_sso_origin_host():
@@ -87,13 +89,14 @@ def _get_sso_origin_host():
     host = urllib.parse.unquote_plus(origin)
 
     # change trusted_dashboard hostnames to lowercase before comparison
-    trusted_dashboards = [k_utils.lower_case_hostname(trusted)
-                          for trusted in CONF.federation.trusted_dashboard]
+    trusted_dashboards = [
+        k_utils.lower_case_hostname(trusted)
+        for trusted in CONF.federation.trusted_dashboard
+    ]
 
     if host not in trusted_dashboards:
         msg = '%(host)s is not a trusted dashboard host' % {'host': host}
-        tr_msg = _('%(host)s is not a trusted dashboard host') % {
-            'host': host}
+        tr_msg = _('%(host)s is not a trusted dashboard host') % {'host': host}
         LOG.error(msg)
         raise exception.Unauthorized(tr_msg)
 
@@ -133,14 +136,16 @@ class AuthProjectsResource(ks_flask.ResourceBase):
         if user_id:
             try:
                 user_p_refs = PROVIDERS.assignment_api.list_projects_for_user(
-                    user_id)
+                    user_id
+                )
             except exception.UserNotFound:  # nosec
                 # federated users have an id but they don't link to anything
                 pass
 
         if group_ids:
             grp_p_refs = PROVIDERS.assignment_api.list_projects_for_groups(
-                group_ids)
+                group_ids
+            )
         refs = _combine_lists_uniquely(user_p_refs, grp_p_refs)
         return self.wrap_collection(refs)
 
@@ -165,14 +170,16 @@ class AuthDomainsResource(ks_flask.ResourceBase):
         if user_id:
             try:
                 user_d_refs = PROVIDERS.assignment_api.list_domains_for_user(
-                    user_id)
+                    user_id
+                )
             except exception.UserNotFound:  # nosec
                 # federated users have an id but they don't link to anything
                 pass
 
         if group_ids:
             grp_d_refs = PROVIDERS.assignment_api.list_domains_for_groups(
-                group_ids)
+                group_ids
+            )
 
         refs = _combine_lists_uniquely(user_d_refs, grp_d_refs)
         return self.wrap_collection(refs)
@@ -195,7 +202,8 @@ class AuthSystemResource(_AuthFederationWebSSOBase):
             try:
                 user_assignments = (
                     PROVIDERS.assignment_api.list_system_grants_for_user(
-                        user_id)
+                        user_id
+                    )
                 )
             except exception.UserNotFound:  # nosec
                 # federated users have an id but they don't link to anything
@@ -204,25 +212,23 @@ class AuthSystemResource(_AuthFederationWebSSOBase):
         if group_ids:
             group_assignments = (
                 PROVIDERS.assignment_api.list_system_grants_for_groups(
-                    group_ids)
+                    group_ids
+                )
             )
 
         assignments = _combine_lists_uniquely(
-            user_assignments, group_assignments)
+            user_assignments, group_assignments
+        )
 
         if assignments:
             response = {
                 'system': [{'all': True}],
-                'links': {
-                    'self': ks_flask.base_url(path='auth/system')
-                }
+                'links': {'self': ks_flask.base_url(path='auth/system')},
             }
         else:
             response = {
                 'system': [],
-                'links': {
-                    'self': ks_flask.base_url(path='auth/system')
-                }
+                'links': {'self': ks_flask.base_url(path='auth/system')},
             }
         return response
 
@@ -239,16 +245,17 @@ class AuthCatalogResource(_AuthFederationWebSSOBase):
 
         if not project_id:
             raise exception.Forbidden(
-                _('A project-scoped token is required to produce a '
-                  'service catalog.'))
+                _(
+                    'A project-scoped token is required to produce a '
+                    'service catalog.'
+                )
+            )
 
         return {
             'catalog': PROVIDERS.catalog_api.get_v3_catalog(
                 user_id, project_id
             ),
-            'links': {
-                'self': ks_flask.base_url(path='auth/catalog')
-            }
+            'links': {'self': ks_flask.base_url(path='auth/catalog')},
         }
 
 
@@ -285,18 +292,24 @@ class AuthTokenResource(_AuthFederationWebSSOBase):
             ENFORCER.enforce_call(action='identity:validate_token')
 
         token_id = flask.request.headers.get(
-            authorization.SUBJECT_TOKEN_HEADER)
+            authorization.SUBJECT_TOKEN_HEADER
+        )
         access_rules_support = flask.request.headers.get(
-            authorization.ACCESS_RULES_HEADER)
+            authorization.ACCESS_RULES_HEADER
+        )
         allow_expired = strutils.bool_from_string(
-            flask.request.args.get('allow_expired'))
+            flask.request.args.get('allow_expired')
+        )
         window_secs = CONF.token.allow_expired_window if allow_expired else 0
         include_catalog = 'nocatalog' not in flask.request.args
         token = PROVIDERS.token_provider_api.validate_token(
-            token_id, window_seconds=window_secs,
-            access_rules_support=access_rules_support)
+            token_id,
+            window_seconds=window_secs,
+            access_rules_support=access_rules_support,
+        )
         token_resp = render_token.render_token_response_from_model(
-            token, include_catalog=include_catalog)
+            token, include_catalog=include_catalog
+        )
         resp_body = jsonutils.dumps(token_resp)
         response = flask.make_response(resp_body, http.client.OK)
         response.headers['X-Subject-Token'] = token_id
@@ -329,7 +342,8 @@ class AuthTokenResource(_AuthFederationWebSSOBase):
         """
         ENFORCER.enforce_call(action='identity:revoke_token')
         token_id = flask.request.headers.get(
-            authorization.SUBJECT_TOKEN_HEADER)
+            authorization.SUBJECT_TOKEN_HEADER
+        )
         PROVIDERS.token_provider_api.revoke_token(token_id)
         return None, http.client.NO_CONTENT
 
@@ -342,7 +356,8 @@ class AuthFederationWebSSOResource(_AuthFederationWebSSOBase):
         for idp in idps:
             try:
                 remote_id_name = federation_utils.get_remote_id_parameter(
-                    idp, protocol_id)
+                    idp, protocol_id
+                )
             except exception.FederatedProtocolNotFound:
                 # no protocol for this IdP, so this can't be the IdP we're
                 # looking for
@@ -360,7 +375,8 @@ class AuthFederationWebSSOResource(_AuthFederationWebSSOBase):
         ref = PROVIDERS.federation_api.get_idp_from_remote_id(remote_id)
         identity_provider = ref['idp_id']
         token = authentication.federated_authenticate_for_token(
-            identity_provider=identity_provider, protocol_id=protocol_id)
+            identity_provider=identity_provider, protocol_id=protocol_id
+        )
         return cls._render_template_response(host, token.id)
 
     @ks_flask.unenforced_api
@@ -378,7 +394,8 @@ class AuthFederationWebSSOIDPsResource(_AuthFederationWebSSOBase):
         host = _get_sso_origin_host()
 
         token = authentication.federated_authenticate_for_token(
-            identity_provider=idp_id, protocol_id=protocol_id)
+            identity_provider=idp_id, protocol_id=protocol_id
+        )
         return cls._render_template_response(host, token.id)
 
     @ks_flask.unenforced_api
@@ -423,15 +440,18 @@ class AuthFederationSaml2ECPResource(_AuthFederationWebSSOBase):
         auth = self.request_body_json.get('auth')
         validation.lazy_validate(federation_schema.saml_create, auth)
         saml_assertion, service_provider = saml.create_base_saml_assertion(
-            auth)
+            auth
+        )
         relay_state_prefix = service_provider['relay_state_prefix']
 
         generator = keystone_idp.ECPGenerator()
         ecp_assertion = generator.generate_ecp(
-            saml_assertion, relay_state_prefix)
+            saml_assertion, relay_state_prefix
+        )
         headers = _build_response_headers(service_provider)
         response = flask.make_response(
-            ecp_assertion.to_string(), http.client.OK)
+            ecp_assertion.to_string(), http.client.OK
+        )
         for header, value in headers:
             response.headers[header] = value
         return response
@@ -445,29 +465,34 @@ class AuthAPI(ks_flask.APIBase):
         ks_flask.construct_resource_map(
             resource=AuthProjectsResource,
             url='/auth/projects',
-            alternate_urls=[dict(
-                url='/OS-FEDERATION/projects',
-                json_home=ks_flask.construct_json_home_data(
-                    rel='projects',
-                    resource_relation_func=(
-                        json_home_relations.os_federation_resource_rel_func)
+            alternate_urls=[
+                dict(
+                    url='/OS-FEDERATION/projects',
+                    json_home=ks_flask.construct_json_home_data(
+                        rel='projects',
+                        resource_relation_func=(
+                            json_home_relations.os_federation_resource_rel_func
+                        ),
+                    ),
                 )
-            )],
-
+            ],
             rel='auth_projects',
-            resource_kwargs={}
+            resource_kwargs={},
         ),
         ks_flask.construct_resource_map(
             resource=AuthDomainsResource,
             url='/auth/domains',
-            alternate_urls=[dict(
-                url='/OS-FEDERATION/domains',
-                json_home=ks_flask.construct_json_home_data(
-                    rel='domains',
-                    resource_relation_func=(
-                        json_home_relations.os_federation_resource_rel_func)
+            alternate_urls=[
+                dict(
+                    url='/OS-FEDERATION/domains',
+                    json_home=ks_flask.construct_json_home_data(
+                        rel='domains',
+                        resource_relation_func=(
+                            json_home_relations.os_federation_resource_rel_func
+                        ),
+                    ),
                 )
-            )],
+            ],
             rel='auth_domains',
             resource_kwargs={},
         ),
@@ -475,27 +500,27 @@ class AuthAPI(ks_flask.APIBase):
             resource=AuthSystemResource,
             url='/auth/system',
             resource_kwargs={},
-            rel='auth_system'
+            rel='auth_system',
         ),
         ks_flask.construct_resource_map(
             resource=AuthCatalogResource,
             url='/auth/catalog',
             resource_kwargs={},
-            rel='auth_catalog'
+            rel='auth_catalog',
         ),
         ks_flask.construct_resource_map(
             resource=AuthTokenOSPKIResource,
             url='/auth/tokens/OS-PKI/revoked',
             resource_kwargs={},
             rel='revocations',
-            resource_relation_func=json_home_relations.os_pki_resource_rel_func
+            resource_relation_func=json_home_relations.os_pki_resource_rel_func,
         ),
         ks_flask.construct_resource_map(
             resource=AuthTokenResource,
             url='/auth/tokens',
             resource_kwargs={},
-            rel='auth_tokens'
-        )
+            rel='auth_tokens',
+        ),
     ]
 
 
@@ -509,16 +534,18 @@ class AuthFederationAPI(ks_flask.APIBase):
             url='/auth/OS-FEDERATION/saml2',
             resource_kwargs={},
             resource_relation_func=(
-                json_home_relations.os_federation_resource_rel_func),
-            rel='saml2'
+                json_home_relations.os_federation_resource_rel_func
+            ),
+            rel='saml2',
         ),
         ks_flask.construct_resource_map(
             resource=AuthFederationSaml2ECPResource,
             url='/auth/OS-FEDERATION/saml2/ecp',
             resource_kwargs={},
             resource_relation_func=(
-                json_home_relations.os_federation_resource_rel_func),
-            rel='ecp'
+                json_home_relations.os_federation_resource_rel_func
+            ),
+            rel='ecp',
         ),
         ks_flask.construct_resource_map(
             resource=AuthFederationWebSSOResource,
@@ -526,28 +553,40 @@ class AuthFederationAPI(ks_flask.APIBase):
             resource_kwargs={},
             rel='websso',
             resource_relation_func=(
-                json_home_relations.os_federation_resource_rel_func),
+                json_home_relations.os_federation_resource_rel_func
+            ),
             path_vars={
                 'protocol_id': (
                     json_home_relations.os_federation_parameter_rel_func(
-                        parameter_name='protocol_id'))}
+                        parameter_name='protocol_id'
+                    )
+                )
+            },
         ),
         ks_flask.construct_resource_map(
             resource=AuthFederationWebSSOIDPsResource,
-            url=('/auth/OS-FEDERATION/identity_providers/<string:idp_id>/'
-                 'protocols/<string:protocol_id>/websso'),
+            url=(
+                '/auth/OS-FEDERATION/identity_providers/<string:idp_id>/'
+                'protocols/<string:protocol_id>/websso'
+            ),
             resource_kwargs={},
             rel='identity_providers_websso',
             resource_relation_func=(
-                json_home_relations.os_federation_resource_rel_func),
+                json_home_relations.os_federation_resource_rel_func
+            ),
             path_vars={
                 'idp_id': (
                     json_home_relations.os_federation_parameter_rel_func(
-                        parameter_name='idp_id')),
+                        parameter_name='idp_id'
+                    )
+                ),
                 'protocol_id': (
                     json_home_relations.os_federation_parameter_rel_func(
-                        parameter_name='protocol_id'))}
-        )
+                        parameter_name='protocol_id'
+                    )
+                ),
+            },
+        ),
     ]
 
 

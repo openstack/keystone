@@ -39,7 +39,8 @@ def ref_mapper_to_dict_options(ref):
     for opt in ref._resource_option_mapper.values():
         if opt.option_id in ref.resource_options_registry.option_ids:
             r_opt = ref.resource_options_registry.get_option_by_id(
-                opt.option_id)
+                opt.option_id
+            )
             if r_opt is not None:
                 options[r_opt.option_name] = opt.option_value
     return options
@@ -86,7 +87,8 @@ def resource_options_ref_to_mapper(ref, option_class):
     # Get any options that are not registered and slate them for removal from
     # the DB. This will delete unregistered options.
     clear_options = set_options.difference(
-        ref.resource_options_registry.option_ids)
+        ref.resource_options_registry.option_ids
+    )
     options.update({x: None for x in clear_options})
 
     # Set the resource options for user in the Attribute Mapping.
@@ -98,8 +100,8 @@ def resource_options_ref_to_mapper(ref, option_class):
         else:
             # Set any options on the user_ref itself.
             opt_obj = option_class(
-                option_id=r_opt_id,
-                option_value=r_opt_value)
+                option_id=r_opt_id, option_value=r_opt_value
+            )
             ref._resource_option_mapper[r_opt_id] = opt_obj
 
 
@@ -114,8 +116,9 @@ class ResourceOptionRegistry(object):
 
     @property
     def options_by_name(self):
-        return {opt.option_name: opt
-                for opt in self._registered_options.values()}
+        return {
+            opt.option_name: opt for opt in self._registered_options.values()
+        }
 
     @property
     def options(self):
@@ -136,15 +139,18 @@ class ResourceOptionRegistry(object):
 
     @property
     def json_schema(self):
-        schema = {'type': 'object',
-                  'properties': {},
-                  'additionalProperties': False}
+        schema = {
+            'type': 'object',
+            'properties': {},
+            'additionalProperties': False,
+        }
         for opt in self.options:
             if opt.json_schema is not None:
                 # NOTE(notmorgan): All options are nullable. Null indicates
                 # the option should be reset and removed from the DB store.
                 schema['properties'][opt.option_name] = validation.nullable(
-                    opt.json_schema)
+                    opt.json_schema
+                )
             else:
                 # NOTE(notmorgan): without 'type' being specified, this
                 # can be of any-type. We are simply specifying no interesting
@@ -158,22 +164,33 @@ class ResourceOptionRegistry(object):
             return
 
         if option.option_id in self._registered_options:
-            raise ValueError(_('Option %(option_id)s already defined in '
-                               '%(registry)s.') %
-                             {'option_id': option.option_id,
-                              'registry': self._registry_type})
+            raise ValueError(
+                _('Option %(option_id)s already defined in ' '%(registry)s.')
+                % {
+                    'option_id': option.option_id,
+                    'registry': self._registry_type,
+                }
+            )
         if option.option_name in self.option_names:
-            raise ValueError(_('Option %(option_name)s already defined in '
-                               '%(registry)s') %
-                             {'option_name': option.option_name,
-                              'registry': self._registry_type})
+            raise ValueError(
+                _('Option %(option_name)s already defined in ' '%(registry)s')
+                % {
+                    'option_name': option.option_name,
+                    'registry': self._registry_type,
+                }
+            )
         self._registered_options[option.option_id] = option
 
 
 class ResourceOption(object):
 
-    def __init__(self, option_id, option_name, validator=_validator,
-                 json_schema_validation=None):
+    def __init__(
+        self,
+        option_id,
+        option_name,
+        validator=_validator,
+        json_schema_validation=None,
+    ):
         """The base object to define the option(s) to be stored in the DB.
 
         :param option_id: The ID of the option. This will be used to lookup
@@ -201,15 +218,18 @@ class ResourceOption(object):
         :type json_schema_validation: dict
         """
         if not isinstance(option_id, str) and len(option_id) == 4:
-            raise TypeError(_('`option_id` must be a string, got %r')
-                            % option_id)
+            raise TypeError(
+                _('`option_id` must be a string, got %r') % option_id
+            )
         elif len(option_id) != 4:
-            raise ValueError(_('`option_id` must be 4 characters in '
-
-                               'length. Got %r') % option_id)
+            raise ValueError(
+                _('`option_id` must be 4 characters in ' 'length. Got %r')
+                % option_id
+            )
         if not isinstance(option_name, str):
-            raise TypeError(_('`option_name` must be a string. '
-                              'Got %r') % option_name)
+            raise TypeError(
+                _('`option_name` must be a string. ' 'Got %r') % option_name
+            )
 
         self._option_id = option_id
         self._option_name = option_name

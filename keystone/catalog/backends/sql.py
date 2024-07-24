@@ -52,30 +52,46 @@ class Service(sql.ModelBase, sql.ModelDictMixinWithExtras):
     attributes = ['id', 'type', 'enabled']
     id = sql.Column(sql.String(64), primary_key=True)
     type = sql.Column(sql.String(255))
-    enabled = sql.Column(sql.Boolean, nullable=False, default=True,
-                         server_default=sqlalchemy.sql.expression.true())
+    enabled = sql.Column(
+        sql.Boolean,
+        nullable=False,
+        default=True,
+        server_default=sqlalchemy.sql.expression.true(),
+    )
     extra = sql.Column(sql.JsonBlob())
     endpoints = sqlalchemy.orm.relationship("Endpoint", backref="service")
 
 
 class Endpoint(sql.ModelBase, sql.ModelDictMixinWithExtras):
     __tablename__ = 'endpoint'
-    attributes = ['id', 'interface', 'region_id', 'service_id', 'url',
-                  'legacy_endpoint_id', 'enabled']
+    attributes = [
+        'id',
+        'interface',
+        'region_id',
+        'service_id',
+        'url',
+        'legacy_endpoint_id',
+        'enabled',
+    ]
     id = sql.Column(sql.String(64), primary_key=True)
     legacy_endpoint_id = sql.Column(sql.String(64))
     interface = sql.Column(sql.String(8), nullable=False)
-    region_id = sql.Column(sql.String(255),
-                           sql.ForeignKey('region.id',
-                                          ondelete='RESTRICT'),
-                           nullable=True,
-                           default=None)
-    service_id = sql.Column(sql.String(64),
-                            sql.ForeignKey('service.id'),
-                            nullable=False)
+    region_id = sql.Column(
+        sql.String(255),
+        sql.ForeignKey('region.id', ondelete='RESTRICT'),
+        nullable=True,
+        default=None,
+    )
+    service_id = sql.Column(
+        sql.String(64), sql.ForeignKey('service.id'), nullable=False
+    )
     url = sql.Column(sql.Text(), nullable=False)
-    enabled = sql.Column(sql.Boolean, nullable=False, default=True,
-                         server_default=sqlalchemy.sql.expression.true())
+    enabled = sql.Column(
+        sql.Boolean,
+        nullable=False,
+        default=True,
+        server_default=sqlalchemy.sql.expression.true(),
+    )
     extra = sql.Column(sql.JsonBlob())
 
     @classmethod
@@ -277,17 +293,19 @@ class Catalog(base.CatalogDriverBase):
         substitutions.update({'user_id': user_id})
         silent_keyerror_failures = []
         if project_id:
-            substitutions.update({
-                'tenant_id': project_id,
-                'project_id': project_id
-            })
+            substitutions.update(
+                {'tenant_id': project_id, 'project_id': project_id}
+            )
         else:
             silent_keyerror_failures = ['tenant_id', 'project_id']
 
         with sql.session_for_read() as session:
-            endpoints = (session.query(Endpoint).
-                         options(sql.joinedload(Endpoint.service)).
-                         filter(Endpoint.enabled == true()).all())
+            endpoints = (
+                session.query(Endpoint)
+                .options(sql.joinedload(Endpoint.service))
+                .filter(Endpoint.enabled == true())
+                .all()
+            )
 
             catalog = {}
 
@@ -296,8 +314,10 @@ class Catalog(base.CatalogDriverBase):
                     continue
                 try:
                     formatted_url = utils.format_url(
-                        endpoint['url'], substitutions,
-                        silent_keyerror_failures=silent_keyerror_failures)
+                        endpoint['url'],
+                        substitutions,
+                        silent_keyerror_failures=silent_keyerror_failures,
+                    )
                     if formatted_url is not None:
                         url = formatted_url
                     else:
@@ -310,7 +330,7 @@ class Catalog(base.CatalogDriverBase):
                 default_service = {
                     'id': endpoint['id'],
                     'name': endpoint.service.extra.get('name', ''),
-                    'publicURL': ''
+                    'publicURL': '',
                 }
                 catalog.setdefault(region, {})
                 catalog[region].setdefault(service_type, default_service)
@@ -336,29 +356,37 @@ class Catalog(base.CatalogDriverBase):
         d.update({'user_id': user_id})
         silent_keyerror_failures = []
         if project_id:
-            d.update({
-                'tenant_id': project_id,
-                'project_id': project_id,
-            })
+            d.update(
+                {
+                    'tenant_id': project_id,
+                    'project_id': project_id,
+                }
+            )
         else:
             silent_keyerror_failures = ['tenant_id', 'project_id']
 
         with sql.session_for_read() as session:
-            services = (session.query(Service).filter(
-                Service.enabled == true()).options(
-                    sql.joinedload(Service.endpoints)).all())
+            services = (
+                session.query(Service)
+                .filter(Service.enabled == true())
+                .options(sql.joinedload(Service.endpoints))
+                .all()
+            )
 
             def make_v3_endpoints(endpoints):
-                for endpoint in (ep.to_dict()
-                                 for ep in endpoints if ep.enabled):
+                for endpoint in (
+                    ep.to_dict() for ep in endpoints if ep.enabled
+                ):
                     del endpoint['service_id']
                     del endpoint['legacy_endpoint_id']
                     del endpoint['enabled']
                     endpoint['region'] = endpoint['region_id']
                     try:
                         formatted_url = utils.format_url(
-                            endpoint['url'], d,
-                            silent_keyerror_failures=silent_keyerror_failures)
+                            endpoint['url'],
+                            d,
+                            silent_keyerror_failures=silent_keyerror_failures,
+                        )
                         if formatted_url:
                             endpoint['url'] = formatted_url
                         else:
@@ -388,7 +416,8 @@ class Catalog(base.CatalogDriverBase):
             filtered_endpoints = {}
             if project_id:
                 filtered_endpoints = (
-                    self.catalog_api.list_endpoints_for_project(project_id))
+                    self.catalog_api.list_endpoints_for_project(project_id)
+                )
             # endpoint filter is enabled, only return the filtered endpoints.
             if filtered_endpoints:
                 filtered_ids = list(filtered_endpoints.keys())
@@ -428,18 +457,21 @@ class Catalog(base.CatalogDriverBase):
     @sql.handle_conflicts(conflict_type='project_endpoint')
     def add_endpoint_to_project(self, endpoint_id, project_id):
         with sql.session_for_write() as session:
-            endpoint_filter_ref = ProjectEndpoint(endpoint_id=endpoint_id,
-                                                  project_id=project_id)
+            endpoint_filter_ref = ProjectEndpoint(
+                endpoint_id=endpoint_id, project_id=project_id
+            )
             session.add(endpoint_filter_ref)
 
     def _get_project_endpoint_ref(self, session, endpoint_id, project_id):
         endpoint_filter_ref = session.get(
-            ProjectEndpoint, (endpoint_id, project_id),
+            ProjectEndpoint,
+            (endpoint_id, project_id),
         )
         if endpoint_filter_ref is None:
-            msg = _('Endpoint %(endpoint_id)s not found in project '
-                    '%(project_id)s') % {'endpoint_id': endpoint_id,
-                                         'project_id': project_id}
+            msg = _(
+                'Endpoint %(endpoint_id)s not found in project '
+                '%(project_id)s'
+            ) % {'endpoint_id': endpoint_id, 'project_id': project_id}
             raise exception.NotFound(msg)
         return endpoint_filter_ref
 
@@ -450,7 +482,8 @@ class Catalog(base.CatalogDriverBase):
     def remove_endpoint_from_project(self, endpoint_id, project_id):
         with sql.session_for_write() as session:
             endpoint_filter_ref = self._get_project_endpoint_ref(
-                session, endpoint_id, project_id)
+                session, endpoint_id, project_id
+            )
             session.delete(endpoint_filter_ref)
 
     def list_endpoints_for_project(self, project_id):
@@ -489,40 +522,46 @@ class Catalog(base.CatalogDriverBase):
         endpoint_group_ref = session.get(EndpointGroup, endpoint_group_id)
         if endpoint_group_ref is None:
             raise exception.EndpointGroupNotFound(
-                endpoint_group_id=endpoint_group_id)
+                endpoint_group_id=endpoint_group_id
+            )
         return endpoint_group_ref
 
     def get_endpoint_group(self, endpoint_group_id):
         with sql.session_for_read() as session:
-            endpoint_group_ref = self._get_endpoint_group(session,
-                                                          endpoint_group_id)
+            endpoint_group_ref = self._get_endpoint_group(
+                session, endpoint_group_id
+            )
             return endpoint_group_ref.to_dict()
 
     def update_endpoint_group(self, endpoint_group_id, endpoint_group):
         with sql.session_for_write() as session:
-            endpoint_group_ref = self._get_endpoint_group(session,
-                                                          endpoint_group_id)
+            endpoint_group_ref = self._get_endpoint_group(
+                session, endpoint_group_id
+            )
             old_endpoint_group = endpoint_group_ref.to_dict()
             old_endpoint_group.update(endpoint_group)
             new_endpoint_group = EndpointGroup.from_dict(old_endpoint_group)
             for attr in EndpointGroup.mutable_attributes:
-                setattr(endpoint_group_ref, attr,
-                        getattr(new_endpoint_group, attr))
+                setattr(
+                    endpoint_group_ref, attr, getattr(new_endpoint_group, attr)
+                )
             return endpoint_group_ref.to_dict()
 
     def delete_endpoint_group(self, endpoint_group_id):
         with sql.session_for_write() as session:
-            endpoint_group_ref = self._get_endpoint_group(session,
-                                                          endpoint_group_id)
+            endpoint_group_ref = self._get_endpoint_group(
+                session, endpoint_group_id
+            )
             self._delete_endpoint_group_association_by_endpoint_group(
-                session, endpoint_group_id)
+                session, endpoint_group_id
+            )
             session.delete(endpoint_group_ref)
 
     def get_endpoint_group_in_project(self, endpoint_group_id, project_id):
         with sql.session_for_read() as session:
-            ref = self._get_endpoint_group_in_project(session,
-                                                      endpoint_group_id,
-                                                      project_id)
+            ref = self._get_endpoint_group_in_project(
+                session, endpoint_group_id, project_id
+            )
             return ref.to_dict()
 
     @sql.handle_conflicts(conflict_type='project_endpoint_group')
@@ -530,13 +569,16 @@ class Catalog(base.CatalogDriverBase):
         with sql.session_for_write() as session:
             # Create a new Project Endpoint group entity
             endpoint_group_project_ref = ProjectEndpointGroupMembership(
-                endpoint_group_id=endpoint_group_id, project_id=project_id)
+                endpoint_group_id=endpoint_group_id, project_id=project_id
+            )
             session.add(endpoint_group_project_ref)
 
-    def _get_endpoint_group_in_project(self, session,
-                                       endpoint_group_id, project_id):
+    def _get_endpoint_group_in_project(
+        self, session, endpoint_group_id, project_id
+    ):
         endpoint_group_project_ref = session.get(
-            ProjectEndpointGroupMembership, (endpoint_group_id, project_id),
+            ProjectEndpointGroupMembership,
+            (endpoint_group_id, project_id),
         )
         if endpoint_group_project_ref is None:
             msg = _('Endpoint Group Project Association not found')
@@ -548,7 +590,8 @@ class Catalog(base.CatalogDriverBase):
         with sql.session_for_read() as session:
             query = session.query(EndpointGroup)
             endpoint_group_refs = sql.filter_limit_query(
-                EndpointGroup, query, hints)
+                EndpointGroup, query, hints
+            )
             return [e.to_dict() for e in endpoint_group_refs]
 
     def list_endpoint_groups_for_project(self, project_id):
@@ -558,11 +601,13 @@ class Catalog(base.CatalogDriverBase):
             endpoint_group_refs = query.all()
             return [ref.to_dict() for ref in endpoint_group_refs]
 
-    def remove_endpoint_group_from_project(self, endpoint_group_id,
-                                           project_id):
+    def remove_endpoint_group_from_project(
+        self, endpoint_group_id, project_id
+    ):
         with sql.session_for_write() as session:
             endpoint_group_project_ref = self._get_endpoint_group_in_project(
-                session, endpoint_group_id, project_id)
+                session, endpoint_group_id, project_id
+            )
             session.delete(endpoint_group_project_ref)
 
     def list_projects_associated_with_endpoint_group(self, endpoint_group_id):
@@ -573,7 +618,8 @@ class Catalog(base.CatalogDriverBase):
             return [ref.to_dict() for ref in endpoint_group_refs]
 
     def _delete_endpoint_group_association_by_endpoint_group(
-            self, session, endpoint_group_id):
+        self, session, endpoint_group_id
+    ):
         query = session.query(ProjectEndpointGroupMembership)
         query = query.filter_by(endpoint_group_id=endpoint_group_id)
         query.delete()
@@ -590,12 +636,8 @@ class ProjectEndpoint(sql.ModelBase, sql.ModelDictMixin):
 
     __tablename__ = 'project_endpoint'
     attributes = ['endpoint_id', 'project_id']
-    endpoint_id = sql.Column(sql.String(64),
-                             primary_key=True,
-                             nullable=False)
-    project_id = sql.Column(sql.String(64),
-                            primary_key=True,
-                            nullable=False)
+    endpoint_id = sql.Column(sql.String(64), primary_key=True, nullable=False)
+    project_id = sql.Column(sql.String(64), primary_key=True, nullable=False)
 
 
 class EndpointGroup(sql.ModelBase, sql.ModelDictMixin):
@@ -615,9 +657,10 @@ class ProjectEndpointGroupMembership(sql.ModelBase, sql.ModelDictMixin):
 
     __tablename__ = 'project_endpoint_group'
     attributes = ['endpoint_group_id', 'project_id']
-    endpoint_group_id = sql.Column(sql.String(64),
-                                   sql.ForeignKey('endpoint_group.id'),
-                                   nullable=False)
+    endpoint_group_id = sql.Column(
+        sql.String(64), sql.ForeignKey('endpoint_group.id'), nullable=False
+    )
     project_id = sql.Column(sql.String(64), nullable=False)
-    __table_args__ = (sql.PrimaryKeyConstraint('endpoint_group_id',
-                                               'project_id'),)
+    __table_args__ = (
+        sql.PrimaryKeyConstraint('endpoint_group_id', 'project_id'),
+    )

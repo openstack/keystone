@@ -21,7 +21,8 @@ from keystone.server.flask import core as flask_core
 # are meant for public consumption
 def initialize_public_application():
     return flask_core.initialize_application(
-        name='public', config_files=flask_core._get_config_files())
+        name='public', config_files=flask_core._get_config_files()
+    )
 
 
 # Keystone does not differentiate between "admin" and public with the removal

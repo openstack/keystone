@@ -31,8 +31,9 @@ def create_group_container(identity_api):
     group_api = identity_api.driver.group
     conn = group_api.get_connection()
     dn = 'ou=Groups,cn=example,cn=com'
-    conn.add_s(dn, [('objectclass', ['organizationalUnit']),
-                    ('ou', ['Groups'])])
+    conn.add_s(
+        dn, [('objectclass', ['organizationalUnit']), ('ou', ['Groups'])]
+    )
 
 
 class BaseBackendLdapCommon(object):
@@ -65,17 +66,15 @@ class BaseBackendLdapCommon(object):
         return config_files
 
     def get_user_enabled_vals(self, user):
-        user_dn = (
-            PROVIDERS.identity_api.driver.user._id_to_dn_string(
-                user['id']
-            )
+        user_dn = PROVIDERS.identity_api.driver.user._id_to_dn_string(
+            user['id']
         )
         enabled_attr_name = CONF.ldap.user_enabled_attribute
 
         ldap_ = PROVIDERS.identity_api.driver.user.get_connection()
-        res = ldap_.search_s(user_dn,
-                             ldap.SCOPE_BASE,
-                             u'(sn=%s)' % user['name'])
+        res = ldap_.search_s(
+            user_dn, ldap.SCOPE_BASE, u'(sn=%s)' % user['name']
+        )
         if enabled_attr_name in res[0][1]:
             return res[0][1][enabled_attr_name]
         else:
@@ -102,8 +101,9 @@ class BaseBackendLdapIdentitySqlEverythingElse(unit.SQLDriverOverrides):
     """Mixin base for Identity LDAP, everything else SQL backend tests."""
 
     def config_files(self):
-        config_files = super(BaseBackendLdapIdentitySqlEverythingElse,
-                             self).config_files()
+        config_files = super(
+            BaseBackendLdapIdentitySqlEverythingElse, self
+        ).config_files()
         config_files.append(unit.dirs.tests_conf('backend_ldap_sql.conf'))
         return config_files
 
@@ -119,8 +119,9 @@ class BaseBackendLdapIdentitySqlEverythingElse(unit.SQLDriverOverrides):
         self.user_foo['enabled'] = True
 
     def config_overrides(self):
-        super(BaseBackendLdapIdentitySqlEverythingElse,
-              self).config_overrides()
+        super(
+            BaseBackendLdapIdentitySqlEverythingElse, self
+        ).config_overrides()
         self.config_fixture.config(group='identity', driver='ldap')
         self.config_fixture.config(group='resource', driver='sql')
         self.config_fixture.config(group='assignment', driver='sql')
@@ -137,7 +138,9 @@ class BaseBackendLdapIdentitySqlEverythingElseWithMapping(object):
     """
 
     def config_overrides(self):
-        super(BaseBackendLdapIdentitySqlEverythingElseWithMapping,
-              self).config_overrides()
-        self.config_fixture.config(group='identity_mapping',
-                                   backward_compatible_ids=False)
+        super(
+            BaseBackendLdapIdentitySqlEverythingElseWithMapping, self
+        ).config_overrides()
+        self.config_fixture.config(
+            group='identity_mapping', backward_compatible_ids=False
+        )

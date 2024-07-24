@@ -91,16 +91,16 @@ class ExceptionTestCase(unit.BaseTestCase):
             self.fail("unicode error message not supported")
 
     def test_unicode_string(self):
-        e = exception.ValidationError(attribute='xx',
-                                      target='Long \xe2\x80\x93 Dash')
+        e = exception.ValidationError(
+            attribute='xx', target='Long \xe2\x80\x93 Dash'
+        )
         self.assertIn('Long \xe2\x80\x93 Dash', str(e))
 
     def test_invalid_unicode_string(self):
         # NOTE(jamielennox): This is a complete failure case so what is
         # returned in the exception message is not that important so long
         # as there is an error with a message
-        e = exception.ValidationError(attribute='xx',
-                                      target='\xe7a va')
+        e = exception.ValidationError(attribute='xx', target='\xe7a va')
         self.assertIn('\xe7a va', str(e))
 
 
@@ -127,10 +127,8 @@ class UnexpectedExceptionTestCase(ExceptionTestCase):
 
     def test_unexpected_error_subclass_no_debug(self):
         self.config_fixture.config(debug=False)
-        e = UnexpectedExceptionTestCase.SubClassExc(
-            debug_info=self.exc_str)
-        self.assertEqual(exception.UnexpectedError.message_format,
-                         str(e))
+        e = UnexpectedExceptionTestCase.SubClassExc(debug_info=self.exc_str)
+        self.assertEqual(exception.UnexpectedError.message_format, str(e))
 
     def test_unexpected_error_subclass_debug(self):
         self.config_fixture.config(debug=True, insecure_debug=True)
@@ -139,39 +137,37 @@ class UnexpectedExceptionTestCase(ExceptionTestCase):
         e = subclass(debug_info=self.exc_str)
         expected = subclass.debug_message_format % {'debug_info': self.exc_str}
         self.assertEqual(
-            '%s %s' % (expected, exception.SecurityError.amendment),
-            str(e))
+            '%s %s' % (expected, exception.SecurityError.amendment), str(e)
+        )
 
     def test_unexpected_error_custom_message_no_debug(self):
         self.config_fixture.config(debug=False)
         e = exception.UnexpectedError(self.exc_str)
-        self.assertEqual(exception.UnexpectedError.message_format,
-                         str(e))
+        self.assertEqual(exception.UnexpectedError.message_format, str(e))
 
     def test_unexpected_error_custom_message_debug(self):
         self.config_fixture.config(debug=True, insecure_debug=True)
         e = exception.UnexpectedError(self.exc_str)
         self.assertEqual(
-            '%s %s' % (self.exc_str, exception.SecurityError.amendment),
-            str(e))
+            '%s %s' % (self.exc_str, exception.SecurityError.amendment), str(e)
+        )
 
     def test_unexpected_error_custom_message_exception_debug(self):
         self.config_fixture.config(debug=True, insecure_debug=True)
         orig_e = exception.NotFound(target=uuid.uuid4().hex)
         e = exception.UnexpectedError(orig_e)
         self.assertEqual(
-            '%s %s' % (str(orig_e),
-                       exception.SecurityError.amendment),
-            str(e))
+            '%s %s' % (str(orig_e), exception.SecurityError.amendment), str(e)
+        )
 
     def test_unexpected_error_custom_message_binary_debug(self):
         self.config_fixture.config(debug=True, insecure_debug=True)
         binary_msg = b'something'
         e = exception.UnexpectedError(binary_msg)
         self.assertEqual(
-            '%s %s' % (str(binary_msg),
-                       exception.SecurityError.amendment),
-            str(e))
+            '%s %s' % (str(binary_msg), exception.SecurityError.amendment),
+            str(e),
+        )
 
 
 class SecurityErrorTestCase(ExceptionTestCase):
@@ -283,7 +279,8 @@ class TestSecurityErrorTranslation(unit.BaseTestCase):
 
         exception._FATAL_EXCEPTION_FORMAT_ERRORS = False
         self.addCleanup(
-            setattr, exception, '_FATAL_EXCEPTION_FORMAT_ERRORS', True)
+            setattr, exception, '_FATAL_EXCEPTION_FORMAT_ERRORS', True
+        )
 
     class CustomSecurityError(exception.SecurityError):
         message_format = 'We had a failure in the %(place)r'

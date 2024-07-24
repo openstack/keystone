@@ -18,17 +18,19 @@ RULE_OWNER = 'user_id:%(user_id)s'
 RULE_ADMIN_OR_OWNER = 'rule:admin_or_owner'
 RULE_ADMIN_OR_CREDENTIAL_OWNER = (
     'rule:admin_required or '
-    '(rule:owner and user_id:%(target.credential.user_id)s)')
+    '(rule:owner and user_id:%(target.credential.user_id)s)'
+)
 RULE_ADMIN_OR_TARGET_DOMAIN = (
-    'rule:admin_required or '
-    'token.project.domain.id:%(target.domain.id)s')
+    'rule:admin_required or ' 'token.project.domain.id:%(target.domain.id)s'
+)
 RULE_ADMIN_OR_TARGET_PROJECT = (
-    'rule:admin_required or '
-    'project_id:%(target.project.id)s')
+    'rule:admin_required or ' 'project_id:%(target.project.id)s'
+)
 RULE_ADMIN_OR_TOKEN_SUBJECT = 'rule:admin_or_token_subject'  # nosec
 RULE_REVOKE_EVENT_OR_ADMIN = 'rule:revoke_event_or_admin'
 RULE_SERVICE_ADMIN_OR_TOKEN_SUBJECT = (
-    'rule:service_admin_or_token_subject')  # nosec
+    'rule:service_admin_or_token_subject'  # nosec
+)
 RULE_SERVICE_OR_ADMIN = 'rule:service_or_admin'
 RULE_TRUST_OWNER = 'user_id:%(trust.trustor_user_id)s'
 
@@ -49,8 +51,7 @@ SYSTEM_ADMIN = 'role:admin and system_scope:all'
 DOMAIN_READER = 'role:reader and domain_id:%(target.domain_id)s'
 RULE_SYSTEM_ADMIN_OR_OWNER = '(' + SYSTEM_ADMIN + ') or rule:owner'
 ADMIN_OR_SYSTEM_READER_OR_OWNER = (
-    '(' + RULE_ADMIN_REQUIRED + ') or '
-    '(' + SYSTEM_READER + ') or rule:owner'
+    '(' + RULE_ADMIN_REQUIRED + ') or ' '(' + SYSTEM_READER + ') or rule:owner'
 )
 RULE_ADMIN_OR_SYSTEM_READER = 'rule:admin_required or (' + SYSTEM_READER + ')'
 
@@ -61,35 +62,33 @@ ADMIN_OR_SYSTEM_READER_OR_CRED_OWNER = (
     'or user_id:%(target.credential.user_id)s'
 )
 ADMIN_OR_CRED_OWNER = (
-    '(' + RULE_ADMIN_REQUIRED + ') '
-    'or user_id:%(target.credential.user_id)s'
+    '(' + RULE_ADMIN_REQUIRED + ') ' 'or user_id:%(target.credential.user_id)s'
 )
 
 rules = [
     policy.RuleDefault(
-        name='admin_required',
-        check_str='role:admin or is_admin:1'),
-    policy.RuleDefault(
-        name='service_role',
-        check_str='role:service'),
+        name='admin_required', check_str='role:admin or is_admin:1'
+    ),
+    policy.RuleDefault(name='service_role', check_str='role:service'),
     policy.RuleDefault(
         name='service_or_admin',
-        check_str='rule:admin_required or rule:service_role'),
+        check_str='rule:admin_required or rule:service_role',
+    ),
+    policy.RuleDefault(name='owner', check_str=RULE_OWNER),
     policy.RuleDefault(
-        name='owner',
-        check_str=RULE_OWNER),
+        name='admin_or_owner', check_str='rule:admin_required or rule:owner'
+    ),
     policy.RuleDefault(
-        name='admin_or_owner',
-        check_str='rule:admin_required or rule:owner'),
-    policy.RuleDefault(
-        name='token_subject',
-        check_str='user_id:%(target.token.user_id)s'),
+        name='token_subject', check_str='user_id:%(target.token.user_id)s'
+    ),
     policy.RuleDefault(
         name='admin_or_token_subject',
-        check_str='rule:admin_required or rule:token_subject'),
+        check_str='rule:admin_required or rule:token_subject',
+    ),
     policy.RuleDefault(
         name='service_admin_or_token_subject',
-        check_str='rule:service_or_admin or rule:token_subject'),
+        check_str='rule:service_or_admin or rule:token_subject',
+    ),
 ]
 
 

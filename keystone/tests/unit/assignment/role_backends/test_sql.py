@@ -25,9 +25,11 @@ PROVIDERS = provider_api.ProviderAPIs
 class SqlRoleModels(core_sql.BaseBackendSqlModels):
 
     def test_role_model(self):
-        cols = (('id', sql.String, 64),
-                ('name', sql.String, 255),
-                ('domain_id', sql.String, 64))
+        cols = (
+            ('id', sql.String, 64),
+            ('name', sql.String, 255),
+            ('domain_id', sql.String, 64),
+        )
         self.assertExpectedSchema('role', cols)
 
 
@@ -35,24 +37,27 @@ class SqlRole(core_sql.BaseBackendSqlTests, test_core.RoleTests):
 
     def test_create_null_role_name(self):
         role = unit.new_role_ref(name=None)
-        self.assertRaises(exception.UnexpectedError,
-                          PROVIDERS.role_api.create_role,
-                          role['id'],
-                          role)
-        self.assertRaises(exception.RoleNotFound,
-                          PROVIDERS.role_api.get_role,
-                          role['id'])
+        self.assertRaises(
+            exception.UnexpectedError,
+            PROVIDERS.role_api.create_role,
+            role['id'],
+            role,
+        )
+        self.assertRaises(
+            exception.RoleNotFound, PROVIDERS.role_api.get_role, role['id']
+        )
 
     def test_create_duplicate_role_domain_specific_name_fails(self):
         domain = unit.new_domain_ref()
         role1 = unit.new_role_ref(domain_id=domain['id'])
         PROVIDERS.role_api.create_role(role1['id'], role1)
-        role2 = unit.new_role_ref(name=role1['name'],
-                                  domain_id=domain['id'])
-        self.assertRaises(exception.Conflict,
-                          PROVIDERS.role_api.create_role,
-                          role2['id'],
-                          role2)
+        role2 = unit.new_role_ref(name=role1['name'], domain_id=domain['id'])
+        self.assertRaises(
+            exception.Conflict,
+            PROVIDERS.role_api.create_role,
+            role2['id'],
+            role2,
+        )
 
     def test_update_domain_id_of_role_fails(self):
         # Create a global role
@@ -61,10 +66,12 @@ class SqlRole(core_sql.BaseBackendSqlTests, test_core.RoleTests):
         # Try and update it to be domain specific
         domainA = unit.new_domain_ref()
         role1['domain_id'] = domainA['id']
-        self.assertRaises(exception.ValidationError,
-                          PROVIDERS.role_api.update_role,
-                          role1['id'],
-                          role1)
+        self.assertRaises(
+            exception.ValidationError,
+            PROVIDERS.role_api.update_role,
+            role1['id'],
+            role1,
+        )
 
         # Create a domain specific role from scratch
         role2 = unit.new_role_ref(domain_id=domainA['id'])
@@ -72,16 +79,20 @@ class SqlRole(core_sql.BaseBackendSqlTests, test_core.RoleTests):
         # Try to "move" it to another domain
         domainB = unit.new_domain_ref()
         role2['domain_id'] = domainB['id']
-        self.assertRaises(exception.ValidationError,
-                          PROVIDERS.role_api.update_role,
-                          role2['id'],
-                          role2)
+        self.assertRaises(
+            exception.ValidationError,
+            PROVIDERS.role_api.update_role,
+            role2['id'],
+            role2,
+        )
         # Now try to make it global
         role2['domain_id'] = None
-        self.assertRaises(exception.ValidationError,
-                          PROVIDERS.role_api.update_role,
-                          role2['id'],
-                          role2)
+        self.assertRaises(
+            exception.ValidationError,
+            PROVIDERS.role_api.update_role,
+            role2['id'],
+            role2,
+        )
 
     def test_domain_specific_separation(self):
         domain1 = unit.new_domain_ref()
@@ -108,8 +119,8 @@ class SqlRole(core_sql.BaseBackendSqlTests, test_core.RoleTests):
         self.assertDictEqual(role3, role_ref3)
         # Check that deleting one of these, doesn't affect the others
         PROVIDERS.role_api.delete_role(role1['id'])
-        self.assertRaises(exception.RoleNotFound,
-                          PROVIDERS.role_api.get_role,
-                          role1['id'])
+        self.assertRaises(
+            exception.RoleNotFound, PROVIDERS.role_api.get_role, role1['id']
+        )
         PROVIDERS.role_api.get_role(role2['id'])
         PROVIDERS.role_api.get_role(role3['id'])

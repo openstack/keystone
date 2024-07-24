@@ -44,16 +44,14 @@ class TestReceiptProvider(unit.TestCase):
             ksfixtures.KeyRepository(
                 self.config_fixture,
                 'fernet_receipts',
-                CONF.fernet_receipts.max_active_keys
+                CONF.fernet_receipts.max_active_keys,
             )
         )
         self.load_backends()
 
     def test_unsupported_receipt_provider(self):
-        self.config_fixture.config(group='receipt',
-                                   provider='MyProvider')
-        self.assertRaises(ImportError,
-                          receipt.provider.Manager)
+        self.config_fixture.config(group='receipt', provider='MyProvider')
+        self.assertRaises(ImportError, receipt.provider.Manager)
 
     def test_provider_receipt_expiration_validation(self):
         receipt = receipt_model.ReceiptModel()
@@ -61,9 +59,11 @@ class TestReceiptProvider(unit.TestCase):
         receipt.expires_at = utils.isotime(CURRENT_DATE - DELTA)
         receipt.id = uuid.uuid4().hex
         with freezegun.freeze_time(CURRENT_DATE):
-            self.assertRaises(exception.ReceiptNotFound,
-                              PROVIDERS.receipt_provider_api._is_valid_receipt,
-                              receipt)
+            self.assertRaises(
+                exception.ReceiptNotFound,
+                PROVIDERS.receipt_provider_api._is_valid_receipt,
+                receipt,
+            )
 
         # confirm a non-expired receipt doesn't throw errors.
         # returning None, rather than throwing an error is correct.
@@ -73,10 +73,12 @@ class TestReceiptProvider(unit.TestCase):
         receipt.id = uuid.uuid4().hex
         with freezegun.freeze_time(CURRENT_DATE):
             self.assertIsNone(
-                PROVIDERS.receipt_provider_api._is_valid_receipt(receipt))
+                PROVIDERS.receipt_provider_api._is_valid_receipt(receipt)
+            )
 
     def test_validate_v3_none_receipt_raises_receipt_not_found(self):
         self.assertRaises(
             exception.ReceiptNotFound,
             PROVIDERS.receipt_provider_api.validate_receipt,
-            None)
+            None,
+        )

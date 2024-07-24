@@ -53,8 +53,7 @@ class _SystemUserDomainTests(object):
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/domains?name=%s' % domain_name,
-                headers=self.headers
+                '/v3/domains?name=%s' % domain_name, headers=self.headers
             )
             self.assertEqual(1, len(r.json['domains']))
             self.assertEqual(domain['id'], r.json['domains'][0]['id'])
@@ -99,8 +98,10 @@ class _SystemMemberAndReaderDomainTests(object):
 
         with self.test_client() as c:
             c.post(
-                '/v3/domains', json=create, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/domains',
+                json=create,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_update_a_domain(self):
@@ -111,9 +112,10 @@ class _SystemMemberAndReaderDomainTests(object):
         update = {'domain': {'description': uuid.uuid4().hex}}
         with self.test_client() as c:
             c.patch(
-                '/v3/domains/%s' % domain['id'], json=update,
+                '/v3/domains/%s' % domain['id'],
+                json=update,
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_a_domain(self):
@@ -123,8 +125,9 @@ class _SystemMemberAndReaderDomainTests(object):
 
         with self.test_client() as c:
             c.delete(
-                '/v3/domains/%s' % domain['id'], headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/domains/%s' % domain['id'],
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
 
@@ -155,7 +158,7 @@ class _DomainReaderDomainTests(object):
             # filtering for own domain should succeed
             r = c.get(
                 '/v3/domains?name=%s' % self.domain['name'],
-                headers=self.headers
+                headers=self.headers,
             )
             self.assertEqual(1, len(r.json['domains']))
             self.assertNotIn(
@@ -166,7 +169,7 @@ class _DomainReaderDomainTests(object):
             # filtering for the second domain should yield no results
             r = c.get(
                 '/v3/domains?name=%s' % second_domain['name'],
-                headers=self.headers
+                headers=self.headers,
             )
             self.assertEqual(0, len(r.json['domains']))
 
@@ -209,15 +212,17 @@ class _ProjectUserDomainTests(object):
 
         with self.test_client() as c:
             c.get(
-                '/v3/domains/%s' % domain['id'], headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/domains/%s' % domain['id'],
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_list_domains(self):
         with self.test_client() as c:
             c.get(
-                '/v3/domains', headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/domains',
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_filter_domains_by_name(self):
@@ -233,18 +238,20 @@ class _ProjectUserDomainTests(object):
             c.get(
                 '/v3/domains?name=%s' % domain_name,
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_filter_domains_by_enabled(self):
         with self.test_client() as c:
             c.get(
-                '/v3/domains?enabled=true', headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/domains?enabled=true',
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
             c.get(
-                '/v3/domains?enabled=false', headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/domains?enabled=false',
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_update_a_domain(self):
@@ -255,9 +262,10 @@ class _ProjectUserDomainTests(object):
         update = {'domain': {'description': uuid.uuid4().hex}}
         with self.test_client() as c:
             c.patch(
-                '/v3/domains/%s' % domain['id'], json=update,
+                '/v3/domains/%s' % domain['id'],
+                json=update,
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_create_a_domain(self):
@@ -265,8 +273,10 @@ class _ProjectUserDomainTests(object):
 
         with self.test_client() as c:
             c.post(
-                '/v3/domains', json=create, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                '/v3/domains',
+                json=create,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_delete_a_domain(self):
@@ -278,12 +288,15 @@ class _ProjectUserDomainTests(object):
             update = {'domain': {'enabled': False}}
             path = '/v3/domains/%s' % domain['id']
             c.patch(
-                path, json=update, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                path,
+                json=update,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
             c.delete(
-                path, headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                path,
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
             )
 
     def test_user_cannot_get_non_existant_domain_forbidden(self):
@@ -292,14 +305,16 @@ class _ProjectUserDomainTests(object):
             c.get(
                 '/v3/domains/%s' % uuid.uuid4().hex,
                 headers=self.headers,
-                expected_status_code=http.client.FORBIDDEN
+                expected_status_code=http.client.FORBIDDEN,
             )
 
 
-class SystemReaderTests(base_classes.TestCaseWithBootstrap,
-                        common_auth.AuthTestMixin,
-                        _SystemUserDomainTests,
-                        _SystemMemberAndReaderDomainTests):
+class SystemReaderTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _SystemUserDomainTests,
+    _SystemMemberAndReaderDomainTests,
+):
 
     def setUp(self):
         super(SystemReaderTests, self).setUp()
@@ -318,8 +333,9 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
         )
 
         auth = self.build_authentication_request(
-            user_id=self.system_reader_id, password=system_reader['password'],
-            system=True
+            user_id=self.system_reader_id,
+            password=system_reader['password'],
+            system=True,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -330,10 +346,12 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class SystemMemberTests(base_classes.TestCaseWithBootstrap,
-                        common_auth.AuthTestMixin,
-                        _SystemUserDomainTests,
-                        _SystemMemberAndReaderDomainTests):
+class SystemMemberTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _SystemUserDomainTests,
+    _SystemMemberAndReaderDomainTests,
+):
 
     def setUp(self):
         super(SystemMemberTests, self).setUp()
@@ -352,8 +370,9 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
         )
 
         auth = self.build_authentication_request(
-            user_id=self.system_member_id, password=system_member['password'],
-            system=True
+            user_id=self.system_member_id,
+            password=system_member['password'],
+            system=True,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -364,9 +383,11 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class SystemAdminTests(base_classes.TestCaseWithBootstrap,
-                       common_auth.AuthTestMixin,
-                       _SystemUserDomainTests):
+class SystemAdminTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _SystemUserDomainTests,
+):
 
     def setUp(self):
         super(SystemAdminTests, self).setUp()
@@ -378,7 +399,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
         auth = self.build_authentication_request(
             user_id=self.system_admin_id,
             password=self.bootstrapper.admin_password,
-            system=True
+            system=True,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -396,17 +417,16 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
         update = {'domain': {'description': uuid.uuid4().hex}}
         with self.test_client() as c:
             c.patch(
-                '/v3/domains/%s' % domain['id'], json=update,
-                headers=self.headers
+                '/v3/domains/%s' % domain['id'],
+                json=update,
+                headers=self.headers,
             )
 
     def test_user_can_create_a_domain(self):
         create = {'domain': {'name': uuid.uuid4().hex}}
 
         with self.test_client() as c:
-            c.post(
-                '/v3/domains', json=create, headers=self.headers
-            )
+            c.post('/v3/domains', json=create, headers=self.headers)
 
     def test_user_can_delete_a_domain(self):
         domain = PROVIDERS.resource_api.create_domain(
@@ -420,9 +440,11 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
             c.delete(path, headers=self.headers)
 
 
-class DomainUserTests(base_classes.TestCaseWithBootstrap,
-                      common_auth.AuthTestMixin,
-                      _DomainReaderDomainTests):
+class DomainUserTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _DomainReaderDomainTests,
+):
 
     def setUp(self):
         super(DomainUserTests, self).setUp()
@@ -435,17 +457,19 @@ class DomainUserTests(base_classes.TestCaseWithBootstrap,
         )
         self.domain_id = self.domain['id']
         domain_user = unit.new_user_ref(domain_id=self.domain_id)
-        self.domain_user_id = PROVIDERS.identity_api.create_user(
-            domain_user
-        )['id']
+        self.domain_user_id = PROVIDERS.identity_api.create_user(domain_user)[
+            'id'
+        ]
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.member_role_id, user_id=self.domain_user_id,
-            domain_id=self.domain_id
+            self.bootstrapper.member_role_id,
+            user_id=self.domain_user_id,
+            domain_id=self.domain_id,
         )
 
         auth = self.build_authentication_request(
-            user_id=self.domain_user_id, password=domain_user['password'],
-            domain_id=self.domain_id
+            user_id=self.domain_user_id,
+            password=domain_user['password'],
+            domain_id=self.domain_id,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -456,9 +480,11 @@ class DomainUserTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class ProjectReaderTests(base_classes.TestCaseWithBootstrap,
-                         common_auth.AuthTestMixin,
-                         _ProjectUserDomainTests):
+class ProjectReaderTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _ProjectUserDomainTests,
+):
 
     def setUp(self):
         super(ProjectReaderTests, self).setUp()
@@ -472,23 +498,24 @@ class ProjectReaderTests(base_classes.TestCaseWithBootstrap,
         self.domain_id = domain['id']
 
         project_reader = unit.new_user_ref(domain_id=self.domain_id)
-        project_reader_id = PROVIDERS.identity_api.create_user(
-            project_reader
-        )['id']
+        project_reader_id = PROVIDERS.identity_api.create_user(project_reader)[
+            'id'
+        ]
         project = unit.new_project_ref(domain_id=self.domain_id)
         project_id = PROVIDERS.resource_api.create_project(
             project['id'], project
         )['id']
 
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.reader_role_id, user_id=project_reader_id,
-            project_id=project_id
+            self.bootstrapper.reader_role_id,
+            user_id=project_reader_id,
+            project_id=project_id,
         )
 
         auth = self.build_authentication_request(
             user_id=project_reader_id,
             password=project_reader['password'],
-            project_id=project_id
+            project_id=project_id,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -499,9 +526,11 @@ class ProjectReaderTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class ProjectMemberTests(base_classes.TestCaseWithBootstrap,
-                         common_auth.AuthTestMixin,
-                         _ProjectUserDomainTests):
+class ProjectMemberTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _ProjectUserDomainTests,
+):
 
     def setUp(self):
         super(ProjectMemberTests, self).setUp()
@@ -515,23 +544,24 @@ class ProjectMemberTests(base_classes.TestCaseWithBootstrap,
         self.domain_id = domain['id']
 
         project_member = unit.new_user_ref(domain_id=self.domain_id)
-        project_member_id = PROVIDERS.identity_api.create_user(
-            project_member
-        )['id']
+        project_member_id = PROVIDERS.identity_api.create_user(project_member)[
+            'id'
+        ]
         project = unit.new_project_ref(domain_id=self.domain_id)
         project_id = PROVIDERS.resource_api.create_project(
             project['id'], project
         )['id']
 
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.member_role_id, user_id=project_member_id,
-            project_id=project_id
+            self.bootstrapper.member_role_id,
+            user_id=project_member_id,
+            project_id=project_id,
         )
 
         auth = self.build_authentication_request(
             user_id=project_member_id,
             password=project_member['password'],
-            project_id=project_id
+            project_id=project_id,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -542,9 +572,11 @@ class ProjectMemberTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class ProjectAdminTests(base_classes.TestCaseWithBootstrap,
-                        common_auth.AuthTestMixin,
-                        _ProjectUserDomainTests):
+class ProjectAdminTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _ProjectUserDomainTests,
+):
 
     def setUp(self):
         super(ProjectAdminTests, self).setUp()
@@ -565,23 +597,24 @@ class ProjectAdminTests(base_classes.TestCaseWithBootstrap,
         self.domain_id = domain['id']
 
         project_admin = unit.new_user_ref(domain_id=self.domain_id)
-        project_admin_id = PROVIDERS.identity_api.create_user(
-            project_admin
-        )['id']
+        project_admin_id = PROVIDERS.identity_api.create_user(project_admin)[
+            'id'
+        ]
         project = unit.new_project_ref(domain_id=self.domain_id)
         project_id = PROVIDERS.resource_api.create_project(
             project['id'], project
         )['id']
 
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.admin_role_id, user_id=project_admin_id,
-            project_id=project_id
+            self.bootstrapper.admin_role_id,
+            user_id=project_admin_id,
+            project_id=project_id,
         )
 
         auth = self.build_authentication_request(
             user_id=project_admin_id,
             password=project_admin['password'],
-            project_id=project_id
+            project_id=project_id,
         )
 
         # Grab a token using the persona we're testing and prepare headers

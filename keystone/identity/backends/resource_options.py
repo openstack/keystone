@@ -23,9 +23,11 @@ def _mfa_rules_validator_list_of_lists_of_strings_no_duplicates(value):
     # e.g. [['str1', 'str2'], ['str3', 'str4']]
     # No sub-list may be empty. Duplication of sub-lists and duplication of
     # string elements are not permitted.
-    msg = _('Invalid data type, must be a list of lists comprised of strings. '
-            'Sub-lists may not be duplicated. Strings in sub-lists may not be '
-            'duplicated.')
+    msg = _(
+        'Invalid data type, must be a list of lists comprised of strings. '
+        'Sub-lists may not be duplicated. Strings in sub-lists may not be '
+        'duplicated.'
+    )
     if not isinstance(value, list):
         # Value is not a List, TypeError
         raise TypeError(msg)
@@ -56,63 +58,63 @@ def _mfa_rules_validator_list_of_lists_of_strings_no_duplicates(value):
 
 
 USER_OPTIONS_REGISTRY = resource_options.ResourceOptionRegistry('USER')
-IGNORE_CHANGE_PASSWORD_OPT = (
-    resource_options.ResourceOption(
-        option_id='1000',
-        option_name='ignore_change_password_upon_first_use',
-        validator=resource_options.boolean_validator,
-        json_schema_validation=parameter_types.boolean))
-IGNORE_PASSWORD_EXPIRY_OPT = (
-    resource_options.ResourceOption(
-        option_id='1001',
-        option_name='ignore_password_expiry',
-        validator=resource_options.boolean_validator,
-        json_schema_validation=parameter_types.boolean))
-IGNORE_LOCKOUT_ATTEMPT_OPT = (
-    resource_options.ResourceOption(
-        option_id='1002',
-        option_name='ignore_lockout_failure_attempts',
-        validator=resource_options.boolean_validator,
-        json_schema_validation=parameter_types.boolean))
-LOCK_PASSWORD_OPT = (
-    resource_options.ResourceOption(
-        option_id='1003',
-        option_name='lock_password',
-        validator=resource_options.boolean_validator,
-        json_schema_validation=parameter_types.boolean))
-IGNORE_USER_INACTIVITY_OPT = (
-    resource_options.ResourceOption(
-        option_id='1004',
-        option_name='ignore_user_inactivity',
-        validator=resource_options.boolean_validator,
-        json_schema_validation=parameter_types.boolean))
-MFA_RULES_OPT = (
-    resource_options.ResourceOption(
-        option_id='MFAR',
-        option_name='multi_factor_auth_rules',
-        validator=_mfa_rules_validator_list_of_lists_of_strings_no_duplicates,
-        json_schema_validation={
-            # List
+IGNORE_CHANGE_PASSWORD_OPT = resource_options.ResourceOption(
+    option_id='1000',
+    option_name='ignore_change_password_upon_first_use',
+    validator=resource_options.boolean_validator,
+    json_schema_validation=parameter_types.boolean,
+)
+IGNORE_PASSWORD_EXPIRY_OPT = resource_options.ResourceOption(
+    option_id='1001',
+    option_name='ignore_password_expiry',
+    validator=resource_options.boolean_validator,
+    json_schema_validation=parameter_types.boolean,
+)
+IGNORE_LOCKOUT_ATTEMPT_OPT = resource_options.ResourceOption(
+    option_id='1002',
+    option_name='ignore_lockout_failure_attempts',
+    validator=resource_options.boolean_validator,
+    json_schema_validation=parameter_types.boolean,
+)
+LOCK_PASSWORD_OPT = resource_options.ResourceOption(
+    option_id='1003',
+    option_name='lock_password',
+    validator=resource_options.boolean_validator,
+    json_schema_validation=parameter_types.boolean,
+)
+IGNORE_USER_INACTIVITY_OPT = resource_options.ResourceOption(
+    option_id='1004',
+    option_name='ignore_user_inactivity',
+    validator=resource_options.boolean_validator,
+    json_schema_validation=parameter_types.boolean,
+)
+MFA_RULES_OPT = resource_options.ResourceOption(
+    option_id='MFAR',
+    option_name='multi_factor_auth_rules',
+    validator=_mfa_rules_validator_list_of_lists_of_strings_no_duplicates,
+    json_schema_validation={
+        # List
+        'type': 'array',
+        'items': {
+            # Of Lists
             'type': 'array',
             'items': {
-                # Of Lists
-                'type': 'array',
-                'items': {
-                    # Of Strings, each string must be unique, minimum 1
-                    # element
-                    'type': 'string',
-                },
-                'minItems': 1,
-                'uniqueItems': True
+                # Of Strings, each string must be unique, minimum 1
+                # element
+                'type': 'string',
             },
-            'uniqueItems': True
-        }))
-MFA_ENABLED_OPT = (
-    resource_options.ResourceOption(
-        option_id='MFAE',
-        option_name='multi_factor_auth_enabled',
-        validator=resource_options.boolean_validator,
-        json_schema_validation=parameter_types.boolean))
+            'minItems': 1,
+            'uniqueItems': True,
+        },
+        'uniqueItems': True,
+    },
+)
+MFA_ENABLED_OPT = resource_options.ResourceOption(
+    option_id='MFAE',
+    option_name='multi_factor_auth_enabled',
+    validator=resource_options.boolean_validator,
+    json_schema_validation=parameter_types.boolean,
+)
 
 
 # NOTE(notmorgan): wrap this in a function for testing purposes.

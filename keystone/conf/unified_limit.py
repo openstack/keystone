@@ -18,45 +18,60 @@ from keystone.conf import utils
 driver = cfg.StrOpt(
     'driver',
     default='sql',
-    help=utils.fmt("""
+    help=utils.fmt(
+        """
 Entry point for the unified limit backend driver in the
 `keystone.unified_limit` namespace. Keystone only provides a `sql` driver, so
 there's no reason to change this unless you are providing a custom entry point.
-"""))
+"""
+    ),
+)
 
 caching = cfg.BoolOpt(
     'caching',
     default=True,
-    help=utils.fmt("""
+    help=utils.fmt(
+        """
 Toggle for unified limit caching. This has no effect unless global caching is
 enabled. In a typical deployment, there is no reason to disable this.
-"""))
+"""
+    ),
+)
 
 cache_time = cfg.IntOpt(
     'cache_time',
-    help=utils.fmt("""
+    help=utils.fmt(
+        """
 Time to cache unified limit data, in seconds. This has no effect unless both
 global caching and `[unified_limit] caching` are enabled.
-"""))
+"""
+    ),
+)
 
 list_limit = cfg.IntOpt(
     'list_limit',
-    help=utils.fmt("""
+    help=utils.fmt(
+        """
 Maximum number of entities that will be returned in a unified limit
 collection. This may be useful to tune if you have a large number of
 unified limits in your deployment.
-"""))
+"""
+    ),
+)
 
 enforcement_model = cfg.StrOpt(
     'enforcement_model',
     default='flat',
     choices=['flat', 'strict_two_level'],
-    help=utils.fmt("""
+    help=utils.fmt(
+        """
 The enforcement model to use when validating limits associated to projects.
 Enforcement models will behave differently depending on the existing limits,
 which may result in backwards incompatible changes if a model is switched in a
 running deployment.
-"""))
+"""
+    ),
+)
 
 
 GROUP_NAME = __name__.split('.')[-1]

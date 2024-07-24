@@ -11,10 +11,7 @@
 # under the License.
 """Common parameter types for validating a request reference."""
 
-boolean = {
-    'type': 'boolean',
-    'enum': [True, False]
-}
+boolean = {'type': 'boolean', 'enum': [True, False]}
 
 # NOTE(lbragstad): Be mindful of this pattern as it might require changes
 # once this is used on user names, LDAP-based user names specifically since
@@ -26,14 +23,10 @@ name = {
     'type': 'string',
     'minLength': 1,
     'maxLength': 255,
-    'pattern': r'[\S]+'
+    'pattern': r'[\S]+',
 }
 
-external_id_string = {
-    'type': 'string',
-    'minLength': 1,
-    'maxLength': 64
-}
+external_id_string = {'type': 'string', 'minLength': 1, 'maxLength': 64}
 
 id_string = {
     'type': 'string',
@@ -41,19 +34,17 @@ id_string = {
     'maxLength': 64,
     # TODO(lbragstad): Find a way to make this configurable such that the end
     # user chooses how much control they want over id_strings with a regex
-    'pattern': r'^[a-zA-Z0-9-]+$'
+    'pattern': r'^[a-zA-Z0-9-]+$',
 }
 
 mapping_id_string = {
     'type': 'string',
     'minLength': 1,
     'maxLength': 64,
-    'pattern': '^[a-zA-Z0-9-_]+$'
+    'pattern': '^[a-zA-Z0-9-_]+$',
 }
 
-description = {
-    'type': 'string'
-}
+description = {'type': 'string'}
 
 url = {
     'type': 'string',
@@ -62,15 +53,9 @@ url = {
     # NOTE(edmondsw): we could do more to validate per various RFCs, but
     # decision was made to err on the side of leniency. The following is based
     # on rfc1738 section 2.1
-    'pattern': '^[a-zA-Z0-9+.-]+:.+'
+    'pattern': '^[a-zA-Z0-9+.-]+:.+',
 }
 
-email = {
-    'type': 'string',
-    'format': 'email'
-}
+email = {'type': 'string', 'format': 'email'}
 
-integer_min0 = {
-    'type': 'integer',
-    'minimum': 0
-}
+integer_min0 = {'type': 'integer', 'minimum': 0}

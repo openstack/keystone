@@ -37,9 +37,11 @@ class ShadowUsersBackendTests(object):
         self.assertEqual(user_created['name'], user['name'])
         new_user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
         new_user['name'] = user['name']
-        self.assertRaises(exception.Conflict,
-                          PROVIDERS.shadow_users_api.create_nonlocal_user,
-                          new_user)
+        self.assertRaises(
+            exception.Conflict,
+            PROVIDERS.shadow_users_api.create_nonlocal_user,
+            new_user,
+        )
 
     def test_create_nonlocal_user_does_not_create_local_user(self):
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
@@ -56,10 +58,11 @@ class ShadowUsersBackendTests(object):
         nonlocal_user = {
             'domain_id': CONF.identity.default_domain_id,
             'name': uuid.uuid4().hex,
-            'user_id': user['id']
+            'user_id': user['id'],
         }
-        self.assertRaises(sql.DBDuplicateEntry, self._add_nonlocal_user,
-                          nonlocal_user)
+        self.assertRaises(
+            sql.DBDuplicateEntry, self._add_nonlocal_user, nonlocal_user
+        )
 
     def test_get_user(self):
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
@@ -72,67 +75,80 @@ class ShadowUsersBackendTests(object):
 
     def test_create_federated_user_unique_constraint(self):
         user_dict = PROVIDERS.shadow_users_api.create_federated_user(
-            self.domain_id, self.federated_user)
+            self.domain_id, self.federated_user
+        )
         user_dict = PROVIDERS.shadow_users_api.get_user(user_dict["id"])
         self.assertIsNotNone(user_dict["id"])
-        self.assertRaises(exception.Conflict,
-                          PROVIDERS.shadow_users_api.create_federated_user,
-                          self.domain_id,
-                          self.federated_user)
+        self.assertRaises(
+            exception.Conflict,
+            PROVIDERS.shadow_users_api.create_federated_user,
+            self.domain_id,
+            self.federated_user,
+        )
 
     def test_create_federated_user_domain(self):
         user = PROVIDERS.shadow_users_api.create_federated_user(
-            self.domain_id, self.federated_user)
+            self.domain_id, self.federated_user
+        )
         self.assertEqual(user['domain_id'], self.domain_id)
 
     def test_create_federated_user_email(self):
         user = PROVIDERS.shadow_users_api.create_federated_user(
-            self.domain_id, self.federated_user, self.email)
+            self.domain_id, self.federated_user, self.email
+        )
         self.assertEqual(user['email'], self.email)
 
     def test_get_federated_user(self):
         user_dict_create = PROVIDERS.shadow_users_api.create_federated_user(
-            self.domain_id, self.federated_user)
+            self.domain_id, self.federated_user
+        )
         user_dict_get = PROVIDERS.shadow_users_api.get_federated_user(
             self.federated_user["idp_id"],
             self.federated_user["protocol_id"],
-            self.federated_user["unique_id"])
+            self.federated_user["unique_id"],
+        )
         self.assertCountEqual(user_dict_create, user_dict_get)
         self.assertEqual(user_dict_create["id"], user_dict_get["id"])
 
     def test_update_federated_user_display_name(self):
         user_dict_create = PROVIDERS.shadow_users_api.create_federated_user(
-            self.domain_id, self.federated_user)
+            self.domain_id, self.federated_user
+        )
         new_display_name = uuid.uuid4().hex
         PROVIDERS.shadow_users_api.update_federated_user_display_name(
             self.federated_user["idp_id"],
             self.federated_user["protocol_id"],
             self.federated_user["unique_id"],
-            new_display_name)
+            new_display_name,
+        )
         user_ref = PROVIDERS.shadow_users_api._get_federated_user(
             self.federated_user["idp_id"],
             self.federated_user["protocol_id"],
-            self.federated_user["unique_id"])
-        self.assertEqual(user_ref.federated_users[0].display_name,
-                         new_display_name)
+            self.federated_user["unique_id"],
+        )
+        self.assertEqual(
+            user_ref.federated_users[0].display_name, new_display_name
+        )
         self.assertEqual(user_dict_create["id"], user_ref.id)
 
     def test_set_last_active_at(self):
-        self.config_fixture.config(group='security_compliance',
-                                   disable_user_account_days_inactive=90)
+        self.config_fixture.config(
+            group='security_compliance', disable_user_account_days_inactive=90
+        )
         now = datetime.datetime.utcnow().date()
         password = uuid.uuid4().hex
         user = self._create_user(password)
         with self.make_request():
             user_auth = PROVIDERS.identity_api.authenticate(
-                user_id=user['id'],
-                password=password)
+                user_id=user['id'], password=password
+            )
         user_ref = self._get_user_ref(user_auth['id'])
         self.assertGreaterEqual(now, user_ref.last_active_at)
 
     def test_set_last_active_at_on_non_existing_user(self):
-        self.config_fixture.config(group='security_compliance',
-                                   disable_user_account_days_inactive=90)
+        self.config_fixture.config(
+            group='security_compliance', disable_user_account_days_inactive=90
+        )
         password = uuid.uuid4().hex
         user = self._create_user(password)
 
@@ -146,23 +162,26 @@ class ShadowUsersBackendTests(object):
             test_self._delete_user(user_id)
             real_last_active_at(self, user_id)
 
-        with mock.patch.object(shadow_sql.ShadowUsers, 'set_last_active_at',
-                               fake_last_active_at):
+        with mock.patch.object(
+            shadow_sql.ShadowUsers, 'set_last_active_at', fake_last_active_at
+        ):
             with self.make_request():
                 # the call is expected to just succeed without exceptions
                 PROVIDERS.identity_api.authenticate(
-                    user_id=user['id'],
-                    password=password)
+                    user_id=user['id'], password=password
+                )
 
     def test_set_last_active_at_when_config_setting_is_none(self):
-        self.config_fixture.config(group='security_compliance',
-                                   disable_user_account_days_inactive=None)
+        self.config_fixture.config(
+            group='security_compliance',
+            disable_user_account_days_inactive=None,
+        )
         password = uuid.uuid4().hex
         user = self._create_user(password)
         with self.make_request():
             user_auth = PROVIDERS.identity_api.authenticate(
-                user_id=user['id'],
-                password=password)
+                user_id=user['id'], password=password
+            )
         user_ref = self._get_user_ref(user_auth['id'])
         self.assertIsNone(user_ref.last_active_at)
 
@@ -176,7 +195,7 @@ class ShadowUsersBackendTests(object):
             'name': uuid.uuid4().hex,
             'domain_id': self.domain_id,
             'enabled': True,
-            'password': password
+            'password': password,
         }
         return PROVIDERS.identity_api.create_user(user)
 

@@ -23,7 +23,7 @@ _identity_name = {
     'type': 'string',
     'minLength': 1,
     'maxLength': 255,
-    'pattern': r'[\S]+'
+    'pattern': r'[\S]+',
 }
 
 # Schema for Identity v3 API
@@ -35,33 +35,29 @@ _user_properties = {
     'enabled': parameter_types.boolean,
     'federated': {
         'type': 'array',
-        'items':
-            {
-                'type': 'object',
-                'properties': {
-                    'idp_id': {'type': 'string'},
-                    'protocols': {
-                        'type': 'array',
-                        'items':
-                            {
-                                'type': 'object',
-                                'properties': {
-                                    'protocol_id': {'type': 'string'},
-                                    'unique_id': {'type': 'string'}
-                                },
-                                'required': ['protocol_id', 'unique_id']
-                            },
-                        'minItems': 1
-                    }
+        'items': {
+            'type': 'object',
+            'properties': {
+                'idp_id': {'type': 'string'},
+                'protocols': {
+                    'type': 'array',
+                    'items': {
+                        'type': 'object',
+                        'properties': {
+                            'protocol_id': {'type': 'string'},
+                            'unique_id': {'type': 'string'},
+                        },
+                        'required': ['protocol_id', 'unique_id'],
+                    },
+                    'minItems': 1,
                 },
-                'required': ['idp_id', 'protocols']
             },
+            'required': ['idp_id', 'protocols'],
+        },
     },
     'name': _identity_name,
-    'password': {
-        'type': ['string', 'null']
-    },
-    'options': ro.USER_OPTIONS_REGISTRY.json_schema
+    'password': {'type': ['string', 'null']},
+    'options': ro.USER_OPTIONS_REGISTRY.json_schema,
 }
 
 # TODO(notmorgan): Provide a mechanism for options to supply real jsonschema
@@ -70,62 +66,56 @@ user_create = {
     'type': 'object',
     'properties': _user_properties,
     'required': ['name'],
-    'options': {
-        'type': 'object'
-    },
-    'additionalProperties': True
+    'options': {'type': 'object'},
+    'additionalProperties': True,
 }
 
 user_update = {
     'type': 'object',
     'properties': _user_properties,
     'minProperties': 1,
-    'options': {
-        'type': 'object'
-    },
-    'additionalProperties': True
+    'options': {'type': 'object'},
+    'additionalProperties': True,
 }
 
 _group_properties = {
     'description': validation.nullable(parameter_types.description),
     'domain_id': parameter_types.id_string,
-    'name': _identity_name
+    'name': _identity_name,
 }
 
 group_create = {
     'type': 'object',
     'properties': _group_properties,
     'required': ['name'],
-    'additionalProperties': True
+    'additionalProperties': True,
 }
 
 group_update = {
     'type': 'object',
     'properties': _group_properties,
     'minProperties': 1,
-    'additionalProperties': True
+    'additionalProperties': True,
 }
 
 _password_change_properties = {
-    'original_password': {
-        'type': 'string'
-    },
-    'password': {
-        'type': 'string'
-    }
+    'original_password': {'type': 'string'},
+    'password': {'type': 'string'},
 }
 if getattr(CONF, 'strict_password_check', None):
-    _password_change_properties['password']['maxLength'] = \
-        CONF.identity.max_password_length
+    _password_change_properties['password'][
+        'maxLength'
+    ] = CONF.identity.max_password_length
 
 if getattr(CONF, 'security_compliance', None):
     if getattr(CONF.security_compliance, 'password_regex', None):
-        _password_change_properties['password']['pattern'] = \
-            CONF.security_compliance.password_regex
+        _password_change_properties['password'][
+            'pattern'
+        ] = CONF.security_compliance.password_regex
 
 password_change = {
     'type': 'object',
     'properties': _password_change_properties,
     'required': ['original_password', 'password'],
-    'additionalProperties': False
+    'additionalProperties': False,
 }

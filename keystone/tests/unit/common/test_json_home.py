@@ -26,8 +26,9 @@ class JsonHomeTest(unit.BaseTestCase):
         resource_name = self.getUniqueString()
         relation = json_home.build_v3_resource_relation(resource_name)
         exp_relation = (
-            'https://docs.openstack.org/api/openstack-identity/3/rel/%s' %
-            resource_name)
+            'https://docs.openstack.org/api/openstack-identity/3/rel/%s'
+            % resource_name
+        )
         self.assertThat(relation, matchers.Equals(exp_relation))
 
     def test_build_v3_extension_resource_relation(self):
@@ -35,18 +36,21 @@ class JsonHomeTest(unit.BaseTestCase):
         extension_version = self.getUniqueString()
         resource_name = self.getUniqueString()
         relation = json_home.build_v3_extension_resource_relation(
-            extension_name, extension_version, resource_name)
+            extension_name, extension_version, resource_name
+        )
         exp_relation = (
             'https://docs.openstack.org/api/openstack-identity/3/ext/%s/%s/rel'
-            '/%s' % (extension_name, extension_version, resource_name))
+            '/%s' % (extension_name, extension_version, resource_name)
+        )
         self.assertThat(relation, matchers.Equals(exp_relation))
 
     def test_build_v3_parameter_relation(self):
         parameter_name = self.getUniqueString()
         relation = json_home.build_v3_parameter_relation(parameter_name)
         exp_relation = (
-            'https://docs.openstack.org/api/openstack-identity/3/param/%s' %
-            parameter_name)
+            'https://docs.openstack.org/api/openstack-identity/3/param/%s'
+            % parameter_name
+        )
         self.assertThat(relation, matchers.Equals(exp_relation))
 
     def test_build_v3_extension_parameter_relation(self):
@@ -54,10 +58,12 @@ class JsonHomeTest(unit.BaseTestCase):
         extension_version = self.getUniqueString()
         parameter_name = self.getUniqueString()
         relation = json_home.build_v3_extension_parameter_relation(
-            extension_name, extension_version, parameter_name)
+            extension_name, extension_version, parameter_name
+        )
         exp_relation = (
             'https://docs.openstack.org/api/openstack-identity/3/ext/%s/%s/'
-            'param/%s' % (extension_name, extension_version, parameter_name))
+            'param/%s' % (extension_name, extension_version, parameter_name)
+        )
         self.assertThat(relation, matchers.Equals(exp_relation))
 
     def test_translate_urls(self):
@@ -71,7 +77,8 @@ class JsonHomeTest(unit.BaseTestCase):
                 href_rel: {'href': href},
                 href_template_rel: {
                     'href-template': href_template,
-                    'href-vars': href_vars}
+                    'href-vars': href_vars,
+                },
             }
         }
 
@@ -84,7 +91,8 @@ class JsonHomeTest(unit.BaseTestCase):
                 href_rel: {'href': new_prefix + href},
                 href_template_rel: {
                     'href-template': new_prefix + href_template,
-                    'href-vars': href_vars}
+                    'href-vars': href_vars,
+                },
             }
         }
 

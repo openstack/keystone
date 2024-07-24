@@ -22,10 +22,12 @@ class SQLModelTestCase(core_sql.BaseBackendSqlModels):
     """Test cases to validate the table structure."""
 
     def test_policy_model(self):
-        cols = (('id', sql.String, 64),
-                ('blob', sql.JsonBlob, None),
-                ('type', sql.String, 255),
-                ('extra', sql.JsonBlob, None))
+        cols = (
+            ('id', sql.String, 64),
+            ('blob', sql.JsonBlob, None),
+            ('type', sql.String, 255),
+            ('extra', sql.JsonBlob, None),
+        )
 
         self.assertExpectedSchema('policy', cols)
 

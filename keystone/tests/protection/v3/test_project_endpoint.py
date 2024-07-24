@@ -34,7 +34,7 @@ class _SystemUserProjectEndpointTests(object):
     def test_user_can_list_projects_for_endpoint(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         service = PROVIDERS.catalog_api.create_service(
@@ -46,18 +46,20 @@ class _SystemUserProjectEndpointTests(object):
         )
 
         PROVIDERS.catalog_api.add_endpoint_to_project(
-            endpoint['id'], project['id'])
+            endpoint['id'], project['id']
+        )
         with self.test_client() as c:
-            r = c.get('/v3/OS-EP-FILTER/endpoints/%s/projects'
-                      % endpoint['id'],
-                      headers=self.headers)
+            r = c.get(
+                '/v3/OS-EP-FILTER/endpoints/%s/projects' % endpoint['id'],
+                headers=self.headers,
+            )
             for project_itr in r.json['projects']:
                 self.assertIn(project['id'], project_itr['id'])
 
     def test_user_can_check_endpoint_in_project(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         service = PROVIDERS.catalog_api.create_service(
@@ -69,17 +71,20 @@ class _SystemUserProjectEndpointTests(object):
         )
 
         PROVIDERS.catalog_api.add_endpoint_to_project(
-            endpoint['id'], project['id'])
+            endpoint['id'], project['id']
+        )
         with self.test_client() as c:
-            c.get('/v3/OS-EP-FILTER/projects/%s/endpoints/%s'
-                  % (project['id'], endpoint['id']),
-                  headers=self.headers,
-                  expected_status_code=http.client.NO_CONTENT)
+            c.get(
+                '/v3/OS-EP-FILTER/projects/%s/endpoints/%s'
+                % (project['id'], endpoint['id']),
+                headers=self.headers,
+                expected_status_code=http.client.NO_CONTENT,
+            )
 
     def test_user_can_list_endpoints_for_project(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         service = PROVIDERS.catalog_api.create_service(
@@ -91,10 +96,13 @@ class _SystemUserProjectEndpointTests(object):
         )
 
         PROVIDERS.catalog_api.add_endpoint_to_project(
-            endpoint['id'], project['id'])
+            endpoint['id'], project['id']
+        )
         with self.test_client() as c:
-            r = c.get('/v3/OS-EP-FILTER/projects/%s/endpoints' % project['id'],
-                      headers=self.headers)
+            r = c.get(
+                '/v3/OS-EP-FILTER/projects/%s/endpoints' % project['id'],
+                headers=self.headers,
+            )
             for endpoint_itr in r.json['endpoints']:
                 self.assertIn(endpoint['id'], endpoint_itr['id'])
 
@@ -104,7 +112,7 @@ class _SystemReaderAndMemberProjectEndpointTests(object):
     def test_user_cannot_add_endpoint_to_project(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         service = PROVIDERS.catalog_api.create_service(
@@ -115,15 +123,17 @@ class _SystemReaderAndMemberProjectEndpointTests(object):
             endpoint['id'], endpoint
         )
         with self.test_client() as c:
-            c.put('/v3/OS-EP-FILTER/projects/%s/endpoints/%s'
-                  % (project['id'], endpoint['id']),
-                  headers=self.headers,
-                  expected_status_code=http.client.FORBIDDEN)
+            c.put(
+                '/v3/OS-EP-FILTER/projects/%s/endpoints/%s'
+                % (project['id'], endpoint['id']),
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
+            )
 
     def test_user_cannot_remove_endpoint_from_project(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         service = PROVIDERS.catalog_api.create_service(
@@ -134,10 +144,12 @@ class _SystemReaderAndMemberProjectEndpointTests(object):
             endpoint['id'], endpoint
         )
         with self.test_client() as c:
-            c.delete('/v3/OS-EP-FILTER/projects/%s/endpoints/%s'
-                     % (project['id'], endpoint['id']),
-                     headers=self.headers,
-                     expected_status_code=http.client.FORBIDDEN)
+            c.delete(
+                '/v3/OS-EP-FILTER/projects/%s/endpoints/%s'
+                % (project['id'], endpoint['id']),
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
+            )
 
 
 class _DomainAndProjectUserProjectEndpointTests(object):
@@ -145,7 +157,7 @@ class _DomainAndProjectUserProjectEndpointTests(object):
     def test_user_cannot_list_projects_for_endpoint(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         service = PROVIDERS.catalog_api.create_service(
@@ -157,16 +169,19 @@ class _DomainAndProjectUserProjectEndpointTests(object):
         )
 
         PROVIDERS.catalog_api.add_endpoint_to_project(
-            endpoint['id'], project['id'])
+            endpoint['id'], project['id']
+        )
         with self.test_client() as c:
-            c.get('/v3/OS-EP-FILTER/endpoints/%s/projects' % endpoint['id'],
-                  headers=self.headers,
-                  expected_status_code=http.client.FORBIDDEN)
+            c.get(
+                '/v3/OS-EP-FILTER/endpoints/%s/projects' % endpoint['id'],
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
+            )
 
     def test_user_cannot_check_endpoint_in_project(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         service = PROVIDERS.catalog_api.create_service(
@@ -178,17 +193,20 @@ class _DomainAndProjectUserProjectEndpointTests(object):
         )
 
         PROVIDERS.catalog_api.add_endpoint_to_project(
-            endpoint['id'], project['id'])
+            endpoint['id'], project['id']
+        )
         with self.test_client() as c:
-            c.get('/v3/OS-EP-FILTER/projects/%s/endpoints/%s'
-                  % (project['id'], endpoint['id']),
-                  headers=self.headers,
-                  expected_status_code=http.client.FORBIDDEN)
+            c.get(
+                '/v3/OS-EP-FILTER/projects/%s/endpoints/%s'
+                % (project['id'], endpoint['id']),
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
+            )
 
     def test_user_cannot_list_endpoints_for_project(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         service = PROVIDERS.catalog_api.create_service(
@@ -200,17 +218,22 @@ class _DomainAndProjectUserProjectEndpointTests(object):
         )
 
         PROVIDERS.catalog_api.add_endpoint_to_project(
-            endpoint['id'], project['id'])
+            endpoint['id'], project['id']
+        )
         with self.test_client() as c:
-            c.get('/v3/OS-EP-FILTER/projects/%s/endpoints' % project['id'],
-                  headers=self.headers,
-                  expected_status_code=http.client.FORBIDDEN)
+            c.get(
+                '/v3/OS-EP-FILTER/projects/%s/endpoints' % project['id'],
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
+            )
 
 
-class SystemReaderTests(base_classes.TestCaseWithBootstrap,
-                        common_auth.AuthTestMixin,
-                        _SystemUserProjectEndpointTests,
-                        _SystemReaderAndMemberProjectEndpointTests):
+class SystemReaderTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _SystemUserProjectEndpointTests,
+    _SystemReaderAndMemberProjectEndpointTests,
+):
 
     def setUp(self):
         super(SystemReaderTests, self).setUp()
@@ -221,16 +244,15 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
         system_reader = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
         )
-        self.user_id = PROVIDERS.identity_api.create_user(
-            system_reader
-        )['id']
+        self.user_id = PROVIDERS.identity_api.create_user(system_reader)['id']
         PROVIDERS.assignment_api.create_system_grant_for_user(
             self.user_id, self.bootstrapper.reader_role_id
         )
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=system_reader['password'],
-            system=True
+            user_id=self.user_id,
+            password=system_reader['password'],
+            system=True,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -241,10 +263,12 @@ class SystemReaderTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class SystemMemberTests(base_classes.TestCaseWithBootstrap,
-                        common_auth.AuthTestMixin,
-                        _SystemUserProjectEndpointTests,
-                        _SystemReaderAndMemberProjectEndpointTests):
+class SystemMemberTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _SystemUserProjectEndpointTests,
+    _SystemReaderAndMemberProjectEndpointTests,
+):
 
     def setUp(self):
         super(SystemMemberTests, self).setUp()
@@ -255,16 +279,15 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
         system_member = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
         )
-        self.user_id = PROVIDERS.identity_api.create_user(
-            system_member
-        )['id']
+        self.user_id = PROVIDERS.identity_api.create_user(system_member)['id']
         PROVIDERS.assignment_api.create_system_grant_for_user(
             self.user_id, self.bootstrapper.member_role_id
         )
 
         auth = self.build_authentication_request(
-            user_id=self.user_id, password=system_member['password'],
-            system=True
+            user_id=self.user_id,
+            password=system_member['password'],
+            system=True,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -275,9 +298,11 @@ class SystemMemberTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class SystemAdminTests(base_classes.TestCaseWithBootstrap,
-                       common_auth.AuthTestMixin,
-                       _SystemUserProjectEndpointTests):
+class SystemAdminTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _SystemUserProjectEndpointTests,
+):
 
     def setUp(self):
         super(SystemAdminTests, self).setUp()
@@ -291,7 +316,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
         auth = self.build_authentication_request(
             user_id=self.user_id,
             password=self.bootstrapper.admin_password,
-            system=True
+            system=True,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -304,7 +329,7 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
     def test_user_can_add_endpoint_to_project(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         service = PROVIDERS.catalog_api.create_service(
@@ -315,15 +340,17 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
             endpoint['id'], endpoint
         )
         with self.test_client() as c:
-            c.put('/v3/OS-EP-FILTER/projects/%s/endpoints/%s'
-                  % (project['id'], endpoint['id']),
-                  headers=self.headers,
-                  expected_status_code=http.client.NO_CONTENT)
+            c.put(
+                '/v3/OS-EP-FILTER/projects/%s/endpoints/%s'
+                % (project['id'], endpoint['id']),
+                headers=self.headers,
+                expected_status_code=http.client.NO_CONTENT,
+            )
 
     def test_user_can_remove_endpoint_from_project(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
-            unit.new_project_ref(domain_id=CONF.identity.default_domain_id)
+            unit.new_project_ref(domain_id=CONF.identity.default_domain_id),
         )
 
         service = PROVIDERS.catalog_api.create_service(
@@ -334,18 +361,23 @@ class SystemAdminTests(base_classes.TestCaseWithBootstrap,
             endpoint['id'], endpoint
         )
         PROVIDERS.catalog_api.add_endpoint_to_project(
-            endpoint['id'], project['id'])
+            endpoint['id'], project['id']
+        )
         with self.test_client() as c:
-            c.delete('/v3/OS-EP-FILTER/projects/%s/endpoints/%s'
-                     % (project['id'], endpoint['id']),
-                     headers=self.headers,
-                     expected_status_code=http.client.NO_CONTENT)
+            c.delete(
+                '/v3/OS-EP-FILTER/projects/%s/endpoints/%s'
+                % (project['id'], endpoint['id']),
+                headers=self.headers,
+                expected_status_code=http.client.NO_CONTENT,
+            )
 
 
-class DomainUserTests(base_classes.TestCaseWithBootstrap,
-                      common_auth.AuthTestMixin,
-                      _DomainAndProjectUserProjectEndpointTests,
-                      _SystemReaderAndMemberProjectEndpointTests):
+class DomainUserTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _DomainAndProjectUserProjectEndpointTests,
+    _SystemReaderAndMemberProjectEndpointTests,
+):
 
     def setUp(self):
         super(DomainUserTests, self).setUp()
@@ -360,14 +392,15 @@ class DomainUserTests(base_classes.TestCaseWithBootstrap,
         domain_admin = unit.new_user_ref(domain_id=self.domain_id)
         self.user_id = PROVIDERS.identity_api.create_user(domain_admin)['id']
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.admin_role_id, user_id=self.user_id,
-            domain_id=self.domain_id
+            self.bootstrapper.admin_role_id,
+            user_id=self.user_id,
+            domain_id=self.domain_id,
         )
 
         auth = self.build_authentication_request(
             user_id=self.user_id,
             password=domain_admin['password'],
-            domain_id=self.domain_id
+            domain_id=self.domain_id,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -378,10 +411,12 @@ class DomainUserTests(base_classes.TestCaseWithBootstrap,
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class ProjectUserTests(base_classes.TestCaseWithBootstrap,
-                       common_auth.AuthTestMixin,
-                       _DomainAndProjectUserProjectEndpointTests,
-                       _SystemReaderAndMemberProjectEndpointTests):
+class ProjectUserTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _DomainAndProjectUserProjectEndpointTests,
+    _SystemReaderAndMemberProjectEndpointTests,
+):
 
     def setUp(self):
         super(ProjectUserTests, self).setUp()
@@ -393,7 +428,7 @@ class ProjectUserTests(base_classes.TestCaseWithBootstrap,
         auth = self.build_authentication_request(
             user_id=self.user_id,
             password=self.bootstrapper.admin_password,
-            project_id=self.bootstrapper.project_id
+            project_id=self.bootstrapper.project_id,
         )
 
         # Grab a token using the persona we're testing and prepare headers
@@ -405,10 +440,11 @@ class ProjectUserTests(base_classes.TestCaseWithBootstrap,
 
 
 class ProjectUserTestsWithoutEnforceScope(
-        base_classes.TestCaseWithBootstrap,
-        common_auth.AuthTestMixin,
-        _DomainAndProjectUserProjectEndpointTests,
-        _SystemReaderAndMemberProjectEndpointTests):
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _DomainAndProjectUserProjectEndpointTests,
+    _SystemReaderAndMemberProjectEndpointTests,
+):
 
     def _override_policy(self):
         # TODO(cmurphy): Remove this once the deprecated policies in
@@ -425,7 +461,7 @@ class ProjectUserTestsWithoutEnforceScope(
                 'identity:add_endpoint_to_project': bp.SYSTEM_ADMIN,
                 'identity:check_endpoint_in_project': bp.SYSTEM_READER,
                 'identity:list_endpoints_for_project': bp.SYSTEM_READER,
-                'identity:remove_endpoint_from_project': bp.SYSTEM_ADMIN
+                'identity:remove_endpoint_from_project': bp.SYSTEM_ADMIN,
             }
             f.write(jsonutils.dumps(overridden_policies))
 
@@ -455,14 +491,15 @@ class ProjectUserTestsWithoutEnforceScope(
         )['id']
 
         PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.admin_role_id, user_id=self.user_id,
-            project_id=self.project_id
+            self.bootstrapper.admin_role_id,
+            user_id=self.user_id,
+            project_id=self.project_id,
         )
 
         auth = self.build_authentication_request(
             user_id=self.user_id,
             password=user['password'],
-            project_id=self.project_id
+            project_id=self.project_id,
         )
 
         # Grab a token using the persona we're testing and prepare headers

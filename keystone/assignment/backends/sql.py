@@ -46,27 +46,42 @@ class Assignment(base.AssignmentDriverBase):
     def default_role_driver(cls):
         return 'sql'
 
-    def create_grant(self, role_id, user_id=None, group_id=None,
-                     domain_id=None, project_id=None,
-                     inherited_to_projects=False):
+    def create_grant(
+        self,
+        role_id,
+        user_id=None,
+        group_id=None,
+        domain_id=None,
+        project_id=None,
+        inherited_to_projects=False,
+    ):
 
         assignment_type = AssignmentType.calculate_type(
-            user_id, group_id, project_id, domain_id)
+            user_id, group_id, project_id, domain_id
+        )
         try:
             with sql.session_for_write() as session:
-                session.add(RoleAssignment(
-                    type=assignment_type,
-                    actor_id=user_id or group_id,
-                    target_id=project_id or domain_id,
-                    role_id=role_id,
-                    inherited=inherited_to_projects))
+                session.add(
+                    RoleAssignment(
+                        type=assignment_type,
+                        actor_id=user_id or group_id,
+                        target_id=project_id or domain_id,
+                        role_id=role_id,
+                        inherited=inherited_to_projects,
+                    )
+                )
         except sql.DBDuplicateEntry:  # nosec : The v3 grant APIs are silent if
             # the assignment already exists
             pass
 
-    def list_grant_role_ids(self, user_id=None, group_id=None,
-                            domain_id=None, project_id=None,
-                            inherited_to_projects=False):
+    def list_grant_role_ids(
+        self,
+        user_id=None,
+        group_id=None,
+        domain_id=None,
+        project_id=None,
+        inherited_to_projects=False,
+    ):
         with sql.session_for_read() as session:
             q = session.query(RoleAssignment.role_id)
             q = q.filter(RoleAssignment.actor_id == (user_id or group_id))
@@ -74,62 +89,104 @@ class Assignment(base.AssignmentDriverBase):
             q = q.filter(RoleAssignment.inherited == inherited_to_projects)
             return [x.role_id for x in q.all()]
 
-    def _build_grant_filter(self, session, role_id, user_id, group_id,
-                            domain_id, project_id, inherited_to_projects):
+    def _build_grant_filter(
+        self,
+        session,
+        role_id,
+        user_id,
+        group_id,
+        domain_id,
+        project_id,
+        inherited_to_projects,
+    ):
         q = session.query(RoleAssignment)
         q = q.filter_by(actor_id=user_id or group_id)
         if domain_id:
             q = q.filter_by(target_id=domain_id).filter(
-                (RoleAssignment.type == AssignmentType.USER_DOMAIN) |
-                (RoleAssignment.type == AssignmentType.GROUP_DOMAIN))
+                (RoleAssignment.type == AssignmentType.USER_DOMAIN)
+                | (RoleAssignment.type == AssignmentType.GROUP_DOMAIN)
+            )
         else:
             q = q.filter_by(target_id=project_id).filter(
-                (RoleAssignment.type == AssignmentType.USER_PROJECT) |
-                (RoleAssignment.type == AssignmentType.GROUP_PROJECT))
+                (RoleAssignment.type == AssignmentType.USER_PROJECT)
+                | (RoleAssignment.type == AssignmentType.GROUP_PROJECT)
+            )
         q = q.filter_by(role_id=role_id)
         q = q.filter_by(inherited=inherited_to_projects)
         return q
 
-    def check_grant_role_id(self, role_id, user_id=None, group_id=None,
-                            domain_id=None, project_id=None,
-                            inherited_to_projects=False):
+    def check_grant_role_id(
+        self,
+        role_id,
+        user_id=None,
+        group_id=None,
+        domain_id=None,
+        project_id=None,
+        inherited_to_projects=False,
+    ):
         with sql.session_for_read() as session:
             try:
                 q = self._build_grant_filter(
-                    session, role_id, user_id, group_id, domain_id, project_id,
-                    inherited_to_projects)
+                    session,
+                    role_id,
+                    user_id,
+                    group_id,
+                    domain_id,
+                    project_id,
+                    inherited_to_projects,
+                )
                 q.one()
             except sql.NotFound:
                 actor_id = user_id or group_id
                 target_id = domain_id or project_id
-                raise exception.RoleAssignmentNotFound(role_id=role_id,
-                                                       actor_id=actor_id,
-                                                       target_id=target_id)
+                raise exception.RoleAssignmentNotFound(
+                    role_id=role_id, actor_id=actor_id, target_id=target_id
+                )
 
-    def delete_grant(self, role_id, user_id=None, group_id=None,
-                     domain_id=None, project_id=None,
-                     inherited_to_projects=False):
+    def delete_grant(
+        self,
+        role_id,
+        user_id=None,
+        group_id=None,
+        domain_id=None,
+        project_id=None,
+        inherited_to_projects=False,
+    ):
         with sql.session_for_write() as session:
             q = self._build_grant_filter(
-                session, role_id, user_id, group_id, domain_id, project_id,
-                inherited_to_projects)
+                session,
+                role_id,
+                user_id,
+                group_id,
+                domain_id,
+                project_id,
+                inherited_to_projects,
+            )
             if not q.delete(False):
                 actor_id = user_id or group_id
                 target_id = domain_id or project_id
-                raise exception.RoleAssignmentNotFound(role_id=role_id,
-                                                       actor_id=actor_id,
-                                                       target_id=target_id)
+                raise exception.RoleAssignmentNotFound(
+                    role_id=role_id, actor_id=actor_id, target_id=target_id
+                )
 
     def add_role_to_user_and_project(self, user_id, project_id, role_id):
         try:
             with sql.session_for_write() as session:
-                session.add(RoleAssignment(
-                    type=AssignmentType.USER_PROJECT,
-                    actor_id=user_id, target_id=project_id,
-                    role_id=role_id, inherited=False))
+                session.add(
+                    RoleAssignment(
+                        type=AssignmentType.USER_PROJECT,
+                        actor_id=user_id,
+                        target_id=project_id,
+                        role_id=role_id,
+                        inherited=False,
+                    )
+                )
         except sql.DBDuplicateEntry:
-            msg = ('User %s already has role %s in tenant %s'
-                   % (user_id, role_id, project_id))
+            msg = 'User %s already has role %s in tenant %s' % (
+                user_id,
+                role_id,
+                project_id,
+            )
             raise exception.Conflict(type='role grant', details=msg)
 
     def remove_role_from_user_and_project(self, user_id, project_id, role_id):
@@ -139,9 +196,12 @@ class Assignment(base.AssignmentDriverBase):
             q = q.filter_by(target_id=project_id)
             q = q.filter_by(role_id=role_id)
             if q.delete() == 0:
-                raise exception.RoleNotFound(message=_(
-                    'Cannot remove role that has not been granted, %s') %
-                    role_id)
+                raise exception.RoleNotFound(
+                    message=_(
+                        'Cannot remove role that has not been granted, %s'
+                    )
+                    % role_id
+                )
 
     def _get_user_assignment_types(self):
         return [AssignmentType.USER_PROJECT, AssignmentType.USER_DOMAIN]
@@ -195,10 +255,15 @@ class Assignment(base.AssignmentDriverBase):
 
         return actor_types or target_types
 
-    def list_role_assignments(self, role_id=None,
-                              user_id=None, group_ids=None,
-                              domain_id=None, project_ids=None,
-                              inherited_to_projects=None):
+    def list_role_assignments(
+        self,
+        role_id=None,
+        user_id=None,
+        group_ids=None,
+        domain_id=None,
+        project_ids=None,
+        inherited_to_projects=None,
+    ):
 
         def denormalize_role(ref):
             assignment = {}
@@ -215,9 +280,10 @@ class Assignment(base.AssignmentDriverBase):
                 assignment['group_id'] = ref.actor_id
                 assignment['domain_id'] = ref.target_id
             else:
-                raise exception.Error(message=_(
-                    'Unexpected assignment type encountered, %s') %
-                    ref.type)
+                raise exception.Error(
+                    message=_('Unexpected assignment type encountered, %s')
+                    % ref.type
+                )
             assignment['role_id'] = ref.role_id
             if ref.inherited:
                 assignment['inherited_to_projects'] = 'projects'
@@ -225,7 +291,8 @@ class Assignment(base.AssignmentDriverBase):
 
         with sql.session_for_read() as session:
             assignment_types = self._get_assignment_types(
-                user_id, group_ids, project_ids, domain_id)
+                user_id, group_ids, project_ids, domain_id
+            )
 
             targets = None
             if project_ids:
@@ -258,8 +325,9 @@ class Assignment(base.AssignmentDriverBase):
         with sql.session_for_write() as session:
             q = session.query(RoleAssignment)
             q = q.filter_by(target_id=project_id).filter(
-                RoleAssignment.type.in_((AssignmentType.USER_PROJECT,
-                                         AssignmentType.GROUP_PROJECT))
+                RoleAssignment.type.in_(
+                    (AssignmentType.USER_PROJECT, AssignmentType.GROUP_PROJECT)
+                )
             )
             q.delete(False)
 
@@ -278,16 +346,18 @@ class Assignment(base.AssignmentDriverBase):
         with sql.session_for_write() as session:
             q = session.query(RoleAssignment)
             q = q.filter(RoleAssignment.target_id == domain_id).filter(
-                (RoleAssignment.type == AssignmentType.USER_DOMAIN) |
-                (RoleAssignment.type == AssignmentType.GROUP_DOMAIN))
+                (RoleAssignment.type == AssignmentType.USER_DOMAIN)
+                | (RoleAssignment.type == AssignmentType.GROUP_DOMAIN)
+            )
             q.delete(False)
 
     def delete_user_assignments(self, user_id):
         with sql.session_for_write() as session:
             q = session.query(RoleAssignment)
             q = q.filter_by(actor_id=user_id).filter(
-                RoleAssignment.type.in_((AssignmentType.USER_PROJECT,
-                                         AssignmentType.USER_DOMAIN))
+                RoleAssignment.type.in_(
+                    (AssignmentType.USER_PROJECT, AssignmentType.USER_DOMAIN)
+                )
             )
             q.delete(False)
 
@@ -295,13 +365,15 @@ class Assignment(base.AssignmentDriverBase):
         with sql.session_for_write() as session:
             q = session.query(RoleAssignment)
             q = q.filter_by(actor_id=group_id).filter(
-                RoleAssignment.type.in_((AssignmentType.GROUP_PROJECT,
-                                         AssignmentType.GROUP_DOMAIN))
+                RoleAssignment.type.in_(
+                    (AssignmentType.GROUP_PROJECT, AssignmentType.GROUP_DOMAIN)
+                )
             )
             q.delete(False)
 
-    def create_system_grant(self, role_id, actor_id, target_id,
-                            assignment_type, inherited):
+    def create_system_grant(
+        self, role_id, actor_id, target_id, assignment_type, inherited
+    ):
         try:
             with sql.session_for_write() as session:
                 session.add(
@@ -310,7 +382,7 @@ class Assignment(base.AssignmentDriverBase):
                         actor_id=actor_id,
                         target_id=target_id,
                         role_id=role_id,
-                        inherited=inherited
+                        inherited=inherited,
                     )
                 )
         except sql.DBDuplicateEntry:  # nosec : The v3 grant APIs are silent if
@@ -368,17 +440,23 @@ class RoleAssignment(sql.ModelBase, sql.ModelDictMixin):
     attributes = ['type', 'actor_id', 'target_id', 'role_id', 'inherited']
     # NOTE(henry-nash): Postgres requires a name to be defined for an Enum
     type = sql.Column(
-        sql.Enum(AssignmentType.USER_PROJECT, AssignmentType.GROUP_PROJECT,
-                 AssignmentType.USER_DOMAIN, AssignmentType.GROUP_DOMAIN,
-                 name='type'),
-        nullable=False)
+        sql.Enum(
+            AssignmentType.USER_PROJECT,
+            AssignmentType.GROUP_PROJECT,
+            AssignmentType.USER_DOMAIN,
+            AssignmentType.GROUP_DOMAIN,
+            name='type',
+        ),
+        nullable=False,
+    )
     actor_id = sql.Column(sql.String(64), nullable=False)
     target_id = sql.Column(sql.String(64), nullable=False)
     role_id = sql.Column(sql.String(64), nullable=False)
     inherited = sql.Column(sql.Boolean, default=False, nullable=False)
     __table_args__ = (
-        sql.PrimaryKeyConstraint('type', 'actor_id', 'target_id', 'role_id',
-                                 'inherited'),
+        sql.PrimaryKeyConstraint(
+            'type', 'actor_id', 'target_id', 'role_id', 'inherited'
+        ),
         sql.Index('ix_actor_id', 'actor_id'),
     )
 
@@ -400,8 +478,9 @@ class SystemRoleAssignment(sql.ModelBase, sql.ModelDictMixin):
     role_id = sql.Column(sql.String(64), nullable=False)
     inherited = sql.Column(sql.Boolean, default=False, nullable=False)
     __table_args__ = (
-        sql.PrimaryKeyConstraint('type', 'actor_id', 'target_id', 'role_id',
-                                 'inherited'),
+        sql.PrimaryKeyConstraint(
+            'type', 'actor_id', 'target_id', 'role_id', 'inherited'
+        ),
         sql.Index('ix_system_actor_id', 'actor_id'),
     )
 

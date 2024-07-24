@@ -27,89 +27,127 @@ deprecated_list_projects_for_endpoint = policy.DeprecatedRule(
     name=base.IDENTITY % 'list_projects_for_endpoint',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.TRAIN
+    deprecated_since=versionutils.deprecated.TRAIN,
 )
 
 deprecated_add_endpoint_to_project = policy.DeprecatedRule(
     name=base.IDENTITY % 'add_endpoint_to_project',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.TRAIN
+    deprecated_since=versionutils.deprecated.TRAIN,
 )
 
 deprecated_check_endpoint_in_project = policy.DeprecatedRule(
     name=base.IDENTITY % 'check_endpoint_in_project',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.TRAIN
+    deprecated_since=versionutils.deprecated.TRAIN,
 )
 
 deprecated_list_endpoints_for_project = policy.DeprecatedRule(
     name=base.IDENTITY % 'list_endpoints_for_project',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.TRAIN
+    deprecated_since=versionutils.deprecated.TRAIN,
 )
 
 deprecated_remove_endpoint_from_project = policy.DeprecatedRule(
     name=base.IDENTITY % 'remove_endpoint_from_project',
     check_str=base.RULE_ADMIN_REQUIRED,
     deprecated_reason=DEPRECATED_REASON,
-    deprecated_since=versionutils.deprecated.TRAIN
+    deprecated_since=versionutils.deprecated.TRAIN,
 )
 
 
 project_endpoint_policies = [
-
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_projects_for_endpoint',
         check_str=base.RULE_ADMIN_OR_SYSTEM_READER,
         scope_types=['system', 'project'],
         description='List projects allowed to access an endpoint.',
-        operations=[{'path': ('/v3/OS-EP-FILTER/endpoints/{endpoint_id}/'
-                              'projects'),
-                     'method': 'GET'}],
-        deprecated_rule=deprecated_list_projects_for_endpoint),
+        operations=[
+            {
+                'path': (
+                    '/v3/OS-EP-FILTER/endpoints/{endpoint_id}/' 'projects'
+                ),
+                'method': 'GET',
+            }
+        ],
+        deprecated_rule=deprecated_list_projects_for_endpoint,
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'add_endpoint_to_project',
         check_str=base.RULE_ADMIN_REQUIRED,
         scope_types=['system', 'project'],
         description='Allow project to access an endpoint.',
-        operations=[{'path': ('/v3/OS-EP-FILTER/projects/{project_id}/'
-                              'endpoints/{endpoint_id}'),
-                     'method': 'PUT'}],
-        deprecated_rule=deprecated_add_endpoint_to_project),
+        operations=[
+            {
+                'path': (
+                    '/v3/OS-EP-FILTER/projects/{project_id}/'
+                    'endpoints/{endpoint_id}'
+                ),
+                'method': 'PUT',
+            }
+        ],
+        deprecated_rule=deprecated_add_endpoint_to_project,
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'check_endpoint_in_project',
         check_str=base.RULE_ADMIN_OR_SYSTEM_READER,
         scope_types=['system', 'project'],
         description='Check if a project is allowed to access an endpoint.',
-        operations=[{'path': ('/v3/OS-EP-FILTER/projects/{project_id}/'
-                              'endpoints/{endpoint_id}'),
-                     'method': 'GET'},
-                    {'path': ('/v3/OS-EP-FILTER/projects/{project_id}/'
-                              'endpoints/{endpoint_id}'),
-                     'method': 'HEAD'}],
-        deprecated_rule=deprecated_check_endpoint_in_project),
+        operations=[
+            {
+                'path': (
+                    '/v3/OS-EP-FILTER/projects/{project_id}/'
+                    'endpoints/{endpoint_id}'
+                ),
+                'method': 'GET',
+            },
+            {
+                'path': (
+                    '/v3/OS-EP-FILTER/projects/{project_id}/'
+                    'endpoints/{endpoint_id}'
+                ),
+                'method': 'HEAD',
+            },
+        ],
+        deprecated_rule=deprecated_check_endpoint_in_project,
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_endpoints_for_project',
         check_str=base.RULE_ADMIN_OR_SYSTEM_READER,
         scope_types=['system', 'project'],
         description='List the endpoints a project is allowed to access.',
-        operations=[{'path': ('/v3/OS-EP-FILTER/projects/{project_id}/'
-                              'endpoints'),
-                     'method': 'GET'}],
-        deprecated_rule=deprecated_list_endpoints_for_project),
+        operations=[
+            {
+                'path': (
+                    '/v3/OS-EP-FILTER/projects/{project_id}/' 'endpoints'
+                ),
+                'method': 'GET',
+            }
+        ],
+        deprecated_rule=deprecated_list_endpoints_for_project,
+    ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'remove_endpoint_from_project',
         check_str=base.RULE_ADMIN_REQUIRED,
         scope_types=['system', 'project'],
-        description=('Remove access to an endpoint from a project that has '
-                     'previously been given explicit access.'),
-        operations=[{'path': ('/v3/OS-EP-FILTER/projects/{project_id}/'
-                              'endpoints/{endpoint_id}'),
-                     'method': 'DELETE'}],
-        deprecated_rule=deprecated_remove_endpoint_from_project),
+        description=(
+            'Remove access to an endpoint from a project that has '
+            'previously been given explicit access.'
+        ),
+        operations=[
+            {
+                'path': (
+                    '/v3/OS-EP-FILTER/projects/{project_id}/'
+                    'endpoints/{endpoint_id}'
+                ),
+                'method': 'DELETE',
+            }
+        ],
+        deprecated_rule=deprecated_remove_endpoint_from_project,
+    ),
 ]
 
 

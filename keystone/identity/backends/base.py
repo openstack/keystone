@@ -154,8 +154,12 @@ class IdentityDriverBase(object, metaclass=abc.ABCMeta):
         conf = self._get_conf()
         # use list_limit from domain-specific config. If list_limit in
         # domain-specific config is not set, look it up in the default config
-        return (conf.identity.list_limit or conf.list_limit or
-                CONF.identity.list_limit or CONF.list_limit)
+        return (
+            conf.identity.list_limit
+            or conf.list_limit
+            or CONF.identity.list_limit
+            or CONF.list_limit
+        )
 
     def is_domain_aware(self):
         """Indicate if the driver supports domains."""
@@ -168,8 +172,10 @@ class IdentityDriverBase(object, metaclass=abc.ABCMeta):
 
     @property
     def multiple_domains_supported(self):
-        return (self.is_domain_aware() or
-                CONF.identity.domain_specific_drivers_enabled)
+        return (
+            self.is_domain_aware()
+            or CONF.identity.domain_specific_drivers_enabled
+        )
 
     def generates_uuids(self):
         """Indicate if Driver generates UUIDs as the local entity ID."""

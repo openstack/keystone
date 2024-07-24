@@ -37,13 +37,11 @@ class Token(base.AuthMethodHandler):
 
     def authenticate(self, auth_payload):
         if 'id' not in auth_payload:
-            raise exception.ValidationError(attribute='id',
-                                            target='token')
+            raise exception.ValidationError(attribute='id', target='token')
         token = self._get_token_ref(auth_payload)
         if token.is_federated and PROVIDERS.federation_api:
             response_data = mapped.handle_scoped_token(
-                token, PROVIDERS.federation_api,
-                PROVIDERS.identity_api
+                token, PROVIDERS.federation_api, PROVIDERS.identity_api
             )
         else:
             response_data = token_authenticate(token)
@@ -54,8 +52,9 @@ class Token(base.AuthMethodHandler):
         # AuthMethodHandlers do no such thing and this is not required.
         response_data.setdefault('method_names', []).extend(token.methods)
 
-        return base.AuthHandlerResponse(status=True, response_body=None,
-                                        response_data=response_data)
+        return base.AuthHandlerResponse(
+            status=True, response_body=None, response_data=response_data
+        )
 
 
 def token_authenticate(token):
@@ -68,23 +67,23 @@ def token_authenticate(token):
         # privilege attacks
 
         json_body = flask.request.get_json(silent=True, force=True) or {}
-        project_scoped = 'project' in json_body['auth'].get(
-            'scope', {}
-        )
-        domain_scoped = 'domain' in json_body['auth'].get(
-            'scope', {}
-        )
+        project_scoped = 'project' in json_body['auth'].get('scope', {})
+        domain_scoped = 'domain' in json_body['auth'].get('scope', {})
 
         if token.oauth_scoped:
             raise exception.ForbiddenAction(
                 action=_(
                     'Using OAuth-scoped token to create another token. '
-                    'Create a new OAuth-scoped token instead'))
+                    'Create a new OAuth-scoped token instead'
+                )
+            )
         elif token.trust_scoped:
             raise exception.ForbiddenAction(
                 action=_(
                     'Using trust-scoped token to create another token. '
-                    'Create a new trust-scoped token instead'))
+                    'Create a new trust-scoped token instead'
+                )
+            )
         elif token.system_scoped and (project_scoped or domain_scoped):
             raise exception.ForbiddenAction(
                 action=_(
@@ -97,7 +96,8 @@ def token_authenticate(token):
             # Do not allow conversion from scoped tokens.
             if token.project_scoped or token.domain_scoped:
                 raise exception.ForbiddenAction(
-                    action=_('rescope a scoped token'))
+                    action=_('rescope a scoped token')
+                )
 
         # New tokens maintain the audit_id of the original token in the
         # chain (if possible) as the second element in the audit data

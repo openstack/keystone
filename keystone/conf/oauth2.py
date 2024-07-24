@@ -19,29 +19,32 @@ from keystone.conf import utils
 oauth2_authn_methods = cfg.ListOpt(
     'oauth2_authn_methods',
     default=['tls_client_auth', 'client_secret_basic'],
-    help=utils.fmt("""
+    help=utils.fmt(
+        """
 The OAuth2.0 authentication method supported by the system when user obtains
 an access token through the OAuth2.0 token endpoint. This option can be set to
 certificate or secret. If the option is not set, the default value is
 certificate. When the option is set to secret, the OAuth2.0 token endpoint
 uses client_secret_basic method for authentication, otherwise tls_client_auth
 method is used for authentication.
-"""))
+"""
+    ),
+)
 
 oauth2_cert_dn_mapping_id = cfg.StrOpt(
     'oauth2_cert_dn_mapping_id',
     default='oauth2_mapping',
-    help=utils.fmt("""
+    help=utils.fmt(
+        """
 Used to define the mapping rule id. When not set, the mapping rule id is
 oauth2_mapping.
-"""))
+"""
+    ),
+)
 
 
 GROUP_NAME = __name__.split('.')[-1]
-ALL_OPTS = [
-    oauth2_authn_methods,
-    oauth2_cert_dn_mapping_id
-]
+ALL_OPTS = [oauth2_authn_methods, oauth2_cert_dn_mapping_id]
 
 
 def register_opts(conf):

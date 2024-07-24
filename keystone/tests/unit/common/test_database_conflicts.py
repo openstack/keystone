@@ -63,8 +63,9 @@ class DuplicateTestCase(test_v3.RestfulTestCase):
         try:
             PROVIDERS.identity_api.create_user(user)
         except exception.Conflict as e:
-            self.assertIn("Duplicate entry found with name %s" % user['name'],
-                          repr(e))
+            self.assertIn(
+                "Duplicate entry found with name %s" % user['name'], repr(e)
+            )
         else:
             self.fail("Create duplicate user did not raise a conflict")
 
@@ -75,8 +76,9 @@ class DuplicateTestCase(test_v3.RestfulTestCase):
         try:
             PROVIDERS.role_api.create_role(role['id'], role)
         except exception.Conflict as e:
-            self.assertIn("Duplicate entry found with name %s" % role['name'],
-                          repr(e))
+            self.assertIn(
+                "Duplicate entry found with name %s" % role['name'], repr(e)
+            )
         else:
             self.fail("Create duplicate role did not raise a conflict")
 
@@ -86,8 +88,9 @@ class DuplicateTestCase(test_v3.RestfulTestCase):
         try:
             PROVIDERS.identity_api.create_group(group)
         except exception.Conflict as e:
-            self.assertIn("Duplicate entry found with name %s"
-                          % group['name'], repr(e))
+            self.assertIn(
+                "Duplicate entry found with name %s" % group['name'], repr(e)
+            )
         else:
             self.fail("Create duplicate group did not raise a conflict")
 
@@ -97,8 +100,10 @@ class DuplicateTestCase(test_v3.RestfulTestCase):
         try:
             PROVIDERS.policy_api.create_policy(policy_ref['id'], policy_ref)
         except exception.Conflict as e:
-            self.assertIn("Duplicate entry found with name %s"
-                          % policy_ref['name'], repr(e))
+            self.assertIn(
+                "Duplicate entry found with name %s" % policy_ref['name'],
+                repr(e),
+            )
         else:
             self.fail("Create duplicate policy did not raise a conflict")
 
@@ -113,8 +118,9 @@ class DuplicateTestCase(test_v3.RestfulTestCase):
                 credential['id'], credential
             )
         except exception.Conflict as e:
-            self.assertIn("Duplicate entry found with ID %s"
-                          % credential['id'], repr(e))
+            self.assertIn(
+                "Duplicate entry found with ID %s" % credential['id'], repr(e)
+            )
         else:
             self.fail("Create duplicate credential did not raise a conflict")
 
@@ -134,8 +140,9 @@ class DuplicateTestCase(test_v3.RestfulTestCase):
                 trust_ref['id'], trust_ref, [role_ref]
             )
         except exception.Conflict as e:
-            self.assertIn("Duplicate entry found with ID %s"
-                          % trust_ref['id'], repr(e))
+            self.assertIn(
+                "Duplicate entry found with ID %s" % trust_ref['id'], repr(e)
+            )
         else:
             self.fail("Create duplicate trust did not raise a conflict")
 
@@ -150,8 +157,10 @@ class DuplicateTestCase(test_v3.RestfulTestCase):
                 self.mapping['id'], self.mapping
             )
         except exception.Conflict as e:
-            self.assertIn("Duplicate entry found with ID %s"
-                          % self.mapping['id'], repr(e))
+            self.assertIn(
+                "Duplicate entry found with ID %s" % self.mapping['id'],
+                repr(e),
+            )
         else:
             self.fail("Create duplicate mapping did not raise a conflict")
 
@@ -166,8 +175,10 @@ class DuplicateTestCase(test_v3.RestfulTestCase):
                 self.mapping['id'], self.mapping
             )
         except exception.Conflict as e:
-            self.assertIn("Duplicate entry found with ID %s"
-                          % self.mapping['id'], repr(e))
+            self.assertIn(
+                "Duplicate entry found with ID %s" % self.mapping['id'],
+                repr(e),
+            )
         # Any other exception will cause the test to fail
 
     def test_region_duplicate_conflict_gives_name(self):
@@ -184,7 +195,7 @@ class DuplicateTestCase(test_v3.RestfulTestCase):
         self.idp = {
             'id': uuid.uuid4().hex,
             'enabled': True,
-            'description': uuid.uuid4().hex
+            'description': uuid.uuid4().hex,
         }
         PROVIDERS.federation_api.create_idp(self.idp['id'], self.idp)
         self.mapping = mapping_fixtures.MAPPING_EPHEMERAL_USER
@@ -192,10 +203,7 @@ class DuplicateTestCase(test_v3.RestfulTestCase):
         PROVIDERS.federation_api.create_mapping(
             self.mapping['id'], self.mapping
         )
-        protocol = {
-            'id': uuid.uuid4().hex,
-            'mapping_id': self.mapping['id']
-        }
+        protocol = {'id': uuid.uuid4().hex, 'mapping_id': self.mapping['id']}
         protocol_ret = PROVIDERS.federation_api.create_protocol(
             self.idp['id'], protocol['id'], protocol
         )
@@ -204,17 +212,21 @@ class DuplicateTestCase(test_v3.RestfulTestCase):
                 self.idp['id'], protocol['id'], protocol
             )
         except exception.Conflict as e:
-            self.assertIn("Duplicate entry found with ID %s"
-                          % protocol_ret['id'], repr(e))
+            self.assertIn(
+                "Duplicate entry found with ID %s" % protocol_ret['id'],
+                repr(e),
+            )
         else:
-            self.fail("Create duplicate federation_protocol did not raise "
-                      "a conflict")
+            self.fail(
+                "Create duplicate federation_protocol did not raise "
+                "a conflict"
+            )
 
     def test_federation_protocol_duplicate_conflict_with_id_in_id(self):
         self.idp = {
             'id': uuid.uuid4().hex,
             'enabled': True,
-            'description': uuid.uuid4().hex
+            'description': uuid.uuid4().hex,
         }
         PROVIDERS.federation_api.create_idp(self.idp['id'], self.idp)
         self.mapping = mapping_fixtures.MAPPING_EPHEMERAL_USER
@@ -224,7 +236,7 @@ class DuplicateTestCase(test_v3.RestfulTestCase):
         )
         protocol = {
             'id': 'federation_protocol_with_id_in_the_id',
-            'mapping_id': self.mapping['id']
+            'mapping_id': self.mapping['id'],
         }
         protocol_ret = PROVIDERS.federation_api.create_protocol(
             self.idp['id'], protocol['id'], protocol
@@ -234,15 +246,17 @@ class DuplicateTestCase(test_v3.RestfulTestCase):
                 self.idp['id'], protocol['id'], protocol
             )
         except exception.Conflict as e:
-            self.assertIn("Duplicate entry found with ID %s"
-                          % protocol_ret['id'], repr(e))
+            self.assertIn(
+                "Duplicate entry found with ID %s" % protocol_ret['id'],
+                repr(e),
+            )
         # Any other exception will fail the test
 
     def test_federation_protocol_duplicate_conflict_with_id_in_idp_id(self):
         self.idp = {
             'id': 'myidp',
             'enabled': True,
-            'description': uuid.uuid4().hex
+            'description': uuid.uuid4().hex,
         }
         PROVIDERS.federation_api.create_idp(self.idp['id'], self.idp)
         self.mapping = mapping_fixtures.MAPPING_EPHEMERAL_USER
@@ -250,10 +264,7 @@ class DuplicateTestCase(test_v3.RestfulTestCase):
         PROVIDERS.federation_api.create_mapping(
             self.mapping['id'], self.mapping
         )
-        protocol = {
-            'id': uuid.uuid4().hex,
-            'mapping_id': self.mapping['id']
-        }
+        protocol = {'id': uuid.uuid4().hex, 'mapping_id': self.mapping['id']}
         protocol_ret = PROVIDERS.federation_api.create_protocol(
             self.idp['id'], protocol['id'], protocol
         )
@@ -262,8 +273,10 @@ class DuplicateTestCase(test_v3.RestfulTestCase):
                 self.idp['id'], protocol['id'], protocol
             )
         except exception.Conflict as e:
-            self.assertIn("Duplicate entry found with ID %s"
-                          % protocol_ret['id'], repr(e))
+            self.assertIn(
+                "Duplicate entry found with ID %s" % protocol_ret['id'],
+                repr(e),
+            )
         # Any other exception will fail the test
 
     def test_sp_duplicate_conflict_gives_name(self):
@@ -278,7 +291,8 @@ class DuplicateTestCase(test_v3.RestfulTestCase):
         try:
             PROVIDERS.federation_api.create_sp('SP1', sp)
         except exception.Conflict as e:
-            self.assertIn("Duplicate entry found with ID %s"
-                          % service_ref['id'], repr(e))
+            self.assertIn(
+                "Duplicate entry found with ID %s" % service_ref['id'], repr(e)
+            )
         else:
             self.fail("Create duplicate sp did not raise a conflict")

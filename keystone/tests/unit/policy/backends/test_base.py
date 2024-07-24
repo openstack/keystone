@@ -21,9 +21,11 @@ class DriverTestCase(object):
     def setUp(self):
         super(DriverTestCase, self).setUp()
 
-        self.policy = {'id': uuid.uuid4().hex,
-                       'blob': '{"identity:create_user": "role:domain_admin"}',
-                       'type': 'application/json'}
+        self.policy = {
+            'id': uuid.uuid4().hex,
+            'blob': '{"identity:create_user": "role:domain_admin"}',
+            'type': 'application/json',
+        }
         self.driver.create_policy(self.policy['id'], self.policy)
 
     @property
@@ -31,9 +33,11 @@ class DriverTestCase(object):
         raise exception.NotImplemented()
 
     def test_list_policies(self):
-        another_policy = {'id': uuid.uuid4().hex,
-                          'blob': '{"compute:create": "role:project_member"}',
-                          'type': 'application/json'}
+        another_policy = {
+            'id': uuid.uuid4().hex,
+            'blob': '{"compute:create": "role:project_member"}',
+            'type': 'application/json',
+        }
         self.driver.create_policy(another_policy['id'], another_policy)
 
         policies = self.driver.list_policies()
@@ -41,21 +45,25 @@ class DriverTestCase(object):
         self.assertCountEqual([self.policy, another_policy], policies)
 
     def test_get_policy(self):
-        self.assertEqual(self.policy,
-                         self.driver.get_policy(self.policy['id']))
+        self.assertEqual(
+            self.policy, self.driver.get_policy(self.policy['id'])
+        )
 
     def test_update_policy(self):
-        self.policy['blob'] = ('{"identity:create_user": "role:domain_admin",'
-                               '"identity:update_user": "role:domain_admin"}')
+        self.policy['blob'] = (
+            '{"identity:create_user": "role:domain_admin",'
+            '"identity:update_user": "role:domain_admin"}'
+        )
 
         self.driver.update_policy(self.policy['id'], self.policy)
 
-        self.assertEqual(self.policy,
-                         self.driver.get_policy(self.policy['id']))
+        self.assertEqual(
+            self.policy, self.driver.get_policy(self.policy['id'])
+        )
 
     def test_delete_policy(self):
         self.driver.delete_policy(self.policy['id'])
 
-        self.assertRaises(exception.PolicyNotFound,
-                          self.driver.get_policy,
-                          self.policy['id'])
+        self.assertRaises(
+            exception.PolicyNotFound, self.driver.get_policy, self.policy['id']
+        )

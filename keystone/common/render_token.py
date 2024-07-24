@@ -25,13 +25,11 @@ def render_token_response_from_model(token, include_catalog=True):
             'user': {
                 'domain': {
                     'id': token.user_domain['id'],
-                    'name': token.user_domain['name']
+                    'name': token.user_domain['name'],
                 },
                 'id': token.user_id,
                 'name': token.user['name'],
-                'password_expires_at': token.user[
-                    'password_expires_at'
-                ]
+                'password_expires_at': token.user['password_expires_at'],
             },
             'audit_ids': token.audit_ids,
             'expires_at': token.expires_at,
@@ -44,7 +42,7 @@ def render_token_response_from_model(token, include_catalog=True):
     elif token.domain_scoped:
         token_reference['token']['domain'] = {
             'id': token.domain['id'],
-            'name': token.domain['name']
+            'name': token.domain['name'],
         }
         token_reference['token']['roles'] = token.roles
     elif token.trust_scoped:
@@ -52,15 +50,15 @@ def render_token_response_from_model(token, include_catalog=True):
             'id': token.trust_id,
             'trustor_user': {'id': token.trustor['id']},
             'trustee_user': {'id': token.trustee['id']},
-            'impersonation': token.trust['impersonation']
+            'impersonation': token.trust['impersonation'],
         }
         token_reference['token']['project'] = {
             'domain': {
                 'id': token.project_domain['id'],
-                'name': token.project_domain['name']
+                'name': token.project_domain['name'],
             },
             'id': token.trust_project['id'],
-            'name': token.trust_project['name']
+            'name': token.trust_project['name'],
         }
         if token.trust.get('impersonation'):
             trustor_domain = PROVIDERS.resource_api.get_domain(
@@ -69,23 +67,21 @@ def render_token_response_from_model(token, include_catalog=True):
             token_reference['token']['user'] = {
                 'domain': {
                     'id': trustor_domain['id'],
-                    'name': trustor_domain['name']
+                    'name': trustor_domain['name'],
                 },
                 'id': token.trustor['id'],
                 'name': token.trustor['name'],
-                'password_expires_at': token.trustor[
-                    'password_expires_at'
-                ]
+                'password_expires_at': token.trustor['password_expires_at'],
             }
         token_reference['token']['roles'] = token.roles
     elif token.project_scoped:
         token_reference['token']['project'] = {
             'domain': {
                 'id': token.project_domain['id'],
-                'name': token.project_domain['name']
+                'name': token.project_domain['name'],
             },
             'id': token.project['id'],
-            'name': token.project['name']
+            'name': token.project['name'],
         }
         token_reference['token']['is_domain'] = token.project.get(
             'is_domain', False
@@ -95,8 +91,8 @@ def render_token_response_from_model(token, include_catalog=True):
         ap_domain_name = CONF.resource.admin_project_domain_name
         if ap_name and ap_domain_name:
             is_ap = (
-                token.project['name'] == ap_name and
-                ap_domain_name == token.project_domain['name']
+                token.project['name'] == ap_name
+                and ap_domain_name == token.project_domain['name']
             )
             token_reference['token']['is_admin_project'] = is_ap
     if include_catalog and not token.unscoped:
@@ -116,26 +112,23 @@ def render_token_response_from_model(token, include_catalog=True):
             groups=token.federated_groups,
             identity_provider={'id': token.identity_provider_id},
             protocol={'id': token.protocol_id},
-
         )
-        token_reference['token']['user']['OS-FEDERATION'] = (
-            federated_dict
-        )
+        token_reference['token']['user']['OS-FEDERATION'] = federated_dict
         del token_reference['token']['user']['password_expires_at']
     if token.access_token_id:
         token_reference['token']['OS-OAUTH1'] = {
             'access_token_id': token.access_token_id,
-            'consumer_id': token.access_token['consumer_id']
+            'consumer_id': token.access_token['consumer_id'],
         }
     if token.application_credential_id:
         key = 'application_credential'
         token_reference['token'][key] = {}
-        token_reference['token'][key]['id'] = (
-            token.application_credential['id']
-        )
-        token_reference['token'][key]['name'] = (
-            token.application_credential['name']
-        )
+        token_reference['token'][key]['id'] = token.application_credential[
+            'id'
+        ]
+        token_reference['token'][key]['name'] = token.application_credential[
+            'name'
+        ]
         restricted = not token.application_credential['unrestricted']
         token_reference['token'][key]['restricted'] = restricted
         if token.application_credential.get('access_rules'):

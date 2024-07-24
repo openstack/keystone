@@ -31,12 +31,16 @@ def truncated(f):
     'truncated' boolean to 'true' in the hints limit dict.
 
     """
+
     @functools.wraps(f)
     def wrapper(self, hints, *args, **kwargs):
         if not hasattr(hints, 'limit'):
             raise exception.UnexpectedError(
-                _('Cannot truncate a driver call without hints list as '
-                  'first parameter after self '))
+                _(
+                    'Cannot truncate a driver call without hints list as '
+                    'first parameter after self '
+                )
+            )
 
         if hints.limit is None or hints.filters:
             return f(self, hints, *args, **kwargs)
@@ -55,6 +59,7 @@ def truncated(f):
         else:
             hints.set_limit(list_limit)
             return ref_list
+
     return wrapper
 
 
@@ -94,17 +99,23 @@ class Hints(object):
         self.filters = list()
         self.cannot_match = False
 
-    def add_filter(self, name, value, comparator='equals',
-                   case_sensitive=False):
+    def add_filter(
+        self, name, value, comparator='equals', case_sensitive=False
+    ):
         """Add a filter to the filters list, which is publicly accessible."""
-        self.filters.append({'name': name, 'value': value,
-                             'comparator': comparator,
-                             'case_sensitive': case_sensitive})
+        self.filters.append(
+            {
+                'name': name,
+                'value': value,
+                'comparator': comparator,
+                'case_sensitive': case_sensitive,
+            }
+        )
 
     def get_exact_filter_by_name(self, name):
         """Return a filter key and value if exact filter exists for name."""
         for entry in self.filters:
-            if (entry['name'] == name and entry['comparator'] == 'equals'):
+            if entry['name'] == name and entry['comparator'] == 'equals':
                 return entry
 
     def set_limit(self, limit, truncated=False):

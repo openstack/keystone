@@ -41,7 +41,8 @@ class RegionInvalidationManager(object):
     @property
     def region_id(self):
         return self._invalidation_region.get_or_create(
-            self._region_key, self._generate_new_id, expiration_time=-1)
+            self._region_key, self._generate_new_id, expiration_time=-1
+        )
 
     def invalidate_region(self):
         new_region_id = self._generate_new_id()
@@ -87,6 +88,7 @@ def key_mangler_factory(invalidation_manager, orig_key_mangler):
         if orig_key_mangler:
             key = orig_key_mangler(key)
         return key
+
     return key_mangler
 
 
@@ -127,11 +129,14 @@ def configure_cache(region=None):
         region.wrap(_context_cache._ResponseCacheProxy)
 
         region_manager = RegionInvalidationManager(
-            CACHE_INVALIDATION_REGION, region.name)
+            CACHE_INVALIDATION_REGION, region.name
+        )
         region.key_mangler = key_mangler_factory(
-            region_manager, region.key_mangler)
+            region_manager, region.key_mangler
+        )
         region.region_invalidator = DistributedInvalidationStrategy(
-            region_manager)
+            region_manager
+        )
 
 
 def _sha1_mangle_key(key):
@@ -161,7 +166,8 @@ def configure_invalidation_region():
     config_dict['expiration_time'] = None  # we don't want an expiration
 
     CACHE_INVALIDATION_REGION.configure_from_config(
-        config_dict, '%s.' % CONF.cache.config_prefix)
+        config_dict, '%s.' % CONF.cache.config_prefix
+    )
 
     # NOTE(breton): Wrap the cache invalidation region to avoid excessive
     # calls to memcached, which would result in poor performance.
@@ -179,5 +185,6 @@ def configure_invalidation_region():
 def get_memoization_decorator(group, expiration_group=None, region=None):
     if region is None:
         region = CACHE_REGION
-    return cache.get_memoization_decorator(CONF, region, group,
-                                           expiration_group=expiration_group)
+    return cache.get_memoization_decorator(
+        CONF, region, group, expiration_group=expiration_group
+    )

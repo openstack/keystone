@@ -44,8 +44,9 @@ class TestDomainConfigs(unit.BaseTestCase):
         self.tmp_dir = unit.dirs.tmp()
 
         self.config_fixture = self.useFixture(config_fixture.Config(CONF))
-        self.config_fixture.config(domain_config_dir=self.tmp_dir,
-                                   group='identity')
+        self.config_fixture.config(
+            domain_config_dir=self.tmp_dir, group='identity'
+        )
 
     def test_config_for_nonexistent_domain(self):
         """Having a config for a non-existent domain will be ignored.
@@ -56,8 +57,9 @@ class TestDomainConfigs(unit.BaseTestCase):
 
         """
         domain_id = uuid.uuid4().hex
-        domain_config_filename = os.path.join(self.tmp_dir,
-                                              'keystone.%s.conf' % domain_id)
+        domain_config_filename = os.path.join(
+            self.tmp_dir, 'keystone.%s.conf' % domain_id
+        )
         self.addCleanup(lambda: os.remove(domain_config_filename))
         with open(domain_config_filename, 'w'):
             """Write an empty config file."""
@@ -68,28 +70,32 @@ class TestDomainConfigs(unit.BaseTestCase):
 
         domain_config = identity.DomainConfigs()
         fake_standard_driver = None
-        domain_config.setup_domain_drivers(fake_standard_driver,
-                                           mock_assignment_api)
+        domain_config.setup_domain_drivers(
+            fake_standard_driver, mock_assignment_api
+        )
 
     def test_config_for_dot_name_domain(self):
         # Ensure we can get the right domain name which has dots within it
         # from filename.
-        domain_config_filename = os.path.join(self.tmp_dir,
-                                              'keystone.abc.def.com.conf')
+        domain_config_filename = os.path.join(
+            self.tmp_dir, 'keystone.abc.def.com.conf'
+        )
         with open(domain_config_filename, 'w'):
             """Write an empty config file."""
         self.addCleanup(os.remove, domain_config_filename)
 
-        with mock.patch.object(identity.DomainConfigs,
-                               '_load_config_from_file') as mock_load_config:
+        with mock.patch.object(
+            identity.DomainConfigs, '_load_config_from_file'
+        ) as mock_load_config:
             domain_config = identity.DomainConfigs()
             fake_assignment_api = None
             fake_standard_driver = None
-            domain_config.setup_domain_drivers(fake_standard_driver,
-                                               fake_assignment_api)
-            mock_load_config.assert_called_once_with(fake_assignment_api,
-                                                     [domain_config_filename],
-                                                     'abc.def.com')
+            domain_config.setup_domain_drivers(
+                fake_standard_driver, fake_assignment_api
+            )
+            mock_load_config.assert_called_once_with(
+                fake_assignment_api, [domain_config_filename], 'abc.def.com'
+            )
 
     def test_config_for_multiple_sql_backend(self):
         domains_config = identity.DomainConfigs()
@@ -103,30 +109,40 @@ class TestDomainConfigs(unit.BaseTestCase):
             drv = mock.Mock(is_sql=is_sql)
             drivers.append(drv)
             name = 'dummy.{0}'.format(idx)
-            files.append(''.join((
-                identity.DOMAIN_CONF_FHEAD,
-                name,
-                identity.DOMAIN_CONF_FTAIL)))
+            files.append(
+                ''.join(
+                    (
+                        identity.DOMAIN_CONF_FHEAD,
+                        name,
+                        identity.DOMAIN_CONF_FTAIL,
+                    )
+                )
+            )
 
         def walk_fake(*a, **kwa):
-            return ('/fake/keystone/domains/config', [], files),
+            return (('/fake/keystone/domains/config', [], files),)
 
         generic_driver = mock.Mock(is_sql=False)
 
         assignment_api = mock.Mock()
         id_factory = itertools.count()
-        assignment_api.get_domain_by_name.side_effect = (
-            lambda name: {'id': next(id_factory), '_': 'fake_domain'})
+        assignment_api.get_domain_by_name.side_effect = lambda name: {
+            'id': next(id_factory),
+            '_': 'fake_domain',
+        }
         load_driver_mock = mock.Mock(side_effect=drivers)
 
         with mock.patch.object(os, 'walk', walk_fake):
             with mock.patch.object(identity.cfg, 'ConfigOpts'):
-                with mock.patch.object(domains_config, '_load_driver',
-                                       load_driver_mock):
+                with mock.patch.object(
+                    domains_config, '_load_driver', load_driver_mock
+                ):
                     self.assertRaises(
                         exception.MultipleSQLDriversInConfig,
                         domains_config.setup_domain_drivers,
-                        generic_driver, assignment_api)
+                        generic_driver,
+                        assignment_api,
+                    )
 
                     self.assertEqual(3, load_driver_mock.call_count)
 
@@ -138,27 +154,33 @@ class TestDatabaseDomainConfigs(unit.TestCase):
         self.useFixture(database.Database())
         self.load_backends()
         PROVIDERS.resource_api.create_domain(
-            default_fixtures.ROOT_DOMAIN['id'], default_fixtures.ROOT_DOMAIN)
+            default_fixtures.ROOT_DOMAIN['id'], default_fixtures.ROOT_DOMAIN
+        )
 
     def test_domain_config_in_database_disabled_by_default(self):
         self.assertFalse(CONF.identity.domain_configurations_from_database)
 
     def test_loading_config_from_database(self):
-        self.config_fixture.config(domain_configurations_from_database=True,
-                                   group='identity')
+        self.config_fixture.config(
+            domain_configurations_from_database=True, group='identity'
+        )
         domain = unit.new_domain_ref()
         PROVIDERS.resource_api.create_domain(domain['id'], domain)
         # Override two config options for our domain
-        conf = {'ldap': {'url': uuid.uuid4().hex,
-                         'suffix': uuid.uuid4().hex,
-                         'use_tls': True},
-                'identity': {
-                    'driver': 'ldap'}}
+        conf = {
+            'ldap': {
+                'url': uuid.uuid4().hex,
+                'suffix': uuid.uuid4().hex,
+                'use_tls': True,
+            },
+            'identity': {'driver': 'ldap'},
+        }
         PROVIDERS.domain_config_api.create_config(domain['id'], conf)
         fake_standard_driver = None
         domain_config = identity.DomainConfigs()
-        domain_config.setup_domain_drivers(fake_standard_driver,
-                                           PROVIDERS.resource_api)
+        domain_config.setup_domain_drivers(
+            fake_standard_driver, PROVIDERS.resource_api
+        )
         # Make sure our two overrides are in place, and others are not affected
         res = domain_config.get_domain_conf(domain['id'])
         self.assertEqual(conf['ldap']['url'], res.ldap.url)
@@ -167,18 +189,20 @@ class TestDatabaseDomainConfigs(unit.TestCase):
 
         # Make sure the override is not changing the type of the config value
         use_tls_type = type(CONF.ldap.use_tls)
-        self.assertEqual(use_tls_type(conf['ldap']['use_tls']),
-                         res.ldap.use_tls)
+        self.assertEqual(
+            use_tls_type(conf['ldap']['use_tls']), res.ldap.use_tls
+        )
 
         # Now turn off using database domain configuration and check that the
         # default config file values are now seen instead of the overrides.
         self.config_fixture.config(
-            group='identity',
-            domain_configurations_from_database=False)
+            group='identity', domain_configurations_from_database=False
+        )
 
         domain_config = identity.DomainConfigs()
-        domain_config.setup_domain_drivers(fake_standard_driver,
-                                           PROVIDERS.resource_api)
+        domain_config.setup_domain_drivers(
+            fake_standard_driver, PROVIDERS.resource_api
+        )
         res = domain_config.get_domain_conf(domain['id'])
         self.assertEqual(CONF.ldap.url, res.ldap.url)
         self.assertEqual(CONF.ldap.suffix, res.ldap.suffix)
@@ -191,8 +215,10 @@ class TestDatabaseDomainConfigs(unit.TestCase):
 
         # Prepare fake driver
         extension = stevedore.extension.Extension(
-            name="foo", entry_point=None,
-            obj=fake_driver.FooDriver(), plugin=None
+            name="foo",
+            entry_point=None,
+            obj=fake_driver.FooDriver(),
+            plugin=None,
         )
         fake_driver_manager = stevedore.DriverManager.make_test_instance(
             extension, namespace="keystone.identity"
@@ -209,14 +235,15 @@ class TestDatabaseDomainConfigs(unit.TestCase):
         )
         self.config_fixture.config(
             additional_whitelisted_options={"foo": ["opt1"]},
-            group="domain_config"
+            group="domain_config",
         )
         domain = unit.new_domain_ref()
         PROVIDERS.resource_api.create_domain(domain["id"], domain)
         # Override two config options for our domain
         conf = {
             "foo": {"opt1": uuid.uuid4().hex},
-            "identity": {"driver": "foo"}}
+            "identity": {"driver": "foo"},
+        }
         PROVIDERS.domain_config_api.create_config(domain["id"], conf)
         domain_config = identity.DomainConfigs()
         domain_config.setup_domain_drivers("foo", PROVIDERS.resource_api)

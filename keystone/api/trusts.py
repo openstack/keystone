@@ -43,7 +43,8 @@ _build_resource_relation = json_home_relations.os_trust_resource_rel_func
 _build_parameter_relation = json_home_relations.os_trust_parameter_rel_func
 
 TRUST_ID_PARAMETER_RELATION = _build_parameter_relation(
-    parameter_name='trust_id')
+    parameter_name='trust_id'
+)
 
 
 def _build_trust_target_enforcement():
@@ -60,17 +61,21 @@ def _build_trust_target_enforcement():
 
 def _trustor_trustee_only(trust):
     user_id = flask.request.environ.get(context.REQUEST_CONTEXT_ENV).user_id
-    if user_id not in [trust.get('trustee_user_id'),
-                       trust.get('trustor_user_id')]:
+    if user_id not in [
+        trust.get('trustee_user_id'),
+        trust.get('trustor_user_id'),
+    ]:
         raise exception.ForbiddenAction(
-            action=_('Requested user has no relation to this trust'))
+            action=_('Requested user has no relation to this trust')
+        )
 
 
 def _normalize_trust_expires_at(trust):
     # correct isotime
     if trust.get('expires_at') is not None:
-        trust['expires_at'] = utils.isotime(trust['expires_at'],
-                                            subsecond=True)
+        trust['expires_at'] = utils.isotime(
+            trust['expires_at'], subsecond=True
+        )
 
 
 def _normalize_trust_roles(trust):
@@ -81,7 +86,8 @@ def _normalize_trust_roles(trust):
         try:
             matching_role = PROVIDERS.role_api.get_role(trust_role)
             full_role = ks_flask.ResourceBase.wrap_member(
-                matching_role, collection_name='roles', member_name='role')
+                matching_role, collection_name='roles', member_name='role'
+            )
             trust_full_roles.append(full_role['role'])
         except exception.RoleNotFound:
             pass
@@ -90,7 +96,8 @@ def _normalize_trust_roles(trust):
     trust['roles_links'] = {
         'self': ks_flask.base_url(path='/%s/roles' % trust['id']),
         'next': None,
-        'previous': None}
+        'previous': None,
+    }
 
 
 class TrustResource(ks_flask.ResourceBase):
@@ -106,8 +113,10 @@ class TrustResource(ks_flask.ResourceBase):
         token = self.auth_context['token']
         if 'application_credential' in token.methods:
             if not token.application_credential['unrestricted']:
-                action = _("Using method 'application_credential' is not "
-                           "allowed for managing trusts.")
+                action = _(
+                    "Using method 'application_credential' is not "
+                    "allowed for managing trusts."
+                )
                 raise exception.ForbiddenAction(action=action)
 
     def _find_redelegated_trust(self):
@@ -130,8 +139,9 @@ class TrustResource(ks_flask.ResourceBase):
     def _require_trustor_has_role_in_project(self, trust):
         trustor_roles = self._get_trustor_roles(trust)
         for trust_role in trust['roles']:
-            matching_roles = [x for x in trustor_roles
-                              if x == trust_role['id']]
+            matching_roles = [
+                x for x in trustor_roles if x == trust_role['id']
+            ]
             if not matching_roles:
                 raise exception.RoleNotFound(role_id=trust_role['id'])
 
@@ -139,7 +149,8 @@ class TrustResource(ks_flask.ResourceBase):
         original_trust = trust.copy()
         while original_trust.get('redelegated_trust_id'):
             original_trust = PROVIDERS.trust_api.get_trust(
-                original_trust['redelegated_trust_id'])
+                original_trust['redelegated_trust_id']
+            )
 
         if not ((trust.get('project_id')) in [None, '']):
             # Check project exists.
@@ -148,7 +159,9 @@ class TrustResource(ks_flask.ResourceBase):
             assignment_list = PROVIDERS.assignment_api.list_role_assignments(
                 user_id=original_trust['trustor_user_id'],
                 project_id=original_trust['project_id'],
-                effective=True, strip_domain_roles=False)
+                effective=True,
+                strip_domain_roles=False,
+            )
             return list({x['role_id'] for x in assignment_list})
         else:
             return []
@@ -160,12 +173,15 @@ class TrustResource(ks_flask.ResourceBase):
                 roles.append({'id': role['id']})
             else:
                 roles.append(
-                    PROVIDERS.role_api.get_unique_role_by_name(role['name']))
+                    PROVIDERS.role_api.get_unique_role_by_name(role['name'])
+                )
         return roles
 
     def _get_trust(self, trust_id):
-        ENFORCER.enforce_call(action='identity:get_trust',
-                              build_target=_build_trust_target_enforcement)
+        ENFORCER.enforce_call(
+            action='identity:get_trust',
+            build_target=_build_trust_target_enforcement,
+        )
 
         # NOTE(cmurphy) look up trust before doing is_admin authorization - to
         # maintain the API contract, we expect a missing trust to raise a 404
@@ -176,7 +192,8 @@ class TrustResource(ks_flask.ResourceBase):
             # policies are not loaded for the is_admin context, so need to
             # block access here
             raise exception.ForbiddenAction(
-                action=_('Requested user has no relation to this trust'))
+                action=_('Requested user has no relation to this trust')
+            )
 
         # NOTE(cmurphy) As of Train, the default policies enforce the
         # identity:get_trust rule. However, in case the
@@ -189,7 +206,8 @@ class TrustResource(ks_flask.ResourceBase):
             LOG.warning(
                 "The policy check string for rule \"identity:get_trust\" "
                 "has been overridden to \"always true\". In the next release, "
-                "this will cause the" "\"identity:get_trust\" action to "
+                "this will cause the"
+                "\"identity:get_trust\" action to "
                 "be fully permissive as hardcoded enforcement will be "
                 "removed. To correct this issue, either stop overriding the "
                 "\"identity:get_trust\" rule in config to accept the "
@@ -206,12 +224,14 @@ class TrustResource(ks_flask.ResourceBase):
         trustee_user_id = flask.request.args.get('trustee_user_id')
         if trustor_user_id:
             target = {'trust': {'trustor_user_id': trustor_user_id}}
-            ENFORCER.enforce_call(action='identity:list_trusts_for_trustor',
-                                  target_attr=target)
+            ENFORCER.enforce_call(
+                action='identity:list_trusts_for_trustor', target_attr=target
+            )
         elif trustee_user_id:
             target = {'trust': {'trustee_user_id': trustee_user_id}}
-            ENFORCER.enforce_call(action='identity:list_trusts_for_trustee',
-                                  target_attr=target)
+            ENFORCER.enforce_call(
+                action='identity:list_trusts_for_trustee', target_attr=target
+            )
         else:
             ENFORCER.enforce_call(action='identity:list_trusts')
 
@@ -244,10 +264,12 @@ class TrustResource(ks_flask.ResourceBase):
             trusts += PROVIDERS.trust_api.list_trusts()
         elif trustor_user_id:
             trusts += PROVIDERS.trust_api.list_trusts_for_trustor(
-                trustor_user_id)
+                trustor_user_id
+            )
         elif trustee_user_id:
             trusts += PROVIDERS.trust_api.list_trusts_for_trustee(
-                trustee_user_id)
+                trustee_user_id
+            )
 
         for trust in trusts:
             # get_trust returns roles, list_trusts does not
@@ -257,8 +279,9 @@ class TrustResource(ks_flask.ResourceBase):
                 del trust['roles']
 
             if trust.get('expires_at') is not None:
-                trust['expires_at'] = utils.isotime(trust['expires_at'],
-                                                    subsecond=True)
+                trust['expires_at'] = utils.isotime(
+                    trust['expires_at'], subsecond=True
+                )
 
         return self.wrap_collection(trusts)
 
@@ -294,7 +317,8 @@ class TrustResource(ks_flask.ResourceBase):
         trust['roles'] = self._normalize_role_list(trust.get('roles', []))
         self._require_trustor_has_role_in_project(trust)
         trust['expires_at'] = self._parse_expiration_date(
-            trust.get('expires_at'))
+            trust.get('expires_at')
+        )
         trust = self._assign_unique_id(trust)
         redelegated_trust = self._find_redelegated_trust()
         return_trust = PROVIDERS.trust_api.create_trust(
@@ -302,14 +326,17 @@ class TrustResource(ks_flask.ResourceBase):
             trust=trust,
             roles=trust['roles'],
             redelegated_trust=redelegated_trust,
-            initiator=self.audit_initiator)
+            initiator=self.audit_initiator,
+        )
         _normalize_trust_expires_at(return_trust)
         _normalize_trust_roles(return_trust)
         return self.wrap_member(return_trust), http.client.CREATED
 
     def delete(self, trust_id):
-        ENFORCER.enforce_call(action='identity:delete_trust',
-                              build_target=_build_trust_target_enforcement)
+        ENFORCER.enforce_call(
+            action='identity:delete_trust',
+            build_target=_build_trust_target_enforcement,
+        )
         self._check_unrestricted()
 
         # NOTE(cmurphy) As of Train, the default policies enforce the
@@ -323,19 +350,23 @@ class TrustResource(ks_flask.ResourceBase):
             LOG.warning(
                 "The policy check string for rule \"identity:delete_trust\" "
                 "has been overridden to \"always true\". In the next release, "
-                "this will cause the" "\"identity:delete_trust\" action to "
+                "this will cause the"
+                "\"identity:delete_trust\" action to "
                 "be fully permissive as hardcoded enforcement will be "
                 "removed. To correct this issue, either stop overriding the "
                 "\"identity:delete_trust\" rule in config to accept the "
                 "defaults, or explicitly set a rule that is not empty."
             )
             trust = PROVIDERS.trust_api.get_trust(trust_id)
-            if (self.oslo_context.user_id != trust.get('trustor_user_id') and
-                    not self.oslo_context.is_admin):
+            if (
+                self.oslo_context.user_id != trust.get('trustor_user_id')
+                and not self.oslo_context.is_admin
+            ):
                 action = _('Only admin or trustor can delete a trust')
                 raise exception.ForbiddenAction(action=action)
-        PROVIDERS.trust_api.delete_trust(trust_id,
-                                         initiator=self.audit_initiator)
+        PROVIDERS.trust_api.delete_trust(
+            trust_id, initiator=self.audit_initiator
+        )
         return '', http.client.NO_CONTENT
 
 
@@ -349,8 +380,10 @@ class RolesForTrustListResource(flask_restful.Resource):
         return flask.request.environ.get(context.REQUEST_CONTEXT_ENV, None)
 
     def get(self, trust_id):
-        ENFORCER.enforce_call(action='identity:list_roles_for_trust',
-                              build_target=_build_trust_target_enforcement)
+        ENFORCER.enforce_call(
+            action='identity:list_roles_for_trust',
+            build_target=_build_trust_target_enforcement,
+        )
 
         # NOTE(morgan): This duplicates a little of the .get_trust from the
         # main resource, as it needs some of the same logic. However, due to
@@ -360,7 +393,8 @@ class RolesForTrustListResource(flask_restful.Resource):
             # policies are not loaded for the is_admin context, so need to
             # block access here
             raise exception.ForbiddenAction(
-                action=_('Requested user has no relation to this trust'))
+                action=_('Requested user has no relation to this trust')
+            )
 
         trust = PROVIDERS.trust_api.get_trust(trust_id)
 
@@ -370,7 +404,8 @@ class RolesForTrustListResource(flask_restful.Resource):
         # default that would have been produced by the sample config, we need
         # to enforce it again and warn that the behavior is changing.
         rules = policy._ENFORCER._enforcer.rules.get(
-            'identity:list_roles_for_trust')
+            'identity:list_roles_for_trust'
+        )
         # rule check_str is ""
         if isinstance(rules, op_checks.TrueCheck):
             LOG.warning(
@@ -387,8 +422,7 @@ class RolesForTrustListResource(flask_restful.Resource):
 
         _normalize_trust_expires_at(trust)
         _normalize_trust_roles(trust)
-        return {'roles': trust['roles'],
-                'links': trust['roles_links']}
+        return {'roles': trust['roles'], 'links': trust['roles_links']}
 
 
 # NOTE(morgan): Since this Resource is not being used with the automatic
@@ -402,14 +436,17 @@ class RoleForTrustResource(flask_restful.Resource):
 
     def get(self, trust_id, role_id):
         """Get a role that has been assigned to a trust."""
-        ENFORCER.enforce_call(action='identity:get_role_for_trust',
-                              build_target=_build_trust_target_enforcement)
+        ENFORCER.enforce_call(
+            action='identity:get_role_for_trust',
+            build_target=_build_trust_target_enforcement,
+        )
 
         if self.oslo_context.is_admin:
             # policies are not loaded for the is_admin context, so need to
             # block access here
             raise exception.ForbiddenAction(
-                action=_('Requested user has no relation to this trust'))
+                action=_('Requested user has no relation to this trust')
+            )
 
         trust = PROVIDERS.trust_api.get_trust(trust_id)
 
@@ -419,7 +456,8 @@ class RoleForTrustResource(flask_restful.Resource):
         # default that would have been produced by the sample config, we need
         # to enforce it again and warn that the behavior is changing.
         rules = policy._ENFORCER._enforcer.rules.get(
-            'identity:get_role_for_trust')
+            'identity:get_role_for_trust'
+        )
         # rule check_str is ""
         if isinstance(rules, op_checks.TrueCheck):
             LOG.warning(
@@ -438,8 +476,9 @@ class RoleForTrustResource(flask_restful.Resource):
             raise exception.RoleNotFound(role_id=role_id)
 
         role = PROVIDERS.role_api.get_role(role_id)
-        return ks_flask.ResourceBase.wrap_member(role, collection_name='roles',
-                                                 member_name='role')
+        return ks_flask.ResourceBase.wrap_member(
+            role, collection_name='roles', member_name='role'
+        )
 
 
 class TrustAPI(ks_flask.APIBase):
@@ -452,9 +491,9 @@ class TrustAPI(ks_flask.APIBase):
             url='/trusts/<string:trust_id>/roles',
             resource_kwargs={},
             rel='trust_roles',
-            path_vars={
-                'trust_id': TRUST_ID_PARAMETER_RELATION},
-            resource_relation_func=_build_resource_relation),
+            path_vars={'trust_id': TRUST_ID_PARAMETER_RELATION},
+            resource_relation_func=_build_resource_relation,
+        ),
         ks_flask.construct_resource_map(
             resource=RoleForTrustResource,
             url='/trusts/<string:trust_id>/roles/<string:role_id>',
@@ -462,8 +501,10 @@ class TrustAPI(ks_flask.APIBase):
             rel='trust_role',
             path_vars={
                 'trust_id': TRUST_ID_PARAMETER_RELATION,
-                'role_id': json_home.Parameters.ROLE_ID},
-            resource_relation_func=_build_resource_relation),
+                'role_id': json_home.Parameters.ROLE_ID,
+            },
+            resource_relation_func=_build_resource_relation,
+        ),
     ]
     _api_url_prefix = '/OS-TRUST'
 

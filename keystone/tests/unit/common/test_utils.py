@@ -63,8 +63,7 @@ class UtilsTestCase(unit.BaseTestCase):
     def test_resource_invalid_id(self):
         # This input is invalid because it's length is more than 64.
         value = u'x' * 65
-        self.assertRaises(ValueError, common_utils.resource_uuid,
-                          value)
+        self.assertRaises(ValueError, common_utils.resource_uuid, value)
 
     def test_hash(self):
         password = 'right'
@@ -88,8 +87,9 @@ class UtilsTestCase(unit.BaseTestCase):
         password = uuid.uuid4().hex
         hashed_password = common_utils.hash_password(password)
         new_hashed_password = common_utils.hash_password(hashed_password)
-        self.assertFalse(common_utils.check_password(password,
-                                                     new_hashed_password))
+        self.assertFalse(
+            common_utils.check_password(password, new_hashed_password)
+        )
 
     def test_verify_long_password_strict(self):
         self.config_fixture.config(strict_password_check=False)
@@ -103,9 +103,11 @@ class UtilsTestCase(unit.BaseTestCase):
         self.config_fixture.config(strict_password_check=True)
         self.config_fixture.config(group='identity', max_password_length=5)
         invalid_password = 'passw0rd'
-        self.assertRaises(exception.PasswordVerificationError,
-                          common_utils.verify_length_and_trunc_password,
-                          invalid_password)
+        self.assertRaises(
+            exception.PasswordVerificationError,
+            common_utils.verify_length_and_trunc_password,
+            invalid_password,
+        )
 
     def test_verify_length_and_trunc_password_throws_validation_error(self):
         class SpecialObject(object):
@@ -117,41 +119,48 @@ class UtilsTestCase(unit.BaseTestCase):
             self.assertRaises(
                 exception.ValidationError,
                 common_utils.verify_length_and_trunc_password,
-                invalid_password
+                invalid_password,
             )
 
     def test_hash_long_password_truncation(self):
         self.config_fixture.config(strict_password_check=False)
         invalid_length_password = '0' * 9999999
         hashed = common_utils.hash_password(invalid_length_password)
-        self.assertTrue(common_utils.check_password(invalid_length_password,
-                                                    hashed))
+        self.assertTrue(
+            common_utils.check_password(invalid_length_password, hashed)
+        )
 
     def test_hash_long_password_strict(self):
         self.config_fixture.config(strict_password_check=True)
         invalid_length_password = '0' * 9999999
-        self.assertRaises(exception.PasswordVerificationError,
-                          common_utils.hash_password,
-                          invalid_length_password)
+        self.assertRaises(
+            exception.PasswordVerificationError,
+            common_utils.hash_password,
+            invalid_length_password,
+        )
 
     def test_max_algo_length_truncates_password(self):
         self.config_fixture.config(strict_password_check=True)
-        self.config_fixture.config(group='identity',
-                                   password_hash_algorithm='bcrypt')
-        self.config_fixture.config(group='identity',
-                                   max_password_length='96')
+        self.config_fixture.config(
+            group='identity', password_hash_algorithm='bcrypt'
+        )
+        self.config_fixture.config(group='identity', max_password_length='96')
         invalid_length_password = '0' * 96
-        self.assertRaises(exception.PasswordVerificationError,
-                          common_utils.hash_password,
-                          invalid_length_password)
+        self.assertRaises(
+            exception.PasswordVerificationError,
+            common_utils.hash_password,
+            invalid_length_password,
+        )
 
     def test_bcrypt_sha256_not_truncate_password(self):
         self.config_fixture.config(strict_password_check=True)
-        self.config_fixture.config(group='identity',
-                                   password_hash_algorithm='bcrypt_sha256')
+        self.config_fixture.config(
+            group='identity', password_hash_algorithm='bcrypt_sha256'
+        )
         password = '0' * 128
-        password_verified = \
-            common_utils.verify_length_and_trunc_password(password)
+        password_verified = common_utils.verify_length_and_trunc_password(
+            password
+        )
         hashed = common_utils.hash_password(password)
         self.assertTrue(common_utils.check_password(password, hashed))
         self.assertEqual(password.encode('utf-8'), password_verified)
@@ -246,8 +255,9 @@ class UtilsTestCase(unit.BaseTestCase):
                 country_name='cn',
                 user_id='user_id',
                 domain_component='test.com',
-                email_address='user@test.com'
-            ))
+                email_address='user@test.com',
+            )
+        )
 
         dn = common_utils.get_certificate_subject_dn(cert_pem)
         self.assertEqual('test', dn.get('CN'))
@@ -267,8 +277,9 @@ class UtilsTestCase(unit.BaseTestCase):
                 locality_name='kawasaki',
                 organization_name='fujitsu',
                 organizational_unit_name='test',
-                common_name='root'
-            ))
+                common_name='root',
+            )
+        )
 
         cert_pem = unit.create_pem_certificate(
             unit.create_dn(
@@ -279,8 +290,11 @@ class UtilsTestCase(unit.BaseTestCase):
                 country_name='cn',
                 user_id='user_id',
                 domain_component='test.com',
-                email_address='user@test.com'
-            ), ca=root_cert, ca_key=root_key)
+                email_address='user@test.com',
+            ),
+            ca=root_cert,
+            ca_key=root_key,
+        )
 
         dn = common_utils.get_certificate_subject_dn(cert_pem)
         self.assertEqual('test', dn.get('CN'))
@@ -304,13 +318,15 @@ class UtilsTestCase(unit.BaseTestCase):
         self.assertRaises(
             exception.ValidationError,
             common_utils.get_certificate_subject_dn,
-            'MIIEkTCCAnkCFDIzsgpdRGF//5ukMuueXnRxQALhMA0GCSqGSIb3DQEBCwUAMIGC')
+            'MIIEkTCCAnkCFDIzsgpdRGF//5ukMuueXnRxQALhMA0GCSqGSIb3DQEBCwUAMIGC',
+        )
 
     def test_get_certificate_issuer_dn_not_pem_format(self):
         self.assertRaises(
             exception.ValidationError,
             common_utils.get_certificate_issuer_dn,
-            'MIIEkTCCAnkCFDIzsgpdRGF//5ukMuueXnRxQALhMA0GCSqGSIb3DQEBCwUAMIGC')
+            'MIIEkTCCAnkCFDIzsgpdRGF//5ukMuueXnRxQALhMA0GCSqGSIb3DQEBCwUAMIGC',
+        )
 
     def test_get_certificate_thumbprint(self):
         cert_pem = '''-----BEGIN CERTIFICATE-----
@@ -341,8 +357,9 @@ class UtilsTestCase(unit.BaseTestCase):
         4cJHNiTQl8bxfSgwemgSYnnyXM4k
         -----END CERTIFICATE-----'''
         thumbprint = common_utils.get_certificate_thumbprint(cert_pem)
-        self.assertEqual('dMmoJKE9MIJK9VcyahYCb417JDhDfdtTiq_krco8-tk=',
-                         thumbprint)
+        self.assertEqual(
+            'dMmoJKE9MIJK9VcyahYCb417JDhDfdtTiq_krco8-tk=', thumbprint
+        )
 
 
 class ServiceHelperTests(unit.BaseTestCase):
@@ -366,22 +383,24 @@ class FernetUtilsTestCase(unit.BaseTestCase):
             ksfixtures.KeyRepository(
                 self.config_fixture,
                 'fernet_tokens',
-                CONF.fernet_tokens.max_active_keys
+                CONF.fernet_tokens.max_active_keys,
             )
         )
         logging_fixture = self.useFixture(fixtures.FakeLogger(level=log.DEBUG))
         fernet_utilities = fernet_utils.FernetUtils(
             CONF.fernet_tokens.key_repository,
             CONF.fernet_tokens.max_active_keys,
-            'fernet_tokens'
+            'fernet_tokens',
         )
         fernet_utilities.load_keys()
         expected_debug_message = (
             'Loaded 2 Fernet keys from %(dir)s, but `[fernet_tokens] '
             'max_active_keys = %(max)d`; perhaps there have not been enough '
-            'key rotations to reach `max_active_keys` yet?') % {
-                'dir': CONF.fernet_tokens.key_repository,
-                'max': CONF.fernet_tokens.max_active_keys}
+            'key rotations to reach `max_active_keys` yet?'
+        ) % {
+            'dir': CONF.fernet_tokens.key_repository,
+            'max': CONF.fernet_tokens.max_active_keys,
+        }
         self.assertIn(expected_debug_message, logging_fixture.output)
 
     def test_debug_message_not_logged_when_loading_fernet_credential_key(self):
@@ -389,20 +408,22 @@ class FernetUtilsTestCase(unit.BaseTestCase):
             ksfixtures.KeyRepository(
                 self.config_fixture,
                 'credential',
-                CONF.fernet_tokens.max_active_keys
+                CONF.fernet_tokens.max_active_keys,
             )
         )
         logging_fixture = self.useFixture(fixtures.FakeLogger(level=log.DEBUG))
         fernet_utilities = fernet_utils.FernetUtils(
             CONF.credential.key_repository,
             credential_fernet.MAX_ACTIVE_KEYS,
-            'credential'
+            'credential',
         )
         fernet_utilities.load_keys()
         debug_message = (
             'Loaded 2 Fernet keys from %(dir)s, but `[credential] '
             'max_active_keys = %(max)d`; perhaps there have not been enough '
-            'key rotations to reach `max_active_keys` yet?') % {
-                'dir': CONF.credential.key_repository,
-                'max': credential_fernet.MAX_ACTIVE_KEYS}
+            'key rotations to reach `max_active_keys` yet?'
+        ) % {
+            'dir': CONF.credential.key_repository,
+            'max': credential_fernet.MAX_ACTIVE_KEYS,
+        }
         self.assertNotIn(debug_message, logging_fixture.output)

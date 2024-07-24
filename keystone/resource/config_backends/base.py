@@ -64,8 +64,9 @@ class DomainConfigDriverBase(object, metaclass=abc.ABCMeta):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def list_config_options(self, domain_id, group=None, option=False,
-                            sensitive=False):
+    def list_config_options(
+        self, domain_id, group=None, option=False, sensitive=False
+    ):
         """Get a config options for a domain.
 
         :param domain_id: the domain for this option

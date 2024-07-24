@@ -61,18 +61,26 @@ class RestfulTestCase(unit.TestCase):
         self.load_backends()
         self.load_fixtures(default_fixtures)
 
-        self.public_app = webtest.TestApp(
-            self.loadapp(name='public'))
+        self.public_app = webtest.TestApp(self.loadapp(name='public'))
         self.addCleanup(delattr, self, 'public_app')
 
     def auth_plugin_config_override(self, methods=None, **method_classes):
         self.useFixture(
-            ksfixtures.ConfigAuthPlugins(self.config_fixture,
-                                         methods,
-                                         **method_classes))
+            ksfixtures.ConfigAuthPlugins(
+                self.config_fixture, methods, **method_classes
+            )
+        )
 
-    def request(self, app, path, body=None, headers=None, token=None,
-                expected_status=None, **kwargs):
+    def request(
+        self,
+        app,
+        path,
+        body=None,
+        headers=None,
+        token=None,
+        expected_status=None,
+        **kwargs
+    ):
         if headers:
             headers = {str(k): str(v) for k, v in headers.items()}
         else:
@@ -84,9 +92,9 @@ class RestfulTestCase(unit.TestCase):
         # sets environ['REMOTE_ADDR']
         kwargs.setdefault('remote_addr', 'localhost')
 
-        response = app.request(path, headers=headers,
-                               status=expected_status, body=body,
-                               **kwargs)
+        response = app.request(
+            path, headers=headers, status=expected_status, body=body, **kwargs
+        )
 
         return response
 
@@ -102,8 +110,9 @@ class RestfulTestCase(unit.TestCase):
         """
         self.assertTrue(
             200 <= response.status_code <= 299,
-            'Status code %d is outside of the expected range (2xx)\n\n%s' %
-            (response.status, response.body))
+            'Status code %d is outside of the expected range (2xx)\n\n%s'
+            % (response.status, response.body),
+        )
 
     def assertResponseStatus(self, response, expected_status):
         """Assert a specific status code on the response.
@@ -116,16 +125,19 @@ class RestfulTestCase(unit.TestCase):
             self.assertResponseStatus(response, http.client.NO_CONTENT)
         """
         self.assertEqual(
-            expected_status, response.status_code,
-            'Status code %s is not %s, as expected\n\n%s' %
-            (response.status_code, expected_status, response.body))
+            expected_status,
+            response.status_code,
+            'Status code %s is not %s, as expected\n\n%s'
+            % (response.status_code, expected_status, response.body),
+        )
 
     def assertValidResponseHeaders(self, response):
         """Ensure that response headers appear as expected."""
         self.assertIn('X-Auth-Token', response.headers.get('Vary'))
 
-    def assertValidErrorResponse(self, response,
-                                 expected_status=http.client.BAD_REQUEST):
+    def assertValidErrorResponse(
+        self, response, expected_status=http.client.BAD_REQUEST
+    ):
         """Verify that the error response is valid.
 
         Subclasses can override this function based on the expected response.
@@ -164,9 +176,15 @@ class RestfulTestCase(unit.TestCase):
             else:
                 response.result = response.body
 
-    def restful_request(self, method='GET', headers=None, body=None,
-                        content_type=None, response_content_type=None,
-                        **kwargs):
+    def restful_request(
+        self,
+        method='GET',
+        headers=None,
+        body=None,
+        content_type=None,
+        response_content_type=None,
+        **kwargs
+    ):
         """Serialize/deserialize json as request/response body.
 
         .. WARNING::
@@ -181,15 +199,18 @@ class RestfulTestCase(unit.TestCase):
         body = self._to_content_type(body, headers, content_type)
 
         # Perform the HTTP request/response
-        response = self.request(method=method, headers=headers, body=body,
-                                **kwargs)
+        response = self.request(
+            method=method, headers=headers, body=body, **kwargs
+        )
 
         response_content_type = response_content_type or content_type
         self._from_content_type(response, content_type=response_content_type)
 
         # we can save some code & improve coverage by always doing this
-        if (method != 'HEAD' and
-                response.status_code >= http.client.BAD_REQUEST):
+        if (
+            method != 'HEAD'
+            and response.status_code >= http.client.BAD_REQUEST
+        ):
             self.assertValidErrorResponse(response)
 
         # Contains the decoded response.body

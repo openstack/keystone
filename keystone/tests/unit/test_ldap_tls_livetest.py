@@ -46,14 +46,20 @@ class LiveTLSLDAPIdentity(test_ldap_livetest.LiveLDAPIdentity):
         return config_files
 
     def test_tls_certfile_demand_option(self):
-        self.config_fixture.config(group='ldap',
-                                   use_tls=True,
-                                   tls_cacertdir=None,
-                                   tls_req_cert='demand')
+        self.config_fixture.config(
+            group='ldap',
+            use_tls=True,
+            tls_cacertdir=None,
+            tls_req_cert='demand',
+        )
         PROVIDERS.identity_api = identity.backends.ldap.Identity()
 
-        user = unit.create_user(PROVIDERS.identity_api, 'default',
-                                name='fake1', password='fakepass1')
+        user = unit.create_user(
+            PROVIDERS.identity_api,
+            'default',
+            name='fake1',
+            password='fakepass1',
+        )
         user_ref = PROVIDERS.identity_api.get_user(user['id'])
         self.assertEqual(user['id'], user_ref['id'])
 
@@ -62,21 +68,25 @@ class LiveTLSLDAPIdentity(test_ldap_livetest.LiveLDAPIdentity):
 
         PROVIDERS.identity_api.delete_user(user['id'])
         self.assertRaises(
-            exception.UserNotFound,
-            PROVIDERS.identity_api.get_user,
-            user['id']
+            exception.UserNotFound, PROVIDERS.identity_api.get_user, user['id']
         )
 
     def test_tls_certdir_demand_option(self):
-        self.config_fixture.config(group='ldap',
-                                   use_tls=True,
-                                   tls_cacertdir=None,
-                                   tls_req_cert='demand')
+        self.config_fixture.config(
+            group='ldap',
+            use_tls=True,
+            tls_cacertdir=None,
+            tls_req_cert='demand',
+        )
         PROVIDERS.identity_api = identity.backends.ldap.Identity()
 
-        user = unit.create_user(PROVIDERS.identity_api, 'default',
-                                id='fake1', name='fake1',
-                                password='fakepass1')
+        user = unit.create_user(
+            PROVIDERS.identity_api,
+            'default',
+            id='fake1',
+            name='fake1',
+            password='fakepass1',
+        )
         user_ref = PROVIDERS.identity_api.get_user('fake1')
         self.assertEqual('fake1', user_ref['id'])
 
@@ -85,9 +95,7 @@ class LiveTLSLDAPIdentity(test_ldap_livetest.LiveLDAPIdentity):
 
         PROVIDERS.identity_api.delete_user('fake1')
         self.assertRaises(
-            exception.UserNotFound,
-            PROVIDERS.identity_api.get_user,
-            'fake1'
+            exception.UserNotFound, PROVIDERS.identity_api.get_user, 'fake1'
         )
 
     def test_tls_bad_certfile(self):
@@ -96,7 +104,8 @@ class LiveTLSLDAPIdentity(test_ldap_livetest.LiveLDAPIdentity):
             use_tls=True,
             tls_req_cert='demand',
             tls_cacertfile='/etc/keystone/ssl/certs/mythicalcert.pem',
-            tls_cacertdir=None)
+            tls_cacertdir=None,
+        )
         PROVIDERS.identity_api = identity.backends.ldap.Identity()
 
         user = unit.new_user_ref('default')
@@ -108,7 +117,8 @@ class LiveTLSLDAPIdentity(test_ldap_livetest.LiveLDAPIdentity):
             use_tls=True,
             tls_cacertfile=None,
             tls_req_cert='demand',
-            tls_cacertdir='/etc/keystone/ssl/mythicalcertdir')
+            tls_cacertdir='/etc/keystone/ssl/mythicalcertdir',
+        )
         PROVIDERS.identity_api = identity.backends.ldap.Identity()
 
         user = unit.new_user_ref('default')

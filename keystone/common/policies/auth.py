@@ -20,63 +20,41 @@ auth_policies = [
         check_str='',
         description='Get service catalog.',
         operations=[
-            {
-                'path': '/v3/auth/catalog',
-                'method': 'GET'
-            },
-            {
-                'path': '/v3/auth/catalog',
-                'method': 'HEAD'
-            }
-        ]
+            {'path': '/v3/auth/catalog', 'method': 'GET'},
+            {'path': '/v3/auth/catalog', 'method': 'HEAD'},
+        ],
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_auth_projects',
         check_str='',
-        description=('List all projects a user has access to via role '
-                     'assignments.'),
+        description=(
+            'List all projects a user has access to via role ' 'assignments.'
+        ),
         operations=[
-            {
-                'path': '/v3/auth/projects',
-                'method': 'GET'
-            },
-            {
-                'path': '/v3/auth/projects',
-                'method': 'HEAD'
-            }
-        ]
+            {'path': '/v3/auth/projects', 'method': 'GET'},
+            {'path': '/v3/auth/projects', 'method': 'HEAD'},
+        ],
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_auth_domains',
         check_str='',
-        description=('List all domains a user has access to via role '
-                     'assignments.'),
+        description=(
+            'List all domains a user has access to via role ' 'assignments.'
+        ),
         operations=[
-            {
-                'path': '/v3/auth/domains',
-                'method': 'GET'
-            },
-            {
-                'path': '/v3/auth/domains',
-                'method': 'HEAD'
-            }
-        ]
+            {'path': '/v3/auth/domains', 'method': 'GET'},
+            {'path': '/v3/auth/domains', 'method': 'HEAD'},
+        ],
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'get_auth_system',
         check_str='',
         description='List systems a user has access to via role assignments.',
         operations=[
-            {
-                'path': '/v3/auth/system',
-                'method': 'GET'
-            },
-            {
-                'path': '/v3/auth/system',
-                'method': 'HEAD'
-            }
-        ]
-    )
+            {'path': '/v3/auth/system', 'method': 'GET'},
+            {'path': '/v3/auth/system', 'method': 'HEAD'},
+        ],
+    ),
 ]
 
 

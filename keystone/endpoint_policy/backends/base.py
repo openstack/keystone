@@ -19,8 +19,9 @@ class EndpointPolicyDriverBase(object, metaclass=abc.ABCMeta):
     """Interface description for an Endpoint Policy driver."""
 
     @abc.abstractmethod
-    def create_policy_association(self, policy_id, endpoint_id=None,
-                                  service_id=None, region_id=None):
+    def create_policy_association(
+        self, policy_id, endpoint_id=None, service_id=None, region_id=None
+    ):
         """Create a policy association.
 
         :param policy_id: identity of policy that is being associated
@@ -43,8 +44,9 @@ class EndpointPolicyDriverBase(object, metaclass=abc.ABCMeta):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def check_policy_association(self, policy_id, endpoint_id=None,
-                                 service_id=None, region_id=None):
+    def check_policy_association(
+        self, policy_id, endpoint_id=None, service_id=None, region_id=None
+    ):
         """Check existence of a policy association.
 
         :param policy_id: identity of policy that is being associated
@@ -63,8 +65,9 @@ class EndpointPolicyDriverBase(object, metaclass=abc.ABCMeta):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def delete_policy_association(self, policy_id, endpoint_id=None,
-                                  service_id=None, region_id=None):
+    def delete_policy_association(
+        self, policy_id, endpoint_id=None, service_id=None, region_id=None
+    ):
         """Delete a policy association.
 
         :param policy_id: identity of policy that is being associated
@@ -81,8 +84,9 @@ class EndpointPolicyDriverBase(object, metaclass=abc.ABCMeta):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def get_policy_association(self, endpoint_id=None,
-                               service_id=None, region_id=None):
+    def get_policy_association(
+        self, endpoint_id=None, service_id=None, region_id=None
+    ):
         """Get the policy for an explicit association.
 
         This method is not exposed as a public API, but is used by

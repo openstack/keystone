@@ -31,9 +31,7 @@ class PolicyTestCase(test_v3.RestfulTestCase):
         super(PolicyTestCase, self).setUp()
         self.policy = unit.new_policy_ref()
         self.policy_id = self.policy['id']
-        PROVIDERS.policy_api.create_policy(
-            self.policy_id,
-            self.policy.copy())
+        PROVIDERS.policy_api.create_policy(self.policy_id, self.policy.copy())
 
     # policy crud tests
 
@@ -52,21 +50,26 @@ class PolicyTestCase(test_v3.RestfulTestCase):
 
     def test_get_head_policy(self):
         """Call ``GET & HEAD /policies/{policy_id}``."""
-        resource_url = ('/policies/%(policy_id)s' %
-                        {'policy_id': self.policy_id})
+        resource_url = '/policies/%(policy_id)s' % {
+            'policy_id': self.policy_id
+        }
         r = self.get(resource_url)
         self.assertValidPolicyResponse(r, self.policy)
         self.head(resource_url, expected_status=http.client.OK)
 
     def test_update_policy(self):
         """Call ``PATCH /policies/{policy_id}``."""
-        self.policy['blob'] = json.dumps({'data': uuid.uuid4().hex, })
+        self.policy['blob'] = json.dumps(
+            {
+                'data': uuid.uuid4().hex,
+            }
+        )
         r = self.patch(
             '/policies/%(policy_id)s' % {'policy_id': self.policy_id},
-            body={'policy': self.policy})
+            body={'policy': self.policy},
+        )
         self.assertValidPolicyResponse(r, self.policy)
 
     def test_delete_policy(self):
         """Call ``DELETE /policies/{policy_id}``."""
-        self.delete(
-            '/policies/%(policy_id)s' % {'policy_id': self.policy_id})
+        self.delete('/policies/%(policy_id)s' % {'policy_id': self.policy_id})

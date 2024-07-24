@@ -20,17 +20,15 @@ _consumer_properties = {
 consumer_create = {
     'type': 'object',
     'properties': _consumer_properties,
-    'additionalProperties': True
+    'additionalProperties': True,
 }
 
 consumer_update = {
     'type': 'object',
     'properties': _consumer_properties,
-    'not': {
-        'required': ['secret']
-    },
+    'not': {'required': ['secret']},
     'minProperties': 1,
-    'additionalProperties': True
+    'additionalProperties': True,
 }
 
 request_token_authorize = {
@@ -43,6 +41,6 @@ request_token_authorize = {
         },
         'minProperties': 1,
         'maxProperties': 1,
-        'additionalProperties': False
-    }
+        'additionalProperties': False,
+    },
 }

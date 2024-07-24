@@ -35,15 +35,20 @@ def validate_password(password):
         try:
             if not re.match(pattern, password):
                 pattern_desc = (
-                    CONF.security_compliance.password_regex_description)
+                    CONF.security_compliance.password_regex_description
+                )
                 raise exception.PasswordRequirementsValidationError(
-                    detail=pattern_desc)
+                    detail=pattern_desc
+                )
         except re.error:
-            msg = ("Unable to validate password due to invalid regular "
-                   "expression - password_regex: %s")
+            msg = (
+                "Unable to validate password due to invalid regular "
+                "expression - password_regex: %s"
+            )
             LOG.error(msg, pattern)
-            detail = _("Unable to validate password due to invalid "
-                       "configuration")
+            detail = _(
+                "Unable to validate password due to invalid " "configuration"
+            )
             raise exception.PasswordValidationError(detail=detail)
 
 
@@ -61,8 +66,9 @@ class SchemaValidator(object):
         # didn't by default. See the Nova V3 validator for details on how this
         # is done.
         validators = {}
-        validator_cls = jsonschema.validators.extend(self.validator_org,
-                                                     validators)
+        validator_cls = jsonschema.validators.extend(
+            self.validator_org, validators
+        )
         fc = jsonschema.FormatChecker()
         self.validator = validator_cls(schema, format_checker=fc)
 
@@ -81,9 +87,9 @@ class SchemaValidator(object):
                 # we don't expose sensitive user information in the event it
                 # fails validation.
                 path = '/'.join(map(str, ex.path))
-                detail = _("Invalid input for field '%(path)s': "
-                           "%(message)s") % {'path': path,
-                                             'message': str(ex)}
+                detail = _(
+                    "Invalid input for field '%(path)s': " "%(message)s"
+                ) % {'path': path, 'message': str(ex)}
             else:
                 detail = str(ex)
             raise exception.SchemaValidationError(detail=detail)
