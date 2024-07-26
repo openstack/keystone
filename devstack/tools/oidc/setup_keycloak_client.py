@@ -6,6 +6,7 @@ KEYCLOAK_PASSWORD = os.environ.get('KEYCLOAK_PASSWORD')
 KEYCLOAK_URL = os.environ.get('KEYCLOAK_URL')
 HOST_IP = os.environ.get('HOST_IP', 'localhost')
 
+
 class KeycloakClient(object):
     def __init__(self):
         self.session = requests.session()
@@ -29,7 +30,7 @@ class KeycloakClient(object):
         r = requests.post(self.token_endpoint(realm), data=params).json()
         headers = {
             'Authorization': ("Bearer %s" % r['access_token']),
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
         }
         self.session.headers.update(headers)
         return r
@@ -43,7 +44,9 @@ class KeycloakClient(object):
             'implicitFlowEnabled': True,
             'directAccessGrantsEnabled': True,
         }
-        return self.session.post(self.construct_url(realm, 'clients'), json=data)
+        return self.session.post(
+            self.construct_url(realm, 'clients'), json=data
+        )
 
 
 def main():
@@ -51,7 +54,7 @@ def main():
 
     redirect_uris = [
         f'http://{HOST_IP}/identity/v3/auth/OS-FEDERATION/identity_providers/sso/protocols/openid/websso',
-        f'http://{HOST_IP}/identity/v3/auth/OS-FEDERATION/websso/openid'
+        f'http://{HOST_IP}/identity/v3/auth/OS-FEDERATION/websso/openid',
     ]
 
     c.create_client('master', 'devstack', 'nomoresecret', redirect_uris)

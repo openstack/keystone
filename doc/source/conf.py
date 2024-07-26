@@ -44,7 +44,7 @@ extensions = [
     'sphinxcontrib.apidoc',
     'sphinxcontrib.seqdiag',
     'sphinx_feature_classification.support_matrix',
-    'sphinxcontrib.blockdiag'
+    'sphinxcontrib.blockdiag',
 ]
 
 blockdiag_html_image_format = 'SVG'
@@ -134,8 +134,13 @@ modindex_common_prefix = ['keystone.']
 # List of tuples 'sourcefile', 'target', u'title', u'Authors name', 'manual'
 
 man_pages = [
-    ('cli/keystone-manage', 'keystone-manage', 'Keystone Management Utility',
-     ['OpenStack'], 1)
+    (
+        'cli/keystone-manage',
+        'keystone-manage',
+        'Keystone Management Utility',
+        ['OpenStack'],
+        1,
+    )
 ]
 
 
@@ -235,8 +240,14 @@ latex_elements = {
 # NOTE(gyee): Specify toctree_only=True for a better document structure of
 # the generated PDF file.
 latex_documents = [
-    ('index', 'doc-keystone.tex', 'Keystone Documentation',
-     'OpenStack', 'manual', True)
+    (
+        'index',
+        'doc-keystone.tex',
+        'Keystone Documentation',
+        'OpenStack',
+        'manual',
+        True,
+    )
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -266,9 +277,15 @@ latex_documents = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    ('index', 'keystone', 'Keystone Documentation',
-     'OpenStack', 'keystone', 'One line description of project.',
-     'Miscellaneous'),
+    (
+        'index',
+        'keystone',
+        'Keystone Documentation',
+        'OpenStack',
+        'keystone',
+        'One line description of project.',
+        'Miscellaneous',
+    ),
 ]
 
 # Documents to append as an appendix to all manuals.

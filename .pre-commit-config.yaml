@@ -27,12 +27,11 @@ repos:
   #   hooks:
   #     - id: pyupgrade
   #       args: ['--py38-plus']
-  # TODO(gtema): Uncomment it once all files are blackified
-  # - repo: https://github.com/psf/black
-  #   rev: 24.4.0
-  #   hooks:
-  #     - id: black
-  #       args: ['-S', '-l', '79']
+  - repo: https://github.com/psf/black
+    rev: 24.4.0
+    hooks:
+      - id: black
+        args: ['-S', '-l', '79']
   # - repo: https://opendev.org/openstack/hacking
   #   rev: 6.1.0
   #   hooks:
