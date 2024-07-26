@@ -39,7 +39,6 @@ import keystone.conf
 from keystone import exception
 from keystone.i18n import _
 
-
 _CATALOG_HELPER_OBJ = None
 
 LOG = log.getLogger(__name__)

@@ -22,7 +22,6 @@ from keystone import identity
 from keystone.tests import unit
 from keystone.tests.unit import test_ldap_livetest
 
-
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
 

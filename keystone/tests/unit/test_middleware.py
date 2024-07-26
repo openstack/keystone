@@ -14,12 +14,12 @@
 
 import copy
 import hashlib
+import http.client
 import typing as ty
 from unittest import mock
 import uuid
 
 import fixtures
-import http.client
 import webtest
 
 from keystone.auth import core as auth_core
@@ -34,7 +34,6 @@ from keystone.server.flask.request_processing.middleware import auth_context
 from keystone.tests import unit
 from keystone.tests.unit import mapping_fixtures
 from keystone.tests.unit import test_backend_sql
-
 
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs

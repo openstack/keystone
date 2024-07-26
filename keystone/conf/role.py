@@ -14,7 +14,6 @@ from oslo_config import cfg
 
 from keystone.conf import utils
 
-
 # The role driver has no default for backward compatibility reasons. If role
 # driver is not specified, the assignment driver chooses the backend.
 driver = cfg.StrOpt(

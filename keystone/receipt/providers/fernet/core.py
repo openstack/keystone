@@ -14,14 +14,12 @@
 
 import os
 
-
 from keystone.common import utils as ks_utils
 import keystone.conf
 from keystone import exception
 from keystone.i18n import _
 from keystone.receipt.providers import base
 from keystone.receipt import receipt_formatters as tf
-
 
 CONF = keystone.conf.CONF
 

@@ -24,8 +24,9 @@ please see pycodestyle.py.
 """
 
 import ast
-from hacking import core
 import re
+
+from hacking import core
 
 
 class BaseASTChecker(ast.NodeVisitor):

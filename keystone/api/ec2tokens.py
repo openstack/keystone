@@ -12,10 +12,10 @@
 
 # This file handles all flask-restful resources for /v3/ec2tokens
 
+import http.client
 import urllib.parse
 
 import flask
-import http.client
 from keystoneclient.contrib.ec2 import utils as ec2_utils
 from oslo_serialization import jsonutils
 
@@ -26,7 +26,6 @@ from keystone.common import utils
 from keystone import exception
 from keystone.i18n import _
 from keystone.server import flask as ks_flask
-
 
 CRED_TYPE_EC2 = 'ec2'
 

@@ -13,7 +13,6 @@
 from keystone.common import cache
 import keystone.conf
 
-
 CONF = keystone.conf.CONF
 
 

@@ -24,7 +24,6 @@ import keystone.conf
 from keystone import exception
 from keystone import notifications
 
-
 CONF = keystone.conf.CONF
 MEMOIZE = cache.get_memoization_decorator(group='credential')
 PROVIDERS = provider_api.ProviderAPIs

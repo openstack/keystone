@@ -26,7 +26,6 @@ from keystone.tests import unit
 from keystone.tests.unit import fakeldap
 from keystone.tests.unit import test_backend_ldap
 
-
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
 

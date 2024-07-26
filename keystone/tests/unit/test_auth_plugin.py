@@ -25,7 +25,6 @@ from keystone import exception
 from keystone.tests import unit
 from keystone.tests.unit.ksfixtures import auth_plugins
 
-
 # for testing purposes only
 METHOD_NAME = 'simple_challenge_response'
 EXPECTED_RESPONSE = uuid.uuid4().hex

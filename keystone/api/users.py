@@ -13,11 +13,11 @@
 # This file handles all flask-restful resources for /v3/users
 
 import base64
+import http.client
 import secrets
 import uuid
 
 import flask
-import http.client
 from oslo_serialization import jsonutils
 from werkzeug import exceptions
 
@@ -34,7 +34,6 @@ from keystone.i18n import _
 from keystone.identity import schema
 from keystone import notifications
 from keystone.server import flask as ks_flask
-
 
 CRED_TYPE_EC2 = 'ec2'
 CONF = keystone.conf.CONF

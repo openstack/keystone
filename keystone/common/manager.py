@@ -23,7 +23,6 @@ import stevedore
 from keystone.common import provider_api
 from keystone.i18n import _
 
-
 LOG = log.getLogger(__name__)
 
 

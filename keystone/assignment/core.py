@@ -29,7 +29,6 @@ from keystone import exception
 from keystone.i18n import _
 from keystone import notifications
 
-
 CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 PROVIDERS = provider_api.ProviderAPIs

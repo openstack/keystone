@@ -48,7 +48,6 @@ from keystone.tests.unit.resource import test_backends as resource_tests
 from keystone.tests.unit.trust import test_backends as trust_tests
 from keystone.trust.backends import sql as trust_sql
 
-
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
 

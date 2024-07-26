@@ -15,7 +15,6 @@ from oslo_log import versionutils
 
 from keystone.conf import utils
 
-
 _DEPRECATED_MSG = utils.fmt(
     """
 This option has been superseded by ephemeral users existing in the domain

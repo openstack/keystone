@@ -15,9 +15,9 @@
 
 import copy
 import functools
+import http.client
 import random
 
-import http.client
 from oslo_serialization import jsonutils
 from testtools import matchers as tt_matchers
 import webob
@@ -25,7 +25,6 @@ import webob
 from keystone.api import discovery
 from keystone.common import json_home
 from keystone.tests import unit
-
 
 v3_MEDIA_TYPES = [
     {

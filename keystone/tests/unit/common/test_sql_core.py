@@ -17,7 +17,6 @@ from keystone.common import sql
 from keystone.tests import unit
 from keystone.tests.unit import utils
 
-
 ModelBase = declarative.declarative_base()
 
 

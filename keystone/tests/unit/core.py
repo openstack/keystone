@@ -18,8 +18,8 @@ import contextlib
 import datetime
 import functools
 import hashlib
+import http.client
 import json
-import ldap
 import os
 import secrets
 import shutil
@@ -35,7 +35,7 @@ from cryptography import x509
 import fixtures
 import flask
 from flask import testing as flask_testing
-import http.client
+import ldap
 from oslo_config import fixture as config_fixture
 from oslo_context import context as oslo_context
 from oslo_context import fixture as oslo_ctx_fixture
@@ -57,7 +57,6 @@ from keystone.resource.backends import base as resource_base
 from keystone.server.flask import application as flask_app
 from keystone.server.flask import core as keystone_flask
 from keystone.tests.unit import ksfixtures
-
 
 keystone.conf.configure()
 keystone.conf.set_config_defaults()

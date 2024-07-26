@@ -21,17 +21,15 @@ from oslo_db.sqlalchemy import test_fixtures
 from oslo_log import log as logging
 import sqlalchemy
 
-from keystone.common import sql
-from keystone.common.sql import upgrades
-import keystone.conf
-from keystone.tests import unit
-
 # We need to import all of these so the tables are registered. It would be
 # easier if these were all in a central location :(
 import keystone.application_credential.backends.sql  # noqa: F401
 import keystone.assignment.backends.sql  # noqa: F401
 import keystone.assignment.role_backends.sql_model  # noqa: F401
 import keystone.catalog.backends.sql  # noqa: F401
+from keystone.common import sql
+from keystone.common.sql import upgrades
+import keystone.conf
 import keystone.credential.backends.sql  # noqa: F401
 import keystone.endpoint_policy.backends.sql  # noqa: F401
 import keystone.federation.backends.sql  # noqa: F401
@@ -43,6 +41,7 @@ import keystone.policy.backends.sql  # noqa: F401
 import keystone.resource.backends.sql_model  # noqa: F401
 import keystone.resource.config_backends.sql  # noqa: F401
 import keystone.revoke.backends.sql  # noqa: F401
+from keystone.tests import unit
 import keystone.trust.backends.sql  # noqa: F401
 
 LOG = logging.getLogger(__name__)

@@ -25,7 +25,6 @@ from keystone.federation import constants as federation_constants
 from keystone.federation import utils
 from keystone.i18n import _
 
-
 CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 

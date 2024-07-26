@@ -18,7 +18,6 @@ import abc
 import keystone.conf
 from keystone import exception
 
-
 CONF = keystone.conf.CONF
 
 

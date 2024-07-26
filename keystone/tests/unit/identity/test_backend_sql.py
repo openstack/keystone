@@ -14,9 +14,8 @@ import datetime
 import uuid
 
 import freezegun
-import passlib.hash
-
 from oslo_utils import timeutils
+import passlib.hash
 
 from keystone.common import password_hashing
 from keystone.common import provider_api
@@ -28,7 +27,6 @@ from keystone.identity.backends import base
 from keystone.identity.backends import resource_options as iro
 from keystone.identity.backends import sql_model as model
 from keystone.tests.unit import test_backend_sql
-
 
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs

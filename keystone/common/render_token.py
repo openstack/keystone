@@ -13,7 +13,6 @@
 from keystone.common import provider_api
 import keystone.conf
 
-
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
 

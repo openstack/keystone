@@ -18,7 +18,6 @@ import sys
 
 from keystone.cmd import cli
 
-
 # If ../../keystone/__init__.py exists, add ../../ to Python search path, so
 # that it will override what happens to be installed in
 # /usr/(local/)lib/python...

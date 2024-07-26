@@ -13,9 +13,9 @@
 #    under the License.
 
 import copy
+import http.client
 import uuid
 
-import http.client
 from testtools import matchers
 
 from keystone.common import provider_api

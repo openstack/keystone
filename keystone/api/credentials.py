@@ -13,9 +13,9 @@
 # This file handles all flask-restful resources for /v3/credentials
 
 import hashlib
+import http.client
 
 import flask
-import http.client
 from oslo_serialization import jsonutils
 
 from keystone.common import provider_api

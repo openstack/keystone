@@ -26,7 +26,6 @@ from keystone.tests import unit
 from keystone.tests.unit import default_fixtures
 from keystone.tests.unit import utils as test_utils
 
-
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
 

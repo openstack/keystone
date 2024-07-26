@@ -19,7 +19,6 @@ from oslo_config import generator
 import keystone.conf
 from keystone.tests import unit
 
-
 CONF = keystone.conf.CONF
 
 

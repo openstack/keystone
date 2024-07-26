@@ -26,7 +26,6 @@ from keystone import exception
 from keystone.i18n import _
 from keystone import notifications
 
-
 RequestValidator = oauth1.RequestValidator
 Client = oauth1.Client
 AccessTokenEndpoint = oauth1.AccessTokenEndpoint

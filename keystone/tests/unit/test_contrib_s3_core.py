@@ -15,9 +15,8 @@
 import base64
 import hashlib
 import hmac
-import uuid
-
 import http.client
+import uuid
 
 from keystone.api import s3tokens
 from keystone.common import provider_api

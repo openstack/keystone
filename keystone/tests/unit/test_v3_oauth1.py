@@ -14,17 +14,17 @@
 
 import copy
 import datetime
+import http.client
 import random
 from unittest import mock
+import urllib
+from urllib import parse as urlparse
 import uuid
 
 import freezegun
-import http.client
 from oslo_serialization import jsonutils
 from oslo_utils import timeutils
 from pycadf import cadftaxonomy
-import urllib
-from urllib import parse as urlparse
 
 from keystone.common import provider_api
 import keystone.conf
@@ -36,7 +36,6 @@ from keystone.tests.unit.common import test_notifications
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit.ksfixtures import temporaryfile
 from keystone.tests.unit import test_v3
-
 
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs

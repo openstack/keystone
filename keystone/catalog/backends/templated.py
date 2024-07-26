@@ -21,7 +21,6 @@ from keystone.common import utils
 import keystone.conf
 from keystone import exception
 
-
 LOG = log.getLogger(__name__)
 
 CONF = keystone.conf.CONF

@@ -12,12 +12,12 @@
 
 """Unit tests for core identity behavior."""
 
-import fixtures
 import itertools
 import os
 from unittest import mock
 import uuid
 
+import fixtures
 from oslo_config import fixture as config_fixture
 import stevedore
 
@@ -29,7 +29,6 @@ from keystone.tests import unit
 from keystone.tests.unit import default_fixtures
 from keystone.tests.unit.identity.backends import fake_driver
 from keystone.tests.unit.ksfixtures import database
-
 
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs

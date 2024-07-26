@@ -29,7 +29,6 @@ from keystone.tests.unit import ksfixtures
 from keystone.tests.unit import test_backend_sql
 from keystone.token import provider
 
-
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
 

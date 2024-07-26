@@ -10,9 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import http.client
 import uuid
 
-import http.client
 from testtools import matchers
 
 from keystone.common import provider_api
@@ -23,7 +23,6 @@ from keystone.tests import unit
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit import test_v3
 from keystone.tests.unit import utils as test_utils
-
 
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs

@@ -23,7 +23,6 @@ from oslo_cache import core as cache
 from keystone.common.cache import _context_cache
 import keystone.conf
 
-
 CONF = keystone.conf.CONF
 
 

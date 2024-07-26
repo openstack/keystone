@@ -13,7 +13,6 @@
 from keystone.common import resource_options
 from keystone.common.resource_options import options as ro_opt
 
-
 PROJECT_OPTIONS_REGISTRY = resource_options.ResourceOptionRegistry('PROJECT')
 
 

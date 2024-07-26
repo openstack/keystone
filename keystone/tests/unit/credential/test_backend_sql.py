@@ -15,14 +15,13 @@ import uuid
 from oslo_config import fixture as config_fixture
 
 from keystone.common import provider_api
+from keystone.credential.backends import sql as credential_sql
 from keystone.credential.providers import fernet as credential_provider
+from keystone import exception
 from keystone.tests import unit
 from keystone.tests.unit import default_fixtures
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit.ksfixtures import database
-
-from keystone.credential.backends import sql as credential_sql
-from keystone import exception
 
 PROVIDERS = provider_api.ProviderAPIs
 

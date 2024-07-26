@@ -20,7 +20,6 @@ from keystone import exception
 from keystone.i18n import _
 from keystone.server import flask as ks_flask
 
-
 ENFORCER = rbac_enforcer.RBACEnforcer
 PROVIDERS = provider_api.ProviderAPIs
 

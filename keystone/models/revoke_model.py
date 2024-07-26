@@ -17,7 +17,6 @@ from oslo_utils import timeutils
 from keystone.common import cache
 from keystone.common import utils
 
-
 LOG = log.getLogger(__name__)
 
 # The set of attributes common between the RevokeEvent

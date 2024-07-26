@@ -21,7 +21,6 @@ from keystone.common.rbac_enforcer import policy
 from keystone import exception
 from keystone.policy.backends import base
 
-
 LOG = log.getLogger(__name__)
 
 

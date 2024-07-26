@@ -20,7 +20,6 @@ See https://docs.openstack.org/oslo.i18n/latest/user/usage.html .
 
 import oslo_i18n
 
-
 oslo_i18n.enable_lazy()
 
 _translators = oslo_i18n.TranslatorFactory(domain='keystone')

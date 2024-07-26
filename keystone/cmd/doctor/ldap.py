@@ -10,13 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import configparser
 import os
 import re
 
-import configparser
-
 import keystone.conf
-
 
 CONF = keystone.conf.CONF
 CONFIG_REGEX = r'^keystone\..*?\.conf$'

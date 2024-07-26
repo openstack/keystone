@@ -11,11 +11,11 @@
 # under the License.
 
 import datetime
+import http.client
 from unittest import mock
 import uuid
 
 import freezegun
-import http.client
 from oslo_db import exception as oslo_db_exception
 from oslo_utils import timeutils
 from testtools import matchers

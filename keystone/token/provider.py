@@ -32,7 +32,6 @@ from keystone.i18n import _
 from keystone.models import token_model
 from keystone import notifications
 
-
 CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 PROVIDERS = provider_api.ProviderAPIs

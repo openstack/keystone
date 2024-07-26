@@ -16,7 +16,6 @@ from oslo_config import cfg
 
 from keystone.conf import utils
 
-
 expiration = cfg.IntOpt(
     'expiration',
     default=300,

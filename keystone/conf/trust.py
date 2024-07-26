@@ -14,7 +14,6 @@ from oslo_config import cfg
 
 from keystone.conf import utils
 
-
 allow_redelegation = cfg.BoolOpt(
     'allow_redelegation',
     default=False,

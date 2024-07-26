@@ -14,10 +14,10 @@
 # under the License.
 
 import copy
-import sqlalchemy
-from sqlalchemy.ext.hybrid import hybrid_property
 
 from oslo_db import exception as db_exception
+import sqlalchemy
+from sqlalchemy.ext.hybrid import hybrid_property
 
 from keystone.common import driver_hints
 from keystone.common import sql

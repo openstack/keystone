@@ -14,11 +14,12 @@
 from keystone.tests.unit.ksfixtures.auth_plugins import (
     ConfigAuthPlugins,
 )  # noqa
-from keystone.tests.unit.ksfixtures.backendloader import BackendLoader  # noqa
-from keystone.tests.unit.ksfixtures.cache import Cache  # noqa
 from keystone.tests.unit.ksfixtures.jws_key_repository import (
     JWSKeyRepository,
 )  # noqa
+
+from keystone.tests.unit.ksfixtures.backendloader import BackendLoader  # noqa
+from keystone.tests.unit.ksfixtures.cache import Cache  # noqa
 from keystone.tests.unit.ksfixtures.key_repository import KeyRepository  # noqa
 from keystone.tests.unit.ksfixtures.logging import StandardLogging  # noqa
 from keystone.tests.unit.ksfixtures.policy import Policy  # noqa

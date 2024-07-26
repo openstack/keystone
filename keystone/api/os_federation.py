@@ -12,12 +12,12 @@
 
 # This file handles all flask-restful resources for /v3/OS-FEDERATION
 
+import http.client
+
 import flask
 import flask_restful
-import http.client
-from oslo_serialization import jsonutils
-
 from oslo_log import log
+from oslo_serialization import jsonutils
 
 from keystone.api._shared import authentication
 from keystone.api._shared import json_home_relations
@@ -30,7 +30,6 @@ from keystone import exception
 from keystone.federation import schema
 from keystone.federation import utils
 from keystone.server import flask as ks_flask
-
 
 LOG = log.getLogger(__name__)
 CONF = keystone.conf.CONF

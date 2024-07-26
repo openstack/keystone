@@ -12,7 +12,6 @@
 
 import keystone.conf
 
-
 CONF = keystone.conf.CONF
 
 

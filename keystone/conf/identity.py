@@ -15,7 +15,6 @@ import passlib.utils
 
 from keystone.conf import utils
 
-
 default_domain_id = cfg.StrOpt(
     'default_domain_id',
     default='default',

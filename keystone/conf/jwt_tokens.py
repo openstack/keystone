@@ -14,7 +14,6 @@ from oslo_config import cfg
 
 from keystone.conf import utils
 
-
 jws_public_key_repository = cfg.StrOpt(
     'jws_public_key_repository',
     default='/etc/keystone/jws-keys/public',

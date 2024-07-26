@@ -13,7 +13,6 @@
 from keystone.common import validation
 from keystone.common.validation import parameter_types
 
-
 basic_property_id = {
     'type': 'object',
     'properties': {'id': {'type': 'string'}},

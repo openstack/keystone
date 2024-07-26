@@ -23,7 +23,6 @@ from keystone.identity.backends import sql_model as model
 from keystone.identity.shadow_backends import sql as shadow_sql
 from keystone.tests import unit
 
-
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
 

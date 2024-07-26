@@ -10,13 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import functools
 import typing as ty
 import uuid
 
 import fixtures
 import flask
 import flask_restful
-import functools
 from oslo_policy import policy
 from oslo_serialization import jsonutils
 from testtools import matchers
@@ -29,7 +29,6 @@ from keystone import exception
 from keystone.server.flask import common as flask_common
 from keystone.server.flask.request_processing import json_body
 from keystone.tests.unit import rest
-
 
 CONF = keystone.conf.CONF
 

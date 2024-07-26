@@ -12,9 +12,10 @@
 
 # This file handles all flask-restful resources for /v3/roles
 
+import http.client
+
 import flask
 import flask_restful
-import http.client
 
 from keystone.api._shared import implied_roles as shared
 from keystone.assignment import schema
@@ -24,7 +25,6 @@ from keystone.common import rbac_enforcer
 from keystone.common import validation
 import keystone.conf
 from keystone.server import flask as ks_flask
-
 
 CONF = keystone.conf.CONF
 ENFORCER = rbac_enforcer.RBACEnforcer

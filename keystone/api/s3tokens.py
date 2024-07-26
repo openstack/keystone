@@ -15,9 +15,9 @@
 import base64
 import hashlib
 import hmac
+import http.client
 
 import flask
-import http.client
 from oslo_serialization import jsonutils
 
 from keystone.api._shared import EC2_S3_Resource

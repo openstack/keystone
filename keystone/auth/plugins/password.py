@@ -18,7 +18,6 @@ from keystone.common import provider_api
 from keystone import exception
 from keystone.i18n import _
 
-
 METHOD_NAME = 'password'
 PROVIDERS = provider_api.ProviderAPIs
 

@@ -23,6 +23,7 @@ import hashlib
 import itertools
 import os
 import pwd
+import urllib
 import uuid
 
 from cryptography import x509
@@ -31,14 +32,11 @@ from oslo_serialization import jsonutils
 from oslo_utils import reflection
 from oslo_utils import strutils
 from oslo_utils import timeutils
-import urllib
-
 
 from keystone.common import password_hashing
 import keystone.conf
 from keystone import exception
 from keystone.i18n import _
-
 
 CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)

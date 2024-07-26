@@ -23,7 +23,6 @@ from keystone import exception
 from keystone.i18n import _
 from keystone.identity.backends import resource_options as ro
 
-
 LOG = log.getLogger(__name__)
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs

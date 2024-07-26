@@ -13,14 +13,15 @@
 # under the License.
 
 from base64 import b64encode
-from cryptography.hazmat.primitives.serialization import Encoding
-import fixtures
 import http
 from http import client
-from oslo_log import log
-from oslo_serialization import jsonutils
 from unittest import mock
 from urllib import parse
+
+from cryptography.hazmat.primitives.serialization import Encoding
+import fixtures
+from oslo_log import log
+from oslo_serialization import jsonutils
 
 from keystone.api.os_oauth2 import AccessTokenResource
 from keystone.common import provider_api

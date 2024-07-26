@@ -32,7 +32,8 @@ from osprofiler import opts as profiler
 import osprofiler.sqlalchemy
 import sqlalchemy as sql
 from sqlalchemy.ext import declarative
-from sqlalchemy.orm.attributes import flag_modified, InstrumentedAttribute
+from sqlalchemy.orm.attributes import flag_modified
+from sqlalchemy.orm.attributes import InstrumentedAttribute
 from sqlalchemy import types as sql_types
 
 from keystone.common import driver_hints
@@ -40,7 +41,6 @@ from keystone.common import utils
 import keystone.conf
 from keystone import exception
 from keystone.i18n import _
-
 
 CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)

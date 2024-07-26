@@ -13,6 +13,7 @@
 import abc
 import collections
 import functools
+import http.client
 import re
 import typing as ty
 import uuid
@@ -22,7 +23,6 @@ import flask
 from flask import blueprints
 import flask_restful
 import flask_restful.utils
-import http.client
 from oslo_log import log
 from oslo_log import versionutils
 from oslo_serialization import jsonutils
@@ -37,7 +37,6 @@ import keystone.conf
 from keystone import exception
 from keystone.i18n import _
 from keystone import notifications
-
 
 # NOTE(morgan): Capture the relevant part of the flask url route rule for
 # substitution. In flask arguments (e.g. url elements to be passed to the

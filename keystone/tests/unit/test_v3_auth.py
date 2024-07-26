@@ -14,7 +14,7 @@
 
 import copy
 import datetime
-import fixtures
+import http.client
 import itertools
 import operator
 import re
@@ -23,8 +23,8 @@ from urllib import parse
 import uuid
 
 from cryptography.hazmat.primitives.serialization import Encoding
+import fixtures
 import freezegun
-import http.client
 from oslo_serialization import jsonutils as json
 from oslo_utils import fixture
 from oslo_utils import timeutils
@@ -45,7 +45,6 @@ from keystone.tests.common import auth as common_auth
 from keystone.tests import unit
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit import test_v3
-
 
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs

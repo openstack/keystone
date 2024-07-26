@@ -37,13 +37,13 @@ repos:
     hooks:
     - id: bandit
       args: ["-x", "keystone/tests/*,devstack/*"]
-  # - repo: https://opendev.org/openstack/hacking
-  #   rev: 6.1.0
-  #   hooks:
-  #     - id: hacking
-  #       additional_dependencies:
-  #         - flake8-import-order~=0.18.2
-  #       exclude: '^(doc|releasenotes|tools)/.*$'
+  - repo: https://opendev.org/openstack/hacking
+    rev: 6.1.0
+    hooks:
+      - id: hacking
+        additional_dependencies:
+          - flake8-import-order~=0.18.2
+        exclude: '^(doc|releasenotes|tools|devstack)/.*$'
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.9.0
     hooks:

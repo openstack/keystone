@@ -18,7 +18,6 @@ Create Date: 2023-12-12 09:00:00
 """
 
 from alembic import op
-
 from sqlalchemy import Column
 from sqlalchemy import String
 

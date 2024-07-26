@@ -11,16 +11,14 @@
 # under the License.
 
 import copy
-import uuid
-
 import http.client
+import uuid
 
 from keystone.common import provider_api
 import keystone.conf
 from keystone import exception
 from keystone.tests import unit
 from keystone.tests.unit import test_v3
-
 
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs

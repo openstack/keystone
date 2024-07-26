@@ -18,7 +18,6 @@ from keystone.common import provider_api
 import keystone.conf
 from keystone import exception
 
-
 PROVIDERS = provider_api.ProviderAPIs
 CONF = keystone.conf.CONF
 

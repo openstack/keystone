@@ -14,7 +14,6 @@ from oslo_config import cfg
 
 from keystone.conf import utils
 
-
 key_repository = cfg.StrOpt(
     'key_repository',
     default='/etc/keystone/fernet-keys/',

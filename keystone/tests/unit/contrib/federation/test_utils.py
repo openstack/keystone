@@ -10,9 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import flask
+from unittest import mock
 import uuid
 
+import flask
 from oslo_config import fixture as config_fixture
 from oslo_serialization import jsonutils
 
@@ -22,9 +23,6 @@ from keystone import exception
 from keystone.federation import utils as mapping_utils
 from keystone.tests import unit
 from keystone.tests.unit import mapping_fixtures
-
-from unittest import mock
-
 
 CONF = keystone.conf.CONF
 FAKE_MAPPING_ID = uuid.uuid4().hex

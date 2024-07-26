@@ -12,10 +12,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import http.client
 import json
 import uuid
-
-import http.client
 
 from keystone.common import provider_api
 from keystone.tests import unit

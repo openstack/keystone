@@ -33,7 +33,6 @@ from keystone import exception
 from keystone.i18n import _
 from keystone.identity.backends.ldap import models
 
-
 LOG = log.getLogger(__name__)
 
 LDAP_VALUES = {'TRUE': True, 'FALSE': False}

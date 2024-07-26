@@ -14,7 +14,6 @@ from oslo_config import cfg
 
 from keystone.conf import utils
 
-
 admin_token = cfg.StrOpt(
     'admin_token',
     secret=True,

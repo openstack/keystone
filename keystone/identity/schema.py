@@ -15,7 +15,6 @@ from keystone.common.validation import parameter_types
 import keystone.conf
 from keystone.identity.backends import resource_options as ro
 
-
 CONF = keystone.conf.CONF
 
 

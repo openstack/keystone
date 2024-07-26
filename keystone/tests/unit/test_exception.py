@@ -27,7 +27,6 @@ from keystone import exception
 from keystone.server.flask.request_processing.middleware import auth_context
 from keystone.tests import unit
 
-
 CONF = keystone.conf.CONF
 
 

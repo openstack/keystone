@@ -12,8 +12,9 @@
 
 # This file handles all flask-restful resources for /v3/services
 
-import flask_restful
 import http.client
+
+import flask_restful
 
 from keystone.api._shared import json_home_relations
 from keystone.catalog import schema
@@ -25,7 +26,6 @@ from keystone.common import validation
 from keystone import exception
 from keystone import notifications
 from keystone.server import flask as ks_flask
-
 
 ENFORCER = rbac_enforcer.RBACEnforcer
 PROVIDERS = provider_api.ProviderAPIs

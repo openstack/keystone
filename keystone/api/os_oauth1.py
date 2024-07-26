@@ -12,12 +12,13 @@
 
 # This file handles all flask-restful resources for /v3/OS-OAUTH1/
 
+import http.client
+from urllib import parse as urlparse
+
 import flask
 import flask_restful
-import http.client
 from oslo_log import log
 from oslo_utils import timeutils
-from urllib import parse as urlparse
 from werkzeug import exceptions
 
 from keystone.api._shared import json_home_relations
@@ -34,7 +35,6 @@ from keystone.oauth1 import core as oauth1
 from keystone.oauth1 import schema
 from keystone.oauth1 import validator
 from keystone.server import flask as ks_flask
-
 
 LOG = log.getLogger(__name__)
 PROVIDERS = provider_api.ProviderAPIs

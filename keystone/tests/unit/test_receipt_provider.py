@@ -15,9 +15,9 @@
 import datetime
 import uuid
 
+import freezegun
 from oslo_utils import timeutils
 
-import freezegun
 from keystone.common import provider_api
 from keystone.common import utils
 import keystone.conf
@@ -27,7 +27,6 @@ from keystone import receipt
 from keystone.tests import unit
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit.ksfixtures import database
-
 
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs

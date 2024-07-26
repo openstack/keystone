@@ -20,7 +20,6 @@ from oslo_log import log
 from keystone import exception
 from keystone.i18n import _
 
-
 CONF = cfg.CONF
 LOG = log.getLogger(__name__)
 
