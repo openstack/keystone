@@ -10,10 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import datetime
 import uuid
 
 import http.client
+
+from oslo_utils import timeutils
 
 from keystone.common import provider_api
 import keystone.conf
@@ -169,7 +170,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
         )
         for i in range(3):
             ref['expires_at'] = (
-                datetime.datetime.utcnow()
+                timeutils.utcnow()
                 .replace(year=2032)
                 .strftime(unit.TIME_FORMAT)
             )

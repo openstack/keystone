@@ -130,7 +130,9 @@ class TokenFormatter:
         timestamp_int = struct.unpack(">Q", timestamp_bytes)[0]
 
         # and with an integer, it's trivial to produce a datetime object
-        issued_at = datetime.datetime.utcfromtimestamp(timestamp_int)
+        issued_at = datetime.datetime.fromtimestamp(
+            timestamp_int, datetime.timezone.utc
+        ).replace(tzinfo=None)
 
         return issued_at
 
@@ -362,7 +364,9 @@ class BasePayload:
         time_object = timeutils.parse_isotime(time_string)
         return (
             timeutils.normalize_time(time_object)
-            - datetime.datetime.utcfromtimestamp(0)
+            - datetime.datetime.fromtimestamp(
+                0, datetime.timezone.utc
+            ).replace(tzinfo=None)
         ).total_seconds()
 
     @classmethod
@@ -373,7 +377,9 @@ class BasePayload:
         :returns: a time formatted strings
 
         """
-        time_object = datetime.datetime.utcfromtimestamp(time_float)
+        time_object = datetime.datetime.fromtimestamp(
+            time_float, datetime.timezone.utc
+        ).replace(tzinfo=None)
         return ks_utils.isotime(time_object, subsecond=True)
 
     @classmethod

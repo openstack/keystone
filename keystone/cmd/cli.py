@@ -22,6 +22,7 @@ from oslo_config import cfg
 from oslo_db import exception as db_exception
 from oslo_log import log
 from oslo_serialization import jsonutils
+from oslo_utils import timeutils
 import pbr.version
 
 from keystone.cmd import bootstrap
@@ -536,7 +537,7 @@ class ResetLastActive(BaseApp):
 
         LOG.debug(
             "Resetting null values to current time %s",
-            datetime.datetime.utcnow,
+            timeutils.utcnow(),
         )
         drivers = backends.load_backends()
         identity_api = drivers['identity_api']
@@ -1004,7 +1005,7 @@ class TrustFlush(BaseApp):
         )
         parser.add_argument(
             '--date',
-            default=datetime.datetime.utcnow(),
+            default=timeutils.utcnow(),
             help=(
                 'The date of which the expired or '
                 'non-expired soft-deleted trusts older '

@@ -22,6 +22,7 @@ import http.client
 from oslo_config import fixture as config_fixture
 from oslo_log import log
 import oslo_messaging
+from oslo_utils import timeutils
 from pycadf import cadftaxonomy
 from pycadf import cadftype
 from pycadf import eventfactory
@@ -963,11 +964,8 @@ class CADFNotificationsForPCIDSSEvents(BaseNotificationTest):
 
     def test_password_expired_sends_notification(self):
         password = uuid.uuid4().hex
-        password_creation_time = (
-            datetime.datetime.utcnow()
-            - datetime.timedelta(
-                days=CONF.security_compliance.password_expires_days + 1
-            )
+        password_creation_time = timeutils.utcnow() - datetime.timedelta(
+            days=CONF.security_compliance.password_expires_days + 1
         )
         freezer = freezegun.freeze_time(password_creation_time)
 
@@ -1115,7 +1113,7 @@ class CADFNotificationsForPCIDSSEvents(BaseNotificationTest):
         user_ref = unit.new_user_ref(
             domain_id=self.domain_id,
             password=password,
-            password_created_at=(datetime.datetime.utcnow()),
+            password_created_at=(timeutils.utcnow()),
         )
         user_ref = PROVIDERS.identity_api.create_user(user_ref)
 
@@ -1123,7 +1121,7 @@ class CADFNotificationsForPCIDSSEvents(BaseNotificationTest):
         min_age = user_ref['password_created_at'] + datetime.timedelta(
             days=min_days
         )
-        days_left = (min_age - datetime.datetime.utcnow()).days
+        days_left = (min_age - timeutils.utcnow()).days
         reason_type = exception.PasswordAgeValidationError.message_format % {
             'min_age_days': min_days,
             'days_left': days_left,

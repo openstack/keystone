@@ -11,11 +11,11 @@
 # under the License.
 
 import copy
-import datetime
 import sqlalchemy
 
 from oslo_config import cfg
 from oslo_db import api as oslo_db_api
+from oslo_utils import timeutils
 
 from keystone.common import provider_api
 from keystone.common import sql
@@ -47,7 +47,7 @@ class ShadowUsers(base.ShadowUsersDriverBase):
         with sql.session_for_write() as session:
             federated_ref = model.FederatedUser.from_dict(federated_dict)
             user_ref = model.User.from_dict(user)
-            user_ref.created_at = datetime.datetime.utcnow()
+            user_ref.created_at = timeutils.utcnow()
             user_ref.federated_users.append(federated_ref)
             session.add(user_ref)
             return identity_base.filter_user(user_ref.to_dict())
@@ -166,7 +166,7 @@ class ShadowUsers(base.ShadowUsersDriverBase):
         with sql.session_for_write() as session:
             user_ref = session.get(model.User, user_id)
             if user_ref:
-                user_ref.last_active_at = datetime.datetime.utcnow().date()
+                user_ref.last_active_at = timeutils.utcnow().date()
 
     @sql.handle_conflicts(conflict_type='federated_user')
     def update_federated_user_display_name(
@@ -198,7 +198,7 @@ class ShadowUsers(base.ShadowUsersDriverBase):
                 new_nonlocal_user_dict
             )
             new_user_ref = model.User.from_dict(new_user_dict)
-            new_user_ref.created_at = datetime.datetime.utcnow()
+            new_user_ref.created_at = timeutils.utcnow()
             new_user_ref.nonlocal_user = new_nonlocal_user_ref
             session.add(new_user_ref)
             return identity_base.filter_user(new_user_ref.to_dict())
@@ -253,13 +253,13 @@ class ShadowUsers(base.ShadowUsersDriverBase):
             membership = query.first()
 
             if membership:
-                membership.last_verified = datetime.datetime.utcnow()
+                membership.last_verified = timeutils.utcnow()
             else:
                 session.add(
                     model.ExpiringUserGroupMembership(
                         user_id=user_id,
                         group_id=group_id,
                         idp_id=user.idp_id,
-                        last_verified=datetime.datetime.utcnow(),
+                        last_verified=timeutils.utcnow(),
                     )
                 )

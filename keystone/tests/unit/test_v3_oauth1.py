@@ -21,6 +21,7 @@ import uuid
 import freezegun
 import http.client
 from oslo_serialization import jsonutils
+from oslo_utils import timeutils
 from pycadf import cadftaxonomy
 import urllib
 from urllib import parse as urlparse
@@ -1111,7 +1112,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         )
 
     def test_expired_authorizing_request_token(self):
-        with freezegun.freeze_time(datetime.datetime.utcnow()) as frozen_time:
+        with freezegun.freeze_time(timeutils.utcnow()) as frozen_time:
             self.config_fixture.config(
                 group='oauth1', request_token_duration=1
             )
@@ -1146,7 +1147,7 @@ class MaliciousOAuth1Tests(OAuth1Tests):
             self.put(url, body=body, expected_status=http.client.UNAUTHORIZED)
 
     def test_expired_creating_keystone_token(self):
-        with freezegun.freeze_time(datetime.datetime.utcnow()) as frozen_time:
+        with freezegun.freeze_time(timeutils.utcnow()) as frozen_time:
             self.config_fixture.config(group='oauth1', access_token_duration=1)
 
             consumer = self._create_single_consumer()

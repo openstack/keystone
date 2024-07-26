@@ -405,7 +405,9 @@ class RevokeTests:
             token['expires_at'] = utils.isotime(_future_time(), subsecond=True)
             return token
 
-        now = datetime.datetime.utcnow()
+        # We can not use timeutils.utcnow directly since we mocked it, so use
+        # datetime to get pretty much the same.
+        now = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
         now_plus_2h = now + datetime.timedelta(hours=2)
         mock_utcnow.return_value = now
 

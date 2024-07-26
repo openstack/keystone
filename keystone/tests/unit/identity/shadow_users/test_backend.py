@@ -10,9 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import datetime
 from unittest import mock
 import uuid
+
+from oslo_utils import timeutils
 
 from keystone.common import provider_api
 from keystone.common import sql
@@ -135,7 +136,7 @@ class ShadowUsersBackendTests:
         self.config_fixture.config(
             group='security_compliance', disable_user_account_days_inactive=90
         )
-        now = datetime.datetime.utcnow().date()
+        now = timeutils.utcnow().date()
         password = uuid.uuid4().hex
         user = self._create_user(password)
         with self.make_request():
@@ -176,7 +177,7 @@ class ShadowUsersBackendTests:
             group='security_compliance',
             disable_user_account_days_inactive=None,
         )
-        now = datetime.datetime.utcnow().date()
+        now = timeutils.utcnow().date()
         password = uuid.uuid4().hex
         user = self._create_user(password)
         with self.make_request():

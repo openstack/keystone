@@ -28,6 +28,7 @@ import oslo_config.fixture
 from oslo_log import log
 from oslo_serialization import jsonutils
 from oslo_upgradecheck import upgradecheck
+from oslo_utils import timeutils
 from testtools import matchers
 
 from keystone.cmd import cli
@@ -267,7 +268,7 @@ class CliBootStrapTestCase(unit.SQLDriverOverrides, unit.TestCase):
                 }
             }
         }
-        time = datetime.datetime.utcnow()
+        time = timeutils.utcnow()
         with freezegun.freeze_time(time) as frozen_time:
             with app.test_client() as c:
                 auth_response = c.post(
@@ -2053,7 +2054,7 @@ class TestTrustFlush(unit.SQLDriverOverrides, unit.BaseTestCase):
         self.command_project_id = None
         self.command_trustor_user_id = None
         self.command_trustee_user_id = None
-        self.command_date = datetime.datetime.utcnow()
+        self.command_date = timeutils.utcnow()
         self.useFixture(
             fixtures.MockPatchObject(
                 CONF, 'command', self.FakeConfCommand(self)

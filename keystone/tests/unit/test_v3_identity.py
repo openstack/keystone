@@ -21,6 +21,7 @@ import freezegun
 import http.client
 from oslo_db import exception as oslo_db_exception
 from oslo_log import log
+from oslo_utils import timeutils
 from testtools import matchers
 
 from keystone.common import provider_api
@@ -817,7 +818,7 @@ class UserSelfServiceChangingPasswordsTestCase(ChangePasswordTestCase):
 
     def _create_user_with_expired_password(self):
         expire_days = CONF.security_compliance.password_expires_days + 1
-        time = datetime.datetime.utcnow() - datetime.timedelta(expire_days)
+        time = timeutils.utcnow() - datetime.timedelta(expire_days)
         password = uuid.uuid4().hex
         user_ref = unit.new_user_ref(
             domain_id=self.domain_id, password=password
@@ -860,7 +861,7 @@ class UserSelfServiceChangingPasswordsTestCase(ChangePasswordTestCase):
         )
 
     def test_changing_password_with_min_password_age(self):
-        time = datetime.datetime.utcnow()
+        time = timeutils.utcnow()
         with freezegun.freeze_time(time) as frozen_datetime:
             # enable minimum_password_age and attempt to change password
             new_password = uuid.uuid4().hex
@@ -900,7 +901,7 @@ class UserSelfServiceChangingPasswordsTestCase(ChangePasswordTestCase):
         response = self.post('/users', body={'user': ref})
         user_id = response.json_body['user']['id']
 
-        time = datetime.datetime.utcnow()
+        time = timeutils.utcnow()
         with freezegun.freeze_time(time) as frozen_datetime:
             # Lock the user's password
             lock_pw_opt = options.LOCK_PASSWORD_OPT.option_name
@@ -1230,7 +1231,7 @@ class UserFederatedAttributesTests(test_v3.RestfulTestCase):
         with sql.session_for_write() as session:
             federated_ref = model.FederatedUser.from_dict(fed_dict)
             user_ref = model.User.from_dict(user)
-            user_ref.created_at = datetime.datetime.utcnow()
+            user_ref.created_at = timeutils.utcnow()
             user_ref.federated_users.append(federated_ref)
             session.add(user_ref)
             return identity_base.filter_user(user_ref.to_dict())

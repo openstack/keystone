@@ -10,9 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import datetime
 from unittest import mock
 import uuid
+
+from oslo_utils import timeutils
 
 from keystone.common.cache import _context_cache
 from keystone.common import utils as ks_utils
@@ -35,7 +36,7 @@ class TestTokenSerialization(base_classes.TestCaseWithBootstrap):
         self.reader_role_id = self.bootstrapper.reader_role_id
 
         self.token_id = uuid.uuid4().hex
-        issued_at = datetime.datetime.utcnow()
+        issued_at = timeutils.utcnow()
         self.issued_at = ks_utils.isotime(at=issued_at, subsecond=True)
 
         # Reach into the cache registry and pull out an instance of the

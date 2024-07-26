@@ -26,7 +26,7 @@ class TrustTests:
     def create_sample_trust(self, new_id, remaining_uses=None):
         self.trustor = self.user_foo
         self.trustee = self.user_two
-        expires_at = datetime.datetime.utcnow().replace(year=2032)
+        expires_at = timeutils.utcnow().replace(year=2032)
         trust_data = PROVIDERS.trust_api.create_trust(
             new_id,
             {
@@ -225,7 +225,7 @@ class TrustTests:
         self.assertIsNotNone(trust_data)
 
         PROVIDERS.trust_api.flush_expired_and_soft_deleted_trusts(
-            date=datetime.datetime.utcnow()
+            date=timeutils.utcnow()
         )
         trusts = self.trust_api.list_trusts()
         self.assertEqual(len(trusts), 1)
@@ -263,7 +263,7 @@ class TrustTests:
             project_id=self.project_bar['id'],
             trustor_user_id=self.user_foo['id'],
             trustee_user_id=self.user_two['id'],
-            date=datetime.datetime.utcnow(),
+            date=timeutils.utcnow(),
         )
         trusts = self.trust_api.list_trusts()
         self.assertEqual(len(trusts), 1)
@@ -300,7 +300,7 @@ class TrustTests:
         PROVIDERS.trust_api.flush_expired_and_soft_deleted_trusts(
             trustor_user_id=self.user_foo['id'],
             trustee_user_id=self.user_two['id'],
-            date=datetime.datetime.utcnow(),
+            date=timeutils.utcnow(),
         )
         trusts = self.trust_api.list_trusts()
         self.assertEqual(len(trusts), 1)
@@ -337,7 +337,7 @@ class TrustTests:
         PROVIDERS.trust_api.flush_expired_and_soft_deleted_trusts(
             project_id=self.project_bar['id'],
             trustee_user_id=self.user_two['id'],
-            date=datetime.datetime.utcnow(),
+            date=timeutils.utcnow(),
         )
         trusts = self.trust_api.list_trusts()
         self.assertEqual(len(trusts), 1)
@@ -374,7 +374,7 @@ class TrustTests:
         PROVIDERS.trust_api.flush_expired_and_soft_deleted_trusts(
             project_id=self.project_bar['id'],
             trustor_user_id=self.user_foo['id'],
-            date=datetime.datetime.utcnow(),
+            date=timeutils.utcnow(),
         )
         trusts = self.trust_api.list_trusts()
         self.assertEqual(len(trusts), 1)
@@ -409,7 +409,7 @@ class TrustTests:
         self.assertIsNotNone(trust_data)
 
         PROVIDERS.trust_api.flush_expired_and_soft_deleted_trusts(
-            project_id=self.project_bar['id'], date=datetime.datetime.utcnow()
+            project_id=self.project_bar['id'], date=timeutils.utcnow()
         )
         trusts = self.trust_api.list_trusts()
         self.assertEqual(len(trusts), 1)
@@ -444,7 +444,7 @@ class TrustTests:
         self.assertIsNotNone(trust_data)
         PROVIDERS.trust_api.flush_expired_and_soft_deleted_trusts(
             trustee_user_id=self.user_two['id'],
-            date=datetime.datetime.utcnow(),
+            date=timeutils.utcnow(),
         )
         trusts = self.trust_api.list_trusts()
         self.assertEqual(len(trusts), 1)
@@ -480,7 +480,7 @@ class TrustTests:
 
         PROVIDERS.trust_api.flush_expired_and_soft_deleted_trusts(
             trustor_user_id=self.user_foo['id'],
-            date=datetime.datetime.utcnow(),
+            date=timeutils.utcnow(),
         )
         trusts = self.trust_api.list_trusts()
         self.assertEqual(len(trusts), 1)
@@ -516,7 +516,7 @@ class TrustTests:
         PROVIDERS.trust_api.delete_trust(trust_ref2['id'])
 
         PROVIDERS.trust_api.flush_expired_and_soft_deleted_trusts(
-            date=datetime.datetime.utcnow()
+            date=timeutils.utcnow()
         )
         trusts = self.trust_api.list_trusts()
         self.assertEqual(len(trusts), 1)
@@ -562,7 +562,7 @@ class TrustTests:
         self.assertIsNotNone(trust_data)
 
         PROVIDERS.trust_api.flush_expired_and_soft_deleted_trusts(
-            date=datetime.datetime.utcnow()
+            date=timeutils.utcnow()
         )
         trusts = self.trust_api.list_trusts()
         self.assertEqual(len(trusts), 2)

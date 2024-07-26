@@ -19,6 +19,8 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy import orm
 from sqlalchemy.orm import collections
 
+from oslo_utils import timeutils
+
 from keystone.common import password_hashing
 from keystone.common import resource_options
 from keystone.common import sql
@@ -152,12 +154,12 @@ class User(sql.ModelBase, sql.ModelDictMixinWithExtras):
     def password_is_expired(self):
         """Return whether password is expired or not."""
         if self.password_expires_at and not self._password_expiry_exempt():
-            return datetime.datetime.utcnow() >= self.password_expires_at
+            return timeutils.utcnow() >= self.password_expires_at
         return False
 
     @password.setter
     def password(self, value):
-        now = datetime.datetime.utcnow()
+        now = timeutils.utcnow()
         if not self.local_user:
             self.local_user = LocalUser()
         # truncate extra passwords
@@ -230,7 +232,7 @@ class User(sql.ModelBase, sql.ModelDictMixinWithExtras):
             if not last_active and self.created_at:
                 last_active = self.created_at.date()
             if max_days and last_active:
-                now = datetime.datetime.utcnow().date()
+                now = timeutils.utcnow().date()
                 days_inactive = (now - last_active).days
                 if days_inactive >= max_days and not inactivity_exempt:
                     self._enabled = False
@@ -242,7 +244,7 @@ class User(sql.ModelBase, sql.ModelDictMixinWithExtras):
             value
             and CONF.security_compliance.disable_user_account_days_inactive
         ):
-            self.last_active_at = datetime.datetime.utcnow().date()
+            self.last_active_at = timeutils.utcnow().date()
         if value and self.local_user:
             self.local_user.failed_auth_count = 0
             self.local_user.failed_auth_at = None
@@ -352,7 +354,7 @@ class Password(sql.ModelBase, sql.ModelDictMixin):
         'created_at',
         sql.DateTime,
         nullable=False,
-        default=datetime.datetime.utcnow,
+        default=timeutils.utcnow,
     )
     _expires_at = sql.Column('expires_at', sql.DateTime, nullable=True)
     # set the default to 0, a 0 indicates it is unset.
@@ -498,7 +500,7 @@ class ExpiringUserGroupMembership(sql.ModelBase, sql.ModelDictMixin):
 
     @hybrid_property
     def expired(self):
-        return self.expires <= datetime.datetime.utcnow()
+        return self.expires <= timeutils.utcnow()
 
 
 class UserOption(sql.ModelBase):

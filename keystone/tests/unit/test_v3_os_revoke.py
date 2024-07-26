@@ -153,7 +153,7 @@ class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
         self.assertEqual([], events)
 
     def test_revoked_at_in_list(self):
-        time = datetime.datetime.utcnow()
+        time = timeutils.utcnow()
         with freezegun.freeze_time(time) as frozen_datetime:
             revoked_at = timeutils.utcnow()
             # Given or not, `revoked_at` will always be set in the backend.

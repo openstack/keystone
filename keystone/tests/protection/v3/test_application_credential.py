@@ -15,6 +15,7 @@ import uuid
 
 import http.client
 from oslo_serialization import jsonutils
+from oslo_utils import timeutils
 
 from keystone.common.policies import base as base_policy
 from keystone.common import provider_api
@@ -45,7 +46,7 @@ class _TestAppCredBase(base_classes.TestCaseWithBootstrap):
         if not name:
             name = uuid.uuid4().hex
         if not expires:
-            expires = datetime.datetime.utcnow() + datetime.timedelta(days=365)
+            expires = timeutils.utcnow() + datetime.timedelta(days=365)
         if not system:
             system = uuid.uuid4().hex
         if not project_id:

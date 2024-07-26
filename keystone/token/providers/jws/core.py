@@ -230,9 +230,13 @@ class JWSFormatter:
     def _convert_time_string_to_int(self, time_str):
         time_object = timeutils.parse_isotime(time_str)
         normalized = timeutils.normalize_time(time_object)
-        epoch = datetime.datetime.utcfromtimestamp(0)
+        epoch = datetime.datetime.fromtimestamp(
+            0, datetime.timezone.utc
+        ).replace(tzinfo=None)
         return int((normalized - epoch).total_seconds())
 
     def _convert_time_int_to_string(self, time_int):
-        time_object = datetime.datetime.utcfromtimestamp(time_int)
+        time_object = datetime.datetime.fromtimestamp(
+            time_int, datetime.timezone.utc
+        ).replace(tzinfo=None)
         return utils.isotime(at=time_object, subsecond=True)

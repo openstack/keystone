@@ -21,6 +21,7 @@ import freezegun
 from oslo_db import exception as db_exception
 from oslo_db import options
 from oslo_log import log
+from oslo_utils import timeutils
 import sqlalchemy
 from sqlalchemy import exc
 from testtools import matchers
@@ -715,7 +716,7 @@ class SqlIdentity(
         self.config_fixture.config(
             group='federation', default_authorization_ttl=5
         )
-        time = datetime.datetime.utcnow()
+        time = timeutils.utcnow()
         tick = datetime.timedelta(minutes=5)
 
         new_group = unit.new_group_ref(domain_id=domain['id'])
@@ -764,7 +765,7 @@ class SqlIdentity(
     def test_add_user_to_group_expiring(self):
         self._build_fed_resource()
         domain = self._get_domain_fixture()
-        time = datetime.datetime.utcnow()
+        time = timeutils.utcnow()
         tick = datetime.timedelta(minutes=5)
 
         new_group = unit.new_group_ref(domain_id=domain['id'])
@@ -822,7 +823,7 @@ class SqlIdentity(
         self.config_fixture.config(
             group='federation', default_authorization_ttl=5
         )
-        time = datetime.datetime.utcnow()
+        time = timeutils.utcnow()
         tick = datetime.timedelta(minutes=5)
 
         new_group = unit.new_group_ref(domain_id=domain['id'])
