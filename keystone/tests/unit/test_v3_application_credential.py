@@ -511,8 +511,7 @@ class ApplicationCredentialTestCase(test_v3.RestfulTestCase):
             token = self.get_scoped_token()
             name = app_cred_body['application_credential']['name']
             search_path = (
-                f'/v3/users/{self.user_id}/application_credentials?'
-                f'name={name}'
+                f'/v3/users/{self.user_id}/application_credentials?name={name}'
             )
             resp = c.get(
                 search_path,
@@ -716,4 +715,104 @@ class ApplicationCredentialTestCase(test_v3.RestfulTestCase):
                 json=app_cred_body,
                 expected_status_code=http.client.METHOD_NOT_ALLOWED,
                 headers={'X-Auth-Token': token},
+            )
+
+    def test_list_access_rules(self):
+        access_rules: list[dict[str, str]] = [
+            {"service": "foo", "method": "GET", "path": "/bar"}
+        ]
+        with self.test_client() as c:
+            roles = [{'id': self.role_id}]
+            app_cred_body = self._app_cred_body(
+                roles=roles, access_rules=access_rules
+            )
+            token = self.get_scoped_token()
+            c.post(
+                f"/v3/users/{self.user_id}/application_credentials",
+                json=app_cred_body,
+                expected_status_code=http.client.CREATED,
+                headers={"X-Auth-Token": token},
+            )
+            # Invoke GET access_rules and trigger internal validation
+            r = c.get(
+                f"/v3/users/{self.user_id}/access_rules",
+                expected_status_code=http.client.OK,
+                headers={"X-Auth-Token": token},
+            )
+            ar = r.json["access_rules"]
+            self.assertEqual(access_rules[0]["method"], ar[0]["method"])
+
+    def test_list_access_rules_wrong_qp(self):
+        with self.test_client() as c:
+            token = self.get_scoped_token()
+            # Invoke GET access_rules with unsupported query parameters and
+            # trigger internal validation
+            c.get(
+                f"/v3/users/{self.user_id}/access_rules?user_id=foo",
+                expected_status_code=http.client.BAD_REQUEST,
+                headers={"X-Auth-Token": token},
+            )
+
+    def test_show_access_rule(self):
+        access_rules: list[dict[str, str]] = [
+            {"service": "foo", "method": "GET", "path": "/bar"}
+        ]
+        with self.test_client() as c:
+            roles = [{'id': self.role_id}]
+            app_cred_body = self._app_cred_body(
+                roles=roles, access_rules=access_rules
+            )
+            token = self.get_scoped_token()
+            resp = c.post(
+                f"/v3/users/{self.user_id}/application_credentials",
+                json=app_cred_body,
+                expected_status_code=http.client.CREATED,
+                headers={"X-Auth-Token": token},
+            )
+            access_rule_id = resp.json["application_credential"][
+                "access_rules"
+            ][0]["id"]
+            # Invoke GET access_rules/{id} and trigger internal validation
+            c.get(
+                f"/v3/users/{self.user_id}/access_rules/{access_rule_id}",
+                expected_status_code=http.client.OK,
+                headers={"X-Auth-Token": token},
+            )
+            c.get(
+                f"/v3/users/{self.user_id}/access_rules/{access_rule_id}"
+                "?foo=bar",
+                expected_status_code=http.client.BAD_REQUEST,
+                headers={"X-Auth-Token": token},
+            )
+
+    def test_delete_access_rule(self):
+        access_rules: list[dict[str, str]] = [
+            {"service": "foo", "method": "GET", "path": "/bar"}
+        ]
+        with self.test_client() as c:
+            roles = [{'id': self.role_id}]
+            app_cred_body = self._app_cred_body(
+                roles=roles, access_rules=access_rules
+            )
+            token = self.get_scoped_token()
+            resp = c.post(
+                f"/v3/users/{self.user_id}/application_credentials",
+                json=app_cred_body,
+                expected_status_code=http.client.CREATED,
+                headers={"X-Auth-Token": token},
+            )
+            app_cred: dict = resp.json["application_credential"]
+            access_rule_id = app_cred["access_rules"][0]["id"]
+            c.delete(
+                f"/v3/users/{self.user_id}/application_credentials"
+                f"/{app_cred['id']}",
+                json=app_cred_body,
+                expected_status_code=http.client.NO_CONTENT,
+                headers={"X-Auth-Token": token},
+            )
+            # Invoke GET access_rules/{id} and trigger internal validation
+            c.delete(
+                f"/v3/users/{self.user_id}/access_rules/{access_rule_id}",
+                expected_status_code=http.client.NO_CONTENT,
+                headers={"X-Auth-Token": token},
             )

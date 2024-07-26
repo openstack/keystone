@@ -56,3 +56,10 @@ tags: dict[str, Any] = {
         }
     },
 }
+
+id_string: dict[str, Any] = {
+    "type": "string",
+    "minLength": 1,
+    "maxLength": 64,
+    "pattern": r"^[a-zA-Z0-9-]+$",
+}
