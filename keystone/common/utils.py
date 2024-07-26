@@ -112,7 +112,7 @@ class SmarterEncoder(jsonutils.json.JSONEncoder):
     def default(self, obj):
         if not isinstance(obj, dict) and hasattr(obj, 'items'):
             return dict(obj.items())
-        return super(SmarterEncoder, self).default(obj)
+        return super().default(obj)
 
 
 def hash_access_key(access):
@@ -304,7 +304,7 @@ def get_unix_group(group=None):
     return group_info.gr_gid, group_info.gr_name
 
 
-class WhiteListedItemFilter(object):
+class WhiteListedItemFilter:
 
     def __init__(self, whitelist, data):
         self._whitelist = set(whitelist or [])

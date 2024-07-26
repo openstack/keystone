@@ -16,7 +16,7 @@ from keystone.common import driver_hints
 from keystone import exception
 
 
-class IdentityDriverTests(object):
+class IdentityDriverTests:
     driver = None  # subclasses must override driver to the actual driver.
 
     # subclasses that don't allow name updates must set this to False.

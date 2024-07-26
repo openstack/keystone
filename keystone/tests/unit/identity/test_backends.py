@@ -29,7 +29,7 @@ CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
 
 
-class IdentityTests(object):
+class IdentityTests:
 
     def _get_domain_fixture(self):
         domain = unit.new_domain_ref()
@@ -116,7 +116,7 @@ class IdentityTests(object):
             )
 
     def test_create_unicode_user_name(self):
-        unicode_name = u'name \u540d\u5b57'
+        unicode_name = 'name \u540d\u5b57'
         user = unit.new_user_ref(
             name=unicode_name, domain_id=CONF.identity.default_domain_id
         )
@@ -470,11 +470,11 @@ class IdentityTests(object):
             )
         )
         self.assertEqual(len(default_fixtures.USERS), len(users))
-        user_ids = set(user['id'] for user in users)
-        expected_user_ids = set(
+        user_ids = {user['id'] for user in users}
+        expected_user_ids = {
             getattr(self, 'user_%s' % user['name'])['id']
             for user in default_fixtures.USERS
-        )
+        }
         for user_ref in users:
             self.assertNotIn('password', user_ref)
         self.assertEqual(expected_user_ids, user_ids)
@@ -1140,7 +1140,9 @@ class IdentityTests(object):
         # The test is designed for multiple domains only
         def create_domains(domain_count, domain_name_prefix):
             for _ in range(domain_count):
-                domain_name = '%s-%s' % (domain_name_prefix, uuid.uuid4().hex)
+                domain_name = '{}-{}'.format(
+                    domain_name_prefix, uuid.uuid4().hex
+                )
                 domain = unit.new_domain_ref(name=domain_name)
                 self.domain_list[domain_name] = (
                     PROVIDERS.resource_api.create_domain(domain['id'], domain)

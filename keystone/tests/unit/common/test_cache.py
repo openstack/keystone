@@ -27,7 +27,7 @@ CONF = keystone.conf.CONF
 class TestCacheRegion(unit.BaseTestCase):
 
     def setUp(self):
-        super(TestCacheRegion, self).setUp()
+        super().setUp()
         self.config_fixture = self.useFixture(config_fixture.Config(CONF))
         self.config_fixture.config(
             # TODO(morganfainberg): Make Cache Testing a separate test case

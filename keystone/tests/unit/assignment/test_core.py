@@ -24,7 +24,7 @@ from keystone.tests.unit import default_fixtures
 PROVIDERS = provider_api.ProviderAPIs
 
 
-class RoleTests(object):
+class RoleTests:
 
     def test_get_role_returns_not_found(self):
         self.assertRaises(
@@ -126,8 +126,8 @@ class RoleTests(object):
     def test_list_roles(self):
         roles = PROVIDERS.role_api.list_roles()
         self.assertEqual(len(default_fixtures.ROLES), len(roles))
-        role_ids = set(role['id'] for role in roles)
-        expected_role_ids = set(role['id'] for role in default_fixtures.ROLES)
+        role_ids = {role['id'] for role in roles}
+        expected_role_ids = {role['id'] for role in default_fixtures.ROLES}
         self.assertEqual(expected_role_ids, role_ids)
 
     @unit.skip_if_cache_disabled('role')

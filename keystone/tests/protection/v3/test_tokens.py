@@ -25,7 +25,7 @@ CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
 
 
-class _SystemUserTokenTests(object):
+class _SystemUserTokenTests:
 
     def test_user_can_validate_system_scoped_token(self):
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
@@ -105,7 +105,7 @@ class _SystemUserTokenTests(object):
             c.get('/v3/auth/tokens', headers=self.headers)
 
 
-class _SystemMemberAndReaderTokenTests(object):
+class _SystemMemberAndReaderTokenTests:
 
     def test_user_cannot_revoke_a_system_scoped_token(self):
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
@@ -205,7 +205,7 @@ class SystemReaderTests(
 ):
 
     def setUp(self):
-        super(SystemReaderTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -240,7 +240,7 @@ class SystemMemberTests(
 ):
 
     def setUp(self):
-        super(SystemMemberTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -274,7 +274,7 @@ class SystemAdminTests(
 ):
 
     def setUp(self):
-        super(SystemAdminTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -371,7 +371,7 @@ class SystemAdminTests(
             c.delete('/v3/auth/tokens', headers=self.headers)
 
 
-class _DomainAndProjectUserTests(object):
+class _DomainAndProjectUserTests:
 
     def test_user_can_validate_their_own_tokens(self):
         with self.test_client() as c:
@@ -569,7 +569,7 @@ class DomainUserTests(
 ):
 
     def setUp(self):
-        super(DomainUserTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -609,7 +609,7 @@ class ProjectUserTests(
 ):
 
     def setUp(self):
-        super(ProjectUserTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)

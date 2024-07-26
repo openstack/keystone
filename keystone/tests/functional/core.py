@@ -45,7 +45,7 @@ class BaseTestCase(testtools.TestCase, common_auth.AuthTestMixin):
         self.project_name = os.environ.get('KSTEST_PROJECT_NAME')
         self.project_domain_id = os.environ.get('KSTEST_PROJECT_DOMAIN_ID')
 
-        super(BaseTestCase, self).setUp()
+        super().setUp()
 
     def _http_headers(self, token=None):
         headers = {'content-type': 'application/json'}

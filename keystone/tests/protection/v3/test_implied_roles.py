@@ -23,7 +23,7 @@ CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
 
 
-class _ImpliedRolesSetupMixin(object):
+class _ImpliedRolesSetupMixin:
     def _create_test_roles(self):
         ref = unit.new_role_ref()
         role = PROVIDERS.role_api.create_role(ref['id'], ref)
@@ -33,7 +33,7 @@ class _ImpliedRolesSetupMixin(object):
         self.implied_role_id = role['id']
 
 
-class _SystemUserImpliedRoleTests(object):
+class _SystemUserImpliedRoleTests:
     """Common default functionality for all system users."""
 
     def test_user_can_list_implied_roles(self):
@@ -78,7 +78,7 @@ class _SystemUserImpliedRoleTests(object):
             self.assertEqual(3, len(r.json['role_inferences']))
 
 
-class _SystemReaderAndMemberImpliedRoleTests(object):
+class _SystemReaderAndMemberImpliedRoleTests:
     """Common default functionality for system readers and system members."""
 
     def test_user_cannot_create_implied_roles(self):
@@ -113,7 +113,7 @@ class SystemReaderTests(
 ):
 
     def setUp(self):
-        super(SystemReaderTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -151,7 +151,7 @@ class SystemMemberTests(
 ):
 
     def setUp(self):
-        super(SystemMemberTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -188,7 +188,7 @@ class SystemAdminTests(
 ):
 
     def setUp(self):
-        super(SystemAdminTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)

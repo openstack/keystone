@@ -28,7 +28,7 @@ CONF = keystone.conf.CONF
 class Provider(base.Provider):
 
     def __init__(self, *args, **kwargs):
-        super(Provider, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         # NOTE(lbragstad): We add these checks here because if the jws
         # provider is going to be used and either the `key_repository` is empty
@@ -91,7 +91,7 @@ class Provider(base.Provider):
         return self.token_formatter.validate_token(token_id)
 
 
-class JWSFormatter(object):
+class JWSFormatter:
 
     # NOTE(lbragstad): If in the future we expand support for different
     # algorithms, make this configurable and validate it against a blessed list
@@ -103,7 +103,7 @@ class JWSFormatter(object):
         private_key_path = os.path.join(
             CONF.jwt_tokens.jws_private_key_repository, 'private.pem'
         )
-        with open(private_key_path, 'r') as f:
+        with open(private_key_path) as f:
             key = f.read()
         return key
 
@@ -112,7 +112,7 @@ class JWSFormatter(object):
         keys = []
         key_repo = CONF.jwt_tokens.jws_public_key_repository
         for keyfile in os.listdir(key_repo):
-            with open(os.path.join(key_repo, keyfile), 'r') as f:
+            with open(os.path.join(key_repo, keyfile)) as f:
                 keys.append(f.read())
         return keys
 

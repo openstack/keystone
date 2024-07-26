@@ -40,7 +40,7 @@ class _TestResourceWithCollectionInfo(flask_common.ResourceBase):
     _storage_dict = {}
 
     def __init__(self):
-        super(_TestResourceWithCollectionInfo, self).__init__()
+        super().__init__()
         # Share State, this is for "dummy" backend storage.
         self.__dict__ = self.__shared_state__
 
@@ -127,7 +127,7 @@ class _TestRestfulAPI(flask_common.APIBase):
         self.resources = kwargs.pop(
             'resources', [_TestResourceWithCollectionInfo]
         )
-        super(_TestRestfulAPI, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
 
 class TestKeystoneFlaskCommon(rest.RestfulTestCase):
@@ -138,7 +138,7 @@ class TestKeystoneFlaskCommon(rest.RestfulTestCase):
     ]
 
     def setUp(self):
-        super(TestKeystoneFlaskCommon, self).setUp()
+        super().setUp()
         enf = rbac_enforcer.enforcer.RBACEnforcer()
 
         def register_rules(enf_obj):
@@ -216,21 +216,21 @@ class TestKeystoneFlaskCommon(rest.RestfulTestCase):
 
             # GET non-existent ref
             c.get(
-                '%s/%s' % (url, unknown_id),
+                f'{url}/{unknown_id}',
                 headers=headers,
                 expected_status_code=404,
             )
 
             # HEAD non-existent ref
             c.head(
-                '%s/%s' % (url, unknown_id),
+                f'{url}/{unknown_id}',
                 headers=headers,
                 expected_status_code=404,
             )
 
             # PUT non-existent ref
             c.put(
-                '%s/%s' % (url, unknown_id),
+                f'{url}/{unknown_id}',
                 json={},
                 headers=headers,
                 expected_status_code=404,
@@ -238,7 +238,7 @@ class TestKeystoneFlaskCommon(rest.RestfulTestCase):
 
             # PATCH non-existent ref
             c.patch(
-                '%s/%s' % (url, unknown_id),
+                f'{url}/{unknown_id}',
                 json={},
                 headers=headers,
                 expected_status_code=404,
@@ -246,7 +246,7 @@ class TestKeystoneFlaskCommon(rest.RestfulTestCase):
 
             # DELETE non-existent ref
             c.delete(
-                '%s/%s' % (url, unknown_id),
+                f'{url}/{unknown_id}',
                 headers=headers,
                 expected_status_code=404,
             )
@@ -270,13 +270,13 @@ class TestKeystoneFlaskCommon(rest.RestfulTestCase):
 
             # GET first ref
             get_resp = c.get(
-                '%s/%s' % (url, new_argument_resp['id']), headers=headers
+                '{}/{}'.format(url, new_argument_resp['id']), headers=headers
             ).json['argument']
             self.assertEqual(new_argument_resp, get_resp)
 
             # HEAD first ref
             head_resp = c.head(
-                '%s/%s' % (url, new_argument_resp['id']), headers=headers
+                '{}/{}'.format(url, new_argument_resp['id']), headers=headers
             ).data
             # NOTE(morgan): For python3 compat, explicitly binary type
             self.assertEqual(head_resp, b'')
@@ -284,33 +284,33 @@ class TestKeystoneFlaskCommon(rest.RestfulTestCase):
             # PUT update first ref
             replacement_argument = {'new_arg': True, 'id': uuid.uuid4().hex}
             c.put(
-                '%s/%s' % (url, new_argument_resp['id']),
+                '{}/{}'.format(url, new_argument_resp['id']),
                 headers=headers,
                 json=replacement_argument,
                 expected_status_code=400,
             )
             replacement_argument.pop('id')
             c.put(
-                '%s/%s' % (url, new_argument_resp['id']),
+                '{}/{}'.format(url, new_argument_resp['id']),
                 headers=headers,
                 json=replacement_argument,
             )
             put_resp = c.get(
-                '%s/%s' % (url, new_argument_resp['id']), headers=headers
+                '{}/{}'.format(url, new_argument_resp['id']), headers=headers
             ).json['argument']
             self.assertNotIn(new_argument_resp['testing'], put_resp)
             self.assertTrue(put_resp['new_arg'])
 
             # GET first ref (check for replacement)
             get_replacement_resp = c.get(
-                '%s/%s' % (url, new_argument_resp['id']), headers=headers
+                '{}/{}'.format(url, new_argument_resp['id']), headers=headers
             ).json['argument']
             self.assertEqual(put_resp, get_replacement_resp)
 
             # PATCH update first ref
             patch_ref = {'uuid': uuid.uuid4().hex}
             patch_resp = c.patch(
-                '%s/%s' % (url, new_argument_resp['id']),
+                '{}/{}'.format(url, new_argument_resp['id']),
                 headers=headers,
                 json=patch_ref,
             ).json['argument']
@@ -319,15 +319,17 @@ class TestKeystoneFlaskCommon(rest.RestfulTestCase):
 
             # GET first ref (check for update)
             get_patched_ref_resp = c.get(
-                '%s/%s' % (url, new_argument_resp['id']), headers=headers
+                '{}/{}'.format(url, new_argument_resp['id']), headers=headers
             ).json['argument']
             self.assertEqual(patch_resp, get_patched_ref_resp)
 
             # DELETE first ref
-            c.delete('%s/%s' % (url, new_argument_resp['id']), headers=headers)
+            c.delete(
+                '{}/{}'.format(url, new_argument_resp['id']), headers=headers
+            )
             # Check that it was in-fact deleted
             c.get(
-                '%s/%s' % (url, new_argument_resp['id']),
+                '{}/{}'.format(url, new_argument_resp['id']),
                 headers=headers,
                 expected_status_code=404,
             )
@@ -350,7 +352,7 @@ class TestKeystoneFlaskCommon(rest.RestfulTestCase):
 
         class TestAPIDuplicateBefore(_TestRestfulAPI):
             def __init__(self):
-                super(TestAPIDuplicateBefore, self).__init__()
+                super().__init__()
                 self._register_before_request_functions()
 
         self.assertRaises(AssertionError, TestAPIDuplicateBefore)
@@ -359,7 +361,7 @@ class TestKeystoneFlaskCommon(rest.RestfulTestCase):
 
         class TestAPIDuplicateAfter(_TestRestfulAPI):
             def __init__(self):
-                super(TestAPIDuplicateAfter, self).__init__()
+                super().__init__()
                 self._register_after_request_functions()
 
         self.assertRaises(AssertionError, TestAPIDuplicateAfter)
@@ -391,9 +393,7 @@ class TestKeystoneFlaskCommon(rest.RestfulTestCase):
             def _register_before_request_functions(self, functions=None):
                 functions = functions or []
                 functions.append(do_something)
-                super(TestAPI, self)._register_before_request_functions(
-                    functions
-                )
+                super()._register_before_request_functions(functions)
 
         api = TestAPI(resources=[_TestResourceWithCollectionInfo])
         self.public_app.app.register_blueprint(api.blueprint)
@@ -416,9 +416,7 @@ class TestKeystoneFlaskCommon(rest.RestfulTestCase):
             def _register_after_request_functions(self, functions=None):
                 functions = functions or []
                 functions.append(do_something)
-                super(TestAPI, self)._register_after_request_functions(
-                    functions
-                )
+                super()._register_after_request_functions(functions)
 
         api = TestAPI(resources=[_TestResourceWithCollectionInfo])
         self.public_app.app.register_blueprint(api.blueprint)
@@ -555,13 +553,8 @@ class TestKeystoneFlaskCommon(rest.RestfulTestCase):
             # even if hash-seeds change order. `r.data` will be an empty
             # byte-string. `Content-Length` will be 0.
             self.assertEqual(
-                set(['OPTIONS', 'POST']),
-                set(
-                    [
-                        v.lstrip().rstrip()
-                        for v in r.headers['Allow'].split(',')
-                    ]
-                ),
+                {'OPTIONS', 'POST'},
+                {v.lstrip().rstrip() for v in r.headers['Allow'].split(',')},
             )
             self.assertEqual(r.headers['Content-Length'], '0')
             self.assertEqual(r.data, b'')
@@ -661,7 +654,7 @@ class TestKeystoneFlaskCommon(rest.RestfulTestCase):
             # Make a dummy request.. ANY request is fine to push the whole
             # context stack.
             c.get(
-                '%s/%s' % (url, uuid.uuid4().hex),
+                f'{url}/{uuid.uuid4().hex}',
                 headers=headers,
                 expected_status_code=404,
             )
@@ -829,14 +822,14 @@ class TestKeystoneFlaskCommon(rest.RestfulTestCase):
 
 class TestKeystoneFlaskUnrouted404(rest.RestfulTestCase):
     def setUp(self):
-        super(TestKeystoneFlaskUnrouted404, self).setUp()
+        super().setUp()
         # unregister the 404 handler we explicitly set in loadapp. This
         # makes the 404 error fallback to a standard werkzeug handling.
         self.public_app.app.error_handler_spec[None].pop(404)
 
     def test_unrouted_path_is_not_jsonified_404(self):
         with self.test_client() as c:
-            path = '/{unrouted_path}'.format(unrouted_path=uuid.uuid4())
+            path = f'/{uuid.uuid4()}'
             resp = c.get(path, expected_status_code=404)
             # Make sure we're emitting a html error
             self.assertIn('text/html', resp.headers['Content-Type'])

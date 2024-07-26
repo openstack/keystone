@@ -1,4 +1,3 @@
-# encoding: utf-8
 #
 # Copyright 2012 OpenStack Foundation
 #

@@ -21,7 +21,7 @@ from keystone.tests import unit
 
 class TestProviderAPIRegistry(unit.BaseTestCase):
     def setUp(self):
-        super(TestProviderAPIRegistry, self).setUp()
+        super().setUp()
         provider_api.ProviderAPIs._clear_registry_instances()
         self.addCleanup(provider_api.ProviderAPIs._clear_registry_instances)
 
@@ -40,7 +40,7 @@ class TestProviderAPIRegistry(unit.BaseTestCase):
     def test_deferred_gettr(self):
         api_name = '%s_api' % uuid.uuid4().hex
 
-        class TestClass(object):
+        class TestClass:
             descriptor = provider_api.ProviderAPIs.deferred_provider_lookup(
                 api=api_name, method='do_something'
             )
@@ -69,7 +69,7 @@ class TestProviderAPIRegistry(unit.BaseTestCase):
     def test_provider_api_mixin(self):
         test_manager = self._create_manager_instance()
 
-        class Testing(provider_api.ProviderAPIMixin, object):
+        class Testing(provider_api.ProviderAPIMixin):
             pass
 
         instance = Testing()

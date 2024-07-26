@@ -30,7 +30,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
     """Test domain config support."""
 
     def setUp(self):
-        super(DomainConfigTestCase, self).setUp()
+        super().setUp()
 
         self.domain = unit.new_domain_ref()
         PROVIDERS.resource_api.create_domain(self.domain['id'], self.domain)
@@ -44,9 +44,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
 
     def test_create_config(self):
         """Call ``PUT /domains/{domain_id}/config``."""
-        url = '/domains/%(domain_id)s/config' % {
-            'domain_id': self.domain['id']
-        }
+        url = '/domains/{domain_id}/config'.format(domain_id=self.domain['id'])
         r = self.put(
             url,
             body={'config': self.config},
@@ -64,9 +62,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         not found.
         """
         invalid_domain_id = uuid.uuid4().hex
-        url = '/domains/%(domain_id)s/config' % {
-            'domain_id': invalid_domain_id
-        }
+        url = f'/domains/{invalid_domain_id}/config'
         self.put(
             url,
             body={'config': self.config},
@@ -76,12 +72,12 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
     def test_create_config_twice(self):
         """Check multiple creates don't throw error."""
         self.put(
-            '/domains/%(domain_id)s/config' % {'domain_id': self.domain['id']},
+            '/domains/{domain_id}/config'.format(domain_id=self.domain['id']),
             body={'config': self.config},
             expected_status=http.client.CREATED,
         )
         self.put(
-            '/domains/%(domain_id)s/config' % {'domain_id': self.domain['id']},
+            '/domains/{domain_id}/config'.format(domain_id=self.domain['id']),
             body={'config': self.config},
             expected_status=http.client.OK,
         )
@@ -92,10 +88,10 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
             self.domain['id'], self.config
         )
         self.delete(
-            '/domains/%(domain_id)s/config' % {'domain_id': self.domain['id']}
+            '/domains/{domain_id}/config'.format(domain_id=self.domain['id'])
         )
         self.get(
-            '/domains/%(domain_id)s/config' % {'domain_id': self.domain['id']},
+            '/domains/{domain_id}/config'.format(domain_id=self.domain['id']),
             expected_status=exception.DomainConfigNotFound.code,
         )
 
@@ -111,7 +107,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         )
         invalid_domain_id = uuid.uuid4().hex
         self.delete(
-            '/domains/%(domain_id)s/config' % {'domain_id': invalid_domain_id},
+            f'/domains/{invalid_domain_id}/config',
             expected_status=exception.DomainNotFound.code,
         )
 
@@ -149,9 +145,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         PROVIDERS.domain_config_api.create_config(
             self.domain['id'], self.config
         )
-        url = '/domains/%(domain_id)s/config' % {
-            'domain_id': self.domain['id']
-        }
+        url = '/domains/{domain_id}/config'.format(domain_id=self.domain['id'])
         r = self.get(url)
         self.assertEqual(self.config, r.result['config'])
         self.head(url, expected_status=http.client.OK)
@@ -161,9 +155,9 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         PROVIDERS.domain_config_api.create_config(
             self.domain['id'], self.config
         )
-        url = '/domains/%(domain_id)s/config/ldap' % {
-            'domain_id': self.domain['id']
-        }
+        url = '/domains/{domain_id}/config/ldap'.format(
+            domain_id=self.domain['id']
+        )
         r = self.get(url)
         self.assertEqual({'ldap': self.config['ldap']}, r.result['config'])
         self.head(url, expected_status=http.client.OK)
@@ -179,9 +173,9 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
             self.domain['id'], self.config
         )
         invalid_domain_id = uuid.uuid4().hex
-        url = '/domains/%(domain_id)s/config/ldap' % {
-            'domain_id': invalid_domain_id
-        }
+        url = '/domains/{domain_id}/config/ldap'.format(
+            domain_id=invalid_domain_id
+        )
         self.get(url, expected_status=exception.DomainNotFound.code)
         self.head(url, expected_status=exception.DomainNotFound.code)
 
@@ -190,9 +184,9 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         PROVIDERS.domain_config_api.create_config(
             self.domain['id'], self.config
         )
-        url = '/domains/%(domain_id)s/config/ldap/url' % {
-            'domain_id': self.domain['id']
-        }
+        url = '/domains/{domain_id}/config/ldap/url'.format(
+            domain_id=self.domain['id']
+        )
         r = self.get(url)
         self.assertEqual(
             {'url': self.config['ldap']['url']}, r.result['config']
@@ -210,17 +204,15 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
             self.domain['id'], self.config
         )
         invalid_domain_id = uuid.uuid4().hex
-        url = '/domains/%(domain_id)s/config/ldap/url' % {
-            'domain_id': invalid_domain_id
-        }
+        url = '/domains/{domain_id}/config/ldap/url'.format(
+            domain_id=invalid_domain_id
+        )
         self.get(url, expected_status=exception.DomainNotFound.code)
         self.head(url, expected_status=exception.DomainNotFound.code)
 
     def test_get_head_non_existant_config(self):
         """Call ``GET /domains{domain_id}/config when no config defined``."""
-        url = '/domains/%(domain_id)s/config' % {
-            'domain_id': self.domain['id']
-        }
+        url = '/domains/{domain_id}/config'.format(domain_id=self.domain['id'])
         self.get(url, expected_status=http.client.NOT_FOUND)
         self.head(url, expected_status=http.client.NOT_FOUND)
 
@@ -232,9 +224,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         response 404 domain not found.
         """
         invalid_domain_id = uuid.uuid4().hex
-        url = '/domains/%(domain_id)s/config' % {
-            'domain_id': invalid_domain_id
-        }
+        url = f'/domains/{invalid_domain_id}/config'
         self.get(url, expected_status=exception.DomainNotFound.code)
         self.head(url, expected_status=exception.DomainNotFound.code)
 
@@ -242,9 +232,9 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         """Call ``GET /domains/{domain_id}/config/{group_not_exist}``."""
         config = {'ldap': {'url': uuid.uuid4().hex}}
         PROVIDERS.domain_config_api.create_config(self.domain['id'], config)
-        url = '/domains/%(domain_id)s/config/identity' % {
-            'domain_id': self.domain['id']
-        }
+        url = '/domains/{domain_id}/config/identity'.format(
+            domain_id=self.domain['id']
+        )
         self.get(url, expected_status=http.client.NOT_FOUND)
         self.head(url, expected_status=http.client.NOT_FOUND)
 
@@ -258,9 +248,9 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         config = {'ldap': {'url': uuid.uuid4().hex}}
         PROVIDERS.domain_config_api.create_config(self.domain['id'], config)
         invalid_domain_id = uuid.uuid4().hex
-        url = '/domains/%(domain_id)s/config/identity' % {
-            'domain_id': invalid_domain_id
-        }
+        url = '/domains/{domain_id}/config/identity'.format(
+            domain_id=invalid_domain_id
+        )
         self.get(url, expected_status=exception.DomainNotFound.code)
         self.head(url, expected_status=exception.DomainNotFound.code)
 
@@ -273,9 +263,9 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         """
         config = {'ldap': {'url': uuid.uuid4().hex}}
         PROVIDERS.domain_config_api.create_config(self.domain['id'], config)
-        url = '/domains/%(domain_id)s/config/ldap/user_tree_dn' % {
-            'domain_id': self.domain['id']
-        }
+        url = '/domains/{domain_id}/config/ldap/user_tree_dn'.format(
+            domain_id=self.domain['id']
+        )
         self.get(url, expected_status=http.client.NOT_FOUND)
         self.head(url, expected_status=http.client.NOT_FOUND)
 
@@ -291,9 +281,9 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         config = {'ldap': {'url': uuid.uuid4().hex}}
         PROVIDERS.domain_config_api.create_config(self.domain['id'], config)
         invalid_domain_id = uuid.uuid4().hex
-        url = '/domains/%(domain_id)s/config/ldap/user_tree_dn' % {
-            'domain_id': invalid_domain_id
-        }
+        url = '/domains/{domain_id}/config/ldap/user_tree_dn'.format(
+            domain_id=invalid_domain_id
+        )
         self.get(url, expected_status=exception.DomainNotFound.code)
         self.head(url, expected_status=exception.DomainNotFound.code)
 
@@ -307,7 +297,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
             'identity': {'driver': uuid.uuid4().hex},
         }
         r = self.patch(
-            '/domains/%(domain_id)s/config' % {'domain_id': self.domain['id']},
+            '/domains/{domain_id}/config'.format(domain_id=self.domain['id']),
             body={'config': new_config},
         )
         res = PROVIDERS.domain_config_api.get_config(self.domain['id'])
@@ -335,7 +325,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         }
         invalid_domain_id = uuid.uuid4().hex
         self.patch(
-            '/domains/%(domain_id)s/config' % {'domain_id': invalid_domain_id},
+            f'/domains/{invalid_domain_id}/config',
             body={'config': new_config},
             expected_status=exception.DomainNotFound.code,
         )
@@ -616,7 +606,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
 class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
 
     def setUp(self):
-        super(SecurityRequirementsTestCase, self).setUp()
+        super().setUp()
 
         # Create a user in the default domain
         self.non_admin_user = unit.create_user(
@@ -688,10 +678,10 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
                 'password_regex_description': password_regex_description,
             }
         }
-        url = '/domains/%(domain_id)s/config/%(group)s' % {
-            'domain_id': CONF.identity.default_domain_id,
-            'group': 'security_compliance',
-        }
+        url = '/domains/{domain_id}/config/{group}'.format(
+            domain_id=CONF.identity.default_domain_id,
+            group='security_compliance',
+        )
 
         # Make sure regular users and administrators can get security
         # requirement information.
@@ -731,10 +721,10 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
             group='security_compliance',
             password_regex_description=password_regex_description,
         )
-        url = '/domains/%(domain_id)s/config/%(group)s' % {
-            'domain_id': domain['id'],
-            'group': 'security_compliance',
-        }
+        url = '/domains/{domain_id}/config/{group}'.format(
+            domain_id=domain['id'],
+            group='security_compliance',
+        )
 
         # Make sure regular users and administrators are forbidden from doing
         # this.
@@ -772,11 +762,11 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
         self.config_fixture.config(
             group='security_compliance', lockout_failure_attempts=1
         )
-        url = '/domains/%(domain_id)s/config/%(group)s/%(option)s' % {
-            'domain_id': CONF.identity.default_domain_id,
-            'group': 'security_compliance',
-            'option': 'lockout_failure_attempts',
-        }
+        url = '/domains/{domain_id}/config/{group}/{option}'.format(
+            domain_id=CONF.identity.default_domain_id,
+            group='security_compliance',
+            option='lockout_failure_attempts',
+        )
 
         # Make sure regular users and administrators are unable to ask for
         # sensitive information.
@@ -811,11 +801,11 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
         )
         group = 'security_compliance'
         option = 'password_regex'
-        url = '/domains/%(domain_id)s/config/%(group)s/%(option)s' % {
-            'domain_id': CONF.identity.default_domain_id,
-            'group': group,
-            'option': option,
-        }
+        url = '/domains/{domain_id}/config/{group}/{option}'.format(
+            domain_id=CONF.identity.default_domain_id,
+            group=group,
+            option=option,
+        )
 
         # Make sure regular users and administrators can ask for the
         # password regular expression.
@@ -847,11 +837,11 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
         )
         group = 'security_compliance'
         option = 'password_regex_description'
-        url = '/domains/%(domain_id)s/config/%(group)s/%(option)s' % {
-            'domain_id': CONF.identity.default_domain_id,
-            'group': group,
-            'option': option,
-        }
+        url = '/domains/{domain_id}/config/{group}/{option}'.format(
+            domain_id=CONF.identity.default_domain_id,
+            group=group,
+            option=option,
+        )
 
         # Make sure regular users and administrators can ask for the
         # password regular expression.
@@ -879,11 +869,11 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
         """When an option isn't set, we should explicitly return None."""
         group = 'security_compliance'
         option = 'password_regex'
-        url = '/domains/%(domain_id)s/config/%(group)s/%(option)s' % {
-            'domain_id': CONF.identity.default_domain_id,
-            'group': group,
-            'option': option,
-        }
+        url = '/domains/{domain_id}/config/{group}/{option}'.format(
+            domain_id=CONF.identity.default_domain_id,
+            group=group,
+            option=option,
+        )
 
         # Make sure regular users and administrators can ask for the password
         # regular expression, but since it isn't set the returned value should
@@ -907,11 +897,11 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
         """When an option isn't set, we should explicitly return None."""
         group = 'security_compliance'
         option = 'password_regex_description'
-        url = '/domains/%(domain_id)s/config/%(group)s/%(option)s' % {
-            'domain_id': CONF.identity.default_domain_id,
-            'group': group,
-            'option': option,
-        }
+        url = '/domains/{domain_id}/config/{group}/{option}'.format(
+            domain_id=CONF.identity.default_domain_id,
+            group=group,
+            option=option,
+        )
 
         # Make sure regular users and administrators can ask for the password
         # regular expression description, but since it isn't set the returned
@@ -977,10 +967,10 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
             project_id=project['id'],
         )
         user_token = self.get_requested_token(user_token)
-        url = '/domains/%(domain_id)s/config/%(group)s' % {
-            'domain_id': CONF.identity.default_domain_id,
-            'group': group,
-        }
+        url = '/domains/{domain_id}/config/{group}'.format(
+            domain_id=CONF.identity.default_domain_id,
+            group=group,
+        )
         response = self.get(url, token=user_token)
         self.assertEqual(
             response.result['config'][group]['password_regex'], password_regex
@@ -1006,10 +996,10 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
                 'password_regex_description': uuid.uuid4().hex,
             }
         }
-        url = '/domains/%(domain_id)s/config/%(group)s' % {
-            'domain_id': CONF.identity.default_domain_id,
-            'group': 'security_compliance',
-        }
+        url = '/domains/{domain_id}/config/{group}'.format(
+            domain_id=CONF.identity.default_domain_id,
+            group='security_compliance',
+        )
 
         # Make sure regular users and administrators aren't allowed to modify
         # security compliance configuration through the API.
@@ -1030,11 +1020,11 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
         """Make sure any updates to security compliance options fail."""
         group = 'security_compliance'
         option = 'password_regex'
-        url = '/domains/%(domain_id)s/config/%(group)s/%(option)s' % {
-            'domain_id': CONF.identity.default_domain_id,
-            'group': group,
-            'option': option,
-        }
+        url = '/domains/{domain_id}/config/{group}/{option}'.format(
+            domain_id=CONF.identity.default_domain_id,
+            group=group,
+            option=option,
+        )
         new_config = {group: {option: uuid.uuid4().hex}}
 
         # Make sure regular users and administrators aren't allowed to modify
@@ -1056,11 +1046,11 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
         """Make sure any updates to security compliance options fail."""
         group = 'security_compliance'
         option = 'password_regex_description'
-        url = '/domains/%(domain_id)s/config/%(group)s/%(option)s' % {
-            'domain_id': CONF.identity.default_domain_id,
-            'group': group,
-            'option': option,
-        }
+        url = '/domains/{domain_id}/config/{group}/{option}'.format(
+            domain_id=CONF.identity.default_domain_id,
+            group=group,
+            option=option,
+        )
         new_config = {group: {option: uuid.uuid4().hex}}
 
         # Make sure regular users and administrators aren't allowed to modify
@@ -1087,11 +1077,11 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
         """
         group = 'security_compliance'
         option = 'lockout_failure_attempts'
-        url = '/domains/%(domain_id)s/config/%(group)s/%(option)s' % {
-            'domain_id': CONF.identity.default_domain_id,
-            'group': group,
-            'option': option,
-        }
+        url = '/domains/{domain_id}/config/{group}/{option}'.format(
+            domain_id=CONF.identity.default_domain_id,
+            group=group,
+            option=option,
+        )
         new_config = {group: {option: 1}}
 
         # Make sure this behavior is not possible for regular users or
@@ -1111,10 +1101,10 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
 
     def test_delete_security_compliance_group_fails(self):
         """The security compliance group shouldn't be deleteable."""
-        url = '/domains/%(domain_id)s/config/%(group)s/' % {
-            'domain_id': CONF.identity.default_domain_id,
-            'group': 'security_compliance',
-        }
+        url = '/domains/{domain_id}/config/{group}/'.format(
+            domain_id=CONF.identity.default_domain_id,
+            group='security_compliance',
+        )
 
         # Make sure regular users and administrators can't delete the security
         # compliance configuration group.
@@ -1131,11 +1121,11 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
 
     def test_delete_security_compliance_password_regex_fails(self):
         """The security compliance options shouldn't be deleteable."""
-        url = '/domains/%(domain_id)s/config/%(group)s/%(option)s' % {
-            'domain_id': CONF.identity.default_domain_id,
-            'group': 'security_compliance',
-            'option': 'password_regex',
-        }
+        url = '/domains/{domain_id}/config/{group}/{option}'.format(
+            domain_id=CONF.identity.default_domain_id,
+            group='security_compliance',
+            option='password_regex',
+        )
 
         # Make sure regular users and administrators can't delete the security
         # compliance configuration group.
@@ -1152,11 +1142,11 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
 
     def test_delete_security_compliance_password_regex_description_fails(self):
         """The security compliance options shouldn't be deleteable."""
-        url = '/domains/%(domain_id)s/config/%(group)s/%(option)s' % {
-            'domain_id': CONF.identity.default_domain_id,
-            'group': 'security_compliance',
-            'option': 'password_regex_description',
-        }
+        url = '/domains/{domain_id}/config/{group}/{option}'.format(
+            domain_id=CONF.identity.default_domain_id,
+            group='security_compliance',
+            option='password_regex_description',
+        )
 
         # Make sure regular users and administrators can't delete the security
         # compliance configuration group.
@@ -1173,11 +1163,11 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
 
     def test_delete_non_whitelisted_security_compliance_options_fails(self):
         """The security compliance options shouldn't be deleteable."""
-        url = '/domains/%(domain_id)s/config/%(group)s/%(option)s' % {
-            'domain_id': CONF.identity.default_domain_id,
-            'group': 'security_compliance',
-            'option': 'lockout_failure_attempts',
-        }
+        url = '/domains/{domain_id}/config/{group}/{option}'.format(
+            domain_id=CONF.identity.default_domain_id,
+            group='security_compliance',
+            option='lockout_failure_attempts',
+        )
 
         # Make sure regular users and administrators can't delete the security
         # compliance configuration group.

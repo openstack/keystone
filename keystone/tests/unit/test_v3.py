@@ -201,13 +201,13 @@ class RestfulTestCase(
         return schema
 
     def config_files(self):
-        config_files = super(RestfulTestCase, self).config_files()
+        config_files = super().config_files()
         config_files.append(unit.dirs.tests_conf('backend_sql.conf'))
         return config_files
 
     def setUp(self):
         """Setup for v3 Restful Test Cases."""
-        super(RestfulTestCase, self).setUp()
+        super().setUp()
 
         self.empty_context = {'environment': {}}
 
@@ -215,7 +215,7 @@ class RestfulTestCase(
         # ensure the cache region instance is setup
         cache.configure_cache()
 
-        super(RestfulTestCase, self).load_backends()
+        super().load_backends()
 
     def load_fixtures(self, fixtures):
         self.load_sample_data()
@@ -232,9 +232,9 @@ class RestfulTestCase(
                 resource_base.NULL_DOMAIN_ID, root_domain
             )
             domain = unit.new_domain_ref(
-                description=(u'The default domain'),
+                description=('The default domain'),
                 id=DEFAULT_DOMAIN_ID,
-                name=u'Default',
+                name='Default',
             )
             PROVIDERS.resource_api.create_domain(DEFAULT_DOMAIN_ID, domain)
 
@@ -327,7 +327,7 @@ class RestfulTestCase(
         project = self.assertValidProjectResponse(r, ref)
         # set the user's preferred project
         body = {'user': {'default_project_id': project['id']}}
-        r = self.patch('/users/%(user_id)s' % {'user_id': user_id}, body=body)
+        r = self.patch(f'/users/{user_id}', body=body)
         self.assertValidUserResponse(r)
 
         return project
@@ -640,7 +640,7 @@ class RestfulTestCase(
             keys = ['name', 'description', 'enabled']
 
         for k in ['id'] + keys:
-            msg = '%s unexpectedly None in %s' % (k, entity)
+            msg = f'{k} unexpectedly None in {entity}'
             self.assertIsNotNone(entity.get(k), msg)
 
         self.assertIsNotNone(entity.get('links'))
@@ -652,7 +652,7 @@ class RestfulTestCase(
 
         if ref:
             for k in keys:
-                msg = '%s not equal: %s != %s' % (k, ref[k], entity[k])
+                msg = f'{k} not equal: {ref[k]} != {entity[k]}'
                 self.assertEqual(ref[k], entity[k])
 
         return entity
@@ -816,7 +816,7 @@ class RestfulTestCase(
     # catalog validation
 
     def assertValidCatalogResponse(self, resp, *args, **kwargs):
-        self.assertEqual(set(['catalog', 'links']), set(resp.json.keys()))
+        self.assertEqual({'catalog', 'links'}, set(resp.json.keys()))
         self.assertValidCatalog(resp.json['catalog'])
         self.assertIn('links', resp.json)
         self.assertIsInstance(resp.json['links'], dict)
@@ -859,7 +859,7 @@ class RestfulTestCase(
             self.assertValidRegion,
             keys_to_check=[],
             *args,
-            **kwargs
+            **kwargs,
         )
 
     def assertValidRegionResponse(self, resp, *args, **kwargs):
@@ -869,7 +869,7 @@ class RestfulTestCase(
             self.assertValidRegion,
             keys_to_check=[],
             *args,
-            **kwargs
+            **kwargs,
         )
 
     def assertValidRegion(self, entity, ref=None):
@@ -968,7 +968,7 @@ class RestfulTestCase(
             self.assertValidUser,
             keys_to_check=['name', 'enabled'],
             *args,
-            **kwargs
+            **kwargs,
         )
 
     def assertValidUserResponse(self, resp, *args, **kwargs):
@@ -978,7 +978,7 @@ class RestfulTestCase(
             self.assertValidUser,
             keys_to_check=['name', 'enabled'],
             *args,
-            **kwargs
+            **kwargs,
         )
 
     def assertValidUser(self, entity, ref=None):
@@ -1006,7 +1006,7 @@ class RestfulTestCase(
             self.assertValidGroup,
             keys_to_check=['name', 'description', 'domain_id'],
             *args,
-            **kwargs
+            **kwargs,
         )
 
     def assertValidGroupResponse(self, resp, *args, **kwargs):
@@ -1016,7 +1016,7 @@ class RestfulTestCase(
             self.assertValidGroup,
             keys_to_check=['name', 'description', 'domain_id'],
             *args,
-            **kwargs
+            **kwargs,
         )
 
     def assertValidGroup(self, entity, ref=None):
@@ -1034,7 +1034,7 @@ class RestfulTestCase(
             self.assertValidCredential,
             keys_to_check=['blob', 'user_id', 'type'],
             *args,
-            **kwargs
+            **kwargs,
         )
 
     def assertValidCredentialResponse(self, resp, *args, **kwargs):
@@ -1044,7 +1044,7 @@ class RestfulTestCase(
             self.assertValidCredential,
             keys_to_check=['blob', 'user_id', 'type'],
             *args,
-            **kwargs
+            **kwargs,
         )
 
     def assertValidCredential(self, entity, ref=None):
@@ -1069,7 +1069,7 @@ class RestfulTestCase(
             self.assertValidRole,
             keys_to_check=['name'],
             *args,
-            **kwargs
+            **kwargs,
         )
 
     def assertRoleInListResponse(self, resp, ref, expected=1):
@@ -1094,7 +1094,7 @@ class RestfulTestCase(
             self.assertValidRole,
             keys_to_check=['name'],
             *args,
-            **kwargs
+            **kwargs,
         )
 
     def assertValidRole(self, entity, ref=None):
@@ -1214,7 +1214,7 @@ class RestfulTestCase(
                 'impersonation',
             ],
             *args,
-            **kwargs
+            **kwargs,
         )
 
     def assertValidTrustResponse(self, resp, *args, **kwargs):
@@ -1228,7 +1228,7 @@ class RestfulTestCase(
                 'impersonation',
             ],
             *args,
-            **kwargs
+            **kwargs,
         )
 
     def assertValidTrustSummary(self, entity, ref=None):
@@ -1413,7 +1413,7 @@ class AuthContextMiddlewareTestCase(RestfulTestCase):
 
     def test_domain_scoped_token_auth_context(self):
         # grant the domain role to user
-        path = '/domains/%s/users/%s/roles/%s' % (
+        path = '/domains/{}/users/{}/roles/{}'.format(
             self.domain['id'],
             self.user['id'],
             self.role['id'],
@@ -1495,7 +1495,7 @@ class AuthContextMiddlewareTestCase(RestfulTestCase):
         self.assertEqual(b'body', resp.body)  # just to make sure it worked
 
 
-class JsonHomeTestMixin(object):
+class JsonHomeTestMixin:
     """JSON Home test.
 
     Mixin this class to provide a test for the JSON-Home response for an
@@ -1525,7 +1525,7 @@ class JsonHomeTestMixin(object):
             )
 
 
-class AssignmentTestMixin(object):
+class AssignmentTestMixin:
     """To hold assignment helper functions."""
 
     def build_role_assignment_query_url(self, effective=False, **filters):
@@ -1549,7 +1549,7 @@ class AssignmentTestMixin(object):
                         'Invalid key \'%s\' in provided filters.' % k
                     )
 
-                query_params += '%s=%s' % (k.replace('_', '.'), v)
+                query_params += '{}={}'.format(k.replace('_', '.'), v)
 
         return '/role_assignments%s' % query_params
 
@@ -1605,7 +1605,7 @@ class AssignmentTestMixin(object):
             entity['user'] = {'id': attribs['user_id']}
 
             if attribs.get('group_id'):
-                entity['links']['membership'] = '/groups/%s/users/%s' % (
+                entity['links']['membership'] = '/groups/{}/users/{}'.format(
                     attribs['group_id'],
                     attribs['user_id'],
                 )

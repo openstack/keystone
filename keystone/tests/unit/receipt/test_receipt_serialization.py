@@ -24,7 +24,7 @@ from keystone.tests.unit import base_classes
 class TestReceiptSerialization(base_classes.TestCaseWithBootstrap):
 
     def setUp(self):
-        super(TestReceiptSerialization, self).setUp()
+        super().setUp()
         self.admin_user_id = self.bootstrapper.admin_user_id
 
         self.receipt_id = uuid.uuid4().hex

@@ -23,7 +23,7 @@ PROVIDERS = provider_api.ProviderAPIs
 CONF = keystone.conf.CONF
 
 
-class FilterTests(object):
+class FilterTests:
 
     # Provide support for checking if a batch of list items all
     # exist within a contiguous range in a total list

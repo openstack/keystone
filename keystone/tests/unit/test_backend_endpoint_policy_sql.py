@@ -37,5 +37,5 @@ class SqlPolicyAssociationTests(
 ):
 
     def load_fixtures(self, fixtures):
-        super(SqlPolicyAssociationTests, self).load_fixtures(fixtures)
+        super().load_fixtures(fixtures)
         self.load_sample_data()

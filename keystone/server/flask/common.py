@@ -180,7 +180,7 @@ def _remove_content_type_on_204(resp):
     return resp
 
 
-class APIBase(object, metaclass=abc.ABCMeta):
+class APIBase(metaclass=abc.ABCMeta):
 
     @property
     @abc.abstractmethod
@@ -373,12 +373,12 @@ class APIBase(object, metaclass=abc.ABCMeta):
                 # sure to use the correct path-key for ID.
                 member_id_key = getattr(r, '_id_path_param_name_override')
             else:
-                member_id_key = '%(member_key)s_id' % {'member_key': m_key}
+                member_id_key = f'{m_key}_id'
 
-            entity_path = '/%(collection)s/<string:%(member)s>' % {
-                'collection': c_key,
-                'member': member_id_key,
-            }
+            entity_path = '/{collection}/<string:{member}>'.format(
+                collection=c_key,
+                member=member_id_key,
+            )
             # NOTE(morgan): The json-home form of the entity path is different
             # from the flask-url routing form. Must also include the prefix
             jh_e_path = _URL_SUBST.sub(
@@ -419,10 +419,10 @@ class APIBase(object, metaclass=abc.ABCMeta):
             )
             # NOTE(morgan): Add the prefix explicitly for JSON Home documents
             # to the collection path.
-            href_val = '%(pfx)s%(collection_path)s' % {
-                'pfx': self._api_url_prefix,
-                'collection_path': collection_path,
-            }
+            href_val = '{pfx}{collection_path}'.format(
+                pfx=self._api_url_prefix,
+                collection_path=collection_path,
+            )
 
             # If additional parameters exist in the URL, add them to the
             # href-vars dict.
@@ -522,10 +522,10 @@ class APIBase(object, metaclass=abc.ABCMeta):
                 resource_data = {}
                 # NOTE(morgan): JSON Home form of the URL is different
                 # from FLASK, do the conversion here.
-                conv_url = '%(pfx)s/%(url)s' % {
-                    'url': _URL_SUBST.sub('{\\1}', r.url).lstrip('/'),
-                    'pfx': self._api_url_prefix,
-                }
+                conv_url = '{pfx}/{url}'.format(
+                    url=_URL_SUBST.sub('{\\1}', r.url).lstrip('/'),
+                    pfx=self._api_url_prefix,
+                )
 
                 if r.json_home_data.path_vars:
                     resource_data['href-template'] = conv_url
@@ -650,7 +650,7 @@ class APIBase(object, metaclass=abc.ABCMeta):
         return inst
 
 
-class _AttributeRaisesError(object):
+class _AttributeRaisesError:
     # NOTE(morgan): This is a special case class that exists to effectively
     # create a @classproperty style function. We use __get__ to raise the
     # exception.

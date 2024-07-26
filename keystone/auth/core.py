@@ -103,7 +103,7 @@ class AuthContext(dict):
                     'as it has conflicting values %(new)s and %(old)s'
                 ) % ({'attribute': key, 'new': val, 'old': existing_val})
                 raise exception.Unauthorized(msg)
-        return super(AuthContext, self).__setitem__(key, val)
+        return super().__setitem__(key, val)
 
     def update(self, E=None, **F):
         """Override update to prevent conflicting values."""
@@ -118,7 +118,7 @@ class AuthContext(dict):
                 self[key] = val
 
 
-class AuthInfo(provider_api.ProviderAPIMixin, object):
+class AuthInfo(provider_api.ProviderAPIMixin):
     """Encapsulation of "auth" request."""
 
     @staticmethod
@@ -445,7 +445,7 @@ class AuthInfo(provider_api.ProviderAPIMixin, object):
         self._scope_data = (domain_id, project_id, trust, unscoped, system)
 
 
-class UserMFARulesValidator(provider_api.ProviderAPIMixin, object):
+class UserMFARulesValidator(provider_api.ProviderAPIMixin):
     """Helper object that can validate the MFA Rules."""
 
     @classmethod

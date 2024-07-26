@@ -25,7 +25,7 @@ LOG = log.getLogger(__name__)
 PROVIDERS = provider_api.ProviderAPIs
 
 
-class Bootstrapper(object):
+class Bootstrapper:
 
     def __init__(self):
         backends.load_backends()

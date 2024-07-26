@@ -60,7 +60,7 @@ def register_callback(operation, resource_type=EXP_RESOURCE_TYPE):
 
 class AuditNotificationsTestCase(unit.BaseTestCase):
     def setUp(self):
-        super(AuditNotificationsTestCase, self).setUp()
+        super().setUp()
         self.config_fixture = self.useFixture(config_fixture.Config(CONF))
         self.addCleanup(notifications.clear_subscribers)
 
@@ -143,7 +143,7 @@ class AuditNotificationsTestCase(unit.BaseTestCase):
 class NotificationsTestCase(unit.BaseTestCase):
 
     def setUp(self):
-        super(NotificationsTestCase, self).setUp()
+        super().setUp()
         self.config_fixture = self.useFixture(config_fixture.Config(CONF))
         self.config_fixture.config(
             group='oslo_messaging_notifications', transport_url='rabbit://'
@@ -246,7 +246,7 @@ class NotificationsTestCase(unit.BaseTestCase):
         target = mock
         outcome = 'success'
         event_type = 'identity.authenticate'
-        meter_name = '%s.%s' % (event_type, outcome)
+        meter_name = f'{event_type}.{outcome}'
 
         conf = self.useFixture(config_fixture.Config(CONF))
         conf.config(notification_opt_out=[meter_name])
@@ -264,7 +264,7 @@ class NotificationsTestCase(unit.BaseTestCase):
 class BaseNotificationTest(test_v3.RestfulTestCase):
 
     def setUp(self):
-        super(BaseNotificationTest, self).setUp()
+        super().setUp()
 
         self._notifications = []
         self._audits = []
@@ -304,7 +304,7 @@ class BaseNotificationTest(test_v3.RestfulTestCase):
             target,
             event_type,
             reason=None,
-            **kwargs
+            **kwargs,
         ):
             service_security = cadftaxonomy.SERVICE_SECURITY
 
@@ -398,7 +398,7 @@ class BaseNotificationTest(test_v3.RestfulTestCase):
         self.assertEqual(self.project_id, payload['initiator']['project_id'])
         self.assertEqual(typeURI, payload['target']['typeURI'])
         self.assertIn('request_id', payload['initiator'])
-        action = '%s.%s' % (operation, resource_type)
+        action = f'{operation}.{resource_type}'
         self.assertEqual(action, payload['action'])
 
     def _assert_notify_not_sent(
@@ -945,7 +945,7 @@ class NotificationsForEntities(BaseNotificationTest):
 class CADFNotificationsForPCIDSSEvents(BaseNotificationTest):
 
     def setUp(self):
-        super(CADFNotificationsForPCIDSSEvents, self).setUp()
+        super().setUp()
         conf = self.useFixture(config_fixture.Config(CONF))
         conf.config(notification_format='cadf')
         conf.config(group='security_compliance', password_expires_days=2)
@@ -1156,7 +1156,7 @@ class CADFNotificationsForPCIDSSEvents(BaseNotificationTest):
 class CADFNotificationsForEntities(NotificationsForEntities):
 
     def setUp(self):
-        super(CADFNotificationsForEntities, self).setUp()
+        super().setUp()
         self.config_fixture.config(notification_format='cadf')
 
     def test_initiator_data_is_set(self):
@@ -1208,7 +1208,7 @@ class CADFNotificationsForEntities(NotificationsForEntities):
 
 class TestEventCallbacks(test_v3.RestfulTestCase):
 
-    class FakeManager(object):
+    class FakeManager:
 
         def _project_deleted_callback(
             self, service, resource_type, operation, payload
@@ -1261,7 +1261,7 @@ class TestEventCallbacks(test_v3.RestfulTestCase):
         callback_called = []
 
         @notifications.listener
-        class Foo(object):
+        class Foo:
             def __init__(self):
                 self.event_callbacks = {
                     CREATED_OPERATION: {'project': self.foo_callback}
@@ -1280,7 +1280,7 @@ class TestEventCallbacks(test_v3.RestfulTestCase):
         callback_called = []
 
         @notifications.listener
-        class Foo(object):
+        class Foo:
             def __init__(self):
                 self.event_callbacks = {
                     CREATED_OPERATION: {
@@ -1303,7 +1303,7 @@ class TestEventCallbacks(test_v3.RestfulTestCase):
 
     def test_invalid_event_callbacks(self):
         @notifications.listener
-        class Foo(object):
+        class Foo:
             def __init__(self):
                 self.event_callbacks = 'bogus'
 
@@ -1311,7 +1311,7 @@ class TestEventCallbacks(test_v3.RestfulTestCase):
 
     def test_invalid_event_callbacks_event(self):
         @notifications.listener
-        class Foo(object):
+        class Foo:
             def __init__(self):
                 self.event_callbacks = {CREATED_OPERATION: 'bogus'}
 
@@ -1327,7 +1327,7 @@ class TestEventCallbacks(test_v3.RestfulTestCase):
         # (think functools.partial). Obviously is we don't have an
         # instance then we can't call the method.
         @notifications.listener
-        class Foo(object):
+        class Foo:
             def __init__(self):
                 self.event_callbacks = {
                     CREATED_OPERATION: {'project': Foo.callback}
@@ -1356,7 +1356,7 @@ class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
     ROLE_ASSIGNMENT = 'role_assignment'
 
     def setUp(self):
-        super(CadfNotificationsWrapperTestCase, self).setUp()
+        super().setUp()
         self._notifications = []
 
         def fake_notify(
@@ -1366,7 +1366,7 @@ class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
             target,
             event_type,
             reason=None,
-            **kwargs
+            **kwargs,
         ):
             service_security = cadftaxonomy.SERVICE_SECURITY
 
@@ -1566,8 +1566,8 @@ class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
         self, url, role, project=None, domain=None, user=None, group=None
     ):
         self.put(url)
-        action = "%s.%s" % (CREATED_OPERATION, self.ROLE_ASSIGNMENT)
-        event_type = '%s.%s.%s' % (
+        action = f"{CREATED_OPERATION}.{self.ROLE_ASSIGNMENT}"
+        event_type = '{}.{}.{}'.format(
             notifications.SERVICE,
             self.ROLE_ASSIGNMENT,
             CREATED_OPERATION,
@@ -1575,8 +1575,8 @@ class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
         self._assert_last_note(action, self.user_id, event_type)
         self._assert_event(role, project, domain, user, group)
         self.delete(url)
-        action = "%s.%s" % (DELETED_OPERATION, self.ROLE_ASSIGNMENT)
-        event_type = '%s.%s.%s' % (
+        action = f"{DELETED_OPERATION}.{self.ROLE_ASSIGNMENT}"
+        event_type = '{}.{}.{}'.format(
             notifications.SERVICE,
             self.ROLE_ASSIGNMENT,
             DELETED_OPERATION,
@@ -1585,7 +1585,7 @@ class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
         self._assert_event(role, project, domain, user, None)
 
     def test_user_project_grant(self):
-        url = '/projects/%s/users/%s/roles/%s' % (
+        url = '/projects/{}/users/{}/roles/{}'.format(
             self.project_id,
             self.user_id,
             self.role_id,
@@ -1598,7 +1598,7 @@ class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
         group_ref = unit.new_group_ref(domain_id=self.domain_id)
         group = PROVIDERS.identity_api.create_group(group_ref)
         PROVIDERS.identity_api.add_user_to_group(self.user_id, group['id'])
-        url = '/domains/%s/groups/%s/roles/%s' % (
+        url = '/domains/{}/groups/{}/roles/{}'.format(
             self.domain_id,
             group['id'],
             self.role_id,
@@ -1648,7 +1648,7 @@ class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
 
 class TestCallbackRegistration(unit.BaseTestCase):
     def setUp(self):
-        super(TestCallbackRegistration, self).setUp()
+        super().setUp()
         self.mock_log = mock.Mock()
         # Force the callback logging to occur
         self.mock_log.logger.getEffectiveLevel.return_value = log.DEBUG
@@ -1685,7 +1685,7 @@ class TestCallbackRegistration(unit.BaseTestCase):
         self.verify_log_message([expected_log_data])
 
     def test_a_method_callback(self):
-        class C(object):
+        class C:
             def callback(self, *args, **kwargs):
                 pass
 
@@ -1705,7 +1705,7 @@ class TestCallbackRegistration(unit.BaseTestCase):
         def callback(*args, **kwargs):
             pass
 
-        class C(object):
+        class C:
             def callback(self, *args, **kwargs):
                 pass
 
@@ -1745,7 +1745,7 @@ class TestCallbackRegistration(unit.BaseTestCase):
 class CADFNotificationsDataTestCase(test_v3.RestfulTestCase):
 
     def config_overrides(self):
-        super(CADFNotificationsDataTestCase, self).config_overrides()
+        super().config_overrides()
         # NOTE(lbragstad): This is a workaround since oslo.messaging version
         # 9.0.0 had a broken default for transport_url. This makes it so that
         # we are able to use version 9.0.0 in tests because we are supplying

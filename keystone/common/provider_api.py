@@ -11,7 +11,7 @@
 # under the License.
 
 
-class ProviderAPIRegistry(object):
+class ProviderAPIRegistry:
     __shared_object_state = {}
     __registry = {}
     __iter__ = __registry.__iter__
@@ -28,9 +28,7 @@ class ProviderAPIRegistry(object):
         #
         # Use "super" to bypass the __setattr__ preventing changes to the
         # object itself.
-        super(ProviderAPIRegistry, self).__setattr__(
-            '__dict__', self.__shared_object_state
-        )
+        super().__setattr__('__dict__', self.__shared_object_state)
 
     def __getattr__(self, item):
         """Do attr lookup."""
@@ -70,11 +68,11 @@ class ProviderAPIRegistry(object):
         """ONLY USED FOR TESTING."""
         self.__registry.clear()
         # Use super to allow setting around class implementation of __setattr__
-        super(ProviderAPIRegistry, self).__setattr__('locked', False)
+        super().__setattr__('locked', False)
 
     def lock_provider_registry(self):
         # Use super to allow setting around class implementation of __setattr__
-        super(ProviderAPIRegistry, self).__setattr__('locked', True)
+        super().__setattr__('locked', True)
 
     def deferred_provider_lookup(self, api, method):
         """Create descriptor that performs lookup of api and method on demand.
@@ -90,7 +88,7 @@ class ProviderAPIRegistry(object):
         :type method: str
         """
 
-        class DeferredProviderLookup(object):
+        class DeferredProviderLookup:
             def __init__(self, api, method):
                 self.__api = api
                 self.__method = method
@@ -106,7 +104,7 @@ class DuplicateProviderError(Exception):
     """Attempting to register a duplicate API provider."""
 
 
-class ProviderAPIMixin(object):
+class ProviderAPIMixin:
     """Allow referencing provider apis on self via __getattr__.
 
     Be sure this class is first in the class definition for inheritance.

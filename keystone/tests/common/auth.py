@@ -13,7 +13,7 @@
 from keystone.i18n import _
 
 
-class AuthTestMixin(object):
+class AuthTestMixin:
     """To hold auth building helper functions."""
 
     def _build_auth_scope(

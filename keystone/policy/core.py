@@ -37,7 +37,7 @@ class Manager(manager.Manager):
     _POLICY = 'policy'
 
     def __init__(self):
-        super(Manager, self).__init__(CONF.policy.driver)
+        super().__init__(CONF.policy.driver)
 
     def create_policy(self, policy_id, policy, initiator=None):
         ref = self.driver.create_policy(policy_id, policy)

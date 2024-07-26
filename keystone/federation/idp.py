@@ -42,7 +42,7 @@ LOG = log.getLogger(__name__)
 CONF = keystone.conf.CONF
 
 
-class SAMLGenerator(object):
+class SAMLGenerator:
     """A class to generate SAML assertions."""
 
     def __init__(self):
@@ -502,10 +502,10 @@ def _sign_assertion(assertion):
             )
 
     # xmlsec1 --sign --privkey-pem privkey,cert --id-attr:ID <tag> <file>
-    certificates = '%(idp_private_key)s,%(idp_public_key)s' % {
-        'idp_public_key': CONF.saml.certfile,
-        'idp_private_key': CONF.saml.keyfile,
-    }
+    certificates = '{idp_private_key},{idp_public_key}'.format(
+        idp_public_key=CONF.saml.certfile,
+        idp_private_key=CONF.saml.keyfile,
+    )
 
     # Verify that the binary used to create the assertion actually exists on
     # the system. If it doesn't, log a warning for operators to go and install
@@ -570,7 +570,7 @@ def _sign_assertion(assertion):
     return saml2.create_class_from_xml_string(saml.Assertion, stdout)
 
 
-class MetadataGenerator(object):
+class MetadataGenerator:
     """A class for generating SAML IdP Metadata."""
 
     def generate_metadata(self):
@@ -598,7 +598,7 @@ class MetadataGenerator(object):
         def get_cert():
             try:
                 return sigver.read_cert_from_file(CONF.saml.certfile, 'pem')
-            except (IOError, sigver.CertificateError) as e:
+            except (OSError, sigver.CertificateError) as e:
                 msg = (
                     'Cannot open certificate %(cert_file)s.'
                     'Reason: %(reason)s'
@@ -608,7 +608,7 @@ class MetadataGenerator(object):
                     'Reason: %(reason)s'
                 ) % {'cert_file': CONF.saml.certfile, 'reason': e}
                 LOG.error(msg)
-                raise IOError(tr_msg)
+                raise OSError(tr_msg)
 
         def key_descriptor():
             cert = get_cert()
@@ -717,7 +717,7 @@ class MetadataGenerator(object):
         return True
 
 
-class ECPGenerator(object):
+class ECPGenerator:
     """A class for generating an ECP assertion."""
 
     @staticmethod

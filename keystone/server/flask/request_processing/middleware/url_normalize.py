@@ -13,7 +13,7 @@
 # Flask Native URL Normalizing Middleware
 
 
-class URLNormalizingMiddleware(object):
+class URLNormalizingMiddleware:
     """Middleware filter to handle URL normalization."""
 
     # NOTE(morgan): This must be a middleware as changing 'PATH_INFO' after

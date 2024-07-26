@@ -39,7 +39,7 @@ class TestCaseWithBootstrap(core.BaseTestCase):
 
     def setUp(self):
         self.useFixture(database.Database())
-        super(TestCaseWithBootstrap, self).setUp()
+        super().setUp()
         self.config_fixture = self.useFixture(config_fixture.Config(CONF))
         CONF(args=[], project='keystone')
         self.useFixture(

@@ -91,7 +91,7 @@ class Manager(manager.Manager):
     VERSIONS = VERSIONS
 
     def __init__(self):
-        super(Manager, self).__init__(CONF.token.provider)
+        super().__init__(CONF.token.provider)
         self._register_callback_listeners()
 
     def _register_callback_listeners(self):

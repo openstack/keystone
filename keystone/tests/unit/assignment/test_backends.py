@@ -26,7 +26,7 @@ CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
 
 
-class AssignmentTestHelperMixin(object):
+class AssignmentTestHelperMixin:
     """Mixin class to aid testing of assignments.
 
     This class supports data driven test plans that enable:
@@ -813,7 +813,7 @@ class AssignmentTests(AssignmentTestHelperMixin):
             user_ref['id'], project_ref['id']
         )
 
-        self.assertEqual(set([r['id'] for r in role_ref_list]), set(role_list))
+        self.assertEqual({r['id'] for r in role_ref_list}, set(role_list))
 
     def test_get_role_by_user_and_project(self):
         roles_ref = PROVIDERS.assignment_api.get_roles_for_user_and_project(

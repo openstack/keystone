@@ -31,7 +31,7 @@ class ApplicationCredentialTestCase(test_v3.RestfulTestCase):
     """Test CRUD operations for application credentials."""
 
     def config_overrides(self):
-        super(ApplicationCredentialTestCase, self).config_overrides()
+        super().config_overrides()
         self.config_fixture.config(
             group='auth', methods='password,application_credential'
         )

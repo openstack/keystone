@@ -37,7 +37,7 @@ def get_project_from_domain(domain_ref):
 NULL_DOMAIN_ID = '<<keystone.domain.root>>'
 
 
-class ResourceDriverBase(object, metaclass=abc.ABCMeta):
+class ResourceDriverBase(metaclass=abc.ABCMeta):
 
     def _get_list_limit(self):
         return CONF.resource.list_limit or CONF.list_limit

@@ -27,7 +27,7 @@ class FormatUrlTests(unit.BaseTestCase):
         values = {'tenant_id': 'A', 'user_id': 'B', 'project_id': project_id}
         actual_url = utils.format_url(url_template, values)
 
-        expected_url = 'http://server:9090/A/B/%s' % (project_id,)
+        expected_url = f'http://server:9090/A/B/{project_id}'
         self.assertEqual(expected_url, actual_url)
 
     def test_raises_malformed_on_missing_key(self):

@@ -29,7 +29,7 @@ CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
 
 
-class _AssignmentTestUtilities(object):
+class _AssignmentTestUtilities:
     """Useful utilities for setting up test assignments and assertions."""
 
     def _setup_test_role_assignments(self):
@@ -119,7 +119,7 @@ class _AssignmentTestUtilities(object):
         return assignments
 
 
-class _SystemUserTests(object):
+class _SystemUserTests:
     """Common functionality for system users regardless of default role."""
 
     def test_user_can_list_all_role_assignments_in_the_deployment(self):
@@ -765,7 +765,7 @@ class _SystemUserTests(object):
                 self.assertIn(assignment, expected)
 
 
-class _DomainUserTests(object):
+class _DomainUserTests:
     """Common functionality for domain users."""
 
     def _setup_test_role_assignments_for_domain(self):
@@ -1104,7 +1104,7 @@ class _DomainUserTests(object):
             )
 
 
-class _ProjectUserTests(object):
+class _ProjectUserTests:
 
     def test_user_cannot_list_all_assignments_in_their_project(self):
         with self.test_client() as c:
@@ -1195,7 +1195,7 @@ class _ProjectUserTests(object):
             )
 
 
-class _ProjectReaderMemberTests(object):
+class _ProjectReaderMemberTests:
     def test_user_cannot_list_assignments_for_subtree(self):
         user = PROVIDERS.identity_api.create_user(
             unit.new_user_ref(domain_id=self.domain_id)
@@ -1230,7 +1230,7 @@ class SystemReaderTests(
 ):
 
     def setUp(self):
-        super(SystemReaderTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -1273,7 +1273,7 @@ class SystemMemberTests(
 ):
 
     def setUp(self):
-        super(SystemMemberTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -1316,7 +1316,7 @@ class SystemAdminTests(
 ):
 
     def setUp(self):
-        super(SystemAdminTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -1346,7 +1346,7 @@ class DomainReaderTests(
 ):
 
     def setUp(self):
-        super(DomainReaderTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -1393,7 +1393,7 @@ class DomainMemberTests(
 ):
 
     def setUp(self):
-        super(DomainMemberTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -1460,7 +1460,7 @@ class DomainAdminTests(
             f.write(jsonutils.dumps(overridden_policies))
 
     def setUp(self):
-        super(DomainAdminTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.policy_file = self.useFixture(temporaryfile.SecureTempFile())
         self.policy_file_name = self.policy_file.file_name
@@ -1515,7 +1515,7 @@ class ProjectReaderTests(
 ):
 
     def setUp(self):
-        super(ProjectReaderTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -1569,7 +1569,7 @@ class ProjectMemberTests(
 ):
 
     def setUp(self):
-        super(ProjectMemberTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -1622,7 +1622,7 @@ class ProjectAdminTests(
 ):
 
     def setUp(self):
-        super(ProjectAdminTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.policy_file = self.useFixture(temporaryfile.SecureTempFile())
         self.policy_file_name = self.policy_file.file_name

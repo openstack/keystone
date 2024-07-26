@@ -20,7 +20,7 @@ from keystone.tests import unit
 class TestFederationUtils(unit.TestCase):
 
     def setUp(self):
-        super(TestFederationUtils, self).setUp()
+        super().setUp()
         self.mapping_id_mock = uuid.uuid4().hex
         self.domain_id_mock = uuid.uuid4().hex
         self.domain_mock = {'id': self.domain_id_mock}

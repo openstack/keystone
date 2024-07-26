@@ -122,7 +122,7 @@ def py2ldap(val):
     :returns: unicode string representation of value.
     """
     if isinstance(val, bool):
-        return u'TRUE' if val else u'FALSE'
+        return 'TRUE' if val else 'FALSE'
     else:
         return str(val)
 
@@ -202,8 +202,7 @@ def safe_iter(attrs):
     if attrs is None:
         return
     elif isinstance(attrs, list):
-        for e in attrs:
-            yield e
+        yield from attrs
     else:
         yield attrs
 
@@ -353,7 +352,7 @@ def dn_startswith(descendant_dn, dn):
     return is_dn_equal(descendant_dn[-len(dn) :], dn)
 
 
-class LDAPHandler(object, metaclass=abc.ABCMeta):
+class LDAPHandler(metaclass=abc.ABCMeta):
     """Abstract class which defines methods for a LDAP API provider.
 
     Native Keystone values cannot be passed directly into and from the
@@ -713,7 +712,7 @@ def _common_ldap_initialization(
             # works but these values are ignored when setting them on the
             # connection
             if not os.path.isfile(tls_cacertfile):
-                raise IOError(
+                raise OSError(
                     _("tls_cacertfile %s not found " "or is not a file")
                     % tls_cacertfile
                 )
@@ -726,7 +725,7 @@ def _common_ldap_initialization(
             # works but these values are ignored when setting them on the
             # connection
             if not os.path.isdir(tls_cacertdir):
-                raise IOError(
+                raise OSError(
                     _("tls_cacertdir %s not found " "or is not a directory")
                     % tls_cacertdir
                 )
@@ -739,7 +738,7 @@ def _common_ldap_initialization(
             )
 
 
-class AsynchronousMessage(object):
+class AsynchronousMessage:
     """A container for handling asynchronous LDAP responses.
 
     Some LDAP APIs, like `search_ext`, are asynchronous and return a message ID
@@ -823,7 +822,7 @@ class PooledLDAPHandler(LDAPHandler):
     connection_pools = {}  # static connector pool dict
 
     def __init__(self, conn=None, use_auth_pool=False):
-        super(PooledLDAPHandler, self).__init__(conn=conn)
+        super().__init__(conn=conn)
         self.who = ''
         self.cred = ''
         self.conn_options = {}  # connection specific options
@@ -1057,7 +1056,7 @@ class KeystoneLDAPHandler(LDAPHandler):
     """
 
     def __init__(self, conn=None):
-        super(KeystoneLDAPHandler, self).__init__(conn=conn)
+        super().__init__(conn=conn)
         self.page_size = 0
 
     def __enter__(self):
@@ -1371,7 +1370,7 @@ def filter_entity(entity_ref):
     return entity_ref
 
 
-class BaseLdap(object):
+class BaseLdap:
     DEFAULT_OU = None
     DEFAULT_STRUCTURAL_CLASSES = None
     DEFAULT_ID_ATTR = 'cn'
@@ -1422,9 +1421,10 @@ class BaseLdap(object):
         self.auth_pool_conn_lifetime = conf.ldap.auth_pool_connection_lifetime
 
         if self.options_name is not None:
-            self.tree_dn = getattr(
-                conf.ldap, '%s_tree_dn' % self.options_name
-            ) or '%s,%s' % (self.DEFAULT_OU, conf.ldap.suffix)
+            self.tree_dn = (
+                getattr(conf.ldap, '%s_tree_dn' % self.options_name)
+                or f'{self.DEFAULT_OU},{conf.ldap.suffix}'
+            )
 
             idatt = '%s_id_attribute' % self.options_name
             self.id_attr = getattr(conf.ldap, idatt) or self.DEFAULT_ID_ATTR
@@ -1435,7 +1435,7 @@ class BaseLdap(object):
             )
 
             for k, v in self.attribute_options_names.items():
-                v = '%s_%s_attribute' % (self.options_name, v)
+                v = f'{self.options_name}_{v}_attribute'
                 self.attribute_mapping[k] = getattr(conf.ldap, v)
 
             attr_mapping_opt = (
@@ -1546,7 +1546,7 @@ class BaseLdap(object):
             raise exception.LDAPServerConnectionError(url=self.LDAP_URL)
 
     def _id_to_dn_string(self, object_id):
-        return u'%s=%s,%s' % (
+        return '{}={},{}'.format(
             self.id_attr,
             ldap.dn.escape_dn_chars(str(object_id)),
             self.tree_dn,
@@ -1559,7 +1559,7 @@ class BaseLdap(object):
             search_result = conn.search_s(
                 self.tree_dn,
                 self.LDAP_SCOPE,
-                u'(&(%(id_attr)s=%(id)s)(objectclass=%(objclass)s))'
+                '(&(%(id_attr)s=%(id)s)(objectclass=%(objclass)s))'
                 % {
                     'id_attr': self.id_attr,
                     'id': ldap.filter.escape_filter_chars(str(object_id)),
@@ -1743,7 +1743,7 @@ class BaseLdap(object):
 
         # To ensure that ldap attribute value is not empty in ldap config.
         if not attr:
-            attr_name = '%s_%s_attribute' % (
+            attr_name = '{}_{}_attribute'.format(
                 self.options_name,
                 self.attribute_options_names[ldap_attr_name],
             )
@@ -1783,9 +1783,9 @@ class BaseLdap(object):
 
     def _ldap_get(self, object_id, ldap_filter=None):
         query = (
-            u'(&(%(id_attr)s=%(id)s)'
-            u'%(filter)s'
-            u'(objectClass=%(object_class)s))'
+            '(&(%(id_attr)s=%(id)s)'
+            '%(filter)s'
+            '(objectClass=%(object_class)s))'
             % {
                 'id_attr': self.id_attr,
                 'id': ldap.filter.escape_filter_chars(str(object_id)),
@@ -1797,11 +1797,9 @@ class BaseLdap(object):
             try:
                 attrs = list(
                     set(
-                        (
-                            [self.id_attr]
-                            + list(self.attribute_mapping.values())
-                            + list(self.extra_attr_mapping.keys())
-                        )
+                        [self.id_attr]
+                        + list(self.attribute_mapping.values())
+                        + list(self.extra_attr_mapping.keys())
                     )
                 )
                 res = conn.search_s(
@@ -1838,7 +1836,7 @@ class BaseLdap(object):
 
     @driver_hints.truncated
     def _ldap_get_all(self, hints, ldap_filter=None):
-        query = u'(&%s(objectClass=%s)(%s=*))' % (
+        query = '(&{}(objectClass={})({}=*))'.format(
             ldap_filter or self.ldap_filter or '',
             self.object_class,
             self.id_attr,
@@ -1846,11 +1844,9 @@ class BaseLdap(object):
         sizelimit = 0
         attrs = list(
             set(
-                (
-                    [self.id_attr]
-                    + list(self.attribute_mapping.values())
-                    + list(self.extra_attr_mapping.keys())
-                )
+                [self.id_attr]
+                + list(self.attribute_mapping.values())
+                + list(self.extra_attr_mapping.keys())
             )
         )
         if hints.limit:
@@ -1878,14 +1874,14 @@ class BaseLdap(object):
     def _ldap_get_list(
         self, search_base, scope, query_params=None, attrlist=None
     ):
-        query = u'(objectClass=%s)' % self.object_class
+        query = '(objectClass=%s)' % self.object_class
         if query_params:
 
             def calc_filter(attrname, value):
                 val_esc = ldap.filter.escape_filter_chars(value)
-                return '(%s=%s)' % (attrname, val_esc)
+                return f'({attrname}={val_esc})'
 
-            query = u'(&%s%s)' % (
+            query = '(&{}{})'.format(
                 query,
                 ''.join([calc_filter(k, v) for k, v in query_params.items()]),
             )
@@ -1900,7 +1896,7 @@ class BaseLdap(object):
             return self._ldap_res_to_model(res)
 
     def get_by_name(self, name, ldap_filter=None):
-        query = u'(%s=%s)' % (
+        query = '({}={})'.format(
             self.attribute_mapping['name'],
             ldap.filter.escape_filter_chars(str(name)),
         )
@@ -2053,25 +2049,25 @@ class BaseLdap(object):
             # booleans (this is related to bug #1411478).
 
             if filter_['comparator'] == 'equals':
-                query_term = u'(%(attr)s=%(val)s)' % {
-                    'attr': ldap_attr,
-                    'val': val_esc,
-                }
+                query_term = '({attr}={val})'.format(
+                    attr=ldap_attr,
+                    val=val_esc,
+                )
             elif filter_['comparator'] == 'contains':
-                query_term = u'(%(attr)s=*%(val)s*)' % {
-                    'attr': ldap_attr,
-                    'val': val_esc,
-                }
+                query_term = '({attr}=*{val}*)'.format(
+                    attr=ldap_attr,
+                    val=val_esc,
+                )
             elif filter_['comparator'] == 'startswith':
-                query_term = u'(%(attr)s=%(val)s*)' % {
-                    'attr': ldap_attr,
-                    'val': val_esc,
-                }
+                query_term = '({attr}={val}*)'.format(
+                    attr=ldap_attr,
+                    val=val_esc,
+                )
             elif filter_['comparator'] == 'endswith':
-                query_term = u'(%(attr)s=*%(val)s)' % {
-                    'attr': ldap_attr,
-                    'val': val_esc,
-                }
+                query_term = '({attr}=*{val})'.format(
+                    attr=ldap_attr,
+                    val=val_esc,
+                )
             else:
                 # It's a filter we don't understand, so let the caller
                 # work out if they need to do something with it.
@@ -2099,7 +2095,7 @@ class BaseLdap(object):
                 satisfied_filters.append(filter_)
 
         if filter_list:
-            query = u'(&%s%s)' % (query, ''.join(filter_list))
+            query = '(&{}{})'.format(query, ''.join(filter_list))
 
         # Remove satisfied filters, then the caller will know remaining filters
         for filter_ in satisfied_filters:
@@ -2130,7 +2126,7 @@ class EnabledEmuMixIn(BaseLdap):
     DEFAULT_GROUP_MEMBERS_ARE_IDS = False
 
     def __init__(self, conf):
-        super(EnabledEmuMixIn, self).__init__(conf)
+        super().__init__(conf)
         enabled_emulation = '%s_enabled_emulation' % self.options_name
         self.enabled_emulation = getattr(conf.ldap, enabled_emulation)
 
@@ -2175,7 +2171,7 @@ class EnabledEmuMixIn(BaseLdap):
         return self._is_member_enabled(member_attr_val, conn)
 
     def _is_member_enabled(self, member_attr_val, conn):
-        query = '(%s=%s)' % (
+        query = '({}={})'.format(
             self.member_attribute,
             ldap.filter.escape_filter_chars(member_attr_val),
         )
@@ -2221,18 +2217,18 @@ class EnabledEmuMixIn(BaseLdap):
     def create(self, values):
         if self.enabled_emulation:
             enabled_value = values.pop('enabled', True)
-            ref = super(EnabledEmuMixIn, self).create(values)
+            ref = super().create(values)
             if 'enabled' not in self.attribute_ignore:
                 if enabled_value:
                     self._add_enabled(ref['id'])
                 ref['enabled'] = enabled_value
             return ref
         else:
-            return super(EnabledEmuMixIn, self).create(values)
+            return super().create(values)
 
     def get(self, object_id, ldap_filter=None):
         with self.get_connection() as conn:
-            ref = super(EnabledEmuMixIn, self).get(object_id, ldap_filter)
+            ref = super().get(object_id, ldap_filter)
             if (
                 'enabled' not in self.attribute_ignore
                 and self.enabled_emulation
@@ -2256,13 +2252,13 @@ class EnabledEmuMixIn(BaseLdap):
                     )
             return obj_list
         else:
-            return super(EnabledEmuMixIn, self).get_all(ldap_filter, hints)
+            return super().get_all(ldap_filter, hints)
 
     def update(self, object_id, values, old_obj=None):
         if 'enabled' not in self.attribute_ignore and self.enabled_emulation:
             data = values.copy()
             enabled_value = data.pop('enabled', None)
-            ref = super(EnabledEmuMixIn, self).update(object_id, data, old_obj)
+            ref = super().update(object_id, data, old_obj)
             if enabled_value is not None:
                 if enabled_value:
                     self._add_enabled(object_id)
@@ -2271,6 +2267,4 @@ class EnabledEmuMixIn(BaseLdap):
                 ref['enabled'] = enabled_value
             return ref
         else:
-            return super(EnabledEmuMixIn, self).update(
-                object_id, values, old_obj
-            )
+            return super().update(object_id, values, old_obj)

@@ -28,7 +28,7 @@ CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
 
 
-class _SystemUserGrantTests(object):
+class _SystemUserGrantTests:
 
     def test_can_list_grants_for_user_on_project(self):
         user = PROVIDERS.identity_api.create_user(
@@ -48,7 +48,9 @@ class _SystemUserGrantTests(object):
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/projects/%s/users/%s/roles' % (project['id'], user['id']),
+                '/v3/projects/{}/users/{}/roles'.format(
+                    project['id'], user['id']
+                ),
                 headers=self.headers,
             )
             self.assertEqual(1, len(r.json['roles']))
@@ -70,7 +72,9 @@ class _SystemUserGrantTests(object):
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/domains/%s/users/%s/roles' % (domain['id'], user['id']),
+                '/v3/domains/{}/users/{}/roles'.format(
+                    domain['id'], user['id']
+                ),
                 headers=self.headers,
             )
             self.assertEqual(1, len(r.json['roles']))
@@ -116,7 +120,9 @@ class _SystemUserGrantTests(object):
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/domains/%s/groups/%s/roles' % (domain['id'], group['id']),
+                '/v3/domains/{}/groups/{}/roles'.format(
+                    domain['id'], group['id']
+                ),
                 headers=self.headers,
             )
             self.assertEqual(1, len(r.json['roles']))
@@ -228,7 +234,7 @@ class _SystemUserGrantTests(object):
             )
 
 
-class _SystemMemberAndReaderGrantTests(object):
+class _SystemMemberAndReaderGrantTests:
 
     def test_cannot_create_grant_for_user_on_project(self):
         user = PROVIDERS.identity_api.create_user(
@@ -419,7 +425,7 @@ class _SystemMemberAndReaderGrantTests(object):
             )
 
 
-class _DomainUserTests(object):
+class _DomainUserTests:
 
     def test_can_list_grants_for_user_on_project(self):
         user = PROVIDERS.identity_api.create_user(
@@ -438,7 +444,9 @@ class _DomainUserTests(object):
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/projects/%s/users/%s/roles' % (project['id'], user['id']),
+                '/v3/projects/{}/users/{}/roles'.format(
+                    project['id'], user['id']
+                ),
                 headers=self.headers,
             )
             self.assertEqual(1, len(r.json['roles']))
@@ -456,7 +464,9 @@ class _DomainUserTests(object):
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/domains/%s/users/%s/roles' % (self.domain_id, user['id']),
+                '/v3/domains/{}/users/{}/roles'.format(
+                    self.domain_id, user['id']
+                ),
                 headers=self.headers,
             )
             self.assertEqual(1, len(r.json['roles']))
@@ -625,7 +635,9 @@ class _DomainUserTests(object):
 
         with self.test_client() as c:
             c.get(
-                '/v3/projects/%s/users/%s/roles' % (project['id'], user['id']),
+                '/v3/projects/{}/users/{}/roles'.format(
+                    project['id'], user['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -652,7 +664,9 @@ class _DomainUserTests(object):
 
         with self.test_client() as c:
             c.get(
-                '/v3/projects/%s/users/%s/roles' % (project['id'], user['id']),
+                '/v3/projects/{}/users/{}/roles'.format(
+                    project['id'], user['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -673,7 +687,7 @@ class _DomainUserTests(object):
 
         with self.test_client() as c:
             c.get(
-                '/v3/domains/%s/users/%s/roles' % (domain_id, user['id']),
+                '/v3/domains/{}/users/{}/roles'.format(domain_id, user['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -694,7 +708,7 @@ class _DomainUserTests(object):
 
         with self.test_client() as c:
             c.get(
-                '/v3/domains/%s/users/%s/roles' % (domain_id, user['id']),
+                '/v3/domains/{}/users/{}/roles'.format(domain_id, user['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -771,7 +785,9 @@ class _DomainUserTests(object):
 
         with self.test_client() as c:
             c.get(
-                '/v3/domains/%s/groups/%s/roles' % (domain_id, group['id']),
+                '/v3/domains/{}/groups/{}/roles'.format(
+                    domain_id, group['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -792,7 +808,9 @@ class _DomainUserTests(object):
 
         with self.test_client() as c:
             c.get(
-                '/v3/domains/%s/groups/%s/roles' % (domain_id, group['id']),
+                '/v3/domains/{}/groups/{}/roles'.format(
+                    domain_id, group['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -1679,7 +1697,7 @@ class SystemReaderTests(
 ):
 
     def setUp(self):
-        super(SystemReaderTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -1714,7 +1732,7 @@ class SystemMemberTests(
 ):
 
     def setUp(self):
-        super(SystemMemberTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -1748,7 +1766,7 @@ class SystemAdminTests(
 ):
 
     def setUp(self):
-        super(SystemAdminTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -1948,7 +1966,7 @@ class SystemAdminTests(
             )
 
 
-class _DomainMemberAndReaderTests(object):
+class _DomainMemberAndReaderTests:
 
     def test_cannot_create_grant_for_user_on_project(self):
         user = PROVIDERS.identity_api.create_user(
@@ -2145,7 +2163,7 @@ class DomainReaderTests(
 ):
 
     def setUp(self):
-        super(DomainReaderTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -2184,7 +2202,7 @@ class DomainMemberTests(
 ):
 
     def setUp(self):
-        super(DomainMemberTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -2221,7 +2239,7 @@ class DomainAdminTests(
 ):
 
     def setUp(self):
-        super(DomainAdminTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.policy_file = self.useFixture(temporaryfile.SecureTempFile())
         self.policy_file_name = self.policy_file.file_name

@@ -50,7 +50,7 @@ CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
 
-JSON_ENCODE_CONTENT_TYPES = set(['application/json', 'application/json-home'])
+JSON_ENCODE_CONTENT_TYPES = {'application/json', 'application/json-home'}
 
 # minimum access rules support
 ACCESS_RULES_MIN_VERSION = token_model.ACCESS_RULES_MIN_VERSION
@@ -240,9 +240,7 @@ class AuthContextMiddleware(
     kwargs_to_fetch_token = True
 
     def __init__(self, app):
-        super(AuthContextMiddleware, self).__init__(
-            app, log=LOG, service_type='identity'
-        )
+        super().__init__(app, log=LOG, service_type='identity')
         self.token = None
 
     def fetch_token(self, token, **kwargs):
@@ -364,7 +362,7 @@ class AuthContextMiddleware(
             request.environ[CONTEXT_ENV] = context_env
 
         if not context_env.get('is_admin', False):
-            resp = super(AuthContextMiddleware, self).process_request(request)
+            resp = super().process_request(request)
             if resp:
                 return resp
             if (

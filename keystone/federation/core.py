@@ -47,7 +47,7 @@ class Manager(manager.Manager):
     _provides_api = 'federation_api'
 
     def __init__(self):
-        super(Manager, self).__init__(CONF.federation.driver)
+        super().__init__(CONF.federation.driver)
         notifications.register_event_callback(
             notifications.ACTIONS.internal,
             notifications.DOMAIN_DELETED,

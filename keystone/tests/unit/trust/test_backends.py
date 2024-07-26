@@ -22,7 +22,7 @@ from keystone.tests.unit import core
 PROVIDERS = provider_api.ProviderAPIs
 
 
-class TrustTests(object):
+class TrustTests:
     def create_sample_trust(self, new_id, remaining_uses=None):
         self.trustor = self.user_foo
         self.trustee = self.user_two

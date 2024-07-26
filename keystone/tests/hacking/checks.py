@@ -93,7 +93,7 @@ class CheckForMutableDefaultArgs(BaseASTChecker):
             if isinstance(arg, self.MUTABLES):
                 self.add_error(arg)
 
-        super(CheckForMutableDefaultArgs, self).generic_visit(node)
+        super().generic_visit(node)
 
 
 @core.flake8ext
@@ -139,7 +139,7 @@ class CheckForTranslationIssues(BaseASTChecker):
     }
 
     def __init__(self, tree, filename):
-        super(CheckForTranslationIssues, self).__init__(tree, filename)
+        super().__init__(tree, filename)
 
         self.logger_names = []
         self.logger_module_names = []
@@ -171,13 +171,13 @@ class CheckForTranslationIssues(BaseASTChecker):
     def visit_Import(self, node):
         for alias in node.names:
             self._filter_imports(alias.name, alias)
-        return super(CheckForTranslationIssues, self).generic_visit(node)
+        return super().generic_visit(node)
 
     def visit_ImportFrom(self, node):
         for alias in node.names:
-            full_name = '%s.%s' % (node.module, alias.name)
+            full_name = f'{node.module}.{alias.name}'
             self._filter_imports(full_name, alias)
-        return super(CheckForTranslationIssues, self).generic_visit(node)
+        return super().generic_visit(node)
 
     def _find_name(self, node):
         """Return the fully qualified name or a Name or Attribute."""
@@ -220,7 +220,7 @@ class CheckForTranslationIssues(BaseASTChecker):
             node.targets[0], attr_node_types
         ):
             # say no to: "x, y = ..."
-            return super(CheckForTranslationIssues, self).generic_visit(node)
+            return super().generic_visit(node)
 
         target_name = self._find_name(node.targets[0])
 
@@ -239,7 +239,7 @@ class CheckForTranslationIssues(BaseASTChecker):
         if not isinstance(node.value, ast.Call):
             # node.value must be a call to getLogger
             self.assignments.pop(target_name, None)
-            return super(CheckForTranslationIssues, self).generic_visit(node)
+            return super().generic_visit(node)
 
         # is this a call to an i18n function?
         if (
@@ -247,14 +247,14 @@ class CheckForTranslationIssues(BaseASTChecker):
             and node.value.func.id in self.i18n_names
         ):
             self.assignments[target_name] = node.value.func.id
-            return super(CheckForTranslationIssues, self).generic_visit(node)
+            return super().generic_visit(node)
 
         if not isinstance(node.value.func, ast.Attribute) or not isinstance(
             node.value.func.value, attr_node_types
         ):
             # function must be an attribute on an object like
             # logging.getLogger
-            return super(CheckForTranslationIssues, self).generic_visit(node)
+            return super().generic_visit(node)
 
         object_name = self._find_name(node.value.func.value)
         func_name = node.value.func.attr
@@ -265,7 +265,7 @@ class CheckForTranslationIssues(BaseASTChecker):
         ):
             self.logger_names.append(target_name)
 
-        return super(CheckForTranslationIssues, self).generic_visit(node)
+        return super().generic_visit(node)
 
     def visit_Call(self, node):
         """Look for the 'LOG.*' calls."""
@@ -278,9 +278,7 @@ class CheckForTranslationIssues(BaseASTChecker):
                 obj_name = self._find_name(node.func.value)
                 method_name = node.func.attr
             else:  # could be Subscript, Call or many more
-                return super(CheckForTranslationIssues, self).generic_visit(
-                    node
-                )
+                return super().generic_visit(node)
 
             # if dealing with a logger the method can't be "warn"
             if obj_name in self.logger_names and method_name == 'warn':
@@ -292,19 +290,15 @@ class CheckForTranslationIssues(BaseASTChecker):
                 obj_name not in self.logger_names
                 or method_name not in self.TRANS_HELPER_MAP
             ):
-                return super(CheckForTranslationIssues, self).generic_visit(
-                    node
-                )
+                return super().generic_visit(node)
 
             # the call must have arguments
             if not node.args:
-                return super(CheckForTranslationIssues, self).generic_visit(
-                    node
-                )
+                return super().generic_visit(node)
 
             self._process_log_messages(node)
 
-        return super(CheckForTranslationIssues, self).generic_visit(node)
+        return super().generic_visit(node)
 
     def _process_log_messages(self, node):
         msg = node.args[0]  # first arg to a logging method is the msg

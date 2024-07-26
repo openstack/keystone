@@ -190,10 +190,10 @@ class RequestTokenResource(_OAuth1ResourceBase):
             initiator=notifications.build_audit_initiator(),
         )
 
-        result = 'oauth_token=%(key)s&oauth_token_secret=%(secret)s' % {
-            'key': token_ref['id'],
-            'secret': token_ref['request_secret'],
-        }
+        result = 'oauth_token={key}&oauth_token_secret={secret}'.format(
+            key=token_ref['id'],
+            secret=token_ref['request_secret'],
+        )
 
         if CONF.oauth1.request_token_duration > 0:
             expiry_bit = '&oauth_expires_at=%s' % token_ref['expires_at']
@@ -293,10 +293,10 @@ class AccessTokenResource(_OAuth1ResourceBase):
             initiator=notifications.build_audit_initiator(),
         )
 
-        result = 'oauth_token=%(key)s&oauth_token_secret=%(secret)s' % {
-            'key': token_ref['id'],
-            'secret': token_ref['access_secret'],
-        }
+        result = 'oauth_token={key}&oauth_token_secret={secret}'.format(
+            key=token_ref['id'],
+            secret=token_ref['access_secret'],
+        )
 
         if CONF.oauth1.access_token_duration > 0:
             expiry_bit = '&oauth_expires_at=%s' % (token_ref['expires_at'])

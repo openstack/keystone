@@ -41,7 +41,7 @@ class LiveTLSLDAPIdentity(test_ldap_livetest.LiveLDAPIdentity):
         self.skip_if_env_not_set('ENABLE_TLS_LDAP_LIVE_TEST')
 
     def config_files(self):
-        config_files = super(LiveTLSLDAPIdentity, self).config_files()
+        config_files = super().config_files()
         config_files.append(unit.dirs.tests_conf('backend_tls_liveldap.conf'))
         return config_files
 

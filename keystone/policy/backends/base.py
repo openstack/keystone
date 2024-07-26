@@ -19,7 +19,7 @@ from keystone import exception
 CONF = keystone.conf.CONF
 
 
-class PolicyDriverBase(object, metaclass=abc.ABCMeta):
+class PolicyDriverBase(metaclass=abc.ABCMeta):
 
     def _get_list_limit(self):
         return CONF.policy.list_limit or CONF.list_limit

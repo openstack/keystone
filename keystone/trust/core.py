@@ -40,7 +40,7 @@ class Manager(manager.Manager):
     _TRUST = "OS-TRUST:trust"
 
     def __init__(self):
-        super(Manager, self).__init__(CONF.trust.driver)
+        super().__init__(CONF.trust.driver)
         notifications.register_event_callback(
             notifications.ACTIONS.deleted, 'user', self._on_user_delete
         )
@@ -100,7 +100,7 @@ class Manager(manager.Manager):
             trust['expires_at'] = redelegated_expiry
 
         # trust roles is a subset of roles of the redelegated trust
-        parent_roles = set(role['id'] for role in redelegated_trust['roles'])
+        parent_roles = {role['id'] for role in redelegated_trust['roles']}
         if not all(role['id'] in parent_roles for role in trust['roles']):
             raise exception.Forbidden(
                 _('Some of requested roles are not in redelegated trust')

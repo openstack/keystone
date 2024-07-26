@@ -85,10 +85,7 @@ class MiddlewareRequestTestBase(unit.TestCase):
             def fill_context(i_self, *i_args, **i_kwargs):
                 # i_ to distinguish it from and not clobber the outer vars
                 e = self.assertRaises(
-                    exc,
-                    super(_Failing, i_self).fill_context,
-                    *i_args,
-                    **i_kwargs
+                    exc, super().fill_context, *i_args, **i_kwargs
                 )
                 i_self._called = True
                 raise e
@@ -119,7 +116,7 @@ class AuthContextMiddlewareTest(
     MIDDLEWARE_CLASS = auth_context.AuthContextMiddleware
 
     def setUp(self):
-        super(AuthContextMiddlewareTest, self).setUp()
+        super().setUp()
         self.client_issuer = uuid.uuid4().hex
         self.untrusted_client_issuer = uuid.uuid4().hex
         self.trusted_issuer = self.client_issuer

@@ -34,7 +34,7 @@ LOG = log.getLogger(__name__)
 PROVIDERS = provider_api.ProviderAPIs
 
 
-class UserType(object):
+class UserType:
     """User mapping type."""
 
     EPHEMERAL = 'ephemeral'
@@ -230,7 +230,7 @@ def get_default_attribute_mapping_schema_version():
     return CONF.federation.attribute_mapping_default_schema_version
 
 
-class DirectMaps(object):
+class DirectMaps:
     """An abstraction around the remote matches.
 
     Each match is treated internally as a list.
@@ -460,10 +460,10 @@ def get_assertion_params_from_env():
         yield (k, v)
 
 
-class RuleProcessor(object):
+class RuleProcessor:
     """A class to process assertions and mapping rules."""
 
-    class _EvalType(object):
+    class _EvalType:
         """Mapping rule evaluation types."""
 
         ANY_ONE_OF = 'any_one_of'
@@ -638,8 +638,7 @@ class RuleProcessor(object):
 
     def extract_groups(self, groups_by_domain):
         for groups in list(groups_by_domain.values()):
-            for group in list({g['name']: g for g in groups}.values()):
-                yield group
+            yield from list({g['name']: g for g in groups}.values())
 
     def _transform(self, identity_values):
         """Transform local mappings, to an easier to understand format.
@@ -974,7 +973,7 @@ class RuleProcessor(object):
 def assert_enabled_identity_provider(federation_api, idp_id):
     identity_provider = federation_api.get_idp(idp_id)
     if identity_provider.get('enabled') is not True:
-        msg = 'Identity Provider %(idp)s is disabled' % {'idp': idp_id}
+        msg = f'Identity Provider {idp_id} is disabled'
         tr_msg = _('Identity Provider %(idp)s is disabled') % {'idp': idp_id}
         LOG.debug(msg)
         raise exception.Forbidden(tr_msg)
@@ -983,7 +982,7 @@ def assert_enabled_identity_provider(federation_api, idp_id):
 def assert_enabled_service_provider_object(service_provider):
     if service_provider.get('enabled') is not True:
         sp_id = service_provider['id']
-        msg = 'Service Provider %(sp)s is disabled' % {'sp': sp_id}
+        msg = f'Service Provider {sp_id} is disabled'
         tr_msg = _('Service Provider %(sp)s is disabled') % {'sp': sp_id}
         LOG.debug(msg)
         raise exception.Forbidden(tr_msg)
@@ -1001,9 +1000,7 @@ class RuleProcessorToHonorDomainOption(RuleProcessor):
     """
 
     def __init__(self, mapping_id, rules):
-        super(RuleProcessorToHonorDomainOption, self).__init__(
-            mapping_id, rules
-        )
+        super().__init__(mapping_id, rules)
 
     def extract_projects(self, identity_value):
         projects = identity_value.get("projects", [])
@@ -1019,9 +1016,7 @@ class RuleProcessorToHonorDomainOption(RuleProcessor):
         return projects
 
     def normalize_user(self, user, default_mapping_domain):
-        super(RuleProcessorToHonorDomainOption, self).normalize_user(
-            user, default_mapping_domain
-        )
+        super().normalize_user(user, default_mapping_domain)
         if not user.get("domain"):
             LOG.debug(
                 "Configuring the domain [%s] for user [%s].",

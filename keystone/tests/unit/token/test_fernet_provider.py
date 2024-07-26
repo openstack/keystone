@@ -44,7 +44,7 @@ PROVIDERS = provider_api.ProviderAPIs
 
 class TestFernetTokenProvider(unit.TestCase):
     def setUp(self):
-        super(TestFernetTokenProvider, self).setUp()
+        super().setUp()
         self.provider = fernet.Provider()
 
     def test_invalid_token_raises_token_not_found(self):
@@ -112,7 +112,7 @@ class TestFernetTokenProvider(unit.TestCase):
 
 class TestValidate(unit.TestCase):
     def setUp(self):
-        super(TestValidate, self).setUp()
+        super().setUp()
         self.useFixture(database.Database())
         self.load_backends()
         PROVIDERS.resource_api.create_domain(
@@ -120,7 +120,7 @@ class TestValidate(unit.TestCase):
         )
 
     def config_overrides(self):
-        super(TestValidate, self).config_overrides()
+        super().config_overrides()
         self.config_fixture.config(group='token', provider='fernet')
 
     def test_validate_v3_token_simple(self):
@@ -289,7 +289,7 @@ class TestValidate(unit.TestCase):
 class TestValidateWithoutCache(TestValidate):
 
     def config_overrides(self):
-        super(TestValidateWithoutCache, self).config_overrides()
+        super().config_overrides()
         self.config_fixture.config(group='token', caching=False)
         self.config_fixture.config(group='token', cache_on_issue=False)
 
@@ -768,7 +768,7 @@ class TestPayloads(unit.TestCase):
 
 class TestFernetKeyRotation(unit.TestCase):
     def setUp(self):
-        super(TestFernetKeyRotation, self).setUp()
+        super().setUp()
 
         # A collection of all previously-seen signatures of the key
         # repository's contents.

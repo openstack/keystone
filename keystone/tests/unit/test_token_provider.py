@@ -38,7 +38,7 @@ CURRENT_DATE = timeutils.utcnow()
 
 class TestTokenProvider(unit.TestCase):
     def setUp(self):
-        super(TestTokenProvider, self).setUp()
+        super().setUp()
         self.useFixture(database.Database())
         self.useFixture(
             ksfixtures.KeyRepository(

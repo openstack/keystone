@@ -28,7 +28,7 @@ CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
 
 
-class _SystemUserGroupTests(object):
+class _SystemUserGroupTests:
     """Common default functionality for all system users."""
 
     def test_user_can_list_groups(self):
@@ -109,7 +109,7 @@ class _SystemUserGroupTests(object):
 
         with self.test_client() as c:
             c.get(
-                '/v3/groups/%s/users/%s' % (group['id'], user['id']),
+                '/v3/groups/{}/users/{}'.format(group['id'], user['id']),
                 headers=self.headers,
                 expected_status_code=http.client.NO_CONTENT,
             )
@@ -123,7 +123,7 @@ class _SystemUserGroupTests(object):
             )
 
 
-class _SystemAndDomainMemberAndReaderGroupTests(object):
+class _SystemAndDomainMemberAndReaderGroupTests:
     """Common default functionality for system readers and system members."""
 
     def test_user_cannot_create_group(self):
@@ -189,7 +189,7 @@ class _SystemAndDomainMemberAndReaderGroupTests(object):
 
         with self.test_client() as c:
             c.put(
-                '/v3/groups/%s/users/%s' % (group['id'], user['id']),
+                '/v3/groups/{}/users/{}'.format(group['id'], user['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -209,7 +209,7 @@ class _SystemAndDomainMemberAndReaderGroupTests(object):
 
         with self.test_client() as c:
             c.delete(
-                '/v3/groups/%s/users/%s' % (group['id'], user['id']),
+                '/v3/groups/{}/users/{}'.format(group['id'], user['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -223,7 +223,7 @@ class SystemReaderTests(
 ):
 
     def setUp(self):
-        super(SystemReaderTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -258,7 +258,7 @@ class SystemMemberTests(
 ):
 
     def setUp(self):
-        super(SystemMemberTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -292,7 +292,7 @@ class SystemAdminTests(
 ):
 
     def setUp(self):
-        super(SystemAdminTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -364,7 +364,7 @@ class SystemAdminTests(
 
         with self.test_client() as c:
             c.put(
-                '/v3/groups/%s/users/%s' % (group['id'], user['id']),
+                '/v3/groups/{}/users/{}'.format(group['id'], user['id']),
                 headers=self.headers,
             )
 
@@ -383,12 +383,12 @@ class SystemAdminTests(
 
         with self.test_client() as c:
             c.delete(
-                '/v3/groups/%s/users/%s' % (group['id'], user['id']),
+                '/v3/groups/{}/users/{}'.format(group['id'], user['id']),
                 headers=self.headers,
             )
 
 
-class _DomainUserGroupTests(object):
+class _DomainUserGroupTests:
 
     def test_user_can_list_groups_in_domain(self):
         # second domain
@@ -638,7 +638,7 @@ class DomainReaderTests(
 ):
 
     def setUp(self):
-        super(DomainReaderTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.policy_file = self.useFixture(temporaryfile.SecureTempFile())
         self.policy_file_name = self.policy_file.file_name
@@ -703,7 +703,7 @@ class DomainMemberTests(
 ):
 
     def setUp(self):
-        super(DomainMemberTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.policy_file = self.useFixture(temporaryfile.SecureTempFile())
         self.policy_file_name = self.policy_file.file_name
@@ -767,7 +767,7 @@ class DomainAdminTests(
 ):
 
     def setUp(self):
-        super(DomainAdminTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.policy_file = self.useFixture(temporaryfile.SecureTempFile())
         self.policy_file_name = self.policy_file.file_name
@@ -1061,7 +1061,7 @@ class ProjectUserTests(
 ):
 
     def setUp(self):
-        super(ProjectUserTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -1195,7 +1195,7 @@ class ProjectUserTests(
 
         with self.test_client() as c:
             c.get(
-                '/v3/groups/%s/users/%s' % (group['id'], user['id']),
+                '/v3/groups/{}/users/{}'.format(group['id'], user['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )

@@ -44,7 +44,7 @@ class Manager(manager.Manager):
     _provides_api = 'revoke_api'
 
     def __init__(self):
-        super(Manager, self).__init__(CONF.revoke.driver)
+        super().__init__(CONF.revoke.driver)
         self._register_listeners()
         self.model = revoke_model
 

@@ -15,7 +15,7 @@ import uuid
 from keystone import exception
 
 
-class DriverTestCase(object):
+class DriverTestCase:
     """Test cases to validate the endpoint policy driver behavior."""
 
     @property

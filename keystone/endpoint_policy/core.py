@@ -38,7 +38,7 @@ class Manager(manager.Manager):
     _provides_api = 'endpoint_policy_api'
 
     def __init__(self):
-        super(Manager, self).__init__(CONF.endpoint_policy.driver)
+        super().__init__(CONF.endpoint_policy.driver)
 
     def _assert_valid_association(self, endpoint_id, service_id, region_id):
         """Assert that the association is supported.

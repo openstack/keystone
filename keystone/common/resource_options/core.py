@@ -105,14 +105,14 @@ def resource_options_ref_to_mapper(ref, option_class):
             ref._resource_option_mapper[r_opt_id] = opt_obj
 
 
-class ResourceOptionRegistry(object):
+class ResourceOptionRegistry:
     def __init__(self, registry_name):
         self._registered_options = {}
         self._registry_type = registry_name
 
     @property
     def option_names(self):
-        return set([opt.option_name for opt in self.options])
+        return {opt.option_name for opt in self.options}
 
     @property
     def options_by_name(self):
@@ -182,7 +182,7 @@ class ResourceOptionRegistry(object):
         self._registered_options[option.option_id] = option
 
 
-class ResourceOption(object):
+class ResourceOption:
 
     def __init__(
         self,

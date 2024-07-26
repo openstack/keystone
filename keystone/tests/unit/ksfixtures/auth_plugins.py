@@ -21,13 +21,13 @@ class ConfigAuthPlugins(fixtures.Fixture):
     """A fixture for setting up and tearing down a auth plugins."""
 
     def __init__(self, config_fixture, methods, **method_classes):
-        super(ConfigAuthPlugins, self).__init__()
+        super().__init__()
         self.methods = methods
         self.config_fixture = config_fixture
         self.method_classes = method_classes
 
     def setUp(self):
-        super(ConfigAuthPlugins, self).setUp()
+        super().setUp()
         if self.methods:
             self.config_fixture.config(group='auth', methods=self.methods)
             keystone.conf.auth.setup_authentication()
@@ -38,7 +38,7 @@ class ConfigAuthPlugins(fixtures.Fixture):
 class LoadAuthPlugins(fixtures.Fixture):
 
     def __init__(self, *method_names):
-        super(LoadAuthPlugins, self).__init__()
+        super().__init__()
         self.method_names = method_names
         # NOTE(dstanek): This fixture will load the requested auth
         # methods as part of its setup. We need to save any existing
@@ -46,7 +46,7 @@ class LoadAuthPlugins(fixtures.Fixture):
         self.saved = {}
 
     def setUp(self):
-        super(LoadAuthPlugins, self).setUp()
+        super().setUp()
 
         AUTH_METHODS = auth.core.AUTH_METHODS
         for method_name in self.method_names:

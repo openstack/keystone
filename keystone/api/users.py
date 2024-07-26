@@ -488,9 +488,9 @@ class _OAuth1ResourceBase(ks_flask.ResourceBase):
         # method. This was chosen as it more closely mirrors the pre-flask
         # code (for transition).
         ref.setdefault('links', {})
-        path = '/users/%(user_id)s/OS-OAUTH1/access_tokens' % {
-            'user_id': ref.get('authorizing_user_id', '')
-        }
+        path = '/users/{user_id}/OS-OAUTH1/access_tokens'.format(
+            user_id=ref.get('authorizing_user_id', '')
+        )
         ref['links']['self'] = ks_flask.base_url(path) + '/' + ref['id']
 
 

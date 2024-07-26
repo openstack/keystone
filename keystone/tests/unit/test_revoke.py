@@ -47,7 +47,7 @@ def _sample_blank_token():
     return token_data
 
 
-class RevokeTests(object):
+class RevokeTests:
 
     def _assertTokenRevoked(self, token_data):
         self.assertRaises(
@@ -492,7 +492,7 @@ class RevokeTests(object):
 
 class FernetSqlRevokeTests(test_backend_sql.SqlTests, RevokeTests):
     def config_overrides(self):
-        super(FernetSqlRevokeTests, self).config_overrides()
+        super().config_overrides()
         self.config_fixture.config(
             group='token', provider='fernet', revoke_by_id=False
         )

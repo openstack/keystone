@@ -43,7 +43,7 @@ class Manager(manager.Manager):
     _ACCESS_RULE = 'access_rule'
 
     def __init__(self):
-        super(Manager, self).__init__(CONF.application_credential.driver)
+        super().__init__(CONF.application_credential.driver)
         self._register_callback_listeners()
 
     def _register_callback_listeners(self):
@@ -83,7 +83,7 @@ class Manager(manager.Manager):
         assignment_list = self.assignment_api.list_role_assignments(
             user_id=user_id, project_id=project_id, effective=True
         )
-        return list(set([x['role_id'] for x in assignment_list]))
+        return list({x['role_id'] for x in assignment_list})
 
     def _require_user_has_role_in_project(self, roles, user_id, project_id):
         user_roles = self._get_user_roles(user_id, project_id)

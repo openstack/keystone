@@ -34,7 +34,7 @@ class EndpointPolicyTestCase(test_v3.RestfulTestCase):
     """
 
     def setUp(self):
-        super(EndpointPolicyTestCase, self).setUp()
+        super().setUp()
         self.policy = unit.new_policy_ref()
         PROVIDERS.policy_api.create_policy(self.policy['id'], self.policy)
         self.service = unit.new_service_ref()
@@ -156,7 +156,7 @@ class EndpointPolicyTestCase(test_v3.RestfulTestCase):
         self.head(url)
 
         self.delete(
-            '/endpoints/%(endpoint_id)s' % {'endpoint_id': self.endpoint['id']}
+            '/endpoints/{endpoint_id}'.format(endpoint_id=self.endpoint['id'])
         )
 
         self.head(url, expected_status=http.client.NOT_FOUND)
@@ -174,9 +174,7 @@ class EndpointPolicyTestCase(test_v3.RestfulTestCase):
         self.put(url)
         self.head(url)
 
-        self.delete(
-            '/regions/%(region_id)s' % {'region_id': self.region['id']}
-        )
+        self.delete('/regions/{region_id}'.format(region_id=self.region['id']))
 
         self.head(url, expected_status=http.client.NOT_FOUND)
 
@@ -194,7 +192,7 @@ class EndpointPolicyTestCase(test_v3.RestfulTestCase):
         self.head(url)
 
         self.delete(
-            '/services/%(service_id)s' % {'service_id': self.service['id']}
+            '/services/{service_id}'.format(service_id=self.service['id'])
         )
 
         self.head(url, expected_status=http.client.NOT_FOUND)
@@ -209,7 +207,7 @@ class EndpointPolicyTestCase(test_v3.RestfulTestCase):
         self.get(url, expected_status=http.client.NO_CONTENT)
 
         self.delete(
-            '/policies/%(policy_id)s' % {'policy_id': self.policy['id']}
+            '/policies/{policy_id}'.format(policy_id=self.policy['id'])
         )
 
         self.head(url, expected_status=http.client.NOT_FOUND)
@@ -224,7 +222,7 @@ class EndpointPolicyTestCase(test_v3.RestfulTestCase):
         self.get(url, expected_status=http.client.NO_CONTENT)
 
         self.delete(
-            '/services/%(service_id)s' % {'service_id': self.service['id']}
+            '/services/{service_id}'.format(service_id=self.service['id'])
         )
 
         self.head(url, expected_status=http.client.NOT_FOUND)

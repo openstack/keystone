@@ -53,7 +53,7 @@ PROVIDERS = provider_api.ProviderAPIs
 
 class TestMFARules(test_v3.RestfulTestCase):
     def config_overrides(self):
-        super(TestMFARules, self).config_overrides()
+        super().config_overrides()
 
         self.useFixture(
             ksfixtures.KeyRepository(
@@ -100,7 +100,7 @@ class TestMFARules(test_v3.RestfulTestCase):
 
     def auth_plugin_config_override(self, methods=None, **method_classes):
         methods = ['totp', 'token', 'password']
-        super(TestMFARules, self).auth_plugin_config_override(methods)
+        super().auth_plugin_config_override(methods)
 
     def _update_user_with_MFA_rules(self, rule_list, rules_enabled=True):
         user = self.user.copy()
@@ -312,8 +312,8 @@ class TestMFARules(test_v3.RestfulTestCase):
             {'password'}, set(resp_data.get('receipt').get('methods'))
         )
         self.assertEqual(
-            set(frozenset(r) for r in rule_list),
-            set(frozenset(r) for r in resp_data.get('required_auth_methods')),
+            {frozenset(r) for r in rule_list},
+            {frozenset(r) for r in resp_data.get('required_auth_methods')},
         )
 
     def test_MFA_requirements_makes_correct_receipt_for_totp(self):
@@ -352,8 +352,8 @@ class TestMFARules(test_v3.RestfulTestCase):
             {'totp'}, set(resp_data.get('receipt').get('methods'))
         )
         self.assertEqual(
-            set(frozenset(r) for r in rule_list),
-            set(frozenset(r) for r in resp_data.get('required_auth_methods')),
+            {frozenset(r) for r in rule_list},
+            {frozenset(r) for r in resp_data.get('required_auth_methods')},
         )
 
     def test_MFA_requirements_makes_correct_receipt_for_pass_and_totp(self):
@@ -393,8 +393,8 @@ class TestMFARules(test_v3.RestfulTestCase):
             {'password', 'totp'}, set(resp_data.get('receipt').get('methods'))
         )
         self.assertEqual(
-            set(frozenset(r) for r in rule_list),
-            set(frozenset(r) for r in resp_data.get('required_auth_methods')),
+            {frozenset(r) for r in rule_list},
+            {frozenset(r) for r in resp_data.get('required_auth_methods')},
         )
 
     def test_MFA_requirements_returns_correct_required_auth_methods(self):
@@ -439,8 +439,8 @@ class TestMFARules(test_v3.RestfulTestCase):
             {'password'}, set(resp_data.get('receipt').get('methods'))
         )
         self.assertEqual(
-            set(frozenset(r) for r in expect_rule_list),
-            set(frozenset(r) for r in resp_data.get('required_auth_methods')),
+            {frozenset(r) for r in expect_rule_list},
+            {frozenset(r) for r in resp_data.get('required_auth_methods')},
         )
 
     def test_MFA_consuming_receipt_with_totp(self):
@@ -478,8 +478,8 @@ class TestMFARules(test_v3.RestfulTestCase):
             {'password'}, set(resp_data.get('receipt').get('methods'))
         )
         self.assertEqual(
-            set(frozenset(r) for r in rule_list),
-            set(frozenset(r) for r in resp_data.get('required_auth_methods')),
+            {frozenset(r) for r in rule_list},
+            {frozenset(r) for r in resp_data.get('required_auth_methods')},
         )
 
         time = datetime.datetime.utcnow() + datetime.timedelta(seconds=5)
@@ -517,7 +517,7 @@ class TestMFARules(test_v3.RestfulTestCase):
 
 class TestAuthInfo(common_auth.AuthTestMixin, testcase.TestCase):
     def setUp(self):
-        super(TestAuthInfo, self).setUp()
+        super().setUp()
         auth.core.load_auth_methods()
 
     def test_unsupported_auth_method(self):
@@ -581,7 +581,7 @@ class TestAuthInfo(common_auth.AuthTestMixin, testcase.TestCase):
         )
 
 
-class TokenAPITests(object):
+class TokenAPITests:
     # Why is this not just setUp? Because TokenAPITests is not a test class
     # itself. If TokenAPITests became a subclass of the testcase, it would get
     # called by the enumerate-tests-in-file code. The way the functions get
@@ -703,7 +703,7 @@ class TokenAPITests(object):
         # make the new project the user's default project
         body = {'user': {'default_project_id': project['id']}}
         r = self.patch(
-            '/users/%(user_id)s' % {'user_id': self.user['id']}, body=body
+            '/users/{user_id}'.format(user_id=self.user['id']), body=body
         )
         self.assertValidUserResponse(r)
 
@@ -847,7 +847,7 @@ class TokenAPITests(object):
         # now disable the project domain
         body = {'domain': {'enabled': False}}
         r = self.patch(
-            '/domains/%(domain_id)s' % {'domain_id': domain['id']}, body=body
+            '/domains/{domain_id}'.format(domain_id=domain['id']), body=body
         )
         self.assertValidDomainResponse(r)
 
@@ -915,10 +915,10 @@ class TokenAPITests(object):
         )
 
     def test_create_system_token_with_user_id(self):
-        path = '/system/users/%(user_id)s/roles/%(role_id)s' % {
-            'user_id': self.user['id'],
-            'role_id': self.role_id,
-        }
+        path = '/system/users/{user_id}/roles/{role_id}'.format(
+            user_id=self.user['id'],
+            role_id=self.role_id,
+        )
         self.put(path=path)
 
         auth_request_body = self.build_authentication_request(
@@ -931,10 +931,10 @@ class TokenAPITests(object):
         self.assertValidSystemScopedTokenResponse(response)
 
     def test_create_system_token_with_username(self):
-        path = '/system/users/%(user_id)s/roles/%(role_id)s' % {
-            'user_id': self.user['id'],
-            'role_id': self.role_id,
-        }
+        path = '/system/users/{user_id}/roles/{role_id}'.format(
+            user_id=self.user['id'],
+            role_id=self.role_id,
+        )
         self.put(path=path)
 
         auth_request_body = self.build_authentication_request(
@@ -958,10 +958,10 @@ class TokenAPITests(object):
         )
 
     def test_system_token_is_invalid_after_disabling_user(self):
-        path = '/system/users/%(user_id)s/roles/%(role_id)s' % {
-            'user_id': self.user['id'],
-            'role_id': self.role_id,
-        }
+        path = '/system/users/{user_id}/roles/{role_id}'.format(
+            user_id=self.user['id'],
+            role_id=self.role_id,
+        )
         self.put(path=path)
 
         auth_request_body = self.build_authentication_request(
@@ -980,7 +980,7 @@ class TokenAPITests(object):
         # apparently it's not possible to disable a group.
         user_ref = {'user': {'enabled': False}}
         self.patch(
-            '/users/%(user_id)s' % {'user_id': self.user['id']}, body=user_ref
+            '/users/{user_id}'.format(user_id=self.user['id']), body=user_ref
         )
 
         self.admin_request(
@@ -1004,16 +1004,16 @@ class TokenAPITests(object):
         }
 
         group = self.post('/groups', body=ref).json_body['group']
-        path = '/system/groups/%(group_id)s/roles/%(role_id)s' % {
-            'group_id': group['id'],
-            'role_id': self.role_id,
-        }
+        path = '/system/groups/{group_id}/roles/{role_id}'.format(
+            group_id=group['id'],
+            role_id=self.role_id,
+        )
         self.put(path=path)
 
-        path = '/groups/%(group_id)s/users/%(user_id)s' % {
-            'group_id': group['id'],
-            'user_id': self.user['id'],
-        }
+        path = '/groups/{group_id}/users/{user_id}'.format(
+            group_id=group['id'],
+            user_id=self.user['id'],
+        )
         self.put(path=path)
 
         auth_request_body = self.build_authentication_request(
@@ -1027,10 +1027,10 @@ class TokenAPITests(object):
         self._validate_token(token)
 
     def test_revoke_system_token(self):
-        path = '/system/users/%(user_id)s/roles/%(role_id)s' % {
-            'user_id': self.user['id'],
-            'role_id': self.role_id,
-        }
+        path = '/system/users/{user_id}/roles/{role_id}'.format(
+            user_id=self.user['id'],
+            role_id=self.role_id,
+        )
         self.put(path=path)
 
         auth_request_body = self.build_authentication_request(
@@ -1051,10 +1051,10 @@ class TokenAPITests(object):
         ref = {'role': unit.new_role_ref()}
         system_role = self.post('/roles', body=ref).json_body['role']
 
-        path = '/system/users/%(user_id)s/roles/%(role_id)s' % {
-            'user_id': self.user['id'],
-            'role_id': system_role['id'],
-        }
+        path = '/system/users/{user_id}/roles/{role_id}'.format(
+            user_id=self.user['id'],
+            role_id=system_role['id'],
+        )
         self.put(path=path)
 
         auth_request_body = self.build_authentication_request(
@@ -1069,17 +1069,17 @@ class TokenAPITests(object):
         token = response.headers.get('X-Subject-Token')
         self._validate_token(token)
 
-        self.delete('/roles/%(role_id)s' % {'role_id': system_role['id']})
+        self.delete('/roles/{role_id}'.format(role_id=system_role['id']))
         self._validate_token(token, expected_status=http.client.NOT_FOUND)
 
     def test_rescoping_a_system_token_for_a_project_token_fails(self):
         ref = {'role': unit.new_role_ref()}
         system_role = self.post('/roles', body=ref).json_body['role']
 
-        path = '/system/users/%(user_id)s/roles/%(role_id)s' % {
-            'user_id': self.user['id'],
-            'role_id': system_role['id'],
-        }
+        path = '/system/users/{user_id}/roles/{role_id}'.format(
+            user_id=self.user['id'],
+            role_id=system_role['id'],
+        )
         self.put(path=path)
 
         auth_request_body = self.build_authentication_request(
@@ -1103,10 +1103,10 @@ class TokenAPITests(object):
         ref = {'role': unit.new_role_ref()}
         system_role = self.post('/roles', body=ref).json_body['role']
 
-        path = '/system/users/%(user_id)s/roles/%(role_id)s' % {
-            'user_id': self.user['id'],
-            'role_id': system_role['id'],
-        }
+        path = '/system/users/{user_id}/roles/{role_id}'.format(
+            user_id=self.user['id'],
+            role_id=system_role['id'],
+        )
         self.put(path=path)
 
         auth_request_body = self.build_authentication_request(
@@ -1128,7 +1128,7 @@ class TokenAPITests(object):
 
     def test_create_domain_token_scoped_with_domain_id_and_user_id(self):
         # grant the user a role on the domain
-        path = '/domains/%s/users/%s/roles/%s' % (
+        path = '/domains/{}/users/{}/roles/{}'.format(
             self.domain['id'],
             self.user['id'],
             self.role['id'],
@@ -1145,7 +1145,7 @@ class TokenAPITests(object):
 
     def test_create_domain_token_scoped_with_domain_id_and_username(self):
         # grant the user a role on the domain
-        path = '/domains/%s/users/%s/roles/%s' % (
+        path = '/domains/{}/users/{}/roles/{}'.format(
             self.domain['id'],
             self.user['id'],
             self.role['id'],
@@ -1163,7 +1163,7 @@ class TokenAPITests(object):
 
     def test_create_domain_token_scoped_with_domain_id(self):
         # grant the user a role on the domain
-        path = '/domains/%s/users/%s/roles/%s' % (
+        path = '/domains/{}/users/{}/roles/{}'.format(
             self.domain['id'],
             self.user['id'],
             self.role['id'],
@@ -1181,7 +1181,7 @@ class TokenAPITests(object):
 
     def test_create_domain_token_scoped_with_domain_name(self):
         # grant the user a role on the domain
-        path = '/domains/%s/users/%s/roles/%s' % (
+        path = '/domains/{}/users/{}/roles/{}'.format(
             self.domain['id'],
             self.user['id'],
             self.role['id'],
@@ -1198,7 +1198,7 @@ class TokenAPITests(object):
 
     def test_create_domain_token_scoped_with_domain_name_and_username(self):
         # grant the user a role on the domain
-        path = '/domains/%s/users/%s/roles/%s' % (
+        path = '/domains/{}/users/{}/roles/{}'.format(
             self.domain['id'],
             self.user['id'],
             self.role['id'],
@@ -1216,7 +1216,7 @@ class TokenAPITests(object):
 
     def test_create_domain_token_with_only_domain_name_and_username(self):
         # grant the user a role on the domain
-        path = '/domains/%s/users/%s/roles/%s' % (
+        path = '/domains/{}/users/{}/roles/{}'.format(
             self.domain['id'],
             self.user['id'],
             self.role['id'],
@@ -1240,7 +1240,7 @@ class TokenAPITests(object):
         PROVIDERS.identity_api.add_user_to_group(self.user['id'], group['id'])
 
         # grant the domain role to group
-        path = '/domains/%s/groups/%s/roles/%s' % (
+        path = '/domains/{}/groups/{}/roles/{}'.format(
             self.domain['id'],
             group['id'],
             self.role['id'],
@@ -1960,7 +1960,7 @@ class TokenAPITests(object):
 
         disable_body = {'domain': {'enabled': False}}
         self.patch(
-            '/domains/%(domain_id)s' % {'domain_id': new_domain_ref['id']},
+            '/domains/{domain_id}'.format(domain_id=new_domain_ref['id']),
             body=disable_body,
         )
 
@@ -2182,12 +2182,12 @@ class TokenAPITests(object):
 
     def _create_implied_role(self, prior_id):
         implied = self._create_role()
-        url = '/roles/%s/implies/%s' % (prior_id, implied['id'])
+        url = '/roles/{}/implies/{}'.format(prior_id, implied['id'])
         self.put(url, expected_status=http.client.CREATED)
         return implied
 
     def _delete_implied_role(self, prior_role_id, implied_role_id):
-        url = '/roles/%s/implies/%s' % (prior_role_id, implied_role_id)
+        url = f'/roles/{prior_role_id}/implies/{implied_role_id}'
         self.delete(url)
 
     def _get_scoped_token_roles(self, is_domain=False):
@@ -2369,7 +2369,7 @@ class TokenAPITests(object):
         self.assertEqual(2, len(token_roles))
 
         unrelated = self._create_role()
-        url = '/roles/%s/implies/%s' % (unrelated['id'], implied['id'])
+        url = '/roles/{}/implies/{}'.format(unrelated['id'], implied['id'])
         self.put(url, expected_status=http.client.CREATED)
 
         token_roles = self._get_scoped_token_roles()
@@ -2407,7 +2407,7 @@ class TokenAPITests(object):
         )
 
         # give the new user a role on a project
-        path = '/projects/%s/users/%s/roles/%s' % (
+        path = '/projects/{}/users/{}/roles/{}'.format(
             self.project['id'],
             new_user['id'],
             self.role['id'],
@@ -2430,7 +2430,7 @@ class TokenAPITests(object):
         self.assertValidProjectScopedTokenResponse(r)
 
         # remove the roles from the user for the given scope
-        path = '/projects/%s/users/%s/roles/%s' % (
+        path = '/projects/{}/users/{}/roles/{}'.format(
             self.project['id'],
             new_user['id'],
             self.role['id'],
@@ -3028,7 +3028,7 @@ class TokenAPITests(object):
         CONF.token.caching = caching
 
 
-class TokenDataTests(object):
+class TokenDataTests:
     """Test the data in specific token types."""
 
     def test_unscoped_token_format(self):
@@ -3073,7 +3073,7 @@ class TokenDataTests(object):
         r = self.get('/auth/tokens', headers=self.headers)
 
         # populate the response result with some extra data
-        r.result['token'][u'extra'] = str(uuid.uuid4().hex)
+        r.result['token']['extra'] = str(uuid.uuid4().hex)
         self.assertRaises(
             exception.SchemaValidationError,
             self.assertValidUnscopedTokenResponse,
@@ -3099,7 +3099,7 @@ class TokenDataTests(object):
         r = self.get('/auth/tokens', headers=self.headers)
 
         # populate the response result with some extra data
-        r.result['token'][u'extra'] = str(uuid.uuid4().hex)
+        r.result['token']['extra'] = str(uuid.uuid4().hex)
         self.assertRaises(
             exception.SchemaValidationError,
             self.assertValidDomainScopedTokenResponse,
@@ -3119,7 +3119,7 @@ class TokenDataTests(object):
         resp = self.get('/auth/tokens', headers=self.headers)
 
         # populate the response result with some extra data
-        resp.result['token'][u'extra'] = str(uuid.uuid4().hex)
+        resp.result['token']['extra'] = str(uuid.uuid4().hex)
         self.assertRaises(
             exception.SchemaValidationError,
             self.assertValidProjectScopedTokenResponse,
@@ -3129,7 +3129,7 @@ class TokenDataTests(object):
 
 class AllowRescopeScopedTokenDisabledTests(test_v3.RestfulTestCase):
     def config_overrides(self):
-        super(AllowRescopeScopedTokenDisabledTests, self).config_overrides()
+        super().config_overrides()
         self.config_fixture.config(
             group='token', allow_rescope_scoped_token=False
         )
@@ -3174,7 +3174,7 @@ class TestFernetTokenAPIs(
     test_v3.RestfulTestCase, TokenAPITests, TokenDataTests
 ):
     def config_overrides(self):
-        super(TestFernetTokenAPIs, self).config_overrides()
+        super().config_overrides()
         self.config_fixture.config(
             group='token', provider='fernet', cache_on_issue=True
         )
@@ -3187,11 +3187,11 @@ class TestFernetTokenAPIs(
         )
 
     def setUp(self):
-        super(TestFernetTokenAPIs, self).setUp()
+        super().setUp()
         self.doSetUp()
 
     def _make_auth_request(self, auth_data):
-        token = super(TestFernetTokenAPIs, self)._make_auth_request(auth_data)
+        token = super()._make_auth_request(auth_data)
         self.assertLess(len(token), 255)
         return token
 
@@ -3248,18 +3248,18 @@ class TestFernetTokenAPIs(
 
 class TestJWSTokenAPIs(test_v3.RestfulTestCase, TokenAPITests, TokenDataTests):
     def config_overrides(self):
-        super(TestJWSTokenAPIs, self).config_overrides()
+        super().config_overrides()
         self.config_fixture.config(
             group='token', provider='jws', cache_on_issue=True
         )
         self.useFixture(ksfixtures.JWSKeyRepository(self.config_fixture))
 
     def setUp(self):
-        super(TestJWSTokenAPIs, self).setUp()
+        super().setUp()
         self.doSetUp()
 
     def _make_auth_request(self, auth_data):
-        token = super(TestJWSTokenAPIs, self)._make_auth_request(auth_data)
+        token = super()._make_auth_request(auth_data)
         self.assertLess(len(token), 350)
         return token
 
@@ -3318,7 +3318,7 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
     """Test token revocation on the v3 Identity API."""
 
     def config_overrides(self):
-        super(TestTokenRevokeById, self).config_overrides()
+        super().config_overrides()
         self.config_fixture.config(
             group='token', provider='fernet', revoke_by_id=False
         )
@@ -3353,7 +3353,7 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         - User1 has role2 assigned to domainA
 
         """
-        super(TestTokenRevokeById, self).setUp()
+        super().setUp()
 
         # Start by creating a couple of domains and projects
         self.domainA = unit.new_domain_ref()
@@ -3736,7 +3736,7 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
 
         # disable the project, which should invalidate the token
         self.patch(
-            '/projects/%(project_id)s' % {'project_id': self.projectA['id']},
+            '/projects/{project_id}'.format(project_id=self.projectA['id']),
             body={'project': {'enabled': False}},
         )
 
@@ -3773,7 +3773,7 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
 
         # delete the project, which should invalidate the token
         self.delete(
-            '/projects/%(project_id)s' % {'project_id': self.projectA['id']}
+            '/projects/{project_id}'.format(project_id=self.projectA['id'])
         )
 
         # user should no longer have access to the project
@@ -4077,7 +4077,7 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
 
         # delete the project, which should remove the roles
         self.delete(
-            '/projects/%(project_id)s' % {'project_id': self.projectA['id']}
+            '/projects/{project_id}'.format(project_id=self.projectA['id'])
         )
 
         # Make sure that we get a 404 Not Found when heading that role.
@@ -4158,7 +4158,7 @@ class TestTokenRevokeApi(TestTokenRevokeById):
     """Test token revocation on the v3 Identity API."""
 
     def config_overrides(self):
-        super(TestTokenRevokeApi, self).config_overrides()
+        super().config_overrides()
         self.config_fixture.config(
             group='token', provider='fernet', revoke_by_id=False
         )
@@ -4238,7 +4238,7 @@ class TestTokenRevokeApi(TestTokenRevokeById):
         events = self.get('/OS-REVOKE/events').json_body['events']
         self.assertEqual([], events)
         self.delete(
-            '/projects/%(project_id)s' % {'project_id': self.projectA['id']}
+            '/projects/{project_id}'.format(project_id=self.projectA['id'])
         )
         events_response = self.get('/OS-REVOKE/events').json_body
 
@@ -4269,7 +4269,7 @@ class TestTokenRevokeApi(TestTokenRevokeById):
             '"%(expected)s" Events: "%(events)s"'
             % {
                 'expected': ','.join(
-                    ["'%s=%s'" % (k, v) for k, v in kwargs.items()]
+                    [f"'{k}={v}'" for k, v in kwargs.items()]
                 ),
                 'events': events,
             },
@@ -4348,12 +4348,12 @@ class TestTokenRevokeApi(TestTokenRevokeById):
 
 class TestAuthExternalDisabled(test_v3.RestfulTestCase):
     def config_overrides(self):
-        super(TestAuthExternalDisabled, self).config_overrides()
+        super().config_overrides()
         self.config_fixture.config(group='auth', methods=['password', 'token'])
 
     def test_remote_user_disabled(self):
         app = self.loadapp()
-        remote_user = '%s@%s' % (self.user['name'], self.domain['name'])
+        remote_user = '{}@{}'.format(self.user['name'], self.domain['name'])
         with app.test_client() as c:
             c.environ_base.update(
                 self.build_external_auth_environ(remote_user)
@@ -4482,13 +4482,13 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
     """
 
     def config_overrides(self):
-        super(TrustAPIBehavior, self).config_overrides()
+        super().config_overrides()
         self.config_fixture.config(
             group='trust', allow_redelegation=True, max_redelegation_count=10
         )
 
     def setUp(self):
-        super(TrustAPIBehavior, self).setUp()
+        super().setUp()
         # Create a trustee to delegate stuff to
         self.trustee_user = unit.create_user(
             PROVIDERS.identity_api, domain_id=self.domain_id
@@ -4633,8 +4633,8 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
         r = self.post('/OS-TRUST/trusts', body={'trust': ref})
         trust = self.assertValidTrustResponse(r)
         # Trust created with exact set of roles (checked by role id)
-        role_id_set = set(r['id'] for r in ref['roles'])
-        trust_role_id_set = set(r['id'] for r in trust['roles'])
+        role_id_set = {r['id'] for r in ref['roles']}
+        trust_role_id_set = {r['id'] for r in trust['roles']}
         self.assertEqual(role_id_set, trust_role_id_set)
 
         trust_token = self._get_trust_token(trust)
@@ -4653,8 +4653,8 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
         trust2 = self.assertValidTrustResponse(r)
         # First trust contains roles superset
         # Second trust contains roles subset
-        role_id_set1 = set(r['id'] for r in trust['roles'])
-        role_id_set2 = set(r['id'] for r in trust2['roles'])
+        role_id_set1 = {r['id'] for r in trust['roles']}
+        role_id_set2 = {r['id'] for r in trust2['roles']}
         self.assertThat(role_id_set1, matchers.GreaterThan(role_id_set2))
 
     def test_trust_with_implied_roles(self):
@@ -4888,7 +4888,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
         # make sure the trust exists
         trust = self.assertValidTrustResponse(r, ref)
         r = self.get(
-            '/OS-TRUST/trusts/%(trust_id)s' % {'trust_id': trust['id']}
+            '/OS-TRUST/trusts/{trust_id}'.format(trust_id=trust['id'])
         )
         # get a token for the trustee
         auth_data = self.build_authentication_request(
@@ -4934,7 +4934,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
         trust = self._initialize_test_consume_trust(2)
         # check decremented value
         r = self.get(
-            '/OS-TRUST/trusts/%(trust_id)s' % {'trust_id': trust['id']}
+            '/OS-TRUST/trusts/{trust_id}'.format(trust_id=trust['id'])
         )
         trust = r.result.get('trust')
         self.assertIsNotNone(trust)
@@ -4946,7 +4946,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
         trust = self._initialize_test_consume_trust(1)
         # No more uses, the trust is made unavailable
         self.get(
-            '/OS-TRUST/trusts/%(trust_id)s' % {'trust_id': trust['id']},
+            '/OS-TRUST/trusts/{trust_id}'.format(trust_id=trust['id']),
             expected_status=http.client.NOT_FOUND,
         )
         # this time we can't get a trust token
@@ -4973,7 +4973,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
         trust = self.assertValidTrustResponse(r, ref)
 
         r = self.get(
-            '/OS-TRUST/trusts/%(trust_id)s' % {'trust_id': trust['id']}
+            '/OS-TRUST/trusts/{trust_id}'.format(trust_id=trust['id'])
         )
         auth_data = self.build_authentication_request(
             user_id=self.trustee_user['id'],
@@ -4986,7 +4986,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
         )
         r = self.v3_create_token(auth_data)
         r = self.get(
-            '/OS-TRUST/trusts/%(trust_id)s' % {'trust_id': trust['id']}
+            '/OS-TRUST/trusts/{trust_id}'.format(trust_id=trust['id'])
         )
         trust = r.result.get('trust')
         self.assertIsNone(trust['remaining_uses'])
@@ -5180,7 +5180,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
         r = self.v3_create_token(auth_data)
         self.assertValidProjectScopedTokenResponse(r, self.trustee_user)
         trust_token = r.headers['X-Subject-Token']
-        self.delete('/OS-TRUST/trusts/%(trust_id)s' % {'trust_id': trust_id})
+        self.delete(f'/OS-TRUST/trusts/{trust_id}')
         headers = {'X-Subject-Token': trust_token}
         self.head(
             '/auth/tokens',
@@ -5269,9 +5269,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
 
         trust = self.assertValidTrustResponse(r, ref)
 
-        self.delete(
-            '/OS-TRUST/trusts/%(trust_id)s' % {'trust_id': trust['id']}
-        )
+        self.delete('/OS-TRUST/trusts/{trust_id}'.format(trust_id=trust['id']))
 
         auth_data = self.build_authentication_request(
             user_id=self.trustee_user['id'],
@@ -5331,7 +5329,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
         trust_token = self._get_trust_token(trust)
 
         resp = self.get(
-            '/OS-TRUST/trusts/%(trust_id)s/roles' % {'trust_id': trust['id']},
+            '/OS-TRUST/trusts/{trust_id}/roles'.format(trust_id=trust['id']),
             token=trust_token,
         )
         self.assertValidRoleListResponse(resp, self.role)
@@ -5381,13 +5379,13 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
 class TestTrustChain(test_v3.RestfulTestCase):
 
     def config_overrides(self):
-        super(TestTrustChain, self).config_overrides()
+        super().config_overrides()
         self.config_fixture.config(
             group='trust', allow_redelegation=True, max_redelegation_count=10
         )
 
     def setUp(self):
-        super(TestTrustChain, self).setUp()
+        super().setUp()
         """Create a trust chain using redelegation.
 
         A trust chain is a series of trusts that are redelegated. For example,
@@ -5597,7 +5595,7 @@ class TestTrustChain(test_v3.RestfulTestCase):
 
 class TestAuthContext(unit.TestCase):
     def setUp(self):
-        super(TestAuthContext, self).setUp()
+        super().setUp()
         self.auth_context = auth.core.AuthContext()
 
     def test_pick_lowest_expires_at(self):
@@ -5779,11 +5777,11 @@ class TestAuthSpecificData(test_v3.RestfulTestCase):
         r = self.post('/domains', body={'domain': ref})
         authorized_domain_id = r.json['domain']['id']
 
-        path = '/domains/%(domain_id)s/users/%(user_id)s/roles/%(role_id)s' % {
-            'domain_id': authorized_domain_id,
-            'user_id': self.user_id,
-            'role_id': self.role_id,
-        }
+        path = '/domains/{domain_id}/users/{user_id}/roles/{role_id}'.format(
+            domain_id=authorized_domain_id,
+            user_id=self.user_id,
+            role_id=self.role_id,
+        )
         self.put(path, expected_status=http.client.NO_CONTENT)
 
         r = self.get('/auth/domains', expected_status=http.client.OK)
@@ -5818,10 +5816,10 @@ class TestAuthSpecificData(test_v3.RestfulTestCase):
         self.head('/auth/domains', expected_status=http.client.OK)
 
     def test_get_system_roles_with_unscoped_token(self):
-        path = '/system/users/%(user_id)s/roles/%(role_id)s' % {
-            'user_id': self.user['id'],
-            'role_id': self.role_id,
-        }
+        path = '/system/users/{user_id}/roles/{role_id}'.format(
+            user_id=self.user['id'],
+            role_id=self.role_id,
+        )
         self.put(path=path)
 
         unscoped_request = self.build_authentication_request(
@@ -5873,10 +5871,10 @@ class TestAuthSpecificData(test_v3.RestfulTestCase):
         )
 
     def test_get_system_roles_with_project_scoped_token(self):
-        path = '/system/users/%(user_id)s/roles/%(role_id)s' % {
-            'user_id': self.user['id'],
-            'role_id': self.role_id,
-        }
+        path = '/system/users/{user_id}/roles/{role_id}'.format(
+            user_id=self.user['id'],
+            role_id=self.role_id,
+        )
         self.put(path=path)
 
         self.put(
@@ -5901,10 +5899,10 @@ class TestAuthSpecificData(test_v3.RestfulTestCase):
         )
 
     def test_get_system_roles_with_domain_scoped_token(self):
-        path = '/system/users/%(user_id)s/roles/%(role_id)s' % {
-            'user_id': self.user['id'],
-            'role_id': self.role_id,
-        }
+        path = '/system/users/{user_id}/roles/{role_id}'.format(
+            user_id=self.user['id'],
+            role_id=self.role_id,
+        )
         self.put(path=path)
 
         project_scoped_request = self.build_authentication_request(
@@ -5926,7 +5924,7 @@ class TestAuthSpecificData(test_v3.RestfulTestCase):
 
 class TestTrustAuthFernetTokenProvider(TrustAPIBehavior, TestTrustChain):
     def config_overrides(self):
-        super(TestTrustAuthFernetTokenProvider, self).config_overrides()
+        super().config_overrides()
         self.config_fixture.config(
             group='token', provider='fernet', revoke_by_id=False
         )
@@ -5943,7 +5941,7 @@ class TestTrustAuthFernetTokenProvider(TrustAPIBehavior, TestTrustChain):
 class TestAuthTOTP(test_v3.RestfulTestCase):
 
     def setUp(self):
-        super(TestAuthTOTP, self).setUp()
+        super().setUp()
         self.useFixture(
             ksfixtures.KeyRepository(
                 self.config_fixture,
@@ -5966,7 +5964,7 @@ class TestAuthTOTP(test_v3.RestfulTestCase):
 
     def auth_plugin_config_override(self):
         methods = ['totp', 'token', 'password']
-        super(TestAuthTOTP, self).auth_plugin_config_override(methods)
+        super().auth_plugin_config_override(methods)
 
     def _make_credentials(
         self, cred_type, count=1, user_id=None, project_id=None, blob=None
@@ -6243,7 +6241,7 @@ class TestFetchRevocationList(test_v3.RestfulTestCase):
     """Test fetch token revocation list on the v3 Identity API."""
 
     def config_overrides(self):
-        super(TestFetchRevocationList, self).config_overrides()
+        super().config_overrides()
         self.config_fixture.config(group='token', revoke_by_id=True)
 
     def test_get_ids_no_tokens_returns_forbidden(self):
@@ -6268,11 +6266,11 @@ class TestFetchRevocationList(test_v3.RestfulTestCase):
 class ApplicationCredentialAuth(test_v3.RestfulTestCase):
 
     def setUp(self):
-        super(ApplicationCredentialAuth, self).setUp()
+        super().setUp()
         self.app_cred_api = PROVIDERS.application_credential_api
 
     def config_overrides(self):
-        super(ApplicationCredentialAuth, self).config_overrides()
+        super().config_overrides()
         self.auth_plugin_config_override(
             methods=['application_credential', 'password', 'token']
         )

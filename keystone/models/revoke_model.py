@@ -80,7 +80,7 @@ def blank_token_data(issued_at):
     return token_data
 
 
-class RevokeEvent(object):
+class RevokeEvent:
     def __init__(self, **kwargs):
         for k in REVOKE_KEYS:
             v = kwargs.get(k)
@@ -287,7 +287,7 @@ def build_token_values(token):
     return token_values
 
 
-class _RevokeEventHandler(object):
+class _RevokeEventHandler:
     # NOTE(morganfainberg): There needs to be reserved "registry" entries set
     # in oslo_serialization for application-specific handlers. We picked 127
     # here since it's waaaaaay far out before oslo_serialization will use it.

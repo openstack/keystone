@@ -26,7 +26,7 @@ CONF = keystone.conf.CONF
 class ConfigTestCase(unit.TestCase):
 
     def config_files(self):
-        config_files = super(ConfigTestCase, self).config_files()
+        config_files = super().config_files()
 
         sample_file = 'keystone.conf.sample'
         args = [

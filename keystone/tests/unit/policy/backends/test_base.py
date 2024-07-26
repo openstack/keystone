@@ -15,11 +15,11 @@ import uuid
 from keystone import exception
 
 
-class DriverTestCase(object):
+class DriverTestCase:
     """Test cases to validate the current policy driver behavior."""
 
     def setUp(self):
-        super(DriverTestCase, self).setUp()
+        super().setUp()
 
         self.policy = {
             'id': uuid.uuid4().hex,

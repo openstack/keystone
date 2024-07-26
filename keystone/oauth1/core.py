@@ -37,7 +37,7 @@ RequestTokenEndpoint = oauth1.RequestTokenEndpoint
 oRequest = oauthlib.common.Request
 
 
-class Token(object):
+class Token:
     def __init__(self, key, secret):
         self.key = key
         self.secret = secret
@@ -130,7 +130,7 @@ class Manager(manager.Manager):
     _CONSUMER = "OS-OAUTH1:consumer"
 
     def __init__(self):
-        super(Manager, self).__init__(CONF.oauth1.driver)
+        super().__init__(CONF.oauth1.driver)
 
     def create_consumer(self, consumer_ref, initiator=None):
         consumer_ref = consumer_ref.copy()

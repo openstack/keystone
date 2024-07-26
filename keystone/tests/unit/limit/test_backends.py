@@ -20,7 +20,7 @@ from keystone.tests import unit
 PROVIDERS = provider_api.ProviderAPIs
 
 
-class RegisteredLimitTests(object):
+class RegisteredLimitTests:
 
     def test_create_registered_limit_crud(self):
         # create one, return it.
@@ -562,7 +562,7 @@ class RegisteredLimitTests(object):
         )
 
 
-class LimitTests(object):
+class LimitTests:
 
     def test_default_enforcement_model_is_flat(self):
         expected = {

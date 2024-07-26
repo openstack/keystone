@@ -61,7 +61,7 @@ def _override_policy(policy_file):
         f.write(jsonutils.dumps(overridden_policies))
 
 
-class _SystemUserTests(object):
+class _SystemUserTests:
     def test_user_can_get_project_tag(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
@@ -73,7 +73,7 @@ class _SystemUserTests(object):
 
         with self.test_client() as c:
             c.get(
-                '/v3/projects/%s/tags/%s' % (project['id'], tag),
+                '/v3/projects/{}/tags/{}'.format(project['id'], tag),
                 headers=self.headers,
                 expected_status_code=http.client.NO_CONTENT,
             )
@@ -95,7 +95,7 @@ class _SystemUserTests(object):
             self.assertEqual(tag, r.json['tags'][0])
 
 
-class _SystemMemberAndReaderTagTests(object):
+class _SystemMemberAndReaderTagTests:
 
     def test_user_cannot_create_project_tag(self):
         project = PROVIDERS.resource_api.create_project(
@@ -107,7 +107,7 @@ class _SystemMemberAndReaderTagTests(object):
 
         with self.test_client() as c:
             c.put(
-                '/v3/projects/%s/tags/%s' % (project['id'], tag),
+                '/v3/projects/{}/tags/{}'.format(project['id'], tag),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -142,13 +142,13 @@ class _SystemMemberAndReaderTagTests(object):
 
         with self.test_client() as c:
             c.delete(
-                '/v3/projects/%s/tags/%s' % (project['id'], tag),
+                '/v3/projects/{}/tags/{}'.format(project['id'], tag),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
 
 
-class _DomainAndProjectUserTagTests(object):
+class _DomainAndProjectUserTagTests:
 
     def test_user_cannot_create_project_tag(self):
         project = PROVIDERS.resource_api.create_project(
@@ -160,7 +160,7 @@ class _DomainAndProjectUserTagTests(object):
 
         with self.test_client() as c:
             c.put(
-                '/v3/projects/%s/tags/%s' % (project['id'], tag),
+                '/v3/projects/{}/tags/{}'.format(project['id'], tag),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -195,7 +195,7 @@ class _DomainAndProjectUserTagTests(object):
 
         with self.test_client() as c:
             c.delete(
-                '/v3/projects/%s/tags/%s' % (project['id'], tag),
+                '/v3/projects/{}/tags/{}'.format(project['id'], tag),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -209,7 +209,7 @@ class SystemReaderTests(
 ):
 
     def setUp(self):
-        super(SystemReaderTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -244,7 +244,7 @@ class SystemMemberTests(
 ):
 
     def setUp(self):
-        super(SystemMemberTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -278,7 +278,7 @@ class SystemAdminTests(
 ):
 
     def setUp(self):
-        super(SystemAdminTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -307,7 +307,7 @@ class SystemAdminTests(
 
         with self.test_client() as c:
             c.put(
-                '/v3/projects/%s/tags/%s' % (project['id'], tag),
+                '/v3/projects/{}/tags/{}'.format(project['id'], tag),
                 headers=self.headers,
                 expected_status_code=http.client.CREATED,
             )
@@ -342,12 +342,12 @@ class SystemAdminTests(
 
         with self.test_client() as c:
             c.delete(
-                '/v3/projects/%s/tags/%s' % (project['id'], tag),
+                '/v3/projects/{}/tags/{}'.format(project['id'], tag),
                 headers=self.headers,
             )
 
 
-class _DomainUserTagTests(object):
+class _DomainUserTagTests:
 
     def test_user_can_get_tag_for_project_in_domain(self):
         project = PROVIDERS.resource_api.create_project(
@@ -359,7 +359,7 @@ class _DomainUserTagTests(object):
 
         with self.test_client() as c:
             c.get(
-                '/v3/projects/%s/tags/%s' % (project['id'], tag),
+                '/v3/projects/{}/tags/{}'.format(project['id'], tag),
                 headers=self.headers,
                 expected_status_code=http.client.NO_CONTENT,
             )
@@ -389,7 +389,7 @@ class _DomainUserTagTests(object):
 
         with self.test_client() as c:
             c.put(
-                '/v3/projects/%s/tags/%s' % (project['id'], tag),
+                '/v3/projects/{}/tags/{}'.format(project['id'], tag),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -425,7 +425,7 @@ class _DomainUserTagTests(object):
 
         with self.test_client() as c:
             c.delete(
-                '/v3/projects/%s/tags/%s' % (project['id'], tag),
+                '/v3/projects/{}/tags/{}'.format(project['id'], tag),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -441,7 +441,7 @@ class _DomainUserTagTests(object):
 
         with self.test_client() as c:
             c.get(
-                '/v3/projects/%s/tags/%s' % (project['id'], tag),
+                '/v3/projects/{}/tags/{}'.format(project['id'], tag),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -463,7 +463,7 @@ class _DomainUserTagTests(object):
             )
 
 
-class _DomainMemberAndReaderTagTests(object):
+class _DomainMemberAndReaderTagTests:
 
     def test_user_cannot_create_project_tag_in_domain(self):
         project = PROVIDERS.resource_api.create_project(
@@ -474,7 +474,7 @@ class _DomainMemberAndReaderTagTests(object):
 
         with self.test_client() as c:
             c.put(
-                '/v3/projects/%s/tags/%s' % (project['id'], tag),
+                '/v3/projects/{}/tags/{}'.format(project['id'], tag),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -508,7 +508,7 @@ class _DomainMemberAndReaderTagTests(object):
 
         with self.test_client() as c:
             c.delete(
-                '/v3/projects/%s/tags/%s' % (project['id'], tag),
+                '/v3/projects/{}/tags/{}'.format(project['id'], tag),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -521,7 +521,7 @@ class DomainAdminUserTests(
 ):
 
     def setUp(self):
-        super(DomainAdminUserTests, self).setUp()
+        super().setUp()
         self.loadapp()
 
         self.policy_file = self.useFixture(temporaryfile.SecureTempFile())
@@ -569,7 +569,7 @@ class DomainAdminUserTests(
 
         with self.test_client() as c:
             c.put(
-                '/v3/projects/%s/tags/%s' % (project['id'], tag),
+                '/v3/projects/{}/tags/{}'.format(project['id'], tag),
                 headers=self.headers,
                 expected_status_code=http.client.CREATED,
             )
@@ -605,7 +605,7 @@ class DomainAdminUserTests(
 
         with self.test_client() as c:
             c.delete(
-                '/v3/projects/%s/tags/%s' % (project['id'], tag),
+                '/v3/projects/{}/tags/{}'.format(project['id'], tag),
                 headers=self.headers,
             )
 
@@ -618,7 +618,7 @@ class DomainMemberUserTests(
 ):
 
     def setUp(self):
-        super(DomainMemberUserTests, self).setUp()
+        super().setUp()
         self.loadapp()
 
         self.policy_file = self.useFixture(temporaryfile.SecureTempFile())
@@ -666,7 +666,7 @@ class DomainReaderUserTests(
 ):
 
     def setUp(self):
-        super(DomainReaderUserTests, self).setUp()
+        super().setUp()
         self.loadapp()
 
         self.policy_file = self.useFixture(temporaryfile.SecureTempFile())
@@ -706,7 +706,7 @@ class DomainReaderUserTests(
             self.headers = {'X-Auth-Token': self.token_id}
 
 
-class _ProjectUserTagTests(object):
+class _ProjectUserTagTests:
 
     def test_user_can_get_tag_for_project(self):
         tag = uuid.uuid4().hex
@@ -714,7 +714,7 @@ class _ProjectUserTagTests(object):
 
         with self.test_client() as c:
             c.get(
-                '/v3/projects/%s/tags/%s' % (self.project_id, tag),
+                f'/v3/projects/{self.project_id}/tags/{tag}',
                 headers=self.headers,
                 expected_status_code=http.client.NO_CONTENT,
             )
@@ -740,7 +740,7 @@ class _ProjectUserTagTests(object):
 
         with self.test_client() as c:
             c.put(
-                '/v3/projects/%s/tags/%s' % (project['id'], tag),
+                '/v3/projects/{}/tags/{}'.format(project['id'], tag),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -775,7 +775,7 @@ class _ProjectUserTagTests(object):
 
         with self.test_client() as c:
             c.delete(
-                '/v3/projects/%s/tags/%s' % (project['id'], tag),
+                '/v3/projects/{}/tags/{}'.format(project['id'], tag),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -791,7 +791,7 @@ class _ProjectUserTagTests(object):
 
         with self.test_client() as c:
             c.get(
-                '/v3/projects/%s/tags/%s' % (project['id'], tag),
+                '/v3/projects/{}/tags/{}'.format(project['id'], tag),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -813,13 +813,13 @@ class _ProjectUserTagTests(object):
             )
 
 
-class _ProjectMemberAndReaderTagTests(object):
+class _ProjectMemberAndReaderTagTests:
 
     def test_user_cannot_create_project_tag(self):
         tag = uuid.uuid4().hex
         with self.test_client() as c:
             c.put(
-                '/v3/projects/%s/tags/%s' % (self.project_id, tag),
+                f'/v3/projects/{self.project_id}/tags/{tag}',
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -844,7 +844,7 @@ class _ProjectMemberAndReaderTagTests(object):
 
         with self.test_client() as c:
             c.delete(
-                '/v3/projects/%s/tags/%s' % (self.project_id, tag),
+                f'/v3/projects/{self.project_id}/tags/{tag}',
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -857,7 +857,7 @@ class ProjectAdminTests(
 ):
 
     def setUp(self):
-        super(ProjectAdminTests, self).setUp()
+        super().setUp()
         self.loadapp()
 
         self.policy_file = self.useFixture(temporaryfile.SecureTempFile())
@@ -895,7 +895,7 @@ class ProjectAdminTests(
         tag = uuid.uuid4().hex
         with self.test_client() as c:
             c.put(
-                '/v3/projects/%s/tags/%s' % (self.project_id, tag),
+                f'/v3/projects/{self.project_id}/tags/{tag}',
                 headers=self.headers,
                 expected_status_code=http.client.CREATED,
             )
@@ -920,7 +920,7 @@ class ProjectAdminTests(
 
         with self.test_client() as c:
             c.delete(
-                '/v3/projects/%s/tags/%s' % (self.project_id, tag),
+                f'/v3/projects/{self.project_id}/tags/{tag}',
                 headers=self.headers,
             )
 
@@ -933,7 +933,7 @@ class ProjectMemberTests(
 ):
 
     def setUp(self):
-        super(ProjectMemberTests, self).setUp()
+        super().setUp()
         self.loadapp()
 
         self.policy_file = self.useFixture(temporaryfile.SecureTempFile())
@@ -981,7 +981,7 @@ class ProjectReaderTests(
 ):
 
     def setUp(self):
-        super(ProjectReaderTests, self).setUp()
+        super().setUp()
         self.loadapp()
 
         self.policy_file = self.useFixture(temporaryfile.SecureTempFile())

@@ -53,7 +53,7 @@ def filter_consumer(consumer_ref):
     return consumer_ref
 
 
-class Oauth1DriverBase(object, metaclass=abc.ABCMeta):
+class Oauth1DriverBase(metaclass=abc.ABCMeta):
     """Interface description for an OAuth1 driver."""
 
     @abc.abstractmethod

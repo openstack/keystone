@@ -68,6 +68,6 @@ class SQLDriverTestCase(
     def setUp(self):
         self.useFixture(database.Database())
         self.driver = sql_driver.ApplicationCredential()
-        super(SQLDriverTestCase, self).setUp()
+        super().setUp()
 
         self.app_cred_api = PROVIDERS.application_credential_api

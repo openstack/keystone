@@ -41,7 +41,7 @@ class Identity(base.IdentityDriverBase):
     # config parameter to enable sql to be used as a domain-specific driver.
     def __init__(self, conf=None):
         self.conf = conf
-        super(Identity, self).__init__()
+        super().__init__()
 
     @property
     def is_sql(self):

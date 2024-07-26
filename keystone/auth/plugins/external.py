@@ -94,4 +94,4 @@ class KerberosDomain(Domain):
     def _authenticate(self):
         if flask.request.environ.get('AUTH_TYPE') != 'Negotiate':
             raise exception.Unauthorized(_("auth_type is not Negotiate"))
-        return super(KerberosDomain, self)._authenticate()
+        return super()._authenticate()

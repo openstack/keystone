@@ -30,7 +30,7 @@ CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
 
-class TokenlessAuthHelper(provider_api.ProviderAPIMixin, object):
+class TokenlessAuthHelper(provider_api.ProviderAPIMixin):
     def __init__(self, env):
         """A init class for TokenlessAuthHelper.
 

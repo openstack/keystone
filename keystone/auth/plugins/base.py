@@ -24,9 +24,7 @@ AuthHandlerResponse = collections.namedtuple(
 )
 
 
-class AuthMethodHandler(
-    provider_api.ProviderAPIMixin, object, metaclass=abc.ABCMeta
-):
+class AuthMethodHandler(provider_api.ProviderAPIMixin, metaclass=abc.ABCMeta):
     """Abstract base class for an authentication plugin."""
 
     def __init__(self):

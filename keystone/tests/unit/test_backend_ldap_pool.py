@@ -31,7 +31,7 @@ CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
 
 
-class LdapPoolCommonTestMixin(object):
+class LdapPoolCommonTestMixin:
     """LDAP pool specific common tests used here and in live tests."""
 
     def cleanup_pools(self):
@@ -344,7 +344,7 @@ class LDAPIdentity(
                 fakeldap.FakeLdapPool,
             )
         )
-        super(LDAPIdentity, self).setUp()
+        super().setUp()
 
         self.addCleanup(self.cleanup_pools)
         # storing to local variable to avoid long references
@@ -355,6 +355,6 @@ class LDAPIdentity(
         PROVIDERS.identity_api.get_user(self.user_foo['id'])
 
     def config_files(self):
-        config_files = super(LDAPIdentity, self).config_files()
+        config_files = super().config_files()
         config_files.append(unit.dirs.tests_conf('backend_ldap_pool.conf'))
         return config_files

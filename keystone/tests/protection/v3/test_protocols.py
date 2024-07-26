@@ -25,7 +25,7 @@ CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
 
 
-class _CommonUtilities(object):
+class _CommonUtilities:
 
     def _create_protocol_and_deps(self):
         identity_provider = unit.new_identity_provider_ref()
@@ -43,7 +43,7 @@ class _CommonUtilities(object):
         return (protocol, mapping, identity_provider)
 
 
-class _SystemUserProtocolTests(object):
+class _SystemUserProtocolTests:
     """Common default functionality for all system users."""
 
     def test_user_can_list_protocols(self):
@@ -62,14 +62,16 @@ class _SystemUserProtocolTests(object):
         protocol, mapping, identity_provider = self._create_protocol_and_deps()
 
         with self.test_client() as c:
-            path = '/v3/OS-FEDERATION/identity_providers/%s/protocols/%s' % (
-                identity_provider['id'],
-                protocol['id'],
+            path = (
+                '/v3/OS-FEDERATION/identity_providers/{}/protocols/{}'.format(
+                    identity_provider['id'],
+                    protocol['id'],
+                )
             )
             c.get(path, headers=self.headers)
 
 
-class _SystemReaderAndMemberProtocolTests(object):
+class _SystemReaderAndMemberProtocolTests:
 
     def test_user_cannot_create_protocols(self):
         identity_provider = unit.new_identity_provider_ref()
@@ -85,9 +87,11 @@ class _SystemReaderAndMemberProtocolTests(object):
         create = {'protocol': {'mapping_id': mapping['id']}}
 
         with self.test_client() as c:
-            path = '/v3/OS-FEDERATION/identity_providers/%s/protocols/%s' % (
-                identity_provider['id'],
-                protocol_id,
+            path = (
+                '/v3/OS-FEDERATION/identity_providers/{}/protocols/{}'.format(
+                    identity_provider['id'],
+                    protocol_id,
+                )
             )
             c.put(
                 path,
@@ -105,9 +109,11 @@ class _SystemReaderAndMemberProtocolTests(object):
 
         update = {'protocol': {'mapping_id': new_mapping['id']}}
         with self.test_client() as c:
-            path = '/v3/OS-FEDERATION/identity_providers/%s/protocols/%s' % (
-                identity_provider['id'],
-                protocol['id'],
+            path = (
+                '/v3/OS-FEDERATION/identity_providers/{}/protocols/{}'.format(
+                    identity_provider['id'],
+                    protocol['id'],
+                )
             )
             c.patch(
                 path,
@@ -120,9 +126,11 @@ class _SystemReaderAndMemberProtocolTests(object):
         protocol, mapping, identity_provider = self._create_protocol_and_deps()
 
         with self.test_client() as c:
-            path = '/v3/OS-FEDERATION/identity_providers/%s/protocols/%s' % (
-                identity_provider['id'],
-                protocol['id'],
+            path = (
+                '/v3/OS-FEDERATION/identity_providers/{}/protocols/{}'.format(
+                    identity_provider['id'],
+                    protocol['id'],
+                )
             )
             c.delete(
                 path,
@@ -131,7 +139,7 @@ class _SystemReaderAndMemberProtocolTests(object):
             )
 
 
-class _DomainAndProjectUserProtocolTests(object):
+class _DomainAndProjectUserProtocolTests:
 
     def test_user_cannot_create_protocols(self):
         identity_provider = unit.new_identity_provider_ref()
@@ -147,9 +155,11 @@ class _DomainAndProjectUserProtocolTests(object):
         create = {'protocol': {'mapping_id': mapping['id']}}
 
         with self.test_client() as c:
-            path = '/v3/OS-FEDERATION/identity_providers/%s/protocols/%s' % (
-                identity_provider['id'],
-                protocol_id,
+            path = (
+                '/v3/OS-FEDERATION/identity_providers/{}/protocols/{}'.format(
+                    identity_provider['id'],
+                    protocol_id,
+                )
             )
             c.put(
                 path,
@@ -167,9 +177,11 @@ class _DomainAndProjectUserProtocolTests(object):
 
         update = {'protocol': {'mapping_id': new_mapping['id']}}
         with self.test_client() as c:
-            path = '/v3/OS-FEDERATION/identity_providers/%s/protocols/%s' % (
-                identity_provider['id'],
-                protocol['id'],
+            path = (
+                '/v3/OS-FEDERATION/identity_providers/{}/protocols/{}'.format(
+                    identity_provider['id'],
+                    protocol['id'],
+                )
             )
             c.patch(
                 path,
@@ -182,9 +194,11 @@ class _DomainAndProjectUserProtocolTests(object):
         protocol, mapping, identity_provider = self._create_protocol_and_deps()
 
         with self.test_client() as c:
-            path = '/v3/OS-FEDERATION/identity_providers/%s/protocols/%s' % (
-                identity_provider['id'],
-                protocol['id'],
+            path = (
+                '/v3/OS-FEDERATION/identity_providers/{}/protocols/{}'.format(
+                    identity_provider['id'],
+                    protocol['id'],
+                )
             )
             c.delete(
                 path,
@@ -210,9 +224,11 @@ class _DomainAndProjectUserProtocolTests(object):
         protocol, mapping, identity_provider = self._create_protocol_and_deps()
 
         with self.test_client() as c:
-            path = '/v3/OS-FEDERATION/identity_providers/%s/protocols/%s' % (
-                identity_provider['id'],
-                protocol['id'],
+            path = (
+                '/v3/OS-FEDERATION/identity_providers/{}/protocols/{}'.format(
+                    identity_provider['id'],
+                    protocol['id'],
+                )
             )
             c.get(
                 path,
@@ -230,7 +246,7 @@ class SystemReaderTests(
 ):
 
     def setUp(self):
-        super(SystemReaderTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -266,7 +282,7 @@ class SystemMemberTests(
 ):
 
     def setUp(self):
-        super(SystemMemberTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -301,7 +317,7 @@ class SystemAdminTests(
 ):
 
     def setUp(self):
-        super(SystemAdminTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -336,9 +352,11 @@ class SystemAdminTests(
         create = {'protocol': {'mapping_id': mapping['id']}}
 
         with self.test_client() as c:
-            path = '/v3/OS-FEDERATION/identity_providers/%s/protocols/%s' % (
-                identity_provider['id'],
-                protocol_id,
+            path = (
+                '/v3/OS-FEDERATION/identity_providers/{}/protocols/{}'.format(
+                    identity_provider['id'],
+                    protocol_id,
+                )
             )
             c.put(
                 path,
@@ -356,9 +374,11 @@ class SystemAdminTests(
 
         update = {'protocol': {'mapping_id': new_mapping['id']}}
         with self.test_client() as c:
-            path = '/v3/OS-FEDERATION/identity_providers/%s/protocols/%s' % (
-                identity_provider['id'],
-                protocol['id'],
+            path = (
+                '/v3/OS-FEDERATION/identity_providers/{}/protocols/{}'.format(
+                    identity_provider['id'],
+                    protocol['id'],
+                )
             )
             c.patch(path, json=update, headers=self.headers)
 
@@ -366,9 +386,11 @@ class SystemAdminTests(
         protocol, mapping, identity_provider = self._create_protocol_and_deps()
 
         with self.test_client() as c:
-            path = '/v3/OS-FEDERATION/identity_providers/%s/protocols/%s' % (
-                identity_provider['id'],
-                protocol['id'],
+            path = (
+                '/v3/OS-FEDERATION/identity_providers/{}/protocols/{}'.format(
+                    identity_provider['id'],
+                    protocol['id'],
+                )
             )
             c.delete(path, headers=self.headers)
 
@@ -381,7 +403,7 @@ class DomainUserTests(
 ):
 
     def setUp(self):
-        super(DomainUserTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -420,7 +442,7 @@ class ProjectUserTests(
 ):
 
     def setUp(self):
-        super(ProjectUserTests, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
         self.config_fixture.config(group='oslo_policy', enforce_scope=True)
@@ -448,7 +470,7 @@ class ProjectUserTestsWithoutEnforceScope(
 ):
 
     def setUp(self):
-        super(ProjectUserTestsWithoutEnforceScope, self).setUp()
+        super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
 

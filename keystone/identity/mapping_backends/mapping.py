@@ -13,6 +13,6 @@
 # under the License.
 
 
-class EntityType(object):
+class EntityType:
     USER = 'user'
     GROUP = 'group'

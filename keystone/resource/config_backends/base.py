@@ -17,7 +17,7 @@ import abc
 from keystone import exception
 
 
-class DomainConfigDriverBase(object, metaclass=abc.ABCMeta):
+class DomainConfigDriverBase(metaclass=abc.ABCMeta):
     """Interface description for a Domain Config driver."""
 
     @abc.abstractmethod

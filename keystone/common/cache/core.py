@@ -27,7 +27,7 @@ import keystone.conf
 CONF = keystone.conf.CONF
 
 
-class RegionInvalidationManager(object):
+class RegionInvalidationManager:
 
     REGION_KEY_PREFIX = '<<<region>>>:'
 
@@ -84,7 +84,7 @@ def key_mangler_factory(invalidation_manager, orig_key_mangler):
         # If it were there would be no way to get to it, making the cache
         # effectively useless.
         if not invalidation_manager.is_region_key(key):
-            key = '%s:%s' % (key, invalidation_manager.region_id)
+            key = f'{key}:{invalidation_manager.region_id}'
         if orig_key_mangler:
             key = orig_key_mangler(key)
         return key

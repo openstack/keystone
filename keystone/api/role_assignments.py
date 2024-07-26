@@ -397,10 +397,10 @@ class RoleAssignmentsResource(ks_flask.ResourceBase):
         prior_role_link = ''
         if 'role_id' in entity.get('indirect', {}):
             formatted_link += '/roles/%s' % entity['indirect']['role_id']
-            prior_role_link = '/prior_role/%(prior)s/implies/%(implied)s' % {
-                'prior': entity['role_id'],
-                'implied': entity['indirect']['role_id'],
-            }
+            prior_role_link = '/prior_role/{prior}/implies/{implied}'.format(
+                prior=entity['role_id'],
+                implied=entity['indirect']['role_id'],
+            )
         else:
             formatted_link += '/roles/%s' % entity['role_id']
 

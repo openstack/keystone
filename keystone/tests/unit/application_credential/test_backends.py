@@ -25,7 +25,7 @@ CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
 
 
-class ApplicationCredentialTests(object):
+class ApplicationCredentialTests:
 
     def _new_app_cred_data(
         self, user_id, project_id=None, name=None, expires=None, system=None

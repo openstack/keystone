@@ -32,7 +32,7 @@ class TestIdentityDriver(
     expected_generates_uuids = True
 
     def setUp(self):
-        super(TestIdentityDriver, self).setUp()
+        super().setUp()
         self.engine = enginefacade.writer.get_engine()
         self.sessionmaker = enginefacade.writer.get_sessionmaker()
 

@@ -38,7 +38,7 @@ class RequestContext(oslo_context.RequestContext):
         self.oauth_access_token_id = kwargs.pop('oauth_access_token_id', None)
 
         self.authenticated = kwargs.pop('authenticated', False)
-        super(RequestContext, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def to_policy_values(self):
         """Add keystone-specific policy values to policy representation.
@@ -62,7 +62,7 @@ class RequestContext(oslo_context.RequestContext):
         # needs reworking of how we handle the context in oslo.policy. Until
         # this is reworked, it is not possible to merge the token render
         # function into keystone.api
-        values = super(RequestContext, self).to_policy_values()
+        values = super().to_policy_values()
         values['token'] = self.token_reference['token']
         values['domain_id'] = self.domain_id if self.domain_id else None
         return values

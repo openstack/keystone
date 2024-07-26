@@ -31,10 +31,10 @@ class Manager(manager.Manager):
     _provides_api = 'id_generator_api'
 
     def __init__(self):
-        super(Manager, self).__init__(CONF.identity_mapping.generator)
+        super().__init__(CONF.identity_mapping.generator)
 
 
-class IDGenerator(object, metaclass=abc.ABCMeta):
+class IDGenerator(metaclass=abc.ABCMeta):
     """Interface description for an ID Generator provider."""
 
     @abc.abstractmethod

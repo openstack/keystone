@@ -18,7 +18,7 @@ from keystone import exception
 from keystone.i18n import _
 
 
-class AssignmentType(object):
+class AssignmentType:
     USER_PROJECT = 'UserProject'
     GROUP_PROJECT = 'GroupProject'
     USER_DOMAIN = 'UserDomain'
@@ -182,7 +182,7 @@ class Assignment(base.AssignmentDriverBase):
                     )
                 )
         except sql.DBDuplicateEntry:
-            msg = 'User %s already has role %s in tenant %s' % (
+            msg = 'User {} already has role {} in tenant {}'.format(
                 user_id,
                 role_id,
                 project_id,

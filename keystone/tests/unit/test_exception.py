@@ -35,7 +35,7 @@ class ExceptionTestCase(unit.BaseTestCase):
     def assertValidJsonRendering(self, e):
         resp = auth_context.render_exception(e)
         self.assertEqual(e.code, resp.status_int)
-        self.assertEqual('%s %s' % (e.code, e.title), resp.status)
+        self.assertEqual(f'{e.code} {e.title}', resp.status)
 
         j = jsonutils.loads(resp.body)
         self.assertIsNotNone(j.get('error'))
@@ -82,7 +82,7 @@ class ExceptionTestCase(unit.BaseTestCase):
         self.assertEqual('Forbidden', j['error'].get('title'))
 
     def test_unicode_message(self):
-        message = u'Comment \xe7a va'
+        message = 'Comment \xe7a va'
         e = exception.Error(message)
 
         try:
@@ -111,7 +111,7 @@ class UnexpectedExceptionTestCase(ExceptionTestCase):
         debug_message_format = 'Debug Message: %(debug_info)s'
 
     def setUp(self):
-        super(UnexpectedExceptionTestCase, self).setUp()
+        super().setUp()
         self.exc_str = uuid.uuid4().hex
         self.config_fixture = self.useFixture(config_fixture.Config(CONF))
 
@@ -137,7 +137,7 @@ class UnexpectedExceptionTestCase(ExceptionTestCase):
         e = subclass(debug_info=self.exc_str)
         expected = subclass.debug_message_format % {'debug_info': self.exc_str}
         self.assertEqual(
-            '%s %s' % (expected, exception.SecurityError.amendment), str(e)
+            f'{expected} {exception.SecurityError.amendment}', str(e)
         )
 
     def test_unexpected_error_custom_message_no_debug(self):
@@ -149,7 +149,8 @@ class UnexpectedExceptionTestCase(ExceptionTestCase):
         self.config_fixture.config(debug=True, insecure_debug=True)
         e = exception.UnexpectedError(self.exc_str)
         self.assertEqual(
-            '%s %s' % (self.exc_str, exception.SecurityError.amendment), str(e)
+            f'{self.exc_str} {exception.SecurityError.amendment}',
+            str(e),
         )
 
     def test_unexpected_error_custom_message_exception_debug(self):
@@ -157,7 +158,8 @@ class UnexpectedExceptionTestCase(ExceptionTestCase):
         orig_e = exception.NotFound(target=uuid.uuid4().hex)
         e = exception.UnexpectedError(orig_e)
         self.assertEqual(
-            '%s %s' % (str(orig_e), exception.SecurityError.amendment), str(e)
+            f'{str(orig_e)} {exception.SecurityError.amendment}',
+            str(e),
         )
 
     def test_unexpected_error_custom_message_binary_debug(self):
@@ -165,7 +167,7 @@ class UnexpectedExceptionTestCase(ExceptionTestCase):
         binary_msg = b'something'
         e = exception.UnexpectedError(binary_msg)
         self.assertEqual(
-            '%s %s' % (str(binary_msg), exception.SecurityError.amendment),
+            f'{str(binary_msg)} {exception.SecurityError.amendment}',
             str(e),
         )
 
@@ -174,7 +176,7 @@ class SecurityErrorTestCase(ExceptionTestCase):
     """Test whether security-related info is exposed to the API user."""
 
     def setUp(self):
-        super(SecurityErrorTestCase, self).setUp()
+        super().setUp()
         self.config_fixture = self.useFixture(config_fixture.Config(CONF))
         self.config_fixture.config(public_endpoint='http://localhost:5050')
 
@@ -262,7 +264,7 @@ class SecurityErrorTestCase(ExceptionTestCase):
     def test_unicode_argument_message(self):
         self.config_fixture.config(debug=False)
 
-        risky_info = u'\u7ee7\u7eed\u884c\u7f29\u8fdb\u6216'
+        risky_info = '\u7ee7\u7eed\u884c\u7f29\u8fdb\u6216'
         e = exception.Forbidden(message=risky_info)
         self.assertValidJsonRendering(e)
         self.assertNotIn(risky_info, str(e))
@@ -272,7 +274,7 @@ class TestSecurityErrorTranslation(unit.BaseTestCase):
     """Test i18n for SecurityError exceptions."""
 
     def setUp(self):
-        super(TestSecurityErrorTranslation, self).setUp()
+        super().setUp()
         self.config_fixture = self.useFixture(config_fixture.Config(CONF))
         self.config_fixture.config(insecure_debug=False)
         self.warning_log = self.useFixture(fixtures.FakeLogger(level=log.WARN))

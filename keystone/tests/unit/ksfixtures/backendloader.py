@@ -21,11 +21,11 @@ class BackendLoader(fixtures.Fixture):
     """Initialize each manager and assigns them to an attribute."""
 
     def __init__(self, testcase):
-        super(BackendLoader, self).__init__()
+        super().__init__()
         self._testcase = testcase
 
     def setUp(self):
-        super(BackendLoader, self).setUp()
+        super().setUp()
 
         self.clear_auth_plugin_registry()
         drivers, _unused = keystone.server.setup_backends()

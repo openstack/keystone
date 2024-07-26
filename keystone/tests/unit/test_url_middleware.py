@@ -16,7 +16,7 @@ from keystone.server.flask.request_processing.middleware import url_normalize
 from keystone.tests import unit
 
 
-class FakeApp(object):
+class FakeApp:
     """Fakes a WSGI app URL normalized."""
 
     def __init__(self):
@@ -29,7 +29,7 @@ class FakeApp(object):
 
 class UrlMiddlewareTest(unit.TestCase):
     def setUp(self):
-        super(UrlMiddlewareTest, self).setUp()
+        super().setUp()
         self.fake_app = FakeApp()
         self.middleware = url_normalize.URLNormalizingMiddleware(self.fake_app)
 

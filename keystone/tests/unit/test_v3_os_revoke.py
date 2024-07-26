@@ -194,7 +194,7 @@ class OSRevokeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
         # NOTE(mnikolaenko): raise 2 deadlocks and back to normal work of
         # method. Two attempts is enough to check that retry decorator works.
         # Otherwise it will take very much time to pass this test
-        class FakeDeadlock(object):
+        class FakeDeadlock:
             def __init__(self, mock_patcher):
                 self.deadlock_count = 2
                 self.mock_patcher = mock_patcher

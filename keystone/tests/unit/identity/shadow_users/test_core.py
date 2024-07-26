@@ -19,7 +19,7 @@ from keystone.common import provider_api
 PROVIDERS = provider_api.ProviderAPIs
 
 
-class ShadowUsersCoreTests(object):
+class ShadowUsersCoreTests:
     def test_shadow_federated_user(self):
         federated_user1 = copy.deepcopy(self.federated_user)
         ShadowUsersCoreTests.normalize_federated_user_properties_for_test(

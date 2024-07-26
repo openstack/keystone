@@ -22,10 +22,10 @@ from keystone.tests import unit
 
 class TestMappedPlugin(unit.TestCase):
     def __init__(self, *args, **kwargs):
-        super(TestMappedPlugin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
     def setUp(self):
-        super(TestMappedPlugin, self).setUp()
+        super().setUp()
         self.resource_api_mock = mock.Mock(spec=ResourceApi)
         self.assignment_api_mock = mock.Mock(spec=AssignmentApi)
         self.domain_uuid_mock = uuid.uuid4().hex

@@ -33,7 +33,7 @@ VERSIONS = frozenset([V3])
 ACCESS_RULES_MIN_VERSION = 1.0
 
 
-class TokenModel(object):
+class TokenModel:
     """An object that represents a token emitted by keystone.
 
     This is a queryable object that other parts of keystone can use to reason
@@ -314,9 +314,9 @@ class TokenModel(object):
         effective_trust_roles = PROVIDERS.assignment_api.add_implied_roles(
             trust_roles
         )
-        effective_trust_role_ids = set(
-            [r['role_id'] for r in effective_trust_roles]
-        )
+        effective_trust_role_ids = {
+            r['role_id'] for r in effective_trust_roles
+        }
 
         current_effective_trustor_roles = (
             PROVIDERS.assignment_api.get_roles_for_trustor_and_project(
@@ -436,7 +436,7 @@ class TokenModel(object):
             domain_id=self.domain_id,
             effective=True,
         )
-        user_roles = list(set([x['role_id'] for x in assignment_list]))
+        user_roles = list({x['role_id'] for x in assignment_list})
 
         for role in app_cred_roles:
             if role['id'] in user_roles:
@@ -561,9 +561,9 @@ class TokenModel(object):
             effective_trust_roles = PROVIDERS.assignment_api.add_implied_roles(
                 refs
             )
-            effective_trust_role_ids = set(
-                [r['role_id'] for r in effective_trust_roles]
-            )
+            effective_trust_role_ids = {
+                r['role_id'] for r in effective_trust_roles
+            }
             current_effective_trustor_roles = (
                 PROVIDERS.assignment_api.get_roles_for_trustor_and_project(
                     self.trustor['id'], self.trust.get('project_id')
@@ -603,7 +603,7 @@ class TokenModel(object):
         self.issued_at = issued_at
 
 
-class _TokenModelHandler(object):
+class _TokenModelHandler:
     identity = 126
     handles = (TokenModel,)
 

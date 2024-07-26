@@ -51,7 +51,7 @@ class OAuth1Tests(test_v3.RestfulTestCase):
     CONSUMER_URL = '/OS-OAUTH1/consumers'
 
     def setUp(self):
-        super(OAuth1Tests, self).setUp()
+        super().setUp()
         # Now that the app has been served, we can query CONF values
         self.base_url = 'http://localhost/v3'
 
@@ -265,9 +265,9 @@ class ConsumerCRUDTests(OAuth1Tests):
         self.assertIsNotNone(consumer['secret'])
 
     def test_consumer_get_bad_id(self):
-        url = self.CONSUMER_URL + '/%(consumer_id)s' % {
-            'consumer_id': uuid.uuid4().hex
-        }
+        url = self.CONSUMER_URL + '/{consumer_id}'.format(
+            consumer_id=uuid.uuid4().hex
+        )
         self.get(url, expected_status=http.client.NOT_FOUND)
         self.head(url, expected_status=http.client.NOT_FOUND)
 
@@ -349,9 +349,9 @@ class AccessTokenCRUDTests(OAuthFlowTests):
         )
 
     def test_list_no_access_tokens(self):
-        url = '/users/%(user_id)s/OS-OAUTH1/access_tokens' % {
-            'user_id': self.user_id
-        }
+        url = '/users/{user_id}/OS-OAUTH1/access_tokens'.format(
+            user_id=self.user_id
+        )
         resp = self.get(url)
         entities = resp.result['access_tokens']
         self.assertEqual([], entities)
@@ -363,10 +363,10 @@ class AccessTokenCRUDTests(OAuthFlowTests):
         self.test_oauth_flow()
         access_token_key_string = self.access_token.key.decode()
 
-        url = '/users/%(user_id)s/OS-OAUTH1/access_tokens/%(key)s' % {
-            'user_id': self.user_id,
-            'key': access_token_key_string,
-        }
+        url = '/users/{user_id}/OS-OAUTH1/access_tokens/{key}'.format(
+            user_id=self.user_id,
+            key=access_token_key_string,
+        )
         resp = self.get(url)
         entity = resp.result['access_token']
         self.assertEqual(access_token_key_string, entity['id'])
@@ -376,19 +376,19 @@ class AccessTokenCRUDTests(OAuthFlowTests):
         self.head(url, expected_status=http.client.OK)
 
     def test_get_access_token_dne(self):
-        url = '/users/%(user_id)s/OS-OAUTH1/access_tokens/%(key)s' % {
-            'user_id': self.user_id,
-            'key': uuid.uuid4().hex,
-        }
+        url = '/users/{user_id}/OS-OAUTH1/access_tokens/{key}'.format(
+            user_id=self.user_id,
+            key=uuid.uuid4().hex,
+        )
         self.get(url, expected_status=http.client.NOT_FOUND)
         self.head(url, expected_status=http.client.NOT_FOUND)
 
     def test_list_all_roles_in_access_token(self):
         self.test_oauth_flow()
-        url = '/users/%(id)s/OS-OAUTH1/access_tokens/%(key)s/roles' % {
-            'id': self.user_id,
-            'key': self.access_token.key.decode(),
-        }
+        url = '/users/{id}/OS-OAUTH1/access_tokens/{key}/roles'.format(
+            id=self.user_id,
+            key=self.access_token.key.decode(),
+        )
         resp = self.get(url)
         entities = resp.result['roles']
         self.assertTrue(entities)
@@ -432,9 +432,9 @@ class AccessTokenCRUDTests(OAuthFlowTests):
     def test_list_and_delete_access_tokens(self):
         self.test_oauth_flow()
         # List access_tokens should be > 0
-        url = '/users/%(user_id)s/OS-OAUTH1/access_tokens' % {
-            'user_id': self.user_id
-        }
+        url = '/users/{user_id}/OS-OAUTH1/access_tokens'.format(
+            user_id=self.user_id
+        )
         resp = self.get(url)
         self.head(url, expected_status=http.client.OK)
         entities = resp.result['access_tokens']
@@ -457,7 +457,7 @@ class AccessTokenCRUDTests(OAuthFlowTests):
         self.assertValidListLinks(resp.result['links'])
 
 
-class AuthTokenTests(object):
+class AuthTokenTests:
 
     def test_keystone_token_is_valid(self):
         self.test_oauth_flow()
@@ -555,7 +555,7 @@ class AuthTokenTests(object):
 
         user = {'password': uuid.uuid4().hex}
         r = self.patch(
-            '/users/%(user_id)s' % {'user_id': self.user['id']},
+            '/users/{user_id}'.format(user_id=self.user['id']),
             body={'user': user},
         )
         headers = {'X-Subject-Token': self.keystone_token_id}
@@ -577,9 +577,7 @@ class AuthTokenTests(object):
         r = self.get('/auth/tokens', headers=headers)
         self.assertValidTokenResponse(r, self.user)
 
-        r = self.delete(
-            '/projects/%(project_id)s' % {'project_id': self.project_id}
-        )
+        r = self.delete(f'/projects/{self.project_id}')
 
         headers = {'X-Subject-Token': self.keystone_token_id}
         self.get(
@@ -745,7 +743,7 @@ class AuthTokenTests(object):
 class FernetAuthTokenTests(AuthTokenTests, OAuthFlowTests):
 
     def config_overrides(self):
-        super(FernetAuthTokenTests, self).config_overrides()
+        super().config_overrides()
         self.config_fixture.config(group='token', provider='fernet')
         self.useFixture(
             ksfixtures.KeyRepository(
@@ -1380,7 +1378,7 @@ class OAuthCADFNotificationTests(OAuthNotificationTests):
 
     def setUp(self):
         """Repeat the tests for CADF notifications."""
-        super(OAuthCADFNotificationTests, self).setUp()
+        super().setUp()
         self.config_fixture.config(notification_format='cadf')
 
 

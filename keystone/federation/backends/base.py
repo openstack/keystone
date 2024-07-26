@@ -17,7 +17,7 @@ import abc
 from keystone import exception
 
 
-class FederationDriverBase(object, metaclass=abc.ABCMeta):
+class FederationDriverBase(metaclass=abc.ABCMeta):
 
     @abc.abstractmethod
     def create_idp(self, idp_id, idp):

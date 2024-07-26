@@ -41,7 +41,7 @@ CRED_TYPE_EC2 = ec2tokens.CRED_TYPE_EC2
 class CredentialBaseTestCase(test_v3.RestfulTestCase):
 
     def setUp(self):
-        super(CredentialBaseTestCase, self).setUp()
+        super().setUp()
         self.useFixture(
             ksfixtures.KeyRepository(
                 self.config_fixture,
@@ -106,7 +106,7 @@ class CredentialTestCase(CredentialBaseTestCase):
 
     def setUp(self):
 
-        super(CredentialTestCase, self).setUp()
+        super().setUp()
 
         self.credential = unit.new_credential_ref(
             user_id=self.user['id'], project_id=self.project_id
@@ -471,7 +471,7 @@ class CredentialTestCase(CredentialBaseTestCase):
             'sqlalchemy.orm.query.Query.delete', autospec=True
         )
 
-        class FakeDeadlock(object):
+        class FakeDeadlock:
             def __init__(self, mock_patcher):
                 self.deadlock_count = 2
                 self.mock_patcher = mock_patcher
@@ -525,9 +525,7 @@ class CredentialTestCase(CredentialBaseTestCase):
         """Ensure non-JSON blob data is correctly converted."""
         expected_blob, credential_id = self._create_dict_blob_credential()
 
-        r = self.get(
-            '/credentials/%(credential_id)s' % {'credential_id': credential_id}
-        )
+        r = self.get(f'/credentials/{credential_id}')
 
         # use json.loads to transform the blobs back into Python dictionaries
         # to avoid problems with the keys being in different orders.
@@ -617,7 +615,7 @@ class TestCredentialTrustScoped(CredentialBaseTestCase):
     """Test credential with trust scoped token."""
 
     def setUp(self):
-        super(TestCredentialTrustScoped, self).setUp()
+        super().setUp()
 
         self.trustee_user = unit.new_user_ref(domain_id=self.domain_id)
         password = self.trustee_user['password']
@@ -635,7 +633,7 @@ class TestCredentialTrustScoped(CredentialBaseTestCase):
         )
 
     def config_overrides(self):
-        super(TestCredentialTrustScoped, self).config_overrides()
+        super().config_overrides()
         self.config_fixture.config(group='trust')
 
     def test_trust_scoped_ec2_credential(self):
@@ -718,7 +716,7 @@ class TestCredentialAppCreds(CredentialBaseTestCase):
     """Test credential with application credential token."""
 
     def setUp(self):
-        super(TestCredentialAppCreds, self).setUp()
+        super().setUp()
         self.useFixture(
             ksfixtures.KeyRepository(
                 self.config_fixture,
@@ -799,7 +797,7 @@ class TestCredentialAccessToken(CredentialBaseTestCase):
     """Test credential with access token."""
 
     def setUp(self):
-        super(TestCredentialAccessToken, self).setUp()
+        super().setUp()
         self.useFixture(
             ksfixtures.KeyRepository(
                 self.config_fixture,
