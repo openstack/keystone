@@ -26,7 +26,7 @@ Prerequisites
 This document assumes you are using an Ubuntu, Fedora, or openSUSE platform and
 that you have the following tools pre-installed on your system:
 
-- python_ 3.6, as the programming language;
+- python_ 3.11 or later, as the programming language;
 - git_, as the version control tool;
 
 .. NOTE::
@@ -60,11 +60,13 @@ Clone the keystone repository:
     $ git clone https://opendev.org/openstack/keystone.git
     $ cd keystone
 
-Install the keystone web service:
+Prepare dedicated virtual environment (python 3.11 is used here as an example.
+Please use any supported version)
 
 .. code-block:: bash
 
-    $ pip install -e .
+   $ tox -e py311 --notest
+   $ source .tox/py311/bin/activate
 
 .. NOTE::
 
@@ -130,43 +132,23 @@ view a sample paste file.
 Bootstrapping a test deployment
 ===============================
 
-You can use the ``keystone-manage bootstrap`` command to pre-populate the
-database with necessary data.
-
-Verifying keystone is set up
-============================
-
-Once set up, you should be able to invoke Python and import the libraries:
-
-.. code-block:: bash
-
-    $ .tox/py36/bin/python -c "import keystone"
-
-If you can import keystone without a traceback, you should be ready to move on
-to the next sections.
-
-You can run keystone using a host of wsgi implementations or web servers. The
-following uses ``uwsgi``:
-
-.. code-block:: bash
-
-    $ uwsgi --http 127.0.0.1:5000 --wsgi-file $(which keystone-wsgi-public)
-
-This runs Keystone with the configuration the etc/ directory of the project.
-See :doc:`../configuration/config-options` for details on how Keystone is configured. By default,
-Keystone is configured with SQL backends.
+By default an internal sqlite database can be used for local development. Under
+certain conditions (i.e. when exception is being raised during runtime) sqlite
+switches into the read only mode. After restart it is working again. It is
+therefore suggested to use real mysql or postgresql database instead.
 
 Database setup
-==============
+--------------
 
-The script ``tools/test-setup.sh`` sets up databases as used by the
-unit tests.
+Dedicated mysql/postgresql database can be prepared using the script
+``tools/test-setup.sh``. In such case be sure to set ``[database].connection``
+option in the ``etc/keystone.conf`` file properly.
 
 Initializing Keystone
-=====================
+---------------------
 
-Before using keystone, it is necessary to create the database tables and ensures
-the database schemas are up to date, perform the following:
+Before using keystone, it is necessary to create the database tables and ensure
+the database schemas are up to date. This is can be done as following:
 
 .. code-block:: bash
 
@@ -183,6 +165,14 @@ following from the Keystone root project directory:
 .. code-block:: bash
 
     $ find . -name "*.pyc" -delete
+
+
+Once the database itself is prepared use to command ``keystone-manage db_sync``
+to create necessary objects in a database.
+
+You can use the ``keystone-manage bootstrap`` command to pre-populate the
+database with necessary data. It requires ``--bootstrap-password`` parameter to
+be given with the password for the admin user.
 
 Initial Sample Data
 -------------------
@@ -213,6 +203,39 @@ The `python-openstackclient`_ can be installed using the following:
 .. code-block:: bash
 
     $ pip install python-openstackclient
+
+Verifying keystone is set up
+----------------------------
+
+Once set up, you should be able to invoke Python and import the libraries:
+
+.. code-block:: bash
+
+    $ .tox/py311/bin/python -c "import keystone"
+
+If you can import keystone without a traceback, you should be ready to move on
+to the next sections.
+
+
+Running Keystone
+----------------
+
+You can run keystone using a host of wsgi implementations or web servers. The
+following uses ``uwsgi`` (you may first need to install uwsgi for example with
+``pip install uwsgi``):
+
+.. code-block:: bash
+
+    $ uwsgi --http-socket :5000 -w "keystone.server.wsgi:initialize_public_application()"
+
+This runs Keystone with the configuration the etc/ directory of the project.
+See :doc:`../configuration/config-options` for details on how Keystone is
+configured. By default, Keystone is configured with SQL backends.
+
+Depending on use case (i.e. there is an apache webserver deploed in front of
+the Keystone to be able to test the federation setup) it may be required to
+also expose wsgi socket in the uwsgi (i.e. adding ``-s :5001 -b 65535`` runtime
+options).
 
 Interacting with Keystone
 =========================
