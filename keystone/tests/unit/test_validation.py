@@ -3482,23 +3482,27 @@ class ApplicationCredentialValidatorTestCase(unit.TestCase):
     def setUp(self):
         super().setUp()
 
-        create = app_cred_schema.application_credential_create
+        create = app_cred_schema.application_credential_create_request_body
         self.create_app_cred_validator = validators.SchemaValidator(create)
 
     def test_validate_app_cred_request(self):
         request_to_validate = {
-            'name': 'myappcred',
-            'description': 'My App Cred',
-            'roles': [{'name': 'member'}],
-            'expires_at': 'tomorrow',
+            'application_credential': {
+                'name': 'myappcred',
+                'description': 'My App Cred',
+                'roles': [{'name': 'member'}],
+                'expires_at': 'tomorrow',
+            }
         }
         self.create_app_cred_validator.validate(request_to_validate)
 
     def test_validate_app_cred_request_without_name_fails(self):
         request_to_validate = {
-            'description': 'My App Cred',
-            'roles': [{'name': 'member'}],
-            'expires_at': 'tomorrow',
+            'application_credential': {
+                'description': 'My App Cred',
+                'roles': [{'name': 'member'}],
+                'expires_at': 'tomorrow',
+            }
         }
         self.assertRaises(
             exception.SchemaValidationError,
@@ -3508,10 +3512,12 @@ class ApplicationCredentialValidatorTestCase(unit.TestCase):
 
     def test_validate_app_cred_with_invalid_expires_at_fails(self):
         request_to_validate = {
-            'name': 'myappcred',
-            'description': 'My App Cred',
-            'roles': [{'name': 'member'}],
-            'expires_at': 3,
+            'application_credential': {
+                'name': 'myappcred',
+                'description': 'My App Cred',
+                'roles': [{'name': 'member'}],
+                'expires_at': 3,
+            }
         }
         self.assertRaises(
             exception.SchemaValidationError,
@@ -3521,36 +3527,44 @@ class ApplicationCredentialValidatorTestCase(unit.TestCase):
 
     def test_validate_app_cred_with_null_expires_at_succeeds(self):
         request_to_validate = {
-            'name': 'myappcred',
-            'description': 'My App Cred',
-            'roles': [{'name': 'member'}],
+            'application_credential': {
+                'name': 'myappcred',
+                'description': 'My App Cred',
+                'roles': [{'name': 'member'}],
+            }
         }
         self.create_app_cred_validator.validate(request_to_validate)
 
     def test_validate_app_cred_with_unrestricted_flag_succeeds(self):
         request_to_validate = {
-            'name': 'myappcred',
-            'description': 'My App Cred',
-            'roles': [{'name': 'member'}],
-            'unrestricted': True,
+            'application_credential': {
+                'name': 'myappcred',
+                'description': 'My App Cred',
+                'roles': [{'name': 'member'}],
+                'unrestricted': True,
+            }
         }
         self.create_app_cred_validator.validate(request_to_validate)
 
     def test_validate_app_cred_with_secret_succeeds(self):
         request_to_validate = {
-            'name': 'myappcred',
-            'description': 'My App Cred',
-            'roles': [{'name': 'member'}],
-            'secret': 'secretsecretsecretsecret',
+            'application_credential': {
+                'name': 'myappcred',
+                'description': 'My App Cred',
+                'roles': [{'name': 'member'}],
+                'secret': 'secretsecretsecretsecret',
+            }
         }
         self.create_app_cred_validator.validate(request_to_validate)
 
     def test_validate_app_cred_invalid_roles_fails(self):
         for role in self._invalid_roles:
             request_to_validate = {
-                'name': 'myappcred',
-                'description': 'My App Cred',
-                'roles': [role],
+                'application_credential': {
+                    'name': 'myappcred',
+                    'description': 'My App Cred',
+                    'roles': [role],
+                }
             }
             self.assertRaises(
                 exception.SchemaValidationError,
