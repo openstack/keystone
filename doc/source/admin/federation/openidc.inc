@@ -63,7 +63,7 @@ options:
    OIDCClientID <openid_client_id>
    OIDCClientSecret <openid_client_secret>
    OIDCCryptoPassphrase <random string>
-   OIDCRedirectURI https://sp.keystone.example.org/v3/OS-FEDERATION/identity_providers/google/protocols/openid/auth
+   OIDCRedirectURI https://sp.keystone.example.org/v3/redirect_uri
 
 ``OIDCScope`` is the list of attributes that the user will authorize the
 Identity Provider to send to the Service Provider. ``OIDCClientID`` and
@@ -77,7 +77,9 @@ must be used while using the AuthType ``auth-openidc``, when using the AuthType
 will not be necessary.
 ``OIDCRedirectURI`` is a vanity URL that must
 point to a protected path that does not have any content, such as an extension
-of the protected federated auth path.
+of the protected federated auth path. It should not match any Keystone API endpoints
+or mod_auth_openidc will handle requests to the endpoint instead of Keystone. This
+can lead to unusual errors and behaviors from Keystone.
 
 .. note::
 
@@ -94,6 +96,10 @@ Configure each protected path to use the ``openid-connect`` AuthType:
 
 .. code-block:: apache
 
+   <Location ~ "/redirect_uri">
+       Require valid-user
+       AuthType openid-connect
+   </Location>
    <Location /v3/OS-FEDERATION/identity_providers/google/protocols/openid/auth>
        Require valid-user
        AuthType openid-connect
