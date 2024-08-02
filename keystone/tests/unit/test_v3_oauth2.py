@@ -206,10 +206,10 @@ class OAuth2SecretBasicTests(test_v3.OAuth2RestfulTestCase):
     APP_CRED_CREATE_URL = '/users/%(user_id)s/application_credentials'
     APP_CRED_LIST_URL = '/users/%(user_id)s/application_credentials'
     APP_CRED_DELETE_URL = (
-        '/users/%(user_id)s/application_credentials/' '%(app_cred_id)s'
+        '/users/%(user_id)s/application_credentials/%(app_cred_id)s'
     )
     APP_CRED_SHOW_URL = (
-        '/users/%(user_id)s/application_credentials/' '%(app_cred_id)s'
+        '/users/%(user_id)s/application_credentials/%(app_cred_id)s'
     )
     ACCESS_TOKEN_URL = '/OS-OAUTH2/token'
 
@@ -462,7 +462,9 @@ class OAuth2SecretBasicTests(test_v3.OAuth2RestfulTestCase):
         app_cred = self._create_app_cred(self.user_id, client_name)
         data = {'grant_type': ''}
         error = 'unsupported_grant_type'
-        error_description = 'The parameter grant_type ' ' is not supported.'
+        error_description = (
+            f'The parameter grant_type {data["grant_type"]} is not supported.'
+        )
         resp = self._get_access_token(
             app_cred,
             b64str=None,
@@ -483,8 +485,7 @@ class OAuth2SecretBasicTests(test_v3.OAuth2RestfulTestCase):
         data = {'grant_type': 'not_client_credentials'}
         error = 'unsupported_grant_type'
         error_description = (
-            'The parameter grant_type '
-            'not_client_credentials is not supported.'
+            f'The parameter grant_type {data["grant_type"]} is not supported.'
         )
         resp = self._get_access_token(
             app_cred,
@@ -517,7 +518,7 @@ class OAuth2SecretBasicTests(test_v3.OAuth2RestfulTestCase):
         data = {'grant_type': 'client_credentials'}
         data = parse.urlencode(data).encode()
         with mock.patch(
-            'keystone.api._shared.authentication.' 'authenticate_for_token'
+            'keystone.api._shared.authentication.authenticate_for_token'
         ) as co_mock:
             co_mock.side_effect = exception.Unauthorized(
                 'client is unauthorized'
@@ -557,7 +558,7 @@ class OAuth2SecretBasicTests(test_v3.OAuth2RestfulTestCase):
         data = {'grant_type': 'client_credentials'}
         data = parse.urlencode(data).encode()
         with mock.patch(
-            'keystone.api._shared.authentication.' 'authenticate_for_token'
+            'keystone.api._shared.authentication.authenticate_for_token'
         ) as co_mock:
             co_mock.side_effect = exception.ValidationError(
                 'Auth method is invalid'
@@ -592,7 +593,7 @@ class OAuth2SecretBasicTests(test_v3.OAuth2RestfulTestCase):
         data = {'grant_type': 'client_credentials'}
         data = parse.urlencode(data).encode()
         with mock.patch(
-            'keystone.api._shared.authentication.' 'authenticate_for_token'
+            'keystone.api._shared.authentication.authenticate_for_token'
         ) as co_mock:
             co_mock.side_effect = exception.UnexpectedError(
                 'unexpected error.'
@@ -627,7 +628,7 @@ class OAuth2SecretBasicTests(test_v3.OAuth2RestfulTestCase):
         data = {'grant_type': 'client_credentials'}
         data = parse.urlencode(data).encode()
         with mock.patch(
-            'keystone.api._shared.authentication.' 'authenticate_for_token'
+            'keystone.api._shared.authentication.authenticate_for_token'
         ) as co_mock:
             co_mock.side_effect = Exception('Internal server is invalid')
             resp = self.post(
@@ -1206,7 +1207,7 @@ class OAuth2CertificateTests(test_v3.OAuth2RestfulTestCase):
         )
         self.assertUnauthorizedResp(resp)
         self.assertIn(
-            'Get OAuth2.0 Access Token API: ' 'mapping rule process failed.',
+            'Get OAuth2.0 Access Token API: mapping rule process failed.',
             self.log_fix.output,
         )
 
@@ -1948,7 +1949,7 @@ class OAuth2CertificateTests(test_v3.OAuth2RestfulTestCase):
         )
         self.assertUnauthorizedResp(resp)
         self.assertIn(
-            'Get OAuth2.0 Access Token API: ' 'mapping rule process failed.',
+            'Get OAuth2.0 Access Token API: mapping rule process failed.',
             self.log_fix.output,
         )
 
@@ -1976,7 +1977,7 @@ class OAuth2CertificateTests(test_v3.OAuth2RestfulTestCase):
         )
         self.assertUnauthorizedResp(resp)
         self.assertIn(
-            'Get OAuth2.0 Access Token API: ' 'mapping rule process failed.',
+            'Get OAuth2.0 Access Token API: mapping rule process failed.',
             self.log_fix.output,
         )
 
@@ -2004,7 +2005,7 @@ class OAuth2CertificateTests(test_v3.OAuth2RestfulTestCase):
         )
         self.assertUnauthorizedResp(resp)
         self.assertIn(
-            'Get OAuth2.0 Access Token API: ' 'mapping rule process failed.',
+            'Get OAuth2.0 Access Token API: mapping rule process failed.',
             self.log_fix.output,
         )
 
@@ -2032,7 +2033,7 @@ class OAuth2CertificateTests(test_v3.OAuth2RestfulTestCase):
         )
         self.assertUnauthorizedResp(resp)
         self.assertIn(
-            'Get OAuth2.0 Access Token API: ' 'mapping rule process failed.',
+            'Get OAuth2.0 Access Token API: mapping rule process failed.',
             self.log_fix.output,
         )
 
@@ -2060,7 +2061,7 @@ class OAuth2CertificateTests(test_v3.OAuth2RestfulTestCase):
         )
         self.assertUnauthorizedResp(resp)
         self.assertIn(
-            'Get OAuth2.0 Access Token API: ' 'mapping rule process failed.',
+            'Get OAuth2.0 Access Token API: mapping rule process failed.',
             self.log_fix.output,
         )
 
@@ -2156,6 +2157,6 @@ class OAuth2CertificateTests(test_v3.OAuth2RestfulTestCase):
         self.assertEqual('other_error', json_resp['error'])
         self.assertEqual(err_msg, json_resp['error_description'])
         self.assertIn(
-            'Get OAuth2.0 Access Token API: ' 'mapping rule process failed.',
+            'Get OAuth2.0 Access Token API: mapping rule process failed.',
             self.log_fix.output,
         )

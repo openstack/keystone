@@ -281,13 +281,13 @@ policy_association_policies = [
         operations=[
             {
                 'path': (
-                    '/v3/endpoints/{endpoint_id}/OS-ENDPOINT-POLICY/' 'policy'
+                    '/v3/endpoints/{endpoint_id}/OS-ENDPOINT-POLICY/policy'
                 ),
                 'method': 'GET',
             },
             {
                 'path': (
-                    '/v3/endpoints/{endpoint_id}/OS-ENDPOINT-POLICY/' 'policy'
+                    '/v3/endpoints/{endpoint_id}/OS-ENDPOINT-POLICY/policy'
                 ),
                 'method': 'HEAD',
             },
@@ -302,7 +302,7 @@ policy_association_policies = [
         operations=[
             {
                 'path': (
-                    '/v3/policies/{policy_id}/OS-ENDPOINT-POLICY/' 'endpoints'
+                    '/v3/policies/{policy_id}/OS-ENDPOINT-POLICY/endpoints'
                 ),
                 'method': 'GET',
             }

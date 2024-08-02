@@ -101,7 +101,7 @@ user_policies = [
         # system and has a valid token, they should be able to generate a list
         # of projects they have access to.
         description=(
-            'List all projects a user has access to via role ' 'assignments.'
+            'List all projects a user has access to via role assignments.'
         ),
         operations=[{'path': ' /v3/auth/projects', 'method': 'GET'}],
     ),
@@ -114,7 +114,7 @@ user_policies = [
         # system and has a valid token, they should be able to generate a list
         # of domains they have access to.
         description=(
-            'List all domains a user has access to via role ' 'assignments.'
+            'List all domains a user has access to via role assignments.'
         ),
         operations=[{'path': '/v3/auth/domains', 'method': 'GET'}],
     ),

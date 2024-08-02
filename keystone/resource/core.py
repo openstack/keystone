@@ -107,9 +107,7 @@ class Manager(manager.Manager):
 
         if project_ref['parent_id']:
             raise exception.ValidationError(
-                message=_(
-                    'only root projects are allowed to act as ' 'domains.'
-                )
+                message=_('only root projects are allowed to act as domains.')
             )
 
     def _assert_regular_project_constraints(self, project_ref):

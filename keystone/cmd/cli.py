@@ -277,12 +277,12 @@ class ProjectSetup(BaseApp):
             '--project-name',
             default=None,
             required=True,
-            help='The name of the keystone project being' ' created.',
+            help='The name of the keystone project being created.',
         )
         parser.add_argument(
             '--project-id',
             default=None,
-            help='The UUID of the keystone project being' ' created.',
+            help='The UUID of the keystone project being created.',
         )
         return parser
 
@@ -313,7 +313,7 @@ class UserSetup(BaseApp):
             '--username',
             default=None,
             required=True,
-            help='The username of the keystone user that' ' is being created.',
+            help='The username of the keystone user that is being created.',
         )
         parser.add_argument(
             '--user-password-plain',
@@ -325,7 +325,7 @@ class UserSetup(BaseApp):
         parser.add_argument(
             '--user-id',
             default=None,
-            help='The UUID of the keystone user being ' 'created.',
+            help='The UUID of the keystone user being created.',
         )
         return parser
 
@@ -987,7 +987,7 @@ class TrustFlush(BaseApp):
                     )
                 except KeyError:
                     raise ValueError(
-                        "'%s'Invalid input for date, should be " "DD-MM-YYYY",
+                        "'%s'Invalid input for date, should be DD-MM-YYYY",
                         CONF.command.date,
                     )
             else:
@@ -1021,23 +1021,23 @@ class MappingPurge(BaseApp):
         parser.add_argument(
             '--domain-name',
             default=None,
-            help=('Purge any mappings for the domain ' 'specified.'),
+            help=('Purge any mappings for the domain specified.'),
         )
         parser.add_argument(
             '--public-id',
             default=None,
-            help=('Purge the mapping for the Public ID ' 'specified.'),
+            help=('Purge the mapping for the Public ID specified.'),
         )
         parser.add_argument(
             '--local-id',
             default=None,
-            help=('Purge the mappings for the Local ID ' 'specified.'),
+            help=('Purge the mappings for the Local ID specified.'),
         )
         parser.add_argument(
             '--type',
             default=None,
             choices=['user', 'group'],
-            help=('Purge any mappings for the type ' 'specified.'),
+            help=('Purge any mappings for the type specified.'),
         )
         return parser
 
@@ -1067,7 +1067,7 @@ class MappingPurge(BaseApp):
                 or CONF.command.type is not None
             ):
                 raise ValueError(
-                    _('--all option cannot be mixed with ' 'other options')
+                    _('--all option cannot be mixed with other options')
                 )
 
         def get_domain_id(name):
@@ -1132,7 +1132,7 @@ def _domain_config_finder(conf_dir):
                     continue
 
             LOG.warning(
-                'Ignoring file (%s) while scanning ' 'domain config directory',
+                'Ignoring file (%s) while scanning domain config directory',
                 fname,
             )
 
@@ -1381,7 +1381,7 @@ class MappingEngineTester(BaseApp):
                 self.rules = jsonutils.load(file)
         except ValueError as e:
             raise SystemExit(
-                _('Error while parsing rules ' '%(path)s: %(err)s')
+                _('Error while parsing rules %(path)s: %(err)s')
                 % {'path': path, 'err': e}
             )
 
@@ -1392,7 +1392,7 @@ class MappingEngineTester(BaseApp):
                 self.assertion = file.read().strip()
         except OSError as e:
             raise SystemExit(
-                _("Error while opening file " "%(path)s: %(err)s")
+                _("Error while opening file %(path)s: %(err)s")
                 % {'path': path, 'err': e}
             )
 
@@ -1540,7 +1540,7 @@ class MappingEngineTester(BaseApp):
             '--engine-debug',
             default=False,
             action="store_true",
-            help=("Enable debug messages from the mapping " "engine."),
+            help=("Enable debug messages from the mapping engine."),
         )
         parser.add_argument(
             '--mapping-schema-version',

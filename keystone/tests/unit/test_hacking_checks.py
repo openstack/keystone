@@ -29,7 +29,7 @@ class BaseStyleCheck(unit.BaseTestCase):
     def get_checker(self):
         """Return the checker to be used for tests in this class."""
         raise NotImplementedError(
-            'subclasses must provide ' 'a real implementation'
+            'subclasses must provide a real implementation'
         )
 
     def get_fixture(self):

@@ -302,7 +302,7 @@ class Bootstrapper:
                 self.admin_user_id, self.admin_role_id
             )
             LOG.info(
-                'Granted role %(role)s on the system to user' ' %(username)s.',
+                'Granted role %(role)s on the system to user %(username)s.',
                 {
                     'role': self.admin_role_name,
                     'username': self.admin_username,

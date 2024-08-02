@@ -4064,7 +4064,7 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
     def test_deleting_project_deletes_grants(self):
         # This is to make it a little bit more pretty with PEP8
         role_path = (
-            '/projects/%(project_id)s/users/%(user_id)s/' 'roles/%(role_id)s'
+            '/projects/%(project_id)s/users/%(user_id)s/roles/%(role_id)s'
         )
         role_path = role_path % {
             'user_id': self.user['id'],

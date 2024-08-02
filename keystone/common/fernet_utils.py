@@ -225,7 +225,7 @@ class FernetUtils:
         key_files, _ = self._get_key_files(self.key_repository)
 
         LOG.info(
-            'Starting key rotation with %(count)s key files: ' '%(list)s',
+            'Starting key rotation with %(count)s key files: %(list)s',
             {'count': len(key_files), 'list': list(key_files.values())},
         )
 

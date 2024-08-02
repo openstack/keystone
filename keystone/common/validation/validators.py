@@ -47,7 +47,7 @@ def validate_password(password):
             )
             LOG.error(msg, pattern)
             detail = _(
-                "Unable to validate password due to invalid " "configuration"
+                "Unable to validate password due to invalid configuration"
             )
             raise exception.PasswordValidationError(detail=detail)
 
@@ -88,7 +88,7 @@ class SchemaValidator:
                 # fails validation.
                 path = '/'.join(map(str, ex.path))
                 detail = _(
-                    "Invalid input for field '%(path)s': " "%(message)s"
+                    "Invalid input for field '%(path)s': %(message)s"
                 ) % {'path': path, 'message': str(ex)}
             else:
                 detail = str(ex)

@@ -21,7 +21,7 @@ class FormatUrlTests(unit.BaseTestCase):
 
     def test_successful_formatting(self):
         url_template = (
-            'http://server:9090/' '$(tenant_id)s/$(user_id)s/$(project_id)s'
+            'http://server:9090/$(tenant_id)s/$(user_id)s/$(project_id)s'
         )
         project_id = uuid.uuid4().hex
         values = {'tenant_id': 'A', 'user_id': 'B', 'project_id': project_id}
@@ -68,7 +68,7 @@ class FormatUrlTests(unit.BaseTestCase):
         # list then MalformedEndpoint is raised.
         # For example, admin_token isn't allowed.
         url_template = (
-            'http://server:9090/' '$(project_id)s/$(user_id)s/$(admin_token)s'
+            'http://server:9090/$(project_id)s/$(user_id)s/$(admin_token)s'
         )
         values = {'user_id': 'B', 'admin_token': 'C'}
         self.assertRaises(
@@ -82,7 +82,7 @@ class FormatUrlTests(unit.BaseTestCase):
         # This is intentional behavior since we don't want to skip
         # all the later endpoints once there is an URL of endpoint
         # trying to replace 'tenant_id' with None.
-        url_template = 'http://server:9090/' '$(tenant_id)s/$(user_id)s'
+        url_template = 'http://server:9090/$(tenant_id)s/$(user_id)s'
         values = {'user_id': 'B'}
         self.assertIsNone(
             utils.format_url(
@@ -97,7 +97,7 @@ class FormatUrlTests(unit.BaseTestCase):
         # This is intentional behavior since we don't want to skip
         # all the later endpoints once there is an URL of endpoint
         # trying to replace 'project_id' with None.
-        url_template = 'http://server:9090/' '$(project_id)s/$(user_id)s'
+        url_template = 'http://server:9090/$(project_id)s/$(user_id)s'
         values = {'user_id': 'B'}
         self.assertIsNone(
             utils.format_url(

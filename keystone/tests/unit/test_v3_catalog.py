@@ -505,7 +505,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         # interface, region_id and service_id specified
         ref = self._create_random_endpoint(interface='internal')
         response = self.get(
-            ('/endpoints?interface=%s&region_id=%s' '&service_id=%s')
+            ('/endpoints?interface=%s&region_id=%s&service_id=%s')
             % (ref['interface'], ref['region_id'], ref['service_id'])
         )
         self.assertValidEndpointListResponse(response, ref=ref)

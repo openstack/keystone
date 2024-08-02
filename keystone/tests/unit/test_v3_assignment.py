@@ -2915,7 +2915,7 @@ class AssignmentInheritanceTestCase(
         )
         self.assertEqual(error_msg, r.result['error']['message'])
         r = self.get(
-            '/role_assignments?scope.project.id&' 'include_subtree=True',
+            '/role_assignments?scope.project.id&include_subtree=True',
             expected_status=http.client.BAD_REQUEST,
         )
         self.assertEqual(error_msg, r.result['error']['message'])
@@ -3117,7 +3117,7 @@ class AssignmentInheritanceTestCase(
 
         # Get inherited role assignments
         collection_url = (
-            '/role_assignments' '?scope.OS-INHERIT:inherited_to=projects'
+            '/role_assignments?scope.OS-INHERIT:inherited_to=projects'
         )
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(
@@ -4187,7 +4187,7 @@ class GroupSystemRoleAssignmentTestCase(
         )
         self.put(member_url)
         member_url = (
-            '/projects/%(project_id)s/groups/%(group_id)s/' 'roles/%(role_id)s'
+            '/projects/%(project_id)s/groups/%(group_id)s/roles/%(role_id)s'
         ) % {
             'project_id': self.project_id,
             'group_id': group['id'],
@@ -4233,7 +4233,7 @@ class GroupSystemRoleAssignmentTestCase(
         )
         self.put(member_url)
         member_url = (
-            '/projects/%(project_id)s/groups/%(group_id)s/' 'roles/%(role_id)s'
+            '/projects/%(project_id)s/groups/%(group_id)s/roles/%(role_id)s'
         ) % {
             'project_id': self.project_id,
             'group_id': group['id'],

@@ -126,13 +126,13 @@ group_endpoint_policies = [
         operations=[
             {
                 'path': (
-                    '/v3/OS-EP-FILTER/endpoint_groups/' '{endpoint_group_id}'
+                    '/v3/OS-EP-FILTER/endpoint_groups/{endpoint_group_id}'
                 ),
                 'method': 'GET',
             },
             {
                 'path': (
-                    '/v3/OS-EP-FILTER/endpoint_groups/' '{endpoint_group_id}'
+                    '/v3/OS-EP-FILTER/endpoint_groups/{endpoint_group_id}'
                 ),
                 'method': 'HEAD',
             },
@@ -147,7 +147,7 @@ group_endpoint_policies = [
         operations=[
             {
                 'path': (
-                    '/v3/OS-EP-FILTER/endpoint_groups/' '{endpoint_group_id}'
+                    '/v3/OS-EP-FILTER/endpoint_groups/{endpoint_group_id}'
                 ),
                 'method': 'PATCH',
             }
@@ -162,7 +162,7 @@ group_endpoint_policies = [
         operations=[
             {
                 'path': (
-                    '/v3/OS-EP-FILTER/endpoint_groups/' '{endpoint_group_id}'
+                    '/v3/OS-EP-FILTER/endpoint_groups/{endpoint_group_id}'
                 ),
                 'method': 'DELETE',
             }
@@ -174,7 +174,7 @@ group_endpoint_policies = [
         check_str=base.RULE_ADMIN_OR_SYSTEM_READER,
         scope_types=['system', 'project'],
         description=(
-            'List all projects associated with a specific endpoint ' 'group.'
+            'List all projects associated with a specific endpoint group.'
         ),
         operations=[
             {
@@ -208,7 +208,7 @@ group_endpoint_policies = [
         check_str=base.RULE_ADMIN_OR_SYSTEM_READER,
         scope_types=['system', 'project'],
         description=(
-            'Check if an endpoint group is associated with a ' 'project.'
+            'Check if an endpoint group is associated with a project.'
         ),
         operations=[
             {
@@ -236,7 +236,7 @@ group_endpoint_policies = [
         operations=[
             {
                 'path': (
-                    '/v3/OS-EP-FILTER/projects/{project_id}/' 'endpoint_groups'
+                    '/v3/OS-EP-FILTER/projects/{project_id}/endpoint_groups'
                 ),
                 'method': 'GET',
             }

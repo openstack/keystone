@@ -309,7 +309,7 @@ class Resource(base.ResourceDriverBase):
                     or project_id == base.NULL_DOMAIN_ID
                 ):
                     LOG.warning(
-                        'Project %s does not exist and was not ' 'deleted.',
+                        'Project %s does not exist and was not deleted.',
                         project_id,
                     )
             query.delete(synchronize_session=False)

@@ -165,7 +165,7 @@ class ResourceOptionRegistry:
 
         if option.option_id in self._registered_options:
             raise ValueError(
-                _('Option %(option_id)s already defined in ' '%(registry)s.')
+                _('Option %(option_id)s already defined in %(registry)s.')
                 % {
                     'option_id': option.option_id,
                     'registry': self._registry_type,
@@ -173,7 +173,7 @@ class ResourceOptionRegistry:
             )
         if option.option_name in self.option_names:
             raise ValueError(
-                _('Option %(option_name)s already defined in ' '%(registry)s')
+                _('Option %(option_name)s already defined in %(registry)s')
                 % {
                     'option_name': option.option_name,
                     'registry': self._registry_type,
@@ -223,12 +223,12 @@ class ResourceOption:
             )
         elif len(option_id) != 4:
             raise ValueError(
-                _('`option_id` must be 4 characters in ' 'length. Got %r')
+                _('`option_id` must be 4 characters in length. Got %r')
                 % option_id
             )
         if not isinstance(option_name, str):
             raise TypeError(
-                _('`option_name` must be a string. ' 'Got %r') % option_name
+                _('`option_name` must be a string. Got %r') % option_name
             )
 
         self._option_id = option_id

@@ -481,10 +481,10 @@ class TokenModel:
             raise exception.ProjectNotFound(tr_msg)
         if self.project and not self.project_domain.get('enabled'):
             msg = (
-                'Unable to validate token because domain %(id)s is ' 'disabled'
+                'Unable to validate token because domain %(id)s is disabled'
             ) % {'id': self.project_domain['id']}
             tr_msg = _(
-                'Unable to validate token because domain %(id)s is ' 'disabled'
+                'Unable to validate token because domain %(id)s is disabled'
             ) % {'id': self.project_domain['id']}
             LOG.warning(msg)
             raise exception.DomainNotFound(tr_msg)
@@ -513,10 +513,10 @@ class TokenModel:
 
         if not self.user_domain.get('enabled'):
             msg = (
-                'Unable to validate token because domain %(id)s is ' 'disabled'
+                'Unable to validate token because domain %(id)s is disabled'
             ) % {'id': self.user_domain['id']}
             tr_msg = _(
-                'Unable to validate token because domain %(id)s is ' 'disabled'
+                'Unable to validate token because domain %(id)s is disabled'
             ) % {'id': self.user_domain['id']}
             LOG.warning(msg)
             raise exception.DomainNotFound(tr_msg)

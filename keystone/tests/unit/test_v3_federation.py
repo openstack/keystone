@@ -1677,7 +1677,7 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
         deleted.
 
         """
-        url = self.base_url(suffix='%(idp_id)s/' 'protocols/%(protocol_id)s')
+        url = self.base_url(suffix='%(idp_id)s/protocols/%(protocol_id)s')
         resp, idp_id, proto = self._assign_protocol_to_idp(
             expected_status=http.client.CREATED
         )
@@ -5297,7 +5297,5 @@ class K2KServiceCatalogTests(test_v3.RestfulTestCase):
         self.assertNotIn(
             'service_providers',
             token['token'],
-            message=(
-                'Expected Service Catalog not to have ' 'service_providers'
-            ),
+            message=('Expected Service Catalog not to have service_providers'),
         )

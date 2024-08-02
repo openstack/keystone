@@ -25,7 +25,7 @@ from keystone.tests.unit.ksfixtures import database
 
 PROVIDERS = provider_api.ProviderAPIs
 BROKEN_WRITE_FUNCTIONALITY_MSG = (
-    "Templated backend doesn't correctly " "implement write operations"
+    "Templated backend doesn't correctly implement write operations"
 )
 
 
