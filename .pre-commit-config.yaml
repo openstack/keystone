@@ -32,6 +32,11 @@ repos:
     hooks:
       - id: black
         args: ['-S', '-l', '79']
+  - repo: https://github.com/PyCQA/bandit
+    rev: '1.7.9'
+    hooks:
+    - id: bandit
+      args: ["-x", "keystone/tests/*,devstack/*"]
   # - repo: https://opendev.org/openstack/hacking
   #   rev: 6.1.0
   #   hooks:
