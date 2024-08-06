@@ -231,7 +231,21 @@ def authenticate_for_token(auth=None):
         app_cred_id = None
         if 'application_credential' in method_names:
             token_auth = auth_info.auth['identity']
-            app_cred_id = token_auth['application_credential']['id']
+            try:
+                app_cred_id = token_auth['application_credential']['id']
+            except KeyError:
+                # NOTE(bbobrov): see bug #1878438 on launchpad.
+                # There is no any good fix for it, at least with the current
+                # architecture. Lets just return a nice message that this
+                # is currently not supported.
+                LOG.warning(
+                    'Unsupported reauthentication attempt with a token '
+                    'after authenticating with application credentials'
+                )
+                raise exception.Unauthorized(
+                    _('Cannot reauthenticate with a token issued with '
+                      'application credentials')
+                )
 
         # Do MFA Rule Validation for the user
         if not core.UserMFARulesValidator.check_auth_methods_against_rules(
