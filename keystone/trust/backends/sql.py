@@ -73,7 +73,7 @@ class TrustModel(sql.ModelBase, sql.ModelDictMixinWithExtras):
     def expires_at(self):
         return self.expires_at_int or self._expires_at
 
-    @expires_at.setter
+    @expires_at.setter  # type: ignore[no-redef]
     def expires_at(self, value):
         self._expires_at = value
         self.expires_at_int = value

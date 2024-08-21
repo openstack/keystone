@@ -137,7 +137,7 @@ MAPPING_BAD_VALUE = {
     ]
 }
 
-MAPPING_NO_RULES = {'rules': []}
+MAPPING_NO_RULES: dict[str, list[str]] = {'rules': []}
 
 MAPPING_NO_REMOTE = {"rules": [{"local": [{"user": "name"}], "remote": []}]}
 

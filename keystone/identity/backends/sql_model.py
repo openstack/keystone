@@ -13,6 +13,7 @@
 # under the License.
 
 import datetime
+import typing as ty
 
 import sqlalchemy
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -88,7 +89,10 @@ class User(sql.ModelBase, sql.ModelDictMixinWithExtras):
     created_at = sql.Column(sql.DateTime, nullable=True)
     last_active_at = sql.Column(sql.Date, nullable=True)
     # unique constraint needed here to support composite fk constraints
-    __table_args__ = (sql.UniqueConstraint('id', 'domain_id'), {})
+    __table_args__: ty.Any = (
+        sql.UniqueConstraint('id', 'domain_id'),
+        {},
+    )
 
     # NOTE(stevemar): we use a hybrid property here because we leverage the
     # expression method, see `@name.expression` and `LocalUser.name` below.
@@ -104,7 +108,7 @@ class User(sql.ModelBase, sql.ModelDictMixinWithExtras):
         else:
             return None
 
-    @name.setter
+    @name.setter  # type: ignore[no-redef]
     def name(self, value):
         if self.federated_users:
             self.federated_users[0].display_name = value
@@ -114,7 +118,7 @@ class User(sql.ModelBase, sql.ModelDictMixinWithExtras):
             self.local_user = LocalUser()
             self.local_user.name = value
 
-    @name.expression
+    @name.expression  # type: ignore[no-redef]
     def name(cls):
         return LocalUser.name
 
@@ -157,7 +161,7 @@ class User(sql.ModelBase, sql.ModelDictMixinWithExtras):
             return timeutils.utcnow() >= self.password_expires_at
         return False
 
-    @password.setter
+    @password.setter  # type: ignore[no-redef]
     def password(self, value):
         now = timeutils.utcnow()
         if not self.local_user:
@@ -208,7 +212,7 @@ class User(sql.ModelBase, sql.ModelDictMixinWithExtras):
                 return expired_date.replace(microsecond=0)
         return None
 
-    @password.expression
+    @password.expression  # type: ignore[no-redef]
     def password(cls):
         return Password.password_hash
 
@@ -238,7 +242,7 @@ class User(sql.ModelBase, sql.ModelDictMixinWithExtras):
                     self._enabled = False
         return self._enabled
 
-    @enabled.setter
+    @enabled.setter  # type: ignore[no-redef]
     def enabled(self, value):
         if (
             value
@@ -250,7 +254,7 @@ class User(sql.ModelBase, sql.ModelDictMixinWithExtras):
             self.local_user.failed_auth_at = None
         self._enabled = value
 
-    @enabled.expression
+    @enabled.expression  # type: ignore[no-redef]
     def enabled(cls):
         return User._enabled
 
@@ -376,7 +380,7 @@ class Password(sql.ModelBase, sql.ModelDictMixin):
     def created_at(self):
         return self.created_at_int or self._created_at
 
-    @created_at.setter
+    @created_at.setter  # type: ignore[no-redef]
     def created_at(self, value):
         self._created_at = value
         self.created_at_int = value
@@ -385,7 +389,7 @@ class Password(sql.ModelBase, sql.ModelDictMixin):
     def expires_at(self):
         return self.expires_at_int or self._expires_at
 
-    @expires_at.setter
+    @expires_at.setter  # type: ignore[no-redef]
     def expires_at(self, value):
         self._expires_at = value
         self.expires_at_int = value

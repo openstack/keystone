@@ -14,6 +14,7 @@
 
 import copy
 import hashlib
+import typing as ty
 from unittest import mock
 import uuid
 
@@ -41,7 +42,7 @@ PROVIDERS = provider_api.ProviderAPIs
 
 class MiddlewareRequestTestBase(unit.TestCase):
 
-    MIDDLEWARE_CLASS = None  # override this in subclasses
+    MIDDLEWARE_CLASS: ty.Any = None  # override this in subclasses
 
     def _application(self):
         """A base wsgi application that returns a simple response."""

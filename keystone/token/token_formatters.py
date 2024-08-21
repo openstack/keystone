@@ -270,7 +270,7 @@ class TokenFormatter:
 
 class BasePayload:
     # each payload variant should have a unique version
-    version = None
+    version: int
 
     @classmethod
     def assemble(
@@ -808,7 +808,6 @@ class FederatedUnscopedPayload(BasePayload):
 
 
 class FederatedScopedPayload(FederatedUnscopedPayload):
-    version = None
 
     @classmethod
     def assemble(

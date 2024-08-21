@@ -14,6 +14,7 @@ import abc
 import collections
 import functools
 import re
+import typing as ty
 import uuid
 import wsgiref.util
 
@@ -49,10 +50,11 @@ _URL_SUBST = re.compile(r'<[^\s:]+:([^>]+)>')
 CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 ResourceMap = collections.namedtuple(
-    'resource_map', 'resource, url, alternate_urls, kwargs, json_home_data'
+    'ResourceMap',
+    ['resource', 'url', 'alternate_urls', 'kwargs', 'json_home_data'],
 )
 JsonHomeData = collections.namedtuple(
-    'json_home_data', 'rel, status, path_vars'
+    'JsonHomeData', ['rel', 'status', 'path_vars']
 )
 
 _v3_resource_relation = json_home.build_v3_resource_relation
@@ -196,7 +198,7 @@ class APIBase(metaclass=abc.ABCMeta):
 
     @property
     @abc.abstractmethod
-    def resource_mapping(self):
+    def resource_mapping(self) -> list[ResourceMap]:
         """An attr containing of an iterable of :class:`ResourceMap`.
 
         Each :class:`ResourceMap` is a NamedTuple with the following elements:
@@ -238,7 +240,7 @@ class APIBase(metaclass=abc.ABCMeta):
         raise NotImplementedError()
 
     @property
-    def resources(self):
+    def resources(self) -> ty.List[ty.Type["ResourceBase"]]:
         return []
 
     @staticmethod
@@ -650,30 +652,16 @@ class APIBase(metaclass=abc.ABCMeta):
         return inst
 
 
-class _AttributeRaisesError:
-    # NOTE(morgan): This is a special case class that exists to effectively
-    # create a @classproperty style function. We use __get__ to raise the
-    # exception.
-
-    def __init__(self, name):
-        self.__msg = 'PROGRAMMING ERROR: `self.{name}` is not set.'.format(
-            name=name
-        )
-
-    def __get__(self, instance, owner):
-        raise ValueError(self.__msg)
-
-
 class ResourceBase(flask_restful.Resource):
-    collection_key = _AttributeRaisesError(name='collection_key')
-    member_key = _AttributeRaisesError(name='member_key')
-    _public_parameters = frozenset([])
+    collection_key: str
+    member_key: str
+    _public_parameters: frozenset[str] = frozenset([])
     # NOTE(morgan): This must match the string on the API the resource is
     # registered to.
-    api_prefix = ''
-    _id_path_param_name_override = None
+    api_prefix: str = ''
+    _id_path_param_name_override: ty.Optional[str] = None
 
-    method_decorators = []
+    method_decorators: list[ty.Callable] = []
 
     @staticmethod
     def _assign_unique_id(ref):

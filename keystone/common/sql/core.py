@@ -200,7 +200,7 @@ class ModelDictMixinWithExtras(models.ModelBase):
           the design philosophy of Keystone.
     """
 
-    attributes = []
+    attributes: list[str] = []
     _msg = (
         'Programming Error: Model does not have an "extra" column. '
         'Unless the model already has an "extra" column and has '

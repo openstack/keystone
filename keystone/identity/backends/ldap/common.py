@@ -18,6 +18,7 @@ import os.path
 import random
 import re
 import sys
+import typing as ty
 import uuid
 import weakref
 
@@ -30,6 +31,7 @@ from oslo_utils import reflection
 from keystone.common import driver_hints
 from keystone import exception
 from keystone.i18n import _
+from keystone.identity.backends.ldap import models
 
 
 LOG = log.getLogger(__name__)
@@ -819,7 +821,7 @@ class PooledLDAPHandler(LDAPHandler):
     Connector = ldappool.StateConnector
     auth_pool_prefix = 'auth_pool_'
 
-    connection_pools = {}  # static connector pool dict
+    connection_pools: dict = {}  # static connector pool dict
 
     def __init__(self, conn=None, use_auth_pool=False):
         super().__init__(conn=conn)
@@ -1371,20 +1373,20 @@ def filter_entity(entity_ref):
 
 
 class BaseLdap:
-    DEFAULT_OU = None
-    DEFAULT_STRUCTURAL_CLASSES = None
-    DEFAULT_ID_ATTR = 'cn'
-    DEFAULT_OBJECTCLASS = None
-    DEFAULT_FILTER = None
-    DEFAULT_EXTRA_ATTR_MAPPING = []
-    NotFound = None
-    notfound_arg = None
-    options_name = None
-    model = None
-    attribute_options_names = {}
-    immutable_attrs = []
-    attribute_ignore = []
-    tree_dn = None
+    DEFAULT_OU: str
+    DEFAULT_STRUCTURAL_CLASSES: list[str]
+    DEFAULT_ID_ATTR: str = 'cn'
+    DEFAULT_OBJECTCLASS: str
+    DEFAULT_FILTER: ty.Optional[str] = None
+    DEFAULT_EXTRA_ATTR_MAPPING: list[str] = []
+    NotFound: ty.Type[exception.Error]
+    notfound_arg: ty.Optional[str] = None
+    options_name: ty.Optional[str] = None
+    model: ty.Type[models.Model]
+    attribute_options_names: dict[str, str] = {}
+    immutable_attrs: list[str] = []
+    attribute_ignore: list[str] = []
+    tree_dn: ty.Optional[str] = None
 
     def __init__(self, conf):
         if conf.ldap.randomize_urls:

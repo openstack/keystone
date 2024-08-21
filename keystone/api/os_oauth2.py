@@ -254,7 +254,7 @@ class AccessTokenResource(ks_flask.ResourceBase):
         mapping_user_domain_id = mapping_domain.get('id')
         mapping_user_domain_name = mapping_domain.get('name')
         if mapping_user_name and mapping_user_name != user.get('name'):
-            error = exception.OAuth2InvalidClient(
+            err = exception.OAuth2InvalidClient(
                 int(http.client.UNAUTHORIZED),
                 http.client.responses[http.client.UNAUTHORIZED],
                 _('Client authentication failed.'),
@@ -266,9 +266,9 @@ class AccessTokenResource(ks_flask.ResourceBase):
                 mapping_user_name,
                 user.get('name'),
             )
-            raise error
+            raise err
         if mapping_user_id and mapping_user_id != user.get('id'):
-            error = exception.OAuth2InvalidClient(
+            err = exception.OAuth2InvalidClient(
                 int(http.client.UNAUTHORIZED),
                 http.client.responses[http.client.UNAUTHORIZED],
                 _('Client authentication failed.'),
@@ -280,9 +280,9 @@ class AccessTokenResource(ks_flask.ResourceBase):
                 mapping_user_id,
                 user.get('id'),
             )
-            raise error
+            raise err
         if mapping_user_email and mapping_user_email != user.get('email'):
-            error = exception.OAuth2InvalidClient(
+            err = exception.OAuth2InvalidClient(
                 int(http.client.UNAUTHORIZED),
                 http.client.responses[http.client.UNAUTHORIZED],
                 _('Client authentication failed.'),
@@ -294,12 +294,12 @@ class AccessTokenResource(ks_flask.ResourceBase):
                 mapping_user_email,
                 user.get('email'),
             )
-            raise error
+            raise err
         if (
             mapping_user_domain_id
             and mapping_user_domain_id != user_domain.get('id')
         ):
-            error = exception.OAuth2InvalidClient(
+            err = exception.OAuth2InvalidClient(
                 int(http.client.UNAUTHORIZED),
                 http.client.responses[http.client.UNAUTHORIZED],
                 _('Client authentication failed.'),
@@ -311,12 +311,12 @@ class AccessTokenResource(ks_flask.ResourceBase):
                 mapping_user_domain_id,
                 user_domain.get('id'),
             )
-            raise error
+            raise err
         if (
             mapping_user_domain_name
             and mapping_user_domain_name != user_domain.get('name')
         ):
-            error = exception.OAuth2InvalidClient(
+            err = exception.OAuth2InvalidClient(
                 int(http.client.UNAUTHORIZED),
                 http.client.responses[http.client.UNAUTHORIZED],
                 _('Client authentication failed.'),
@@ -328,7 +328,7 @@ class AccessTokenResource(ks_flask.ResourceBase):
                 mapping_user_domain_name,
                 user_domain.get('name'),
             )
-            raise error
+            raise err
 
     def _tls_client_auth(self, client_id, client_cert):
         """Get an OAuth2.0 certificate-bound Access Token."""

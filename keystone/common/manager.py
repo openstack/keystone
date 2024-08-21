@@ -171,8 +171,8 @@ class Manager(metaclass=_TraceMeta):
 
     """
 
-    driver_namespace = None
-    _provides_api = None
+    driver_namespace: str
+    _provides_api: str
 
     def __init__(self, driver_name):
         if self._provides_api is None:

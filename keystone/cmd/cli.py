@@ -53,7 +53,7 @@ LOG = log.getLogger(__name__)
 
 class BaseApp:
 
-    name = None
+    name: str
 
     @classmethod
     def add_argument_parser(cls, subparsers):

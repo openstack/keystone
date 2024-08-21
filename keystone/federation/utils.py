@@ -217,13 +217,19 @@ IDP_ATTRIBUTE_MAPPING_SCHEMA_2_0 = copy.deepcopy(
 )
 
 PROJECTS_SCHEMA_2_0 = copy.deepcopy(PROJECTS_SCHEMA)
-PROJECTS_SCHEMA_2_0["items"]["properties"]["domain"] = {
+PROJECTS_SCHEMA_2_0["items"]["properties"]["domain"] = {  # type: ignore[index]
     "$ref": "#/definitions/domain"
 }
 
-IDP_ATTRIBUTE_MAPPING_SCHEMA_2_0['properties']['rules']['items']['properties'][
+IDP_ATTRIBUTE_MAPPING_SCHEMA_2_0['properties']['rules']['items']['properties'][  # type: ignore[index]
     'local'
-]['items']['properties']['projects'] = PROJECTS_SCHEMA_2_0
+][
+    'items'
+][
+    'properties'
+][
+    'projects'
+] = PROJECTS_SCHEMA_2_0
 
 
 def get_default_attribute_mapping_schema_version():
