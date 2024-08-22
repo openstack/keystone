@@ -38,7 +38,7 @@ repos:
     - id: bandit
       args: ["-x", "keystone/tests/*,devstack/*"]
   - repo: https://opendev.org/openstack/hacking
-    rev: 6.1.0
+    rev: 7.0.0
     hooks:
       - id: hacking
         additional_dependencies:
