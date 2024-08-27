@@ -158,7 +158,7 @@ example, a policy that requires ``service`` and ``admin`` can be expressed as:
 
 .. code-block:: yaml
 
-    "identity:create_foo": "role:service" or "role:admin"
+    "identity:create_foo": "role:service or role:admin"
 
 .. note::
     Unlike the other default roles, the ``service`` role is *not* a member
