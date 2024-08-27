@@ -13,12 +13,12 @@
 #   under the License.
 
 import datetime
+import http.client
 from unittest import mock
 import uuid
 
 import fixtures
 import freezegun
-import http.client
 from oslo_config import fixture as config_fixture
 from oslo_log import log
 import oslo_messaging
@@ -34,7 +34,6 @@ from keystone import exception
 from keystone import notifications
 from keystone.tests import unit
 from keystone.tests.unit import test_v3
-
 
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs

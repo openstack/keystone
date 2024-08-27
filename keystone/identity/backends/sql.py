@@ -29,7 +29,6 @@ from keystone.identity.backends import base
 from keystone.identity.backends import resource_options as options
 from keystone.identity.backends import sql_model as model
 
-
 CONF = keystone.conf.CONF
 
 

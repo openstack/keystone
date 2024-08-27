@@ -15,9 +15,10 @@
 # TODO(morgan): Deprecate /v3/OS-TRUST/trusts path in favour of /v3/trusts.
 # /v3/OS-TRUST should remain indefinitely.
 
+import http.client
+
 import flask
 import flask_restful
-import http.client
 from oslo_log import log
 from oslo_policy import _checks as op_checks
 
@@ -33,7 +34,6 @@ from keystone import exception
 from keystone.i18n import _
 from keystone.server import flask as ks_flask
 from keystone.trust import schema
-
 
 LOG = log.getLogger(__name__)
 ENFORCER = rbac_enforcer.RBACEnforcer

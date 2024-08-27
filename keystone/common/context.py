@@ -12,7 +12,6 @@
 
 from oslo_context import context as oslo_context
 
-
 REQUEST_CONTEXT_ENV = 'keystone.oslo_request_context'
 
 

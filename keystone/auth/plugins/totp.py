@@ -37,7 +37,6 @@ import keystone.conf
 from keystone import exception
 from keystone.i18n import _
 
-
 CONF = keystone.conf.CONF
 
 METHOD_NAME = 'totp'

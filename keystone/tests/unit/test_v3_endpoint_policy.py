@@ -13,6 +13,7 @@
 #    under the License.
 
 import http.client
+
 from testtools import matchers
 
 from keystone.common import provider_api

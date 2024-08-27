@@ -15,7 +15,6 @@ import osprofiler.initializer
 
 import keystone.conf
 
-
 CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 

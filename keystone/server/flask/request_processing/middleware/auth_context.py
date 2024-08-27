@@ -12,10 +12,10 @@
 
 
 import functools
+import http.client
 import re
 import wsgiref.util
 
-import http.client
 from keystonemiddleware import auth_token
 import oslo_i18n
 from oslo_log import log

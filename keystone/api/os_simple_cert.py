@@ -20,7 +20,6 @@ from keystone import exception
 from keystone.i18n import _
 from keystone.server import flask as ks_flask
 
-
 CONF = keystone.conf.CONF
 
 

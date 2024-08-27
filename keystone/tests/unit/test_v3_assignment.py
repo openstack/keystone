@@ -11,14 +11,13 @@
 # under the License.
 
 import datetime
+import http.client
 import random
 import uuid
 
 import freezegun
-import http.client
-from testtools import matchers
-
 from oslo_utils import timeutils
+from testtools import matchers
 
 from keystone.common import provider_api
 import keystone.conf
@@ -26,7 +25,6 @@ from keystone import exception
 from keystone.resource.backends import base as resource_base
 from keystone.tests import unit
 from keystone.tests.unit import test_v3
-
 
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs

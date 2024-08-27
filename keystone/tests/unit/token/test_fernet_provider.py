@@ -37,7 +37,6 @@ from keystone.token import provider
 from keystone.token.providers import fernet
 from keystone.token import token_formatters
 
-
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
 

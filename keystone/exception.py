@@ -21,7 +21,6 @@ from oslo_utils import encodeutils
 import keystone.conf
 from keystone.i18n import _
 
-
 CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 

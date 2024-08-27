@@ -20,7 +20,6 @@ from keystone.common import cache
 import keystone.conf
 from keystone.tests import unit
 
-
 CONF = keystone.conf.CONF
 
 

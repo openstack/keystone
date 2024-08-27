@@ -20,7 +20,6 @@ from oslo_utils import timeutils
 import keystone.conf
 from keystone import exception
 
-
 CONF = keystone.conf.CONF
 
 

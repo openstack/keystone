@@ -23,7 +23,6 @@ import keystone.conf
 from keystone import exception
 from keystone import notifications
 
-
 CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 PROVIDERS = provider_api.ProviderAPIs

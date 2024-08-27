@@ -15,7 +15,6 @@ from oslo_config import cfg
 from keystone.conf import constants
 from keystone.conf import utils
 
-
 methods = cfg.ListOpt(
     'methods',
     default=constants._DEFAULT_AUTH_METHODS,

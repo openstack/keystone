@@ -11,18 +11,16 @@
 # under the License.
 
 import datetime
-from testtools import matchers
+import http.client
 import uuid
 
-import http.client
-
 from oslo_utils import timeutils
+from testtools import matchers
 
 from keystone.common import provider_api
 import keystone.conf
 from keystone.tests import unit
 from keystone.tests.unit import test_v3
-
 
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs

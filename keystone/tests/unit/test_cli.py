@@ -12,18 +12,18 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import argparse
+import configparser
 import copy
 import datetime
+import http.client
 import logging
 import os
 from unittest import mock
 import uuid
 
-import argparse
-import configparser
 import fixtures
 import freezegun
-import http.client
 import oslo_config.fixture
 from oslo_log import log
 from oslo_serialization import jsonutils
@@ -55,7 +55,6 @@ from keystone.tests.unit.ksfixtures import ldapdb
 from keystone.tests.unit.ksfixtures import policy
 from keystone.tests.unit.ksfixtures import temporaryfile
 from keystone.tests.unit import mapping_fixtures
-
 
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs

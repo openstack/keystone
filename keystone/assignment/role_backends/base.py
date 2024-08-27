@@ -17,7 +17,6 @@ import abc
 import keystone.conf
 from keystone import exception
 
-
 # NOTE(henry-nash): From the manager and above perspective, the domain_id
 # attribute of a role is nullable.  However, to ensure uniqueness in
 # multi-process configurations, it is better to still use a sql uniqueness

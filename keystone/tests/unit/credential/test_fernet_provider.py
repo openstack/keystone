@@ -10,10 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import fixtures
 import hashlib
 import uuid
 
+import fixtures
 from oslo_log import log
 
 from keystone.common import fernet_utils

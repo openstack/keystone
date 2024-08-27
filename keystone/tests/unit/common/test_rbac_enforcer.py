@@ -27,7 +27,6 @@ from keystone import exception
 from keystone.tests import unit
 from keystone.tests.unit import rest
 
-
 PROVIDER_APIS = provider_api.ProviderAPIs
 
 

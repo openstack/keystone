@@ -14,10 +14,11 @@
 
 import datetime
 import http.client
+import uuid
+
 import oslo_context.context
 from oslo_serialization import jsonutils
 from testtools import matchers
-import uuid
 import webtest
 
 from keystone.common import authorization
@@ -30,7 +31,6 @@ from keystone.server.flask.request_processing.middleware import auth_context
 from keystone.tests.common import auth as common_auth
 from keystone.tests import unit
 from keystone.tests.unit import rest
-
 
 PROVIDERS = provider_api.ProviderAPIs
 DEFAULT_DOMAIN_ID = 'default'

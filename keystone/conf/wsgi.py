@@ -14,7 +14,6 @@ from oslo_config import cfg
 
 from keystone.conf import utils
 
-
 debug_middleware = cfg.BoolOpt(
     'debug_middleware',
     default=False,

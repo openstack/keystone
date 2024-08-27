@@ -20,7 +20,6 @@ Create Date: 2023-03-15 13:17:44.060715
 from alembic import op
 from sqlalchemy.engine import reflection
 
-
 # revision identifiers, used by Alembic.
 revision = 'c88cdce8f248'
 down_revision = '99de3849d860'

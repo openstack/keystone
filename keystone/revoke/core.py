@@ -20,7 +20,6 @@ from keystone.i18n import _
 from keystone.models import revoke_model
 from keystone import notifications
 
-
 CONF = keystone.conf.CONF
 
 # This builds a discrete cache region dedicated to revoke events. The API can

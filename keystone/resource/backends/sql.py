@@ -21,7 +21,6 @@ from keystone import exception
 from keystone.resource.backends import base
 from keystone.resource.backends import sql_model
 
-
 LOG = log.getLogger(__name__)
 
 

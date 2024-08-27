@@ -22,7 +22,6 @@ from keystone.tests.unit.catalog import test_backends as catalog_tests
 from keystone.tests.unit import default_fixtures
 from keystone.tests.unit.ksfixtures import database
 
-
 PROVIDERS = provider_api.ProviderAPIs
 BROKEN_WRITE_FUNCTIONALITY_MSG = (
     "Templated backend doesn't correctly implement write operations"

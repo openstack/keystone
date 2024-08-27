@@ -12,14 +12,14 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import flask
 import http.client
+
+import flask
 from oslo_serialization import jsonutils
 
 from keystone.common import authorization
 from keystone.common import provider_api
 from keystone import exception
-
 
 PROVIDERS = provider_api.ProviderAPIs
 

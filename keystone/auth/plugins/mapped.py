@@ -11,12 +11,12 @@
 # under the License.
 
 import functools
+from urllib import parse
 import uuid
 
 import flask
 from oslo_log import log
 from pycadf import cadftaxonomy as taxonomy
-from urllib import parse
 
 from keystone.auth import plugins as auth_plugins
 from keystone.auth.plugins import base

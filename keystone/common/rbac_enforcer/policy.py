@@ -16,7 +16,6 @@
 from keystone.common.rbac_enforcer import enforcer
 from keystone import conf
 
-
 CONF = conf.CONF
 
 

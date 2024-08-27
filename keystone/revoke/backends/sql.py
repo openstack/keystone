@@ -10,13 +10,12 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from oslo_db import api as oslo_db_api
 import sqlalchemy
 
 from keystone.common import sql
 from keystone.models import revoke_model
 from keystone.revoke.backends import base
-
-from oslo_db import api as oslo_db_api
 
 
 class RevocationEvent(sql.ModelBase, sql.ModelDictMixin):

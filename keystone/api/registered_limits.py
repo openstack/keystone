@@ -12,8 +12,9 @@
 
 # This file handles all flask-restful resources for /v3/registered_limits
 
-import flask
 import http.client
+
+import flask
 
 from keystone.common import json_home
 from keystone.common import provider_api
@@ -21,7 +22,6 @@ from keystone.common import rbac_enforcer
 from keystone.common import validation
 from keystone.limit import schema
 from keystone.server import flask as ks_flask
-
 
 PROVIDERS = provider_api.ProviderAPIs
 ENFORCER = rbac_enforcer.RBACEnforcer

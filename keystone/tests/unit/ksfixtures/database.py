@@ -22,7 +22,6 @@ from keystone.common import sql
 import keystone.conf
 from keystone.tests import unit
 
-
 CONF = keystone.conf.CONF
 
 

@@ -27,7 +27,6 @@ from keystone.federation import constants
 from keystone.i18n import _
 from keystone.receipt import handlers as receipt_handlers
 
-
 LOG = log.getLogger(__name__)
 PROVIDERS = provider_api.ProviderAPIs
 

@@ -13,15 +13,15 @@
 # under the License.
 
 import hashlib
+import http.client
 import json
 from unittest import mock
+import urllib
 import uuid
 
-import http.client
 from keystoneclient.contrib.ec2 import utils as ec2_utils
 from oslo_db import exception as oslo_db_exception
 from testtools import matchers
-import urllib
 
 from keystone.api import ec2tokens
 from keystone.common import provider_api
@@ -32,7 +32,6 @@ from keystone import oauth1
 from keystone.tests import unit
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit import test_v3
-
 
 PROVIDERS = provider_api.ProviderAPIs
 CRED_TYPE_EC2 = ec2tokens.CRED_TYPE_EC2

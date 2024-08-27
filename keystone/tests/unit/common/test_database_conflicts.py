@@ -19,7 +19,6 @@ from keystone.tests import unit
 from keystone.tests.unit import mapping_fixtures
 from keystone.tests.unit import test_v3
 
-
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
 

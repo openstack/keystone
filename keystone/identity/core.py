@@ -24,6 +24,7 @@ import uuid
 
 from oslo_config import cfg
 from oslo_log import log
+from oslo_utils import timeutils
 from pycadf import reason
 import stevedore
 
@@ -38,8 +39,6 @@ from keystone import exception
 from keystone.i18n import _
 from keystone.identity.mapping_backends import mapping
 from keystone import notifications
-from oslo_utils import timeutils
-
 
 CONF = keystone.conf.CONF
 

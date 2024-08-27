@@ -20,7 +20,6 @@ from oslo_log import log
 from keystone.common import utils
 import keystone.conf
 
-
 LOG = log.getLogger(__name__)
 
 CONF = keystone.conf.CONF

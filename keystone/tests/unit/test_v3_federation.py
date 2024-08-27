@@ -11,24 +11,24 @@
 # under the License.
 
 import copy
+import http.client
 import os
 import random
 import re
 import subprocess
-from testtools import matchers
 from unittest import mock
+import urllib
 import uuid
 
 import fixtures
 import flask
-import http.client
 from lxml import etree
 from oslo_serialization import jsonutils
 from oslo_utils import importutils
 import saml2
 from saml2 import saml
 from saml2 import sigver
-import urllib
+from testtools import matchers
 
 xmldsig = importutils.try_import("saml2.xmldsig")
 if not xmldsig:
@@ -50,7 +50,6 @@ from keystone.tests.unit import federation_fixtures
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit import mapping_fixtures
 from keystone.tests.unit import test_v3
-
 
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs

@@ -21,7 +21,6 @@ from testtools import matchers
 
 from keystone.tests import unit
 
-
 LOG = log.getLogger(__name__)
 
 

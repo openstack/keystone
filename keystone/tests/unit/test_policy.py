@@ -28,7 +28,6 @@ from keystone.tests import unit
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit.ksfixtures import temporaryfile
 
-
 CONF = keystone.conf.CONF
 
 

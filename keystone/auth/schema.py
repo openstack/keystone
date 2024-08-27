@@ -15,7 +15,6 @@ from keystone.common.validation import parameter_types
 from keystone import exception
 from keystone.i18n import _
 
-
 token_issue = {
     'type': 'object',
     'properties': {

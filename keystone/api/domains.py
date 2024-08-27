@@ -12,10 +12,11 @@
 
 # This file handles all flask-restful resources for /v3/domains
 
-import flask
-import flask_restful
 import functools
 import http.client
+
+import flask
+import flask_restful
 
 from keystone.common import json_home
 from keystone.common import provider_api

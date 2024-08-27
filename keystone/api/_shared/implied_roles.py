@@ -18,7 +18,6 @@
 from keystone.common import provider_api
 from keystone.server import flask as ks_flask
 
-
 PROVIDERS = provider_api.ProviderAPIs
 
 

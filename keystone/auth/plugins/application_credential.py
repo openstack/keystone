@@ -17,7 +17,6 @@ from keystone.auth.plugins import base
 from keystone.common import provider_api
 from keystone import exception
 
-
 PROVIDERS = provider_api.ProviderAPIs
 METHOD_NAME = 'application_credential'
 

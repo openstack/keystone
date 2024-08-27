@@ -12,14 +12,12 @@
 
 import os
 
-
 from keystone.common import utils as ks_utils
 import keystone.conf
 from keystone import exception
 from keystone.i18n import _
 from keystone.token.providers import base
 from keystone.token import token_formatters as tf
-
 
 CONF = keystone.conf.CONF
 

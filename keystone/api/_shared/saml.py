@@ -19,7 +19,6 @@ from keystone.federation import idp as keystone_idp
 from keystone.federation import utils as federation_utils
 from keystone.i18n import _
 
-
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
 

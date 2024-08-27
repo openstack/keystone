@@ -12,17 +12,17 @@
 
 # This file handles all flask-restful resources for /v3/system
 
-import flask
-import flask_restful
 import functools
 import http.client
+
+import flask
+import flask_restful
 
 from keystone.common import json_home
 from keystone.common import provider_api
 from keystone.common import rbac_enforcer
 from keystone import exception
 from keystone.server import flask as ks_flask
-
 
 ENFORCER = rbac_enforcer.RBACEnforcer
 PROVIDERS = provider_api.ProviderAPIs

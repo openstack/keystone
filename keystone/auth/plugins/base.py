@@ -18,7 +18,6 @@ import collections
 from keystone.common import provider_api
 from keystone import exception
 
-
 AuthHandlerResponse = collections.namedtuple(
     'AuthHandlerResponse', 'status, response_body, response_data'
 )

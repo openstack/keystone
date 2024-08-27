@@ -21,7 +21,6 @@ from keystone.common import provider_api
 import keystone.conf
 from keystone import exception
 
-
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
 

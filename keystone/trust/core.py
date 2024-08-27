@@ -21,7 +21,6 @@ from keystone import exception
 from keystone.i18n import _
 from keystone import notifications
 
-
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
 

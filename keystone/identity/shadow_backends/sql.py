@@ -11,11 +11,11 @@
 # under the License.
 
 import copy
-import sqlalchemy
 
 from oslo_config import cfg
 from oslo_db import api as oslo_db_api
 from oslo_utils import timeutils
+import sqlalchemy
 
 from keystone.common import provider_api
 from keystone.common import sql
@@ -23,7 +23,6 @@ from keystone import exception
 from keystone.identity.backends import base as identity_base
 from keystone.identity.backends import sql_model as model
 from keystone.identity.shadow_backends import base
-
 
 CONF = cfg.CONF
 PROVIDERS = provider_api.ProviderAPIs

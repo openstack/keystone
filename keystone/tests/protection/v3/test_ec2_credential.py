@@ -11,6 +11,7 @@
 #    under the License.
 
 import http.client
+
 from oslo_serialization import jsonutils
 
 from keystone.common.policies import base as bp

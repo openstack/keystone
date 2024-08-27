@@ -21,7 +21,6 @@ from keystone import exception
 from keystone.tests import unit
 from keystone.tests.unit import default_fixtures
 
-
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
 

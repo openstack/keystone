@@ -19,7 +19,6 @@ from keystone import exception
 from keystone.oauth1.backends import base
 from keystone.oauth1 import core as oauth1
 
-
 METHOD_NAME = 'oauth_validator'
 PROVIDERS = provider_api.ProviderAPIs
 

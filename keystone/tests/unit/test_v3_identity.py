@@ -13,12 +13,12 @@
 # under the License.
 
 import datetime
+import http.client
 from unittest import mock
 import uuid
 
 import fixtures
 import freezegun
-import http.client
 from oslo_db import exception as oslo_db_exception
 from oslo_log import log
 from oslo_utils import timeutils
@@ -37,7 +37,6 @@ from keystone.tests.unit import ksfixtures
 from keystone.tests.unit.ksfixtures import database
 from keystone.tests.unit import mapping_fixtures
 from keystone.tests.unit import test_v3
-
 
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs

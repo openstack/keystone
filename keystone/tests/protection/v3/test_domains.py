@@ -10,9 +10,9 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import http.client
 import uuid
 
-import http.client
 from oslo_serialization import jsonutils
 
 from keystone.common.policies import domain as dp

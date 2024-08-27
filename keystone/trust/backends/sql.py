@@ -13,14 +13,12 @@
 # under the License.
 
 from oslo_utils import timeutils
-
 import sqlalchemy
 from sqlalchemy.ext.hybrid import hybrid_property
 
 from keystone.common import sql
 from keystone import exception
 from keystone.trust.backends import base
-
 
 # The maximum number of iterations that will be attempted for optimistic
 # locking on consuming a limited-use trust.

@@ -14,7 +14,6 @@ from oslo_config import cfg
 
 from keystone.conf import utils
 
-
 url = cfg.StrOpt(
     'url',
     default='ldap://localhost',

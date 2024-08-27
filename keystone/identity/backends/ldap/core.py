@@ -24,7 +24,6 @@ from keystone.identity.backends import base
 from keystone.identity.backends.ldap import common as common_ldap
 from keystone.identity.backends.ldap import models
 
-
 CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 

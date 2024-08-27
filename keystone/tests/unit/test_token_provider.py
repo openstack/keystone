@@ -13,9 +13,9 @@
 # under the License.
 
 import datetime
+import urllib
 
 from oslo_utils import timeutils
-import urllib
 
 from keystone.common import provider_api
 from keystone.common import utils
@@ -27,7 +27,6 @@ from keystone.tests.unit import ksfixtures
 from keystone.tests.unit.ksfixtures import database
 from keystone import token
 from keystone.token import provider
-
 
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs

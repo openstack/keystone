@@ -10,11 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-import keystone.conf
-
 from keystone.common import fernet_utils as utils
+import keystone.conf
 from keystone.credential.providers import fernet as credential_fernet
-
 
 CONF = keystone.conf.CONF
 

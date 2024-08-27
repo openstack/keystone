@@ -14,5 +14,4 @@
 
 from keystone.receipt.providers.fernet.core import Provider
 
-
 __all__ = ("Provider",)

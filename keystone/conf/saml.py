@@ -15,7 +15,6 @@ from oslo_config import cfg
 from keystone.conf import constants
 from keystone.conf import utils
 
-
 assertion_expiration_time = cfg.IntOpt(
     'assertion_expiration_time',
     default=3600,

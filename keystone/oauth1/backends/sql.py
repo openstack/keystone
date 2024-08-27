@@ -25,7 +25,6 @@ from keystone import exception
 from keystone.i18n import _
 from keystone.oauth1.backends import base
 
-
 random = _random.SystemRandom()
 
 

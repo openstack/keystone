@@ -14,11 +14,11 @@
 # under the License.
 
 import copy
+import http.client
 from unittest import mock
 import uuid
 
 import fixtures
-import http.client
 import ldap
 from oslo_log import versionutils
 import pkg_resources
@@ -42,7 +42,6 @@ from keystone.tests.unit import identity_mapping as mapping_sql
 from keystone.tests.unit.ksfixtures import database
 from keystone.tests.unit.ksfixtures import ldapdb
 from keystone.tests.unit.resource import test_backends as resource_tests
-
 
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs

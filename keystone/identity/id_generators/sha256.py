@@ -13,6 +13,7 @@
 # under the License.
 
 import hashlib
+
 from keystone.identity import generator
 
 

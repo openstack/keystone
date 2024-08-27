@@ -17,7 +17,6 @@ from keystone.common import sql
 import keystone.conf
 from keystone.server import backends
 
-
 CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 

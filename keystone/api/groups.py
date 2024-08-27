@@ -12,10 +12,11 @@
 
 # This file handles all flask-restful resources for /v3/groups
 
-import flask
-import flask_restful
 import functools
 import http.client
+
+import flask
+import flask_restful
 
 from keystone.common import json_home
 from keystone.common import provider_api
@@ -26,7 +27,6 @@ from keystone import exception
 from keystone.identity import schema
 from keystone import notifications
 from keystone.server import flask as ks_flask
-
 
 CONF = keystone.conf.CONF
 ENFORCER = rbac_enforcer.RBACEnforcer

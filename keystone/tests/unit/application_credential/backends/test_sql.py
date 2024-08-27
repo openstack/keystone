@@ -17,7 +17,6 @@ from keystone.tests.unit.application_credential import test_backends
 from keystone.tests.unit.backend import core_sql
 from keystone.tests.unit.ksfixtures import database
 
-
 PROVIDERS = provider_api.ProviderAPIs
 
 

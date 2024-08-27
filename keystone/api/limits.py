@@ -12,9 +12,10 @@
 
 # This file handles all flask-restful resources for /v3/limits
 
+import http.client
+
 import flask
 import flask_restful
-import http.client
 
 from keystone.common import json_home
 from keystone.common import provider_api
@@ -23,7 +24,6 @@ from keystone.common import validation
 from keystone import exception
 from keystone.limit import schema
 from keystone.server import flask as ks_flask
-
 
 PROVIDERS = provider_api.ProviderAPIs
 ENFORCER = rbac_enforcer.RBACEnforcer

@@ -33,7 +33,6 @@ from keystone.tests.unit import ksfixtures
 from keystone.tests.unit.ksfixtures import database
 from keystone.token import provider as token_provider
 
-
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
 

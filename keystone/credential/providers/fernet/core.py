@@ -21,7 +21,6 @@ from keystone.credential.providers import core
 from keystone import exception
 from keystone.i18n import _
 
-
 CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 

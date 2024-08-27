@@ -22,7 +22,6 @@ from keystone.cmd.doctor import tokens_fernet
 import keystone.conf
 from keystone.i18n import _
 
-
 CONF = keystone.conf.CONF
 
 SYMPTOM_PREFIX = 'symptom_'

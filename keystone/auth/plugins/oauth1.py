@@ -23,7 +23,6 @@ from keystone.oauth1 import core as oauth
 from keystone.oauth1 import validator
 from keystone.server import flask as ks_flask
 
-
 PROVIDERS = provider_api.ProviderAPIs
 
 

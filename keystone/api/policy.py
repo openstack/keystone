@@ -12,8 +12,9 @@
 
 # This file handles all flask-restful resources for /policy
 
-import flask_restful
 import http.client
+
+import flask_restful
 from oslo_log import versionutils
 
 from keystone.api._shared import json_home_relations

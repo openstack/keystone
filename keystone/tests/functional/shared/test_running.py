@@ -15,7 +15,6 @@ import testtools.matchers
 
 from keystone.tests.functional import core as functests
 
-
 is_multiple_choices = testtools.matchers.Equals(
     requests.status_codes.codes.multiple_choices
 )

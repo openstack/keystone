@@ -14,7 +14,6 @@ from oslo_config import cfg
 
 from keystone.conf import utils
 
-
 disable_user_account_days_inactive = cfg.IntOpt(
     'disable_user_account_days_inactive',
     min=1,

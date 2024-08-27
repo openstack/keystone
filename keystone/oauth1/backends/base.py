@@ -17,7 +17,6 @@ import string
 
 from keystone import exception
 
-
 # The characters used to generate verifiers are limited to alphanumerical
 # values for ease of manual entry. Commonly confused characters are omitted.
 VERIFIER_CHARS = string.ascii_letters + string.digits

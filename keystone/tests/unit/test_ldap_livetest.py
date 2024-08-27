@@ -23,7 +23,6 @@ from keystone.identity.backends import ldap as identity_ldap
 from keystone.tests import unit
 from keystone.tests.unit import test_backend_ldap
 
-
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
 

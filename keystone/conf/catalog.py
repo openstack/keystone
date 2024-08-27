@@ -14,7 +14,6 @@ from oslo_config import cfg
 
 from keystone.conf import utils
 
-
 template_file = cfg.StrOpt(
     'template_file',
     default='default_catalog.templates',

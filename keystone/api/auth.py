@@ -10,16 +10,17 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import http.client
+
 # This file handles all flask-restful resources for /v3/auth
-import string
+import string  # noqa: I202
+import urllib
 
 import flask
 import flask_restful
-import http.client
 from oslo_log import log
 from oslo_serialization import jsonutils
 from oslo_utils import strutils
-import urllib
 import werkzeug.exceptions
 
 from keystone.api._shared import authentication
@@ -39,7 +40,6 @@ from keystone.federation import schema as federation_schema
 from keystone.federation import utils as federation_utils
 from keystone.i18n import _
 from keystone.server import flask as ks_flask
-
 
 CONF = keystone.conf.CONF
 ENFORCER = rbac_enforcer.RBACEnforcer
