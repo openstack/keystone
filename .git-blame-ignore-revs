@@ -1,0 +1,4 @@
+# You can configure git to automatically use this file with the following config:
+# git config --global blame.ignoreRevsFile .git-blame-ignore-revs
+
+a00839ca028304946e500cd14ddde322b6303ec8 # Blackify the keystone code base
