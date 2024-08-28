@@ -243,6 +243,7 @@ class PolicyJsonTestCase(unit.TestCase):
             'service_or_admin',
             'service_role',
             'token_subject',
+            'domain_managed_target_role',
         ]
 
         def read_doc_targets():

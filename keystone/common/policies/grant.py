@@ -61,6 +61,17 @@ GRANTS_DOMAIN_ADMIN = (
     ' ' + DOMAIN_MATCHES_TARGET_DOMAIN + ')'
 )
 
+GRANTS_DOMAIN_MANAGER = (
+    '(role:manager and ' + DOMAIN_MATCHES_USER_DOMAIN + ' and'
+    ' ' + DOMAIN_MATCHES_PROJECT_DOMAIN + ') or '
+    '(role:manager and ' + DOMAIN_MATCHES_USER_DOMAIN + ' and'
+    ' ' + DOMAIN_MATCHES_TARGET_DOMAIN + ') or '
+    '(role:manager and ' + DOMAIN_MATCHES_GROUP_DOMAIN + ' and'
+    ' ' + DOMAIN_MATCHES_PROJECT_DOMAIN + ') or '
+    '(role:manager and ' + DOMAIN_MATCHES_GROUP_DOMAIN + ' and'
+    ' ' + DOMAIN_MATCHES_TARGET_DOMAIN + ')'
+)
+
 ADMIN_OR_SYSTEM_READER_OR_DOMAIN_READER = (
     '(' + base.RULE_ADMIN_REQUIRED + ') or '
     '(' + SYSTEM_READER_OR_DOMAIN_READER + ')'
@@ -71,10 +82,12 @@ ADMIN_OR_SYSTEM_READER_OR_DOMAIN_READER_LIST = (
     '(' + SYSTEM_READER_OR_DOMAIN_READER_LIST + ')'
 )
 
-ADMIN_OR_DOMAIN_ADMIN = (
+ADMIN_OR_DOMAIN_ADMIN_OR_DOMAIN_MANAGER = (
     '(' + base.RULE_ADMIN_REQUIRED + ') or '
     '(' + GRANTS_DOMAIN_ADMIN + ') and '
-    '(' + DOMAIN_MATCHES_ROLE + ')'
+    '(' + DOMAIN_MATCHES_ROLE + ') or '
+    '(' + GRANTS_DOMAIN_MANAGER + ') and '
+    'rule:domain_managed_target_role'
 )
 
 DEPRECATED_REASON = (
@@ -236,7 +249,7 @@ grant_policies = [
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'create_grant',
-        check_str=ADMIN_OR_DOMAIN_ADMIN,
+        check_str=ADMIN_OR_DOMAIN_ADMIN_OR_DOMAIN_MANAGER,
         scope_types=['system', 'domain', 'project'],
         description=(
             'Create a role grant between a target and an actor. A '
@@ -251,7 +264,7 @@ grant_policies = [
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'revoke_grant',
-        check_str=ADMIN_OR_DOMAIN_ADMIN,
+        check_str=ADMIN_OR_DOMAIN_ADMIN_OR_DOMAIN_MANAGER,
         scope_types=['system', 'domain', 'project'],
         description=(
             'Revoke a role grant between a target and an actor. A '

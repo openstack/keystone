@@ -26,10 +26,14 @@ functionality to their team, auditors, customers, and users without maintaining
 custom policies.
 
 In addition to ``admin``, ``member``, and ``reader`` role, from 2023.2 (Bobcat)
-release keystone will provide ``service`` role by default as well. Operators
-can use this role for service to service API calls instead of using ``admin``
-role for the same. The service role will be separate from ``admin``,
-``member``, ``reader`` and will not implicate any  of these roles.
+release keystone will provide the ``service`` and ``manager`` roles by default
+as well. Operators can use the ``service`` role for service to service API
+calls instead of using ``admin`` role for the same. The service role will be
+separate from ``admin``, ``member``, ``reader`` and will not implicate any of
+these roles.
+Operators can give the ``manager`` role to users to within a domain to enable
+self-service management of users, groups, projects and role assignments within
+their domain.
 
 .. _`token guide`: https://docs.openstack.org/keystone/latest/admin/tokens-overview.html#authorization-scopes
 
@@ -39,14 +43,16 @@ Roles Definitions
 
 The default roles provided by keystone via ``keystone-manage bootstrap``
 (except for the ``service`` role) are related through role implications. The
-``admin`` role implies the ``member`` role, and the ``member`` role implies
-the ``reader`` role. These implications mean users with the ``admin`` role
-automatically have the ``member`` and ``reader`` roles. Additionally,
-users with the ``member`` role automatically have the ``reader`` role.
-Implying roles reduces role assignments and forms a natural hierarchy between
-the default roles. It also reduces the complexity of default policies by
-making check strings short. For example, a policy that requires ``reader``
-can be expressed as:
+``admin`` role implies the ``manager`` role, the  ``manager`` implies the
+``member`` role, and the ``member`` role implies the ``reader`` role. These
+implications mean users with the ``admin`` role automatically have the
+``manager``, ``member`` and ``reader`` roles. Additionally, users with the
+``manager`` role automatically have the ``member`` and ``reader`` roles. Users
+with the ``member`` role automatically have the ``reader`` role. Implying roles
+reduces role assignments and forms a natural hierarchy between the default
+roles. It also reduces the complexity of default policies by making check
+strings short. For example, a policy that requires ``reader`` can be expressed
+as:
 
 .. code-block:: yaml
 
@@ -56,7 +62,7 @@ Instead of:
 
 .. code-block:: yaml
 
-    "identity:list_foo": "role:admin or role:member or role:reader"
+    "identity:list_foo": "role:admin or role:manager or role:member or role:reader"
 
 Reader
 ======
@@ -121,6 +127,30 @@ instance, users with ``member`` on a project can list and create instances, and
 users with ``admin`` on a project can list, create, and delete instances.
 Service developers can use the ``member`` role to provide more flexibility
 between ``admin`` and ``reader`` on different scopes.
+
+Manager
+=======
+
+The ``manager`` role takes a special place in keystone. It sits between the
+``admin`` and ``member`` role, allowing limited identity management while being
+clearly differentiated from the ``admin`` role both in terms of purpose and
+privileges. The ``manager`` role is meant to be assigned in a domain scope and
+enables users to manage identity assets in a whole domain including users,
+projects, groups and role assignments. This enables identity self-service
+management capabilities for users within a domain without the need to assign
+the most privileged ``admin`` role to them.
+
+The keystone default policies include a special rule that specifies the list of
+roles a user with the ``manager`` role is be able to assign and revoke within
+the domain scope. This prevents such user from escalating their own privileges
+or those of others beyond ``manager`` and for this purpose the list excludes
+the ``admin`` role. The list can be adjusted by cloud administrators via policy
+definitions in case the role model differs. For example, if a new role is
+introduced for a specific cloud environment, the list can be adjusted to allow
+users with the ``manager`` role to also assign it.
+
+Other services might write default policies to enable the ``manager`` role to
+have more privileged managing rights or cross-project privileges in a domain.
 
 Admin
 =====
@@ -255,14 +285,15 @@ role assignments on a specific domain using the following query:
 .. code-block:: console
 
     $ openstack role assignment list --names --domain foobar
-    +--------+-----------------+----------------------+---------+--------+--------+-----------+
-    | Role   | User            | Group                | Project | Domain | System | Inherited |
-    +--------+-----------------+----------------------+---------+--------+--------+-----------+
-    | reader | support@Default |                      |         | foobar |        | False     |
-    | admin  | jsmith@Default  |                      |         | foobar |        | False     |
-    | admin  |                 | foobar-admins@foobar |         | foobar |        | False     |
-    | member | jdoe@foobar     |                      |         | foobar |        | False     |
-    +--------+-----------------+----------------------+---------+--------+--------+-----------+
+    +---------+-----------------+----------------------+---------+--------+--------+-----------+
+    | Role    | User            | Group                | Project | Domain | System | Inherited |
+    +---------+-----------------+----------------------+---------+--------+--------+-----------+
+    | reader  | support@Default |                      |         | foobar |        | False     |
+    | admin   | jsmith@Default  |                      |         | foobar |        | False     |
+    | admin   |                 | foobar-admins@foobar |         | foobar |        | False     |
+    | manager | alice@foobar    |                      |         | foobar |        | False     |
+    | member  | jdoe@foobar     |                      |         | foobar |        | False     |
+    +---------+-----------------+----------------------+---------+--------+--------+-----------+
 
 Domain Administrators
 =====================
@@ -287,6 +318,32 @@ assignment:
     | admin | jsmith@Default |                      |         | foobar |        | False     |
     | admin |                | foobar-admins@foobar |         | foobar |        | False     |
     +-------+----------------+----------------------+---------+--------+--------+-----------+
+
+Domain Managers
+===============
+
+*Domain managers* can only manage specific resources related to identity
+management within their domain. This includes creating new users, projects and
+groups as well as updating and deleting them. They can also assign and revoke
+roles between those or in relation to the domain. Furthermore, they can inspect
+role assignments within the domain.
+
+*Domain managers* cannot change any aspects of the domain itself. The role
+assignments they can apply within their domain is limited to a specific list of
+applicable roles and in the default configuration, this excludes the ``admin``
+role to prevent privilege escalation.
+
+You can find *domain managers* in your deployment with the following role
+assignment:
+
+.. code-block:: console
+
+    $ openstack role assignment list --names --domain foobar --role manager
+    +---------+-----------------+----------------------+---------+--------+--------+-----------+
+    | Role    | User            | Group                | Project | Domain | System | Inherited |
+    +---------+-----------------+----------------------+---------+--------+--------+-----------+
+    | manager | alice@foobar    |                      |         | foobar |        | False     |
+    +---------+-----------------+----------------------+---------+--------+--------+-----------+
 
 Domain Members & Domain Readers
 ===============================
