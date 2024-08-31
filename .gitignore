@@ -32,6 +32,8 @@ keystone/tests/tmp/
 keystone/locale/*/LC_MESSAGES/*.mo
 .stestr/
 *.db
+# Files created by doc build
+doc/source/_static/support-matrix.css
 # Files created by releasenotes build
 releasenotes/build
 RELEASENOTES.rst
