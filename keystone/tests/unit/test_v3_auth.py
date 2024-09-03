@@ -6398,6 +6398,7 @@ class ApplicationCredentialAuth(test_v3.RestfulTestCase):
         resp = self.v3_create_token(
             auth_data, expected_status=http.client.CREATED
         )
+        self.assertValidTokenResponse(resp)
         token = resp.headers.get('X-Subject-Token')
         future = timeutils.utcnow() + datetime.timedelta(minutes=2)
         with freezegun.freeze_time(future):
