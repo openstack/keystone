@@ -24,15 +24,11 @@ import fixtures
 import flask
 from lxml import etree
 from oslo_serialization import jsonutils
-from oslo_utils import importutils
 import saml2
 from saml2 import saml
 from saml2 import sigver
+from saml2 import xmldsig
 from testtools import matchers
-
-xmldsig = importutils.try_import("saml2.xmldsig")
-if not xmldsig:
-    xmldsig = importutils.try_import("xmldsig")
 
 from keystone.api._shared import authentication
 from keystone.api import auth as auth_api

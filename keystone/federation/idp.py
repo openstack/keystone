@@ -17,7 +17,6 @@ import uuid
 
 from oslo_log import log
 from oslo_utils import fileutils
-from oslo_utils import importutils
 from oslo_utils import timeutils
 import saml2
 from saml2 import client_base
@@ -27,10 +26,7 @@ from saml2 import saml
 from saml2 import samlp
 from saml2.schema import soapenv
 from saml2 import sigver
-
-xmldsig = importutils.try_import("saml2.xmldsig")
-if not xmldsig:
-    xmldsig = importutils.try_import("xmldsig")
+from saml2 import xmldsig
 
 from keystone.common import utils
 import keystone.conf
