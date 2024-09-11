@@ -1,0 +1,6 @@
+---
+deprecations:
+  - |
+    The ``[DEFAULT] max_param_size`` option has been deprecated. This option
+    was used in identity v2 APU but identity v2 API was removed in 13.0.0
+    release.

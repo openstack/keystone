@@ -59,6 +59,9 @@ adversely impact performance.
 max_param_size = cfg.IntOpt(
     'max_param_size',
     default=64,
+    deprecated_for_removal=True,
+    deprecated_reason=utils.fmt('This option has had no effect.'),
+    deprecated_since='2025.1',
     help=utils.fmt(
         """
 Limit the sizes of user & project ID/names.
