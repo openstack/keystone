@@ -52,13 +52,6 @@ class WarningsFixture(fixtures.Fixture):
             category=UserWarning,
         )
 
-        # TODO(stephenfin): This will be fixed once we drop sqlalchemy-migrate
-        warnings.filterwarnings(
-            'ignore',
-            category=DeprecationWarning,
-            message=r"Using function/method 'db_version\(\)' is deprecated",
-        )
-
         warnings.filterwarnings(
             'error',
             module='keystone',
