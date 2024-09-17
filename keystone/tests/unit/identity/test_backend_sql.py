@@ -15,8 +15,8 @@ import uuid
 
 import freezegun
 from oslo_utils import timeutils
-import passlib.hash
 
+from keystone.common import password_hashers
 from keystone.common import password_hashing
 from keystone.common import provider_api
 from keystone.common import resource_options
@@ -77,7 +77,7 @@ class UserPasswordHashingTestsNoCompat(test_backend_sql.SqlTests):
                 session, self.user_foo['id']
             )
         self.assertEqual(
-            passlib.hash.scrypt,
+            password_hashers.scrypt.Scrypt,
             password_hashing._get_hasher_from_ident(user_ref.password),
         )
 
