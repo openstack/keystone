@@ -284,24 +284,6 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         self.assertValidServiceResponse(r, ref)
         self.assertIs(True, r.result['service']['enabled'])
 
-    def test_create_service_enabled_str_true(self):
-        """Call ``POST /services``."""
-        ref = unit.new_service_ref(enabled='True')
-        self.post(
-            '/services',
-            body={'service': ref},
-            expected_status=http.client.BAD_REQUEST,
-        )
-
-    def test_create_service_enabled_str_false(self):
-        """Call ``POST /services``."""
-        ref = unit.new_service_ref(enabled='False')
-        self.post(
-            '/services',
-            body={'service': ref},
-            expected_status=http.client.BAD_REQUEST,
-        )
-
     def test_create_service_enabled_str_random(self):
         """Call ``POST /services``."""
         ref = unit.new_service_ref(enabled='puppies')

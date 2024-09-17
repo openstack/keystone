@@ -18,11 +18,11 @@ import flask_restful
 
 from keystone.api._shared import json_home_relations
 from keystone.api import endpoints as _endpoints_api
+from keystone.api import validation
 from keystone.catalog import schema
 from keystone.common import json_home
 from keystone.common import provider_api
 from keystone.common import rbac_enforcer
-from keystone.common import validation
 from keystone import exception
 from keystone.i18n import _
 from keystone.server import flask as ks_flask
@@ -43,6 +43,18 @@ _ENDPOINT_GROUP_PARAMETER_RELATION = _build_parameter_relation(
 _filter_endpoint = _endpoints_api._filter_endpoint
 
 
+def _require_valid_filter(endpoint_group):
+    valid_filter_keys = ['service_id', 'region_id', 'interface']
+
+    filters = endpoint_group.get('filters', {})
+    for key in filters.keys():
+        if key not in valid_filter_keys:
+            raise exception.ValidationError(
+                attribute=' or '.join(valid_filter_keys),
+                target='endpoint_group',
+            )
+
+
 class EndpointGroupsResource(ks_flask.ResourceBase):
     collection_key = 'endpoint_groups'
     member_key = 'endpoint_group'
@@ -50,25 +62,13 @@ class EndpointGroupsResource(ks_flask.ResourceBase):
     json_home_resource_rel_func = _build_resource_relation
     json_home_parameter_rel_func = _build_parameter_relation
 
-    @staticmethod
-    def _require_valid_filter(endpoint_group):
-        valid_filter_keys = ['service_id', 'region_id', 'interface']
+    @validation.request_query_schema(schema.endpoint_group_index_request_query)
+    @validation.response_body_schema(schema.endpoint_group_index_response_body)
+    def get(self):
+        """List all endpoint groups.
 
-        filters = endpoint_group.get('filters')
-        for key in filters.keys():
-            if key not in valid_filter_keys:
-                raise exception.ValidationError(
-                    attribute=' or '.join(valid_filter_keys),
-                    target='endpoint_group',
-                )
-
-    def _get_endpoint_group(self, endpoint_group_id):
-        ENFORCER.enforce_call(action='identity:get_endpoint_group')
-        return self.wrap_member(
-            PROVIDERS.catalog_api.get_endpoint_group(endpoint_group_id)
-        )
-
-    def _list_endpoint_groups(self):
+        GET /v3/OS-EP-FILTER/endpoint_groups
+        """
         filters = 'name'
         ENFORCER.enforce_call(
             action='identity:list_endpoint_groups', filters=filters
@@ -77,21 +77,21 @@ class EndpointGroupsResource(ks_flask.ResourceBase):
         refs = PROVIDERS.catalog_api.list_endpoint_groups(hints)
         return self.wrap_collection(refs, hints=hints)
 
-    def get(self, endpoint_group_id=None):
-        if endpoint_group_id is not None:
-            return self._get_endpoint_group(endpoint_group_id)
-        return self._list_endpoint_groups()
-
+    @validation.request_body_schema(schema.endpoint_group_create_request_body)
+    @validation.response_body_schema(schema.endpoint_group_response_body)
     def post(self):
+        """Create new endpoint groups.
+
+        POST /v3/OS-EP-FILTER/endpoint_groups
+        """
         ENFORCER.enforce_call(action='identity:create_endpoint_group')
         ep_group = self.request_body_json.get('endpoint_group', {})
-        validation.lazy_validate(schema.endpoint_group_create, ep_group)
         if not ep_group.get('filters'):
             # TODO(morgan): Make this not require substitution. Substitution is
             # done here due to String Freeze in the Rocky release.
             msg = _('%s field is required and cannot be empty') % 'filters'
             raise exception.ValidationError(message=msg)
-        self._require_valid_filter(ep_group)
+        _require_valid_filter(ep_group)
         ep_group = self._assign_unique_id(ep_group)
         return (
             self.wrap_member(
@@ -102,12 +102,35 @@ class EndpointGroupsResource(ks_flask.ResourceBase):
             http.client.CREATED,
         )
 
+
+class EndpointGroupResource(ks_flask.ResourceBase):
+    collection_key = 'endpoint_groups'
+    member_key = 'endpoint_group'
+    api_prefix = '/OS-EP-FILTER'
+
+    @validation.request_query_schema(None)
+    @validation.response_body_schema(schema.endpoint_group_response_body)
+    def get(self, endpoint_group_id=None):
+        """Get Endpoint Group
+
+        GET /v3/OS-EP-FILTER/endpoint_groups/{endpoint_group_id}
+        """
+        ENFORCER.enforce_call(action='identity:get_endpoint_group')
+        return self.wrap_member(
+            PROVIDERS.catalog_api.get_endpoint_group(endpoint_group_id)
+        )
+
+    @validation.request_body_schema(schema.endpoint_group_update_request_body)
+    @validation.response_body_schema(schema.endpoint_group_response_body)
     def patch(self, endpoint_group_id):
+        """Update existing endpoint groups
+
+        PATCH /v3/OS-EP-FILTER/endpoint_groups/{endpoint_group_id}
+        """
         ENFORCER.enforce_call(action='identity:update_endpoint_group')
         ep_group = self.request_body_json.get('endpoint_group', {})
-        validation.lazy_validate(schema.endpoint_group_update, ep_group)
         if 'filters' in ep_group:
-            self._require_valid_filter(ep_group)
+            _require_valid_filter(ep_group)
         self._require_matching_id(ep_group)
         return self.wrap_member(
             PROVIDERS.catalog_api.update_endpoint_group(
@@ -278,8 +301,25 @@ class EPFilterAPI(ks_flask.APIBase):
     _name = 'OS-EP-FILTER'
     _import_name = __name__
     _api_url_prefix = '/OS-EP-FILTER'
-    resources = [EndpointGroupsResource]
     resource_mapping = [
+        ks_flask.construct_resource_map(
+            resource=EndpointGroupsResource,
+            url='/endpoint_groups',
+            resource_kwargs={},
+            rel="endpoint_groups",
+            resource_relation_func=_build_resource_relation,
+            path_vars=None,
+        ),
+        ks_flask.construct_resource_map(
+            resource=EndpointGroupResource,
+            url='/endpoint_groups/<string:endpoint_group_id>',
+            resource_kwargs={},
+            rel="endpoint_group",
+            resource_relation_func=_build_resource_relation,
+            path_vars={
+                'endpoint_group_id': _ENDPOINT_GROUP_PARAMETER_RELATION
+            },
+        ),
         ks_flask.construct_resource_map(
             resource=EPFilterEndpointProjectsResource,
             url='/endpoints/<string:endpoint_id>/projects',
