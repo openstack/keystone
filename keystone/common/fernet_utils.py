@@ -106,12 +106,12 @@ class FernetUtils:
 
         # This ensures the key created is not world-readable
         old_umask = os.umask(0o177)
-        if keystone_user_id and keystone_group_id:
+        if keystone_user_id is not None and keystone_group_id is not None:
             old_egid = os.getegid()
             old_euid = os.geteuid()
             os.setegid(keystone_group_id)
             os.seteuid(keystone_user_id)
-        elif keystone_user_id or keystone_group_id:
+        elif keystone_user_id is not None or keystone_group_id is not None:
             LOG.warning(
                 'Unable to change the ownership of the new key without a '
                 'keystone user ID and keystone group ID both being provided: '
@@ -135,7 +135,7 @@ class FernetUtils:
             # Do the same with group and user identifiers if a Keystone group
             # or user was supplied.
             os.umask(old_umask)
-            if keystone_user_id and keystone_group_id:
+            if keystone_user_id is not None and keystone_group_id is not None:
                 os.seteuid(old_euid)
                 os.setegid(old_egid)
             # Deal with the tmp key file
