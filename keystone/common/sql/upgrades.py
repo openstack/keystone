@@ -76,7 +76,8 @@ def _find_alembic_conf():
 
     config = alembic_config.Config(os.path.abspath(path))
 
-    config.set_main_option('sqlalchemy.url', CONF.database.connection)
+    conf_database_connection = str(CONF.database.connection).replace('%', '%%')
+    config.set_main_option('sqlalchemy.url', str(conf_database_connection))
 
     # we don't want to use the logger configuration from the file, which is
     # only really intended for the CLI
