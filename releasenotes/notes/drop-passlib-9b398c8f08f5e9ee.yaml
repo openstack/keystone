@@ -1,0 +1,8 @@
+---
+upgrade:
+  - |
+    Dependency on abandoned library `passlib` has been dropped in favor of
+    using `bcrypt` and `cryptography` directly. It was ensured that passwords
+    hashed with `passlib` are still supported, but absence of cornercases can
+    not be guaranteed. If users are not able to login using old password such
+    password must be rotated.
