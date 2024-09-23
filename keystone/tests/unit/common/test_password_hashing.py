@@ -134,3 +134,23 @@ class TestPasswordHashing(unit.BaseTestCase):
             self.assertTrue(
                 password_hashing.check_password(password, hashed_passlib)
             )
+
+    def test_sha512_crypt_passlib_compat(self):
+        self.config_fixture.config(strict_password_check=True)
+        # sha512_crypt is deprecated and is not supported to be set.
+        # We want to ensure that user is still able to login, thus
+        # set algo to whatever and go verify pwd
+        self.config_fixture.config(
+            group="identity", password_hash_algorithm="bcrypt"
+        )
+        self.config_fixture.config(group="identity", max_password_length="72")
+        # few iterations to test multiple random values
+        for _ in range(self.ITERATIONS):
+            password: str = "".join(  # type: ignore
+                secrets.choice(string.printable)
+                for i in range(random.randint(1, 72))
+            )
+            hashed_passlib = passlib.hash.sha512_crypt.hash(password)
+            self.assertTrue(
+                password_hashing.check_password(password, hashed_passlib)
+            )
