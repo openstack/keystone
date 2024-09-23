@@ -26,6 +26,7 @@ CONF = keystone.conf.CONF
 
 class TestPasswordHashing(unit.BaseTestCase):
     OPTIONAL = object()
+    ITERATIONS: int = 10
 
     def setUp(self):
         super().setUp()
@@ -38,10 +39,10 @@ class TestPasswordHashing(unit.BaseTestCase):
         )
         self.config_fixture.config(group="identity", max_password_length="96")
         # Few iterations to test different inputs
-        for _ in range(10):
+        for _ in range(self.ITERATIONS):
             password: str = "".join(  # type: ignore
                 secrets.choice(string.printable)
-                for i in range(random.randint(1, 96))
+                for i in range(random.randint(1, 72))
             )
             hashed = password_hashing.hash_password(password)
             self.assertTrue(password_hashing.check_password(password, hashed))
@@ -57,7 +58,7 @@ class TestPasswordHashing(unit.BaseTestCase):
         )
         self.config_fixture.config(group="identity", max_password_length="96")
         # Few iterations to test different inputs
-        for _ in range(10):
+        for _ in range(self.ITERATIONS):
             # Would be nice to check all pass lengths from 1 till max, but it
             # takes too much time, thus using rand to pick up the password
             # length
@@ -66,6 +67,70 @@ class TestPasswordHashing(unit.BaseTestCase):
                 for i in range(random.randint(1, 96))
             )
             hashed_passlib = passlib.hash.scrypt.hash(password)
+            self.assertTrue(
+                password_hashing.check_password(password, hashed_passlib)
+            )
+
+    def test_bcrypt(self):
+        self.config_fixture.config(strict_password_check=True)
+        self.config_fixture.config(
+            group="identity", password_hash_algorithm="bcrypt"
+        )
+        self.config_fixture.config(group="identity", max_password_length="72")
+        # Few iterations to test different inputs
+        for _ in range(self.ITERATIONS):
+            password: str = "".join(  # type: ignore
+                secrets.choice(string.printable)
+                for i in range(random.randint(1, 72))
+            )
+            hashed = password_hashing.hash_password(password)
+            self.assertTrue(password_hashing.check_password(password, hashed))
+
+    def test_bcrypt_passlib_compat(self):
+        self.config_fixture.config(strict_password_check=True)
+        self.config_fixture.config(
+            group="identity", password_hash_algorithm="bcrypt"
+        )
+        self.config_fixture.config(group="identity", max_password_length="72")
+        # Few iterations to test different inputs
+        for _ in range(self.ITERATIONS):
+            password: str = "".join(  # type: ignore
+                secrets.choice(string.printable)
+                for i in range(random.randint(1, 72))
+            )
+            hashed_passlib = passlib.hash.bcrypt.hash(password)
+            self.assertTrue(
+                password_hashing.check_password(password, hashed_passlib)
+            )
+
+    def test_bcrypt_sha256(self):
+        self.config_fixture.config(strict_password_check=True)
+        self.config_fixture.config(
+            group="identity", password_hash_algorithm="bcrypt_sha256"
+        )
+        self.config_fixture.config(group="identity", max_password_length="96")
+        # Few iterations to test different inputs
+        for _ in range(self.ITERATIONS):
+            password: str = "".join(  # type: ignore
+                secrets.choice(string.printable)
+                for i in range(random.randint(1, 96))
+            )
+            hashed = password_hashing.hash_password(password)
+            self.assertTrue(password_hashing.check_password(password, hashed))
+
+    def test_bcrypt_sha256_passlib_compat(self):
+        self.config_fixture.config(strict_password_check=True)
+        self.config_fixture.config(
+            group="identity", password_hash_algorithm="bcrypt_sha256"
+        )
+        self.config_fixture.config(group="identity", max_password_length="96")
+        # Few iterations to test different inputs
+        for _ in range(self.ITERATIONS):
+            password: str = "".join(  # type: ignore
+                secrets.choice(string.printable)
+                for i in range(random.randint(1, 96))
+            )
+            hashed_passlib = passlib.hash.bcrypt_sha256.hash(password)
             self.assertTrue(
                 password_hashing.check_password(password, hashed_passlib)
             )
