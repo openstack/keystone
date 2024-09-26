@@ -439,7 +439,7 @@ class DbSync(BaseApp):
         except db_exception.DBMigrationError:
             contract_version = None
 
-        heads = upgrades.get_current_heads()
+        heads = upgrades.get_head_revisions()
 
         if (
             upgrades.EXPAND_BRANCH not in heads
