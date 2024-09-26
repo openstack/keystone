@@ -19,6 +19,7 @@ import os
 from alembic import command as alembic_api
 from alembic import config as alembic_config
 from alembic import migration as alembic_migration
+from alembic.runtime import environment as alembic_environment
 from alembic import script as alembic_script
 from oslo_db import exception as db_exception
 from oslo_log import log as logging
@@ -111,6 +112,11 @@ def _get_current_heads(engine, config):
         context = alembic_migration.MigrationContext.configure(conn)
         heads = context.get_current_heads()
 
+    heads_map = _get_head_maps(heads, script)
+    return heads_map
+
+
+def _get_head_maps(heads, script):
     heads_map = {}
 
     for head in heads:
@@ -144,6 +150,17 @@ def get_current_heads():
     heads = _get_current_heads(engine, config)
 
     return heads
+
+
+def get_head_revisions():
+    """Get the available head for each the expand and contract branches."""
+    config = _find_alembic_conf()
+    script = alembic_script.ScriptDirectory.from_config(config)
+    context = alembic_environment.EnvironmentContext(config, script)
+    heads = context.get_head_revisions()
+    heads_map = _get_head_maps(heads, script)
+
+    return heads_map
 
 
 def _is_database_under_alembic_control(engine):
