@@ -2095,24 +2095,28 @@ class ServiceProviderValidationTestCase(unit.BaseTestCase):
         self.valid_auth_url = 'https://' + uuid.uuid4().hex + '.com'
         self.valid_sp_url = 'https://' + uuid.uuid4().hex + '.com'
 
-        create = federation_schema.service_provider_create
-        update = federation_schema.service_provider_update
+        create = federation_schema.service_provider_create_request_body
+        update = federation_schema.service_provider_update_request_body
         self.create_sp_validator = validators.SchemaValidator(create)
         self.update_sp_validator = validators.SchemaValidator(update)
 
     def test_validate_sp_request(self):
         """Test that we validate `auth_url` and `sp_url` in request."""
         request_to_validate = {
-            'auth_url': self.valid_auth_url,
-            'sp_url': self.valid_sp_url,
+            'service_provider': {
+                'auth_url': self.valid_auth_url,
+                'sp_url': self.valid_sp_url,
+            }
         }
         self.create_sp_validator.validate(request_to_validate)
 
     def test_validate_sp_request_with_invalid_auth_url_fails(self):
         """Validate request fails with invalid `auth_url`."""
         request_to_validate = {
-            'auth_url': uuid.uuid4().hex,
-            'sp_url': self.valid_sp_url,
+            'service_provider': {
+                'auth_url': uuid.uuid4().hex,
+                'sp_url': self.valid_sp_url,
+            }
         }
         self.assertRaises(
             exception.SchemaValidationError,
@@ -2123,8 +2127,10 @@ class ServiceProviderValidationTestCase(unit.BaseTestCase):
     def test_validate_sp_request_with_invalid_sp_url_fails(self):
         """Validate request fails with invalid `sp_url`."""
         request_to_validate = {
-            'auth_url': self.valid_auth_url,
-            'sp_url': uuid.uuid4().hex,
+            'service_provider': {
+                'auth_url': self.valid_auth_url,
+                'sp_url': uuid.uuid4().hex,
+            }
         }
         self.assertRaises(
             exception.SchemaValidationError,
@@ -2134,13 +2140,17 @@ class ServiceProviderValidationTestCase(unit.BaseTestCase):
 
     def test_validate_sp_request_without_auth_url_fails(self):
         """Validate request fails without `auth_url`."""
-        request_to_validate = {'sp_url': self.valid_sp_url}
+        request_to_validate = {
+            'service_provider': {'sp_url': self.valid_sp_url}
+        }
         self.assertRaises(
             exception.SchemaValidationError,
             self.create_sp_validator.validate,
             request_to_validate,
         )
-        request_to_validate = {'auth_url': None, 'sp_url': self.valid_sp_url}
+        request_to_validate = {
+            'service_provider': {'auth_url': None, 'sp_url': self.valid_sp_url}
+        }
         self.assertRaises(
             exception.SchemaValidationError,
             self.create_sp_validator.validate,
@@ -2149,13 +2159,20 @@ class ServiceProviderValidationTestCase(unit.BaseTestCase):
 
     def test_validate_sp_request_without_sp_url_fails(self):
         """Validate request fails without `sp_url`."""
-        request_to_validate = {'auth_url': self.valid_auth_url}
+        request_to_validate = {
+            'service_provider': {'auth_url': self.valid_auth_url}
+        }
         self.assertRaises(
             exception.SchemaValidationError,
             self.create_sp_validator.validate,
             request_to_validate,
         )
-        request_to_validate = {'auth_url': self.valid_auth_url, 'sp_url': None}
+        request_to_validate = {
+            'service_provider': {
+                'auth_url': self.valid_auth_url,
+                'sp_url': None,
+            }
+        }
         self.assertRaises(
             exception.SchemaValidationError,
             self.create_sp_validator.validate,
@@ -2166,9 +2183,11 @@ class ServiceProviderValidationTestCase(unit.BaseTestCase):
         """Validate `enabled` as boolean-like values."""
         for valid_enabled in _VALID_ENABLED_FORMATS:
             request_to_validate = {
-                'auth_url': self.valid_auth_url,
-                'sp_url': self.valid_sp_url,
-                'enabled': valid_enabled,
+                'service_provider': {
+                    'auth_url': self.valid_auth_url,
+                    'sp_url': self.valid_sp_url,
+                    'enabled': valid_enabled,
+                }
             }
             self.create_sp_validator.validate(request_to_validate)
 
@@ -2176,9 +2195,11 @@ class ServiceProviderValidationTestCase(unit.BaseTestCase):
         """Exception is raised when `enabled` isn't a boolean-like value."""
         for invalid_enabled in _INVALID_ENABLED_FORMATS:
             request_to_validate = {
-                'auth_url': self.valid_auth_url,
-                'sp_url': self.valid_sp_url,
-                'enabled': invalid_enabled,
+                'service_provider': {
+                    'auth_url': self.valid_auth_url,
+                    'sp_url': self.valid_sp_url,
+                    'enabled': invalid_enabled,
+                }
             }
             self.assertRaises(
                 exception.SchemaValidationError,
@@ -2189,18 +2210,22 @@ class ServiceProviderValidationTestCase(unit.BaseTestCase):
     def test_validate_sp_request_with_valid_description(self):
         """Test that we validate `description` in create requests."""
         request_to_validate = {
-            'auth_url': self.valid_auth_url,
-            'sp_url': self.valid_sp_url,
-            'description': 'My Service Provider',
+            'service_provider': {
+                'auth_url': self.valid_auth_url,
+                'sp_url': self.valid_sp_url,
+                'description': 'My Service Provider',
+            }
         }
         self.create_sp_validator.validate(request_to_validate)
 
     def test_validate_sp_request_with_invalid_description_fails(self):
         """Exception is raised when `description` as a non-string value."""
         request_to_validate = {
-            'auth_url': self.valid_auth_url,
-            'sp_url': self.valid_sp_url,
-            'description': False,
+            'service_provider': {
+                'auth_url': self.valid_auth_url,
+                'sp_url': self.valid_sp_url,
+                'description': False,
+            }
         }
         self.assertRaises(
             exception.SchemaValidationError,
@@ -2212,10 +2237,12 @@ class ServiceProviderValidationTestCase(unit.BaseTestCase):
         """Exception raised when passing extra fields in the body."""
         # 'id' can't be passed in the body since it is passed in the URL
         request_to_validate = {
-            'id': 'ACME',
-            'auth_url': self.valid_auth_url,
-            'sp_url': self.valid_sp_url,
-            'description': 'My Service Provider',
+            'service_provider': {
+                'id': 'ACME',
+                'auth_url': self.valid_auth_url,
+                'sp_url': self.valid_sp_url,
+                'description': 'My Service Provider',
+            }
         }
         self.assertRaises(
             exception.SchemaValidationError,
@@ -2225,7 +2252,9 @@ class ServiceProviderValidationTestCase(unit.BaseTestCase):
 
     def test_validate_sp_update_request(self):
         """Test that we validate a update request."""
-        request_to_validate = {'description': uuid.uuid4().hex}
+        request_to_validate = {
+            'service_provider': {'description': uuid.uuid4().hex}
+        }
         self.update_sp_validator.validate(request_to_validate)
 
     def test_validate_sp_update_request_with_no_parameters_fails(self):
@@ -2239,13 +2268,15 @@ class ServiceProviderValidationTestCase(unit.BaseTestCase):
 
     def test_validate_sp_update_request_with_invalid_auth_url_fails(self):
         """Exception raised when updating with invalid `auth_url`."""
-        request_to_validate = {'auth_url': uuid.uuid4().hex}
+        request_to_validate = {
+            'service_provider': {'auth_url': uuid.uuid4().hex}
+        }
         self.assertRaises(
             exception.SchemaValidationError,
             self.update_sp_validator.validate,
             request_to_validate,
         )
-        request_to_validate = {'auth_url': None}
+        request_to_validate = {'service_provider': {'auth_url': None}}
         self.assertRaises(
             exception.SchemaValidationError,
             self.update_sp_validator.validate,
@@ -2254,13 +2285,15 @@ class ServiceProviderValidationTestCase(unit.BaseTestCase):
 
     def test_validate_sp_update_request_with_invalid_sp_url_fails(self):
         """Exception raised when updating with invalid `sp_url`."""
-        request_to_validate = {'sp_url': uuid.uuid4().hex}
+        request_to_validate = {
+            'service_provider': {'sp_url': uuid.uuid4().hex}
+        }
         self.assertRaises(
             exception.SchemaValidationError,
             self.update_sp_validator.validate,
             request_to_validate,
         )
-        request_to_validate = {'sp_url': None}
+        request_to_validate = {'service_provider': {'sp_url': None}}
         self.assertRaises(
             exception.SchemaValidationError,
             self.update_sp_validator.validate,
