@@ -18,6 +18,7 @@ import itertools
 from oslo_log import log
 import passlib.hash
 
+from keystone.common.password_hashers import bcrypt
 from keystone.common.password_hashers import scrypt
 import keystone.conf
 from keystone import exception
@@ -28,11 +29,11 @@ LOG = log.getLogger(__name__)
 
 SUPPORTED_HASHERS = frozenset(
     [
-        passlib.hash.bcrypt,
-        passlib.hash.bcrypt_sha256,
         passlib.hash.pbkdf2_sha512,
         passlib.hash.sha512_crypt,
         scrypt.Scrypt,
+        bcrypt.Bcrypt,
+        bcrypt.Bcrypt_sha256,
     ]
 )
 
@@ -170,5 +171,9 @@ def hash_password(password: str) -> str:
         if CONF.identity.salt_bytesize:
             params["salt_size"] = CONF.identity.salt_bytesize
         return scrypt.Scrypt.hash(password_utf8, **params)
+    elif hasher is bcrypt.Bcrypt:
+        return bcrypt.Bcrypt.hash(password_utf8, **params)
+    elif hasher is bcrypt.Bcrypt_sha256:
+        return bcrypt.Bcrypt_sha256.hash(password_utf8, **params)
 
     return hasher.using(**params).hash(password_utf8)
