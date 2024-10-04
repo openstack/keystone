@@ -1,0 +1,7 @@
+---
+deprecations:
+  - |
+    This is the last release where passwords hashed using sha512_crypt
+    algorithm are supported. Since even support of that is being dropped in
+    python 3.13 it would be physically dropped from Keystone in the next
+    release (`Epoxy`).
