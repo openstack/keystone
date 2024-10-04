@@ -16,9 +16,10 @@
 import itertools
 
 from oslo_log import log
-import passlib.hash
 
+from keystone.common import password_hashers
 from keystone.common.password_hashers import bcrypt
+from keystone.common.password_hashers import pbkdf2
 from keystone.common.password_hashers import scrypt
 from keystone.common.password_hashers import sha512_crypt
 import keystone.conf
@@ -28,14 +29,16 @@ from keystone.i18n import _
 CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
-SUPPORTED_HASHERS = frozenset(
-    [
-        passlib.hash.pbkdf2_sha512,
-        scrypt.Scrypt,
-        bcrypt.Bcrypt,
-        bcrypt.Bcrypt_sha256,
-        sha512_crypt.Sha512_crypt,
-    ]
+SUPPORTED_HASHERS: frozenset[type[password_hashers.PasswordHasher]] = (
+    frozenset(
+        [
+            scrypt.Scrypt,
+            bcrypt.Bcrypt,
+            bcrypt.Bcrypt_sha256,
+            sha512_crypt.Sha512_crypt,
+            pbkdf2.Sha512,
+        ]
+    )
 )
 
 _HASHER_NAME_MAP = {hasher.name: hasher for hasher in SUPPORTED_HASHERS}
@@ -160,9 +163,6 @@ def hash_password(password: str) -> str:
 
     if CONF.identity.password_hash_rounds:
         params['rounds'] = CONF.identity.password_hash_rounds
-    if hasher is passlib.hash.pbkdf2_sha512:
-        if CONF.identity.salt_bytesize:
-            params["salt_size"] = CONF.identity.salt_bytesize
     if hasher is scrypt.Scrypt:
         params["n"] = 16
         if CONF.identity.scrypt_block_size:
@@ -176,5 +176,12 @@ def hash_password(password: str) -> str:
         return bcrypt.Bcrypt.hash(password_utf8, **params)
     elif hasher is bcrypt.Bcrypt_sha256:
         return bcrypt.Bcrypt_sha256.hash(password_utf8, **params)
-
-    return hasher.using(**params).hash(password_utf8)
+    elif hasher is pbkdf2.Sha512:
+        if CONF.identity.salt_bytesize:
+            params["salt_size"] = CONF.identity.salt_bytesize
+        return pbkdf2.Sha512.hash(password_utf8, **params)
+    else:
+        raise RuntimeError(
+            _('Password Hash Algorithm %s not implemented')
+            % CONF.identity.password_hash_algorithm
+        )

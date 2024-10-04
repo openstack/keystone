@@ -15,7 +15,7 @@ import secrets
 import string
 
 from oslo_config import fixture as config_fixture
-import passlib
+import passlib.hash
 
 from keystone.common import password_hashing
 import keystone.conf
@@ -151,6 +151,38 @@ class TestPasswordHashing(unit.BaseTestCase):
                 for i in range(random.randint(1, 72))
             )
             hashed_passlib = passlib.hash.sha512_crypt.hash(password)
+            self.assertTrue(
+                password_hashing.check_password(password, hashed_passlib)
+            )
+
+    def test_pbkdf2_sha512(self):
+        self.config_fixture.config(strict_password_check=True)
+        self.config_fixture.config(
+            group="identity", password_hash_algorithm="pbkdf2_sha512"
+        )
+        self.config_fixture.config(group="identity", max_password_length="96")
+        # Do few iterations to process different inputs
+        for _ in range(self.ITERATIONS):
+            password: str = "".join(  # type: ignore
+                secrets.choice(string.printable)
+                for i in range(random.randint(1, 96))
+            )
+            hashed = password_hashing.hash_password(password)
+            self.assertTrue(password_hashing.check_password(password, hashed))
+
+    def test_pbkdf2_sha512_passlib_compat(self):
+        self.config_fixture.config(strict_password_check=True)
+        self.config_fixture.config(
+            group="identity", password_hash_algorithm="pbkdf2_sha512"
+        )
+        self.config_fixture.config(group="identity", max_password_length="72")
+        # Do few iterations to process different inputs
+        for _ in range(self.ITERATIONS):
+            password: str = "".join(  # type: ignore
+                secrets.choice(string.printable)
+                for i in range(random.randint(1, 72))
+            )
+            hashed_passlib = passlib.hash.pbkdf2_sha512.hash(password)
             self.assertTrue(
                 password_hashing.check_password(password, hashed_passlib)
             )

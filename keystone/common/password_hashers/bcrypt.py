@@ -15,10 +15,11 @@ import hmac
 
 import bcrypt
 
+from keystone.common import password_hashers
 from keystone import exception
 
 
-class Bcrypt:
+class Bcrypt(password_hashers.PasswordHasher):
     """passlib transition class for implementing bcrypt password hashing"""
 
     name: str = "bcrypt"
@@ -57,7 +58,7 @@ class Bcrypt:
         return bcrypt.checkpw(password, hashed.encode("ascii"))
 
 
-class Bcrypt_sha256:
+class Bcrypt_sha256(password_hashers.PasswordHasher):
     """passlib transition class for bcrypt_sha256 password hashing"""
 
     name: str = "bcrypt_sha256"
