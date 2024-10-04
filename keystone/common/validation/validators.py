@@ -54,7 +54,8 @@ def validate_password(password):
 class SchemaValidator:
     """Resource reference validator class."""
 
-    validator_org = jsonschema.Draft4Validator
+    # Use 2020 Schema consistently in all other OpenStack services
+    validator_org = jsonschema.Draft202012Validator
 
     def __init__(self, schema):
         # NOTE(lbragstad): If at some point in the future we want to extend
