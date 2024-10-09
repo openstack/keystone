@@ -28,9 +28,7 @@ The number of previous windows to check when processing TOTP passcodes.
 
 
 GROUP_NAME = __name__.split('.')[-1]
-ALL_OPTS = [
-    included_previous_windows,
-]
+ALL_OPTS = [included_previous_windows]
 
 
 def register_opts(conf):

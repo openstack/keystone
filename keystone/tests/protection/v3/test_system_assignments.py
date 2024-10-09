@@ -29,7 +29,6 @@ PROVIDERS = provider_api.ProviderAPIs
 
 
 class _SystemUserSystemAssignmentTests:
-
     def test_user_can_list_user_system_role_assignments(self):
         user = PROVIDERS.identity_api.create_user(
             unit.new_user_ref(CONF.identity.default_domain_id)
@@ -41,7 +40,8 @@ class _SystemUserSystemAssignmentTests:
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/system/users/%s/roles' % user['id'], headers=self.headers
+                '/v3/system/users/{}/roles'.format(user['id']),
+                headers=self.headers,
             )
             self.assertEqual(1, len(r.json['roles']))
             self.assertEqual(
@@ -59,8 +59,9 @@ class _SystemUserSystemAssignmentTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/system/users/%s/roles/%s'
-                % (user['id'], self.bootstrapper.member_role_id),
+                '/v3/system/users/{}/roles/{}'.format(
+                    user['id'], self.bootstrapper.member_role_id
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.NO_CONTENT,
             )
@@ -76,7 +77,7 @@ class _SystemUserSystemAssignmentTests:
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/system/groups/%s/roles' % group['id'],
+                '/v3/system/groups/{}/roles'.format(group['id']),
                 headers=self.headers,
             )
             self.assertEqual(1, len(r.json['roles']))
@@ -95,15 +96,15 @@ class _SystemUserSystemAssignmentTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/system/groups/%s/roles/%s'
-                % (group['id'], self.bootstrapper.member_role_id),
+                '/v3/system/groups/{}/roles/{}'.format(
+                    group['id'], self.bootstrapper.member_role_id
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.NO_CONTENT,
             )
 
 
 class _SystemMemberAndReaderSystemAssignmentTests:
-
     def test_user_cannot_grant_system_assignments(self):
         user = PROVIDERS.identity_api.create_user(
             unit.new_user_ref(CONF.identity.default_domain_id)
@@ -111,8 +112,9 @@ class _SystemMemberAndReaderSystemAssignmentTests:
 
         with self.test_client() as c:
             c.put(
-                '/v3/system/users/%s/roles/%s'
-                % (user['id'], self.bootstrapper.member_role_id),
+                '/v3/system/users/{}/roles/{}'.format(
+                    user['id'], self.bootstrapper.member_role_id
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -128,8 +130,9 @@ class _SystemMemberAndReaderSystemAssignmentTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/system/users/%s/roles/%s'
-                % (user['id'], self.bootstrapper.member_role_id),
+                '/v3/system/users/{}/roles/{}'.format(
+                    user['id'], self.bootstrapper.member_role_id
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -141,8 +144,9 @@ class _SystemMemberAndReaderSystemAssignmentTests:
 
         with self.test_client() as c:
             c.put(
-                '/v3/system/groups/%s/roles/%s'
-                % (group['id'], self.bootstrapper.member_role_id),
+                '/v3/system/groups/{}/roles/{}'.format(
+                    group['id'], self.bootstrapper.member_role_id
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -158,15 +162,15 @@ class _SystemMemberAndReaderSystemAssignmentTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/system/groups/%s/roles/%s'
-                % (group['id'], self.bootstrapper.member_role_id),
+                '/v3/system/groups/{}/roles/{}'.format(
+                    group['id'], self.bootstrapper.member_role_id
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
 
 
 class _DomainAndProjectUserSystemAssignmentTests:
-
     def test_user_cannot_list_system_role_assignments(self):
         user = PROVIDERS.identity_api.create_user(
             unit.new_user_ref(CONF.identity.default_domain_id)
@@ -178,7 +182,7 @@ class _DomainAndProjectUserSystemAssignmentTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/system/users/%s/roles' % user['id'],
+                '/v3/system/users/{}/roles'.format(user['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -194,8 +198,9 @@ class _DomainAndProjectUserSystemAssignmentTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/system/users/%s/roles/%s'
-                % (user['id'], self.bootstrapper.member_role_id),
+                '/v3/system/users/{}/roles/{}'.format(
+                    user['id'], self.bootstrapper.member_role_id
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -207,8 +212,9 @@ class _DomainAndProjectUserSystemAssignmentTests:
 
         with self.test_client() as c:
             c.put(
-                '/v3/system/users/%s/roles/%s'
-                % (user['id'], self.bootstrapper.member_role_id),
+                '/v3/system/users/{}/roles/{}'.format(
+                    user['id'], self.bootstrapper.member_role_id
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -224,8 +230,9 @@ class _DomainAndProjectUserSystemAssignmentTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/system/users/%s/roles/%s'
-                % (user['id'], self.bootstrapper.member_role_id),
+                '/v3/system/users/{}/roles/{}'.format(
+                    user['id'], self.bootstrapper.member_role_id
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -241,7 +248,7 @@ class _DomainAndProjectUserSystemAssignmentTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/system/groups/%s/roles' % group['id'],
+                '/v3/system/groups/{}/roles'.format(group['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -257,8 +264,9 @@ class _DomainAndProjectUserSystemAssignmentTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/system/groups/%s/roles/%s'
-                % (group['id'], self.bootstrapper.member_role_id),
+                '/v3/system/groups/{}/roles/{}'.format(
+                    group['id'], self.bootstrapper.member_role_id
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -270,8 +278,9 @@ class _DomainAndProjectUserSystemAssignmentTests:
 
         with self.test_client() as c:
             c.put(
-                '/v3/system/groups/%s/roles/%s'
-                % (group['id'], self.bootstrapper.member_role_id),
+                '/v3/system/groups/{}/roles/{}'.format(
+                    group['id'], self.bootstrapper.member_role_id
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -287,8 +296,9 @@ class _DomainAndProjectUserSystemAssignmentTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/system/groups/%s/roles/%s'
-                % (group['id'], self.bootstrapper.member_role_id),
+                '/v3/system/groups/{}/roles/{}'.format(
+                    group['id'], self.bootstrapper.member_role_id
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -300,7 +310,6 @@ class SystemReaderTests(
     _SystemUserSystemAssignmentTests,
     _SystemMemberAndReaderSystemAssignmentTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -335,7 +344,6 @@ class SystemMemberTests(
     _SystemUserSystemAssignmentTests,
     _SystemMemberAndReaderSystemAssignmentTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -377,7 +385,6 @@ class SystemAdminTests(
     common_auth.AuthTestMixin,
     _SystemUserSystemAssignmentTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -407,8 +414,9 @@ class SystemAdminTests(
 
         with self.test_client() as c:
             c.put(
-                '/v3/system/users/%s/roles/%s'
-                % (user['id'], self.bootstrapper.member_role_id),
+                '/v3/system/users/{}/roles/{}'.format(
+                    user['id'], self.bootstrapper.member_role_id
+                ),
                 headers=self.headers,
             )
 
@@ -423,8 +431,9 @@ class SystemAdminTests(
 
         with self.test_client() as c:
             c.delete(
-                '/v3/system/users/%s/roles/%s'
-                % (user['id'], self.bootstrapper.member_role_id),
+                '/v3/system/users/{}/roles/{}'.format(
+                    user['id'], self.bootstrapper.member_role_id
+                ),
                 headers=self.headers,
             )
 
@@ -435,8 +444,9 @@ class SystemAdminTests(
 
         with self.test_client() as c:
             c.put(
-                '/v3/system/groups/%s/roles/%s'
-                % (group['id'], self.bootstrapper.member_role_id),
+                '/v3/system/groups/{}/roles/{}'.format(
+                    group['id'], self.bootstrapper.member_role_id
+                ),
                 headers=self.headers,
             )
 
@@ -451,8 +461,9 @@ class SystemAdminTests(
 
         with self.test_client() as c:
             c.delete(
-                '/v3/system/groups/%s/roles/%s'
-                % (group['id'], self.bootstrapper.member_role_id),
+                '/v3/system/groups/{}/roles/{}'.format(
+                    group['id'], self.bootstrapper.member_role_id
+                ),
                 headers=self.headers,
             )
 
@@ -462,7 +473,6 @@ class DomainUserTests(
     common_auth.AuthTestMixin,
     _DomainAndProjectUserSystemAssignmentTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -502,7 +512,6 @@ class ProjectReaderTests(
     common_auth.AuthTestMixin,
     _DomainAndProjectUserSystemAssignmentTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -548,7 +557,6 @@ class ProjectMemberTests(
     common_auth.AuthTestMixin,
     _DomainAndProjectUserSystemAssignmentTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -594,7 +602,6 @@ class ProjectAdminTests(
     common_auth.AuthTestMixin,
     _DomainAndProjectUserSystemAssignmentTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()

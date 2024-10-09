@@ -15,7 +15,6 @@ from keystone.tests import unit
 
 
 class TestPluginCore(unit.TestCase):
-
     def test_construct_method_map_with_one_methods(self):
         auth_methods = ['password']
         self.config_fixture.config(group='auth', methods=auth_methods)

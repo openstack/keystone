@@ -25,7 +25,6 @@ LOG = log.getLogger(__name__)
 
 
 class Resource(base.ResourceDriverBase):
-
     def _encode_domain_id(self, ref):
         if 'domain_id' in ref and ref['domain_id'] is None:
             new_ref = ref.copy()
@@ -231,7 +230,7 @@ class Resource(base.ResourceDriverBase):
             subq_tags = query.filter(
                 sql_model.ProjectTag.project_id == ptag['project_id']
             )
-            result = map(lambda x: x['name'], subq_tags.all())
+            result = (x['name'] for x in subq_tags.all())
             if set(tags) <= set(result):
                 filtered_ids.append(ptag['project_id'])
         return filtered_ids

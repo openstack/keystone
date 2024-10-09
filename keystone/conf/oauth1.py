@@ -55,11 +55,7 @@ means that access tokens will last forever.
 
 
 GROUP_NAME = __name__.split('.')[-1]
-ALL_OPTS = [
-    driver,
-    request_token_duration,
-    access_token_duration,
-]
+ALL_OPTS = [driver, request_token_duration, access_token_duration]
 
 
 def register_opts(conf):

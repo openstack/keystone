@@ -45,7 +45,7 @@ class _SystemUserPoliciesTests:
         policy = PROVIDERS.policy_api.create_policy(policy['id'], policy)
 
         with self.test_client() as c:
-            c.get('/v3/policies/%s' % policy['id'], headers=self.headers)
+            c.get('/v3/policies/{}'.format(policy['id']), headers=self.headers)
 
 
 class _SystemReaderAndMemberPoliciesTests:
@@ -58,11 +58,7 @@ class _SystemReaderAndMemberPoliciesTests:
             'description': uuid.uuid4().hex,
             'enabled': True,
             # Store serialized JSON data as the blob to mimic real world usage.
-            'blob': json.dumps(
-                {
-                    'data': uuid.uuid4().hex,
-                }
-            ),
+            'blob': json.dumps({'data': uuid.uuid4().hex}),
             'type': uuid.uuid4().hex,
         }
         with self.test_client() as c:
@@ -81,7 +77,7 @@ class _SystemReaderAndMemberPoliciesTests:
 
         with self.test_client() as c:
             c.patch(
-                '/v3/policies/%s' % policy['id'],
+                '/v3/policies/{}'.format(policy['id']),
                 json=update,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -93,14 +89,13 @@ class _SystemReaderAndMemberPoliciesTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/policies/%s' % policy['id'],
+                '/v3/policies/{}'.format(policy['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
 
 
 class _DomainAndProjectUserPolicyTests:
-
     def test_user_cannot_list_policies(self):
         policy = unit.new_policy_ref()
         policy = PROVIDERS.policy_api.create_policy(policy['id'], policy)
@@ -118,7 +113,7 @@ class _DomainAndProjectUserPolicyTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/policies/%s' % policy['id'],
+                '/v3/policies/{}'.format(policy['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -130,11 +125,7 @@ class _DomainAndProjectUserPolicyTests:
             'description': uuid.uuid4().hex,
             'enabled': True,
             # Store serialized JSON data as the blob to mimic real world usage.
-            'blob': json.dumps(
-                {
-                    'data': uuid.uuid4().hex,
-                }
-            ),
+            'blob': json.dumps({'data': uuid.uuid4().hex}),
             'type': uuid.uuid4().hex,
         }
         with self.test_client() as c:
@@ -153,7 +144,7 @@ class _DomainAndProjectUserPolicyTests:
 
         with self.test_client() as c:
             c.patch(
-                '/v3/policies/%s' % policy['id'],
+                '/v3/policies/{}'.format(policy['id']),
                 json=update,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -165,7 +156,7 @@ class _DomainAndProjectUserPolicyTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/policies/%s' % policy['id'],
+                '/v3/policies/{}'.format(policy['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -177,7 +168,6 @@ class SystemReaderTests(
     _SystemUserPoliciesTests,
     _SystemReaderAndMemberPoliciesTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -212,7 +202,6 @@ class SystemMemberTests(
     _SystemUserPoliciesTests,
     _SystemReaderAndMemberPoliciesTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -246,7 +235,6 @@ class SystemAdminTests(
     common_auth.AuthTestMixin,
     _SystemUserPoliciesTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -278,11 +266,7 @@ class SystemAdminTests(
                 'enabled': True,
                 # Store serialized JSON data as the blob to mimic real world
                 # usage.
-                'blob': json.dumps(
-                    {
-                        'data': uuid.uuid4().hex,
-                    }
-                ),
+                'blob': json.dumps({'data': uuid.uuid4().hex}),
                 'type': uuid.uuid4().hex,
             }
         }
@@ -297,7 +281,7 @@ class SystemAdminTests(
 
         with self.test_client() as c:
             c.patch(
-                '/v3/policies/%s' % policy['id'],
+                '/v3/policies/{}'.format(policy['id']),
                 json=update,
                 headers=self.headers,
             )
@@ -307,7 +291,9 @@ class SystemAdminTests(
         policy = PROVIDERS.policy_api.create_policy(policy['id'], policy)
 
         with self.test_client() as c:
-            c.delete('/v3/policies/%s' % policy['id'], headers=self.headers)
+            c.delete(
+                '/v3/policies/{}'.format(policy['id']), headers=self.headers
+            )
 
 
 class DomainUserTests(
@@ -315,7 +301,6 @@ class DomainUserTests(
     common_auth.AuthTestMixin,
     _DomainAndProjectUserPolicyTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -353,7 +338,6 @@ class ProjectUserTests(
     common_auth.AuthTestMixin,
     _DomainAndProjectUserPolicyTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -380,7 +364,6 @@ class ProjectUserTestsWithoutEnforceScope(
     common_auth.AuthTestMixin,
     _DomainAndProjectUserPolicyTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()

@@ -33,7 +33,7 @@ class _CommonUserTests:
 
     def test_user_can_get_their_own_user_reference(self):
         with self.test_client() as c:
-            r = c.get('/v3/users/%s' % self.user_id, headers=self.headers)
+            r = c.get(f'/v3/users/{self.user_id}', headers=self.headers)
             self.assertEqual(self.user_id, r.json['user']['id'])
 
 
@@ -46,13 +46,13 @@ class _SystemUserTests:
         )
 
         with self.test_client() as c:
-            r = c.get('/v3/users/%s' % user['id'], headers=self.headers)
+            r = c.get('/v3/users/{}'.format(user['id']), headers=self.headers)
             self.assertEqual(user['id'], r.json['user']['id'])
 
     def test_user_cannot_get_non_existent_user_not_found(self):
         with self.test_client() as c:
             c.get(
-                '/v3/users/%s' % uuid.uuid4().hex,
+                f'/v3/users/{uuid.uuid4().hex}',
                 headers=self.headers,
                 expected_status_code=http.client.NOT_FOUND,
             )
@@ -103,7 +103,7 @@ class _SystemMemberAndReaderUserTests:
             update = {'user': {'email': uuid.uuid4().hex}}
 
             c.patch(
-                '/v3/users/%s' % user['id'],
+                '/v3/users/{}'.format(user['id']),
                 json=update,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -117,7 +117,7 @@ class _SystemMemberAndReaderUserTests:
         update = {'user': {'email': uuid.uuid4().hex}}
         with self.test_client() as c:
             c.patch(
-                '/v3/users/%s' % user['id'],
+                '/v3/users/{}'.format(user['id']),
                 json=update,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -130,7 +130,7 @@ class _SystemMemberAndReaderUserTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/users/%s' % user['id'],
+                '/v3/users/{}'.format(user['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -138,7 +138,7 @@ class _SystemMemberAndReaderUserTests:
     def test_user_cannot_delete_non_existent_user_forbidden(self):
         with self.test_client() as c:
             c.delete(
-                '/v3/users/%s' % uuid.uuid4().hex,
+                f'/v3/users/{uuid.uuid4().hex}',
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -153,7 +153,7 @@ class _DomainUserTests:
         )
 
         with self.test_client() as c:
-            r = c.get('/v3/users/%s' % user['id'], headers=self.headers)
+            r = c.get('/v3/users/{}'.format(user['id']), headers=self.headers)
             self.assertEqual(user['id'], r.json['user']['id'])
 
     def test_user_cannot_get_user_in_other_domain(self):
@@ -167,7 +167,7 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/users/%s' % user['id'],
+                '/v3/users/{}'.format(user['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -244,7 +244,7 @@ class _DomainMemberAndReaderUserTests:
         update = {'user': {'email': uuid.uuid4().hex}}
         with self.test_client() as c:
             c.patch(
-                '/v3/users/%s' % user['id'],
+                '/v3/users/{}'.format(user['id']),
                 json=update,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -261,7 +261,7 @@ class _DomainMemberAndReaderUserTests:
         update = {'user': {'email': uuid.uuid4().hex}}
         with self.test_client() as c:
             c.patch(
-                '/v3/users/%s' % user['id'],
+                '/v3/users/{}'.format(user['id']),
                 json=update,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -275,7 +275,7 @@ class _DomainMemberAndReaderUserTests:
         update = {'user': {'email': uuid.uuid4().hex}}
         with self.test_client() as c:
             c.patch(
-                '/v3/users/%s' % user['id'],
+                '/v3/users/{}'.format(user['id']),
                 json=update,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -288,7 +288,7 @@ class _DomainMemberAndReaderUserTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/users/%s' % user['id'],
+                '/v3/users/{}'.format(user['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -303,7 +303,7 @@ class _DomainMemberAndReaderUserTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/users/%s' % user['id'],
+                '/v3/users/{}'.format(user['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -311,7 +311,7 @@ class _DomainMemberAndReaderUserTests:
     def test_user_cannot_delete_non_existent_user_forbidden(self):
         with self.test_client() as c:
             c.delete(
-                '/v3/users/%s' % uuid.uuid4().hex,
+                f'/v3/users/{uuid.uuid4().hex}',
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -327,7 +327,7 @@ class _ProjectUserTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/users/%s' % user['id'],
+                '/v3/users/{}'.format(user['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -342,7 +342,7 @@ class _ProjectUserTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/users/%s' % user['id'],
+                '/v3/users/{}'.format(user['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -350,7 +350,7 @@ class _ProjectUserTests:
     def test_user_cannot_get_non_existent_user_forbidden(self):
         with self.test_client() as c:
             c.get(
-                '/v3/users/%s' % uuid.uuid4().hex,
+                f'/v3/users/{uuid.uuid4().hex}',
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -358,7 +358,7 @@ class _ProjectUserTests:
     def test_user_cannot_list_users_within_domain(self):
         with self.test_client() as c:
             c.get(
-                '/v3/users?domain_id=%s' % self.domain_id,
+                f'/v3/users?domain_id={self.domain_id}',
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -373,7 +373,7 @@ class _ProjectUserTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/users?domain_id=%s' % domain['id'],
+                '/v3/users?domain_id={}'.format(domain['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -416,7 +416,7 @@ class _ProjectUserTests:
         update = {'user': {'email': uuid.uuid4().hex}}
         with self.test_client() as c:
             c.patch(
-                '/v3/users/%s' % user['id'],
+                '/v3/users/{}'.format(user['id']),
                 json=update,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -433,7 +433,7 @@ class _ProjectUserTests:
         update = {'user': {'email': uuid.uuid4().hex}}
         with self.test_client() as c:
             c.patch(
-                '/v3/users/%s' % user['id'],
+                '/v3/users/{}'.format(user['id']),
                 json=update,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -443,7 +443,7 @@ class _ProjectUserTests:
         update = {'user': {'email': uuid.uuid4().hex}}
         with self.test_client() as c:
             c.patch(
-                '/v3/users/%s' % uuid.uuid4().hex,
+                f'/v3/users/{uuid.uuid4().hex}',
                 json=update,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -456,7 +456,7 @@ class _ProjectUserTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/users/%s' % user['id'],
+                '/v3/users/{}'.format(user['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -471,7 +471,7 @@ class _ProjectUserTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/users/%s' % user['id'],
+                '/v3/users/{}'.format(user['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -479,7 +479,7 @@ class _ProjectUserTests:
     def test_user_cannot_delete_non_existent_user_forbidden(self):
         with self.test_client() as c:
             c.delete(
-                '/v3/users/%s' % uuid.uuid4().hex,
+                f'/v3/users/{uuid.uuid4().hex}',
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -492,7 +492,6 @@ class SystemReaderTests(
     _SystemUserTests,
     _SystemMemberAndReaderUserTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -528,7 +527,6 @@ class SystemMemberTests(
     _SystemUserTests,
     _SystemMemberAndReaderUserTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -563,7 +561,6 @@ class SystemAdminTests(
     _CommonUserTests,
     _SystemUserTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -603,14 +600,16 @@ class SystemAdminTests(
         update = {'user': {'email': uuid.uuid4().hex}}
         with self.test_client() as c:
             c.patch(
-                '/v3/users/%s' % user['id'], json=update, headers=self.headers
+                '/v3/users/{}'.format(user['id']),
+                json=update,
+                headers=self.headers,
             )
 
     def test_user_cannot_update_non_existent_user_not_found(self):
         update = {'user': {'email': uuid.uuid4().hex}}
         with self.test_client() as c:
             c.patch(
-                '/v3/users/%s' % uuid.uuid4().hex,
+                f'/v3/users/{uuid.uuid4().hex}',
                 json=update,
                 headers=self.headers,
                 expected_status_code=http.client.NOT_FOUND,
@@ -622,12 +621,12 @@ class SystemAdminTests(
         )
 
         with self.test_client() as c:
-            c.delete('/v3/users/%s' % user['id'], headers=self.headers)
+            c.delete('/v3/users/{}'.format(user['id']), headers=self.headers)
 
     def test_user_cannot_delete_non_existent_user_not_found(self):
         with self.test_client() as c:
             c.delete(
-                '/v3/users/%s' % uuid.uuid4().hex,
+                f'/v3/users/{uuid.uuid4().hex}',
                 headers=self.headers,
                 expected_status_code=http.client.NOT_FOUND,
             )
@@ -640,7 +639,6 @@ class DomainReaderTests(
     _DomainUserTests,
     _DomainMemberAndReaderUserTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -680,7 +678,6 @@ class DomainMemberTests(
     _DomainUserTests,
     _DomainMemberAndReaderUserTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -719,7 +716,6 @@ class DomainAdminTests(
     _CommonUserTests,
     _DomainUserTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -833,7 +829,9 @@ class DomainAdminTests(
         update = {'user': {'email': uuid.uuid4().hex}}
         with self.test_client() as c:
             c.patch(
-                '/v3/users/%s' % user['id'], json=update, headers=self.headers
+                '/v3/users/{}'.format(user['id']),
+                json=update,
+                headers=self.headers,
             )
 
     def test_user_can_update_users_within_domain_hyphened_domain_id(self):
@@ -851,7 +849,9 @@ class DomainAdminTests(
         update = {'user': {'domain-id': domain['id']}}
         with self.test_client() as c:
             r = c.patch(
-                '/v3/users/%s' % user['id'], json=update, headers=self.headers
+                '/v3/users/{}'.format(user['id']),
+                json=update,
+                headers=self.headers,
             )
             self.assertEqual(domain['id'], r.json['user']['domain-id'])
             self.assertEqual(self.domain_id, r.json['user']['domain_id'])
@@ -867,7 +867,7 @@ class DomainAdminTests(
         update = {'user': {'email': uuid.uuid4().hex}}
         with self.test_client() as c:
             c.patch(
-                '/v3/users/%s' % user['id'],
+                '/v3/users/{}'.format(user['id']),
                 json=update,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -877,7 +877,7 @@ class DomainAdminTests(
         update = {'user': {'email': uuid.uuid4().hex}}
         with self.test_client() as c:
             c.patch(
-                '/v3/users/%s' % uuid.uuid4().hex,
+                f'/v3/users/{uuid.uuid4().hex}',
                 json=update,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -889,7 +889,7 @@ class DomainAdminTests(
         )
 
         with self.test_client() as c:
-            c.delete('/v3/users/%s' % user['id'], headers=self.headers)
+            c.delete('/v3/users/{}'.format(user['id']), headers=self.headers)
 
     def test_user_cannot_delete_users_in_other_domain(self):
         domain = PROVIDERS.resource_api.create_domain(
@@ -901,7 +901,7 @@ class DomainAdminTests(
 
         with self.test_client() as c:
             c.delete(
-                '/v3/users/%s' % user['id'],
+                '/v3/users/{}'.format(user['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -909,7 +909,7 @@ class DomainAdminTests(
     def test_user_cannot_delete_non_existent_user_forbidden(self):
         with self.test_client() as c:
             c.delete(
-                '/v3/users/%s' % uuid.uuid4().hex,
+                f'/v3/users/{uuid.uuid4().hex}',
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -921,7 +921,6 @@ class ProjectReaderTests(
     _CommonUserTests,
     _ProjectUserTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -965,7 +964,6 @@ class ProjectMemberTests(
     _CommonUserTests,
     _ProjectUserTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -1009,7 +1007,6 @@ class ProjectAdminTests(
     _CommonUserTests,
     _ProjectUserTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()

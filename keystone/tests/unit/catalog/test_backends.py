@@ -26,7 +26,6 @@ PROVIDERS = provider_api.ProviderAPIs
 
 
 class CatalogTests:
-
     _legacy_endpoint_id_in_endpoint = True
     _enabled_default_to_true_when_creating_endpoint = False
 
@@ -630,8 +629,8 @@ class CatalogTests:
             ref = unit.new_endpoint_ref(
                 service_id=service_id,
                 region_id=region,
-                url='http://localhost/%s' % uuid.uuid4().hex,
-                **kwargs
+                url=f'http://localhost/{uuid.uuid4().hex}',
+                **kwargs,
             )
 
             PROVIDERS.catalog_api.create_endpoint(ref['id'], ref)

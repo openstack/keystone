@@ -30,9 +30,7 @@ class WarningsFixture(fixtures.Fixture):
         warnings.simplefilter('once', DeprecationWarning)
 
         warnings.filterwarnings(
-            'error',
-            module='keystone',
-            category=DeprecationWarning,
+            'error', module='keystone', category=DeprecationWarning
         )
 
         warnings.filterwarnings(
@@ -60,23 +58,18 @@ class WarningsFixture(fixtures.Fixture):
         )
 
         warnings.filterwarnings(
-            'error',
-            module='keystone',
-            category=sqla_exc.SAWarning,
+            'error', module='keystone', category=sqla_exc.SAWarning
         )
 
         warnings.filterwarnings(
-            'ignore',
-            category=sqla_exc.SADeprecationWarning,
+            'ignore', category=sqla_exc.SADeprecationWarning
         )
 
         # Enable deprecation warnings for keystone itself to capture upcoming
         # SQLALchemy changes
 
         warnings.filterwarnings(
-            'error',
-            module='keystone',
-            category=sqla_exc.SADeprecationWarning,
+            'error', module='keystone', category=sqla_exc.SADeprecationWarning
         )
 
         self.addCleanup(self._reset_warning_filters)

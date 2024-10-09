@@ -54,13 +54,14 @@ class Checks(upgradecheck.UpgradeCommands):
         if any(failed_rules):
             return upgradecheck.Result(
                 upgradecheck.Code.FAILURE,
-                "Policy check string for rules \"%s\" are overridden to "
+                "Policy check string for rules \"{}\" are overridden to "
                 "\"\", \"@\", or []. In the next release, this will cause "
                 "these rules to be fully permissive as hardcoded enforcement "
                 "will be removed. To correct this issue, either stop "
                 "overriding these rules in config to accept the defaults, or "
-                "explicitly set check strings that are not empty."
-                % "\", \"".join(failed_rules),
+                "explicitly set check strings that are not empty.".format(
+                    "\", \"".join(failed_rules)
+                ),
             )
         return upgradecheck.Result(
             upgradecheck.Code.SUCCESS, 'Trust policies are safe.'
@@ -70,11 +71,7 @@ class Checks(upgradecheck.UpgradeCommands):
         hints = driver_hints.Hints()
         hints.add_filter('domain_id', None)  # Only check global roles
         roles = PROVIDERS.role_api.list_roles(hints=hints)
-        default_roles = (
-            'admin',
-            'member',
-            'reader',
-        )
+        default_roles = ('admin', 'member', 'reader')
         failed_roles = []
         for role in [r for r in roles if r['name'] in default_roles]:
             if not role.get('options', {}).get('immutable'):
@@ -82,7 +79,7 @@ class Checks(upgradecheck.UpgradeCommands):
         if any(failed_roles):
             return upgradecheck.Result(
                 upgradecheck.Code.FAILURE,
-                "Roles are not immutable: %s" % ", ".join(failed_roles),
+                "Roles are not immutable: {}".format(", ".join(failed_roles)),
             )
         return upgradecheck.Result(
             upgradecheck.Code.SUCCESS, "Default roles are immutable."

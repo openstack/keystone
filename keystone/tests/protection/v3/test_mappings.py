@@ -46,7 +46,7 @@ class _SystemUserMappingTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/OS-FEDERATION/mappings/%s' % mapping['id'],
+                '/v3/OS-FEDERATION/mappings/{}'.format(mapping['id']),
                 headers=self.headers,
             )
 
@@ -70,7 +70,7 @@ class _SystemReaderAndMemberUserMappingTests:
 
         with self.test_client() as c:
             c.put(
-                '/v3/OS-FEDERATION/mappings/%s' % mapping_id,
+                f'/v3/OS-FEDERATION/mappings/{mapping_id}',
                 json=create,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -95,7 +95,7 @@ class _SystemReaderAndMemberUserMappingTests:
 
         with self.test_client() as c:
             c.patch(
-                '/v3/OS-FEDERATION/mappings/%s' % mapping['id'],
+                '/v3/OS-FEDERATION/mappings/{}'.format(mapping['id']),
                 json=update,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -109,14 +109,13 @@ class _SystemReaderAndMemberUserMappingTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/OS-FEDERATION/mappings/%s' % mapping['id'],
+                '/v3/OS-FEDERATION/mappings/{}'.format(mapping['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
 
 
 class _DomainAndProjectUserMappingTests:
-
     def test_user_cannot_create_mappings(self):
         create = {
             'mapping': {
@@ -133,7 +132,7 @@ class _DomainAndProjectUserMappingTests:
 
         with self.test_client() as c:
             c.put(
-                '/v3/OS-FEDERATION/mappings/%s' % mapping_id,
+                f'/v3/OS-FEDERATION/mappings/{mapping_id}',
                 json=create,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -160,7 +159,7 @@ class _DomainAndProjectUserMappingTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/OS-FEDERATION/mappings/%s' % mapping['id'],
+                '/v3/OS-FEDERATION/mappings/{}'.format(mapping['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -184,7 +183,7 @@ class _DomainAndProjectUserMappingTests:
 
         with self.test_client() as c:
             c.patch(
-                '/v3/OS-FEDERATION/mappings/%s' % mapping['id'],
+                '/v3/OS-FEDERATION/mappings/{}'.format(mapping['id']),
                 json=update,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -198,7 +197,7 @@ class _DomainAndProjectUserMappingTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/OS-FEDERATION/mappings/%s' % mapping['id'],
+                '/v3/OS-FEDERATION/mappings/{}'.format(mapping['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -210,7 +209,6 @@ class SystemReaderTests(
     _SystemUserMappingTests,
     _SystemReaderAndMemberUserMappingTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -254,7 +252,7 @@ class SystemReaderTests(
 
         with self.test_client() as c:
             c.put(
-                '/v3/OS-FEDERATION/mappings/%s' % mapping_id,
+                f'/v3/OS-FEDERATION/mappings/{mapping_id}',
                 json=create,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -279,7 +277,7 @@ class SystemReaderTests(
 
         with self.test_client() as c:
             c.patch(
-                '/v3/OS-FEDERATION/mappings/%s' % mapping['id'],
+                '/v3/OS-FEDERATION/mappings/{}'.format(mapping['id']),
                 json=update,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -293,7 +291,7 @@ class SystemReaderTests(
 
         with self.test_client() as c:
             c.delete(
-                '/v3/OS-FEDERATION/mappings/%s' % mapping['id'],
+                '/v3/OS-FEDERATION/mappings/{}'.format(mapping['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -305,7 +303,6 @@ class SystemMemberTests(
     _SystemUserMappingTests,
     _SystemReaderAndMemberUserMappingTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -339,7 +336,6 @@ class SystemAdminTests(
     common_auth.AuthTestMixin,
     _SystemUserMappingTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -378,7 +374,7 @@ class SystemAdminTests(
 
         with self.test_client() as c:
             c.put(
-                '/v3/OS-FEDERATION/mappings/%s' % mapping_id,
+                f'/v3/OS-FEDERATION/mappings/{mapping_id}',
                 json=create,
                 headers=self.headers,
                 expected_status_code=http.client.CREATED,
@@ -403,7 +399,7 @@ class SystemAdminTests(
 
         with self.test_client() as c:
             c.patch(
-                '/v3/OS-FEDERATION/mappings/%s' % mapping['id'],
+                '/v3/OS-FEDERATION/mappings/{}'.format(mapping['id']),
                 json=update,
                 headers=self.headers,
             )
@@ -416,7 +412,7 @@ class SystemAdminTests(
 
         with self.test_client() as c:
             c.delete(
-                '/v3/OS-FEDERATION/mappings/%s' % mapping['id'],
+                '/v3/OS-FEDERATION/mappings/{}'.format(mapping['id']),
                 headers=self.headers,
             )
 
@@ -426,7 +422,6 @@ class DomainUserTests(
     common_auth.AuthTestMixin,
     _DomainAndProjectUserMappingTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -464,7 +459,6 @@ class ProjectUserTests(
     common_auth.AuthTestMixin,
     _DomainAndProjectUserMappingTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -491,7 +485,6 @@ class ProjectUserTestsWithoutEnforceScope(
     common_auth.AuthTestMixin,
     _DomainAndProjectUserMappingTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()

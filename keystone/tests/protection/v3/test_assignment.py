@@ -286,7 +286,7 @@ class _SystemUserTests:
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/role_assignments?scope.project.id=%s' % project_id,
+                f'/v3/role_assignments?scope.project.id={project_id}',
                 headers=self.headers,
             )
             self.assertEqual(len(expected), len(r.json['role_assignments']))
@@ -312,7 +312,7 @@ class _SystemUserTests:
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/role_assignments?scope.domain.id=%s' % domain_id,
+                f'/v3/role_assignments?scope.domain.id={domain_id}',
                 headers=self.headers,
             )
             self.assertEqual(len(expected), len(r.json['role_assignments']))
@@ -381,8 +381,7 @@ class _SystemUserTests:
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/role_assignments?user.id=%s' % user_id,
-                headers=self.headers,
+                f'/v3/role_assignments?user.id={user_id}', headers=self.headers
             )
             self.assertEqual(len(expected), len(r.json['role_assignments']))
             actual = self._extract_role_assignments_from_response_body(r)
@@ -412,7 +411,7 @@ class _SystemUserTests:
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/role_assignments?group.id=%s' % group_id,
+                f'/v3/role_assignments?group.id={group_id}',
                 headers=self.headers,
             )
             self.assertEqual(len(expected), len(r.json['role_assignments']))
@@ -474,7 +473,7 @@ class _SystemUserTests:
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/role_assignments?role.id=%s&include_names=True' % role_id,
+                f'/v3/role_assignments?role.id={role_id}&include_names=True',
                 headers=self.headers,
             )
             self.assertEqual(
@@ -502,7 +501,9 @@ class _SystemUserTests:
         with self.test_client() as c:
             qs = (assignments['project_id'], assignments['role_id'])
             r = c.get(
-                '/v3/role_assignments?scope.project.id=%s&role.id=%s' % qs,
+                '/v3/role_assignments?scope.project.id={}&role.id={}'.format(
+                    *qs
+                ),
                 headers=self.headers,
             )
             self.assertEqual(len(expected), len(r.json['role_assignments']))
@@ -528,7 +529,9 @@ class _SystemUserTests:
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/role_assignments?scope.domain.id=%s&role.id=%s' % qs,
+                '/v3/role_assignments?scope.domain.id={}&role.id={}'.format(
+                    *qs
+                ),
                 headers=self.headers,
             )
             self.assertEqual(len(expected), len(r.json['role_assignments']))
@@ -561,7 +564,7 @@ class _SystemUserTests:
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/role_assignments?scope.system=all&role.id=%s' % role_id,
+                f'/v3/role_assignments?scope.system=all&role.id={role_id}',
                 headers=self.headers,
             )
             self.assertEqual(
@@ -594,7 +597,7 @@ class _SystemUserTests:
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/role_assignments?user.id=%s&role.id=%s' % qs,
+                '/v3/role_assignments?user.id={}&role.id={}'.format(*qs),
                 headers=self.headers,
             )
             self.assertEqual(len(expected), len(r.json['role_assignments']))
@@ -625,7 +628,7 @@ class _SystemUserTests:
         with self.test_client() as c:
             qs = (assignments['group_id'], assignments['role_id'])
             r = c.get(
-                '/v3/role_assignments?group.id=%s&role.id=%s' % qs,
+                '/v3/role_assignments?group.id={}&role.id={}'.format(*qs),
                 headers=self.headers,
             )
             self.assertEqual(len(expected), len(r.json['role_assignments']))
@@ -646,7 +649,9 @@ class _SystemUserTests:
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/role_assignments?scope.project.id=%s&user.id=%s' % qs,
+                '/v3/role_assignments?scope.project.id={}&user.id={}'.format(
+                    *qs
+                ),
                 headers=self.headers,
             )
             self.assertEqual(len(expected), len(r.json['role_assignments']))
@@ -667,7 +672,9 @@ class _SystemUserTests:
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/role_assignments?scope.project.id=%s&group.id=%s' % qs,
+                '/v3/role_assignments?scope.project.id={}&group.id={}'.format(
+                    *qs
+                ),
                 headers=self.headers,
             )
             self.assertEqual(len(expected), len(r.json['role_assignments']))
@@ -688,7 +695,9 @@ class _SystemUserTests:
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/role_assignments?scope.domain.id=%s&user.id=%s' % qs,
+                '/v3/role_assignments?scope.domain.id={}&user.id={}'.format(
+                    *qs
+                ),
                 headers=self.headers,
             )
             self.assertEqual(len(expected), len(r.json['role_assignments']))
@@ -709,7 +718,9 @@ class _SystemUserTests:
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/role_assignments?scope.domain.id=%s&group.id=%s' % qs,
+                '/v3/role_assignments?scope.domain.id={}&group.id={}'.format(
+                    *qs
+                ),
                 headers=self.headers,
             )
             self.assertEqual(len(expected), len(r.json['role_assignments']))
@@ -754,8 +765,9 @@ class _SystemUserTests:
         with self.test_client() as c:
             r = c.get(
                 (
-                    '/v3/role_assignments?scope.project.id=%s&include_subtree'
-                    % assignments['project_id']
+                    '/v3/role_assignments?scope.project.id={}&include_subtree'.format(
+                        assignments['project_id']
+                    )
                 ),
                 headers=self.headers,
             )
@@ -876,7 +888,7 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/role_assignments?scope.project.id=%s' % project_id,
+                f'/v3/role_assignments?scope.project.id={project_id}',
                 headers=self.headers,
             )
             self.assertEqual(len(expected), len(r.json['role_assignments']))
@@ -908,7 +920,7 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/role_assignments?scope.domain.id=%s' % self.domain_id,
+                f'/v3/role_assignments?scope.domain.id={self.domain_id}',
                 headers=self.headers,
             )
             self.assertEqual(
@@ -939,8 +951,7 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/role_assignments?user.id=%s' % user_id,
-                headers=self.headers,
+                f'/v3/role_assignments?user.id={user_id}', headers=self.headers
             )
             self.assertEqual(len(expected), len(r.json['role_assignments']))
             actual = self._extract_role_assignments_from_response_body(r)
@@ -968,7 +979,7 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/role_assignments?group.id=%s' % group_id,
+                f'/v3/role_assignments?group.id={group_id}',
                 headers=self.headers,
             )
             self.assertEqual(len(expected), len(r.json['role_assignments']))
@@ -991,7 +1002,7 @@ class _DomainUserTests:
         domain = assignments['domain_id']
         with self.test_client() as c:
             r = c.get(
-                '/v3/role_assignments?scope.domain.id=%s' % domain,
+                f'/v3/role_assignments?scope.domain.id={domain}',
                 headers=self.headers,
             )
             self.assertEqual([], r.json['role_assignments'])
@@ -1006,7 +1017,7 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/role_assignments?scope.project.id=%s' % project_id,
+                f'/v3/role_assignments?scope.project.id={project_id}',
                 headers=self.headers,
             )
             self.assertEqual(0, len(r.json['role_assignments']))
@@ -1022,8 +1033,7 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/role_assignments?user.id=%s' % user_id,
-                headers=self.headers,
+                f'/v3/role_assignments?user.id={user_id}', headers=self.headers
             )
             self.assertEqual(0, len(r.json['role_assignments']))
 
@@ -1038,7 +1048,7 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/role_assignments?group.id=%s' % group_id,
+                f'/v3/role_assignments?group.id={group_id}',
                 headers=self.headers,
             )
             self.assertEqual(0, len(r.json['role_assignments']))
@@ -1081,8 +1091,9 @@ class _DomainUserTests:
         with self.test_client() as c:
             r = c.get(
                 (
-                    '/v3/role_assignments?scope.project.id=%s&include_subtree'
-                    % domain_assignments['project_id']
+                    '/v3/role_assignments?scope.project.id={}&include_subtree'.format(
+                        domain_assignments['project_id']
+                    )
                 ),
                 headers=self.headers,
             )
@@ -1096,8 +1107,9 @@ class _DomainUserTests:
         with self.test_client() as c:
             c.get(
                 (
-                    '/v3/role_assignments?scope.project.id=%s&include_subtree'
-                    % assignments['project_id']
+                    '/v3/role_assignments?scope.project.id={}&include_subtree'.format(
+                        assignments['project_id']
+                    )
                 ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -1105,7 +1117,6 @@ class _DomainUserTests:
 
 
 class _ProjectUserTests:
-
     def test_user_cannot_list_all_assignments_in_their_project(self):
         with self.test_client() as c:
             c.get(
@@ -1120,7 +1131,7 @@ class _ProjectUserTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/role_assignments?user.id=%s' % user_id,
+                f'/v3/role_assignments?user.id={user_id}',
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -1131,7 +1142,7 @@ class _ProjectUserTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/role_assignments?group.id=%s' % group_id,
+                f'/v3/role_assignments?group.id={group_id}',
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -1147,7 +1158,7 @@ class _ProjectUserTests:
     def test_user_cannot_filter_role_assignments_by_domain(self):
         with self.test_client() as c:
             c.get(
-                '/v3/role_assignments?scope.domain.id=%s' % self.domain_id,
+                f'/v3/role_assignments?scope.domain.id={self.domain_id}',
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -1159,7 +1170,7 @@ class _ProjectUserTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/role_assignments?scope.project.id=%s' % project1,
+                f'/v3/role_assignments?scope.project.id={project1}',
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -1174,7 +1185,7 @@ class _ProjectUserTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/role_assignments?user.id=%s' % user_id,
+                f'/v3/role_assignments?user.id={user_id}',
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -1189,7 +1200,7 @@ class _ProjectUserTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/role_assignments?group.id=%s' % group_id,
+                f'/v3/role_assignments?group.id={group_id}',
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -1214,8 +1225,7 @@ class _ProjectReaderMemberTests:
         with self.test_client() as c:
             c.get(
                 (
-                    '/v3/role_assignments?scope.project.id=%s&include_subtree'
-                    % self.project_id
+                    f'/v3/role_assignments?scope.project.id={self.project_id}&include_subtree'
                 ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -1228,7 +1238,6 @@ class SystemReaderTests(
     _AssignmentTestUtilities,
     _SystemUserTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -1271,7 +1280,6 @@ class SystemMemberTests(
     _AssignmentTestUtilities,
     _SystemUserTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -1314,7 +1322,6 @@ class SystemAdminTests(
     _AssignmentTestUtilities,
     _SystemUserTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -1344,7 +1351,6 @@ class DomainReaderTests(
     _AssignmentTestUtilities,
     _DomainUserTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -1391,7 +1397,6 @@ class DomainMemberTests(
     _AssignmentTestUtilities,
     _DomainUserTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -1438,7 +1443,6 @@ class DomainAdminTests(
     _AssignmentTestUtilities,
     _DomainUserTests,
 ):
-
     def _override_policy(self):
         # TODO(lbragstad): Remove this once the deprecated policies in
         # keystone.common.policies.role_assignment have been removed. This is
@@ -1513,7 +1517,6 @@ class ProjectReaderTests(
     _ProjectUserTests,
     _ProjectReaderMemberTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -1567,7 +1570,6 @@ class ProjectMemberTests(
     _ProjectUserTests,
     _ProjectReaderMemberTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -1620,7 +1622,6 @@ class ProjectAdminTests(
     _AssignmentTestUtilities,
     _ProjectUserTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -1719,8 +1720,7 @@ class ProjectAdminTests(
         with self.test_client() as c:
             r = c.get(
                 (
-                    '/v3/role_assignments?scope.project.id=%s&include_subtree'
-                    % self.project_id
+                    f'/v3/role_assignments?scope.project.id={self.project_id}&include_subtree'
                 ),
                 headers=self.headers,
             )
@@ -1744,8 +1744,9 @@ class ProjectAdminTests(
         with self.test_client() as c:
             c.get(
                 (
-                    '/v3/role_assignments?scope.project.id=%s&include_subtree'
-                    % project['id']
+                    '/v3/role_assignments?scope.project.id={}&include_subtree'.format(
+                        project['id']
+                    )
                 ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,

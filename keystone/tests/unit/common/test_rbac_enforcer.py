@@ -31,7 +31,6 @@ PROVIDER_APIS = provider_api.ProviderAPIs
 
 
 class TestRBACEnforcer(unit.TestCase):
-
     def test_enforcer_shared_state(self):
         enforcer = rbac_enforcer.enforcer.RBACEnforcer()
         enforcer2 = rbac_enforcer.enforcer.RBACEnforcer()
@@ -51,7 +50,6 @@ class TestRBACEnforcer(unit.TestCase):
 
 
 class _TestRBACEnforcerBase(rest.RestfulTestCase):
-
     def setUp(self):
         super().setUp()
         self._setup_enforcer_object()
@@ -93,7 +91,7 @@ class _TestRBACEnforcerBase(rest.RestfulTestCase):
     def _setup_dynamic_flask_blueprint_api(self):
         # Create a dynamic flask blueprint with a known prefix
         api = uuid.uuid4().hex
-        url_prefix = '/_%s_TEST' % api
+        url_prefix = f'/_{api}_TEST'
         blueprint = blueprints.Blueprint(api, __name__, url_prefix=url_prefix)
         self.url_prefix = url_prefix
         self.flask_blueprint = blueprint
@@ -104,7 +102,7 @@ class _TestRBACEnforcerBase(rest.RestfulTestCase):
         return {'id': argument_id, 'value': 'TEST', 'owner_id': user['id']}
 
     def _setup_flask_restful_api(self):
-        self.restful_api_url_prefix = '/_%s_TEST' % uuid.uuid4().hex
+        self.restful_api_url_prefix = f'/_{uuid.uuid4().hex}_TEST'
         self.restful_api = flask_restful.Api(
             self.public_app.app, self.restful_api_url_prefix
         )
@@ -113,7 +111,6 @@ class _TestRBACEnforcerBase(rest.RestfulTestCase):
 
         # Very Basic Restful Resource
         class RestfulResource(flask_restful.Resource):
-
             def get(self, argument_id=None):
                 if argument_id is not None:
                     return self._get_argument(argument_id)
@@ -181,9 +178,7 @@ class _TestRBACEnforcerBase(rest.RestfulTestCase):
                 scope_types=['project'],
             ),
             policy.RuleDefault(
-                name='example:allowed',
-                check_str='',
-                scope_types=['project'],
+                name='example:allowed', check_str='', scope_types=['project']
             ),
             policy.RuleDefault(
                 name='example:denied',
@@ -195,7 +190,6 @@ class _TestRBACEnforcerBase(rest.RestfulTestCase):
 
 
 class TestRBACEnforcerRestAdminAuthToken(_TestRBACEnforcerBase):
-
     def config_overrides(self):
         super().config_overrides()
         self.config_fixture.config(admin_token='ADMIN')
@@ -204,8 +198,7 @@ class TestRBACEnforcerRestAdminAuthToken(_TestRBACEnforcerBase):
         # Admin-shared token passed and valid, "is_admin" should be true.
         with self.test_client() as c:
             c.get(
-                '%s/argument/%s'
-                % (self.restful_api_url_prefix, uuid.uuid4().hex),
+                f'{self.restful_api_url_prefix}/argument/{uuid.uuid4().hex}',
                 headers={authorization.AUTH_TOKEN_HEADER: 'ADMIN'},
             )
             self.assertTrue(self.enforcer._shared_admin_auth_token_set())
@@ -214,24 +207,19 @@ class TestRBACEnforcerRestAdminAuthToken(_TestRBACEnforcerBase):
         with self.test_client() as c:
             # Admin-shared token passed and invalid, "is_admin" should be false
             c.get(
-                '%s/argument/%s'
-                % (self.restful_api_url_prefix, uuid.uuid4().hex),
+                f'{self.restful_api_url_prefix}/argument/{uuid.uuid4().hex}',
                 headers={authorization.AUTH_TOKEN_HEADER: 'BOGUS'},
             )
             self.assertFalse(self.enforcer._shared_admin_auth_token_set())
 
             # Admin-shared token not passed, "is_admin" should be false
-            c.get(
-                '%s/argument/%s'
-                % (self.restful_api_url_prefix, uuid.uuid4().hex)
-            )
+            c.get(f'{self.restful_api_url_prefix}/argument/{uuid.uuid4().hex}')
             self.assertFalse(self.enforcer._shared_admin_auth_token_set())
 
     def test_enforce_call_is_admin(self):
         with self.test_client() as c:
             c.get(
-                '%s/argument/%s'
-                % (self.restful_api_url_prefix, uuid.uuid4().hex),
+                f'{self.restful_api_url_prefix}/argument/{uuid.uuid4().hex}',
                 headers={authorization.AUTH_TOKEN_HEADER: 'ADMIN'},
             )
             with mock.patch.object(self.enforcer, '_enforce') as mock_method:
@@ -240,7 +228,6 @@ class TestRBACEnforcerRestAdminAuthToken(_TestRBACEnforcerBase):
 
 
 class TestRBACEnforcerRest(_TestRBACEnforcerBase):
-
     def test_extract_subject_token_target_data(self):
         path = '/v3/auth/tokens'
         body = self._auth_json()
@@ -283,7 +270,7 @@ class TestRBACEnforcerRest(_TestRBACEnforcerBase):
 
         path = uuid.uuid4().hex
 
-        @self.flask_blueprint.route('/%s' % path)
+        @self.flask_blueprint.route(f'/{path}')
         def return_nothing_interesting():
             return 'OK', 200
 
@@ -296,10 +283,7 @@ class TestRBACEnforcerRest(_TestRBACEnforcerBase):
             # Populate the query-string with two params, one that should
             # exist and one that should not in the resulting policy
             # dict.
-            qs = '{expected}=EXPECTED&{unexpected}=UNEXPECTED'.format(
-                expected=expected_param,
-                unexpected=unexpected_param,
-            )
+            qs = f'{expected_param}=EXPECTED&{unexpected_param}=UNEXPECTED'
             # Perform the get with the query-string
             c.get(f'{get_path}?{qs}')
             # Extract the filter values.
@@ -318,10 +302,7 @@ class TestRBACEnforcerRest(_TestRBACEnforcerBase):
         # from the environ as expected. The only way to really test is an
         # instance check.
         with self.test_client() as c:
-            c.get(
-                '%s/argument/%s'
-                % (self.restful_api_url_prefix, uuid.uuid4().hex)
-            )
+            c.get(f'{self.restful_api_url_prefix}/argument/{uuid.uuid4().hex}')
             oslo_req_context = self.enforcer._get_oslo_req_context()
             self.assertIsInstance(oslo_req_context, context.RequestContext)
 
@@ -333,8 +314,7 @@ class TestRBACEnforcerRest(_TestRBACEnforcerBase):
             r = c.post(token_path, json=auth_json, expected_status_code=201)
             token_id = r.headers.get('X-Subject-Token')
             c.get(
-                '%s/argument/%s'
-                % (self.restful_api_url_prefix, uuid.uuid4().hex),
+                f'{self.restful_api_url_prefix}/argument/{uuid.uuid4().hex}',
                 headers={'X-Auth-Token': token_id},
             )
             self.enforcer._assert_is_authenticated()
@@ -358,8 +338,7 @@ class TestRBACEnforcerRest(_TestRBACEnforcerBase):
             r = c.post(token_path, json=auth_json, expected_status_code=201)
             token_id = r.headers.get('X-Subject-Token')
             c.get(
-                '%s/argument/%s'
-                % (self.restful_api_url_prefix, uuid.uuid4().hex),
+                f'{self.restful_api_url_prefix}/argument/{uuid.uuid4().hex}',
                 headers={'X-Auth-Token': token_id},
             )
             extracted_creds = self.enforcer._extract_policy_check_credentials()
@@ -384,11 +363,7 @@ class TestRBACEnforcerRest(_TestRBACEnforcerBase):
         argument_id = uuid.uuid4().hex
 
         with self.test_client() as c:
-            c.get(
-                '{}/argument/{}'.format(
-                    self.restful_api_url_prefix, argument_id
-                )
-            )
+            c.get(f'{self.restful_api_url_prefix}/argument/{argument_id}')
             extracted = self.enforcer._extract_member_target_data(
                 member_target_type=None, member_target=None
             )
@@ -431,16 +406,14 @@ class TestRBACEnforcerRest(_TestRBACEnforcerBase):
             token_id = r.headers['X-Subject-Token']
 
             c.get(
-                '{}/argument/{}'.format(
-                    self.restful_api_url_prefix, argument_id
-                ),
+                f'{self.restful_api_url_prefix}/argument/{argument_id}',
                 headers={'X-Auth-Token': token_id},
             )
 
             # Use any valid policy as _enforce is mockpatched out
             self.enforcer.enforce_call(action='example:allowed')
             c.get(
-                '%s/argument' % self.restful_api_url_prefix,
+                f'{self.restful_api_url_prefix}/argument',
                 headers={'X-Auth-Token': token_id},
             )
             self.assertRaises(
@@ -511,9 +484,7 @@ class TestRBACEnforcerRest(_TestRBACEnforcerBase):
             token_id = r.headers['X-Subject-Token']
 
             c.get(
-                '{}/argument/{}'.format(
-                    self.restful_api_url_prefix, argument_id
-                ),
+                f'{self.restful_api_url_prefix}/argument/{argument_id}',
                 headers={'X-Auth-Token': token_id},
             )
             self.enforcer.enforce_call(
@@ -533,7 +504,7 @@ class TestRBACEnforcerRest(_TestRBACEnforcerBase):
         self._register_blueprint_to_app()
 
         with self.test_client() as c:
-            c.get('%s' % self.url_prefix)
+            c.get(f'{self.url_prefix}')
             self.assertEqual(
                 action, getattr(flask.g, self.enforcer.ACTION_STORE_ATTR)
             )
@@ -562,10 +533,7 @@ class TestRBACEnforcerRest(_TestRBACEnforcerBase):
 
     def test_enforce_call_not_is_authenticated(self):
         with self.test_client() as c:
-            c.get(
-                '%s/argument/%s'
-                % (self.restful_api_url_prefix, uuid.uuid4().hex)
-            )
+            c.get(f'{self.restful_api_url_prefix}/argument/{uuid.uuid4().hex}')
             # Patch the enforcer to return an empty oslo context.
             with mock.patch.object(
                 self.enforcer, '_get_oslo_req_context', return_value=None
@@ -597,8 +565,7 @@ class TestRBACEnforcerRest(_TestRBACEnforcerBase):
             # TODO(morgan): confirm if subject-token-processing can/should
             # occur in this form without causing issues.
             c.get(
-                '%s/argument/%s'
-                % (self.restful_api_url_prefix, uuid.uuid4().hex),
+                f'{self.restful_api_url_prefix}/argument/{uuid.uuid4().hex}',
                 headers={
                     'X-Auth-Token': token_id,
                     'X-Subject-Token': token_id,
@@ -626,8 +593,7 @@ class TestRBACEnforcerRest(_TestRBACEnforcerBase):
             # user_id are the same. example:deprecated should also pass
             # since it is open enforcement.
             c.get(
-                '%s/argument/%s'
-                % (self.restful_api_url_prefix, uuid.uuid4().hex),
+                f'{self.restful_api_url_prefix}/argument/{uuid.uuid4().hex}',
                 headers={
                     'X-Auth-Token': token_id,
                     'X-Subject-Token': token_id,
@@ -645,8 +611,7 @@ class TestRBACEnforcerRest(_TestRBACEnforcerBase):
             # and member_target. This form still extracts data from the subject
             # token.
             c.get(
-                '%s/argument/%s'
-                % (self.restful_api_url_prefix, uuid.uuid4().hex),
+                f'{self.restful_api_url_prefix}/argument/{uuid.uuid4().hex}',
                 headers={
                     'X-Auth-Token': token_id,
                     'X-Subject-Token': token_id,
@@ -678,8 +643,7 @@ class TestRBACEnforcerRest(_TestRBACEnforcerBase):
             # check the enforcer properly handles inferred member data get
             # This form still extracts data from the subject token.
             c.get(
-                '%s/argument/%s'
-                % (self.restful_api_url_prefix, uuid.uuid4().hex),
+                f'{self.restful_api_url_prefix}/argument/{uuid.uuid4().hex}',
                 headers={
                     'X-Auth-Token': token_id,
                     'X-Subject-Token': token_id,
@@ -698,8 +662,7 @@ class TestRBACEnforcerRest(_TestRBACEnforcerBase):
             # Check that the enforcer passes if a filter is supplied *and*
             # the filter name is passed to enforce_call
             c.get(
-                '%s/argument/%s?user=%s'
-                % (
+                '{}/argument/{}?user={}'.format(
                     self.restful_api_url_prefix,
                     uuid.uuid4().hex,
                     self.user_req_admin['id'],
@@ -719,8 +682,7 @@ class TestRBACEnforcerRest(_TestRBACEnforcerBase):
 
             # With No Filters in the PATH
             c.get(
-                '%s/argument/%s'
-                % (self.restful_api_url_prefix, uuid.uuid4().hex),
+                f'{self.restful_api_url_prefix}/argument/{uuid.uuid4().hex}',
                 headers={'X-Auth-Token': token_id},
             )
             self.assertRaises(
@@ -732,8 +694,7 @@ class TestRBACEnforcerRest(_TestRBACEnforcerBase):
 
             # With no filters in the path and no filters passed to enforce_call
             c.get(
-                '%s/argument/%s'
-                % (self.restful_api_url_prefix, uuid.uuid4().hex),
+                f'{self.restful_api_url_prefix}/argument/{uuid.uuid4().hex}',
                 headers={'X-Auth-Token': token_id},
             )
             self.assertRaises(
@@ -752,8 +713,7 @@ class TestRBACEnforcerRest(_TestRBACEnforcerBase):
             # Check the enforcer behaves as expected with a pre-instantiated
             # enforcer passed into .enforce_call()
             c.get(
-                '%s/argument/%s'
-                % (self.restful_api_url_prefix, uuid.uuid4().hex),
+                f'{self.restful_api_url_prefix}/argument/{uuid.uuid4().hex}',
                 headers={'X-Auth-Token': token_id},
             )
             self.enforcer.enforce_call(
@@ -777,8 +737,7 @@ class TestRBACEnforcerRest(_TestRBACEnforcerBase):
             r = c.post(token_path, json=auth_json, expected_status_code=201)
             token_id = r.headers.get('X-Subject-Token')
             c.get(
-                '%s/argument/%s'
-                % (self.restful_api_url_prefix, uuid.uuid4().hex),
+                f'{self.restful_api_url_prefix}/argument/{uuid.uuid4().hex}',
                 headers={'X-Auth-Token': token_id},
             )
 

@@ -45,9 +45,7 @@ ROLE_PROPERTIES = {
     "items": {
         "type": "object",
         "required": ["name"],
-        "properties": {
-            "name": {"type": "string"},
-        },
+        "properties": {"name": {"type": "string"}},
         "additionalProperties": False,
     },
 }
@@ -138,9 +136,7 @@ IDP_ATTRIBUTE_MAPPING_SCHEMA_1_0 = {
         "empty": {
             "type": "object",
             "required": ['type'],
-            "properties": {
-                "type": {"type": "string"},
-            },
+            "properties": {"type": {"type": "string"}},
             "additionalProperties": False,
         },
         "any_one_of": {
@@ -222,13 +218,7 @@ PROJECTS_SCHEMA_2_0["items"]["properties"]["domain"] = {  # type: ignore[index]
 
 IDP_ATTRIBUTE_MAPPING_SCHEMA_2_0['properties']['rules']['items']['properties'][  # type: ignore[index]
     'local'
-][
-    'items'
-][
-    'properties'
-][
-    'projects'
-] = PROJECTS_SCHEMA_2_0
+]['items']['properties']['projects'] = PROJECTS_SCHEMA_2_0
 
 
 def get_default_attribute_mapping_schema_version():
@@ -246,7 +236,7 @@ class DirectMaps:
 
     def __str__(self):
         """Return the direct map array as a string."""
-        return '%s' % self._matches
+        return f'{self._matches}'
 
     def add(self, values):
         """Add a matched value to the list of matches.
@@ -395,18 +385,8 @@ def transform_to_group_ids(
     Example of group_names parameter::
 
         [
-            {
-                "name": "group_name",
-                "domain": {
-                    "id": "domain_id"
-                },
-            },
-            {
-                "name": "group_name_2",
-                "domain": {
-                    "name": "domain_name"
-                }
-            }
+            {"name": "group_name", "domain": {"id": "domain_id"}},
+            {"name": "group_name_2", "domain": {"name": "domain_name"}},
         ]
 
     :param group_names: list of group identified by name and its domain.
@@ -508,7 +488,7 @@ class RuleProcessor:
                 'UserName': 'testacct',
                 'FirstName': 'Test',
                 'LastName': 'Account',
-                'orgPersonType': 'Tester'
+                'orgPersonType': 'Tester',
             }
 
         :returns: dictionary with user and group_ids
@@ -519,25 +499,10 @@ class RuleProcessor:
                 'name': 'foobar',
                 'group_ids': ['abc123', 'def456'],
                 'group_names': [
-                    {
-                        'name': 'group_name_1',
-                        'domain': {
-                            'name': 'domain1'
-                        }
-                    },
-                    {
-                        'name': 'group_name_1_1',
-                        'domain': {
-                            'name': 'domain1'
-                        }
-                    },
-                    {
-                        'name': 'group_name_2',
-                        'domain': {
-                            'id': 'xyz132'
-                        }
-                    }
-                ]
+                    {'name': 'group_name_1', 'domain': {'name': 'domain1'}},
+                    {'name': 'group_name_1_1', 'domain': {'name': 'domain1'}},
+                    {'name': 'group_name_2', 'domain': {'id': 'xyz132'}},
+                ],
             }
 
         """
@@ -680,8 +645,8 @@ class RuleProcessor:
         # initialize the group_ids as a set to eliminate duplicates
         user = {}
         group_ids = set()
-        group_names = list()
-        groups_by_domain = dict()
+        group_names = []
+        groups_by_domain = {}
         projects = []
 
         # if mapping yield no valid identity values, we should bail right away
@@ -746,7 +711,7 @@ class RuleProcessor:
 
     def process_group_by_name(self, group, groups_by_domain):
         domain = group['domain'].get('name') or group['domain'].get('id')
-        groups_by_domain.setdefault(domain, list()).append(group)
+        groups_by_domain.setdefault(domain, []).append(group)
         return self.extract_groups(groups_by_domain)
 
     def extract_projects(self, identity_value):
@@ -816,21 +781,9 @@ class RuleProcessor:
         Example requirements::
 
             [
-                {
-                    "type": "UserName"
-                },
-                {
-                    "type": "orgPersonType",
-                    "any_one_of": [
-                        "Customer"
-                    ]
-                },
-                {
-                    "type": "ADFS_GROUPS",
-                    "whitelist": [
-                        "g1", "g2", "g3", "g4"
-                    ]
-                }
+                {"type": "UserName"},
+                {"type": "orgPersonType", "any_one_of": ["Customer"]},
+                {"type": "ADFS_GROUPS", "whitelist": ["g1", "g2", "g3", "g4"]},
             ]
 
         :param assertion: dict of attributes from an IdP
@@ -844,7 +797,7 @@ class RuleProcessor:
                 'orgPersonType': ['Tester'],
                 'Email': ['testacct@example.com'],
                 'FirstName': ['Test'],
-                'ADFS_GROUPS': ['g1', 'g2']
+                'ADFS_GROUPS': ['g1', 'g2'],
             }
 
         :returns: identity values used to update local
@@ -918,7 +871,7 @@ class RuleProcessor:
         return [
             assertion
             for assertion in assertion_values
-            if any([re.search(regex, assertion) for regex in values])
+            if any(re.search(regex, assertion) for regex in values)
         ]
 
     def _evaluate_requirement(

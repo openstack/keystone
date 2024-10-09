@@ -131,7 +131,6 @@ class _TestRestfulAPI(flask_common.APIBase):
 
 
 class TestKeystoneFlaskCommon(rest.RestfulTestCase):
-
     _policy_rules = [
         policy.RuleDefault(name='example:allowed', check_str=''),
         policy.RuleDefault(name='example:deny', check_str='false:false'),
@@ -182,7 +181,6 @@ class TestKeystoneFlaskCommon(rest.RestfulTestCase):
         )
 
     def _setup_flask_restful_api(self, **options):
-
         self.restful_api_opts = options.copy()
         orig_value = _TestResourceWithCollectionInfo.api_prefix
         setattr(
@@ -335,12 +333,12 @@ class TestKeystoneFlaskCommon(rest.RestfulTestCase):
             )
 
     def test_api_url_prefix(self):
-        url_prefix = '/%s' % uuid.uuid4().hex
+        url_prefix = f'/{uuid.uuid4().hex}'
         self._setup_flask_restful_api(api_url_prefix=url_prefix)
         self._make_requests()
 
     def test_blueprint_url_prefix(self):
-        url_prefix = '/%s' % uuid.uuid4().hex
+        url_prefix = f'/{uuid.uuid4().hex}'
         self._setup_flask_restful_api(blueprint_url_prefix=url_prefix)
         self._make_requests()
 
@@ -349,7 +347,6 @@ class TestKeystoneFlaskCommon(rest.RestfulTestCase):
         self._make_requests()
 
     def test_cannot_add_before_request_functions_twice(self):
-
         class TestAPIDuplicateBefore(_TestRestfulAPI):
             def __init__(self):
                 super().__init__()
@@ -358,7 +355,6 @@ class TestKeystoneFlaskCommon(rest.RestfulTestCase):
         self.assertRaises(AssertionError, TestAPIDuplicateBefore)
 
     def test_cannot_add_after_request_functions_twice(self):
-
         class TestAPIDuplicateAfter(_TestRestfulAPI):
             def __init__(self):
                 super().__init__()
@@ -367,7 +363,6 @@ class TestKeystoneFlaskCommon(rest.RestfulTestCase):
         self.assertRaises(AssertionError, TestAPIDuplicateAfter)
 
     def test_after_request_functions_must_be_added(self):
-
         class TestAPINoAfter(_TestRestfulAPI):
             def _register_after_request_functions(self, functions=None):
                 pass
@@ -375,7 +370,6 @@ class TestKeystoneFlaskCommon(rest.RestfulTestCase):
         self.assertRaises(AssertionError, TestAPINoAfter)
 
     def test_before_request_functions_must_be_added(self):
-
         class TestAPINoBefore(_TestRestfulAPI):
             def _register_before_request_functions(self, functions=None):
                 pass
@@ -438,12 +432,12 @@ class TestKeystoneFlaskCommon(rest.RestfulTestCase):
         )
         url = '/v3/arguments/<string:argument_id>'
         old_url = [
-            dict(
-                url='/v3/old_arguments/<string:argument_id>',
-                json_home=flask_common.construct_json_home_data(
+            {
+                'url': '/v3/old_arguments/<string:argument_id>',
+                'json_home': flask_common.construct_json_home_data(
                     rel='arguments', resource_relation_func=alt_rel_func
                 ),
-            )
+            }
         ]
 
         mapping = flask_common.construct_resource_map(
@@ -713,7 +707,6 @@ class TestKeystoneFlaskCommon(rest.RestfulTestCase):
             )
 
     def test_api_prefix_self_referential_link_substitution(self):
-
         view_arg = uuid.uuid4().hex
 
         class TestResource(flask_common.ResourceBase):
@@ -723,7 +716,7 @@ class TestKeystoneFlaskCommon(rest.RestfulTestCase):
         # therefore we don't need the heavy lifting of a full request
         # run.
         with self.test_request_context(
-            path='/%s/nothing/values' % view_arg, base_url='https://localhost/'
+            path=f'/{view_arg}/nothing/values', base_url='https://localhost/'
         ):
             # explicitly set the view_args, this is a special case
             # for a synthetic test case, usually one would rely on
@@ -742,7 +735,7 @@ class TestKeystoneFlaskCommon(rest.RestfulTestCase):
             # including the explicit view arg.
             self.assertTrue(
                 ref['links']['self'].startswith(
-                    'https://localhost/v3/%s' % view_arg
+                    f'https://localhost/v3/{view_arg}'
                 )
             )
 

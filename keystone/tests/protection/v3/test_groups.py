@@ -53,7 +53,9 @@ class _SystemUserGroupTests:
         )
 
         with self.test_client() as c:
-            r = c.get('/v3/groups/%s' % group['id'], headers=self.headers)
+            r = c.get(
+                '/v3/groups/{}'.format(group['id']), headers=self.headers
+            )
             self.assertEqual(group['id'], r.json['group']['id'])
 
     def test_user_can_list_group_members(self):
@@ -71,7 +73,7 @@ class _SystemUserGroupTests:
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/groups/%s/users' % group['id'], headers=self.headers
+                '/v3/groups/{}/users'.format(group['id']), headers=self.headers
             )
             self.assertEqual(1, len(r.json['users']))
             self.assertEqual(user['id'], r.json['users'][0]['id'])
@@ -90,7 +92,9 @@ class _SystemUserGroupTests:
         PROVIDERS.identity_api.add_user_to_group(user['id'], group['id'])
 
         with self.test_client() as c:
-            r = c.get('/v3/users/%s/groups' % user['id'], headers=self.headers)
+            r = c.get(
+                '/v3/users/{}/groups'.format(user['id']), headers=self.headers
+            )
             self.assertEqual(1, len(r.json['groups']))
             self.assertEqual(group['id'], r.json['groups'][0]['id'])
 
@@ -117,7 +121,7 @@ class _SystemUserGroupTests:
     def test_user_cannot_get_non_existent_group_not_found(self):
         with self.test_client() as c:
             c.get(
-                '/v3/groups/%s' % uuid.uuid4().hex,
+                f'/v3/groups/{uuid.uuid4().hex}',
                 headers=self.headers,
                 expected_status_code=http.client.NOT_FOUND,
             )
@@ -155,7 +159,7 @@ class _SystemAndDomainMemberAndReaderGroupTests:
 
         with self.test_client() as c:
             c.patch(
-                '/v3/groups/%s' % group['id'],
+                '/v3/groups/{}'.format(group['id']),
                 json=update,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -171,7 +175,7 @@ class _SystemAndDomainMemberAndReaderGroupTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/groups/%s' % group['id'],
+                '/v3/groups/{}'.format(group['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -221,7 +225,6 @@ class SystemReaderTests(
     _SystemUserGroupTests,
     _SystemAndDomainMemberAndReaderGroupTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -256,7 +259,6 @@ class SystemMemberTests(
     _SystemUserGroupTests,
     _SystemAndDomainMemberAndReaderGroupTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -290,7 +292,6 @@ class SystemAdminTests(
     common_auth.AuthTestMixin,
     _SystemUserGroupTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -335,7 +336,7 @@ class SystemAdminTests(
 
         with self.test_client() as c:
             c.patch(
-                '/v3/groups/%s' % group['id'],
+                '/v3/groups/{}'.format(group['id']),
                 json=update,
                 headers=self.headers,
             )
@@ -349,7 +350,7 @@ class SystemAdminTests(
         )
 
         with self.test_client() as c:
-            c.delete('/v3/groups/%s' % group['id'], headers=self.headers)
+            c.delete('/v3/groups/{}'.format(group['id']), headers=self.headers)
 
     def test_user_can_add_users_to_group(self):
         domain = PROVIDERS.resource_api.create_domain(
@@ -389,7 +390,6 @@ class SystemAdminTests(
 
 
 class _DomainUserGroupTests:
-
     def test_user_can_list_groups_in_domain(self):
         # second domain
         domain = PROVIDERS.resource_api.create_domain(
@@ -420,7 +420,8 @@ class _DomainUserGroupTests:
         )
         with self.test_client() as c:
             r = c.get(
-                '/v3/groups?domain_id=%s' % domain['id'], headers=self.headers
+                '/v3/groups?domain_id={}'.format(domain['id']),
+                headers=self.headers,
             )
             self.assertEqual(0, len(r.json['groups']))
 
@@ -429,7 +430,9 @@ class _DomainUserGroupTests:
             unit.new_group_ref(domain_id=self.domain_id)
         )
         with self.test_client() as c:
-            r = c.get('/v3/groups/%s' % group['id'], headers=self.headers)
+            r = c.get(
+                '/v3/groups/{}'.format(group['id']), headers=self.headers
+            )
             self.assertEqual(group['id'], r.json['group']['id'])
 
     def test_user_cannot_get_group_in_other_domain(self):
@@ -441,7 +444,7 @@ class _DomainUserGroupTests:
         )
         with self.test_client() as c:
             c.get(
-                '/v3/groups/%s' % group['id'],
+                '/v3/groups/{}'.format(group['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -449,7 +452,7 @@ class _DomainUserGroupTests:
     def test_user_cannot_get_non_existent_group_forbidden(self):
         with self.test_client() as c:
             c.get(
-                '/v3/groups/%s' % uuid.uuid4().hex,
+                f'/v3/groups/{uuid.uuid4().hex}',
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -463,7 +466,9 @@ class _DomainUserGroupTests:
         )
         PROVIDERS.identity_api.add_user_to_group(user['id'], group['id'])
         with self.test_client() as c:
-            r = c.get('/v3/users/%s/groups' % user['id'], headers=self.headers)
+            r = c.get(
+                '/v3/users/{}/groups'.format(user['id']), headers=self.headers
+            )
             self.assertEqual(1, len(r.json['groups']))
             self.assertEqual(group['id'], r.json['groups'][0]['id'])
 
@@ -480,7 +485,7 @@ class _DomainUserGroupTests:
         PROVIDERS.identity_api.add_user_to_group(user['id'], group['id'])
         with self.test_client() as c:
             c.get(
-                '/v3/users/%s/groups' % user['id'],
+                '/v3/users/{}/groups'.format(user['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -488,7 +493,7 @@ class _DomainUserGroupTests:
     def test_user_cannot_list_groups_for_non_existent_user_forbidden(self):
         with self.test_client() as c:
             c.get(
-                '/v3/users/%s/groups' % uuid.uuid4().hex,
+                f'/v3/users/{uuid.uuid4().hex}/groups',
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -511,7 +516,9 @@ class _DomainUserGroupTests:
         PROVIDERS.identity_api.add_user_to_group(user['id'], group1['id'])
         PROVIDERS.identity_api.add_user_to_group(user['id'], group2['id'])
         with self.test_client() as c:
-            r = c.get('/v3/users/%s/groups' % user['id'], headers=self.headers)
+            r = c.get(
+                '/v3/users/{}/groups'.format(user['id']), headers=self.headers
+            )
             # only one group should be visible
             self.assertEqual(1, len(r.json['groups']))
             self.assertEqual(group2['id'], r.json['groups'][0]['id'])
@@ -526,7 +533,7 @@ class _DomainUserGroupTests:
         PROVIDERS.identity_api.add_user_to_group(user['id'], group['id'])
         with self.test_client() as c:
             r = c.get(
-                '/v3/groups/%s/users' % group['id'], headers=self.headers
+                '/v3/groups/{}/users'.format(group['id']), headers=self.headers
             )
             self.assertEqual(1, len(r.json['users']))
             self.assertEqual(user['id'], r.json['users'][0]['id'])
@@ -550,7 +557,7 @@ class _DomainUserGroupTests:
         PROVIDERS.identity_api.add_user_to_group(user2['id'], group['id'])
         with self.test_client() as c:
             r = c.get(
-                '/v3/groups/%s/users' % group['id'], headers=self.headers
+                '/v3/groups/{}/users'.format(group['id']), headers=self.headers
             )
             # only one user should be visible
             self.assertEqual(1, len(r.json['users']))
@@ -569,7 +576,7 @@ class _DomainUserGroupTests:
         PROVIDERS.identity_api.add_user_to_group(user['id'], group['id'])
         with self.test_client() as c:
             c.get(
-                '/v3/groups/%s/users' % group['id'],
+                '/v3/groups/{}/users'.format(group['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -577,7 +584,7 @@ class _DomainUserGroupTests:
     def test_user_cannot_list_users_in_non_existent_group_forbidden(self):
         with self.test_client() as c:
             c.get(
-                '/v3/groups/%s/users' % uuid.uuid4().hex,
+                f'/v3/groups/{uuid.uuid4().hex}/users',
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -592,14 +599,16 @@ class _DomainUserGroupTests:
         PROVIDERS.identity_api.add_user_to_group(user['id'], group['id'])
         with self.test_client() as c:
             c.head(
-                '/v3/groups/%(group)s/users/%(user)s'
-                % {'group': group['id'], 'user': user['id']},
+                '/v3/groups/{group}/users/{user}'.format(
+                    group=group['id'], user=user['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.NO_CONTENT,
             )
             c.get(
-                '/v3/groups/%(group)s/users/%(user)s'
-                % {'group': group['id'], 'user': user['id']},
+                '/v3/groups/{group}/users/{user}'.format(
+                    group=group['id'], user=user['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.NO_CONTENT,
             )
@@ -617,14 +626,16 @@ class _DomainUserGroupTests:
         PROVIDERS.identity_api.add_user_to_group(user['id'], group['id'])
         with self.test_client() as c:
             c.head(
-                '/v3/groups/%(group)s/users/%(user)s'
-                % {'group': group['id'], 'user': user['id']},
+                '/v3/groups/{group}/users/{user}'.format(
+                    group=group['id'], user=user['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
             c.get(
-                '/v3/groups/%(group)s/users/%(user)s'
-                % {'group': group['id'], 'user': user['id']},
+                '/v3/groups/{group}/users/{user}'.format(
+                    group=group['id'], user=user['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -636,7 +647,6 @@ class DomainReaderTests(
     _DomainUserGroupTests,
     _SystemAndDomainMemberAndReaderGroupTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -701,7 +711,6 @@ class DomainMemberTests(
     _DomainUserGroupTests,
     _SystemAndDomainMemberAndReaderGroupTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -765,7 +774,6 @@ class DomainAdminTests(
     common_auth.AuthTestMixin,
     _DomainUserGroupTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -861,7 +869,7 @@ class DomainAdminTests(
         update = {'group': {'description': uuid.uuid4().hex}}
         with self.test_client() as c:
             c.patch(
-                '/v3/groups/%s' % group['id'],
+                '/v3/groups/{}'.format(group['id']),
                 json=update,
                 headers=self.headers,
             )
@@ -877,7 +885,7 @@ class DomainAdminTests(
         update = {'group': {'description': uuid.uuid4().hex}}
         with self.test_client() as c:
             c.patch(
-                '/v3/groups/%s' % group['id'],
+                '/v3/groups/{}'.format(group['id']),
                 json=update,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -888,7 +896,7 @@ class DomainAdminTests(
             unit.new_group_ref(domain_id=self.domain_id)
         )
         with self.test_client() as c:
-            c.delete('/v3/groups/%s' % group['id'], headers=self.headers)
+            c.delete('/v3/groups/{}'.format(group['id']), headers=self.headers)
 
     def test_user_cannot_delete_group_in_other_domain(self):
         domain = PROVIDERS.resource_api.create_domain(
@@ -899,7 +907,7 @@ class DomainAdminTests(
         )
         with self.test_client() as c:
             c.delete(
-                '/v3/groups/%s' % group['id'],
+                '/v3/groups/{}'.format(group['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -914,8 +922,9 @@ class DomainAdminTests(
         PROVIDERS.identity_api.add_user_to_group(user['id'], group['id'])
         with self.test_client() as c:
             c.delete(
-                '/v3/groups/%(group)s/users/%(user)s'
-                % {'group': group['id'], 'user': user['id']},
+                '/v3/groups/{group}/users/{user}'.format(
+                    group=group['id'], user=user['id']
+                ),
                 headers=self.headers,
             )
 
@@ -932,8 +941,9 @@ class DomainAdminTests(
         PROVIDERS.identity_api.add_user_to_group(user['id'], group['id'])
         with self.test_client() as c:
             c.delete(
-                '/v3/groups/%(group)s/users/%(user)s'
-                % {'group': group['id'], 'user': user['id']},
+                '/v3/groups/{group}/users/{user}'.format(
+                    group=group['id'], user=user['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -951,8 +961,9 @@ class DomainAdminTests(
         PROVIDERS.identity_api.add_user_to_group(user['id'], group['id'])
         with self.test_client() as c:
             c.delete(
-                '/v3/groups/%(group)s/users/%(user)s'
-                % {'group': group['id'], 'user': user['id']},
+                '/v3/groups/{group}/users/{user}'.format(
+                    group=group['id'], user=user['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -963,8 +974,9 @@ class DomainAdminTests(
         )
         with self.test_client() as c:
             c.delete(
-                '/v3/groups/%(group)s/users/%(user)s'
-                % {'group': group['id'], 'user': uuid.uuid4().hex},
+                '/v3/groups/{group}/users/{user}'.format(
+                    group=group['id'], user=uuid.uuid4().hex
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -975,8 +987,9 @@ class DomainAdminTests(
         )
         with self.test_client() as c:
             c.delete(
-                '/v3/groups/%(group)s/users/%(user)s'
-                % {'group': uuid.uuid4().hex, 'user': user['id']},
+                '/v3/groups/{group}/users/{user}'.format(
+                    group=uuid.uuid4().hex, user=user['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -990,8 +1003,9 @@ class DomainAdminTests(
         )
         with self.test_client() as c:
             c.put(
-                '/v3/groups/%(group)s/users/%(user)s'
-                % {'group': group['id'], 'user': user['id']},
+                '/v3/groups/{group}/users/{user}'.format(
+                    group=group['id'], user=user['id']
+                ),
                 headers=self.headers,
             )
 
@@ -1007,8 +1021,9 @@ class DomainAdminTests(
         )
         with self.test_client() as c:
             c.put(
-                '/v3/groups/%(group)s/users/%(user)s'
-                % {'group': group['id'], 'user': user['id']},
+                '/v3/groups/{group}/users/{user}'.format(
+                    group=group['id'], user=user['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -1025,8 +1040,9 @@ class DomainAdminTests(
         )
         with self.test_client() as c:
             c.put(
-                '/v3/groups/%(group)s/users/%(user)s'
-                % {'group': group['id'], 'user': user['id']},
+                '/v3/groups/{group}/users/{user}'.format(
+                    group=group['id'], user=user['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -1037,8 +1053,9 @@ class DomainAdminTests(
         )
         with self.test_client() as c:
             c.put(
-                '/v3/groups/%(group)s/users/%(user)s'
-                % {'group': group['id'], 'user': uuid.uuid4().hex},
+                '/v3/groups/{group}/users/{user}'.format(
+                    group=group['id'], user=uuid.uuid4().hex
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -1049,8 +1066,9 @@ class DomainAdminTests(
         )
         with self.test_client() as c:
             c.put(
-                '/v3/groups/%(group)s/users/%(user)s'
-                % {'group': uuid.uuid4().hex, 'user': user['id']},
+                '/v3/groups/{group}/users/{user}'.format(
+                    group=uuid.uuid4().hex, user=user['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -1059,7 +1077,6 @@ class DomainAdminTests(
 class ProjectUserTests(
     base_classes.TestCaseWithBootstrap, common_auth.AuthTestMixin
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -1104,9 +1121,7 @@ class ProjectUserTests(
         PROVIDERS.identity_api.add_user_to_group(self.user_id, group['id'])
 
         with self.test_client() as c:
-            r = c.get(
-                '/v3/users/%s/groups' % self.user_id, headers=self.headers
-            )
+            r = c.get(f'/v3/users/{self.user_id}/groups', headers=self.headers)
             self.assertEqual(1, len(r.json['groups']))
             self.assertEqual(group['id'], r.json['groups'][0]['id'])
 
@@ -1125,7 +1140,7 @@ class ProjectUserTests(
 
         with self.test_client() as c:
             c.get(
-                '/v3/users/%s/groups' % user['id'],
+                '/v3/users/{}/groups'.format(user['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -1155,7 +1170,7 @@ class ProjectUserTests(
 
         with self.test_client() as c:
             c.get(
-                '/v3/groups/%s' % group['id'],
+                '/v3/groups/{}'.format(group['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -1175,7 +1190,7 @@ class ProjectUserTests(
 
         with self.test_client() as c:
             c.get(
-                '/v3/groups/%s/users' % group['id'],
+                '/v3/groups/{}/users'.format(group['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -1203,7 +1218,7 @@ class ProjectUserTests(
     def test_user_cannot_get_non_existent_group_forbidden(self):
         with self.test_client() as c:
             c.get(
-                '/v3/groups/%s' % uuid.uuid4().hex,
+                f'/v3/groups/{uuid.uuid4().hex}',
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )

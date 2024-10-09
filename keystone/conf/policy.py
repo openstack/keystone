@@ -38,10 +38,7 @@ Maximum number of entities that will be returned in a policy collection.
 
 
 GROUP_NAME = __name__.split('.')[-1]
-ALL_OPTS = [
-    driver,
-    list_limit,
-]
+ALL_OPTS = [driver, list_limit]
 
 
 def register_opts(conf):

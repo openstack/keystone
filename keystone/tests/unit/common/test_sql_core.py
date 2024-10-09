@@ -27,7 +27,6 @@ class TestModel(ModelBase, sql.ModelDictMixin):  # type: ignore
 
 
 class TestModelDictMixin(unit.BaseTestCase):
-
     def test_creating_a_model_instance_from_a_dict(self):
         d = {'id': utils.new_uuid(), 'text': utils.new_uuid()}
         m = TestModel.from_dict(d)

@@ -21,57 +21,34 @@ token_issue = {
         'identity': {
             'type': 'object',
             'properties': {
-                'methods': {
-                    'type': 'array',
-                    'items': {
-                        'type': 'string',
-                    },
-                },
+                'methods': {'type': 'array', 'items': {'type': 'string'}},
                 'password': {
                     'type': 'object',
                     'properties': {
                         'user': {
                             'type': 'object',
                             'properties': {
-                                'id': {
-                                    'type': 'string',
-                                },
-                                'name': {
-                                    'type': 'string',
-                                },
-                                'password': {
-                                    'type': 'string',
-                                },
+                                'id': {'type': 'string'},
+                                'name': {'type': 'string'},
+                                'password': {'type': 'string'},
                                 'domain': {
                                     'type': 'object',
                                     'properties': {
-                                        'id': {
-                                            'type': 'string',
-                                        },
-                                        'name': {
-                                            'type': 'string',
-                                        },
+                                        'id': {'type': 'string'},
+                                        'name': {'type': 'string'},
                                     },
                                 },
                             },
-                        },
+                        }
                     },
                 },
                 'token': {
                     'type': 'object',
-                    'properties': {
-                        'id': {
-                            'type': 'string',
-                        },
-                    },
-                    'required': [
-                        'id',
-                    ],
+                    'properties': {'id': {'type': 'string'}},
+                    'required': ['id'],
                 },
             },
-            'required': [
-                'methods',
-            ],
+            'required': ['methods'],
         },
         'scope': {
             # For explicit unscoped authentication the type should not be
@@ -85,21 +62,13 @@ token_issue = {
                 'project': {
                     'type': 'object',
                     'properties': {
-                        'name': {
-                            'type': 'string',
-                        },
-                        'id': {
-                            'type': 'string',
-                        },
+                        'name': {'type': 'string'},
+                        'id': {'type': 'string'},
                         'domain': {
                             'type': 'object',
                             'properties': {
-                                'id': {
-                                    'type': 'string',
-                                },
-                                'name': {
-                                    'type': 'string',
-                                },
+                                'id': {'type': 'string'},
+                                'name': {'type': 'string'},
                             },
                         },
                     },
@@ -107,21 +76,13 @@ token_issue = {
                 'domain': {
                     'type': 'object',
                     'properties': {
-                        'id': {
-                            'type': 'string',
-                        },
-                        'name': {
-                            'type': 'string',
-                        },
+                        'id': {'type': 'string'},
+                        'name': {'type': 'string'},
                     },
                 },
                 'OS-TRUST:trust': {
                     'type': 'object',
-                    'properties': {
-                        'id': {
-                            'type': 'string',
-                        },
-                    },
+                    'properties': {'id': {'type': 'string'}},
                 },
                 'system': {
                     'type': 'object',
@@ -130,9 +91,7 @@ token_issue = {
             },
         },
     },
-    'required': [
-        'identity',
-    ],
+    'required': ['identity'],
 }
 
 

@@ -80,7 +80,7 @@ class RestfulTestCase(unit.TestCase):
         headers=None,
         token=None,
         expected_status=None,
-        **kwargs
+        **kwargs,
     ):
         if headers:
             headers = {str(k): str(v) for k, v in headers.items()}
@@ -128,8 +128,7 @@ class RestfulTestCase(unit.TestCase):
         self.assertEqual(
             expected_status,
             response.status_code,
-            'Status code %s is not %s, as expected\n\n%s'
-            % (response.status_code, expected_status, response.body),
+            f'Status code {response.status_code} is not {expected_status}, as expected\n\n{response.body}',
         )
 
     def assertValidResponseHeaders(self, response):
@@ -184,7 +183,7 @@ class RestfulTestCase(unit.TestCase):
         body=None,
         content_type=None,
         response_content_type=None,
-        **kwargs
+        **kwargs,
     ):
         """Serialize/deserialize json as request/response body.
 

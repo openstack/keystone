@@ -31,7 +31,6 @@ PROVIDERS = provider_api.ProviderAPIs
 
 
 class SystemRoleAssignmentMixin:
-
     def _create_new_role(self):
         """Create a role available for use anywhere and return the ID."""
         ref = unit.new_role_ref()
@@ -105,10 +104,7 @@ class AssignmentTestCase(
         """Call ``PATCH /roles/{role_id}``."""
         ref = unit.new_role_ref()
         del ref['id']
-        r = self.patch(
-            f'/roles/{self.role_id}',
-            body={'role': ref},
-        )
+        r = self.patch(f'/roles/{self.role_id}', body={'role': ref})
         self.assertValidRoleResponse(r, ref)
 
     def test_delete_role(self):
@@ -122,12 +118,10 @@ class AssignmentTestCase(
         PROVIDERS.role_api.create_role(role['id'], role)
 
         collection_url = '/projects/{project_id}/users/{user_id}/roles'.format(
-            project_id=self.project['id'],
-            user_id=self.user['id'],
+            project_id=self.project['id'], user_id=self.user['id']
         )
         member_url = '{collection_url}/{role_id}'.format(
-            collection_url=collection_url,
-            role_id=role['id'],
+            collection_url=collection_url, role_id=role['id']
         )
 
         # There is a role assignment for self.user on self.project
@@ -159,13 +153,9 @@ class AssignmentTestCase(
         user_id = uuid.uuid4().hex
 
         collection_url = '/projects/{project_id}/users/{user_id}/roles'.format(
-            project_id=self.project['id'],
-            user_id=user_id,
+            project_id=self.project['id'], user_id=user_id
         )
-        member_url = '{collection_url}/{role_id}'.format(
-            collection_url=collection_url,
-            role_id=self.role_id,
-        )
+        member_url = f'{collection_url}/{self.role_id}'
 
         self.put(member_url, expected_status=http.client.NOT_FOUND)
         self.head(member_url, expected_status=http.client.NOT_FOUND)
@@ -175,13 +165,11 @@ class AssignmentTestCase(
         time = timeutils.utcnow()
         with freezegun.freeze_time(time) as frozen_datetime:
             collection_url = (
-                '/domains/%(domain_id)s/users/%(user_id)s/roles'
-                % {'domain_id': self.domain_id, 'user_id': self.user['id']}
+                '/domains/{domain_id}/users/{user_id}/roles'.format(
+                    domain_id=self.domain_id, user_id=self.user['id']
+                )
             )
-            member_url = '{collection_url}/{role_id}'.format(
-                collection_url=collection_url,
-                role_id=self.role_id,
-            )
+            member_url = f'{collection_url}/{self.role_id}'
 
             self.put(member_url)
             self.head(member_url)
@@ -213,14 +201,8 @@ class AssignmentTestCase(
         """
         user_id = uuid.uuid4().hex
 
-        collection_url = '/domains/{domain_id}/users/{user_id}/roles'.format(
-            domain_id=self.domain_id,
-            user_id=user_id,
-        )
-        member_url = '{collection_url}/{role_id}'.format(
-            collection_url=collection_url,
-            role_id=self.role_id,
-        )
+        collection_url = f'/domains/{self.domain_id}/users/{user_id}/roles'
+        member_url = f'{collection_url}/{self.role_id}'
 
         self.put(member_url, expected_status=http.client.NOT_FOUND)
         self.head(member_url, expected_status=http.client.NOT_FOUND)
@@ -230,13 +212,9 @@ class AssignmentTestCase(
         time = timeutils.utcnow()
         with freezegun.freeze_time(time) as frozen_datetime:
             collection_url = (
-                '/projects/%(project_id)s/groups/%(group_id)s/roles'
-                % {'project_id': self.project_id, 'group_id': self.group_id}
+                f'/projects/{self.project_id}/groups/{self.group_id}/roles'
             )
-            member_url = '{collection_url}/{role_id}'.format(
-                collection_url=collection_url,
-                role_id=self.role_id,
-            )
+            member_url = f'{collection_url}/{self.role_id}'
 
             self.put(member_url)
             self.head(member_url)
@@ -268,14 +246,8 @@ class AssignmentTestCase(
         """
         group_id = uuid.uuid4().hex
 
-        collection_url = (
-            '/projects/%(project_id)s/groups/%(group_id)s/roles'
-            % {'project_id': self.project_id, 'group_id': group_id}
-        )
-        member_url = '{collection_url}/{role_id}'.format(
-            collection_url=collection_url,
-            role_id=self.role_id,
-        )
+        collection_url = f'/projects/{self.project_id}/groups/{group_id}/roles'
+        member_url = f'{collection_url}/{self.role_id}'
 
         self.put(member_url, expected_status=http.client.NOT_FOUND)
         self.head(member_url, expected_status=http.client.NOT_FOUND)
@@ -285,13 +257,9 @@ class AssignmentTestCase(
         time = timeutils.utcnow()
         with freezegun.freeze_time(time) as frozen_datetime:
             collection_url = (
-                '/domains/%(domain_id)s/groups/%(group_id)s/roles'
-                % {'domain_id': self.domain_id, 'group_id': self.group_id}
+                f'/domains/{self.domain_id}/groups/{self.group_id}/roles'
             )
-            member_url = '{collection_url}/{role_id}'.format(
-                collection_url=collection_url,
-                role_id=self.role_id,
-            )
+            member_url = f'{collection_url}/{self.role_id}'
 
             self.put(member_url)
             self.head(member_url)
@@ -323,14 +291,8 @@ class AssignmentTestCase(
         """
         group_id = uuid.uuid4().hex
 
-        collection_url = '/domains/{domain_id}/groups/{group_id}/roles'.format(
-            domain_id=self.domain_id,
-            group_id=group_id,
-        )
-        member_url = '{collection_url}/{role_id}'.format(
-            collection_url=collection_url,
-            role_id=self.role_id,
-        )
+        collection_url = f'/domains/{self.domain_id}/groups/{group_id}/roles'
+        member_url = f'{collection_url}/{self.role_id}'
 
         self.put(member_url, expected_status=http.client.NOT_FOUND)
         self.head(member_url, expected_status=http.client.NOT_FOUND)
@@ -343,13 +305,9 @@ class AssignmentTestCase(
         user_ref = PROVIDERS.identity_api.create_user(new_user)
         # Assign the user a role on the project
         collection_url = '/projects/{project_id}/users/{user_id}/roles'.format(
-            project_id=self.project_id,
-            user_id=user_ref['id'],
+            project_id=self.project_id, user_id=user_ref['id']
         )
-        member_url = '{collection_url}/{role_id}'.format(
-            collection_url=collection_url,
-            role_id=self.role_id,
-        )
+        member_url = f'{collection_url}/{self.role_id}'
         self.put(member_url)
         # Check the user has the role assigned
         self.head(member_url)
@@ -377,13 +335,11 @@ class AssignmentTestCase(
 
         # Assign the user a role on the project
         collection_url = (
-            '/projects/%(project_id)s/groups/%(group_id)s/roles'
-            % {'project_id': self.project_id, 'group_id': group_ref['id']}
+            '/projects/{project_id}/groups/{group_id}/roles'.format(
+                project_id=self.project_id, group_id=group_ref['id']
+            )
         )
-        member_url = '{collection_url}/{role_id}'.format(
-            collection_url=collection_url,
-            role_id=self.role_id,
-        )
+        member_url = f'{collection_url}/{self.role_id}'
         self.put(member_url)
 
         # Check the user has the role assigned
@@ -402,8 +358,7 @@ class AssignmentTestCase(
         system_role = self._create_new_role()
         user = self._create_user()
         path = '/system/users/{user_id}/roles/{role_id}'.format(
-            user_id=user['id'],
-            role_id=system_role,
+            user_id=user['id'], role_id=system_role
         )
         self.put(path)
 
@@ -495,8 +450,7 @@ class AssignmentTestCase(
         system_role = self._create_new_role()
         group = self._create_group()
         path = '/system/groups/{group_id}/roles/{role_id}'.format(
-            group_id=group['id'],
-            role_id=system_role,
+            group_id=group['id'], role_id=system_role
         )
         self.put(path)
 
@@ -521,13 +475,9 @@ class AssignmentTestCase(
         PROVIDERS.resource_api.create_project(new_project['id'], new_project)
 
         collection_url = '/projects/{project_id}/users/{user_id}/roles'.format(
-            project_id=new_project['id'],
-            user_id=self.user['id'],
+            project_id=new_project['id'], user_id=self.user['id']
         )
-        member_url = '{collection_url}/{role_id}'.format(
-            collection_url=collection_url,
-            role_id=self.role_id,
-        )
+        member_url = f'{collection_url}/{self.role_id}'
 
         # create the user a grant on the new project
         self.put(member_url)
@@ -554,13 +504,9 @@ class AssignmentTestCase(
         PROVIDERS.resource_api.create_domain(new_domain['id'], new_domain)
 
         collection_url = '/domains/{domain_id}/users/{user_id}/roles'.format(
-            domain_id=new_domain['id'],
-            user_id=self.user['id'],
+            domain_id=new_domain['id'], user_id=self.user['id']
         )
-        member_url = '{collection_url}/{role_id}'.format(
-            collection_url=collection_url,
-            role_id=self.role_id,
-        )
+        member_url = f'{collection_url}/{self.role_id}'
 
         # create the user a grant on the new domain
         self.put(member_url)
@@ -587,13 +533,11 @@ class AssignmentTestCase(
         PROVIDERS.resource_api.create_project(new_project['id'], new_project)
 
         collection_url = (
-            '/projects/%(project_id)s/groups/%(group_id)s/roles'
-            % {'project_id': new_project['id'], 'group_id': self.group['id']}
+            '/projects/{project_id}/groups/{group_id}/roles'.format(
+                project_id=new_project['id'], group_id=self.group['id']
+            )
         )
-        member_url = '{collection_url}/{role_id}'.format(
-            collection_url=collection_url,
-            role_id=self.role_id,
-        )
+        member_url = f'{collection_url}/{self.role_id}'
 
         # create the group a grant on the new project
         self.put(member_url)
@@ -620,13 +564,9 @@ class AssignmentTestCase(
         PROVIDERS.resource_api.create_domain(new_domain['id'], new_domain)
 
         collection_url = '/domains/{domain_id}/groups/{group_id}/roles'.format(
-            domain_id=new_domain['id'],
-            group_id=self.group['id'],
+            domain_id=new_domain['id'], group_id=self.group['id']
         )
-        member_url = '{collection_url}/{role_id}'.format(
-            collection_url=collection_url,
-            role_id=self.role_id,
-        )
+        member_url = f'{collection_url}/{self.role_id}'
 
         # create the group a grant on the new domain
         self.put(member_url)
@@ -1032,8 +972,8 @@ class AssignmentTestCase(
 
         # Now list by various filters to make sure we get back the right ones
 
-        collection_url = (
-            '/role_assignments?scope.project.id=%s' % project1['id']
+        collection_url = '/role_assignments?scope.project.id={}'.format(
+            project1['id']
         )
         r = self.get(collection_url, expected_status=http.client.OK)
         self.head(collection_url, expected_status=http.client.OK)
@@ -1043,8 +983,8 @@ class AssignmentTestCase(
         self.assertRoleAssignmentInListResponse(r, up_entity)
         self.assertRoleAssignmentInListResponse(r, gp_entity)
 
-        collection_url = (
-            '/role_assignments?scope.domain.id=%s' % self.domain['id']
+        collection_url = '/role_assignments?scope.domain.id={}'.format(
+            self.domain['id']
         )
         r = self.get(collection_url, expected_status=http.client.OK)
         self.head(collection_url, expected_status=http.client.OK)
@@ -1054,7 +994,7 @@ class AssignmentTestCase(
         self.assertRoleAssignmentInListResponse(r, ud_entity)
         self.assertRoleAssignmentInListResponse(r, gd_entity)
 
-        collection_url = '/role_assignments?user.id=%s' % user1['id']
+        collection_url = '/role_assignments?user.id={}'.format(user1['id'])
         r = self.get(collection_url, expected_status=http.client.OK)
         self.head(collection_url, expected_status=http.client.OK)
         self.assertValidRoleAssignmentListResponse(
@@ -1063,7 +1003,7 @@ class AssignmentTestCase(
         self.assertRoleAssignmentInListResponse(r, up_entity)
         self.assertRoleAssignmentInListResponse(r, ud_entity)
 
-        collection_url = '/role_assignments?group.id=%s' % group1['id']
+        collection_url = '/role_assignments?group.id={}'.format(group1['id'])
         r = self.get(collection_url, expected_status=http.client.OK)
         self.head(collection_url, expected_status=http.client.OK)
         self.assertValidRoleAssignmentListResponse(
@@ -1072,7 +1012,9 @@ class AssignmentTestCase(
         self.assertRoleAssignmentInListResponse(r, gd_entity)
         self.assertRoleAssignmentInListResponse(r, gp_entity)
 
-        collection_url = '/role_assignments?role.id=%s' % self.role1['id']
+        collection_url = '/role_assignments?role.id={}'.format(
+            self.role1['id']
+        )
         r = self.get(collection_url, expected_status=http.client.OK)
         self.head(collection_url, expected_status=http.client.OK)
         self.assertValidRoleAssignmentListResponse(
@@ -1082,7 +1024,9 @@ class AssignmentTestCase(
         self.assertRoleAssignmentInListResponse(r, gp_entity)
         self.assertRoleAssignmentInListResponse(r, gs_entity)
 
-        collection_url = '/role_assignments?role.id=%s' % self.role2['id']
+        collection_url = '/role_assignments?role.id={}'.format(
+            self.role2['id']
+        )
         r = self.get(collection_url, expected_status=http.client.OK)
         self.head(collection_url, expected_status=http.client.OK)
         self.assertValidRoleAssignmentListResponse(
@@ -1095,9 +1039,10 @@ class AssignmentTestCase(
         # Let's try combining two filers together....
 
         collection_url = (
-            '/role_assignments?user.id=%(user_id)s'
-            '&scope.project.id=%(project_id)s'
-            % {'user_id': user1['id'], 'project_id': project1['id']}
+            '/role_assignments?user.id={user_id}'
+            '&scope.project.id={project_id}'.format(
+                user_id=user1['id'], project_id=project1['id']
+            )
         )
         r = self.get(collection_url, expected_status=http.client.OK)
         self.head(collection_url, expected_status=http.client.OK)
@@ -1110,7 +1055,9 @@ class AssignmentTestCase(
         # roles - this should return role assignment that were directly
         # assigned as well as by virtue of group membership
 
-        collection_url = '/role_assignments?effective&user.id=%s' % user1['id']
+        collection_url = '/role_assignments?effective&user.id={}'.format(
+            user1['id']
+        )
         r = self.get(collection_url, expected_status=http.client.OK)
         self.head(collection_url, expected_status=http.client.OK)
         self.assertValidRoleAssignmentListResponse(
@@ -1151,9 +1098,10 @@ class AssignmentTestCase(
         # scoped token.
 
         collection_url = (
-            '/role_assignments?effective&user.id=%(user_id)s'
-            '&scope.project.id=%(project_id)s'
-            % {'user_id': user1['id'], 'project_id': project1['id']}
+            '/role_assignments?effective&user.id={user_id}'
+            '&scope.project.id={project_id}'.format(
+                user_id=user1['id'], project_id=project1['id']
+            )
         )
         r = self.get(collection_url, expected_status=http.client.OK)
         self.head(collection_url, expected_status=http.client.OK)
@@ -1181,15 +1129,11 @@ class AssignmentTestCase(
         )
         self.put(url)
         url = '/domains/{}/users/{}/roles/{}'.format(
-            self.domain_id,
-            user['id'],
-            user_domain_role_id,
+            self.domain_id, user['id'], user_domain_role_id
         )
         self.put(url)
         url = '/projects/{}/users/{}/roles/{}'.format(
-            self.project_id,
-            user['id'],
-            user_project_role_id,
+            self.project_id, user['id'], user_project_role_id
         )
         self.put(url)
 
@@ -1197,20 +1141,15 @@ class AssignmentTestCase(
         # project
         group = self._create_group()
         url = '/system/groups/{}/roles/{}'.format(
-            group['id'],
-            group_system_role_id,
+            group['id'], group_system_role_id
         )
         self.put(url)
         url = '/domains/{}/groups/{}/roles/{}'.format(
-            self.domain_id,
-            group['id'],
-            group_domain_role_id,
+            self.domain_id, group['id'], group_domain_role_id
         )
         self.put(url)
         url = '/projects/{}/groups/{}/roles/{}'.format(
-            self.project_id,
-            group['id'],
-            group_project_role_id,
+            self.project_id, group['id'], group_project_role_id
         )
         self.put(url)
 
@@ -1228,7 +1167,9 @@ class AssignmentTestCase(
 
         # /v3/role_assignments?scope_system=all&user.id=$USER_ID should return
         # one role assignment
-        url = '/role_assignments?scope.system=all&user.id=%s' % user['id']
+        url = '/role_assignments?scope.system=all&user.id={}'.format(
+            user['id']
+        )
         response = self.get(url)
         self.assertValidRoleAssignmentListResponse(response, expected_length=1)
         self.assertEqual(
@@ -1238,7 +1179,9 @@ class AssignmentTestCase(
 
         # /v3/role_assignments?scope_system=all&group.id=$GROUP_ID should
         # return one role assignment
-        url = '/role_assignments?scope.system=all&group.id=%s' % group['id']
+        url = '/role_assignments?scope.system=all&group.id={}'.format(
+            group['id']
+        )
         response = self.get(url)
         self.assertValidRoleAssignmentListResponse(response, expected_length=1)
         self.assertEqual(
@@ -1248,7 +1191,7 @@ class AssignmentTestCase(
 
         # /v3/role_assignments?user.id=$USER_ID should return 3 assignments
         # and system should be in that list of assignments
-        url = '/role_assignments?user.id=%s' % user['id']
+        url = '/role_assignments?user.id={}'.format(user['id'])
         response = self.get(url)
         self.assertValidRoleAssignmentListResponse(response, expected_length=3)
         for assignment in response.json_body['role_assignments']:
@@ -1263,7 +1206,7 @@ class AssignmentTestCase(
 
         # /v3/role_assignments?group.id=$GROUP_ID should return 3 assignments
         # and system should be in that list of assignments
-        url = '/role_assignments?group.id=%s' % group['id']
+        url = '/role_assignments?group.id={}'.format(group['id'])
         response = self.get(url)
         self.assertValidRoleAssignmentListResponse(response, expected_length=3)
         for assignment in response.json_body['role_assignments']:
@@ -1873,12 +1816,10 @@ class AssignmentInheritanceTestCase(
 
             # Define URLs
             direct_url = '{}/users/{}/roles/{}'.format(
-                target_url,
-                self.user_id,
-                role['id'],
+                target_url, self.user_id, role['id']
             )
-            inherited_url = (
-                '/OS-INHERIT/%s/inherited_to_projects' % direct_url.lstrip('/')
+            inherited_url = '/OS-INHERIT/{}/inherited_to_projects'.format(
+                direct_url.lstrip('/')
             )
 
             # Create the direct assignment
@@ -1910,12 +1851,12 @@ class AssignmentInheritanceTestCase(
 
     def test_crud_inherited_and_direct_assignment_on_domains(self):
         self._test_crud_inherited_and_direct_assignment_on_target(
-            '/domains/%s' % self.domain_id
+            f'/domains/{self.domain_id}'
         )
 
     def test_crud_inherited_and_direct_assignment_on_projects(self):
         self._test_crud_inherited_and_direct_assignment_on_target(
-            '/projects/%s' % self.project_id
+            f'/projects/{self.project_id}'
         )
 
     def test_crud_user_inherited_domain_role_grants(self):
@@ -1933,12 +1874,12 @@ class AssignmentInheritanceTestCase(
         )
 
         base_collection_url = (
-            '/OS-INHERIT/domains/%(domain_id)s/users/%(user_id)s/roles'
-            % {'domain_id': self.domain_id, 'user_id': self.user['id']}
+            '/OS-INHERIT/domains/{domain_id}/users/{user_id}/roles'.format(
+                domain_id=self.domain_id, user_id=self.user['id']
+            )
         )
         member_url = '{collection_url}/{role_id}/inherited_to_projects'.format(
-            collection_url=base_collection_url,
-            role_id=role_list[0]['id'],
+            collection_url=base_collection_url, role_id=role_list[0]['id']
         )
         collection_url = base_collection_url + '/inherited_to_projects'
 
@@ -2003,12 +1944,12 @@ class AssignmentInheritanceTestCase(
 
         # Now create our inherited role on the domain
         base_collection_url = (
-            '/OS-INHERIT/domains/%(domain_id)s/users/%(user_id)s/roles'
-            % {'domain_id': domain['id'], 'user_id': user1['id']}
+            '/OS-INHERIT/domains/{domain_id}/users/{user_id}/roles'.format(
+                domain_id=domain['id'], user_id=user1['id']
+            )
         )
         member_url = '{collection_url}/{role_id}/inherited_to_projects'.format(
-            collection_url=base_collection_url,
-            role_id=role_list[3]['id'],
+            collection_url=base_collection_url, role_id=role_list[3]['id']
         )
         collection_url = base_collection_url + '/inherited_to_projects'
 
@@ -2023,9 +1964,10 @@ class AssignmentInheritanceTestCase(
         # Now use the list domain role assignments api to check if this
         # is included
         collection_url = (
-            '/role_assignments?user.id=%(user_id)s'
-            '&scope.domain.id=%(domain_id)s'
-            % {'user_id': user1['id'], 'domain_id': domain['id']}
+            '/role_assignments?user.id={user_id}'
+            '&scope.domain.id={domain_id}'.format(
+                user_id=user1['id'], domain_id=domain['id']
+            )
         )
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(
@@ -2043,9 +1985,10 @@ class AssignmentInheritanceTestCase(
         # turn into a project role, along with the two direct roles that are
         # on the project
         collection_url = (
-            '/role_assignments?effective&user.id=%(user_id)s'
-            '&scope.project.id=%(project_id)s'
-            % {'user_id': user1['id'], 'project_id': project1['id']}
+            '/role_assignments?effective&user.id={user_id}'
+            '&scope.project.id={project_id}'.format(
+                user_id=user1['id'], project_id=project1['id']
+            )
         )
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(
@@ -2105,28 +2048,30 @@ class AssignmentInheritanceTestCase(
         self.put(expected_entity4['links']['assignment'])
 
         collection_url_domain = (
-            '/role_assignments?include_names&scope.domain.id=%(domain_id)s'
-            % {'domain_id': self.domain_id}
+            f'/role_assignments?include_names&scope.domain.id={self.domain_id}'
         )
         rs_domain = self.get(collection_url_domain)
         collection_url_project = (
             '/role_assignments?include_names&'
-            'scope.project.id=%(project_id)s' % {'project_id': project1['id']}
+            'scope.project.id={project_id}'.format(project_id=project1['id'])
         )
         rs_project = self.get(collection_url_project)
         collection_url_group = (
-            '/role_assignments?include_names&group.id=%(group_id)s'
-            % {'group_id': group['id']}
+            '/role_assignments?include_names&group.id={group_id}'.format(
+                group_id=group['id']
+            )
         )
         rs_group = self.get(collection_url_group)
         collection_url_user = (
-            '/role_assignments?include_names&user.id=%(user_id)s'
-            % {'user_id': user1['id']}
+            '/role_assignments?include_names&user.id={user_id}'.format(
+                user_id=user1['id']
+            )
         )
         rs_user = self.get(collection_url_user)
         collection_url_role = (
-            '/role_assignments?include_names&role.id=%(role_id)s'
-            % {'role_id': role1['id']}
+            '/role_assignments?include_names&role.id={role_id}'.format(
+                role_id=role1['id']
+            )
         )
         rs_role = self.get(collection_url_role)
         # Make sure all entities were created successfully
@@ -2207,8 +2152,8 @@ class AssignmentInheritanceTestCase(
         self.put(assignment_domain['links']['assignment'])
         self.put(assignment_project['links']['assignment'])
 
-        collection_url = '/role_assignments?user.id=%(user_id)s' % (
-            {'user_id': user['id']}
+        collection_url = '/role_assignments?user.id={user_id}'.format(
+            user_id=user['id']
         )
         result = self.get(collection_url)
         # We have two role assignments based in both roles for the domain and
@@ -2219,14 +2164,12 @@ class AssignmentInheritanceTestCase(
         self.assertRoleAssignmentInListResponse(result, assignment_domain)
 
         domain_url = '/domains/{}/users/{}/roles/{}'.format(
-            domain['id'],
-            user['id'],
-            role['id'],
+            domain['id'], user['id'], role['id']
         )
         self.delete(domain_url)
 
-        collection_url = '/role_assignments?user.id=%(user_id)s' % (
-            {'user_id': user['id']}
+        collection_url = '/role_assignments?user.id={user_id}'.format(
+            user_id=user['id']
         )
         result = self.get(collection_url)
         # Now we only have one assignment for the project scope since the
@@ -2283,8 +2226,8 @@ class AssignmentInheritanceTestCase(
 
         self.put(assignment['links']['assignment'])
 
-        collection_url = '/role_assignments?user.id=%(user_id)s' % (
-            {'user_id': user['id']}
+        collection_url = '/role_assignments?user.id={user_id}'.format(
+            user_id=user['id']
         )
         result = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(
@@ -2293,8 +2236,9 @@ class AssignmentInheritanceTestCase(
         self.assertRoleAssignmentInListResponse(result, assignment)
 
         collection_url = (
-            '/role_assignments?include_names&'
-            'user.id=%(user_id)s' % {'user_id': user['id']}
+            '/role_assignments?include_names&' 'user.id={user_id}'.format(
+                user_id=user['id']
+            )
         )
         result = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(
@@ -2344,12 +2288,12 @@ class AssignmentInheritanceTestCase(
 
         # Now create our inherited role on the domain
         base_collection_url = (
-            '/OS-INHERIT/domains/%(domain_id)s/users/%(user_id)s/roles'
-            % {'domain_id': domain['id'], 'user_id': user1['id']}
+            '/OS-INHERIT/domains/{domain_id}/users/{user_id}/roles'.format(
+                domain_id=domain['id'], user_id=user1['id']
+            )
         )
         member_url = '{collection_url}/{role_id}/inherited_to_projects'.format(
-            collection_url=base_collection_url,
-            role_id=role_list[3]['id'],
+            collection_url=base_collection_url, role_id=role_list[3]['id']
         )
         collection_url = base_collection_url + '/inherited_to_projects'
 
@@ -2365,9 +2309,10 @@ class AssignmentInheritanceTestCase(
         # turn into a project role, along with the two direct roles that are
         # on the project
         collection_url = (
-            '/role_assignments?effective&user.id=%(user_id)s'
-            '&scope.project.id=%(project_id)s'
-            % {'user_id': user1['id'], 'project_id': project1['id']}
+            '/role_assignments?effective&user.id={user_id}'
+            '&scope.project.id={project_id}'.format(
+                user_id=user1['id'], project_id=project1['id']
+            )
         )
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(
@@ -2441,12 +2386,12 @@ class AssignmentInheritanceTestCase(
 
         # Now create our inherited role on the domain
         base_collection_url = (
-            '/OS-INHERIT/domains/%(domain_id)s/groups/%(group_id)s/roles'
-            % {'domain_id': domain['id'], 'group_id': group1['id']}
+            '/OS-INHERIT/domains/{domain_id}/groups/{group_id}/roles'.format(
+                domain_id=domain['id'], group_id=group1['id']
+            )
         )
         member_url = '{collection_url}/{role_id}/inherited_to_projects'.format(
-            collection_url=base_collection_url,
-            role_id=role_list[3]['id'],
+            collection_url=base_collection_url, role_id=role_list[3]['id']
         )
         collection_url = base_collection_url + '/inherited_to_projects'
 
@@ -2461,9 +2406,10 @@ class AssignmentInheritanceTestCase(
         # Now use the list domain role assignments api to check if this
         # is included
         collection_url = (
-            '/role_assignments?group.id=%(group_id)s'
-            '&scope.domain.id=%(domain_id)s'
-            % {'group_id': group1['id'], 'domain_id': domain['id']}
+            '/role_assignments?group.id={group_id}'
+            '&scope.domain.id={domain_id}'.format(
+                group_id=group1['id'], domain_id=domain['id']
+            )
         )
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(
@@ -2481,9 +2427,10 @@ class AssignmentInheritanceTestCase(
         # turn into a user project role, along with the two direct roles
         # that are on the project
         collection_url = (
-            '/role_assignments?effective&user.id=%(user_id)s'
-            '&scope.project.id=%(project_id)s'
-            % {'user_id': user1['id'], 'project_id': project1['id']}
+            '/role_assignments?effective&user.id={user_id}'
+            '&scope.project.id={project_id}'.format(
+                user_id=user1['id'], project_id=project1['id']
+            )
         )
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(
@@ -2546,12 +2493,12 @@ class AssignmentInheritanceTestCase(
         # Now create two inherited roles on the domain, one for a user
         # and one for a domain
         base_collection_url = (
-            '/OS-INHERIT/domains/%(domain_id)s/users/%(user_id)s/roles'
-            % {'domain_id': domain['id'], 'user_id': user1['id']}
+            '/OS-INHERIT/domains/{domain_id}/users/{user_id}/roles'.format(
+                domain_id=domain['id'], user_id=user1['id']
+            )
         )
         member_url = '{collection_url}/{role_id}/inherited_to_projects'.format(
-            collection_url=base_collection_url,
-            role_id=role_list[3]['id'],
+            collection_url=base_collection_url, role_id=role_list[3]['id']
         )
         collection_url = base_collection_url + '/inherited_to_projects'
 
@@ -2564,12 +2511,12 @@ class AssignmentInheritanceTestCase(
         )
 
         base_collection_url = (
-            '/OS-INHERIT/domains/%(domain_id)s/groups/%(group_id)s/roles'
-            % {'domain_id': domain['id'], 'group_id': group1['id']}
+            '/OS-INHERIT/domains/{domain_id}/groups/{group_id}/roles'.format(
+                domain_id=domain['id'], group_id=group1['id']
+            )
         )
         member_url = '{collection_url}/{role_id}/inherited_to_projects'.format(
-            collection_url=base_collection_url,
-            role_id=role_list[4]['id'],
+            collection_url=base_collection_url, role_id=role_list[4]['id']
         )
         collection_url = base_collection_url + '/inherited_to_projects'
 
@@ -2957,9 +2904,7 @@ class AssignmentInheritanceTestCase(
 
         # Without the subtree, we should get the one assignment on the
         # root project
-        collection_url = '/role_assignments?scope.project.id={project}'.format(
-            project=root_id
-        )
+        collection_url = f'/role_assignments?scope.project.id={root_id}'
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(
             r, resource_url=collection_url
@@ -2970,8 +2915,8 @@ class AssignmentInheritanceTestCase(
 
         # With the subtree, we should get both assignments
         collection_url = (
-            '/role_assignments?scope.project.id=%(project)s'
-            '&include_subtree=True' % {'project': root_id}
+            f'/role_assignments?scope.project.id={root_id}'
+            '&include_subtree=True'
         )
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(
@@ -2985,8 +2930,8 @@ class AssignmentInheritanceTestCase(
         # With subtree=0, we should also only get the one assignment on the
         # root project
         collection_url = (
-            '/role_assignments?scope.project.id=%(project)s'
-            '&include_subtree=0' % {'project': root_id}
+            f'/role_assignments?scope.project.id={root_id}'
+            '&include_subtree=0'
         )
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(
@@ -3057,8 +3002,8 @@ class AssignmentInheritanceTestCase(
 
         # Get effective role assignments
         collection_url = (
-            '/role_assignments?scope.project.id=%(project)s'
-            '&include_subtree=True&effective' % {'project': leaf_id}
+            f'/role_assignments?scope.project.id={leaf_id}'
+            '&include_subtree=True&effective'
         )
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(
@@ -3154,7 +3099,7 @@ class ImpliedRolesTests(
 
     def test_list_implied_roles_none(self):
         self.prior = self._create_role()
-        url = '/roles/%s/implies' % (self.prior['id'])
+        url = '/roles/{}/implies'.format(self.prior['id'])
         response = self.get(url).json["role_inference"]
         self.head(url, expected_status=http.client.OK)
         self.assertEqual(self.prior['id'], response['prior_role']['id'])
@@ -3179,7 +3124,7 @@ class ImpliedRolesTests(
     def _assert_expected_implied_role_response(
         self, expected_prior_id, expected_implied_ids
     ):
-        r = self.get('/roles/%s/implies' % expected_prior_id)
+        r = self.get(f'/roles/{expected_prior_id}/implies')
         response = r.json
         role_inference = response['role_inference']
         self.assertEqual(expected_prior_id, role_inference['prior_role']['id'])
@@ -3201,12 +3146,10 @@ class ImpliedRolesTests(
     def _assert_expected_role_inference_rule_response(
         self, expected_prior_id, expected_implied_id
     ):
-        url = '/roles/{}/implies/{}'.format(
-            expected_prior_id, expected_implied_id
-        )
+        url = f'/roles/{expected_prior_id}/implies/{expected_implied_id}'
         response = self.get(url).json
         self.assertThat(
-            response['links']['self'], matchers.EndsWith('/v3%s' % url)
+            response['links']['self'], matchers.EndsWith(f'/v3{url}')
         )
         role_inference = response['role_inference']
         prior_role = role_inference['prior_role']
@@ -3214,14 +3157,14 @@ class ImpliedRolesTests(
         self.assertIsNotNone(prior_role['name'])
         self.assertThat(
             prior_role['links']['self'],
-            matchers.EndsWith('/v3/roles/%s' % expected_prior_id),
+            matchers.EndsWith(f'/v3/roles/{expected_prior_id}'),
         )
         implied_role = role_inference['implies']
         self.assertEqual(expected_implied_id, implied_role['id'])
         self.assertIsNotNone(implied_role['name'])
         self.assertThat(
             implied_role['links']['self'],
-            matchers.EndsWith('/v3/roles/%s' % expected_implied_id),
+            matchers.EndsWith(f'/v3/roles/{expected_implied_id}'),
         )
 
     def _assert_two_roles_implied(self):
@@ -3278,7 +3221,6 @@ class ImpliedRolesTests(
         self._assert_one_rule_defined()
 
     def test_CRD_implied_roles(self):
-
         self._setup_prior_two_implied()
         self._assert_two_roles_implied()
 
@@ -3568,7 +3510,7 @@ class DomainSpecificRoleTests(test_v3.RestfulTestCase, unit.TestCase):
 
     def test_get_and_list_domain_specific_roles(self):
         # Check we can get a domain specific role
-        r = self.get('/roles/%s' % self.domainA_role1['id'])
+        r = self.get('/roles/{}'.format(self.domainA_role1['id']))
         self.assertValidRoleResponse(r, self.domainA_role1)
 
         # If we list without specifying a domain, we should only get global
@@ -3584,7 +3526,7 @@ class DomainSpecificRoleTests(test_v3.RestfulTestCase, unit.TestCase):
         self.assertRoleNotInListResponse(r, self.domainB_role)
 
         # Now list those in domainA, making sure that's all we get back
-        r = self.get('/roles?domain_id=%s' % self.domainA['id'])
+        r = self.get('/roles?domain_id={}'.format(self.domainA['id']))
         self.assertValidRoleListResponse(r, expected_length=2)
         self.assertRoleInListResponse(r, self.domainA_role1)
         self.assertRoleInListResponse(r, self.domainA_role2)
@@ -3595,7 +3537,7 @@ class DomainSpecificRoleTests(test_v3.RestfulTestCase, unit.TestCase):
             '/roles/{role_id}'.format(role_id=self.domainA_role1['id']),
             body={'role': self.domainA_role1},
         )
-        r = self.get('/roles/%s' % self.domainA_role1['id'])
+        r = self.get('/roles/{}'.format(self.domainA_role1['id']))
         self.assertValidRoleResponse(r, self.domainA_role1)
 
     def test_delete_domain_specific_roles(self):
@@ -3605,11 +3547,11 @@ class DomainSpecificRoleTests(test_v3.RestfulTestCase, unit.TestCase):
         )
 
         self.get(
-            '/roles/%s' % self.domainA_role1['id'],
+            '/roles/{}'.format(self.domainA_role1['id']),
             expected_status=http.client.NOT_FOUND,
         )
         # Now re-list those in domainA, making sure there's only one left
-        r = self.get('/roles?domain_id=%s' % self.domainA['id'])
+        r = self.get('/roles?domain_id={}'.format(self.domainA['id']))
         self.assertValidRoleListResponse(r, expected_length=1)
         self.assertRoleInListResponse(r, self.domainA_role2)
 
@@ -3674,8 +3616,9 @@ class DomainSpecificRoleTests(test_v3.RestfulTestCase, unit.TestCase):
         # Now we create an implied rule from a role in domainA to a
         # role in domainB
         self.put(
-            '/roles/%s/implies/%s'
-            % (self.domainA_role1['id'], self.domainB_role['id']),
+            '/roles/{}/implies/{}'.format(
+                self.domainA_role1['id'], self.domainB_role['id']
+            ),
             expected_status=http.client.CREATED,
         )
 
@@ -3769,7 +3712,7 @@ class ListUserProjectsTestCase(test_v3.RestfulTestCase):
             user = self.users[i]
             auth = self.auths[i]
 
-            url = '/users/%s/projects' % user['id']
+            url = '/users/{}/projects'.format(user['id'])
             result = self.get(url, auth=auth)
             projects_result = result.json['projects']
             self.assertEqual(1, len(projects_result))
@@ -3782,7 +3725,7 @@ class ListUserProjectsTestCase(test_v3.RestfulTestCase):
             auth = self.auths[i]
 
             # There are no disabled projects
-            url = '/users/%s/projects?enabled=True' % user['id']
+            url = '/users/{}/projects?enabled=True'.format(user['id'])
             result = self.get(url, auth=auth)
             projects_result = result.json['projects']
             self.assertEqual(1, len(projects_result))
@@ -3795,7 +3738,7 @@ class ListUserProjectsTestCase(test_v3.RestfulTestCase):
             project = self.projects[i]
 
             # There are no disabled projects
-            url = '/users/%s/projects?enabled=False' % user['id']
+            url = '/users/{}/projects?enabled=False'.format(user['id'])
             result = self.get(url, auth=auth)
             self.assertEqual(0, len(result.json['projects']))
 
@@ -3815,16 +3758,14 @@ class ListUserProjectsTestCase(test_v3.RestfulTestCase):
 
             # Try looking for projects with a non-existent domain_id
             url = '/users/{}/projects?domain_id={}'.format(
-                user['id'],
-                uuid.uuid4().hex,
+                user['id'], uuid.uuid4().hex
             )
             result = self.get(url, auth=auth)
             self.assertEqual(0, len(result.json['projects']))
 
             # Now try a valid one
             url = '/users/{}/projects?domain_id={}'.format(
-                user['id'],
-                domain['id'],
+                user['id'], domain['id']
             )
             result = self.get(url, auth=auth)
             projects_result = result.json['projects']
@@ -3840,14 +3781,12 @@ class ListUserProjectsTestCase(test_v3.RestfulTestCase):
 class UserSystemRoleAssignmentTestCase(
     test_v3.RestfulTestCase, SystemRoleAssignmentMixin
 ):
-
     def test_assign_system_role_to_user(self):
         system_role_id = self._create_new_role()
 
         # assign the user a role on the system
         member_url = '/system/users/{user_id}/roles/{role_id}'.format(
-            user_id=self.user['id'],
-            role_id=system_role_id,
+            user_id=self.user['id'], role_id=system_role_id
         )
         self.put(member_url)
 
@@ -3864,8 +3803,9 @@ class UserSystemRoleAssignmentTestCase(
         self.head(collection_url, expected_status=http.client.OK)
 
         response = self.get(
-            '/role_assignments?scope.system=all&user.id=%(user_id)s'
-            % {'user_id': self.user['id']}
+            '/role_assignments?scope.system=all&user.id={user_id}'.format(
+                user_id=self.user['id']
+            )
         )
         self.assertValidRoleAssignmentListResponse(response)
 
@@ -3874,16 +3814,16 @@ class UserSystemRoleAssignmentTestCase(
 
         # assign the user a role on the system
         member_url = '/system/users/{user_id}/roles/{role_id}'.format(
-            user_id=self.user['id'],
-            role_id=system_role_id,
+            user_id=self.user['id'], role_id=system_role_id
         )
         self.put(member_url)
 
         # the response should contain one role assignment for the system role
         # and one for a role that was setup during setUp().
         response = self.get(
-            '/role_assignments?user.id=%(user_id)s'
-            % {'user_id': self.user['id']}
+            '/role_assignments?user.id={user_id}'.format(
+                user_id=self.user['id']
+            )
         )
         self.assertValidRoleAssignmentListResponse(response, expected_length=2)
 
@@ -3899,8 +3839,9 @@ class UserSystemRoleAssignmentTestCase(
         self.assertEqual(response.json_body['roles'], [])
 
         response = self.get(
-            '/role_assignments?scope.system=all&user.id=%(user_id)s'
-            % {'user_id': self.user['id']}
+            '/role_assignments?scope.system=all&user.id={user_id}'.format(
+                user_id=self.user['id']
+            )
         )
         self.assertEqual(len(response.json_body['role_assignments']), 0)
         self.assertValidRoleAssignmentListResponse(response)
@@ -3910,16 +3851,16 @@ class UserSystemRoleAssignmentTestCase(
 
         # assign the user a role on the system
         member_url = '/system/users/{user_id}/roles/{role_id}'.format(
-            user_id=self.user['id'],
-            role_id=system_role_id,
+            user_id=self.user['id'], role_id=system_role_id
         )
         self.put(member_url)
 
         # list project role assignments and save the role id of that
         # assignment, this assignment was created during setUp
         response = self.get(
-            '/projects/%(project_id)s/users/%(user_id)s/roles'
-            % {'project_id': self.project['id'], 'user_id': self.user['id']}
+            '/projects/{project_id}/users/{user_id}/roles'.format(
+                project_id=self.project['id'], user_id=self.user['id']
+            )
         )
         self.assertEqual(len(response.json_body['roles']), 1)
         project_role_id = response.json_body['roles'][0]['id']
@@ -3938,8 +3879,9 @@ class UserSystemRoleAssignmentTestCase(
         # make sure the role_assignment API filters correctly based on system
         # scope
         response = self.get(
-            '/role_assignments?scope.system=all&user.id=%(user_id)s'
-            % {'user_id': self.user['id']}
+            '/role_assignments?scope.system=all&user.id={user_id}'.format(
+                user_id=self.user['id']
+            )
         )
         self.assertEqual(len(response.json_body['role_assignments']), 1)
         system_assignment = response.json_body['role_assignments'][0]
@@ -3949,9 +3891,9 @@ class UserSystemRoleAssignmentTestCase(
         # make sure the role_assignment API doesn't include the system role
         # assignment when we filter based on project
         path = (
-            '/role_assignments?scope.project.id=%(project_id)s&'
-            'user.id=%(user_id)s'
-        ) % {'project_id': self.project['id'], 'user_id': self.user['id']}
+            '/role_assignments?scope.project.id={project_id}&'
+            'user.id={user_id}'
+        ).format(project_id=self.project['id'], user_id=self.user['id'])
         response = self.get(path)
         self.assertEqual(len(response.json_body['role_assignments']), 1)
         project_assignment = response.json_body['role_assignments'][0]
@@ -3963,26 +3905,25 @@ class UserSystemRoleAssignmentTestCase(
 
         # assign a role to the user on a domain
         domain_member_url = (
-            '/domains/%(domain_id)s/users/%(user_id)s/roles/%(role_id)s'
-            % {
-                'domain_id': self.user['domain_id'],
-                'user_id': self.user['id'],
-                'role_id': domain_role_id,
-            }
+            '/domains/{domain_id}/users/{user_id}/roles/{role_id}'.format(
+                domain_id=self.user['domain_id'],
+                user_id=self.user['id'],
+                role_id=domain_role_id,
+            )
         )
         self.put(domain_member_url)
 
         # assign the user a role on the system
         member_url = '/system/users/{user_id}/roles/{role_id}'.format(
-            user_id=self.user['id'],
-            role_id=system_role_id,
+            user_id=self.user['id'], role_id=system_role_id
         )
         self.put(member_url)
 
         # list domain role assignments
         response = self.get(
-            '/domains/%(domain_id)s/users/%(user_id)s/roles'
-            % {'domain_id': self.user['domain_id'], 'user_id': self.user['id']}
+            '/domains/{domain_id}/users/{user_id}/roles'.format(
+                domain_id=self.user['domain_id'], user_id=self.user['id']
+            )
         )
         self.assertEqual(len(response.json_body['roles']), 1)
 
@@ -4000,8 +3941,9 @@ class UserSystemRoleAssignmentTestCase(
         # make sure the role_assignment API filters correctly based on system
         # scope
         response = self.get(
-            '/role_assignments?scope.system=all&user.id=%(user_id)s'
-            % {'user_id': self.user['id']}
+            '/role_assignments?scope.system=all&user.id={user_id}'.format(
+                user_id=self.user['id']
+            )
         )
         self.assertEqual(len(response.json_body['role_assignments']), 1)
         system_assignment = response.json_body['role_assignments'][0]
@@ -4011,9 +3953,9 @@ class UserSystemRoleAssignmentTestCase(
         # make sure the role_assignment API doesn't include the system role
         # assignment when we filter based on domain
         path = (
-            '/role_assignments?scope.domain.id=%(domain_id)s&'
-            'user.id=%(user_id)s'
-        ) % {'domain_id': self.user['domain_id'], 'user_id': self.user['id']}
+            '/role_assignments?scope.domain.id={domain_id}&'
+            'user.id={user_id}'
+        ).format(domain_id=self.user['domain_id'], user_id=self.user['id'])
         response = self.get(path)
         self.assertEqual(len(response.json_body['role_assignments']), 1)
         domain_assignment = response.json_body['role_assignments'][0]
@@ -4024,8 +3966,7 @@ class UserSystemRoleAssignmentTestCase(
 
         # assign the user a role on the system
         member_url = '/system/users/{user_id}/roles/{role_id}'.format(
-            user_id=self.user['id'],
-            role_id=system_role_id,
+            user_id=self.user['id'], role_id=system_role_id
         )
         self.put(member_url)
 
@@ -4037,14 +3978,14 @@ class UserSystemRoleAssignmentTestCase(
 
         # check the user does't have the system role assignment
         member_url = '/system/users/{user_id}/roles/{role_id}'.format(
-            user_id=self.user['id'],
-            role_id=system_role_id,
+            user_id=self.user['id'], role_id=system_role_id
         )
         self.head(member_url, expected_status=http.client.NOT_FOUND)
 
         response = self.get(
-            '/role_assignments?scope.system=all&user.id=%(user_id)s'
-            % {'user_id': self.user['id']}
+            '/role_assignments?scope.system=all&user.id={user_id}'.format(
+                user_id=self.user['id']
+            )
         )
         self.assertEqual(len(response.json_body['role_assignments']), 0)
         self.assertValidRoleAssignmentListResponse(response)
@@ -4054,8 +3995,7 @@ class UserSystemRoleAssignmentTestCase(
 
         # assign the user a role on the system
         member_url = '/system/users/{user_id}/roles/{role_id}'.format(
-            user_id=self.user['id'],
-            role_id=system_role_id,
+            user_id=self.user['id'], role_id=system_role_id
         )
         self.put(member_url)
 
@@ -4063,8 +4003,9 @@ class UserSystemRoleAssignmentTestCase(
         self.head(member_url)
 
         response = self.get(
-            '/role_assignments?scope.system=all&user.id=%(user_id)s'
-            % {'user_id': self.user['id']}
+            '/role_assignments?scope.system=all&user.id={user_id}'.format(
+                user_id=self.user['id']
+            )
         )
         self.assertEqual(len(response.json_body['role_assignments']), 1)
         self.assertValidRoleAssignmentListResponse(response)
@@ -4079,8 +4020,9 @@ class UserSystemRoleAssignmentTestCase(
         response = self.get(collection_url)
         self.assertEqual(len(response.json_body['roles']), 0)
         response = self.get(
-            '/role_assignments?scope.system=all&user.id=%(user_id)s'
-            % {'user_id': self.user['id']}
+            '/role_assignments?scope.system=all&user.id={user_id}'.format(
+                user_id=self.user['id']
+            )
         )
         self.assertValidRoleAssignmentListResponse(response, expected_length=0)
 
@@ -4090,8 +4032,8 @@ class UserSystemRoleAssignmentTestCase(
         # also true for project + domain scope.
         path = (
             '/role_assignments?scope.system=all'
-            '&scope.domain.id=%(domain_id)s'
-        ) % {'domain_id': self.domain_id}
+            f'&scope.domain.id={self.domain_id}'
+        )
         self.get(path, expected_status=http.client.BAD_REQUEST)
 
     def test_query_for_system_scope_and_project_scope_fails(self):
@@ -4100,8 +4042,8 @@ class UserSystemRoleAssignmentTestCase(
         # also true for project + domain scope.
         path = (
             '/role_assignments?scope.system=all'
-            '&scope.project.id=%(project_id)s'
-        ) % {'project_id': self.project_id}
+            f'&scope.project.id={self.project_id}'
+        )
         self.get(path, expected_status=http.client.BAD_REQUEST)
 
     def test_query_for_role_id_does_not_return_system_user_roles(self):
@@ -4109,16 +4051,15 @@ class UserSystemRoleAssignmentTestCase(
 
         # assign the user a role on the system
         member_url = '/system/users/{user_id}/roles/{role_id}'.format(
-            user_id=self.user['id'],
-            role_id=system_role_id,
+            user_id=self.user['id'], role_id=system_role_id
         )
         self.put(member_url)
 
         # Make sure we only get one role assignment back since the system role
         # assignment shouldn't be returned.
         path = (
-            '/role_assignments?role.id=%(role_id)s&user.id=%(user_id)s'
-        ) % {'role_id': self.role_id, 'user_id': self.user['id']}
+            '/role_assignments?role.id={role_id}&user.id={user_id}'
+        ).format(role_id=self.role_id, user_id=self.user['id'])
         response = self.get(path)
         self.assertValidRoleAssignmentListResponse(response, expected_length=1)
 
@@ -4131,15 +4072,13 @@ class UserSystemRoleAssignmentTestCase(
 class GroupSystemRoleAssignmentTestCase(
     test_v3.RestfulTestCase, SystemRoleAssignmentMixin
 ):
-
     def test_assign_system_role_to_group(self):
         system_role_id = self._create_new_role()
         group = self._create_group()
 
         # assign the role to the group globally
         member_url = '/system/groups/{group_id}/roles/{role_id}'.format(
-            group_id=group['id'],
-            role_id=system_role_id,
+            group_id=group['id'], role_id=system_role_id
         )
         self.put(member_url)
 
@@ -4156,8 +4095,9 @@ class GroupSystemRoleAssignmentTestCase(
         self.head(collection_url, expected_status=http.client.OK)
 
         response = self.get(
-            '/role_assignments?scope.system=all&group.id=%(group_id)s'
-            % {'group_id': group['id']}
+            '/role_assignments?scope.system=all&group.id={group_id}'.format(
+                group_id=group['id']
+            )
         )
         self.assertValidRoleAssignmentListResponse(response, expected_length=1)
         self.assertEqual(
@@ -4170,10 +4110,7 @@ class GroupSystemRoleAssignmentTestCase(
         group_id = uuid.uuid4().hex
 
         # assign the role to the group globally
-        member_url = '/system/groups/{group_id}/roles/{role_id}'.format(
-            group_id=group_id,
-            role_id=system_role_id,
-        )
+        member_url = f'/system/groups/{group_id}/roles/{system_role_id}'
         self.put(member_url, expected_status=http.client.NOT_FOUND)
 
     def test_list_role_assignments_for_group_returns_all_assignments(self):
@@ -4182,23 +4119,23 @@ class GroupSystemRoleAssignmentTestCase(
 
         # assign the role to the group globally and on a single project
         member_url = '/system/groups/{group_id}/roles/{role_id}'.format(
+            group_id=group['id'], role_id=system_role_id
+        )
+        self.put(member_url)
+        member_url = (
+            '/projects/{project_id}/groups/{group_id}/roles/{role_id}'
+        ).format(
+            project_id=self.project_id,
             group_id=group['id'],
             role_id=system_role_id,
         )
         self.put(member_url)
-        member_url = (
-            '/projects/%(project_id)s/groups/%(group_id)s/roles/%(role_id)s'
-        ) % {
-            'project_id': self.project_id,
-            'group_id': group['id'],
-            'role_id': system_role_id,
-        }
-        self.put(member_url)
 
         # make sure both assignments exist in the response, there should be two
         response = self.get(
-            '/role_assignments?group.id=%(group_id)s'
-            % {'group_id': group['id']}
+            '/role_assignments?group.id={group_id}'.format(
+                group_id=group['id']
+            )
         )
         self.assertValidRoleAssignmentListResponse(response, expected_length=2)
 
@@ -4216,8 +4153,9 @@ class GroupSystemRoleAssignmentTestCase(
         self.assertEqual(response.json_body['roles'], [])
 
         response = self.get(
-            '/role_assignments?scope.system=all&group.id=%(group_id)s'
-            % {'group_id': group['id']}
+            '/role_assignments?scope.system=all&group.id={group_id}'.format(
+                group_id=group['id']
+            )
         )
         self.assertValidRoleAssignmentListResponse(response, expected_length=0)
 
@@ -4228,17 +4166,16 @@ class GroupSystemRoleAssignmentTestCase(
 
         # assign the group a role on the system and a role on a project
         member_url = '/system/groups/{group_id}/roles/{role_id}'.format(
-            group_id=group['id'],
-            role_id=system_role_id,
+            group_id=group['id'], role_id=system_role_id
         )
         self.put(member_url)
         member_url = (
-            '/projects/%(project_id)s/groups/%(group_id)s/roles/%(role_id)s'
-        ) % {
-            'project_id': self.project_id,
-            'group_id': group['id'],
-            'role_id': project_role_id,
-        }
+            '/projects/{project_id}/groups/{group_id}/roles/{role_id}'
+        ).format(
+            project_id=self.project_id,
+            group_id=group['id'],
+            role_id=project_role_id,
+        )
         self.put(member_url)
 
         # list system role assignments
@@ -4253,8 +4190,9 @@ class GroupSystemRoleAssignmentTestCase(
             self.assertNotEqual(role['id'], project_role_id)
 
         response = self.get(
-            '/role_assignments?scope.system=all&group.id=%(group_id)s'
-            % {'group_id': group['id']}
+            '/role_assignments?scope.system=all&group.id={group_id}'.format(
+                group_id=group['id']
+            )
         )
         self.assertValidRoleAssignmentListResponse(response, expected_length=1)
 
@@ -4265,27 +4203,25 @@ class GroupSystemRoleAssignmentTestCase(
 
         # assign a role to the group on a domain
         domain_member_url = (
-            '/domains/%(domain_id)s/groups/%(group_id)s/'
-            'roles/%(role_id)s'
-            % {
-                'domain_id': group['domain_id'],
-                'group_id': group['id'],
-                'role_id': domain_role_id,
-            }
+            '/domains/{domain_id}/groups/{group_id}/' 'roles/{role_id}'.format(
+                domain_id=group['domain_id'],
+                group_id=group['id'],
+                role_id=domain_role_id,
+            )
         )
         self.put(domain_member_url)
 
         # assign the group a role on the system
         member_url = '/system/groups/{group_id}/roles/{role_id}'.format(
-            group_id=group['id'],
-            role_id=system_role_id,
+            group_id=group['id'], role_id=system_role_id
         )
         self.put(member_url)
 
         # list domain role assignments
         response = self.get(
-            '/domains/%(domain_id)s/groups/%(group_id)s/roles'
-            % {'domain_id': group['domain_id'], 'group_id': group['id']}
+            '/domains/{domain_id}/groups/{group_id}/roles'.format(
+                domain_id=group['domain_id'], group_id=group['id']
+            )
         )
         self.assertEqual(len(response.json_body['roles']), 1)
 
@@ -4301,8 +4237,9 @@ class GroupSystemRoleAssignmentTestCase(
             self.assertNotEqual(role['id'], domain_role_id)
 
         response = self.get(
-            '/role_assignments?scope.system=all&group.id=%(group_id)s'
-            % {'group_id': group['id']}
+            '/role_assignments?scope.system=all&group.id={group_id}'.format(
+                group_id=group['id']
+            )
         )
         self.assertValidRoleAssignmentListResponse(response, expected_length=1)
 
@@ -4312,8 +4249,7 @@ class GroupSystemRoleAssignmentTestCase(
 
         # assign the group a role on the system
         member_url = '/system/groups/{group_id}/roles/{role_id}'.format(
-            group_id=group['id'],
-            role_id=system_role_id,
+            group_id=group['id'], role_id=system_role_id
         )
         self.put(member_url)
 
@@ -4321,8 +4257,9 @@ class GroupSystemRoleAssignmentTestCase(
         self.head(member_url)
 
         response = self.get(
-            '/role_assignments?scope.system=all&group.id=%(group_id)s'
-            % {'group_id': group['id']}
+            '/role_assignments?scope.system=all&group.id={group_id}'.format(
+                group_id=group['id']
+            )
         )
         self.assertValidRoleAssignmentListResponse(response, expected_length=1)
         self.assertEqual(
@@ -4336,14 +4273,14 @@ class GroupSystemRoleAssignmentTestCase(
 
         # check the group does't have the system role assignment
         member_url = '/system/groups/{group_id}/roles/{role_id}'.format(
-            group_id=group['id'],
-            role_id=system_role_id,
+            group_id=group['id'], role_id=system_role_id
         )
         self.head(member_url, expected_status=http.client.NOT_FOUND)
 
         response = self.get(
-            '/role_assignments?scope.system=all&group.id=%(group_id)s'
-            % {'group_id': group['id']}
+            '/role_assignments?scope.system=all&group.id={group_id}'.format(
+                group_id=group['id']
+            )
         )
         self.assertValidRoleAssignmentListResponse(response, expected_length=0)
 
@@ -4353,8 +4290,7 @@ class GroupSystemRoleAssignmentTestCase(
 
         # assign the group a role on the system
         member_url = '/system/groups/{group_id}/roles/{role_id}'.format(
-            group_id=group['id'],
-            role_id=system_role_id,
+            group_id=group['id'], role_id=system_role_id
         )
         self.put(member_url)
 
@@ -4362,8 +4298,9 @@ class GroupSystemRoleAssignmentTestCase(
         self.head(member_url)
 
         response = self.get(
-            '/role_assignments?scope.system=all&group.id=%(group_id)s'
-            % {'group_id': group['id']}
+            '/role_assignments?scope.system=all&group.id={group_id}'.format(
+                group_id=group['id']
+            )
         )
         self.assertEqual(len(response.json_body['role_assignments']), 1)
         self.assertValidRoleAssignmentListResponse(response)
@@ -4378,8 +4315,9 @@ class GroupSystemRoleAssignmentTestCase(
         response = self.get(collection_url)
         self.assertEqual(len(response.json_body['roles']), 0)
         response = self.get(
-            '/role_assignments?scope.system=all&group.id=%(group_id)s'
-            % {'group_id': group['id']}
+            '/role_assignments?scope.system=all&group.id={group_id}'.format(
+                group_id=group['id']
+            )
         )
         self.assertValidRoleAssignmentListResponse(response, expected_length=0)
 
@@ -4389,26 +4327,24 @@ class GroupSystemRoleAssignmentTestCase(
 
         # assign the group a role on the system
         member_url = '/system/groups/{group_id}/roles/{role_id}'.format(
-            group_id=group['id'],
-            role_id=system_role_id,
+            group_id=group['id'], role_id=system_role_id
         )
         self.put(member_url)
 
         # assign the group a role on the system
         member_url = (
-            '/projects/%(project_id)s/groups/%(group_id)s/roles/%(role_id)s'
-            % {
-                'project_id': self.project_id,
-                'group_id': group['id'],
-                'role_id': self.role_id,
-            }
+            '/projects/{project_id}/groups/{group_id}/roles/{role_id}'.format(
+                project_id=self.project_id,
+                group_id=group['id'],
+                role_id=self.role_id,
+            )
         )
         self.put(member_url)
 
         # Make sure we only get one role assignment back since the system role
         # assignment shouldn't be returned.
         path = (
-            '/role_assignments?role.id=%(role_id)s&group.id=%(group_id)s'
-        ) % {'role_id': self.role_id, 'group_id': group['id']}
+            '/role_assignments?role.id={role_id}&group.id={group_id}'
+        ).format(role_id=self.role_id, group_id=group['id'])
         response = self.get(path)
         self.assertValidRoleAssignmentListResponse(response, expected_length=1)

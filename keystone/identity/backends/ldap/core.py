@@ -135,7 +135,7 @@ class Identity(base.IdentityDriverBase):
                     ' not found in the directory. The user should be'
                     ' removed from the group. The user will be ignored.'
                 )
-                LOG.debug(msg, dict(user_id=user_id, group_id=group_id))
+                LOG.debug(msg, {'user_id': user_id, 'group_id': group_id})
         return users
 
     def check_user_in_group(self, user_id, group_id):
@@ -413,11 +413,7 @@ class GroupApi(common_ldap.BaseLdap):
         """Return a list of groups for which the user is a member."""
         user_dn_esc = ldap.filter.escape_filter_chars(user_dn)
         if self.group_ad_nesting:
-            query = '({}:{}:={})'.format(
-                self.member_attribute,
-                LDAP_MATCHING_RULE_IN_CHAIN,
-                user_dn_esc,
-            )
+            query = f'({self.member_attribute}:{LDAP_MATCHING_RULE_IN_CHAIN}:={user_dn_esc})'
         else:
             query = f'({self.member_attribute}={user_dn_esc})'
         return self.get_all(query)
@@ -429,10 +425,7 @@ class GroupApi(common_ldap.BaseLdap):
             # Hardcoded to member as that is how the Matching Rule in Chain
             # Mechanisms expects it.  The member_attribute might actually be
             # member_of elsewhere, so they are not the same.
-            query = '(member:{}:={})'.format(
-                LDAP_MATCHING_RULE_IN_CHAIN,
-                user_dn_esc,
-            )
+            query = f'(member:{LDAP_MATCHING_RULE_IN_CHAIN}:={user_dn_esc})'
         else:
             query = f'({self.member_attribute}={user_dn_esc})'
         return self.get_all_filtered(hints, query)
@@ -451,7 +444,7 @@ class GroupApi(common_ldap.BaseLdap):
                     self.tree_dn,
                     self.LDAP_SCOPE,
                     query_params={
-                        "member:%s:" % LDAP_MATCHING_RULE_IN_CHAIN: group_dn
+                        f"member:{LDAP_MATCHING_RULE_IN_CHAIN}:": group_dn
                     },
                     attrlist=[self.member_attribute],
                 )

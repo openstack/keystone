@@ -17,7 +17,6 @@ from keystone.tests.unit import core as test
 
 
 class ListHintsTests(test.TestCase):
-
     def test_create_iterate_satisfy(self):
         hints = driver_hints.Hints()
         hints.add_filter('t1', 'data1')

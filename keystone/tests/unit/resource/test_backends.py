@@ -31,7 +31,6 @@ PROVIDERS = provider_api.ProviderAPIs
 
 
 class ResourceTests:
-
     domain_count = len(default_fixtures.DOMAINS)
 
     def test_get_project(self):
@@ -200,7 +199,7 @@ class ResourceTests:
             exception.ProjectNotFound,
             PROVIDERS.resource_api.update_project,
             uuid.uuid4().hex,
-            dict(),
+            {},
         )
 
     def test_delete_project_returns_not_found(self):
@@ -1430,7 +1429,6 @@ class ResourceTests:
         with mock.patch.object(
             resource_sql.Resource, "get_project"
         ) as mock_get_project:
-
             mock_get_project.return_value = domain_ref
             # Delete the domain
             PROVIDERS.resource_api.delete_domain(domain['id'])
@@ -2136,11 +2134,7 @@ class ResourceTests:
     def test_cannot_delete_disabled_domain_with_immutable_project(self):
         domain_id = uuid.uuid4().hex
 
-        domain = {
-            'name': uuid.uuid4().hex,
-            'id': domain_id,
-            'is_domain': True,
-        }
+        domain = {'name': uuid.uuid4().hex, 'id': domain_id, 'is_domain': True}
 
         PROVIDERS.resource_api.create_domain(domain_id, domain)
         project = unit.new_project_ref(domain_id)
@@ -2161,11 +2155,7 @@ class ResourceTests:
         # domains are projects, this should be the same as the project version
         domain_id = uuid.uuid4().hex
 
-        domain = {
-            'name': uuid.uuid4().hex,
-            'id': domain_id,
-            'is_domain': True,
-        }
+        domain = {'name': uuid.uuid4().hex, 'id': domain_id, 'is_domain': True}
 
         PROVIDERS.resource_api.create_domain(domain_id, domain)
         domain_via_manager = PROVIDERS.resource_api.get_domain(domain_id)
@@ -2194,11 +2184,7 @@ class ResourceTests:
         # domains are projects, this should be the same as the project version
         domain_id = uuid.uuid4().hex
 
-        domain = {
-            'name': uuid.uuid4().hex,
-            'id': domain_id,
-            'is_domain': True,
-        }
+        domain = {'name': uuid.uuid4().hex, 'id': domain_id, 'is_domain': True}
 
         PROVIDERS.resource_api.create_domain(domain_id, domain)
         domain_via_manager = PROVIDERS.resource_api.get_domain(domain_id)
@@ -2299,19 +2285,11 @@ class ResourceDriverTests:
         domain_id = default_fixtures.ROOT_DOMAIN['id']
 
         project_id = uuid.uuid4().hex
-        project = {
-            'name': name,
-            'id': project_id,
-            'domain_id': domain_id,
-        }
+        project = {'name': name, 'id': project_id, 'domain_id': domain_id}
         self.driver.create_project(project_id, project)
 
         project_id = uuid.uuid4().hex
-        project = {
-            'name': name,
-            'id': project_id,
-            'domain_id': domain_id,
-        }
+        project = {'name': name, 'id': project_id, 'domain_id': domain_id}
         self.assertRaises(
             exception.Conflict, self.driver.create_project, project_id, project
         )

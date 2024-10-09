@@ -44,8 +44,7 @@ class RulesPolicy(unit.TestCase, policy_tests.PolicyTests):
 
     def test_get_policy_returns_not_found(self):
         self.assertRaises(
-            exception.NotImplemented,
-            super().test_get_policy_returns_not_found,
+            exception.NotImplemented, super().test_get_policy_returns_not_found
         )
 
     def test_update_policy_returns_not_found(self):

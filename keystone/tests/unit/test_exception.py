@@ -148,8 +148,7 @@ class UnexpectedExceptionTestCase(ExceptionTestCase):
         self.config_fixture.config(debug=True, insecure_debug=True)
         e = exception.UnexpectedError(self.exc_str)
         self.assertEqual(
-            f'{self.exc_str} {exception.SecurityError.amendment}',
-            str(e),
+            f'{self.exc_str} {exception.SecurityError.amendment}', str(e)
         )
 
     def test_unexpected_error_custom_message_exception_debug(self):
@@ -157,8 +156,7 @@ class UnexpectedExceptionTestCase(ExceptionTestCase):
         orig_e = exception.NotFound(target=uuid.uuid4().hex)
         e = exception.UnexpectedError(orig_e)
         self.assertEqual(
-            f'{str(orig_e)} {exception.SecurityError.amendment}',
-            str(e),
+            f'{str(orig_e)} {exception.SecurityError.amendment}', str(e)
         )
 
     def test_unexpected_error_custom_message_binary_debug(self):
@@ -166,8 +164,7 @@ class UnexpectedExceptionTestCase(ExceptionTestCase):
         binary_msg = b'something'
         e = exception.UnexpectedError(binary_msg)
         self.assertEqual(
-            f'{str(binary_msg)} {exception.SecurityError.amendment}',
-            str(e),
+            f'{str(binary_msg)} {exception.SecurityError.amendment}', str(e)
         )
 
 
@@ -291,10 +288,10 @@ class TestSecurityErrorTranslation(unit.BaseTestCase):
 
     def test_nested_translation_of_SecurityErrors(self):
         e = self.CustomSecurityError(place='code')
-        ('Admiral found this in the log: %s') % e
+        (f'Admiral found this in the log: {e}')
         self.assertNotIn('programmer error', self.warning_log.output)
 
     def test_that_regular_Errors_can_be_deep_copied(self):
         e = self.CustomError(place='code')
-        ('Admiral found this in the log: %s') % e
+        (f'Admiral found this in the log: {e}')
         self.assertNotIn('programmer error', self.warning_log.output)

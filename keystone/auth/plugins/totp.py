@@ -90,7 +90,6 @@ def _generate_totp_passcodes(secret, included_previous_windows=0):
 
 
 class TOTP(base.AuthMethodHandler):
-
     def authenticate(self, auth_payload):
         """Try to authenticate using TOTP."""
         response_data = {}

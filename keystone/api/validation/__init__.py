@@ -52,9 +52,7 @@ def _schema_validator(
     schema_validator.validate(target)
 
 
-def request_body_schema(
-    schema: ty.Optional[ty.Dict[str, ty.Any]] = None,
-):
+def request_body_schema(schema: ty.Optional[ty.Dict[str, ty.Any]] = None):
     """Register a schema to validate request body.
 
     ``schema`` will be used for validating the request body just before the API
@@ -88,9 +86,7 @@ def request_body_schema(
     return add_validator
 
 
-def request_query_schema(
-    schema: ty.Optional[ty.Dict[str, ty.Any]] = None,
-):
+def request_query_schema(schema: ty.Optional[ty.Dict[str, ty.Any]] = None):
     """Register a schema to validate request query string parameters.
 
     ``schema`` will be used for validating request query strings just before
@@ -113,13 +109,7 @@ def request_query_schema(
                 else:
                     req = flask.request.args
 
-                _schema_validator(
-                    schema,
-                    req,
-                    args,
-                    kwargs,
-                    is_body=True,
-                )
+                _schema_validator(schema, req, args, kwargs, is_body=True)
             return func(*args, **kwargs)
 
         wrapper._request_query_schema = schema
@@ -129,9 +119,7 @@ def request_query_schema(
     return add_validator
 
 
-def response_body_schema(
-    schema: ty.Optional[ty.Dict[str, ty.Any]] = None,
-):
+def response_body_schema(schema: ty.Optional[ty.Dict[str, ty.Any]] = None):
     """Register a schema to validate response body.
 
     ``schema`` will be used for validating the response body just after the API
@@ -169,13 +157,7 @@ def response_body_schema(
                 else:
                     body = jsonutils.loads(_body)
 
-                _schema_validator(
-                    schema,
-                    body,
-                    args,
-                    kwargs,
-                    is_body=True,
-                )
+                _schema_validator(schema, body, args, kwargs, is_body=True)
             return response
 
         wrapper._response_body_schema = schema

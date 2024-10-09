@@ -18,6 +18,7 @@ Before using this module, call initialize(). This has to be done before
 CONF() because it sets up configuration options.
 
 """
+
 import datetime
 import functools
 
@@ -117,7 +118,6 @@ ModelBase.__init__ = initialize_decorator(ModelBase.__init__)
 
 # Special Fields
 class JsonBlob(sql_types.TypeDecorator):
-
     impl = sql.Text
     # NOTE(ralonsoh): set to True as any other TypeDecorator in SQLAlchemy
     # https://docs.sqlalchemy.org/en/14/core/custom_types.html# \
@@ -256,7 +256,6 @@ class ModelDictMixinWithExtras(models.ModelBase):
 
 
 class ModelDictMixin(models.ModelBase):
-
     @classmethod
     def from_dict(cls, d):
         """Return a model instance from a dictionary."""
@@ -413,13 +412,13 @@ def _filter(model, query, hints):
 
         if filter_['comparator'] == 'contains':
             _WontMatch.check(filter_['value'], column_attr)
-            query_term = column_attr.ilike('%%%s%%' % filter_['value'])
+            query_term = column_attr.ilike('%{}%'.format(filter_['value']))
         elif filter_['comparator'] == 'startswith':
             _WontMatch.check(filter_['value'], column_attr)
-            query_term = column_attr.ilike('%s%%' % filter_['value'])
+            query_term = column_attr.ilike('{}%'.format(filter_['value']))
         elif filter_['comparator'] == 'endswith':
             _WontMatch.check(filter_['value'], column_attr)
-            query_term = column_attr.ilike('%%%s' % filter_['value'])
+            query_term = column_attr.ilike('%{}'.format(filter_['value']))
         else:
             # It's a filter we don't understand, so let the caller
             # work out if they need to do something with it.

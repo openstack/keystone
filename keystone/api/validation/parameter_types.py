@@ -11,6 +11,7 @@
 # under the License.
 
 """Common parameter types for validating API requests."""
+
 from typing import Any
 
 empty: dict[str, Any] = {"type": "null"}
@@ -24,22 +25,11 @@ name: dict[str, Any] = {
 
 boolean = {
     "type": ["boolean", "string"],
-    "enum": [
-        True,
-        "True",
-        "TRUE",
-        "true",
-        False,
-        "False",
-        "FALSE",
-        "false",
-    ],
+    "enum": [True, "True", "TRUE", "true", False, "False", "FALSE", "false"],
 }
 
 
-domain_id: dict[str, str] = {
-    "type": "string",
-}
+domain_id: dict[str, str] = {"type": "string"}
 
 parent_id: dict[str, str] = {"type": "string", "format": "uuid"}
 
@@ -60,10 +50,7 @@ tags: dict[str, Any] = {
         # As OpenAPI request parameters this is an array of string serialized
         # as csv
         "openapi": {
-            "schema": {
-                "type": "array",
-                "items": _tag_name_property,
-            },
+            "schema": {"type": "array", "items": _tag_name_property},
             "style": "form",
             "explode": False,
         }

@@ -54,7 +54,7 @@ class _UserCredentialTests:
             r = c.post('/v3/credentials', json=create, headers=self.headers)
             credential_id = r.json['credential']['id']
 
-            path = '/v3/credentials/%s' % credential_id
+            path = f'/v3/credentials/{credential_id}'
             r = c.get(path, headers=self.headers)
             self.assertEqual(self.user_id, r.json['credential']['user_id'])
 
@@ -100,13 +100,13 @@ class _UserCredentialTests:
             }
             r = c.post('/v3/credentials', json=create, headers=self.headers)
 
-            path = '/v3/credentials?type=%s' % credential_type
+            path = f'/v3/credentials?type={credential_type}'
             r = c.get(path, headers=self.headers)
             self.assertEqual(
                 expected_credential_id, r.json['credentials'][0]['id']
             )
 
-            path = '/v3/credentials?user=%s' % self.user_id
+            path = f'/v3/credentials?user={self.user_id}'
             r = c.get(path, headers=self.headers)
             self.assertEqual(
                 expected_credential_id, r.json['credentials'][0]['id']
@@ -127,7 +127,7 @@ class _UserCredentialTests:
 
             updated_blob = uuid.uuid4().hex
             update = {'credential': {'blob': updated_blob}}
-            path = '/v3/credentials/%s' % credential_id
+            path = f'/v3/credentials/{credential_id}'
             r = c.patch(path, json=update, headers=self.headers)
             self.assertEqual(updated_blob, r.json['credential']['blob'])
 
@@ -143,7 +143,7 @@ class _UserCredentialTests:
             r = c.post('/v3/credentials', json=create, headers=self.headers)
             credential_id = r.json['credential']['id']
 
-            path = '/v3/credentials/%s' % credential_id
+            path = f'/v3/credentials/{credential_id}'
             c.delete(path, headers=self.headers)
 
 
@@ -185,7 +185,7 @@ class _ProjectUsersTests:
             credential_id = r.json['credential']['id']
 
         with self.test_client() as c:
-            path = '/v3/credentials/%s' % credential_id
+            path = f'/v3/credentials/{credential_id}'
             c.get(
                 path,
                 headers=self.headers,
@@ -195,7 +195,7 @@ class _ProjectUsersTests:
     def test_user_cannot_get_non_existant_credential_forbidden(self):
         with self.test_client() as c:
             c.get(
-                '/v3/credentials/%s' % uuid.uuid4().hex,
+                f'/v3/credentials/{uuid.uuid4().hex}',
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -234,7 +234,7 @@ class _ProjectUsersTests:
             c.post('/v3/credentials', json=create, headers=headers)
 
         with self.test_client() as c:
-            path = '/v3/credentials?user_id=%s' % user['id']
+            path = '/v3/credentials?user_id={}'.format(user['id'])
             r = c.get(path, headers=self.headers)
             self.assertEqual([], r.json['credentials'])
 
@@ -273,7 +273,7 @@ class _ProjectUsersTests:
             c.post('/v3/credentials', json=create, headers=headers)
 
         with self.test_client() as c:
-            path = '/v3/credentials?type=%s' % credential_type
+            path = f'/v3/credentials?type={credential_type}'
             r = c.get(path, headers=self.headers)
             self.assertEqual(0, len(r.json['credentials']))
 
@@ -314,7 +314,7 @@ class _ProjectUsersTests:
                 expected_cred_ids.append(r.json['credential']['id'])
 
         with self.test_client() as c:
-            path = '/v3/credentials?user_id=%s' % user['id']
+            path = '/v3/credentials?user_id={}'.format(user['id'])
             r = c.get(path, headers=self.headers)
             self.assertEqual([], r.json['credentials'])
 
@@ -354,7 +354,7 @@ class _ProjectUsersTests:
 
         with self.test_client() as c:
             update = {'credential': {'blob': uuid.uuid4().hex}}
-            path = '/v3/credentials/%s' % credential_id
+            path = f'/v3/credentials/{credential_id}'
             c.patch(
                 path,
                 json=update,
@@ -367,7 +367,7 @@ class _ProjectUsersTests:
             update = {'credential': {'blob': uuid.uuid4().hex}}
 
             c.patch(
-                '/v3/credentials/%s' % uuid.uuid4().hex,
+                f'/v3/credentials/{uuid.uuid4().hex}',
                 json=update,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -428,7 +428,7 @@ class _ProjectUsersTests:
             credential_id = r.json['credential']['id']
 
         with self.test_client() as c:
-            path = '/v3/credentials/%s' % credential_id
+            path = f'/v3/credentials/{credential_id}'
             c.delete(
                 path,
                 headers=self.headers,
@@ -438,7 +438,7 @@ class _ProjectUsersTests:
     def test_user_cannot_delete_non_existant_credential_forbidden(self):
         with self.test_client() as c:
             c.delete(
-                '/v3/credentials/%s' % uuid.uuid4().hex,
+                f'/v3/credentials/{uuid.uuid4().hex}',
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -490,7 +490,7 @@ class _SystemUserCredentialTests:
     def test_user_cannot_get_non_existant_credential_not_found(self):
         with self.test_client() as c:
             c.get(
-                '/v3/credentials/%s' % uuid.uuid4().hex,
+                f'/v3/credentials/{uuid.uuid4().hex}',
                 headers=self.headers,
                 expected_status_code=http.client.NOT_FOUND,
             )
@@ -540,7 +540,7 @@ class _SystemUserCredentialTests:
             c.post('/v3/credentials', json=create, headers=headers)
 
         with self.test_client() as c:
-            path = '/v3/credentials?type=%s' % credential_type
+            path = f'/v3/credentials?type={credential_type}'
             r = c.get(path, headers=self.headers)
             self.assertEqual(1, len(r.json['credentials']))
             self.assertEqual(credential_id, r.json['credentials'][0]['id'])
@@ -583,7 +583,7 @@ class _SystemUserCredentialTests:
                 expected_cred_ids.append(r.json['credential']['id'])
 
         with self.test_client() as c:
-            path = '/v3/credentials?user_id=%s' % user['id']
+            path = '/v3/credentials?user_id={}'.format(user['id'])
             r = c.get(path, headers=self.headers)
             self.assertEqual(2, len(r.json['credentials']))
             for credential in r.json['credentials']:
@@ -597,7 +597,6 @@ class SystemReaderTests(
     _UserCredentialTests,
     _SystemUserCredentialTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -681,7 +680,7 @@ class SystemReaderTests(
 
         with self.test_client() as c:
             update = {'credential': {'blob': uuid.uuid4().hex}}
-            path = '/v3/credentials/%s' % credential_id
+            path = f'/v3/credentials/{credential_id}'
             c.patch(
                 path,
                 json=update,
@@ -694,7 +693,7 @@ class SystemReaderTests(
             update = {'credential': {'blob': uuid.uuid4().hex}}
 
             c.patch(
-                '/v3/credentials/%s' % uuid.uuid4().hex,
+                f'/v3/credentials/{uuid.uuid4().hex}',
                 json=update,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -735,7 +734,7 @@ class SystemReaderTests(
             credential_id = r.json['credential']['id']
 
         with self.test_client() as c:
-            path = '/v3/credentials/%s' % credential_id
+            path = f'/v3/credentials/{credential_id}'
             c.delete(
                 path,
                 headers=self.headers,
@@ -745,7 +744,7 @@ class SystemReaderTests(
     def test_user_cannot_delete_non_existant_credential_forbidden(self):
         with self.test_client() as c:
             c.delete(
-                '/v3/credentials/%s' % uuid.uuid4().hex,
+                f'/v3/credentials/{uuid.uuid4().hex}',
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -757,7 +756,6 @@ class SystemMemberTests(
     _UserCredentialTests,
     _SystemUserCredentialTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -841,7 +839,7 @@ class SystemMemberTests(
 
         with self.test_client() as c:
             update = {'credential': {'blob': uuid.uuid4().hex}}
-            path = '/v3/credentials/%s' % credential_id
+            path = f'/v3/credentials/{credential_id}'
             c.patch(
                 path,
                 json=update,
@@ -854,7 +852,7 @@ class SystemMemberTests(
             update = {'credential': {'blob': uuid.uuid4().hex}}
 
             c.patch(
-                '/v3/credentials/%s' % uuid.uuid4().hex,
+                f'/v3/credentials/{uuid.uuid4().hex}',
                 json=update,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -895,7 +893,7 @@ class SystemMemberTests(
             credential_id = r.json['credential']['id']
 
         with self.test_client() as c:
-            path = '/v3/credentials/%s' % credential_id
+            path = f'/v3/credentials/{credential_id}'
             c.delete(
                 path,
                 headers=self.headers,
@@ -905,7 +903,7 @@ class SystemMemberTests(
     def test_user_cannot_delete_non_existant_credential_forbidden(self):
         with self.test_client() as c:
             c.delete(
-                '/v3/credentials/%s' % uuid.uuid4().hex,
+                f'/v3/credentials/{uuid.uuid4().hex}',
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -917,7 +915,6 @@ class SystemAdminTests(
     _UserCredentialTests,
     _SystemUserCredentialTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -990,7 +987,7 @@ class SystemAdminTests(
             credential_id = r.json['credential']['id']
 
         with self.test_client() as c:
-            path = '/v3/credentials/%s' % credential_id
+            path = f'/v3/credentials/{credential_id}'
             updated_blob = uuid.uuid4().hex
             update = {'credential': {'blob': updated_blob}}
             r = c.patch(path, json=update, headers=self.headers)
@@ -1002,7 +999,7 @@ class SystemAdminTests(
             update = {'credential': {'blob': uuid.uuid4().hex}}
 
             c.patch(
-                '/v3/credentials/%s' % uuid.uuid4().hex,
+                f'/v3/credentials/{uuid.uuid4().hex}',
                 json=update,
                 headers=self.headers,
                 expected_status_code=http.client.NOT_FOUND,
@@ -1043,13 +1040,13 @@ class SystemAdminTests(
             credential_id = r.json['credential']['id']
 
         with self.test_client() as c:
-            path = '/v3/credentials/%s' % credential_id
+            path = f'/v3/credentials/{credential_id}'
             c.delete(path, headers=self.headers)
 
     def test_user_cannot_delete_non_existant_credential_not_found(self):
         with self.test_client() as c:
             c.delete(
-                '/v3/credentials/%s' % uuid.uuid4().hex,
+                f'/v3/credentials/{uuid.uuid4().hex}',
                 headers=self.headers,
                 expected_status_code=http.client.NOT_FOUND,
             )
@@ -1061,7 +1058,6 @@ class ProjectReaderTests(
     _UserCredentialTests,
     _ProjectUsersTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -1104,7 +1100,6 @@ class ProjectMemberTests(
     _UserCredentialTests,
     _ProjectUsersTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -1147,7 +1142,6 @@ class ProjectAdminTests(
     _UserCredentialTests,
     _ProjectUsersTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -1204,7 +1198,6 @@ class ProjectReaderTestsEnforceScopeFalse(
     _UserCredentialTests,
     _ProjectUsersTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -1247,7 +1240,6 @@ class ProjectMemberTestsEnforceScopeFalse(
     _UserCredentialTests,
     _ProjectUsersTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -1290,7 +1282,6 @@ class ProjectAdminTestsEnforceScopeFalse(
     _UserCredentialTests,
     _SystemUserCredentialTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()

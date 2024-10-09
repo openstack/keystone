@@ -11,6 +11,7 @@
 # under the License.
 
 """Common field types for validating API responses."""
+
 from typing import Any
 
 # Common schema for resource `link` attribute

@@ -37,7 +37,6 @@ LOG = log.getLogger(__name__)
 
 
 def load_backends():
-
     # Configure and build the cache
     cache.configure_cache()
     cache.configure_cache(region=catalog.COMPUTED_CATALOG_REGION)

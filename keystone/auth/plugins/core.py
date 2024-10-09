@@ -27,9 +27,7 @@ CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 PROVIDERS = provider_api.ProviderAPIs
 _NOTIFY_OP = 'authenticate'
-_NOTIFY_EVENT = '{service}.{event}'.format(
-    service=notifications.SERVICE, event=_NOTIFY_OP
-)
+_NOTIFY_EVENT = f'{notifications.SERVICE}.{_NOTIFY_OP}'
 
 
 def construct_method_map_from_config():
@@ -38,7 +36,7 @@ def construct_method_map_from_config():
     :returns: a dictionary containing the methods and their indexes
 
     """
-    method_map = dict()
+    method_map = {}
     method_index = 1
     for method in CONF.auth.methods:
         method_map[method_index] = method
@@ -99,7 +97,6 @@ def convert_integer_to_method_list(method_int):
 
 
 class BaseUserInfo(provider_api.ProviderAPIMixin):
-
     @classmethod
     def create(cls, auth_payload, method_name):
         user_auth_info = cls()
@@ -213,7 +210,6 @@ class BaseUserInfo(provider_api.ProviderAPIMixin):
 
 
 class UserAuthInfo(BaseUserInfo):
-
     def __init__(self):
         super().__init__()
         self.password = None
@@ -225,7 +221,6 @@ class UserAuthInfo(BaseUserInfo):
 
 
 class TOTPUserInfo(BaseUserInfo):
-
     def __init__(self):
         super().__init__()
         self.passcode = None

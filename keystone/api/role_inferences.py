@@ -36,7 +36,7 @@ class RoleInferencesResource(flask_restful.Resource):
             for role_ref in PROVIDERS.role_api.list_roles()
         }
 
-        rules = dict()
+        rules = {}
         for ref in refs:
             implied_role_id = ref['implied_role_id']
             prior_role_id = ref['prior_role_id']
@@ -49,10 +49,7 @@ class RoleInferencesResource(flask_restful.Resource):
             rules[prior_role_id] = implied
 
         inferences = []
-        for (
-            prior_id,
-            implied,
-        ) in rules.items():
+        for prior_id, implied in rules.items():
             prior_response = shared.build_prior_role_response_data(
                 prior_id, role_dict[prior_id]['name']
             )

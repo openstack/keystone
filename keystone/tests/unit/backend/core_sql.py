@@ -19,7 +19,6 @@ from keystone.tests.unit.ksfixtures import database
 
 
 class BaseBackendSqlTests(unit.SQLDriverOverrides, unit.TestCase):
-
     def setUp(self):
         super().setUp()
         self.database_fixture = self.useFixture(database.Database())
@@ -37,7 +36,6 @@ class BaseBackendSqlTests(unit.SQLDriverOverrides, unit.TestCase):
 
 
 class BaseBackendSqlModels(BaseBackendSqlTests):
-
     def load_table(self, name):
         table = sqlalchemy.Table(
             name,

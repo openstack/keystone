@@ -23,7 +23,6 @@ PROVIDERS = provider_api.ProviderAPIs
 
 
 class SqlRoleModels(core_sql.BaseBackendSqlModels):
-
     def test_role_model(self):
         cols = (
             ('id', sql.String, 64),
@@ -34,7 +33,6 @@ class SqlRoleModels(core_sql.BaseBackendSqlModels):
 
 
 class SqlRole(core_sql.BaseBackendSqlTests, test_core.RoleTests):
-
     def test_create_null_role_name(self):
         role = unit.new_role_ref(name=None)
         self.assertRaises(

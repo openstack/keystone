@@ -23,7 +23,6 @@ CONF = keystone.conf.CONF
 
 
 class FilterTests:
-
     # Provide support for checking if a batch of list items all
     # exist within a contiguous range in a total list
     def _match_with_list(
@@ -55,13 +54,11 @@ class FilterTests:
         one.
 
         """
-        f = getattr(PROVIDERS.identity_api, 'create_%s' % entity_type, None)
+        f = getattr(PROVIDERS.identity_api, f'create_{entity_type}', None)
         if f is None:
-            f = getattr(
-                PROVIDERS.resource_api, 'create_%s' % entity_type, None
-            )
+            f = getattr(PROVIDERS.resource_api, f'create_{entity_type}', None)
         if f is None:
-            f = getattr(PROVIDERS.assignment_api, 'create_%s' % entity_type)
+            f = getattr(PROVIDERS.assignment_api, f'create_{entity_type}')
         return f
 
     def _delete_entity(self, entity_type):
@@ -72,13 +69,11 @@ class FilterTests:
         one.
 
         """
-        f = getattr(PROVIDERS.identity_api, 'delete_%s' % entity_type, None)
+        f = getattr(PROVIDERS.identity_api, f'delete_{entity_type}', None)
         if f is None:
-            f = getattr(
-                PROVIDERS.resource_api, 'delete_%s' % entity_type, None
-            )
+            f = getattr(PROVIDERS.resource_api, f'delete_{entity_type}', None)
         if f is None:
-            f = getattr(PROVIDERS.assignment_api, 'delete_%s' % entity_type)
+            f = getattr(PROVIDERS.assignment_api, f'delete_{entity_type}')
         return f
 
     def _list_entities(self, entity_type):
@@ -89,11 +84,11 @@ class FilterTests:
         one.
 
         """
-        f = getattr(PROVIDERS.identity_api, 'list_%ss' % entity_type, None)
+        f = getattr(PROVIDERS.identity_api, f'list_{entity_type}s', None)
         if f is None:
-            f = getattr(PROVIDERS.resource_api, 'list_%ss' % entity_type, None)
+            f = getattr(PROVIDERS.resource_api, f'list_{entity_type}s', None)
         if f is None:
-            f = getattr(PROVIDERS.assignment_api, 'list_%ss' % entity_type)
+            f = getattr(PROVIDERS.assignment_api, f'list_{entity_type}s')
         return f
 
     def _create_one_entity(self, entity_type, domain_id, name):

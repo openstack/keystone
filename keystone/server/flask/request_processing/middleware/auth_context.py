@@ -87,7 +87,6 @@ def base_url(context):
 
 
 def middleware_exceptions(method):
-
     @functools.wraps(method)
     def _inner(self, request):
         try:
@@ -206,11 +205,7 @@ def render_exception(error, context=None, request=None, user_locale=None):
         message = str(message)
 
     body = {
-        'error': {
-            'code': error.code,
-            'title': error.title,
-            'message': message,
-        }
+        'error': {'code': error.code, 'title': error.title, 'message': message}
     }
     headers = []
     if isinstance(error, exception.AuthPluginException):
@@ -226,7 +221,7 @@ def render_exception(error, context=None, request=None, user_locale=None):
             local_context = {'environment': context['environment']}
         url = base_url(local_context)
 
-        headers.append(('WWW-Authenticate', 'Keystone uri="%s"' % url))
+        headers.append(('WWW-Authenticate', f'Keystone uri="{url}"'))
     return render_response(
         status=(error.code, error.title), body=body, headers=headers
     )

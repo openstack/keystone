@@ -106,10 +106,7 @@ identity_provider_update = {
     'additionalProperties': False,
 }
 
-_remote_id_attribute_properties = {
-    'type': 'string',
-    'maxLength': 64,
-}
+_remote_id_attribute_properties = {'type': 'string', 'maxLength': 64}
 
 _protocol_properties = {
     'mapping_id': parameter_types.mapping_id_string,

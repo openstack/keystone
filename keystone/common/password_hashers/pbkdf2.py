@@ -29,11 +29,7 @@ class Sha512(password_hashers.PasswordHasher):
     hash_algo = hashes.SHA512()
 
     @staticmethod
-    def hash(
-        password: bytes,
-        salt_size: int = 16,
-        rounds: int = 25000,
-    ) -> str:
+    def hash(password: bytes, salt_size: int = 16, rounds: int = 25000) -> str:
         """Generate password hash string with ident and params
 
         https://cryptography.io/en/stable/hazmat/primitives/key-derivation-functions/#pbkdf2
@@ -49,10 +45,7 @@ class Sha512(password_hashers.PasswordHasher):
 
         # Prepave the kdf function with params
         kdf = PBKDF2HMAC(
-            algorithm=Sha512.hash_algo,
-            length=64,
-            salt=salt,
-            iterations=rounds,
+            algorithm=Sha512.hash_algo, length=64, salt=salt, iterations=rounds
         )
 
         # derive - create a digest
@@ -101,10 +94,7 @@ class Sha512(password_hashers.PasswordHasher):
 
         # Prepave the kdf function with params
         kdf = PBKDF2HMAC(
-            algorithm=Sha512.hash_algo,
-            length=64,
-            salt=salt,
-            iterations=rounds,
+            algorithm=Sha512.hash_algo, length=64, salt=salt, iterations=rounds
         )
 
         # Verify the key.

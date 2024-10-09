@@ -86,7 +86,7 @@ class _UserLimitTests:
         limit_id, _ = _create_limits_and_dependencies()
 
         with self.test_client() as c:
-            r = c.get('/v3/limits/%s' % limit_id, headers=self.headers)
+            r = c.get(f'/v3/limits/{limit_id}', headers=self.headers)
             self.assertEqual(limit_id, r.json['limit']['id'])
 
     def test_user_can_list_limits(self):
@@ -148,7 +148,7 @@ class _UserLimitTests:
 
         with self.test_client() as c:
             c.patch(
-                '/v3/limits/%s' % limit_id,
+                f'/v3/limits/{limit_id}',
                 json=update,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -159,7 +159,7 @@ class _UserLimitTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/limits/%s' % limit_id,
+                f'/v3/limits/{limit_id}',
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -203,7 +203,6 @@ class SystemMemberTests(
     common_auth.AuthTestMixin,
     _UserLimitTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -235,7 +234,6 @@ class SystemMemberTests(
 class SystemAdminTests(
     base_classes.TestCaseWithBootstrap, common_auth.AuthTestMixin
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -262,7 +260,7 @@ class SystemAdminTests(
         limit_id, _ = _create_limits_and_dependencies()
 
         with self.test_client() as c:
-            r = c.get('/v3/limits/%s' % limit_id, headers=self.headers)
+            r = c.get(f'/v3/limits/{limit_id}', headers=self.headers)
             self.assertEqual(limit_id, r.json['limit']['id'])
 
     def test_user_can_list_limits(self):
@@ -319,20 +317,19 @@ class SystemAdminTests(
 
         with self.test_client() as c:
             c.patch(
-                '/v3/limits/%s' % limit_id, json=update, headers=self.headers
+                f'/v3/limits/{limit_id}', json=update, headers=self.headers
             )
 
     def test_user_can_delete_limits(self):
         limit_id, _ = _create_limits_and_dependencies()
 
         with self.test_client() as c:
-            c.delete('/v3/limits/%s' % limit_id, headers=self.headers)
+            c.delete(f'/v3/limits/{limit_id}', headers=self.headers)
 
 
 class DomainUserTests(
     base_classes.TestCaseWithBootstrap, common_auth.AuthTestMixin
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -370,7 +367,7 @@ class DomainUserTests(
         )
 
         with self.test_client() as c:
-            c.get('/v3/limits/%s' % project_limit_id, headers=self.headers)
+            c.get(f'/v3/limits/{project_limit_id}', headers=self.headers)
 
     def test_user_can_get_domain_limits(self):
         _, domain_limit_id = _create_limits_and_dependencies(
@@ -378,7 +375,7 @@ class DomainUserTests(
         )
 
         with self.test_client() as c:
-            r = c.get('/v3/limits/%s' % domain_limit_id, headers=self.headers)
+            r = c.get(f'/v3/limits/{domain_limit_id}', headers=self.headers)
             self.assertEqual(self.domain_id, r.json['limit']['domain_id'])
 
     def test_user_cannot_get_project_limit_outside_domain(self):
@@ -386,7 +383,7 @@ class DomainUserTests(
 
         with self.test_client() as c:
             c.get(
-                '/v3/limits/%s' % project_limit_id,
+                f'/v3/limits/{project_limit_id}',
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -396,7 +393,7 @@ class DomainUserTests(
 
         with self.test_client() as c:
             c.get(
-                '/v3/limits/%s' % domain_limit_id,
+                f'/v3/limits/{domain_limit_id}',
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -577,7 +574,7 @@ class DomainUserTests(
 
         with self.test_client() as c:
             c.patch(
-                '/v3/limits/%s' % domain_limit_id,
+                f'/v3/limits/{domain_limit_id}',
                 json=update,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -590,7 +587,7 @@ class DomainUserTests(
 
         with self.test_client() as c:
             c.patch(
-                '/v3/limits/%s' % domain_limit_id,
+                f'/v3/limits/{domain_limit_id}',
                 json=update,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -605,7 +602,7 @@ class DomainUserTests(
 
         with self.test_client() as c:
             c.patch(
-                '/v3/limits/%s' % project_limit_id,
+                f'/v3/limits/{project_limit_id}',
                 headers=self.headers,
                 json=update,
                 expected_status_code=http.client.FORBIDDEN,
@@ -618,7 +615,7 @@ class DomainUserTests(
 
         with self.test_client() as c:
             c.patch(
-                '/v3/limits/%s' % project_limit_id,
+                f'/v3/limits/{project_limit_id}',
                 headers=self.headers,
                 json=update,
                 expected_status_code=http.client.FORBIDDEN,
@@ -631,7 +628,7 @@ class DomainUserTests(
 
         with self.test_client() as c:
             c.delete(
-                '/v3/limits/%s' % domain_limit_id,
+                f'/v3/limits/{domain_limit_id}',
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -641,7 +638,7 @@ class DomainUserTests(
 
         with self.test_client() as c:
             c.delete(
-                '/v3/limits/%s' % domain_limit_id,
+                f'/v3/limits/{domain_limit_id}',
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -653,7 +650,7 @@ class DomainUserTests(
 
         with self.test_client() as c:
             c.delete(
-                '/v3/limits/%s' % project_limit_id,
+                f'/v3/limits/{project_limit_id}',
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -663,7 +660,7 @@ class DomainUserTests(
 
         with self.test_client() as c:
             c.delete(
-                '/v3/limits/%s' % project_limit_id,
+                f'/v3/limits/{project_limit_id}',
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -672,7 +669,6 @@ class DomainUserTests(
 class ProjectUserTests(
     base_classes.TestCaseWithBootstrap, common_auth.AuthTestMixin
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -718,14 +714,14 @@ class ProjectUserTests(
             headers = {'X-Auth-Token': token_id}
 
         with self.test_client() as c:
-            r = c.get('/v3/limits/%s' % project_limit_id, headers=headers)
+            r = c.get(f'/v3/limits/{project_limit_id}', headers=headers)
 
     def test_user_cannot_get_project_limit_without_role_assignment(self):
         project_limit_id, _ = _create_limits_and_dependencies()
 
         with self.test_client() as c:
             c.get(
-                '/v3/limits/%s' % project_limit_id,
+                f'/v3/limits/{project_limit_id}',
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -735,7 +731,7 @@ class ProjectUserTests(
 
         with self.test_client() as c:
             c.get(
-                '/v3/limits/%s' % domain_limit_id,
+                f'/v3/limits/{domain_limit_id}',
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -824,7 +820,7 @@ class ProjectUserTests(
 
         with self.test_client() as c:
             c.patch(
-                '/v3/limits/%s' % limit_id,
+                f'/v3/limits/{limit_id}',
                 json=update,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -835,14 +831,13 @@ class ProjectUserTests(
 
         with self.test_client() as c:
             c.delete(
-                '/v3/limits/%s' % limit_id,
+                f'/v3/limits/{limit_id}',
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
 
 
 class ProjectUserTestsWithoutEnforceScope(ProjectUserTests):
-
     def setUp(self):
         super().setUp()
         self.config_fixture.config(group='oslo_policy', enforce_scope=False)

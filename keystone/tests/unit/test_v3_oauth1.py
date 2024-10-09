@@ -47,7 +47,6 @@ def _urllib_parse_qs_text_keys(content):
 
 
 class OAuth1Tests(test_v3.RestfulTestCase):
-
     CONSUMER_URL = '/OS-OAUTH1/consumers'
 
     def setUp(self):
@@ -113,11 +112,10 @@ class OAuth1Tests(test_v3.RestfulTestCase):
     def _authorize_request_token(self, request_id):
         if isinstance(request_id, bytes):
             request_id = request_id.decode()
-        return '/OS-OAUTH1/authorize/%s' % (request_id)
+        return f'/OS-OAUTH1/authorize/{request_id}'
 
 
 class ConsumerCRUDTests(OAuth1Tests):
-
     def _consumer_create(
         self, description=None, description_flag=True, **kwargs
     ):
@@ -158,13 +156,13 @@ class ConsumerCRUDTests(OAuth1Tests):
     def test_consumer_delete(self):
         consumer = self._create_single_consumer()
         consumer_id = consumer['id']
-        resp = self.delete(self.CONSUMER_URL + '/%s' % consumer_id)
+        resp = self.delete(self.CONSUMER_URL + f'/{consumer_id}')
         self.assertResponseStatus(resp, http.client.NO_CONTENT)
 
     def test_consumer_get_head(self):
         consumer = self._create_single_consumer()
         consumer_id = consumer['id']
-        url = self.CONSUMER_URL + '/%s' % consumer_id
+        url = self.CONSUMER_URL + f'/{consumer_id}'
         resp = self.get(url)
         self_url = ['http://localhost/v3', self.CONSUMER_URL, '/', consumer_id]
         self_url = ''.join(self_url)
@@ -193,7 +191,7 @@ class ConsumerCRUDTests(OAuth1Tests):
 
         update_ref = {'description': update_description}
         update_resp = self.patch(
-            self.CONSUMER_URL + '/%s' % original_id,
+            self.CONSUMER_URL + f'/{original_id}',
             body={'consumer': update_ref},
         )
         consumer = update_resp.result['consumer']
@@ -207,7 +205,7 @@ class ConsumerCRUDTests(OAuth1Tests):
         update_ref['description'] = uuid.uuid4().hex
         update_ref['secret'] = uuid.uuid4().hex
         self.patch(
-            self.CONSUMER_URL + '/%s' % original_id,
+            self.CONSUMER_URL + f'/{original_id}',
             body={'consumer': update_ref},
             expected_status=http.client.BAD_REQUEST,
         )
@@ -222,7 +220,7 @@ class ConsumerCRUDTests(OAuth1Tests):
         update_ref['description'] = update_description
         update_ref['id'] = update_description
         self.patch(
-            self.CONSUMER_URL + '/%s' % original_id,
+            self.CONSUMER_URL + f'/{original_id}',
             body={'consumer': update_ref},
             expected_status=http.client.BAD_REQUEST,
         )
@@ -245,7 +243,7 @@ class ConsumerCRUDTests(OAuth1Tests):
         update_ref = {field1_name: field1_new_value, field2_name: field2_value}
 
         update_resp = self.patch(
-            self.CONSUMER_URL + '/%s' % consumer_id,
+            self.CONSUMER_URL + f'/{consumer_id}',
             body={'consumer': update_ref},
         )
         consumer = update_resp.result['consumer']
@@ -265,15 +263,12 @@ class ConsumerCRUDTests(OAuth1Tests):
         self.assertIsNotNone(consumer['secret'])
 
     def test_consumer_get_bad_id(self):
-        url = self.CONSUMER_URL + '/{consumer_id}'.format(
-            consumer_id=uuid.uuid4().hex
-        )
+        url = self.CONSUMER_URL + f'/{uuid.uuid4().hex}'
         self.get(url, expected_status=http.client.NOT_FOUND)
         self.head(url, expected_status=http.client.NOT_FOUND)
 
 
 class OAuthFlowTests(OAuth1Tests):
-
     def test_oauth_flow(self):
         consumer = self._create_single_consumer()
         consumer_id = consumer['id']
@@ -343,15 +338,12 @@ class OAuthFlowTests(OAuth1Tests):
 class AccessTokenCRUDTests(OAuthFlowTests):
     def test_delete_access_token_dne(self):
         self.delete(
-            '/users/%(user)s/OS-OAUTH1/access_tokens/%(auth)s'
-            % {'user': self.user_id, 'auth': uuid.uuid4().hex},
+            f'/users/{self.user_id}/OS-OAUTH1/access_tokens/{uuid.uuid4().hex}',
             expected_status=http.client.NOT_FOUND,
         )
 
     def test_list_no_access_tokens(self):
-        url = '/users/{user_id}/OS-OAUTH1/access_tokens'.format(
-            user_id=self.user_id
-        )
+        url = f'/users/{self.user_id}/OS-OAUTH1/access_tokens'
         resp = self.get(url)
         entities = resp.result['access_tokens']
         self.assertEqual([], entities)
@@ -363,10 +355,7 @@ class AccessTokenCRUDTests(OAuthFlowTests):
         self.test_oauth_flow()
         access_token_key_string = self.access_token.key.decode()
 
-        url = '/users/{user_id}/OS-OAUTH1/access_tokens/{key}'.format(
-            user_id=self.user_id,
-            key=access_token_key_string,
-        )
+        url = f'/users/{self.user_id}/OS-OAUTH1/access_tokens/{access_token_key_string}'
         resp = self.get(url)
         entity = resp.result['access_token']
         self.assertEqual(access_token_key_string, entity['id'])
@@ -376,19 +365,15 @@ class AccessTokenCRUDTests(OAuthFlowTests):
         self.head(url, expected_status=http.client.OK)
 
     def test_get_access_token_dne(self):
-        url = '/users/{user_id}/OS-OAUTH1/access_tokens/{key}'.format(
-            user_id=self.user_id,
-            key=uuid.uuid4().hex,
+        url = (
+            f'/users/{self.user_id}/OS-OAUTH1/access_tokens/{uuid.uuid4().hex}'
         )
         self.get(url, expected_status=http.client.NOT_FOUND)
         self.head(url, expected_status=http.client.NOT_FOUND)
 
     def test_list_all_roles_in_access_token(self):
         self.test_oauth_flow()
-        url = '/users/{id}/OS-OAUTH1/access_tokens/{key}/roles'.format(
-            id=self.user_id,
-            key=self.access_token.key.decode(),
-        )
+        url = f'/users/{self.user_id}/OS-OAUTH1/access_tokens/{self.access_token.key.decode()}/roles'
         resp = self.get(url)
         entities = resp.result['roles']
         self.assertTrue(entities)
@@ -400,14 +385,7 @@ class AccessTokenCRUDTests(OAuthFlowTests):
         self.test_oauth_flow()
 
         access_token_key = self.access_token.key.decode()
-        url = (
-            '/users/%(id)s/OS-OAUTH1/access_tokens/%(key)s/roles/%(role)s'
-            % {
-                'id': self.user_id,
-                'key': access_token_key,
-                'role': self.role_id,
-            }
-        )
+        url = f'/users/{self.user_id}/OS-OAUTH1/access_tokens/{access_token_key}/roles/{self.role_id}'
         resp = self.get(url)
         entity = resp.result['role']
         self.assertEqual(self.role_id, entity['id'])
@@ -418,23 +396,14 @@ class AccessTokenCRUDTests(OAuthFlowTests):
         self.test_oauth_flow()
 
         access_token_key = self.access_token.key.decode()
-        url = (
-            '/users/%(id)s/OS-OAUTH1/access_tokens/%(key)s/roles/%(role)s'
-            % {
-                'id': self.user_id,
-                'key': access_token_key,
-                'role': uuid.uuid4().hex,
-            }
-        )
+        url = f'/users/{self.user_id}/OS-OAUTH1/access_tokens/{access_token_key}/roles/{uuid.uuid4().hex}'
         self.get(url, expected_status=http.client.NOT_FOUND)
         self.head(url, expected_status=http.client.NOT_FOUND)
 
     def test_list_and_delete_access_tokens(self):
         self.test_oauth_flow()
         # List access_tokens should be > 0
-        url = '/users/{user_id}/OS-OAUTH1/access_tokens'.format(
-            user_id=self.user_id
-        )
+        url = f'/users/{self.user_id}/OS-OAUTH1/access_tokens'
         resp = self.get(url)
         self.head(url, expected_status=http.client.OK)
         entities = resp.result['access_tokens']
@@ -444,8 +413,7 @@ class AccessTokenCRUDTests(OAuthFlowTests):
         access_token_key = self.access_token.key.decode()
         # Delete access_token
         resp = self.delete(
-            '/users/%(user)s/OS-OAUTH1/access_tokens/%(auth)s'
-            % {'user': self.user_id, 'auth': access_token_key}
+            f'/users/{self.user_id}/OS-OAUTH1/access_tokens/{access_token_key}'
         )
         self.assertResponseStatus(resp, http.client.NO_CONTENT)
 
@@ -458,7 +426,6 @@ class AccessTokenCRUDTests(OAuthFlowTests):
 
 
 class AuthTokenTests:
-
     def test_keystone_token_is_valid(self):
         self.test_oauth_flow()
         headers = {
@@ -496,8 +463,7 @@ class AuthTokenTests:
         access_token_key = self.access_token.key.decode()
         # Delete access token
         resp = self.delete(
-            '/users/%(user)s/OS-OAUTH1/access_tokens/%(auth)s'
-            % {'user': self.user_id, 'auth': access_token_key}
+            f'/users/{self.user_id}/OS-OAUTH1/access_tokens/{access_token_key}'
         )
         self.assertResponseStatus(resp, http.client.NO_CONTENT)
 
@@ -517,17 +483,11 @@ class AuthTokenTests:
 
         # Delete consumer
         consumer_id = self.consumer['key']
-        resp = self.delete(
-            '/OS-OAUTH1/consumers/%(consumer_id)s'
-            % {'consumer_id': consumer_id}
-        )
+        resp = self.delete(f'/OS-OAUTH1/consumers/{consumer_id}')
         self.assertResponseStatus(resp, http.client.NO_CONTENT)
 
         # List access_token should be 0
-        resp = self.get(
-            '/users/%(user_id)s/OS-OAUTH1/access_tokens'
-            % {'user_id': self.user_id}
-        )
+        resp = self.get(f'/users/{self.user_id}/OS-OAUTH1/access_tokens')
         entities = resp.result['access_tokens']
         self.assertEqual([], entities)
 
@@ -624,7 +584,7 @@ class AuthTokenTests:
             trustee_user_id=self.user_id,
             project_id=self.project_id,
             impersonation=True,
-            expires=dict(minutes=1),
+            expires={'minutes': 1},
             role_ids=[self.role_id],
         )
         del ref['id']
@@ -672,7 +632,7 @@ class AuthTokenTests:
             trustee_user_id=self.user_id,
             project_id=self.project_id,
             impersonation=True,
-            expires=dict(minutes=1),
+            expires={'minutes': 1},
             role_ids=[self.role_id],
         )
         del ref['id']
@@ -704,7 +664,7 @@ class AuthTokenTests:
             }
         )
         self.test_oauth_flow()
-        url = '/users/%s/OS-OAUTH1/access_tokens' % self.user_id
+        url = f'/users/{self.user_id}/OS-OAUTH1/access_tokens'
         self.get(
             url,
             token=self.keystone_token_id,
@@ -736,12 +696,11 @@ class AuthTokenTests:
             {"identity:list_access_tokens": [], "identity:create_trust": []}
         )
         trust_token = self._create_trust_get_token()
-        url = '/users/%s/OS-OAUTH1/access_tokens' % self.user_id
+        url = f'/users/{self.user_id}/OS-OAUTH1/access_tokens'
         self.get(url, token=trust_token, expected_status=http.client.FORBIDDEN)
 
 
 class FernetAuthTokenTests(AuthTokenTests, OAuthFlowTests):
-
     def config_overrides(self):
         super().config_overrides()
         self.config_fixture.config(group='token', provider='fernet')
@@ -758,7 +717,6 @@ class FernetAuthTokenTests(AuthTokenTests, OAuthFlowTests):
 
 
 class MaliciousOAuth1Tests(OAuth1Tests):
-
     def _switch_baseurl_scheme(self):
         """Switch the base url scheme."""
         base_url_list = list(urlparse.urlparse(self.base_url))
@@ -1230,7 +1188,6 @@ class MaliciousOAuth1Tests(OAuth1Tests):
 class OAuthNotificationTests(
     OAuth1Tests, test_notifications.BaseNotificationTest
 ):
-
     def test_create_consumer(self):
         consumer_ref = self._create_single_consumer()
         self._assert_notify_sent(
@@ -1355,8 +1312,7 @@ class OAuthNotificationTests(
         )
 
         resp = self.delete(
-            '/users/%(user)s/OS-OAUTH1/access_tokens/%(auth)s'
-            % {'user': self.user_id, 'auth': self.access_token.key.decode()}
+            f'/users/{self.user_id}/OS-OAUTH1/access_tokens/{self.access_token.key.decode()}'
         )
         self.assertResponseStatus(resp, http.client.NO_CONTENT)
 
@@ -1375,7 +1331,6 @@ class OAuthNotificationTests(
 
 
 class OAuthCADFNotificationTests(OAuthNotificationTests):
-
     def setUp(self):
         """Repeat the tests for CADF notifications."""
         super().setUp()
@@ -1385,7 +1340,5 @@ class OAuthCADFNotificationTests(OAuthNotificationTests):
 class JsonHomeTests(OAuth1Tests, test_v3.JsonHomeTestMixin):
     JSON_HOME_DATA = {
         'https://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH1/1.0'
-        '/rel/consumers': {
-            'href': '/OS-OAUTH1/consumers',
-        },
+        '/rel/consumers': {'href': '/OS-OAUTH1/consumers'}
     }

@@ -57,9 +57,7 @@ class Provider(base.Provider):
 
     def generate_id_and_issued_at(self, receipt):
         receipt_id = self.receipt_formatter.create_receipt(
-            receipt.user_id,
-            receipt.methods,
-            receipt.expires_at,
+            receipt.user_id, receipt.methods, receipt.expires_at
         )
         creation_datetime_obj = self.receipt_formatter.creation_time(
             receipt_id

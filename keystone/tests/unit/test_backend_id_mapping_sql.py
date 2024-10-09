@@ -40,7 +40,6 @@ class SqlIDMappingTable(test_backend_sql.SqlModels):
 
 
 class SqlIDMapping(test_backend_sql.SqlTests):
-
     def setUp(self):
         super().setUp()
         self.load_sample_data()

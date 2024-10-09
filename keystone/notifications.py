@@ -397,7 +397,7 @@ def register_event_callback(event, resource_type, callbacks):
 
     for callback in callbacks:
         if not callable(callback):
-            msg = 'Method not callable: %s' % callback
+            msg = f'Method not callable: {callback}'
             tr_msg = _('Method not callable: %s') % callback
             LOG.error(msg)
             raise TypeError(tr_msg)
@@ -429,11 +429,10 @@ def listener(cls):
 
         @listener
         class Something(object):
-
             def __init__(self):
                 self.event_callbacks = {
                     notifications.ACTIONS.created: {
-                        'user': self._user_created_callback,
+                        'user': self._user_created_callback
                     },
                     notifications.ACTIONS.deleted: {
                         'project': [
@@ -497,9 +496,7 @@ def _get_notifier():
         host = CONF.default_publisher_id or socket.gethostname()
         try:
             transport = oslo_messaging.get_notification_transport(CONF)
-            _notifier = oslo_messaging.Notifier(
-                transport, "identity.%s" % host
-            )
+            _notifier = oslo_messaging.Notifier(transport, f"identity.{host}")
         except Exception:
             LOG.exception("Failed to construct notifier")
             _notifier = False
@@ -624,11 +621,7 @@ def _send_notification(
         notifier = _get_notifier()
         if notifier:
             context = {}
-            event_type = '{service}.{resource_type}.{operation}'.format(
-                service=SERVICE,
-                resource_type=resource_type,
-                operation=operation,
-            )
+            event_type = f'{SERVICE}.{resource_type}.{operation}'
             if _check_notification_opt_out(event_type, outcome=None):
                 return
             try:
@@ -773,11 +766,7 @@ class CadfRoleAssignmentNotificationWrapper:
 
     def __init__(self, operation):
         self.action = f'{operation}.{self.ROLE_ASSIGNMENT}'
-        self.event_type = '{}.{}.{}'.format(
-            SERVICE,
-            self.ROLE_ASSIGNMENT,
-            operation,
-        )
+        self.event_type = f'{SERVICE}.{self.ROLE_ASSIGNMENT}.{operation}'
 
     def __call__(self, f):
         @functools.wraps(f)
@@ -790,8 +779,9 @@ class CadfRoleAssignmentNotificationWrapper:
             differently in various tests.
             Using named arguments, i.e.::
 
-                create_grant(user_id=user['id'], domain_id=domain['id'],
-                             role_id=role['id'])
+                create_grant(
+                    user_id=user['id'], domain_id=domain['id'], role_id=role['id']
+                )
 
             Or, using positional arguments, i.e.::
 
@@ -800,8 +790,9 @@ class CadfRoleAssignmentNotificationWrapper:
 
             Or, both, i.e.::
 
-                create_grant(role_id['id'], user_id=user['id'],
-                             domain_id=domain['id'])
+                create_grant(
+                    role_id['id'], user_id=user['id'], domain_id=domain['id']
+                )
 
             Checking the values for kwargs is easy enough, since it comes
             in as a dictionary
@@ -810,9 +801,14 @@ class CadfRoleAssignmentNotificationWrapper:
 
             ::
 
-                create_grant(role_id, user_id=None, group_id=None,
-                             domain_id=None, project_id=None,
-                             inherited_to_projects=False)
+                create_grant(
+                    role_id,
+                    user_id=None,
+                    group_id=None,
+                    domain_id=None,
+                    project_id=None,
+                    inherited_to_projects=False,
+                )
 
             So, if the values of actor or target are still None after
             checking kwargs, we can check the positional arguments,

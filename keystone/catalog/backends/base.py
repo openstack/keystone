@@ -242,21 +242,23 @@ class CatalogDriverBase(provider_api.ProviderAPIMixin, metaclass=abc.ABCMeta):
             [
                 {
                     "endpoints": [
-                    {
-                        "interface": "public",
-                        "id": "--endpoint-id--",
-                        "region": "RegionOne",
-                        "url": "http://external:8776/v1/--project-id--"
-                    },
-                    {
-                        "interface": "internal",
-                        "id": "--endpoint-id--",
-                        "region": "RegionOne",
-                        "url": "http://internal:8776/v1/--project-id--"
-                    }],
-                "id": "--service-id--",
-                "type": "volume"
-            }]
+                        {
+                            "interface": "public",
+                            "id": "--endpoint-id--",
+                            "region": "RegionOne",
+                            "url": "http://external:8776/v1/--project-id--",
+                        },
+                        {
+                            "interface": "internal",
+                            "id": "--endpoint-id--",
+                            "region": "RegionOne",
+                            "url": "http://internal:8776/v1/--project-id--",
+                        },
+                    ],
+                    "id": "--service-id--",
+                    "type": "volume",
+                }
+            ]
 
         :returns: A list representing the service catalog or an empty list
         :raises keystone.exception.NotFound: If the endpoint doesn't exist.

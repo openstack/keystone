@@ -25,7 +25,6 @@ PROVIDERS = provider_api.ProviderAPIs
 
 
 class _CommonUtilities:
-
     def _create_protocol_and_deps(self):
         identity_provider = unit.new_identity_provider_ref()
         identity_provider = PROVIDERS.federation_api.create_idp(
@@ -49,9 +48,8 @@ class _SystemUserProtocolTests:
         protocol, mapping, identity_provider = self._create_protocol_and_deps()
 
         with self.test_client() as c:
-            path = (
-                '/v3/OS-FEDERATION/identity_providers/%s/protocols'
-                % identity_provider['id']
+            path = '/v3/OS-FEDERATION/identity_providers/{}/protocols'.format(
+                identity_provider['id']
             )
             r = c.get(path, headers=self.headers)
             self.assertEqual(1, len(r.json['protocols']))
@@ -63,15 +61,13 @@ class _SystemUserProtocolTests:
         with self.test_client() as c:
             path = (
                 '/v3/OS-FEDERATION/identity_providers/{}/protocols/{}'.format(
-                    identity_provider['id'],
-                    protocol['id'],
+                    identity_provider['id'], protocol['id']
                 )
             )
             c.get(path, headers=self.headers)
 
 
 class _SystemReaderAndMemberProtocolTests:
-
     def test_user_cannot_create_protocols(self):
         identity_provider = unit.new_identity_provider_ref()
         identity_provider = PROVIDERS.federation_api.create_idp(
@@ -88,8 +84,7 @@ class _SystemReaderAndMemberProtocolTests:
         with self.test_client() as c:
             path = (
                 '/v3/OS-FEDERATION/identity_providers/{}/protocols/{}'.format(
-                    identity_provider['id'],
-                    protocol_id,
+                    identity_provider['id'], protocol_id
                 )
             )
             c.put(
@@ -110,8 +105,7 @@ class _SystemReaderAndMemberProtocolTests:
         with self.test_client() as c:
             path = (
                 '/v3/OS-FEDERATION/identity_providers/{}/protocols/{}'.format(
-                    identity_provider['id'],
-                    protocol['id'],
+                    identity_provider['id'], protocol['id']
                 )
             )
             c.patch(
@@ -127,8 +121,7 @@ class _SystemReaderAndMemberProtocolTests:
         with self.test_client() as c:
             path = (
                 '/v3/OS-FEDERATION/identity_providers/{}/protocols/{}'.format(
-                    identity_provider['id'],
-                    protocol['id'],
+                    identity_provider['id'], protocol['id']
                 )
             )
             c.delete(
@@ -139,7 +132,6 @@ class _SystemReaderAndMemberProtocolTests:
 
 
 class _DomainAndProjectUserProtocolTests:
-
     def test_user_cannot_create_protocols(self):
         identity_provider = unit.new_identity_provider_ref()
         identity_provider = PROVIDERS.federation_api.create_idp(
@@ -156,8 +148,7 @@ class _DomainAndProjectUserProtocolTests:
         with self.test_client() as c:
             path = (
                 '/v3/OS-FEDERATION/identity_providers/{}/protocols/{}'.format(
-                    identity_provider['id'],
-                    protocol_id,
+                    identity_provider['id'], protocol_id
                 )
             )
             c.put(
@@ -178,8 +169,7 @@ class _DomainAndProjectUserProtocolTests:
         with self.test_client() as c:
             path = (
                 '/v3/OS-FEDERATION/identity_providers/{}/protocols/{}'.format(
-                    identity_provider['id'],
-                    protocol['id'],
+                    identity_provider['id'], protocol['id']
                 )
             )
             c.patch(
@@ -195,8 +185,7 @@ class _DomainAndProjectUserProtocolTests:
         with self.test_client() as c:
             path = (
                 '/v3/OS-FEDERATION/identity_providers/{}/protocols/{}'.format(
-                    identity_provider['id'],
-                    protocol['id'],
+                    identity_provider['id'], protocol['id']
                 )
             )
             c.delete(
@@ -209,9 +198,8 @@ class _DomainAndProjectUserProtocolTests:
         protocol, mapping, identity_provider = self._create_protocol_and_deps()
 
         with self.test_client() as c:
-            path = (
-                '/v3/OS-FEDERATION/identity_providers/%s/protocols'
-                % identity_provider['id']
+            path = '/v3/OS-FEDERATION/identity_providers/{}/protocols'.format(
+                identity_provider['id']
             )
             c.get(
                 path,
@@ -225,8 +213,7 @@ class _DomainAndProjectUserProtocolTests:
         with self.test_client() as c:
             path = (
                 '/v3/OS-FEDERATION/identity_providers/{}/protocols/{}'.format(
-                    identity_provider['id'],
-                    protocol['id'],
+                    identity_provider['id'], protocol['id']
                 )
             )
             c.get(
@@ -243,7 +230,6 @@ class SystemReaderTests(
     _SystemUserProtocolTests,
     _SystemReaderAndMemberProtocolTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -279,7 +265,6 @@ class SystemMemberTests(
     _SystemUserProtocolTests,
     _SystemReaderAndMemberProtocolTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -314,7 +299,6 @@ class SystemAdminTests(
     _CommonUtilities,
     _SystemUserProtocolTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -353,8 +337,7 @@ class SystemAdminTests(
         with self.test_client() as c:
             path = (
                 '/v3/OS-FEDERATION/identity_providers/{}/protocols/{}'.format(
-                    identity_provider['id'],
-                    protocol_id,
+                    identity_provider['id'], protocol_id
                 )
             )
             c.put(
@@ -375,8 +358,7 @@ class SystemAdminTests(
         with self.test_client() as c:
             path = (
                 '/v3/OS-FEDERATION/identity_providers/{}/protocols/{}'.format(
-                    identity_provider['id'],
-                    protocol['id'],
+                    identity_provider['id'], protocol['id']
                 )
             )
             c.patch(path, json=update, headers=self.headers)
@@ -387,8 +369,7 @@ class SystemAdminTests(
         with self.test_client() as c:
             path = (
                 '/v3/OS-FEDERATION/identity_providers/{}/protocols/{}'.format(
-                    identity_provider['id'],
-                    protocol['id'],
+                    identity_provider['id'], protocol['id']
                 )
             )
             c.delete(path, headers=self.headers)
@@ -400,7 +381,6 @@ class DomainUserTests(
     _CommonUtilities,
     _DomainAndProjectUserProtocolTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -439,7 +419,6 @@ class ProjectUserTests(
     _CommonUtilities,
     _DomainAndProjectUserProtocolTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -467,7 +446,6 @@ class ProjectUserTestsWithoutEnforceScope(
     _CommonUtilities,
     _DomainAndProjectUserProtocolTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()

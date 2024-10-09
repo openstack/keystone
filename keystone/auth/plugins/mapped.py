@@ -34,7 +34,6 @@ PROVIDERS = provider_api.ProviderAPIs
 
 
 class Mapped(base.AuthMethodHandler):
-
     def _get_token_ref(self, auth_payload):
         token_id = auth_payload['id']
         return PROVIDERS.token_provider_api.validate_token(token_id)
@@ -184,7 +183,6 @@ def handle_unscoped_token(
     assignment_api,
     role_api,
 ):
-
     def validate_shadow_mapping(
         shadow_projects, existing_roles, user_domain_id, idp_id
     ):
@@ -300,7 +298,6 @@ def handle_unscoped_token(
             )
 
             if 'projects' in mapped_properties:
-
                 existing_roles = {
                     role['name']: role for role in role_api.list_roles()
                 }

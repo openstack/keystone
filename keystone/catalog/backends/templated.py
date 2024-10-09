@@ -166,11 +166,7 @@ class Catalog(base.CatalogDriverBase):
                 for key in service_ref:
                     if key.endswith('URL'):
                         interface = key[:-3]
-                        endpoint_id = '{}-{}-{}'.format(
-                            region_id,
-                            service_type,
-                            interface,
-                        )
+                        endpoint_id = f'{region_id}-{service_type}-{interface}'
                         yield {
                             'id': endpoint_id,
                             'service_id': service_type,
@@ -215,16 +211,10 @@ class Catalog(base.CatalogDriverBase):
         silent_keyerror_failures = []
         if project_id:
             substitutions.update(
-                {
-                    'tenant_id': project_id,
-                    'project_id': project_id,
-                }
+                {'tenant_id': project_id, 'project_id': project_id}
             )
         else:
-            silent_keyerror_failures = [
-                'tenant_id',
-                'project_id',
-            ]
+            silent_keyerror_failures = ['tenant_id', 'project_id']
 
         catalog = {}
         # TODO(davechen): If there is service with no endpoints, we should

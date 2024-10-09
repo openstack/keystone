@@ -111,7 +111,6 @@ class DomainConfigs(provider_api.ProviderAPIMixin, dict):
         )
 
     def _load_config_from_file(self, resource_api, file_list, domain_name):
-
         def _assert_no_more_than_one_sql_driver(new_config, config_file):
             """Ensure there is no more than one sql driver.
 
@@ -202,7 +201,6 @@ class DomainConfigs(provider_api.ProviderAPIMixin, dict):
                         )
 
     def _load_config_from_database(self, domain_id, specific_config):
-
         def _assert_no_more_than_one_sql_driver(domain_id, new_config):
             """Ensure adding driver doesn't push us over the limit of 1.
 
@@ -613,8 +611,8 @@ class Manager(manager.Manager):
         )
         self.event_callbacks = {
             notifications.ACTIONS.deleted: {
-                'project': [self._unset_default_project],
-            },
+                'project': [self._unset_default_project]
+            }
         }
 
     def _domain_deleted(self, service, resource_type, operation, payload):
@@ -1374,10 +1372,10 @@ class Manager(manager.Manager):
         if enabled_change or user.get('password') is not None:
             self._persist_revocation_event_for_user(user_id)
             reason = (
-                'Invalidating the token cache because user %(user_id)s was '
+                f'Invalidating the token cache because user {user_id} was '
                 'enabled or disabled. Authorization will be calculated and '
                 'enforced accordingly the next time they authenticate or '
-                'validate a token.' % {'user_id': user_id}
+                'validate a token.'
             )
             notifications.invalidate_token_cache_notification(reason)
 
@@ -1501,8 +1499,8 @@ class Manager(manager.Manager):
                 self._persist_revocation_event_for_user(user_id)
 
             reason_s = (
-                'Invalidating the token cache because group %(group_id)s '
-                'has been deleted.' % {'group_id': group_id}
+                f'Invalidating the token cache because group {group_id} '
+                'has been deleted.'
             )
             notifications.invalidate_token_cache_notification(reason_s)
 
@@ -1566,14 +1564,10 @@ class Manager(manager.Manager):
         # role assignments expanded from this group to this user
         assignment.COMPUTED_ASSIGNMENTS_REGION.invalidate()
         reason = (
-            'Invalidating the token cache because user %(user_id)s was '
-            'removed from group %(group_id)s. Authorization will be '
+            f'Invalidating the token cache because user {user_id} was '
+            f'removed from group {group_id}. Authorization will be '
             'calculated and enforced accordingly the next time they '
             'authenticate or validate a token.'
-            % {
-                'user_id': user_id,
-                'group_id': group_id,
-            }
         )
         notifications.invalidate_token_cache_notification(reason)
         notifications.Audit.removed_from(
@@ -1678,7 +1672,6 @@ class Manager(manager.Manager):
     def change_password(
         self, user_id, original_password, new_password, initiator=None
     ):
-
         # authenticate() will raise an AssertionError if authentication fails
         try:
             self.authenticate(user_id, original_password)
@@ -1702,10 +1695,10 @@ class Manager(manager.Manager):
         notifications.Audit.updated(self._USER, user_id, initiator)
         self._persist_revocation_event_for_user(user_id)
         reason_s = (
-            'Invalidating the token cache because user %(user_id)s changed '
+            f'Invalidating the token cache because user {user_id} changed '
             'the password. Authorization will be calculated and enforced '
             'accordingly the next time they authenticate or validate a '
-            'token.' % {'user_id': user_id}
+            'token.'
         )
         notifications.invalidate_token_cache_notification(reason_s)
 

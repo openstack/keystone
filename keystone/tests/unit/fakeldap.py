@@ -171,9 +171,7 @@ def _match(key, value, attrs):
         return str(value) in str_sids
     if key != 'objectclass':
         check_value = _internal_attr(key, value)[0].lower()
-        norm_values = list(
-            _internal_attr(key, x)[0].lower() for x in attrs[key]
-        )
+        norm_values = [_internal_attr(key, x)[0].lower() for x in attrs[key]]
         return match_with_wildcards(check_value, norm_values)
     # It is an objectclass check, so check subclasses
     values = _subs(value)
@@ -207,7 +205,6 @@ server_fail = False
 
 
 class FakeShelve(dict):
-
     def sync(self):
         pass
 
@@ -357,9 +354,7 @@ class FakeLdap(common.LDAPHandler):
         # The LDAP API raises a TypeError if attr name is None.
         for k, dummy_v in modlist:
             if k is None:
-                raise TypeError(
-                    'must be string, not None. modlist=%s' % modlist
-                )
+                raise TypeError(f'must be string, not None. modlist={modlist}')
 
             if k == id_attr:
                 for val in dummy_v:
@@ -465,7 +460,7 @@ class FakeLdap(common.LDAPHandler):
             else:
                 LOG.debug('modify item failed: unknown command %s', cmd)
                 raise NotImplementedError(
-                    'modify_s action %s not implemented' % cmd
+                    f'modify_s action {cmd} not implemented'
                 )
         self.db[key] = entry
         self.db.sync()
@@ -520,10 +515,7 @@ class FakeLdap(common.LDAPHandler):
                 (k[len(self.__prefix) :], v)
                 for k, v in self.db.items()
                 if re.match(
-                    '{}.*,{}'.format(
-                        re.escape(self.__prefix), re.escape(base)
-                    ),
-                    k,
+                    f'{re.escape(self.__prefix)}.*,{re.escape(base)}', k
                 )
             ]
             results.extend(extraresults)

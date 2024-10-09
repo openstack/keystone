@@ -18,7 +18,6 @@ from keystone.tests import unit
 
 
 class FormatUrlTests(unit.BaseTestCase):
-
     def test_successful_formatting(self):
         url_template = (
             'http://server:9090/$(tenant_id)s/$(user_id)s/$(project_id)s'

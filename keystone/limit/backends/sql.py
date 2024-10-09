@@ -123,7 +123,6 @@ class LimitModel(sql.ModelBase, sql.ModelDictMixin):
 
 
 class UnifiedLimit(base.UnifiedLimitDriverBase):
-
     def _check_unified_limit_unique(
         self, unified_limit, is_registered_limit=True
     ):

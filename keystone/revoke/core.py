@@ -85,7 +85,7 @@ class Manager(manager.Manager):
                 [
                     notifications.PERSIST_REVOCATION_EVENT_FOR_USER,
                     self._user_callback,
-                ],
+                ]
             ],
         }
 
@@ -115,7 +115,6 @@ class Manager(manager.Manager):
     def revoke_by_audit_chain_id(
         self, audit_chain_id, project_id=None, domain_id=None
     ):
-
         self._assert_not_domain_and_project_scoped(
             domain_id=domain_id, project_id=project_id
         )

@@ -21,7 +21,6 @@ PROVIDERS = provider_api.ProviderAPIs
 
 
 class RegisteredLimitTests:
-
     def test_create_registered_limit_crud(self):
         # create one, return it.
         registered_limit_1 = unit.new_registered_limit_ref(
@@ -563,7 +562,6 @@ class RegisteredLimitTests:
 
 
 class LimitTests:
-
     def test_default_enforcement_model_is_flat(self):
         expected = {
             'description': (

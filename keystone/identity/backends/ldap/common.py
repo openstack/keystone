@@ -80,7 +80,7 @@ def utf8_encode(value):
         value_cls_name = reflection.get_class_name(
             value, fully_qualified=False
         )
-        raise TypeError("value must be basestring, not %s" % value_cls_name)
+        raise TypeError(f"value must be basestring, not {value_cls_name}")
 
 
 _utf8_decoder = codecs.getdecoder('utf-8')
@@ -217,10 +217,7 @@ def parse_deref(opt):
                 'Invalid LDAP deref option: %(option)s. '
                 'Choose one of: %(options)s'
             )
-            % {
-                'option': opt,
-                'options': ', '.join(LDAP_DEREF.keys()),
-            }
+            % {'option': opt, 'options': ', '.join(LDAP_DEREF.keys())}
         )
 
 
@@ -569,7 +566,6 @@ class PythonLDAPHandler(LDAPHandler):
         pool_conn_timeout=None,
         pool_conn_lifetime=None,
     ):
-
         _common_ldap_initialization(
             url=url,
             use_tls=use_tls,
@@ -850,7 +846,6 @@ class PooledLDAPHandler(LDAPHandler):
         pool_conn_timeout=None,
         pool_conn_lifetime=None,
     ):
-
         _common_ldap_initialization(
             url=url,
             use_tls=use_tls,
@@ -1423,14 +1418,14 @@ class BaseLdap:
 
         if self.options_name is not None:
             self.tree_dn = (
-                getattr(conf.ldap, '%s_tree_dn' % self.options_name)
+                getattr(conf.ldap, f'{self.options_name}_tree_dn')
                 or f'{self.DEFAULT_OU},{conf.ldap.suffix}'
             )
 
-            idatt = '%s_id_attribute' % self.options_name
+            idatt = f'{self.options_name}_id_attribute'
             self.id_attr = getattr(conf.ldap, idatt) or self.DEFAULT_ID_ATTR
 
-            objclass = '%s_objectclass' % self.options_name
+            objclass = f'{self.options_name}_objectclass'
             self.object_class = (
                 getattr(conf.ldap, objclass) or self.DEFAULT_OBJECTCLASS
             )
@@ -1440,7 +1435,7 @@ class BaseLdap:
                 self.attribute_mapping[k] = getattr(conf.ldap, v)
 
             attr_mapping_opt = (
-                '%s_additional_attribute_mapping' % self.options_name
+                f'{self.options_name}_additional_attribute_mapping'
             )
             attr_mapping = (
                 getattr(conf.ldap, attr_mapping_opt)
@@ -1448,12 +1443,12 @@ class BaseLdap:
             )
             self.extra_attr_mapping = self._parse_extra_attrs(attr_mapping)
 
-            ldap_filter = '%s_filter' % self.options_name
+            ldap_filter = f'{self.options_name}_filter'
             self.ldap_filter = (
                 getattr(conf.ldap, ldap_filter) or self.DEFAULT_FILTER
             )
 
-            member_attribute = '%s_member_attribute' % self.options_name
+            member_attribute = f'{self.options_name}_member_attribute'
             self.member_attribute = getattr(conf.ldap, member_attribute, None)
 
             self.structural_classes = self.DEFAULT_STRUCTURAL_CLASSES
@@ -1461,7 +1456,7 @@ class BaseLdap:
             if self.notfound_arg is None:
                 self.notfound_arg = self.options_name + '_id'
 
-            attribute_ignore = '%s_attribute_ignore' % self.options_name
+            attribute_ignore = f'{self.options_name}_attribute_ignore'
             self.attribute_ignore = getattr(conf.ldap, attribute_ignore)
 
     def _not_found(self, object_id):
@@ -1547,11 +1542,7 @@ class BaseLdap:
             raise exception.LDAPServerConnectionError(url=self.LDAP_URL)
 
     def _id_to_dn_string(self, object_id):
-        return '{}={},{}'.format(
-            self.id_attr,
-            ldap.dn.escape_dn_chars(str(object_id)),
-            self.tree_dn,
-        )
+        return f'{self.id_attr}={ldap.dn.escape_dn_chars(str(object_id))},{self.tree_dn}'
 
     def _id_to_dn(self, object_id):
         if self.LDAP_SCOPE == ldap.SCOPE_ONELEVEL:
@@ -1560,12 +1551,7 @@ class BaseLdap:
             search_result = conn.search_s(
                 self.tree_dn,
                 self.LDAP_SCOPE,
-                '(&(%(id_attr)s=%(id)s)(objectclass=%(objclass)s))'
-                % {
-                    'id_attr': self.id_attr,
-                    'id': ldap.filter.escape_filter_chars(str(object_id)),
-                    'objclass': self.object_class,
-                },
+                f'(&({self.id_attr}={ldap.filter.escape_filter_chars(str(object_id))})(objectclass={self.object_class}))',
                 attrlist=DN_ONLY,
             )
         if search_result:
@@ -1590,18 +1576,18 @@ class BaseLdap:
                     id_list = search_result[0][1][self.id_attr]
                 except KeyError:
                     message = (
-                        'ID attribute %(id_attr)s not found in LDAP '
-                        'object %(dn)s.'
-                    ) % ({'id_attr': self.id_attr, 'dn': search_result})
+                        f'ID attribute {self.id_attr} not found in LDAP '
+                        f'object {search_result}.'
+                    )
                     LOG.warning(message)
                     raise exception.NotFound(message=message)
                 if len(id_list) > 1:
                     message = (
                         'In order to keep backward compatibility, in '
                         'the case of multivalued ids, we are '
-                        'returning the first id %(id_attr)s in the '
+                        f'returning the first id {id_list[0]} in the '
                         'DN.'
-                    ) % ({'id_attr': id_list[0]})
+                    )
                     LOG.warning(message)
                 return id_list[0]
             else:
@@ -1631,10 +1617,10 @@ class BaseLdap:
             # deployments. We need to fix our read-write LDAP logic so
             # it does not get the ID from DN.
             message = (
-                'ID attribute %(id_attr)s for LDAP object %(dn)s '
+                f'ID attribute {self.id_attr} for LDAP object {res[0]} '
                 'has multiple values and therefore cannot be used '
                 'as an ID. Will get the ID from DN instead'
-            ) % ({'id_attr': self.id_attr, 'dn': res[0]})
+            )
             LOG.warning(message)
             id_val = self._dn_to_id(res[0])
         else:
@@ -1744,13 +1730,9 @@ class BaseLdap:
 
         # To ensure that ldap attribute value is not empty in ldap config.
         if not attr:
-            attr_name = '{}_{}_attribute'.format(
-                self.options_name,
-                self.attribute_options_names[ldap_attr_name],
-            )
+            attr_name = f'{self.options_name}_{self.attribute_options_names[ldap_attr_name]}_attribute'
             raise ValueError(
-                '"%(attr)s" is not a valid value for'
-                ' "%(attr_name)s"' % {'attr': attr, 'attr_name': attr_name}
+                f'"{attr}" is not a valid value for' f' "{attr_name}"'
             )
 
         # consider attr = "cn" and
@@ -1784,15 +1766,14 @@ class BaseLdap:
 
     def _ldap_get(self, object_id, ldap_filter=None):
         query = (
-            '(&(%(id_attr)s=%(id)s)'
-            '%(filter)s'
-            '(objectClass=%(object_class)s))'
-            % {
-                'id_attr': self.id_attr,
-                'id': ldap.filter.escape_filter_chars(str(object_id)),
-                'filter': (ldap_filter or self.ldap_filter or ''),
-                'object_class': self.object_class,
-            }
+            '(&({id_attr}={id})'
+            '{filter}'
+            '(objectClass={object_class}))'.format(
+                id_attr=self.id_attr,
+                id=ldap.filter.escape_filter_chars(str(object_id)),
+                filter=ldap_filter or self.ldap_filter or '',
+                object_class=self.object_class,
+            )
         )
         with self.get_connection() as conn:
             try:
@@ -1875,7 +1856,7 @@ class BaseLdap:
     def _ldap_get_list(
         self, search_base, scope, query_params=None, attrlist=None
     ):
-        query = '(objectClass=%s)' % self.object_class
+        query = f'(objectClass={self.object_class})'
         if query_params:
 
             def calc_filter(attrname, value):
@@ -1925,7 +1906,6 @@ class BaseLdap:
                 continue
 
             if k in self.attribute_ignore:
-
                 # Handle 'enabled' specially since can't disable if ignored.
                 if k == 'enabled' and (not v):
                     action = _(
@@ -2050,25 +2030,13 @@ class BaseLdap:
             # booleans (this is related to bug #1411478).
 
             if filter_['comparator'] == 'equals':
-                query_term = '({attr}={val})'.format(
-                    attr=ldap_attr,
-                    val=val_esc,
-                )
+                query_term = f'({ldap_attr}={val_esc})'
             elif filter_['comparator'] == 'contains':
-                query_term = '({attr}=*{val}*)'.format(
-                    attr=ldap_attr,
-                    val=val_esc,
-                )
+                query_term = f'({ldap_attr}=*{val_esc}*)'
             elif filter_['comparator'] == 'startswith':
-                query_term = '({attr}={val}*)'.format(
-                    attr=ldap_attr,
-                    val=val_esc,
-                )
+                query_term = f'({ldap_attr}={val_esc}*)'
             elif filter_['comparator'] == 'endswith':
-                query_term = '({attr}=*{val})'.format(
-                    attr=ldap_attr,
-                    val=val_esc,
-                )
+                query_term = f'({ldap_attr}=*{val_esc})'
             else:
                 # It's a filter we don't understand, so let the caller
                 # work out if they need to do something with it.
@@ -2128,14 +2096,14 @@ class EnabledEmuMixIn(BaseLdap):
 
     def __init__(self, conf):
         super().__init__(conf)
-        enabled_emulation = '%s_enabled_emulation' % self.options_name
+        enabled_emulation = f'{self.options_name}_enabled_emulation'
         self.enabled_emulation = getattr(conf.ldap, enabled_emulation)
 
-        enabled_emulation_dn = '%s_enabled_emulation_dn' % self.options_name
+        enabled_emulation_dn = f'{self.options_name}_enabled_emulation_dn'
         self.enabled_emulation_dn = getattr(conf.ldap, enabled_emulation_dn)
 
         use_group_config = (
-            '%s_enabled_emulation_use_group_config' % self.options_name
+            f'{self.options_name}_enabled_emulation_use_group_config'
         )
         self.use_group_config = getattr(conf.ldap, use_group_config)
 
@@ -2150,9 +2118,9 @@ class EnabledEmuMixIn(BaseLdap):
 
         if not self.enabled_emulation_dn:
             naming_attr_name = 'cn'
-            naming_attr_value = 'enabled_%ss' % self.options_name
+            naming_attr_value = f'enabled_{self.options_name}s'
             sub_vals = (naming_attr_name, naming_attr_value, self.tree_dn)
-            self.enabled_emulation_dn = '%s=%s,%s' % sub_vals
+            self.enabled_emulation_dn = '{}={},{}'.format(*sub_vals)
             naming_attr = (naming_attr_name, [naming_attr_value])
         else:
             # Extract the attribute name and value from the configured DN.
@@ -2172,10 +2140,7 @@ class EnabledEmuMixIn(BaseLdap):
         return self._is_member_enabled(member_attr_val, conn)
 
     def _is_member_enabled(self, member_attr_val, conn):
-        query = '({}={})'.format(
-            self.member_attribute,
-            ldap.filter.escape_filter_chars(member_attr_val),
-        )
+        query = f'({self.member_attribute}={ldap.filter.escape_filter_chars(member_attr_val)})'
         try:
             enabled_value = conn.search_s(
                 self.enabled_emulation_dn,

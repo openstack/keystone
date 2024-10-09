@@ -27,7 +27,6 @@ PROVIDERS = provider_api.ProviderAPIs
 
 
 class SqlTests(unit.SQLDriverOverrides, unit.TestCase):
-
     def setUp(self):
         super().setUp()
         self.useFixture(database.Database())
@@ -44,7 +43,6 @@ class SqlTests(unit.SQLDriverOverrides, unit.TestCase):
 
 
 class SqlCredential(SqlTests):
-
     def _create_credential_with_user_id(self, user_id=None):
         if not user_id:
             user_id = uuid.uuid4().hex

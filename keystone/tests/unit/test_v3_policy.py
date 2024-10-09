@@ -56,14 +56,9 @@ class PolicyTestCase(test_v3.RestfulTestCase):
 
     def test_update_policy(self):
         """Call ``PATCH /policies/{policy_id}``."""
-        self.policy['blob'] = json.dumps(
-            {
-                'data': uuid.uuid4().hex,
-            }
-        )
+        self.policy['blob'] = json.dumps({'data': uuid.uuid4().hex})
         r = self.patch(
-            f'/policies/{self.policy_id}',
-            body={'policy': self.policy},
+            f'/policies/{self.policy_id}', body={'policy': self.policy}
         )
         self.assertValidPolicyResponse(r, self.policy)
 

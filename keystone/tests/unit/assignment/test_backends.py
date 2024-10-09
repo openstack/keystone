@@ -295,8 +295,8 @@ class AssignmentTestHelperMixin:
         This method converts the shorthand version into the full reference.
 
         """
-        expanded_key = '%s_id' % key
-        reference_index = '%ss' % key
+        expanded_key = f'{key}_id'
+        reference_index = f'{key}s'
         index_value = reference_data[reference_index][shorthand_data[key]][
             'id'
         ]
@@ -471,7 +471,6 @@ class AssignmentTestHelperMixin:
 
 
 class AssignmentTests(AssignmentTestHelperMixin):
-
     def _get_domain_fixture(self):
         domain = unit.new_domain_ref()
         PROVIDERS.resource_api.create_domain(domain['id'], domain)
@@ -2130,9 +2129,7 @@ class AssignmentTests(AssignmentTestHelperMixin):
                         'role': 1,
                         'effective': True,
                     },
-                    'results': [
-                        {'group': 0, 'role': 1, 'domain': 1},
-                    ],
+                    'results': [{'group': 0, 'role': 1, 'domain': 1}],
                 },
             ],
         }
@@ -3036,7 +3033,6 @@ class AssignmentTests(AssignmentTestHelperMixin):
 
 
 class InheritanceTests(AssignmentTestHelperMixin):
-
     def test_role_assignments_user_domain_to_project_inheritance(self):
         test_plan = {
             'entities': {'domains': {'users': 2, 'projects': 1}, 'roles': 3},
@@ -4377,14 +4373,13 @@ class InheritanceTests(AssignmentTestHelperMixin):
                         },
                         {'group': 1, 'role': 2, 'project': 1},
                     ],
-                },
+                }
             ],
         }
         self.execute_assignment_plan(test_plan)
 
 
 class ImpliedRoleTests(AssignmentTestHelperMixin):
-
     def test_implied_role_crd(self):
         prior_role_ref = unit.new_role_ref()
         PROVIDERS.role_api.create_role(prior_role_ref['id'], prior_role_ref)
@@ -4581,7 +4576,7 @@ class ImpliedRoleTests(AssignmentTestHelperMixin):
                             'indirect': {'role': 5},
                         },
                     ],
-                },
+                }
             ],
         }
         test_data = self.execute_assignment_plan(test_plan)
@@ -4627,7 +4622,7 @@ class ImpliedRoleTests(AssignmentTestHelperMixin):
                         },
                         {'user': 0, 'role': 3, 'project': 1},
                     ],
-                },
+                }
             ],
         }
         self.execute_assignment_plan(test_plan)

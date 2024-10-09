@@ -328,7 +328,7 @@ class InsufficientAuthMethods(Error):
     title = 'Unauthorized'
 
     def __init__(self, message=None, user_id=None, methods=None):
-        methods_str = '[%s]' % ','.join(methods)
+        methods_str = '[{}]'.format(','.join(methods))
         super().__init__(message, user_id=user_id, methods=methods_str)
 
         self.user_id = user_id
@@ -639,7 +639,6 @@ class UnexpectedError(SecurityError):
     )
 
     def _build_message(self, message, **kwargs):
-
         # Ensure that exception has a value to be extra defensive for
         # substitutions and make sure the exception doesn't raise an
         # exception.
@@ -801,7 +800,6 @@ class LDAPSizeLimitExceeded(UnexpectedError):
 
 
 class CacheDeserializationError(Exception):
-
     def __init__(self, obj, data):
         super().__init__(
             _('Failed to deserialize %(obj)s. Data is %(data)s')
@@ -826,7 +824,6 @@ class ResourceDeleteForbidden(ForbiddenNotSecurity):
 
 
 class OAuth2Error(Error):
-
     def __init__(self, code, title, error_title, message):
         self.code = code
         self.title = title

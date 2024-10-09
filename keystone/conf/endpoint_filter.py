@@ -42,10 +42,7 @@ catalog. If set to false, keystone will return an empty service catalog.
 
 
 GROUP_NAME = __name__.split('.')[-1]
-ALL_OPTS = [
-    driver,
-    return_all_endpoints_if_no_filter,
-]
+ALL_OPTS = [driver, return_all_endpoints_if_no_filter]
 
 
 def register_opts(conf):

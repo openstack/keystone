@@ -31,7 +31,7 @@ class _UserRegionTests:
         region = PROVIDERS.catalog_api.create_region(unit.new_region_ref())
 
         with self.test_client() as c:
-            c.get('/v3/regions/%s' % region['id'], headers=self.headers)
+            c.get('/v3/regions/{}'.format(region['id']), headers=self.headers)
 
     def test_user_can_list_regions(self):
         expected_regions = []
@@ -65,7 +65,7 @@ class _SystemReaderAndMemberUserRegionTests:
         with self.test_client() as c:
             update = {'region': {'description': uuid.uuid4().hex}}
             c.patch(
-                '/v3/regions/%s' % region['id'],
+                '/v3/regions/{}'.format(region['id']),
                 json=update,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -76,7 +76,7 @@ class _SystemReaderAndMemberUserRegionTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/regions/%s' % region['id'],
+                '/v3/regions/{}'.format(region['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -102,7 +102,7 @@ class _DomainAndProjectUserRegionTests:
         with self.test_client() as c:
             update = {'region': {'description': uuid.uuid4().hex}}
             c.patch(
-                '/v3/regions/%s' % region['id'],
+                '/v3/regions/{}'.format(region['id']),
                 json=update,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -113,7 +113,7 @@ class _DomainAndProjectUserRegionTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/regions/%s' % region['id'],
+                '/v3/regions/{}'.format(region['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -125,7 +125,6 @@ class SystemReaderTests(
     _UserRegionTests,
     _SystemReaderAndMemberUserRegionTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -160,7 +159,6 @@ class SystemMemberTests(
     _UserRegionTests,
     _SystemReaderAndMemberUserRegionTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -194,7 +192,6 @@ class SystemAdminTests(
     common_auth.AuthTestMixin,
     _UserRegionTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -229,7 +226,7 @@ class SystemAdminTests(
         with self.test_client() as c:
             update = {'region': {'description': uuid.uuid4().hex}}
             c.patch(
-                '/v3/regions/%s' % region['id'],
+                '/v3/regions/{}'.format(region['id']),
                 json=update,
                 headers=self.headers,
             )
@@ -238,7 +235,9 @@ class SystemAdminTests(
         region = PROVIDERS.catalog_api.create_region(unit.new_region_ref())
 
         with self.test_client() as c:
-            c.delete('/v3/regions/%s' % region['id'], headers=self.headers)
+            c.delete(
+                '/v3/regions/{}'.format(region['id']), headers=self.headers
+            )
 
 
 class DomainUserTests(
@@ -247,7 +246,6 @@ class DomainUserTests(
     _UserRegionTests,
     _DomainAndProjectUserRegionTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -286,7 +284,6 @@ class ProjectUserTests(
     _UserRegionTests,
     _DomainAndProjectUserRegionTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -316,7 +313,6 @@ class ProjectUserTestsWithoutEnforceScope(
     _UserRegionTests,
     _DomainAndProjectUserRegionTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()

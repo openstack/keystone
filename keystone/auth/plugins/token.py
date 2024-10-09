@@ -29,7 +29,6 @@ PROVIDERS = provider_api.ProviderAPIs
 
 
 class Token(base.AuthMethodHandler):
-
     def _get_token_ref(self, auth_payload):
         token_id = auth_payload['id']
         return PROVIDERS.token_provider_api.validate_token(token_id)
@@ -59,7 +58,6 @@ class Token(base.AuthMethodHandler):
 def token_authenticate(token):
     response_data = {}
     try:
-
         # Do not allow tokens used for delegation to
         # create another token, or perform any changes of
         # state in Keystone. To do so is to invite elevation of

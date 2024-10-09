@@ -159,10 +159,7 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         name = values.get('user', {}).get('name')
 
         self.assertEqual(user_name, name)
-        self.assertEqual(
-            [],
-            group_ids,
-        )
+        self.assertEqual([], group_ids)
 
     def test_rule_engine_not_any_of_many_rules(self):
         """Should return group EMPLOYEE_GROUP_ID.
@@ -630,7 +627,6 @@ class MappingRuleEngineTests(unit.BaseTestCase):
         )
 
     def test_get_user_unique_id_and_display_name(self):
-
         mapping = mapping_fixtures.MAPPING_USER_IDS
         assertion = mapping_fixtures.ADMIN_ASSERTION
         FAKE_MAPPING_ID = uuid.uuid4().hex
@@ -915,7 +911,7 @@ class MappingRuleEngineTests(unit.BaseTestCase):
             {"name": "Production", "roles": [{"name": "observer"}]},
             {"name": "Staging", "roles": [{"name": "member"}]},
             {
-                "name": "Project for %s" % expected_username,
+                "name": f"Project for {expected_username}",
                 "roles": [{"name": "admin"}],
             },
         ]
@@ -944,10 +940,7 @@ class MappingRuleEngineTests(unit.BaseTestCase):
 
         self.assertEqual(user_name, name)
         self.assertEqual(user_groups, group_list)
-        self.assertEqual(
-            [],
-            group_ids,
-        )
+        self.assertEqual([], group_ids)
 
 
 class TestUnicodeAssertionData(unit.BaseTestCase):
@@ -1009,9 +1002,7 @@ class TestMappingLocals(unit.BaseTestCase):
         'rules': [
             {
                 'local': [
-                    {
-                        'user': {'name': '{0}'},
-                    },
+                    {'user': {'name': '{0}'}},
                     {'group': {'id': 'd34db33f'}},
                 ],
                 'remote': [{'type': 'idp_username'}],

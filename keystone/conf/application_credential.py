@@ -63,12 +63,7 @@ keystone database or open keystone to a DoS attack.
 
 
 GROUP_NAME = __name__.split('.')[-1]
-ALL_OPTS = [
-    driver,
-    caching,
-    cache_time,
-    user_limit,
-]
+ALL_OPTS = [driver, caching, cache_time, user_limit]
 
 
 def register_opts(conf):

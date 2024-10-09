@@ -20,7 +20,6 @@ from keystone.tests.unit.ksfixtures import hacking as hacking_fixtures
 
 
 class BaseStyleCheck(unit.BaseTestCase):
-
     def setUp(self):
         super().setUp()
         self.code_ex = self.useFixture(self.get_fixture())
@@ -54,7 +53,6 @@ class BaseStyleCheck(unit.BaseTestCase):
 
 
 class TestCheckForMutableDefaultArgs(BaseStyleCheck):
-
     def get_checker(self):
         return checks.CheckForMutableDefaultArgs
 
@@ -65,7 +63,6 @@ class TestCheckForMutableDefaultArgs(BaseStyleCheck):
 
 
 class TestBlockCommentsBeginWithASpace(BaseStyleCheck):
-
     def get_checker(self):
         return checks.block_comments_begin_with_a_space
 
@@ -76,7 +73,6 @@ class TestBlockCommentsBeginWithASpace(BaseStyleCheck):
 
 
 class TestTranslationChecks(BaseStyleCheck):
-
     def get_checker(self):
         return checks.CheckForTranslationIssues
 
@@ -101,7 +97,6 @@ class TestTranslationChecks(BaseStyleCheck):
 
 
 class TestDictConstructorWithSequenceCopy(BaseStyleCheck):
-
     def get_checker(self):
         return checks.dict_constructor_with_sequence_copy
 

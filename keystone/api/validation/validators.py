@@ -26,10 +26,7 @@ from keystone.i18n import _
 
 
 def _soft_validate_additional_properties(
-    validator,
-    additional_properties_value,
-    param_value,
-    schema,
+    validator, additional_properties_value, param_value, schema
 ):
     """Validator function.
 

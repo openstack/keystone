@@ -49,11 +49,7 @@ class IdentityDriverTests:
         maybe it gets a user from a set of pre-created users.
         """
         user_id = uuid.uuid4().hex
-        user = {
-            'id': user_id,
-            'name': uuid.uuid4().hex,
-            'enabled': True,
-        }
+        user = {'id': user_id, 'name': uuid.uuid4().hex, 'enabled': True}
         if self.driver.is_domain_aware():
             user['domain_id'] = domain_id or uuid.uuid4().hex
         user.update(kwargs)
@@ -66,10 +62,7 @@ class IdentityDriverTests:
         provide their own way to provide a group for the test.
         """
         group_id = uuid.uuid4().hex
-        group = {
-            'id': group_id,
-            'name': uuid.uuid4().hex,
-        }
+        group = {'id': group_id, 'name': uuid.uuid4().hex}
         if self.driver.is_domain_aware():
             group['domain_id'] = domain_id or uuid.uuid4().hex
         return self.driver.create_group(group_id, group)
@@ -117,11 +110,7 @@ class IdentityDriverTests:
 
     def test_create_user_same_id_exc(self):
         user_id = uuid.uuid4().hex
-        user = {
-            'id': user_id,
-            'name': uuid.uuid4().hex,
-            'enabled': True,
-        }
+        user = {'id': user_id, 'name': uuid.uuid4().hex, 'enabled': True}
         if self.driver.is_domain_aware():
             user['domain_id'] = uuid.uuid4().hex
         self.driver.create_user(user_id, user)
@@ -133,21 +122,13 @@ class IdentityDriverTests:
         user1_id = uuid.uuid4().hex
         name = uuid.uuid4().hex
         domain_id = uuid.uuid4().hex
-        user = {
-            'id': user1_id,
-            'name': name,
-            'enabled': True,
-        }
+        user = {'id': user1_id, 'name': name, 'enabled': True}
         if self.driver.is_domain_aware():
             user['domain_id'] = domain_id
         self.driver.create_user(user1_id, user)
 
         user2_id = uuid.uuid4().hex
-        user = {
-            'id': user2_id,
-            'name': name,
-            'enabled': True,
-        }
+        user = {'id': user2_id, 'name': name, 'enabled': True}
         if self.driver.is_domain_aware():
             user['domain_id'] = domain_id
         self.assertRaises(
@@ -275,10 +256,7 @@ class IdentityDriverTests:
 
     def test_create_group(self):
         group_id = uuid.uuid4().hex
-        group = {
-            'id': group_id,
-            'name': uuid.uuid4().hex,
-        }
+        group = {'id': group_id, 'name': uuid.uuid4().hex}
         if self.driver.is_domain_aware():
             group['domain_id'] = uuid.uuid4().hex
         new_group = self.driver.create_group(group_id, group)
@@ -300,19 +278,13 @@ class IdentityDriverTests:
         group1_id = uuid.uuid4().hex
         name = uuid.uuid4().hex
         domain = uuid.uuid4().hex
-        group1 = {
-            'id': group1_id,
-            'name': name,
-        }
+        group1 = {'id': group1_id, 'name': name}
         if self.driver.is_domain_aware():
             group1['domain_id'] = domain
         self.driver.create_group(group1_id, group1)
 
         group2_id = uuid.uuid4().hex
-        group2 = {
-            'id': group2_id,
-            'name': name,
-        }
+        group2 = {'id': group2_id, 'name': name}
         if self.driver.is_domain_aware():
             group2['domain_id'] = domain
         self.assertRaises(

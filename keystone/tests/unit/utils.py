@@ -89,27 +89,19 @@ def wip(message, expected_exception=Exception, bug=None):
                     __e, expected_exception
                 ):
                     raise AssertionError(
-                        'Work In Progress Test Failed%(bugstr)s with '
-                        'unexpected exception. Expected "%(expected)s" '
-                        'got "%(exception)s": %(message)s '
-                        % {
-                            'message': message,
-                            'bugstr': bugstr,
-                            'expected': expected_exception.__class__.__name__,
-                            'exception': __e.__class__.__name__,
-                        }
+                        f'Work In Progress Test Failed{bugstr} with '
+                        f'unexpected exception. Expected "{expected_exception.__class__.__name__}" '
+                        f'got "{__e.__class__.__name__}": {message} '
                     )
                 # NOTE(notmorgan): We got the expected exception we can safely
                 # skip this test.
                 raise unittest.SkipTest(
                     'Work In Progress Test Failed as '
-                    'expected%(bugstr)s: %(message)s'
-                    % {'message': message, 'bugstr': bugstr}
+                    f'expected{bugstr}: {message}'
                 )
 
             raise AssertionError(
-                'Work In Progress Test Passed%(bugstr)s: '
-                '%(message)s' % {'message': message, 'bugstr': bugstr}
+                f'Work In Progress Test Passed{bugstr}: ' f'{message}'
             )
 
         return run_test

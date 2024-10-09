@@ -19,9 +19,7 @@ ROLE_OPTIONS_REGISTRY = resource_options.ResourceOptionRegistry('ROLE')
 # NOTE(morgan): wrap this in a function for testing purposes.
 # This is called on import by design.
 def register_role_options():
-    for opt in [
-        ro_opt.IMMUTABLE_OPT,
-    ]:
+    for opt in [ro_opt.IMMUTABLE_OPT]:
         ROLE_OPTIONS_REGISTRY.register_option(opt)
 
 

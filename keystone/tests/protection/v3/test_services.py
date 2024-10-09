@@ -49,7 +49,9 @@ class _SystemUserServiceTests:
         service = PROVIDERS.catalog_api.create_service(service['id'], service)
 
         with self.test_client() as c:
-            r = c.get('/v3/services/%s' % service['id'], headers=self.headers)
+            r = c.get(
+                '/v3/services/{}'.format(service['id']), headers=self.headers
+            )
             self.assertEqual(r.json['service']['id'], service['id'])
 
 
@@ -58,10 +60,7 @@ class _SystemReaderAndMemberUserServiceTests:
 
     def test_user_cannot_create_services(self):
         create = {
-            'service': {
-                'type': uuid.uuid4().hex,
-                'name': uuid.uuid4().hex,
-            }
+            'service': {'type': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         }
 
         with self.test_client() as c:
@@ -80,7 +79,7 @@ class _SystemReaderAndMemberUserServiceTests:
 
         with self.test_client() as c:
             c.patch(
-                '/v3/services/%s' % service['id'],
+                '/v3/services/{}'.format(service['id']),
                 json=update,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -92,20 +91,16 @@ class _SystemReaderAndMemberUserServiceTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/services/%s' % service['id'],
+                '/v3/services/{}'.format(service['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
 
 
 class _DomainAndProjectUserServiceTests:
-
     def test_user_cannot_create_services(self):
         create = {
-            'service': {
-                'type': uuid.uuid4().hex,
-                'name': uuid.uuid4().hex,
-            }
+            'service': {'type': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         }
 
         with self.test_client() as c:
@@ -133,7 +128,7 @@ class _DomainAndProjectUserServiceTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/services/%s' % service['id'],
+                '/v3/services/{}'.format(service['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -146,7 +141,7 @@ class _DomainAndProjectUserServiceTests:
 
         with self.test_client() as c:
             c.patch(
-                '/v3/services/%s' % service['id'],
+                '/v3/services/{}'.format(service['id']),
                 json=update,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -158,7 +153,7 @@ class _DomainAndProjectUserServiceTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/services/%s' % service['id'],
+                '/v3/services/{}'.format(service['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -170,7 +165,6 @@ class SystemReaderTests(
     _SystemUserServiceTests,
     _SystemReaderAndMemberUserServiceTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -205,7 +199,6 @@ class SystemMemberTests(
     _SystemUserServiceTests,
     _SystemReaderAndMemberUserServiceTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -239,7 +232,6 @@ class SystemAdminTests(
     common_auth.AuthTestMixin,
     _SystemUserServiceTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -264,10 +256,7 @@ class SystemAdminTests(
 
     def test_user_can_create_services(self):
         create = {
-            'service': {
-                'type': uuid.uuid4().hex,
-                'name': uuid.uuid4().hex,
-            }
+            'service': {'type': uuid.uuid4().hex, 'name': uuid.uuid4().hex}
         }
 
         with self.test_client() as c:
@@ -281,7 +270,7 @@ class SystemAdminTests(
 
         with self.test_client() as c:
             c.patch(
-                '/v3/services/%s' % service['id'],
+                '/v3/services/{}'.format(service['id']),
                 json=update,
                 headers=self.headers,
             )
@@ -291,7 +280,9 @@ class SystemAdminTests(
         service = PROVIDERS.catalog_api.create_service(service['id'], service)
 
         with self.test_client() as c:
-            c.delete('/v3/services/%s' % service['id'], headers=self.headers)
+            c.delete(
+                '/v3/services/{}'.format(service['id']), headers=self.headers
+            )
 
 
 class DomainUserTests(
@@ -299,7 +290,6 @@ class DomainUserTests(
     common_auth.AuthTestMixin,
     _DomainAndProjectUserServiceTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -337,7 +327,6 @@ class ProjectUserTests(
     common_auth.AuthTestMixin,
     _DomainAndProjectUserServiceTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -364,7 +353,6 @@ class ProjectUserTestsWithoutEnforceScope(
     common_auth.AuthTestMixin,
     _DomainAndProjectUserServiceTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()

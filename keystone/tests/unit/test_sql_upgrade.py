@@ -60,10 +60,7 @@ CONF = keystone.conf.CONF
 # is done to mirror the expected structure of the DB in the format of
 # { <DB_TABLE_NAME>: [<COLUMN>, <COLUMN>, ...], ... }
 INITIAL_TABLE_STRUCTURE = {
-    'config_register': [
-        'type',
-        'domain_id',
-    ],
+    'config_register': ['type', 'domain_id'],
     'credential': [
         'id',
         'user_id',
@@ -83,19 +80,8 @@ INITIAL_TABLE_STRUCTURE = {
         'enabled',
         'extra',
     ],
-    'group': [
-        'id',
-        'domain_id',
-        'name',
-        'description',
-        'extra',
-    ],
-    'policy': [
-        'id',
-        'type',
-        'blob',
-        'extra',
-    ],
+    'group': ['id', 'domain_id', 'name', 'description', 'extra'],
+    'policy': ['id', 'type', 'blob', 'extra'],
     'project': [
         'id',
         'name',
@@ -106,41 +92,12 @@ INITIAL_TABLE_STRUCTURE = {
         'parent_id',
         'is_domain',
     ],
-    'project_option': [
-        'project_id',
-        'option_id',
-        'option_value',
-    ],
-    'project_tag': [
-        'project_id',
-        'name',
-    ],
-    'role': [
-        'id',
-        'name',
-        'extra',
-        'domain_id',
-        'description',
-    ],
-    'role_option': [
-        'role_id',
-        'option_id',
-        'option_value',
-    ],
-    'service': [
-        'id',
-        'type',
-        'extra',
-        'enabled',
-    ],
-    'token': [
-        'id',
-        'expires',
-        'extra',
-        'valid',
-        'trust_id',
-        'user_id',
-    ],
+    'project_option': ['project_id', 'option_id', 'option_value'],
+    'project_tag': ['project_id', 'name'],
+    'role': ['id', 'name', 'extra', 'domain_id', 'description'],
+    'role_option': ['role_id', 'option_id', 'option_value'],
+    'service': ['id', 'type', 'extra', 'enabled'],
+    'token': ['id', 'expires', 'extra', 'valid', 'trust_id', 'user_id'],
     'trust': [
         'id',
         'trustor_user_id',
@@ -155,10 +112,7 @@ INITIAL_TABLE_STRUCTURE = {
         'redelegated_trust_id',
         'redelegation_count',
     ],
-    'trust_role': [
-        'trust_id',
-        'role_id',
-    ],
+    'trust_role': ['trust_id', 'role_id'],
     'user': [
         'id',
         'extra',
@@ -168,46 +122,13 @@ INITIAL_TABLE_STRUCTURE = {
         'last_active_at',
         'domain_id',
     ],
-    'user_option': [
-        'user_id',
-        'option_id',
-        'option_value',
-    ],
-    'user_group_membership': [
-        'user_id',
-        'group_id',
-    ],
-    'region': [
-        'id',
-        'description',
-        'parent_region_id',
-        'extra',
-    ],
-    'assignment': [
-        'type',
-        'actor_id',
-        'target_id',
-        'role_id',
-        'inherited',
-    ],
-    'id_mapping': [
-        'public_id',
-        'domain_id',
-        'local_id',
-        'entity_type',
-    ],
-    'whitelisted_config': [
-        'domain_id',
-        'group',
-        'option',
-        'value',
-    ],
-    'sensitive_config': [
-        'domain_id',
-        'group',
-        'option',
-        'value',
-    ],
+    'user_option': ['user_id', 'option_id', 'option_value'],
+    'user_group_membership': ['user_id', 'group_id'],
+    'region': ['id', 'description', 'parent_region_id', 'extra'],
+    'assignment': ['type', 'actor_id', 'target_id', 'role_id', 'inherited'],
+    'id_mapping': ['public_id', 'domain_id', 'local_id', 'entity_type'],
+    'whitelisted_config': ['domain_id', 'group', 'option', 'value'],
+    'sensitive_config': ['domain_id', 'group', 'option', 'value'],
     'policy_association': [
         'id',
         'policy_id',
@@ -228,11 +149,7 @@ INITIAL_TABLE_STRUCTURE = {
         'mapping_id',
         'remote_id_attribute',
     ],
-    'mapping': [
-        'id',
-        'rules',
-        'schema_version',
-    ],
+    'mapping': ['id', 'rules', 'schema_version'],
     'service_provider': [
         'auth_url',
         'id',
@@ -241,16 +158,8 @@ INITIAL_TABLE_STRUCTURE = {
         'sp_url',
         'relay_state_prefix',
     ],
-    'idp_remote_ids': [
-        'idp_id',
-        'remote_id',
-    ],
-    'consumer': [
-        'id',
-        'description',
-        'secret',
-        'extra',
-    ],
+    'idp_remote_ids': ['idp_id', 'remote_id'],
+    'consumer': ['id', 'description', 'secret', 'extra'],
     'request_token': [
         'id',
         'request_secret',
@@ -286,20 +195,9 @@ INITIAL_TABLE_STRUCTURE = {
         'audit_chain_id',
     ],
     'project_endpoint': ['endpoint_id', 'project_id'],
-    'endpoint_group': [
-        'id',
-        'name',
-        'description',
-        'filters',
-    ],
-    'project_endpoint_group': [
-        'endpoint_group_id',
-        'project_id',
-    ],
-    'implied_role': [
-        'prior_role_id',
-        'implied_role_id',
-    ],
+    'endpoint_group': ['id', 'name', 'description', 'filters'],
+    'project_endpoint_group': ['endpoint_group_id', 'project_id'],
+    'implied_role': ['prior_role_id', 'implied_role_id'],
     'local_user': [
         'id',
         'user_id',
@@ -326,11 +224,7 @@ INITIAL_TABLE_STRUCTURE = {
         'unique_id',
         'display_name',
     ],
-    'nonlocal_user': [
-        'domain_id',
-        'name',
-        'user_id',
-    ],
+    'nonlocal_user': ['domain_id', 'name', 'user_id'],
     'system_assignment': [
         'type',
         'actor_id',
@@ -368,10 +262,7 @@ INITIAL_TABLE_STRUCTURE = {
         'system',
         'unrestricted',
     ],
-    'application_credential_role': [
-        'application_credential_id',
-        'role_id',
-    ],
+    'application_credential_role': ['application_credential_id', 'role_id'],
     'access_rule': [
         'id',
         'service',
@@ -393,9 +284,7 @@ INITIAL_TABLE_STRUCTURE = {
 }
 
 
-class MigrateBase(
-    db_fixtures.OpportunisticDBTestMixin,
-):
+class MigrateBase(db_fixtures.OpportunisticDBTestMixin):
     """Test complete orchestration between all database phases."""
 
     def setUp(self):
@@ -433,9 +322,7 @@ class MigrateBase(
 
     def load_table(self, name):
         table = sqlalchemy.Table(
-            name,
-            self.metadata,
-            autoload_with=self.engine,
+            name, self.metadata, autoload_with=self.engine
         )
         return table
 
@@ -445,14 +332,12 @@ class MigrateBase(
         # detect renamed or dropped tables
         try:
             sqlalchemy.Table(
-                table_name,
-                self.metadata,
-                autoload_with=self.engine,
+                table_name, self.metadata, autoload_with=self.engine
             )
         except sqlalchemy.exc.NoSuchTableError:
             pass
         else:
-            raise AssertionError('Table "%s" already exists' % table_name)
+            raise AssertionError(f'Table "{table_name}" already exists')
 
     def assertTableColumns(self, table_name, expected_cols):
         """Assert that the table contains the expected set of columns."""
@@ -461,7 +346,7 @@ class MigrateBase(
         # Check if the columns are equal, but allow for a different order,
         # which might occur after an upgrade followed by a downgrade
         self.assertCountEqual(
-            expected_cols, actual_cols, '%s table' % table_name
+            expected_cols, actual_cols, f'{table_name} table'
         )
 
     def test_db_sync_check(self):

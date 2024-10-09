@@ -24,7 +24,6 @@ versions = ['v3']
 
 
 class TestServerRunning(functests.BaseTestCase):
-
     def test_admin_responds_with_multiple_choices(self):
         resp = requests.get(self.ADMIN_URL)
         self.assertThat(resp.status_code, is_multiple_choices)
@@ -35,7 +34,7 @@ class TestServerRunning(functests.BaseTestCase):
             self.assertThat(
                 resp.status_code,
                 testtools.matchers.Annotate(
-                    'failed for version %s' % version, is_ok
+                    f'failed for version {version}', is_ok
                 ),
             )
 
@@ -49,7 +48,7 @@ class TestServerRunning(functests.BaseTestCase):
             self.assertThat(
                 resp.status_code,
                 testtools.matchers.Annotate(
-                    'failed for version %s' % version, is_ok
+                    f'failed for version {version}', is_ok
                 ),
             )
 

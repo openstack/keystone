@@ -24,7 +24,6 @@ CONF = keystone.conf.CONF
 
 
 class TestCacheRegion(unit.BaseTestCase):
-
     def setUp(self):
         super().setUp()
         self.config_fixture = self.useFixture(config_fixture.Config(CONF))

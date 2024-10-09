@@ -53,7 +53,6 @@ PROVIDERS = provider_api.ProviderAPIs
 
 
 class SqlTests(unit.SQLDriverOverrides, unit.TestCase):
-
     def setUp(self):
         super().setUp()
         self.database_fixture = self.useFixture(database.Database())
@@ -76,7 +75,7 @@ class DataTypeRoundTrips(SqlTests):
         with sql.session_for_read() as session:
             val = session.scalar(
                 sqlalchemy.select(
-                    sqlalchemy.literal({"key": "value"}, type_=core.JsonBlob),
+                    sqlalchemy.literal({"key": "value"}, type_=core.JsonBlob)
                 )
             )
 
@@ -95,7 +94,7 @@ class DataTypeRoundTrips(SqlTests):
         with sql.session_for_read() as session:
             val = session.scalar(
                 sqlalchemy.select(
-                    sqlalchemy.cast(sqlalchemy.null(), type_=core.JsonBlob),
+                    sqlalchemy.cast(sqlalchemy.null(), type_=core.JsonBlob)
                 )
             )
 
@@ -112,7 +111,7 @@ class DataTypeRoundTrips(SqlTests):
         with sql.session_for_read() as session:
             val = session.scalar(
                 sqlalchemy.select(
-                    sqlalchemy.literal(None, type_=core.JsonBlob),
+                    sqlalchemy.literal(None, type_=core.JsonBlob)
                 )
             )
 
@@ -126,7 +125,7 @@ class DataTypeRoundTrips(SqlTests):
                     sqlalchemy.cast(
                         sqlalchemy.literal(None, type_=core.JsonBlob),
                         sqlalchemy.String,
-                    ),
+                    )
                 )
             )
 
@@ -138,7 +137,7 @@ class DataTypeRoundTrips(SqlTests):
             datetime_value = datetime.datetime(2019, 5, 15, 10, 17, 55)
             val = session.scalar(
                 sqlalchemy.select(
-                    sqlalchemy.literal(datetime_value, type_=core.DateTimeInt),
+                    sqlalchemy.literal(datetime_value, type_=core.DateTimeInt)
                 )
             )
 
@@ -155,7 +154,7 @@ class DataTypeRoundTrips(SqlTests):
                             datetime_value, type_=core.DateTimeInt
                         ),
                         sqlalchemy.Integer,
-                    ),
+                    )
                 )
             )
 
@@ -166,7 +165,7 @@ class DataTypeRoundTrips(SqlTests):
         with sql.session_for_read() as session:
             val = session.scalar(
                 sqlalchemy.select(
-                    sqlalchemy.literal(None, type_=core.DateTimeInt),
+                    sqlalchemy.literal(None, type_=core.DateTimeInt)
                 )
             )
 
@@ -174,7 +173,6 @@ class DataTypeRoundTrips(SqlTests):
 
 
 class SqlModels(SqlTests):
-
     def load_table(self, name):
         table = sqlalchemy.Table(
             name,
@@ -209,9 +207,11 @@ class SqlModels(SqlTests):
 
         Example::
 
-            cols = (('id', sql.String, 64),
-                    ('enabled', sql.Boolean, True),
-                    ('extra', sql.JsonBlob, None))
+            cols = (
+                ('id', sql.String, 64),
+                ('enabled', sql.Boolean, True),
+                ('extra', sql.JsonBlob, None),
+            )
             self.assertExpectedSchema('table_name', cols)
 
         """
@@ -954,9 +954,9 @@ class SqlIdentity(
             projects = driver.list_projects_from_ids([ref_id])
             self.assertThat(projects, matchers.HasLength(0))
 
-            project_ids = [
-                x for x in driver.list_project_ids_from_domain_ids([ref_id])
-            ]
+            project_ids = list(
+                driver.list_project_ids_from_domain_ids([ref_id])
+            )
             self.assertNotIn(ref_id, project_ids)
 
             self.assertRaises(
@@ -1111,7 +1111,6 @@ class SqlIdentity(
 
 
 class SqlTrust(SqlTests, trust_tests.TrustTests):
-
     def test_trust_expires_at_int_matches_expires_at(self):
         with sql.session_for_write() as session:
             new_id = uuid.uuid4().hex
@@ -1123,7 +1122,6 @@ class SqlTrust(SqlTests, trust_tests.TrustTests):
 
 
 class SqlCatalog(SqlTests, catalog_tests.CatalogTests):
-
     _legacy_endpoint_id_in_endpoint = True
     _enabled_default_to_true_when_creating_endpoint = True
 
@@ -1324,7 +1322,6 @@ class SqlImpliedRoles(SqlTests, assignment_tests.ImpliedRoleTests):
 
 
 class SqlFilterTests(SqlTests, identity_tests.FilterTests):
-
     def clean_up_entities(self):
         """Clean up entity test data from Filter Test Cases."""
         for entity in ['user', 'group', 'project']:
@@ -1422,7 +1419,6 @@ class FakeTable(sql.ModelBase):
 
 
 class SqlDecorators(unit.TestCase):
-
     def test_initialization_fail(self):
         self.assertRaises(
             exception.StringLengthExceeded, FakeTable, col='a' * 64
@@ -1441,7 +1437,6 @@ class SqlDecorators(unit.TestCase):
 
 
 class SqlModuleInitialization(unit.TestCase):
-
     @mock.patch.object(sql.core, 'CONF')
     @mock.patch.object(options, 'set_defaults')
     def test_initialize_module(self, set_defaults, CONF):
@@ -1452,7 +1447,6 @@ class SqlModuleInitialization(unit.TestCase):
 
 
 class SqlCredential(SqlTests):
-
     def _create_credential_with_user_id(self, user_id=uuid.uuid4().hex):
         credential = unit.new_credential_ref(
             user_id=user_id, extra=uuid.uuid4().hex, type=uuid.uuid4().hex
@@ -1556,7 +1550,6 @@ class SqlCredential(SqlTests):
 
 
 class SqlRegisteredLimit(SqlTests, limit_tests.RegisteredLimitTests):
-
     def setUp(self):
         super().setUp()
 
@@ -1576,7 +1569,6 @@ class SqlRegisteredLimit(SqlTests, limit_tests.RegisteredLimitTests):
 
 
 class SqlLimit(SqlTests, limit_tests.LimitTests):
-
     def setUp(self):
         super().setUp()
 

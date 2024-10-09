@@ -115,8 +115,9 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
             self.domain['id'], self.config
         )
         self.delete(
-            '/domains/%(domain_id)s/config/ldap'
-            % {'domain_id': self.domain['id']}
+            '/domains/{domain_id}/config/ldap'.format(
+                domain_id=self.domain['id']
+            )
         )
         res = PROVIDERS.domain_config_api.get_config(self.domain['id'])
         self.assertNotIn('ldap', res)
@@ -133,8 +134,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         )
         invalid_domain_id = uuid.uuid4().hex
         self.delete(
-            '/domains/%(domain_id)s/config/ldap'
-            % {'domain_id': invalid_domain_id},
+            f'/domains/{invalid_domain_id}/config/ldap',
             expected_status=exception.DomainNotFound.code,
         )
 
@@ -171,9 +171,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
             self.domain['id'], self.config
         )
         invalid_domain_id = uuid.uuid4().hex
-        url = '/domains/{domain_id}/config/ldap'.format(
-            domain_id=invalid_domain_id
-        )
+        url = f'/domains/{invalid_domain_id}/config/ldap'
         self.get(url, expected_status=exception.DomainNotFound.code)
         self.head(url, expected_status=exception.DomainNotFound.code)
 
@@ -202,9 +200,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
             self.domain['id'], self.config
         )
         invalid_domain_id = uuid.uuid4().hex
-        url = '/domains/{domain_id}/config/ldap/url'.format(
-            domain_id=invalid_domain_id
-        )
+        url = f'/domains/{invalid_domain_id}/config/ldap/url'
         self.get(url, expected_status=exception.DomainNotFound.code)
         self.head(url, expected_status=exception.DomainNotFound.code)
 
@@ -246,9 +242,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         config = {'ldap': {'url': uuid.uuid4().hex}}
         PROVIDERS.domain_config_api.create_config(self.domain['id'], config)
         invalid_domain_id = uuid.uuid4().hex
-        url = '/domains/{domain_id}/config/identity'.format(
-            domain_id=invalid_domain_id
-        )
+        url = f'/domains/{invalid_domain_id}/config/identity'
         self.get(url, expected_status=exception.DomainNotFound.code)
         self.head(url, expected_status=exception.DomainNotFound.code)
 
@@ -279,9 +273,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         config = {'ldap': {'url': uuid.uuid4().hex}}
         PROVIDERS.domain_config_api.create_config(self.domain['id'], config)
         invalid_domain_id = uuid.uuid4().hex
-        url = '/domains/{domain_id}/config/ldap/user_tree_dn'.format(
-            domain_id=invalid_domain_id
-        )
+        url = f'/domains/{invalid_domain_id}/config/ldap/user_tree_dn'
         self.get(url, expected_status=exception.DomainNotFound.code)
         self.head(url, expected_status=exception.DomainNotFound.code)
 
@@ -337,8 +329,9 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
             'ldap': {'url': uuid.uuid4().hex, 'user_filter': uuid.uuid4().hex}
         }
         r = self.patch(
-            '/domains/%(domain_id)s/config/ldap'
-            % {'domain_id': self.domain['id']},
+            '/domains/{domain_id}/config/ldap'.format(
+                domain_id=self.domain['id']
+            ),
             body={'config': new_config},
         )
         res = PROVIDERS.domain_config_api.get_config(self.domain['id'])
@@ -365,8 +358,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         }
         invalid_domain_id = uuid.uuid4().hex
         self.patch(
-            '/domains/%(domain_id)s/config/ldap'
-            % {'domain_id': invalid_domain_id},
+            f'/domains/{invalid_domain_id}/config/ldap',
             body={'config': new_config},
             expected_status=exception.DomainNotFound.code,
         )
@@ -387,8 +379,9 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
             }
         }
         self.patch(
-            '/domains/%(domain_id)s/config/%(invalid_group)s'
-            % {'domain_id': self.domain['id'], 'invalid_group': invalid_group},
+            '/domains/{domain_id}/config/{invalid_group}'.format(
+                domain_id=self.domain['id'], invalid_group=invalid_group
+            ),
             body={'config': new_config},
             expected_status=http.client.FORBIDDEN,
         )
@@ -398,8 +391,9 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         PROVIDERS.domain_config_api.create_config(self.domain['id'], config)
         new_config = {'identity': {'driver': uuid.uuid4().hex}}
         self.patch(
-            '/domains/%(domain_id)s/config/identity'
-            % {'domain_id': self.domain['id']},
+            '/domains/{domain_id}/config/identity'.format(
+                domain_id=self.domain['id']
+            ),
             body={'config': new_config},
             expected_status=http.client.NOT_FOUND,
         )
@@ -423,8 +417,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         }
         invalid_domain_id = uuid.uuid4().hex
         self.patch(
-            '/domains/%(domain_id)s/config/%(invalid_group)s'
-            % {'domain_id': invalid_domain_id, 'invalid_group': invalid_group},
+            f'/domains/{invalid_domain_id}/config/{invalid_group}',
             body={'config': new_config},
             expected_status=exception.DomainNotFound.code,
         )
@@ -436,8 +429,9 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         )
         new_config = {'url': uuid.uuid4().hex}
         r = self.patch(
-            '/domains/%(domain_id)s/config/ldap/url'
-            % {'domain_id': self.domain['id']},
+            '/domains/{domain_id}/config/ldap/url'.format(
+                domain_id=self.domain['id']
+            ),
             body={'config': new_config},
         )
         res = PROVIDERS.domain_config_api.get_config(self.domain['id'])
@@ -459,8 +453,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         new_config = {'url': uuid.uuid4().hex}
         invalid_domain_id = uuid.uuid4().hex
         self.patch(
-            '/domains/%(domain_id)s/config/ldap/url'
-            % {'domain_id': invalid_domain_id},
+            f'/domains/{invalid_domain_id}/config/ldap/url',
             body={'config': new_config},
             expected_status=exception.DomainNotFound.code,
         )
@@ -475,11 +468,9 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         # Trying to update an option that is neither whitelisted or sensitive
         # should result in Forbidden.
         self.patch(
-            '/domains/%(domain_id)s/config/ldap/%(invalid_option)s'
-            % {
-                'domain_id': self.domain['id'],
-                'invalid_option': invalid_option,
-            },
+            '/domains/{domain_id}/config/ldap/{invalid_option}'.format(
+                domain_id=self.domain['id'], invalid_option=invalid_option
+            ),
             body={'config': new_config},
             expected_status=http.client.FORBIDDEN,
         )
@@ -487,8 +478,9 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         # config should result in NotFound
         new_config = {'suffix': uuid.uuid4().hex}
         self.patch(
-            '/domains/%(domain_id)s/config/ldap/suffix'
-            % {'domain_id': self.domain['id']},
+            '/domains/{domain_id}/config/ldap/suffix'.format(
+                domain_id=self.domain['id']
+            ),
             body={'config': new_config},
             expected_status=http.client.NOT_FOUND,
         )
@@ -507,11 +499,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         new_config = {'ldap': {invalid_option: uuid.uuid4().hex}}
         invalid_domain_id = uuid.uuid4().hex
         self.patch(
-            '/domains/%(domain_id)s/config/ldap/%(invalid_option)s'
-            % {
-                'domain_id': invalid_domain_id,
-                'invalid_option': invalid_option,
-            },
+            f'/domains/{invalid_domain_id}/config/ldap/{invalid_option}',
             body={'config': new_config},
             expected_status=exception.DomainNotFound.code,
         )
@@ -576,7 +564,7 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
         )
 
         # Now try a totally invalid group
-        url = '/domains/config/%s/default' % uuid.uuid4().hex
+        url = f'/domains/config/{uuid.uuid4().hex}/default'
         self.get(url, expected_status=http.client.FORBIDDEN)
         self.head(url, expected_status=http.client.FORBIDDEN)
 
@@ -596,13 +584,12 @@ class DomainConfigTestCase(test_v3.RestfulTestCase):
 
     def test_get_head_config_default_for_invalid_option(self):
         """Returning invalid configuration options is invalid."""
-        url = '/domains/config/ldap/%s/default' % uuid.uuid4().hex
+        url = f'/domains/config/ldap/{uuid.uuid4().hex}/default'
         self.get(url, expected_status=http.client.FORBIDDEN)
         self.head(url, expected_status=http.client.FORBIDDEN)
 
 
 class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
-
     def setUp(self):
         super().setUp()
 
@@ -720,8 +707,7 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
             password_regex_description=password_regex_description,
         )
         url = '/domains/{domain_id}/config/{group}'.format(
-            domain_id=domain['id'],
-            group='security_compliance',
+            domain_id=domain['id'], group='security_compliance'
         )
 
         # Make sure regular users and administrators are forbidden from doing
@@ -799,11 +785,7 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
         )
         group = 'security_compliance'
         option = 'password_regex'
-        url = '/domains/{domain_id}/config/{group}/{option}'.format(
-            domain_id=CONF.identity.default_domain_id,
-            group=group,
-            option=option,
-        )
+        url = f'/domains/{CONF.identity.default_domain_id}/config/{group}/{option}'
 
         # Make sure regular users and administrators can ask for the
         # password regular expression.
@@ -835,11 +817,7 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
         )
         group = 'security_compliance'
         option = 'password_regex_description'
-        url = '/domains/{domain_id}/config/{group}/{option}'.format(
-            domain_id=CONF.identity.default_domain_id,
-            group=group,
-            option=option,
-        )
+        url = f'/domains/{CONF.identity.default_domain_id}/config/{group}/{option}'
 
         # Make sure regular users and administrators can ask for the
         # password regular expression.
@@ -867,11 +845,7 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
         """When an option isn't set, we should explicitly return None."""
         group = 'security_compliance'
         option = 'password_regex'
-        url = '/domains/{domain_id}/config/{group}/{option}'.format(
-            domain_id=CONF.identity.default_domain_id,
-            group=group,
-            option=option,
-        )
+        url = f'/domains/{CONF.identity.default_domain_id}/config/{group}/{option}'
 
         # Make sure regular users and administrators can ask for the password
         # regular expression, but since it isn't set the returned value should
@@ -895,11 +869,7 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
         """When an option isn't set, we should explicitly return None."""
         group = 'security_compliance'
         option = 'password_regex_description'
-        url = '/domains/{domain_id}/config/{group}/{option}'.format(
-            domain_id=CONF.identity.default_domain_id,
-            group=group,
-            option=option,
-        )
+        url = f'/domains/{CONF.identity.default_domain_id}/config/{group}/{option}'
 
         # Make sure regular users and administrators can ask for the password
         # regular expression description, but since it isn't set the returned
@@ -965,10 +935,7 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
             project_id=project['id'],
         )
         user_token = self.get_requested_token(user_token)
-        url = '/domains/{domain_id}/config/{group}'.format(
-            domain_id=CONF.identity.default_domain_id,
-            group=group,
-        )
+        url = f'/domains/{CONF.identity.default_domain_id}/config/{group}'
         response = self.get(url, token=user_token)
         self.assertEqual(
             response.result['config'][group]['password_regex'], password_regex
@@ -1018,11 +985,7 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
         """Make sure any updates to security compliance options fail."""
         group = 'security_compliance'
         option = 'password_regex'
-        url = '/domains/{domain_id}/config/{group}/{option}'.format(
-            domain_id=CONF.identity.default_domain_id,
-            group=group,
-            option=option,
-        )
+        url = f'/domains/{CONF.identity.default_domain_id}/config/{group}/{option}'
         new_config = {group: {option: uuid.uuid4().hex}}
 
         # Make sure regular users and administrators aren't allowed to modify
@@ -1044,11 +1007,7 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
         """Make sure any updates to security compliance options fail."""
         group = 'security_compliance'
         option = 'password_regex_description'
-        url = '/domains/{domain_id}/config/{group}/{option}'.format(
-            domain_id=CONF.identity.default_domain_id,
-            group=group,
-            option=option,
-        )
+        url = f'/domains/{CONF.identity.default_domain_id}/config/{group}/{option}'
         new_config = {group: {option: uuid.uuid4().hex}}
 
         # Make sure regular users and administrators aren't allowed to modify
@@ -1075,11 +1034,7 @@ class SecurityRequirementsTestCase(test_v3.RestfulTestCase):
         """
         group = 'security_compliance'
         option = 'lockout_failure_attempts'
-        url = '/domains/{domain_id}/config/{group}/{option}'.format(
-            domain_id=CONF.identity.default_domain_id,
-            group=group,
-            option=option,
-        )
+        url = f'/domains/{CONF.identity.default_domain_id}/config/{group}/{option}'
         new_config = {group: {option: 1}}
 
         # Make sure this behavior is not possible for regular users or

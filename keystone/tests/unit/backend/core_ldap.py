@@ -71,7 +71,7 @@ class BaseBackendLdapCommon:
 
         ldap_ = PROVIDERS.identity_api.driver.user.get_connection()
         res = ldap_.search_s(
-            user_dn, ldap.SCOPE_BASE, '(sn=%s)' % user['name']
+            user_dn, ldap.SCOPE_BASE, '(sn={})'.format(user['name'])
         )
         if enabled_attr_name in res[0][1]:
             return res[0][1][enabled_attr_name]

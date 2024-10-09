@@ -59,9 +59,7 @@ class _TestAppCredBase(base_classes.TestCaseWithBootstrap):
             'project_id': project_id,
             'system': system,
             'expires_at': expires,
-            'roles': [
-                {'id': self.bootstrapper.member_role_id},
-            ],
+            'roles': [{'id': self.bootstrapper.member_role_id}],
             'secret': uuid.uuid4().hex,
             'unrestricted': False,
         }
@@ -137,8 +135,7 @@ class _DomainAndProjectUserTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/users/%s/application_credentials'
-                % (self.app_cred_user_id),
+                f'/v3/users/{self.app_cred_user_id}/application_credentials',
                 expected_status_code=http.client.FORBIDDEN,
                 headers=self.headers,
             )
@@ -148,8 +145,9 @@ class _DomainAndProjectUserTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/users/%s/application_credentials/%s'
-                % (self.app_cred_user_id, app_cred['id']),
+                '/v3/users/{}/application_credentials/{}'.format(
+                    self.app_cred_user_id, app_cred['id']
+                ),
                 expected_status_code=http.client.FORBIDDEN,
                 headers=self.headers,
             )
@@ -159,8 +157,9 @@ class _DomainAndProjectUserTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/users/%s/application_credentials?name=%s'
-                % (self.app_cred_user_id, app_cred['name']),
+                '/v3/users/{}/application_credentials?name={}'.format(
+                    self.app_cred_user_id, app_cred['name']
+                ),
                 expected_status_code=http.client.FORBIDDEN,
                 headers=self.headers,
             )
@@ -170,8 +169,9 @@ class _DomainAndProjectUserTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/users/%s/application_credentials/%s'
-                % (self.app_cred_user_id, app_cred['id']),
+                '/v3/users/{}/application_credentials/{}'.format(
+                    self.app_cred_user_id, app_cred['id']
+                ),
                 expected_status_code=http.client.FORBIDDEN,
                 headers=self.headers,
             )
@@ -179,8 +179,7 @@ class _DomainAndProjectUserTests:
     def test_user_cannot_lookup_non_existent_application_credential(self):
         with self.test_client() as c:
             c.get(
-                '/v3/users/%s/application_credentials?name=%s'
-                % (self.app_cred_user_id, uuid.uuid4().hex),
+                f'/v3/users/{self.app_cred_user_id}/application_credentials?name={uuid.uuid4().hex}',
                 expected_status_code=http.client.FORBIDDEN,
                 headers=self.headers,
             )
@@ -202,7 +201,7 @@ class _DomainAndProjectUserTests:
 
         with self.test_client() as c:
             c.post(
-                '/v3/users/%s/application_credentials' % another_user_id,
+                f'/v3/users/{another_user_id}/application_credentials',
                 json=app_cred_body,
                 expected_status_code=http.client.FORBIDDEN,
                 headers=self.headers,
@@ -219,8 +218,7 @@ class _SystemUserAndOwnerTests:
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/users/%s/application_credentials'
-                % (self.app_cred_user_id),
+                f'/v3/users/{self.app_cred_user_id}/application_credentials',
                 headers=self.headers,
             )
             self.assertEqual(2, len(r.json['application_credentials']))
@@ -230,8 +228,9 @@ class _SystemUserAndOwnerTests:
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/users/%s/application_credentials/%s'
-                % (self.app_cred_user_id, app_cred['id']),
+                '/v3/users/{}/application_credentials/{}'.format(
+                    self.app_cred_user_id, app_cred['id']
+                ),
                 headers=self.headers,
             )
             actual_app_cred = r.json['application_credential']
@@ -242,8 +241,9 @@ class _SystemUserAndOwnerTests:
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/users/%s/application_credentials?name=%s'
-                % (self.app_cred_user_id, app_cred['name']),
+                '/v3/users/{}/application_credentials?name={}'.format(
+                    self.app_cred_user_id, app_cred['name']
+                ),
                 headers=self.headers,
             )
             self.assertEqual(1, len(r.json['application_credentials']))
@@ -257,8 +257,9 @@ class _SystemUserAndOwnerTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/users/%s/application_credentials/%s'
-                % (self.app_cred_user_id, app_cred['id']),
+                '/v3/users/{}/application_credentials/{}'.format(
+                    self.app_cred_user_id, app_cred['id']
+                ),
                 expected_status_code=expected_status_code,
                 headers=self.headers,
             )
@@ -280,7 +281,7 @@ class _SystemUserAndOwnerTests:
 
         with self.test_client() as c:
             c.post(
-                '/v3/users/%s/application_credentials' % another_user_id,
+                f'/v3/users/{another_user_id}/application_credentials',
                 json=app_cred_body,
                 expected_status_code=http.client.FORBIDDEN,
                 headers=self.headers,
@@ -290,7 +291,6 @@ class _SystemUserAndOwnerTests:
 class SystemReaderTests(
     _TestAppCredBase, common_auth.AuthTestMixin, _SystemUserAndOwnerTests
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -327,7 +327,6 @@ class SystemReaderTests(
 class SystemMemberTests(
     _TestAppCredBase, common_auth.AuthTestMixin, _SystemUserAndOwnerTests
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -364,7 +363,6 @@ class SystemMemberTests(
 class SystemAdminTests(
     _TestAppCredBase, common_auth.AuthTestMixin, _SystemUserAndOwnerTests
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -392,7 +390,6 @@ class SystemAdminTests(
 class OwnerTests(
     _TestAppCredBase, common_auth.AuthTestMixin, _SystemUserAndOwnerTests
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -431,7 +428,7 @@ class OwnerTests(
 
         with self.test_client() as c:
             c.post(
-                '/v3/users/%s/application_credentials' % self.user_id,
+                f'/v3/users/{self.user_id}/application_credentials',
                 json=app_cred_body,
                 expected_status_code=http.client.CREATED,
                 headers=self.headers,
@@ -466,8 +463,9 @@ class OwnerTests(
         # attempt to lookup the application credential as another user
         with self.test_client() as c:
             c.get(
-                '/v3/users/%s/application_credentials/%s'
-                % (another_user_id, app_cred['id']),
+                '/v3/users/{}/application_credentials/{}'.format(
+                    another_user_id, app_cred['id']
+                ),
                 expected_status_code=http.client.FORBIDDEN,
                 headers={'X-Auth-Token': another_user_token},
             )
@@ -498,8 +496,9 @@ class OwnerTests(
         # attempt to delete the application credential as another user
         with self.test_client() as c:
             c.delete(
-                '/v3/users/%s/application_credentials/%s'
-                % (another_user_id, app_cred['id']),
+                '/v3/users/{}/application_credentials/{}'.format(
+                    another_user_id, app_cred['id']
+                ),
                 expected_status_code=http.client.FORBIDDEN,
                 headers={'X-Auth-Token': another_user_token},
             )
@@ -508,7 +507,6 @@ class OwnerTests(
 class DomainAdminTests(
     _TestAppCredBase, common_auth.AuthTestMixin, _DomainAndProjectUserTests
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -551,7 +549,6 @@ class DomainAdminTests(
 class DomainReaderTests(
     _TestAppCredBase, common_auth.AuthTestMixin, _DomainAndProjectUserTests
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -594,7 +591,6 @@ class DomainReaderTests(
 class DomainMemberTests(
     _TestAppCredBase, common_auth.AuthTestMixin, _DomainAndProjectUserTests
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -637,7 +633,6 @@ class DomainMemberTests(
 class ProjectAdminTests(
     _TestAppCredBase, common_auth.AuthTestMixin, _DomainAndProjectUserTests
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -681,7 +676,6 @@ class ProjectAdminTests(
 class ProjectReaderTests(
     _TestAppCredBase, common_auth.AuthTestMixin, _DomainAndProjectUserTests
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -725,7 +719,6 @@ class ProjectReaderTests(
 class ProjectMemberTests(
     _TestAppCredBase, common_auth.AuthTestMixin, _DomainAndProjectUserTests
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()

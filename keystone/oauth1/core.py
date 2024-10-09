@@ -87,12 +87,12 @@ def validate_oauth_params(query_string):
     if params_fitered:
         if 'error' in params_fitered:
             msg = (
-                'Validation failed with errors: %(error)s, detail '
-                'message is: %(desc)s.'
-            ) % {
-                'error': params_fitered['error'],
-                'desc': params_fitered['error_description'],
-            }
+                'Validation failed with errors: {error}, detail '
+                'message is: {desc}.'
+            ).format(
+                error=params_fitered['error'],
+                desc=params_fitered['error_description'],
+            )
             tr_msg = _(
                 'Validation failed with errors: %(error)s, detail '
                 'message is: %(desc)s.'

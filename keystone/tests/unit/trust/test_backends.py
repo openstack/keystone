@@ -443,8 +443,7 @@ class TrustTests:
         )
         self.assertIsNotNone(trust_data)
         PROVIDERS.trust_api.flush_expired_and_soft_deleted_trusts(
-            trustee_user_id=self.user_two['id'],
-            date=timeutils.utcnow(),
+            trustee_user_id=self.user_two['id'], date=timeutils.utcnow()
         )
         trusts = self.trust_api.list_trusts()
         self.assertEqual(len(trusts), 1)
@@ -479,8 +478,7 @@ class TrustTests:
         self.assertIsNotNone(trust_data)
 
         PROVIDERS.trust_api.flush_expired_and_soft_deleted_trusts(
-            trustor_user_id=self.user_foo['id'],
-            date=timeutils.utcnow(),
+            trustor_user_id=self.user_foo['id'], date=timeutils.utcnow()
         )
         trusts = self.trust_api.list_trusts()
         self.assertEqual(len(trusts), 1)

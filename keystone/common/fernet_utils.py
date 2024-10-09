@@ -34,7 +34,6 @@ NULL_KEY = base64.urlsafe_b64encode(b'\x00' * 32)
 
 
 class FernetUtils:
-
     def __init__(self, key_repository, max_active_keys, config_group):
         self.key_repository = key_repository
         self.max_active_keys = max_active_keys
@@ -157,8 +156,8 @@ class FernetUtils:
         LOG.info('Become a valid new key: %s', valid_key_file)
 
     def _get_key_files(self, key_repo):
-        key_files = dict()
-        keys = dict()
+        key_files = {}
+        keys = {}
         for filename in os.listdir(key_repo):
             path = os.path.join(key_repo, str(filename))
             if os.path.isfile(path):

@@ -286,7 +286,6 @@ class CredentialResource(ks_flask.ResourceBase):
 
 
 class CredentialAPI(ks_flask.APIBase):
-
     _name = 'credentials'
     _import_name = __name__
     resource_mapping = [

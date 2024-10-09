@@ -28,7 +28,6 @@ PROVIDERS = provider_api.ProviderAPIs
 
 
 class Identity:
-
     def __init__(self):
         backends.load_backends()
 

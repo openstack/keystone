@@ -40,9 +40,7 @@ SYSTEM_ADMIN_OR_DOMAIN_ADMIN_OR_PROJECT_ADMIN = (
 # /v3/users/{user_id}/project path.
 SYSTEM_READER_OR_DOMAIN_READER_OR_OWNER = (
     # System reader policy
-    '('
-    + base.SYSTEM_READER
-    + ') or '
+    '(' + base.SYSTEM_READER + ') or '
     # Domain reader policy
     '(role:reader and domain_id:%(target.user.domain_id)s) or '
     # User accessing the API with a token they've obtained, matching

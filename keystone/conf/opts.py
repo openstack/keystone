@@ -47,7 +47,7 @@ def list_opts():
 
 def _tupleize(d):
     """Convert a dict of options to the 2-tuple format."""
-    return [(key, value) for key, value in d.items()]
+    return list(d.items())
 
 
 def _list_module_names():
@@ -69,9 +69,8 @@ def _import_modules(module_names):
         module = importlib.import_module(full_module_path)
         if not hasattr(module, LIST_OPTS_FUNC_NAME):
             raise Exception(
-                "The module '%s' should have a '%s' function which "
+                f"The module '{full_module_path}' should have a '{LIST_OPTS_FUNC_NAME}' function which "
                 "returns the config options."
-                % (full_module_path, LIST_OPTS_FUNC_NAME)
             )
         else:
             imported_modules.append(module)

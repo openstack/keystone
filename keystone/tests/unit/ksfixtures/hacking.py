@@ -104,9 +104,7 @@ class HackingCode(fixtures.Fixture):
             #    be continued with extra indentation
             #    if that's what the developer wants.
         """,
-        'expected_errors': [
-            (3, 0, 'K002'),
-        ],
+        'expected_errors': [(3, 0, 'K002')],
     }
 
     asserting_none_equality = {
@@ -139,11 +137,7 @@ class HackingCode(fixtures.Fixture):
             dict([[i,i] for i in range(3)])
             dict(({1:2}))
         """,
-        'expected_errors': [
-            (3, 0, 'K008'),
-            (4, 0, 'K008'),
-            (5, 0, 'K008'),
-        ],
+        'expected_errors': [(3, 0, 'K008'), (4, 0, 'K008'), (5, 0, 'K008')],
     }
 
 
@@ -175,10 +169,7 @@ class HackingTranslations(fixtures.Fixture):
                     def __init__(self):
                         LOG.warning(oslo_i18n('text', {}))
             """,
-            'expected_errors': [
-                (3, 9, 'K005'),
-                (6, 20, 'K005'),
-            ],
+            'expected_errors': [(3, 9, 'K005'), (6, 20, 'K005')],
         },
         {
             'code': """
@@ -191,9 +182,7 @@ class HackingTranslations(fixtures.Fixture):
                             _('text'), {}
                         )
             """,
-            'expected_errors': [
-                (7, 12, 'K005'),
-            ],
+            'expected_errors': [(7, 12, 'K005')],
         },
         {
             'code': """
@@ -201,9 +190,7 @@ class HackingTranslations(fixtures.Fixture):
                 L = log.getLogger(__name__)
                 L.error(oslo_i18n('text'))
             """,
-            'expected_errors': [
-                (3, 8, 'K005'),
-            ],
+            'expected_errors': [(3, 8, 'K005')],
         },
         {
             'code': """
@@ -213,9 +200,7 @@ class HackingTranslations(fixtures.Fixture):
                         self.LOG = oslo_logging.getLogger()
                         self.LOG.critical(_('text'))
             """,
-            'expected_errors': [
-                (5, 26, 'K005'),
-            ],
+            'expected_errors': [(5, 26, 'K005')],
         },
         {
             'code': """
@@ -224,9 +209,7 @@ class HackingTranslations(fixtures.Fixture):
                 msg = _('text')
                 LOG.exception(msg)
             """,
-            'expected_errors': [
-                (4, 14, 'K005'),
-            ],
+            'expected_errors': [(4, 14, 'K005')],
         },
         {
             'code': """
@@ -236,9 +219,7 @@ class HackingTranslations(fixtures.Fixture):
                 L.warning(msg)
                 raise Exception(msg)
             """,
-            'expected_errors': [
-                (4, 10, 'K005'),
-            ],
+            'expected_errors': [(4, 10, 'K005')],
         },
         {
             'code': """
@@ -249,9 +230,7 @@ class HackingTranslations(fixtures.Fixture):
                     something = True  # add an extra statement here
                     raise Exception(msg)
             """,
-            'expected_errors': [
-                (4, 14, 'K005'),
-            ],
+            'expected_errors': [(4, 14, 'K005')],
         },
         {
             'code': """
@@ -261,9 +240,7 @@ class HackingTranslations(fixtures.Fixture):
                     LOG.warning(msg)
                     raise Exception('some other message')
             """,
-            'expected_errors': [
-                (4, 16, 'K005'),
-            ],
+            'expected_errors': [(4, 16, 'K005')],
         },
         {
             'code': """
@@ -275,9 +252,7 @@ class HackingTranslations(fixtures.Fixture):
                 LOG.warning(msg)
                 raise Exception(msg)
             """,
-            'expected_errors': [
-                (6, 12, 'K005'),
-            ],
+            'expected_errors': [(6, 12, 'K005')],
         },
         {
             'code': """
@@ -288,9 +263,7 @@ class HackingTranslations(fixtures.Fixture):
                     msg = _('text')
                 LOG.warning(msg)
             """,
-            'expected_errors': [
-                (6, 12, 'K005'),
-            ],
+            'expected_errors': [(6, 12, 'K005')],
         },
         {
             'code': """
@@ -308,9 +281,7 @@ class HackingTranslations(fixtures.Fixture):
                 msg = _('hello %s') % 'world'
                 LOG.warning(msg)
             """,
-            'expected_errors': [
-                (3, 12, 'K005'),
-            ],
+            'expected_errors': [(3, 12, 'K005')],
         },
         {
             'code': """
@@ -335,8 +306,6 @@ class HackingTranslations(fixtures.Fixture):
                     LOG.warning(msg)
                     raise exception.Unauthorized(message=msg)
             """,
-            'expected_errors': [
-                (7, 16, 'K005'),
-            ],
+            'expected_errors': [(7, 16, 'K005')],
         },
     ]

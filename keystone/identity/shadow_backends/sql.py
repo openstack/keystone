@@ -31,7 +31,6 @@ PROVIDERS = provider_api.ProviderAPIs
 class ShadowUsers(base.ShadowUsersDriverBase):
     @sql.handle_conflicts(conflict_type='federated_user')
     def create_federated_user(self, domain_id, federated_dict, email=None):
-
         local_entity = {
             'domain_id': domain_id,
             'local_id': federated_dict['unique_id'],

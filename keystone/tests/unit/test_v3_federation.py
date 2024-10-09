@@ -58,7 +58,6 @@ def dummy_validator(*args, **kwargs):
 
 
 class FederatedSetupMixin:
-
     ACTION = 'authenticate'
     IDP = 'ORG_IDP'
     PROTOCOL = 'saml2'
@@ -104,7 +103,6 @@ class FederatedSetupMixin:
         self.assertEqual(token_projects, projects_ref)
 
     def _check_scoped_token_attributes(self, token):
-
         for obj in (
             'user',
             'catalog',
@@ -369,9 +367,7 @@ class FederatedSetupMixin:
                     ],
                     'remote': [
                         {'type': 'UserName'},
-                        {
-                            'type': 'Email',
-                        },
+                        {'type': 'Email'},
                         {'type': 'orgPersonType', 'any_one_of': ['Employee']},
                     ],
                 },
@@ -382,9 +378,7 @@ class FederatedSetupMixin:
                     ],
                     'remote': [
                         {'type': self.ASSERTION_PREFIX + 'UserName'},
-                        {
-                            'type': self.ASSERTION_PREFIX + 'Email',
-                        },
+                        {'type': self.ASSERTION_PREFIX + 'Email'},
                         {
                             'type': self.ASSERTION_PREFIX + 'orgPersonType',
                             'any_one_of': ['SuperEmployee'],
@@ -425,12 +419,8 @@ class FederatedSetupMixin:
                         {'user': {'name': '{0}', 'id': '{1}'}},
                     ],
                     'remote': [
-                        {
-                            'type': 'UserName',
-                        },
-                        {
-                            'type': 'Email',
-                        },
+                        {'type': 'UserName'},
+                        {'type': 'Email'},
                         {'type': 'FirstName', 'any_one_of': ['Jill']},
                         {'type': 'LastName', 'any_one_of': ['Smith']},
                     ],
@@ -441,12 +431,8 @@ class FederatedSetupMixin:
                         {'user': {'name': '{0}', 'id': '{1}'}},
                     ],
                     'remote': [
-                        {
-                            'type': 'UserName',
-                        },
-                        {
-                            'type': 'Email',
-                        },
+                        {'type': 'UserName'},
+                        {'type': 'Email'},
                         {
                             'type': 'Email',
                             'any_one_of': ['testacct@example.com'],
@@ -466,12 +452,8 @@ class FederatedSetupMixin:
                         },
                     ],
                     "remote": [
-                        {
-                            'type': 'UserName',
-                        },
-                        {
-                            'type': 'Email',
-                        },
+                        {'type': 'UserName'},
+                        {'type': 'Email'},
                         {
                             "type": "orgPersonType",
                             "any_one_of": ["CEO", "CTO"],
@@ -489,12 +471,8 @@ class FederatedSetupMixin:
                         },
                     ],
                     "remote": [
-                        {
-                            "type": "UserName",
-                        },
-                        {
-                            "type": "Email",
-                        },
+                        {"type": "UserName"},
+                        {"type": "Email"},
                         {"type": "orgPersonType", "any_one_of": ["Managers"]},
                     ],
                 },
@@ -509,12 +487,8 @@ class FederatedSetupMixin:
                         },
                     ],
                     "remote": [
-                        {
-                            "type": "UserName",
-                        },
-                        {
-                            "type": "Email",
-                        },
+                        {"type": "UserName"},
+                        {"type": "Email"},
                         {"type": "UserName", "any_one_of": ["IamTester"]},
                     ],
                 },
@@ -549,12 +523,8 @@ class FederatedSetupMixin:
                 {
                     "local": [{'user': {'name': '{0}', 'id': '{1}'}}],
                     "remote": [
-                        {
-                            'type': 'UserName',
-                        },
-                        {
-                            'type': 'Email',
-                        },
+                        {'type': 'UserName'},
+                        {'type': 'Email'},
                         {
                             'type': 'orgPersonType',
                             'any_one_of': ['NoGroupsOrg'],
@@ -777,7 +747,7 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
     def _create_mapping(self, mapping_id):
         mapping = mapping_fixtures.MAPPING_EPHEMERAL_USER
         mapping['id'] = mapping_id
-        url = '/OS-FEDERATION/mappings/%s' % mapping_id
+        url = f'/OS-FEDERATION/mappings/{mapping_id}'
         self.put(
             url, body={'mapping': mapping}, expected_status=http.client.CREATED
         )
@@ -1544,21 +1514,18 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
             # DELETE/PATCH/PUT on non-trailing `/` results in
             # METHOD_NOT_ALLOWED
             c.delete(
-                '/v3/OS-FEDERATION/identity_providers/%(idp_id)s'
-                '/protocols' % {'idp_id': idp_id},
+                f'/v3/OS-FEDERATION/identity_providers/{idp_id}' '/protocols',
                 headers={'X-Auth-Token': token},
                 expected_status_code=http.client.METHOD_NOT_ALLOWED,
             )
             c.patch(
-                '/v3/OS-FEDERATION/identity_providers/%(idp_id)s'
-                '/protocols/' % {'idp_id': idp_id},
+                f'/v3/OS-FEDERATION/identity_providers/{idp_id}' '/protocols/',
                 json={'protocol': protocol},
                 headers={'X-Auth-Token': token},
                 expected_status_code=http.client.METHOD_NOT_ALLOWED,
             )
             c.put(
-                '/v3/OS-FEDERATION/identity_providers/%(idp_id)s'
-                '/protocols' % {'idp_id': idp_id},
+                f'/v3/OS-FEDERATION/identity_providers/{idp_id}' '/protocols',
                 json={'protocol': protocol},
                 headers={'X-Auth-Token': token},
                 expected_status_code=http.client.METHOD_NOT_ALLOWED,
@@ -1568,21 +1535,18 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
             # remapped to without the trailing '/' by the normalization
             # middleware.
             c.delete(
-                '/v3/OS-FEDERATION/identity_providers/%(idp_id)s'
-                '/protocols/' % {'idp_id': idp_id},
+                f'/v3/OS-FEDERATION/identity_providers/{idp_id}' '/protocols/',
                 headers={'X-Auth-Token': token},
                 expected_status_code=http.client.METHOD_NOT_ALLOWED,
             )
             c.patch(
-                '/v3/OS-FEDERATION/identity_providers/%(idp_id)s'
-                '/protocols/' % {'idp_id': idp_id},
+                f'/v3/OS-FEDERATION/identity_providers/{idp_id}' '/protocols/',
                 json={'protocol': protocol},
                 headers={'X-Auth-Token': token},
                 expected_status_code=http.client.METHOD_NOT_ALLOWED,
             )
             c.put(
-                '/v3/OS-FEDERATION/identity_providers/%(idp_id)s'
-                '/protocols/' % {'idp_id': idp_id},
+                f'/v3/OS-FEDERATION/identity_providers/{idp_id}' '/protocols/',
                 json={'protocol': protocol},
                 headers={'X-Auth-Token': token},
                 expected_status_code=http.client.METHOD_NOT_ALLOWED,
@@ -1632,7 +1596,7 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
             proto_id = proto_id['id']
             protocol_ids.append(proto_id)
 
-        url = "%s/protocols" % idp_id
+        url = f"{idp_id}/protocols"
         url = self.base_url(suffix=url)
         resp = self.get(url)
         self.assertValidListResponse(
@@ -1979,7 +1943,6 @@ class MappingCRUDTests(test_v3.RestfulTestCase):
 
 
 class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
-
     def auth_plugin_config_override(self):
         methods = ['saml2', 'token']
         super().auth_plugin_config_override(methods)
@@ -2487,7 +2450,7 @@ class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
                 projects_resp = r.result['projects']
                 projects = {p['id'] for p in projects_resp}
                 self.assertEqual(
-                    projects_ref, projects, 'match failed for url %s' % url
+                    projects_ref, projects, f'match failed for url {url}'
                 )
 
     # TODO(samueldmq): Create another test class for role inheritance tests.
@@ -2530,7 +2493,7 @@ class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
                 self.assertIn(
                     expected_project_id,
                     project_ids,
-                    'Projects match failed for url %s' % url,
+                    f'Projects match failed for url {url}',
                 )
 
     def test_list_domains(self):
@@ -2558,7 +2521,7 @@ class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
                 domains_resp = r.result['domains']
                 domains = {p['id'] for p in domains_resp}
                 self.assertEqual(
-                    domains_ref, domains, 'match failed for url %s' % url
+                    domains_ref, domains, f'match failed for url {url}'
                 )
 
     def test_full_workflow(self):
@@ -2674,11 +2637,7 @@ class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
                     "local": [
                         {"groups": "{0}", "domain": {"name": domain_name}}
                     ],
-                    "remote": [
-                        {
-                            "type": "REMOTE_USER_GROUPS",
-                        }
-                    ],
+                    "remote": [{"type": "REMOTE_USER_GROUPS"}],
                 },
             ]
         }
@@ -2790,11 +2749,7 @@ class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
                     "local": [
                         {"groups": "{0}", "domain": {"name": domain_name}}
                     ],
-                    "remote": [
-                        {
-                            "type": "REMOTE_USER_GROUPS",
-                        }
-                    ],
+                    "remote": [{"type": "REMOTE_USER_GROUPS"}],
                 },
             ]
         }
@@ -2891,11 +2846,7 @@ class FederatedTokenTests(test_v3.RestfulTestCase, FederatedSetupMixin):
                     "local": [
                         {"groups": "{0}", "domain": {"name": domain_name}}
                     ],
-                    "remote": [
-                        {
-                            "type": "REMOTE_USER_GROUPS",
-                        }
-                    ],
+                    "remote": [{"type": "REMOTE_USER_GROUPS"}],
                 },
             ]
         }
@@ -3829,7 +3780,7 @@ class JsonHomeTests(test_v3.RestfulTestCase, test_v3.JsonHomeTestMixin):
                 'idp_id': 'https://docs.openstack.org/api/openstack-identity/3'
                 '/ext/OS-FEDERATION/1.0/param/idp_id'
             },
-        },
+        }
     }
 
 
@@ -3848,7 +3799,6 @@ def _load_xml(filename):
 
 
 class SAMLGenerationTests(test_v3.RestfulTestCase):
-
     SP_AUTH_URL = (
         'http://beta.com:5000/v3/OS-FEDERATION/identity_providers'
         '/BETA/protocols/saml2/auth'
@@ -4426,12 +4376,11 @@ class SAMLGenerationTests(test_v3.RestfulTestCase):
             # The function __str__ in subprocess.CalledProcessError is
             # different between py3.6 and lower python version.
             expected_log = (
-                r"Error when signing assertion, reason: Command '%s' returned "
-                r"non-zero exit status %s\.? %s\n"
-                % (CONF.saml.xmlsec1_binary, sample_returncode, sample_output)
+                rf"Error when signing assertion, reason: Command '{CONF.saml.xmlsec1_binary}' returned "
+                rf"non-zero exit status {sample_returncode}\.? {sample_output}\n"
             )
             self.assertRegex(
-                logger_fixture.output, re.compile(r'%s' % expected_log)
+                logger_fixture.output, re.compile(rf'{expected_log}')
             )
 
     @mock.patch('oslo_utils.fileutils.write_to_tempfile')
@@ -4450,15 +4399,14 @@ class SAMLGenerationTests(test_v3.RestfulTestCase):
             self.signed_assertion,
         )
         expected_log = (
-            'Error when signing assertion, reason: %s\n' % exception_msg
+            f'Error when signing assertion, reason: {exception_msg}\n'
         )
         self.assertIn(expected_log, logger_fixture.output)
 
     def test_sign_assertion_logs_message_if_xmlsec1_is_not_installed(self):
         with mock.patch.object(subprocess, 'check_output') as co_mock:
             co_mock.side_effect = subprocess.CalledProcessError(
-                returncode=1,
-                cmd=CONF.saml.xmlsec1_binary,
+                returncode=1, cmd=CONF.saml.xmlsec1_binary
             )
             logger_fixture = self.useFixture(fixtures.LoggerFixture())
             self.assertRaises(
@@ -5036,7 +4984,7 @@ class WebSSOTests(FederatedTokenTests):
     def test_federated_sso_auth(self):
         environment = {
             self.REMOTE_ID_ATTR: self.REMOTE_IDS[0],
-            'QUERY_STRING': 'origin=%s' % self.ORIGIN,
+            'QUERY_STRING': f'origin={self.ORIGIN}',
         }
         environment.update(mapping_fixtures.EMPLOYEE_ASSERTION)
         with self.make_request(environ=environment):
@@ -5069,7 +5017,7 @@ class WebSSOTests(FederatedTokenTests):
 
         environment = {
             self.PROTOCOL_REMOTE_ID_ATTR: self.REMOTE_IDS[0],
-            'QUERY_STRING': 'origin=%s' % self.ORIGIN,
+            'QUERY_STRING': f'origin={self.ORIGIN}',
         }
         environment.update(mapping_fixtures.EMPLOYEE_ASSERTION)
         with self.make_request(environ=environment):
@@ -5084,7 +5032,7 @@ class WebSSOTests(FederatedTokenTests):
     def test_federated_sso_auth_bad_remote_id(self):
         environment = {
             self.REMOTE_ID_ATTR: self.IDP,
-            'QUERY_STRING': 'origin=%s' % self.ORIGIN,
+            'QUERY_STRING': f'origin={self.ORIGIN}',
         }
         environment.update(mapping_fixtures.EMPLOYEE_ASSERTION)
         with self.make_request(environ=environment):
@@ -5117,7 +5065,7 @@ class WebSSOTests(FederatedTokenTests):
     def test_federated_sso_auth_protocol_not_found(self):
         environment = {
             self.REMOTE_ID_ATTR: self.REMOTE_IDS[0],
-            'QUERY_STRING': 'origin=%s' % self.ORIGIN,
+            'QUERY_STRING': f'origin={self.ORIGIN}',
         }
         environment.update(mapping_fixtures.EMPLOYEE_ASSERTION)
         with self.make_request(environ=environment):
@@ -5130,7 +5078,7 @@ class WebSSOTests(FederatedTokenTests):
     def test_federated_sso_untrusted_dashboard(self):
         environment = {
             self.REMOTE_ID_ATTR: self.REMOTE_IDS[0],
-            'QUERY_STRING': 'origin=%s' % uuid.uuid4().hex,
+            'QUERY_STRING': f'origin={uuid.uuid4().hex}',
         }
         environment.update(mapping_fixtures.EMPLOYEE_ASSERTION)
         with self.make_request(environ=environment):
@@ -5143,7 +5091,7 @@ class WebSSOTests(FederatedTokenTests):
     def test_federated_sso_untrusted_dashboard_bad_remote_id(self):
         environment = {
             self.REMOTE_ID_ATTR: self.IDP,
-            'QUERY_STRING': 'origin=%s' % uuid.uuid4().hex,
+            'QUERY_STRING': f'origin={uuid.uuid4().hex}',
         }
         environment.update(mapping_fixtures.EMPLOYEE_ASSERTION)
         with self.make_request(environ=environment):
@@ -5156,7 +5104,7 @@ class WebSSOTests(FederatedTokenTests):
     def test_federated_sso_missing_remote_id(self):
         environment = copy.deepcopy(mapping_fixtures.EMPLOYEE_ASSERTION)
         with self.make_request(
-            environ=environment, query_string='origin=%s' % self.ORIGIN
+            environ=environment, query_string=f'origin={self.ORIGIN}'
         ):
             self.assertRaises(
                 exception.Unauthorized,
@@ -5168,7 +5116,7 @@ class WebSSOTests(FederatedTokenTests):
         environment = {self.REMOTE_ID_ATTR: self.REMOTE_IDS[0]}
         environment.update(mapping_fixtures.EMPLOYEE_ASSERTION)
         with self.make_request(
-            environ=environment, query_string='origin=%s' % self.ORIGIN
+            environ=environment, query_string=f'origin={self.ORIGIN}'
         ):
             resp = auth_api.AuthFederationWebSSOIDPsResource._perform_auth(
                 self.idp['id'], self.PROTOCOL
@@ -5194,7 +5142,7 @@ class WebSSOTests(FederatedTokenTests):
         )
         environment = {
             self.PROTOCOL_REMOTE_ID_ATTR: self.REMOTE_IDS[0],
-            'QUERY_STRING': 'origin=%s' % self.ORIGIN,
+            'QUERY_STRING': f'origin={self.ORIGIN}',
         }
         environment.update(mapping_fixtures.EMPLOYEE_ASSERTION)
         with self.make_request(environ=environment):

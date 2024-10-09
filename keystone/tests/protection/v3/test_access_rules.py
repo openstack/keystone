@@ -50,8 +50,7 @@ class _UserAccessRuleTests:
         )
         with self.test_client() as c:
             path = '/v3/users/{}/access_rules/{}'.format(
-                self.user_id,
-                app_cred['access_rules'][0]['id'],
+                self.user_id, app_cred['access_rules'][0]['id']
             )
             c.get(path, headers=self.headers)
 
@@ -76,8 +75,7 @@ class _UserAccessRuleTests:
         )
         with self.test_client() as c:
             r = c.get(
-                '/v3/users/%s/access_rules' % self.user_id,
-                headers=self.headers,
+                f'/v3/users/{self.user_id}/access_rules', headers=self.headers
             )
             self.assertEqual(len(r.json['access_rules']), 1)
 
@@ -105,10 +103,7 @@ class _UserAccessRuleTests:
             app_cred['id']
         )
         with self.test_client() as c:
-            path = '/v3/users/{}/access_rules/{}'.format(
-                self.user_id,
-                access_rule_id,
-            )
+            path = f'/v3/users/{self.user_id}/access_rules/{access_rule_id}'
             c.delete(path, headers=self.headers)
 
 
@@ -149,8 +144,7 @@ class _ProjectUsersTests:
         )
         with self.test_client() as c:
             path = '/v3/users/{}/access_rules/{}'.format(
-                user['id'],
-                access_rule_id,
+                user['id'], access_rule_id
             )
             c.get(
                 path,
@@ -161,8 +155,7 @@ class _ProjectUsersTests:
     def test_user_cannot_get_own_non_existent_access_rule_not_found(self):
         with self.test_client() as c:
             c.get(
-                '/v3/users/%s/access_rules/%s'
-                % (self.user_id, uuid.uuid4().hex),
+                f'/v3/users/{self.user_id}/access_rules/{uuid.uuid4().hex}',
                 headers=self.headers,
                 expected_status_code=http.client.NOT_FOUND,
             )
@@ -172,8 +165,9 @@ class _ProjectUsersTests:
         user = PROVIDERS.identity_api.create_user(user)
         with self.test_client() as c:
             c.get(
-                '/v3/users/%s/access_rules/%s'
-                % (user['id'], uuid.uuid4().hex),
+                '/v3/users/{}/access_rules/{}'.format(
+                    user['id'], uuid.uuid4().hex
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -210,7 +204,7 @@ class _ProjectUsersTests:
         )
 
         with self.test_client() as c:
-            path = '/v3/users/%s/access_rules' % user['id']
+            path = '/v3/users/{}/access_rules'.format(user['id'])
             c.get(
                 path,
                 headers=self.headers,
@@ -253,8 +247,7 @@ class _ProjectUsersTests:
         )
         with self.test_client() as c:
             path = '/v3/users/{}/access_rules/{}'.format(
-                user['id'],
-                access_rule_id,
+                user['id'], access_rule_id
             )
             c.delete(
                 path,
@@ -267,8 +260,9 @@ class _ProjectUsersTests:
         user = PROVIDERS.identity_api.create_user(user)
         with self.test_client() as c:
             c.delete(
-                '/v3/users/%s/access_rules/%s'
-                % (user['id'], uuid.uuid4().hex),
+                '/v3/users/{}/access_rules/{}'.format(
+                    user['id'], uuid.uuid4().hex
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -311,7 +305,8 @@ class _SystemUserAccessRuleTests:
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/users/%s/access_rules' % user['id'], headers=self.headers
+                '/v3/users/{}/access_rules'.format(user['id']),
+                headers=self.headers,
             )
             self.assertEqual(1, len(r.json['access_rules']))
 
@@ -320,8 +315,9 @@ class _SystemUserAccessRuleTests:
         user = PROVIDERS.identity_api.create_user(user)
         with self.test_client() as c:
             c.get(
-                '/v3/users/%s/access_rules/%s'
-                % (user['id'], uuid.uuid4().hex),
+                '/v3/users/{}/access_rules/{}'.format(
+                    user['id'], uuid.uuid4().hex
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.NOT_FOUND,
             )
@@ -332,7 +328,6 @@ class SystemReaderTests(
     common_auth.AuthTestMixin,
     _SystemUserAccessRuleTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -397,8 +392,7 @@ class SystemReaderTests(
         )
         with self.test_client() as c:
             path = '/v3/users/{}/access_rules/{}'.format(
-                user['id'],
-                access_rule_id,
+                user['id'], access_rule_id
             )
             c.delete(
                 path,
@@ -411,8 +405,9 @@ class SystemReaderTests(
         user = PROVIDERS.identity_api.create_user(user)
         with self.test_client() as c:
             c.delete(
-                '/v3/users/%s/access_rules/%s'
-                % (user['id'], uuid.uuid4().hex),
+                '/v3/users/{}/access_rules/{}'.format(
+                    user['id'], uuid.uuid4().hex
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -423,7 +418,6 @@ class SystemMemberTests(
     common_auth.AuthTestMixin,
     _SystemUserAccessRuleTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -488,8 +482,7 @@ class SystemMemberTests(
         )
         with self.test_client() as c:
             path = '/v3/users/{}/access_rules/{}'.format(
-                user['id'],
-                access_rule_id,
+                user['id'], access_rule_id
             )
             c.delete(
                 path,
@@ -499,8 +492,7 @@ class SystemMemberTests(
 
         with self.test_client() as c:
             path = '/v3/users/{}/access_rules/{}'.format(
-                user['id'],
-                access_rule_id,
+                user['id'], access_rule_id
             )
             c.delete(
                 path,
@@ -513,8 +505,9 @@ class SystemMemberTests(
         user = PROVIDERS.identity_api.create_user(user)
         with self.test_client() as c:
             c.delete(
-                '/v3/users/%s/access_rules/%s'
-                % (user['id'], uuid.uuid4().hex),
+                '/v3/users/{}/access_rules/{}'.format(
+                    user['id'], uuid.uuid4().hex
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -525,7 +518,6 @@ class SystemAdminTests(
     common_auth.AuthTestMixin,
     _SystemUserAccessRuleTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -585,8 +577,7 @@ class SystemAdminTests(
 
         with self.test_client() as c:
             path = '/v3/users/{}/access_rules/{}'.format(
-                user['id'],
-                access_rule_id,
+                user['id'], access_rule_id
             )
             c.delete(path, headers=self.headers)
 
@@ -595,8 +586,9 @@ class SystemAdminTests(
         user = PROVIDERS.identity_api.create_user(user)
         with self.test_client() as c:
             c.delete(
-                '/v3/users/%s/access_rules/%s'
-                % (user['id'], uuid.uuid4().hex),
+                '/v3/users/{}/access_rules/{}'.format(
+                    user['id'], uuid.uuid4().hex
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.NOT_FOUND,
             )
@@ -608,7 +600,6 @@ class ProjectReaderTests(
     _UserAccessRuleTests,
     _ProjectUsersTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -651,7 +642,6 @@ class ProjectMemberTests(
     _UserAccessRuleTests,
     _ProjectUsersTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -694,7 +684,6 @@ class ProjectAdminTests(
     _UserAccessRuleTests,
     _ProjectUsersTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()

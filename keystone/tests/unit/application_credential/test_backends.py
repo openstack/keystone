@@ -26,7 +26,6 @@ PROVIDERS = provider_api.ProviderAPIs
 
 
 class ApplicationCredentialTests:
-
     def _new_app_cred_data(
         self, user_id, project_id=None, name=None, expires=None, system=None
     ):
@@ -46,9 +45,7 @@ class ApplicationCredentialTests:
             'project_id': project_id,
             'system': system,
             'expires_at': expires,
-            'roles': [
-                {'id': self.role__member_['id']},
-            ],
+            'roles': [{'id': self.role__member_['id']}],
             'secret': uuid.uuid4().hex,
             'unrestricted': False,
         }

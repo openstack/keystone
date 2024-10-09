@@ -36,11 +36,7 @@ EXPAND_BRANCH = 'expand'
 DATA_MIGRATION_BRANCH = 'data_migration'
 CONTRACT_BRANCH = 'contract'
 
-RELEASES = (
-    'yoga',
-    'bobcat',
-    '2024.01',
-)
+RELEASES = ('yoga', 'bobcat', '2024.01')
 MILESTONES = (
     'yoga',
     # Do not add the milestone until the end of the release
@@ -48,9 +44,7 @@ MILESTONES = (
 CURRENT_RELEASE = RELEASES[-1]
 MIGRATION_BRANCHES = (EXPAND_BRANCH, CONTRACT_BRANCH)
 VERSIONS_PATH = os.path.join(
-    os.path.dirname(sql.__file__),
-    'migrations',
-    'versions',
+    os.path.dirname(sql.__file__), 'migrations', 'versions'
 )
 
 
@@ -77,8 +71,7 @@ def _find_alembic_conf():
     :returns: An instance of ``alembic.config.Config``
     """
     path = os.path.join(
-        os.path.abspath(os.path.dirname(__file__)),
-        'alembic.ini',
+        os.path.abspath(os.path.dirname(__file__)), 'alembic.ini'
     )
 
     config = alembic_config.Config(os.path.abspath(path))

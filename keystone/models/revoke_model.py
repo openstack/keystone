@@ -59,9 +59,7 @@ ALTERNATIVES = {
     'user_id': ['user_id', 'trustor_id', 'trustee_id'],
     'domain_id': ['identity_domain_id', 'assignment_domain_id'],
     # For a domain-scoped token, the domain is in assignment_domain_id.
-    'domain_scope_id': [
-        'assignment_domain_id',
-    ],
+    'domain_scope_id': ['assignment_domain_id'],
 }
 
 
@@ -69,7 +67,7 @@ REVOKE_KEYS = _NAMES + _EVENT_ARGS
 
 
 def blank_token_data(issued_at):
-    token_data = dict()
+    token_data = {}
     for name in _NAMES:
         token_data[name] = None
     for name in _TOKEN_KEYS:
@@ -156,7 +154,7 @@ def is_revoked(events, token_data):
               match any revocation events, meaning the token is considered
               valid by the revocation API.
     """
-    return any([matches(e, token_data) for e in events])
+    return any(matches(e, token_data) for e in events)
 
 
 def matches(event, token_values):
@@ -214,8 +212,9 @@ def matches(event, token_values):
     ):
         return False
 
-    if event.role_id is not None and event.role_id not in (
-        token_values['roles']
+    if (
+        event.role_id is not None
+        and event.role_id not in (token_values['roles'])
     ):
         return False
 
@@ -223,7 +222,6 @@ def matches(event, token_values):
 
 
 def build_token_values(token):
-
     token_expires_at = timeutils.parse_isotime(token.expires_at)
 
     # Trim off the microseconds because the revocation event only has

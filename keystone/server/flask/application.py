@@ -161,9 +161,9 @@ def _handle_keystone_exception(error):
         # convert to a string.
         message = str(message)
 
-    body = dict(
-        error={'code': error.code, 'title': error.title, 'message': message}
-    )
+    body = {
+        'error': {'code': error.code, 'title': error.title, 'message': message}
+    }
 
     if isinstance(error, exception.AuthPluginException):
         body['error']['identity'] = error.authentication
@@ -175,7 +175,7 @@ def _handle_keystone_exception(error):
     # Add the appropriate WWW-Authenticate header for Unauthorized
     if isinstance(error, exception.Unauthorized):
         url = ks_flask.base_url()
-        response.headers['WWW-Authenticate'] = 'Keystone uri="%s"' % url
+        response.headers['WWW-Authenticate'] = f'Keystone uri="{url}"'
     return response
 
 

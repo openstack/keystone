@@ -66,7 +66,7 @@ class EC2ContribCoreV3(test_v3.RestfulTestCase):
             '/ec2tokens',
             body={'credentials': credentials},
             expected_status=http.client.OK,
-            **kwargs
+            **kwargs,
         )
         self.assertValidProjectScopedTokenResponse(resp, self.user)
 
@@ -93,8 +93,7 @@ class EC2ContribCoreV3(test_v3.RestfulTestCase):
         )
         body_hash = hashlib.sha256(hashed_payload.encode()).hexdigest()
         amz_credential = (
-            'AKIAIOSFODNN7EXAMPLE/%s/us-east-1/iam/aws4_request,'
-            % timestamp[:8]
+            f'AKIAIOSFODNN7EXAMPLE/{timestamp[:8]}/us-east-1/iam/aws4_request,'
         )
 
         credentials = {
@@ -198,8 +197,7 @@ class EC2ContribCoreV3(test_v3.RestfulTestCase):
         )
         body_hash = hashlib.sha256(hashed_payload.encode()).hexdigest()
         amz_credential = (
-            'AKIAIOSFODNN7EXAMPLE/%s/us-east-1/iam/aws4_request,'
-            % timestamp[:8]
+            f'AKIAIOSFODNN7EXAMPLE/{timestamp[:8]}/us-east-1/iam/aws4_request,'
         )
 
         credentials = {

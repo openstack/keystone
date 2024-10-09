@@ -22,16 +22,12 @@ repos:
   #   rev: v1.1.1
   #   hooks:
   #     - id: doc8
-  - repo: https://github.com/asottile/pyupgrade
-    rev: v3.15.2
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.6.9
     hooks:
-      - id: pyupgrade
-        args: ['--py38-plus']
-  - repo: https://github.com/psf/black
-    rev: 24.4.0
-    hooks:
-      - id: black
-        args: ['-S', '-l', '79']
+      - id: ruff
+        args: ['--fix', '--unsafe-fixes']
+      - id: ruff-format
   - repo: https://github.com/PyCQA/bandit
     rev: '1.7.9'
     hooks:

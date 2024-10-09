@@ -29,7 +29,7 @@ class KeycloakClient:
         }
         r = requests.post(self.token_endpoint(realm), data=params).json()
         headers = {
-            'Authorization': ("Bearer %s" % r['access_token']),
+            'Authorization': f"Bearer {r['access_token']}",
             'Content-Type': 'application/json',
         }
         self.session.headers.update(headers)

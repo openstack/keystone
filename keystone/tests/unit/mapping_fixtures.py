@@ -12,7 +12,6 @@
 
 """Fixtures for Federation Mapping."""
 
-
 EMPLOYEE_GROUP_ID = "0cd5e9"
 CONTRACTOR_GROUP_ID = "85a868"
 TESTER_GROUP_ID = "123"
@@ -205,9 +204,7 @@ MAPPING_EXTRA_RULES_PROPS = {
     "rules": [
         {
             "local": [{"group": {"id": "0cd5e9"}}, {"user": {"name": "{0}"}}],
-            "invalid_type": {
-                "id": "xyz",
-            },
+            "invalid_type": {"id": "xyz"},
             "remote": [
                 {"type": "UserName"},
                 {"type": "orgPersonType", "not_any_of": ["SubContractor"]},
@@ -219,13 +216,7 @@ MAPPING_EXTRA_RULES_PROPS = {
 MAPPING_TESTER_REGEX = {
     "rules": [
         {
-            "local": [
-                {
-                    "user": {
-                        "name": "{0}",
-                    }
-                }
-            ],
+            "local": [{"user": {"name": "{0}"}}],
             "remote": [{"type": "UserName"}],
         },
         {
@@ -246,11 +237,7 @@ MAPPING_DIRECT_MAPPING_THROUGH_KEYWORD = {
     "rules": [
         {
             "local": [
-                {
-                    "user": {
-                        "name": "{0}",
-                    }
-                },
+                {"user": {"name": "{0}"}},
                 {"group": {"id": TESTER_GROUP_ID}},
             ],
             "remote": [{"type": "UserName", "any_one_of": ["bwilliams"]}],
@@ -262,19 +249,11 @@ MAPPING_DEVELOPER_REGEX = {
     "rules": [
         {
             "local": [
-                {
-                    "user": {
-                        "name": "{0}",
-                    },
-                    "group": {"id": DEVELOPER_GROUP_ID},
-                }
+                {"user": {"name": "{0}"}, "group": {"id": DEVELOPER_GROUP_ID}}
             ],
             "remote": [
                 {"type": "UserName"},
-                {
-                    "type": "orgPersonType",
-                    "any_one_of": ["Developer"],
-                },
+                {"type": "orgPersonType", "any_one_of": ["Developer"]},
                 {
                     "type": "Email",
                     "not_any_of": [".*@example.org$"],
@@ -288,13 +267,7 @@ MAPPING_DEVELOPER_REGEX = {
 MAPPING_GROUP_NAMES = {
     "rules": [
         {
-            "local": [
-                {
-                    "user": {
-                        "name": "{0}",
-                    }
-                }
-            ],
+            "local": [{"user": {"name": "{0}"}}],
             "remote": [{"type": "UserName"}],
         },
         {
@@ -306,12 +279,7 @@ MAPPING_GROUP_NAMES = {
                     }
                 }
             ],
-            "remote": [
-                {
-                    "type": "orgPersonType",
-                    "any_one_of": ["Employee"],
-                }
-            ],
+            "remote": [{"type": "orgPersonType", "any_one_of": ["Employee"]}],
         },
         {
             "local": [
@@ -330,20 +298,9 @@ MAPPING_GROUP_NAMES = {
 MAPPING_GROUP_NAME_WITHOUT_DOMAIN = {
     "rules": [
         {
-            "local": [
-                {
-                    "group": {
-                        "name": DEVELOPER_GROUP_NAME,
-                    }
-                }
-            ],
-            "remote": [
-                {
-                    "type": "orgPersonType",
-                    "any_one_of": ["Employee"],
-                }
-            ],
-        },
+            "local": [{"group": {"name": DEVELOPER_GROUP_NAME}}],
+            "remote": [{"type": "orgPersonType", "any_one_of": ["Employee"]}],
+        }
     ]
 }
 
@@ -358,13 +315,8 @@ MAPPING_GROUP_ID_WITH_DOMAIN = {
                     }
                 }
             ],
-            "remote": [
-                {
-                    "type": "orgPersonType",
-                    "any_one_of": ["Employee"],
-                }
-            ],
-        },
+            "remote": [{"type": "orgPersonType", "any_one_of": ["Employee"]}],
+        }
     ]
 }
 
@@ -372,13 +324,8 @@ MAPPING_BAD_GROUP = {
     "rules": [
         {
             "local": [{"group": {}}],
-            "remote": [
-                {
-                    "type": "orgPersonType",
-                    "any_one_of": ["Employee"],
-                }
-            ],
-        },
+            "remote": [{"type": "orgPersonType", "any_one_of": ["Employee"]}],
+        }
     ]
 }
 
@@ -396,13 +343,8 @@ MAPPING_BAD_DOMAIN = {
                     }
                 }
             ],
-            "remote": [
-                {
-                    "type": "orgPersonType",
-                    "any_one_of": ["Employee"],
-                }
-            ],
-        },
+            "remote": [{"type": "orgPersonType", "any_one_of": ["Employee"]}],
+        }
     ]
 }
 
@@ -491,13 +433,9 @@ MAPPING_GROUPS_WHITELIST_MISSING_DOMAIN = {
                 {
                     "type": "orgPersonType",
                     "whitelist": ["Developer", "Contractor"],
-                },
-            ],
-            "local": [
-                {
-                    "groups": "{0}",
                 }
             ],
+            "local": [{"groups": "{0}"}],
         }
     ]
 }
@@ -535,11 +473,7 @@ MAPPING_GROUPS_BLACKLIST_MULTIPLES = {
             ],
             "local": [
                 {"groups": "{0}", "domain": {"id": DEVELOPER_GROUP_DOMAIN_ID}},
-                {
-                    "user": {
-                        "name": "{2}",
-                    }
-                },
+                {"user": {"name": "{2}"}},
             ],
         }
     ]
@@ -570,11 +504,9 @@ MAPPING_GROUPS_BLACKLIST_REGEX = {
                     "type": "orgPersonType",
                     "blacklist": [".*Employee$"],
                     "regex": True,
-                },
+                }
             ],
-            "local": [
-                {"groups": "{0}", "domain": {"id": FEDERATED_DOMAIN}},
-            ],
+            "local": [{"groups": "{0}", "domain": {"id": FEDERATED_DOMAIN}}],
         }
     ]
 }
@@ -587,11 +519,9 @@ MAPPING_GROUPS_WHITELIST_REGEX = {
                     "type": "orgPersonType",
                     "whitelist": [".*Employee$"],
                     "regex": True,
-                },
+                }
             ],
-            "local": [
-                {"groups": "{0}", "domain": {"id": FEDERATED_DOMAIN}},
-            ],
+            "local": [{"groups": "{0}", "domain": {"id": FEDERATED_DOMAIN}}],
         }
     ]
 }
@@ -654,13 +584,9 @@ MAPPING_GROUPS_BLACKLIST_MISSING_DOMAIN = {
                 {
                     "type": "orgPersonType",
                     "blacklist": ["Developer", "Manager"],
-                },
+                }
             ],
-            "local": [
-                {
-                    "groups": "{0}",
-                },
-            ],
+            "local": [{"groups": "{0}"}],
         }
     ]
 }
@@ -673,10 +599,10 @@ MAPPING_GROUPS_WHITELIST_AND_BLACKLIST = {
                     "type": "orgPersonType",
                     "blacklist": ["Employee"],
                     "whitelist": ["Contractor"],
-                },
+                }
             ],
             "local": [
-                {"groups": "{0}", "domain": {"id": DEVELOPER_GROUP_DOMAIN_ID}},
+                {"groups": "{0}", "domain": {"id": DEVELOPER_GROUP_DOMAIN_ID}}
             ],
         }
     ]
@@ -929,7 +855,7 @@ MAPPING_BAD_LOCAL_TYPE_USER_IN_ASSERTION = {
                 {"type": "openstack_groups"},
                 {"type": "openstack_roles", "any_one_of": ["Admin"]},
             ],
-        },
+        }
     ]
 }
 
@@ -937,12 +863,8 @@ MAPPING_GROUPS_WITH_EMAIL = {
     "rules": [
         {
             "remote": [
-                {
-                    "type": "groups",
-                },
-                {
-                    "type": "userEmail",
-                },
+                {"type": "groups"},
+                {"type": "userEmail"},
                 {"type": "UserName"},
             ],
             "local": [
@@ -1166,8 +1088,8 @@ MAPPING_UNICODE = {
                     "any_one_of": ["Admin", "Big Cheese"],
                 },
             ],
-        },
-    ],
+        }
+    ]
 }
 
 MAPPING_PROJECTS = {
@@ -1186,14 +1108,12 @@ MAPPING_PROJECTS = {
                             "name": "Project for {0}",
                             "roles": [{"name": "admin"}],
                         },
-                    ],
+                    ]
                 },
             ],
             "remote": [
                 {"type": "UserName"},
-                {
-                    "type": "Email",
-                },
+                {"type": "Email"},
                 {"type": "orgPersonType", "any_one_of": ["Employee"]},
             ],
         }
@@ -1214,7 +1134,7 @@ MAPPING_PROJECTS_WITHOUT_ROLES = {
                 }
             ],
             "remote": [{"type": "UserName"}],
-        },
+        }
     ]
 }
 
@@ -1235,6 +1155,6 @@ MAPPING_PROJECTS_WITHOUT_NAME = {
                 }
             ],
             "remote": [{"type": "UserName"}],
-        },
+        }
     ]
 }

@@ -19,7 +19,6 @@ from keystone.tests.common import auth as common_auth
 
 
 class BaseTestCase(testtools.TestCase, common_auth.AuthTestMixin):
-
     request_headers = {'content-type': 'application/json'}
 
     def setUp(self):

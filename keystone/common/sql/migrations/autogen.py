@@ -51,8 +51,7 @@ def _migration_script_ops(context, directive, phase):
     """
     autogen_kwargs = {}
     version_path = upgrades.get_version_branch_path(
-        release=upgrades.CURRENT_RELEASE,
-        branch=phase,
+        release=upgrades.CURRENT_RELEASE, branch=phase
     )
     upgrades.check_bootstrap_new_branch(phase, version_path, autogen_kwargs)
 
@@ -65,7 +64,7 @@ def _migration_script_ops(context, directive, phase):
         ),
         ops.DowngradeOps(ops=[]),
         message=directive.message,
-        **autogen_kwargs
+        **autogen_kwargs,
     )
 
     if not op.upgrade_ops.is_empty():

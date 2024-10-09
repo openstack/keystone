@@ -35,7 +35,7 @@ class _SystemUserDomainRoleTests:
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/roles?domain_id=%s' % CONF.identity.default_domain_id,
+                f'/v3/roles?domain_id={CONF.identity.default_domain_id}',
                 headers=self.headers,
             )
             self.assertEqual(1, len(r.json['roles']))
@@ -47,7 +47,7 @@ class _SystemUserDomainRoleTests:
         )
 
         with self.test_client() as c:
-            r = c.get('/v3/roles/%s' % role['id'], headers=self.headers)
+            r = c.get('/v3/roles/{}'.format(role['id']), headers=self.headers)
             self.assertEqual(role['id'], r.json['role']['id'])
 
 
@@ -79,7 +79,7 @@ class _SystemReaderAndMemberDomainRoleTests:
 
         with self.test_client() as c:
             c.patch(
-                '/v3/roles/%s' % role['id'],
+                '/v3/roles/{}'.format(role['id']),
                 json=update,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -93,7 +93,7 @@ class _SystemReaderAndMemberDomainRoleTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/roles/%s' % role['id'],
+                '/v3/roles/{}'.format(role['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -123,7 +123,7 @@ class _DomainAndProjectUserDomainRoleTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/roles/%s' % role['id'],
+                '/v3/roles/{}'.format(role['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -153,7 +153,7 @@ class _DomainAndProjectUserDomainRoleTests:
 
         with self.test_client() as c:
             c.patch(
-                '/v3/roles/%s' % role['id'],
+                '/v3/roles/{}'.format(role['id']),
                 json=update,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -167,7 +167,7 @@ class _DomainAndProjectUserDomainRoleTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/roles/%s' % role['id'],
+                '/v3/roles/{}'.format(role['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -179,7 +179,6 @@ class SystemReaderTests(
     _SystemUserDomainRoleTests,
     _SystemReaderAndMemberDomainRoleTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -214,7 +213,6 @@ class SystemMemberTests(
     _SystemUserDomainRoleTests,
     _SystemReaderAndMemberDomainRoleTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -248,7 +246,6 @@ class SystemAdminTests(
     common_auth.AuthTestMixin,
     _SystemUserDomainRoleTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -291,7 +288,7 @@ class SystemAdminTests(
 
         with self.test_client() as c:
             c.patch(
-                '/v3/roles/%s' % role['id'],
+                '/v3/roles/{}'.format(role['id']),
                 json=update,
                 headers=self.headers,
             )
@@ -303,7 +300,7 @@ class SystemAdminTests(
         )
 
         with self.test_client() as c:
-            c.delete('/v3/roles/%s' % role['id'], headers=self.headers)
+            c.delete('/v3/roles/{}'.format(role['id']), headers=self.headers)
 
 
 class DomainUserTests(
@@ -311,7 +308,6 @@ class DomainUserTests(
     common_auth.AuthTestMixin,
     _DomainAndProjectUserDomainRoleTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -349,7 +345,6 @@ class ProjectUserTests(
     common_auth.AuthTestMixin,
     _DomainAndProjectUserDomainRoleTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -376,7 +371,6 @@ class ProjectUserTestsWithoutEnforceScope(
     common_auth.AuthTestMixin,
     _DomainAndProjectUserDomainRoleTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()

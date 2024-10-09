@@ -35,7 +35,6 @@ PROVIDERS = provider_api.ProviderAPIs
 
 
 class TestDomainConfigs(unit.BaseTestCase):
-
     def setUp(self):
         super().setUp()
         self.addCleanup(CONF.reset)
@@ -57,7 +56,7 @@ class TestDomainConfigs(unit.BaseTestCase):
         """
         domain_id = uuid.uuid4().hex
         domain_config_filename = os.path.join(
-            self.tmp_dir, 'keystone.%s.conf' % domain_id
+            self.tmp_dir, f'keystone.{domain_id}.conf'
         )
         self.addCleanup(lambda: os.remove(domain_config_filename))
         with open(domain_config_filename, 'w'):
@@ -147,7 +146,6 @@ class TestDomainConfigs(unit.BaseTestCase):
 
 
 class TestDatabaseDomainConfigs(unit.TestCase):
-
     def setUp(self):
         super().setUp()
         self.useFixture(database.Database())

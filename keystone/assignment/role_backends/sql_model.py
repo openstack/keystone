@@ -19,7 +19,6 @@ from keystone.common import sql
 
 
 class RoleTable(sql.ModelBase, sql.ModelDictMixinWithExtras):
-
     def to_dict(self, include_extra_dict=False):
         d = super().to_dict(include_extra_dict=include_extra_dict)
         if d['domain_id'] == base.NULL_DOMAIN_ID:
@@ -96,7 +95,7 @@ class ImpliedRoleTable(sql.ModelBase, sql.ModelDictMixin):
         overrides the `to_dict` function from the base class
         to avoid having an `extra` field.
         """
-        d = dict()
+        d = {}
         for attr in self.__class__.attributes:
             d[attr] = getattr(self, attr)
         return d

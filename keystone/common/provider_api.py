@@ -35,7 +35,7 @@ class ProviderAPIRegistry:
         try:
             return self.__registry[item]
         except KeyError:
-            raise AttributeError("'ProviderAPIs' has no attribute %s" % item)
+            raise AttributeError(f"'ProviderAPIs' has no attribute {item}")
 
     def __setattr__(self, key, value):
         """Do not allow setting values on the registry object."""
@@ -58,9 +58,8 @@ class ProviderAPIRegistry:
 
         if name in self.__registry:
             raise DuplicateProviderError(
-                '`%(name)s` has already been registered as an api '
-                'provider by `%(prov)r`'
-                % {'name': name, 'prov': self.__registry[name]}
+                f'`{name}` has already been registered as an api '
+                f'provider by `{self.__registry[name]!r}`'
             )
         self.__registry[name] = obj
 

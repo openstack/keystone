@@ -151,7 +151,7 @@ class Revoke(base.RevokeDriverBase):
 
     @oslo_db_api.wrap_db_retry(retry_on_deadlock=True)
     def revoke(self, event):
-        kwargs = dict()
+        kwargs = {}
         for attr in revoke_model.REVOKE_KEYS:
             kwargs[attr] = getattr(event, attr)
         record = RevocationEvent(**kwargs)

@@ -52,11 +52,7 @@ unless you are providing a custom entry point.
 
 
 GROUP_NAME = __name__.split('.')[-1]
-ALL_OPTS = [
-    allow_redelegation,
-    max_redelegation_count,
-    driver,
-]
+ALL_OPTS = [allow_redelegation, max_redelegation_count, driver]
 
 
 def register_opts(conf):

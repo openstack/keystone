@@ -25,7 +25,6 @@ PROVIDERS = provider_api.ProviderAPIs
 
 
 class _SystemUserTokenTests:
-
     def test_user_can_validate_system_scoped_token(self):
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
         user['id'] = PROVIDERS.identity_api.create_user(user)['id']
@@ -105,7 +104,6 @@ class _SystemUserTokenTests:
 
 
 class _SystemMemberAndReaderTokenTests:
-
     def test_user_cannot_revoke_a_system_scoped_token(self):
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
         user['id'] = PROVIDERS.identity_api.create_user(user)['id']
@@ -202,7 +200,6 @@ class SystemReaderTests(
     _SystemUserTokenTests,
     _SystemMemberAndReaderTokenTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -237,7 +234,6 @@ class SystemMemberTests(
     _SystemUserTokenTests,
     _SystemMemberAndReaderTokenTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -271,7 +267,6 @@ class SystemAdminTests(
     common_auth.AuthTestMixin,
     _SystemUserTokenTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -371,7 +366,6 @@ class SystemAdminTests(
 
 
 class _DomainAndProjectUserTests:
-
     def test_user_can_validate_their_own_tokens(self):
         with self.test_client() as c:
             self.headers['X-Subject-Token'] = self.token_id
@@ -566,7 +560,6 @@ class DomainUserTests(
     common_auth.AuthTestMixin,
     _DomainAndProjectUserTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -606,7 +599,6 @@ class ProjectUserTests(
     common_auth.AuthTestMixin,
     _DomainAndProjectUserTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()

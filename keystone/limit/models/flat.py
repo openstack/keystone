@@ -14,7 +14,6 @@ from keystone.limit.models import base
 
 
 class FlatModel(base.ModelBase):
-
     NAME = 'flat'
     DESCRIPTION = (
         'Limit enforcement and validation does not take project hierarchy '

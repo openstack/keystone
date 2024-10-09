@@ -29,7 +29,6 @@ PROVIDERS = provider_api.ProviderAPIs
 
 
 class _SystemUserGrantTests:
-
     def test_can_list_grants_for_user_on_project(self):
         user = PROVIDERS.identity_api.create_user(
             unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
@@ -97,8 +96,9 @@ class _SystemUserGrantTests:
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/projects/%s/groups/%s/roles'
-                % (project['id'], group['id']),
+                '/v3/projects/{}/groups/{}/roles'.format(
+                    project['id'], group['id']
+                ),
                 headers=self.headers,
             )
             self.assertEqual(1, len(r.json['roles']))
@@ -145,11 +145,8 @@ class _SystemUserGrantTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/projects/%s/users/%s/roles/%s'
-                % (
-                    project['id'],
-                    user['id'],
-                    self.bootstrapper.reader_role_id,
+                '/v3/projects/{}/users/{}/roles/{}'.format(
+                    project['id'], user['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
                 expected_status_code=http.client.NO_CONTENT,
@@ -172,8 +169,9 @@ class _SystemUserGrantTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/domains/%s/users/%s/roles/%s'
-                % (domain['id'], user['id'], self.bootstrapper.reader_role_id),
+                '/v3/domains/{}/users/{}/roles/{}'.format(
+                    domain['id'], user['id'], self.bootstrapper.reader_role_id
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.NO_CONTENT,
             )
@@ -196,8 +194,7 @@ class _SystemUserGrantTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/projects/%s/groups/%s/roles/%s'
-                % (
+                '/v3/projects/{}/groups/{}/roles/{}'.format(
                     project['id'],
                     group['id'],
                     self.bootstrapper.reader_role_id,
@@ -223,11 +220,8 @@ class _SystemUserGrantTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/domains/%s/groups/%s/roles/%s'
-                % (
-                    domain['id'],
-                    group['id'],
-                    self.bootstrapper.reader_role_id,
+                '/v3/domains/{}/groups/{}/roles/{}'.format(
+                    domain['id'], group['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
                 expected_status_code=http.client.NO_CONTENT,
@@ -235,7 +229,6 @@ class _SystemUserGrantTests:
 
 
 class _SystemMemberAndReaderGrantTests:
-
     def test_cannot_create_grant_for_user_on_project(self):
         user = PROVIDERS.identity_api.create_user(
             unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
@@ -248,11 +241,8 @@ class _SystemMemberAndReaderGrantTests:
 
         with self.test_client() as c:
             c.put(
-                '/v3/projects/%s/users/%s/roles/%s'
-                % (
-                    project['id'],
-                    user['id'],
-                    self.bootstrapper.reader_role_id,
+                '/v3/projects/{}/users/{}/roles/{}'.format(
+                    project['id'], user['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -269,8 +259,9 @@ class _SystemMemberAndReaderGrantTests:
 
         with self.test_client() as c:
             c.put(
-                '/v3/domains/%s/users/%s/roles/%s'
-                % (domain['id'], user['id'], self.bootstrapper.reader_role_id),
+                '/v3/domains/{}/users/{}/roles/{}'.format(
+                    domain['id'], user['id'], self.bootstrapper.reader_role_id
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -287,8 +278,7 @@ class _SystemMemberAndReaderGrantTests:
 
         with self.test_client() as c:
             c.put(
-                '/v3/projects/%s/groups/%s/roles/%s'
-                % (
+                '/v3/projects/{}/groups/{}/roles/{}'.format(
                     project['id'],
                     group['id'],
                     self.bootstrapper.reader_role_id,
@@ -308,11 +298,8 @@ class _SystemMemberAndReaderGrantTests:
 
         with self.test_client() as c:
             c.put(
-                '/v3/domains/%s/groups/%s/roles/%s'
-                % (
-                    domain['id'],
-                    group['id'],
-                    self.bootstrapper.reader_role_id,
+                '/v3/domains/{}/groups/{}/roles/{}'.format(
+                    domain['id'], group['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -336,11 +323,8 @@ class _SystemMemberAndReaderGrantTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/projects/%s/users/%s/roles/%s'
-                % (
-                    project['id'],
-                    user['id'],
-                    self.bootstrapper.reader_role_id,
+                '/v3/projects/{}/users/{}/roles/{}'.format(
+                    project['id'], user['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -363,8 +347,9 @@ class _SystemMemberAndReaderGrantTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/domains/%s/users/%s/roles/%s'
-                % (domain['id'], user['id'], self.bootstrapper.reader_role_id),
+                '/v3/domains/{}/users/{}/roles/{}'.format(
+                    domain['id'], user['id'], self.bootstrapper.reader_role_id
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -387,8 +372,7 @@ class _SystemMemberAndReaderGrantTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/projects/%s/groups/%s/roles/%s'
-                % (
+                '/v3/projects/{}/groups/{}/roles/{}'.format(
                     project['id'],
                     group['id'],
                     self.bootstrapper.reader_role_id,
@@ -414,11 +398,8 @@ class _SystemMemberAndReaderGrantTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/domains/%s/groups/%s/roles/%s'
-                % (
-                    domain['id'],
-                    group['id'],
-                    self.bootstrapper.reader_role_id,
+                '/v3/domains/{}/groups/{}/roles/{}'.format(
+                    domain['id'], group['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -426,7 +407,6 @@ class _SystemMemberAndReaderGrantTests:
 
 
 class _DomainUserTests:
-
     def test_can_list_grants_for_user_on_project(self):
         user = PROVIDERS.identity_api.create_user(
             unit.new_user_ref(domain_id=self.domain_id)
@@ -488,8 +468,9 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/projects/%s/groups/%s/roles'
-                % (project['id'], group['id']),
+                '/v3/projects/{}/groups/{}/roles'.format(
+                    project['id'], group['id']
+                ),
                 headers=self.headers,
             )
             self.assertEqual(1, len(r.json['roles']))
@@ -507,8 +488,9 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/domains/%s/groups/%s/roles'
-                % (self.domain_id, group['id']),
+                '/v3/domains/{}/groups/{}/roles'.format(
+                    self.domain_id, group['id']
+                ),
                 headers=self.headers,
             )
             self.assertEqual(1, len(r.json['roles']))
@@ -530,11 +512,8 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/projects/%s/users/%s/roles/%s'
-                % (
-                    project['id'],
-                    user['id'],
-                    self.bootstrapper.reader_role_id,
+                '/v3/projects/{}/users/{}/roles/{}'.format(
+                    project['id'], user['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
                 expected_status_code=http.client.NO_CONTENT,
@@ -553,8 +532,7 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/domains/%s/users/%s/roles/%s'
-                % (
+                '/v3/domains/{}/users/{}/roles/{}'.format(
                     self.domain_id,
                     user['id'],
                     self.bootstrapper.reader_role_id,
@@ -580,8 +558,7 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/projects/%s/groups/%s/roles/%s'
-                % (
+                '/v3/projects/{}/groups/{}/roles/{}'.format(
                     project['id'],
                     group['id'],
                     self.bootstrapper.reader_role_id,
@@ -603,8 +580,7 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/domains/%s/groups/%s/roles/%s'
-                % (
+                '/v3/domains/{}/groups/{}/roles/{}'.format(
                     self.domain_id,
                     group['id'],
                     self.bootstrapper.reader_role_id,
@@ -735,8 +711,9 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/projects/%s/groups/%s/roles'
-                % (project['id'], group['id']),
+                '/v3/projects/{}/groups/{}/roles'.format(
+                    project['id'], group['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -763,8 +740,9 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/projects/%s/groups/%s/roles'
-                % (project['id'], group['id']),
+                '/v3/projects/{}/groups/{}/roles'.format(
+                    project['id'], group['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -837,11 +815,8 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/projects/%s/users/%s/roles/%s'
-                % (
-                    project['id'],
-                    user['id'],
-                    self.bootstrapper.reader_role_id,
+                '/v3/projects/{}/users/{}/roles/{}'.format(
+                    project['id'], user['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -869,11 +844,8 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/projects/%s/users/%s/roles/%s'
-                % (
-                    project['id'],
-                    user['id'],
-                    self.bootstrapper.reader_role_id,
+                '/v3/projects/{}/users/{}/roles/{}'.format(
+                    project['id'], user['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -905,8 +877,9 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/projects/%s/users/%s/roles/%s'
-                % (project['id'], user['id'], role['id']),
+                '/v3/projects/{}/users/{}/roles/{}'.format(
+                    project['id'], user['id'], role['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -927,8 +900,9 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/domains/%s/users/%s/roles/%s'
-                % (domain_id, user['id'], self.bootstrapper.reader_role_id),
+                '/v3/domains/{}/users/{}/roles/{}'.format(
+                    domain_id, user['id'], self.bootstrapper.reader_role_id
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -949,8 +923,9 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/domains/%s/users/%s/roles/%s'
-                % (domain_id, user['id'], self.bootstrapper.reader_role_id),
+                '/v3/domains/{}/users/{}/roles/{}'.format(
+                    domain_id, user['id'], self.bootstrapper.reader_role_id
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -977,8 +952,9 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/domains/%s/users/%s/roles/%s'
-                % (domain_id, user['id'], role['id']),
+                '/v3/domains/{}/users/{}/roles/{}'.format(
+                    domain_id, user['id'], role['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -1005,8 +981,7 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/projects/%s/groups/%s/roles/%s'
-                % (
+                '/v3/projects/{}/groups/{}/roles/{}'.format(
                     project['id'],
                     group['id'],
                     self.bootstrapper.reader_role_id,
@@ -1037,8 +1012,7 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/projects/%s/groups/%s/roles/%s'
-                % (
+                '/v3/projects/{}/groups/{}/roles/{}'.format(
                     project['id'],
                     group['id'],
                     self.bootstrapper.reader_role_id,
@@ -1073,8 +1047,9 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/projects/%s/groups/%s/roles/%s'
-                % (project['id'], group['id'], role['id']),
+                '/v3/projects/{}/groups/{}/roles/{}'.format(
+                    project['id'], group['id'], role['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -1095,8 +1070,9 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/domains/%s/groups/%s/roles/%s'
-                % (domain_id, group['id'], self.bootstrapper.reader_role_id),
+                '/v3/domains/{}/groups/{}/roles/{}'.format(
+                    domain_id, group['id'], self.bootstrapper.reader_role_id
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -1117,8 +1093,9 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/domains/%s/groups/%s/roles/%s'
-                % (domain_id, group['id'], self.bootstrapper.reader_role_id),
+                '/v3/domains/{}/groups/{}/roles/{}'.format(
+                    domain_id, group['id'], self.bootstrapper.reader_role_id
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -1145,8 +1122,9 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/domains/%s/groups/%s/roles/%s'
-                % (domain_id, group['id'], role['id']),
+                '/v3/domains/{}/groups/{}/roles/{}'.format(
+                    domain_id, group['id'], role['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -1167,11 +1145,8 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             c.put(
-                '/v3/projects/%s/users/%s/roles/%s'
-                % (
-                    project['id'],
-                    user['id'],
-                    self.bootstrapper.reader_role_id,
+                '/v3/projects/{}/users/{}/roles/{}'.format(
+                    project['id'], user['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -1193,11 +1168,8 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             c.put(
-                '/v3/projects/%s/users/%s/roles/%s'
-                % (
-                    project['id'],
-                    user['id'],
-                    self.bootstrapper.reader_role_id,
+                '/v3/projects/{}/users/{}/roles/{}'.format(
+                    project['id'], user['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -1223,8 +1195,9 @@ class _DomainUserTests:
         )
         with self.test_client() as c:
             c.put(
-                '/v3/projects/%s/users/%s/roles/%s'
-                % (project['id'], user['id'], role['id']),
+                '/v3/projects/{}/users/{}/roles/{}'.format(
+                    project['id'], user['id'], role['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -1239,8 +1212,9 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             c.put(
-                '/v3/domains/%s/users/%s/roles/%s'
-                % (domain_id, user['id'], self.bootstrapper.reader_role_id),
+                '/v3/domains/{}/users/{}/roles/{}'.format(
+                    domain_id, user['id'], self.bootstrapper.reader_role_id
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -1255,8 +1229,9 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             c.put(
-                '/v3/domains/%s/users/%s/roles/%s'
-                % (domain_id, user['id'], self.bootstrapper.reader_role_id),
+                '/v3/domains/{}/users/{}/roles/{}'.format(
+                    domain_id, user['id'], self.bootstrapper.reader_role_id
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -1278,8 +1253,9 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             c.put(
-                '/v3/domains/%s/users/%s/roles/%s'
-                % (domain_id, user['id'], role['id']),
+                '/v3/domains/{}/users/{}/roles/{}'.format(
+                    domain_id, user['id'], role['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -1300,8 +1276,7 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             c.put(
-                '/v3/projects/%s/groups/%s/roles/%s'
-                % (
+                '/v3/projects/{}/groups/{}/roles/{}'.format(
                     project['id'],
                     group['id'],
                     self.bootstrapper.reader_role_id,
@@ -1326,8 +1301,7 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             c.put(
-                '/v3/projects/%s/groups/%s/roles/%s'
-                % (
+                '/v3/projects/{}/groups/{}/roles/{}'.format(
                     project['id'],
                     group['id'],
                     self.bootstrapper.reader_role_id,
@@ -1357,8 +1331,9 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             c.put(
-                '/v3/projects/%s/groups/%s/roles/%s'
-                % (project['id'], group['id'], role['id']),
+                '/v3/projects/{}/groups/{}/roles/{}'.format(
+                    project['id'], group['id'], role['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -1373,8 +1348,9 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             c.put(
-                '/v3/domains/%s/groups/%s/roles/%s'
-                % (domain_id, group['id'], self.bootstrapper.reader_role_id),
+                '/v3/domains/{}/groups/{}/roles/{}'.format(
+                    domain_id, group['id'], self.bootstrapper.reader_role_id
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -1389,8 +1365,9 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             c.put(
-                '/v3/domains/%s/groups/%s/roles/%s'
-                % (domain_id, group['id'], self.bootstrapper.reader_role_id),
+                '/v3/domains/{}/groups/{}/roles/{}'.format(
+                    domain_id, group['id'], self.bootstrapper.reader_role_id
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -1412,8 +1389,9 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             c.put(
-                '/v3/domains/%s/groups/%s/roles/%s'
-                % (domain_id, group['id'], role['id']),
+                '/v3/domains/{}/groups/{}/roles/{}'.format(
+                    domain_id, group['id'], role['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -1440,11 +1418,8 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/projects/%s/users/%s/roles/%s'
-                % (
-                    project['id'],
-                    user['id'],
-                    self.bootstrapper.reader_role_id,
+                '/v3/projects/{}/users/{}/roles/{}'.format(
+                    project['id'], user['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -1472,11 +1447,8 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/projects/%s/users/%s/roles/%s'
-                % (
-                    project['id'],
-                    user['id'],
-                    self.bootstrapper.reader_role_id,
+                '/v3/projects/{}/users/{}/roles/{}'.format(
+                    project['id'], user['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -1498,8 +1470,9 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/domains/%s/users/%s/roles/%s'
-                % (domain_id, user['id'], self.bootstrapper.reader_role_id),
+                '/v3/domains/{}/users/{}/roles/{}'.format(
+                    domain_id, user['id'], self.bootstrapper.reader_role_id
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -1520,8 +1493,9 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/domains/%s/users/%s/roles/%s'
-                % (domain_id, user['id'], self.bootstrapper.reader_role_id),
+                '/v3/domains/{}/users/{}/roles/{}'.format(
+                    domain_id, user['id'], self.bootstrapper.reader_role_id
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -1547,8 +1521,9 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/domains/%s/users/%s/roles/%s'
-                % (domain_id, user['id'], role['id']),
+                '/v3/domains/{}/users/{}/roles/{}'.format(
+                    domain_id, user['id'], role['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -1575,8 +1550,7 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/projects/%s/groups/%s/roles/%s'
-                % (
+                '/v3/projects/{}/groups/{}/roles/{}'.format(
                     project['id'],
                     group['id'],
                     self.bootstrapper.reader_role_id,
@@ -1607,8 +1581,7 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/projects/%s/groups/%s/roles/%s'
-                % (
+                '/v3/projects/{}/groups/{}/roles/{}'.format(
                     project['id'],
                     group['id'],
                     self.bootstrapper.reader_role_id,
@@ -1633,8 +1606,9 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/domains/%s/groups/%s/roles/%s'
-                % (domain_id, group['id'], self.bootstrapper.reader_role_id),
+                '/v3/domains/{}/groups/{}/roles/{}'.format(
+                    domain_id, group['id'], self.bootstrapper.reader_role_id
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -1655,8 +1629,9 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/domains/%s/groups/%s/roles/%s'
-                % (domain_id, group['id'], self.bootstrapper.reader_role_id),
+                '/v3/domains/{}/groups/{}/roles/{}'.format(
+                    domain_id, group['id'], self.bootstrapper.reader_role_id
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -1682,8 +1657,9 @@ class _DomainUserTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/domains/%s/groups/%s/roles/%s'
-                % (domain_id, group['id'], role['id']),
+                '/v3/domains/{}/groups/{}/roles/{}'.format(
+                    domain_id, group['id'], role['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -1695,7 +1671,6 @@ class SystemReaderTests(
     _SystemUserGrantTests,
     _SystemMemberAndReaderGrantTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -1730,7 +1705,6 @@ class SystemMemberTests(
     _SystemUserGrantTests,
     _SystemMemberAndReaderGrantTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -1764,7 +1738,6 @@ class SystemAdminTests(
     common_auth.AuthTestMixin,
     _SystemUserGrantTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -1797,11 +1770,8 @@ class SystemAdminTests(
 
         with self.test_client() as c:
             c.put(
-                '/v3/projects/%s/users/%s/roles/%s'
-                % (
-                    project['id'],
-                    user['id'],
-                    self.bootstrapper.reader_role_id,
+                '/v3/projects/{}/users/{}/roles/{}'.format(
+                    project['id'], user['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
             )
@@ -1817,8 +1787,9 @@ class SystemAdminTests(
 
         with self.test_client() as c:
             c.put(
-                '/v3/domains/%s/users/%s/roles/%s'
-                % (domain['id'], user['id'], self.bootstrapper.reader_role_id),
+                '/v3/domains/{}/users/{}/roles/{}'.format(
+                    domain['id'], user['id'], self.bootstrapper.reader_role_id
+                ),
                 headers=self.headers,
             )
 
@@ -1834,8 +1805,7 @@ class SystemAdminTests(
 
         with self.test_client() as c:
             c.put(
-                '/v3/projects/%s/groups/%s/roles/%s'
-                % (
+                '/v3/projects/{}/groups/{}/roles/{}'.format(
                     project['id'],
                     group['id'],
                     self.bootstrapper.reader_role_id,
@@ -1854,11 +1824,8 @@ class SystemAdminTests(
 
         with self.test_client() as c:
             c.put(
-                '/v3/domains/%s/groups/%s/roles/%s'
-                % (
-                    domain['id'],
-                    group['id'],
-                    self.bootstrapper.reader_role_id,
+                '/v3/domains/{}/groups/{}/roles/{}'.format(
+                    domain['id'], group['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
             )
@@ -1881,11 +1848,8 @@ class SystemAdminTests(
 
         with self.test_client() as c:
             c.delete(
-                '/v3/projects/%s/users/%s/roles/%s'
-                % (
-                    project['id'],
-                    user['id'],
-                    self.bootstrapper.reader_role_id,
+                '/v3/projects/{}/users/{}/roles/{}'.format(
+                    project['id'], user['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
             )
@@ -1907,8 +1871,9 @@ class SystemAdminTests(
 
         with self.test_client() as c:
             c.delete(
-                '/v3/domains/%s/users/%s/roles/%s'
-                % (domain['id'], user['id'], self.bootstrapper.reader_role_id),
+                '/v3/domains/{}/users/{}/roles/{}'.format(
+                    domain['id'], user['id'], self.bootstrapper.reader_role_id
+                ),
                 headers=self.headers,
             )
 
@@ -1930,8 +1895,7 @@ class SystemAdminTests(
 
         with self.test_client() as c:
             c.delete(
-                '/v3/projects/%s/groups/%s/roles/%s'
-                % (
+                '/v3/projects/{}/groups/{}/roles/{}'.format(
                     project['id'],
                     group['id'],
                     self.bootstrapper.reader_role_id,
@@ -1956,18 +1920,14 @@ class SystemAdminTests(
 
         with self.test_client() as c:
             c.delete(
-                '/v3/domains/%s/groups/%s/roles/%s'
-                % (
-                    domain['id'],
-                    group['id'],
-                    self.bootstrapper.reader_role_id,
+                '/v3/domains/{}/groups/{}/roles/{}'.format(
+                    domain['id'], group['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
             )
 
 
 class _DomainMemberAndReaderTests:
-
     def test_cannot_create_grant_for_user_on_project(self):
         user = PROVIDERS.identity_api.create_user(
             unit.new_user_ref(domain_id=self.domain_id)
@@ -1980,11 +1940,8 @@ class _DomainMemberAndReaderTests:
 
         with self.test_client() as c:
             c.put(
-                '/v3/projects/%s/users/%s/roles/%s'
-                % (
-                    project['id'],
-                    user['id'],
-                    self.bootstrapper.reader_role_id,
+                '/v3/projects/{}/users/{}/roles/{}'.format(
+                    project['id'], user['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -2001,8 +1958,9 @@ class _DomainMemberAndReaderTests:
 
         with self.test_client() as c:
             c.put(
-                '/v3/domains/%s/users/%s/roles/%s'
-                % (domain['id'], user['id'], self.bootstrapper.reader_role_id),
+                '/v3/domains/{}/users/{}/roles/{}'.format(
+                    domain['id'], user['id'], self.bootstrapper.reader_role_id
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -2018,8 +1976,7 @@ class _DomainMemberAndReaderTests:
 
         with self.test_client() as c:
             c.put(
-                '/v3/projects/%s/groups/%s/roles/%s'
-                % (
+                '/v3/projects/{}/groups/{}/roles/{}'.format(
                     project['id'],
                     group['id'],
                     self.bootstrapper.reader_role_id,
@@ -2039,11 +1996,8 @@ class _DomainMemberAndReaderTests:
 
         with self.test_client() as c:
             c.put(
-                '/v3/domains/%s/groups/%s/roles/%s'
-                % (
-                    domain['id'],
-                    group['id'],
-                    self.bootstrapper.reader_role_id,
+                '/v3/domains/{}/groups/{}/roles/{}'.format(
+                    domain['id'], group['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -2066,11 +2020,8 @@ class _DomainMemberAndReaderTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/projects/%s/users/%s/roles/%s'
-                % (
-                    project['id'],
-                    user['id'],
-                    self.bootstrapper.reader_role_id,
+                '/v3/projects/{}/users/{}/roles/{}'.format(
+                    project['id'], user['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -2093,8 +2044,9 @@ class _DomainMemberAndReaderTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/domains/%s/users/%s/roles/%s'
-                % (domain['id'], user['id'], self.bootstrapper.reader_role_id),
+                '/v3/domains/{}/users/{}/roles/{}'.format(
+                    domain['id'], user['id'], self.bootstrapper.reader_role_id
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -2117,8 +2069,7 @@ class _DomainMemberAndReaderTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/projects/%s/groups/%s/roles/%s'
-                % (
+                '/v3/projects/{}/groups/{}/roles/{}'.format(
                     project['id'],
                     group['id'],
                     self.bootstrapper.reader_role_id,
@@ -2144,11 +2095,8 @@ class _DomainMemberAndReaderTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/domains/%s/groups/%s/roles/%s'
-                % (
-                    domain['id'],
-                    group['id'],
-                    self.bootstrapper.reader_role_id,
+                '/v3/domains/{}/groups/{}/roles/{}'.format(
+                    domain['id'], group['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -2161,7 +2109,6 @@ class DomainReaderTests(
     _DomainUserTests,
     _DomainMemberAndReaderTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -2200,7 +2147,6 @@ class DomainMemberTests(
     _DomainUserTests,
     _DomainMemberAndReaderTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -2237,7 +2183,6 @@ class DomainAdminTests(
     common_auth.AuthTestMixin,
     _DomainUserTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -2305,11 +2250,8 @@ class DomainAdminTests(
 
         with self.test_client() as c:
             c.put(
-                '/v3/projects/%s/users/%s/roles/%s'
-                % (
-                    project['id'],
-                    user['id'],
-                    self.bootstrapper.reader_role_id,
+                '/v3/projects/{}/users/{}/roles/{}'.format(
+                    project['id'], user['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
             )
@@ -2321,8 +2263,7 @@ class DomainAdminTests(
 
         with self.test_client() as c:
             c.put(
-                '/v3/domains/%s/users/%s/roles/%s'
-                % (
+                '/v3/domains/{}/users/{}/roles/{}'.format(
                     self.domain_id,
                     user['id'],
                     self.bootstrapper.reader_role_id,
@@ -2341,8 +2282,7 @@ class DomainAdminTests(
 
         with self.test_client() as c:
             c.put(
-                '/v3/projects/%s/groups/%s/roles/%s'
-                % (
+                '/v3/projects/{}/groups/{}/roles/{}'.format(
                     project['id'],
                     group['id'],
                     self.bootstrapper.reader_role_id,
@@ -2357,8 +2297,7 @@ class DomainAdminTests(
 
         with self.test_client() as c:
             c.put(
-                '/v3/domains/%s/groups/%s/roles/%s'
-                % (
+                '/v3/domains/{}/groups/{}/roles/{}'.format(
                     self.domain_id,
                     group['id'],
                     self.bootstrapper.reader_role_id,
@@ -2383,11 +2322,8 @@ class DomainAdminTests(
 
         with self.test_client() as c:
             c.delete(
-                '/v3/projects/%s/users/%s/roles/%s'
-                % (
-                    project['id'],
-                    user['id'],
-                    self.bootstrapper.reader_role_id,
+                '/v3/projects/{}/users/{}/roles/{}'.format(
+                    project['id'], user['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
             )
@@ -2409,8 +2345,7 @@ class DomainAdminTests(
 
         with self.test_client() as c:
             c.delete(
-                '/v3/projects/%s/groups/%s/roles/%s'
-                % (
+                '/v3/projects/{}/groups/{}/roles/{}'.format(
                     project['id'],
                     group['id'],
                     self.bootstrapper.reader_role_id,
@@ -2435,11 +2370,8 @@ class DomainAdminTests(
 
         with self.test_client() as c:
             c.delete(
-                '/v3/domains/%s/groups/%s/roles/%s'
-                % (
-                    domain['id'],
-                    group['id'],
-                    self.bootstrapper.reader_role_id,
+                '/v3/domains/{}/groups/{}/roles/{}'.format(
+                    domain['id'], group['id'], self.bootstrapper.reader_role_id
                 ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,

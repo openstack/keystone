@@ -203,7 +203,6 @@ class DnCompareTest(unit.BaseTestCase):
 
 
 class LDAPDeleteTreeTest(unit.TestCase):
-
     def setUp(self):
         super().setUp()
 
@@ -473,9 +472,9 @@ class CommonLdapTestCase(unit.BaseTestCase):
                     'cn': ['junk'],
                     'sn': [uuid.uuid4().hex],
                     'mail': [uuid.uuid4().hex],
-                    'binary_attr': [b'\x00\xFF\x00\xFF'],
+                    'binary_attr': [b'\x00\xff\x00\xff'],
                 },
-            ),
+            )
         ]
         py_result = common_ldap.convert_ldap_result(result)
         # The attribute containing the binary value should
@@ -509,7 +508,7 @@ class CommonLdapTestCase(unit.BaseTestCase):
             (
                 'cn=dummy,dc=example,dc=com',
                 {'user_id': [user_id], 'enabled': ['TRUE']},
-            ),
+            )
         ]
         py_result = common_ldap.convert_ldap_result(result)
         # The user id should be 0123456, and the enabled
@@ -525,7 +524,7 @@ class CommonLdapTestCase(unit.BaseTestCase):
             (
                 'cn=dummy,dc=example,dc=com',
                 {'user_id': [user_id], 'enabled': [bitmask]},
-            ),
+            )
         ]
         py_result = common_ldap.convert_ldap_result(result)
         # The user id should be 0123456, and the enabled
@@ -541,7 +540,7 @@ class CommonLdapTestCase(unit.BaseTestCase):
             (
                 'cn=dummy,dc=example,dc=com',
                 {'user_id': [user_id], 'enabled': [bitmask]},
-            ),
+            )
         ]
         py_result = common_ldap.convert_ldap_result(result)
         # The user id should be 0123456, and the enabled
@@ -566,7 +565,7 @@ class CommonLdapTestCase(unit.BaseTestCase):
                 (
                     'cn=dummy,dc=example,dc=com',
                     {'user_id': [user_id], 'user_name': [user_name]},
-                ),
+                )
             ]
             py_result = common_ldap.convert_ldap_result(result)
             # The user name should still be a string value.
@@ -628,10 +627,7 @@ class LDAPFilterQueryCompositionTest(unit.BaseTestCase):
             comparator='equals',
             case_sensitive=False,
         )
-        expected_ldap_filter = '(&({}={}))'.format(
-            self.filter_attribute_name,
-            username,
-        )
+        expected_ldap_filter = f'(&({self.filter_attribute_name}={username}))'
         self.assertEqual(
             expected_ldap_filter, self.base_ldap.filter_query(hints=hints)
         )
@@ -642,12 +638,8 @@ class LDAPFilterQueryCompositionTest(unit.BaseTestCase):
         # filter string is concatenated correctly
         query = uuid.uuid4().hex
         username = uuid.uuid4().hex
-        expected_result = '(&%(query)s(%(user_name_attr)s=%(username)s))' % (
-            {
-                'query': query,
-                'user_name_attr': self.filter_attribute_name,
-                'username': username,
-            }
+        expected_result = (
+            f'(&{query}({self.filter_attribute_name}={username}))'
         )
         hints.add_filter(self.attribute_name, username)
         self.assertEqual(
@@ -664,10 +656,7 @@ class LDAPFilterQueryCompositionTest(unit.BaseTestCase):
             comparator='equals',
             case_sensitive=False,
         )
-        expected_ldap_filter = '(&({}={}))'.format(
-            self.filter_attribute_name,
-            username,
-        )
+        expected_ldap_filter = f'(&({self.filter_attribute_name}={username}))'
         self.assertEqual(
             expected_ldap_filter,
             self.base_ldap.filter_query(hints=hints, query=None),
