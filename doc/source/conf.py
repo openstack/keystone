@@ -58,6 +58,7 @@ apidoc_excluded_paths = [
     'tests/*',
     'tests',
     'test',
+    'wsgi',
     # TODO(gmann): with new release of SQLAlchemy(1.4.27) TypeDecorator used
     # in common/sql/core.py file started failing. Remove this oncethe issue of
     # TypeDecorator is fixed.
