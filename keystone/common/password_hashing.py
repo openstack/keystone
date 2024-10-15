@@ -13,6 +13,8 @@
 #    License for the specific language governing permissions and limitations
 #    under the License.
 
+import base64
+import hmac
 import itertools
 
 from oslo_log import log
@@ -178,3 +180,35 @@ def hash_password(password: str) -> str:
             _('Password Hash Algorithm %s not implemented')
             % CONF.identity.password_hash_algorithm
         )
+
+
+def generate_partial_password_hash(password: str, salt: str) -> str:
+    """Generates partial password hash for reporting purposes.
+
+    The generated password hash is base64 encoded, and `max_chars` of it are
+    returned.
+    """
+    secret_key = CONF.security_compliance.invalid_password_hash_secret_key
+    if secret_key is None:
+        raise RuntimeError(_('Secret Key value has to be provided'))
+
+    hash_function = CONF.security_compliance.invalid_password_hash_function
+
+    salted = hmac.digest(
+        key=bytes(salt, "utf-8"),
+        msg=bytes(password, "utf-8"),
+        digest=hash_function,
+    )
+
+    peppered = hmac.digest(
+        key=bytes(secret_key, "utf-8"), msg=salted, digest=hash_function
+    )
+
+    # encode to utilize more characters to reduce collisions when further
+    # truncating
+    encoded = base64.b64encode(peppered).decode("utf-8").rstrip("=")
+
+    max_chars = CONF.security_compliance.invalid_password_hash_max_chars
+    if max_chars is None:
+        return encoded
+    return encoded[:max_chars]

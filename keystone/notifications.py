@@ -24,6 +24,7 @@ from oslo_log import log
 import oslo_messaging
 from oslo_utils import reflection
 import pycadf
+from pycadf import attachment
 from pycadf import cadftaxonomy as taxonomy
 from pycadf import cadftype
 from pycadf import credential
@@ -33,6 +34,7 @@ from pycadf import reason
 from pycadf import resource
 
 from keystone.common import context
+from keystone.common import password_hashing
 from keystone.common import provider_api
 from keystone.common import utils
 import keystone.conf
@@ -723,7 +725,40 @@ class CadfNotificationWrapper:
                 if isinstance(ex, exception.AccountLocked):
                     raise exception.Unauthorized
                 raise
-            except Exception:
+            except Exception as ex:
+                audit_kwargs = {}
+
+                if (
+                    isinstance(ex, AssertionError)
+                    and kwargs.get("password") is not None
+                    and "event"
+                    in CONF.security_compliance.report_invalid_password_hash
+                ):
+                    # Authentication failed because of invalid password, so we
+                    # include partial pasword hash to aid bruteforce attacks
+                    # recognition
+                    partial_password_hash = (
+                        password_hashing.generate_partial_password_hash(
+                            kwargs["password"],
+                            # use fully qualified class name of the driver as
+                            # personalization salt causing to produce different
+                            # hashes for different backends even when the same
+                            # invalid password is submitted
+                            salt=reflection.get_class_name(
+                                wrapped_self.driver
+                            ),
+                        )
+                    )
+                    attachments = audit_kwargs.get("attachments", [])
+                    attachments.append(
+                        attachment.Attachment(
+                            typeURI="mime:text/plain",
+                            content=partial_password_hash,
+                            name="partial_password_hash",
+                        )
+                    )
+                    audit_kwargs["attachments"] = attachments
+
                 # For authentication failure send a CADF event as well
                 _send_audit_notification(
                     self.action,
@@ -731,6 +766,7 @@ class CadfNotificationWrapper:
                     taxonomy.OUTCOME_FAILURE,
                     target,
                     self.event_type,
+                    **audit_kwargs,
                 )
                 raise
             else:
@@ -904,7 +940,14 @@ class _CatalogHelperObj(provider_api.ProviderAPIMixin):
 
 
 def _send_audit_notification(
-    action, initiator, outcome, target, event_type, reason=None, **kwargs
+    action,
+    initiator,
+    outcome,
+    target,
+    event_type,
+    reason=None,
+    attachments=None,
+    **kwargs,
 ):
     """Send CADF notification to inform observers about the affected resource.
 
@@ -921,6 +964,7 @@ def _send_audit_notification(
         key-value pairs to the CADF event.
     :param reason: Reason for the notification which contains the response
         code and message description
+    :param attachments: Array of Attachment objects
     """
     if _check_notification_opt_out(event_type, outcome):
         return
@@ -950,6 +994,10 @@ def _send_audit_notification(
 
     if service_id is not None:
         event.observer.id = service_id
+
+    attachments = attachments if attachments is not None else []
+    for attachment_val in attachments:
+        event.add_attachment(attachment_val)
 
     for key, value in kwargs.items():
         setattr(event, key, value)
