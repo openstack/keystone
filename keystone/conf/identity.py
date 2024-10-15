@@ -11,7 +11,6 @@
 # under the License.
 
 from oslo_config import cfg
-import passlib.utils
 
 from keystone.conf import utils
 
@@ -116,7 +115,7 @@ identity caching are enabled.
 max_password_length = cfg.IntOpt(
     'max_password_length',
     default=4096,
-    max=passlib.utils.MAX_PASSWORD_SIZE,
+    max=4096,
     help=utils.fmt(
         """
 Maximum allowed length for user passwords. Decrease this value to improve
