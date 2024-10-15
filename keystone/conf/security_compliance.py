@@ -150,6 +150,79 @@ applicable with the `sql` backend for the `[identity] driver`.
     ),
 )
 
+report_invalid_password_hash = cfg.ListOpt(
+    'report_invalid_password_hash',
+    default="",
+    sample_default="event",
+    item_type=cfg.types.String(
+        choices=[
+            (
+                "event",
+                utils.fmt("""
+Enriches `identity.authenticate.failure` event notifications with partial
+invalid password hash
+"""),
+            )
+            # ("log", "description"),
+        ]
+    ),
+    help=utils.fmt(
+        """
+When configured, enriches the corresponding output channel with hash of invalid
+password, which could be further used to distinguish bruteforce attacks from
+e.g. external user automations that did not timely update rotated password by
+analyzing variability of the hash value.
+Additional configuration parameters are available using other
+`invalid_password_hash_*` configuration entires, that only take effect when
+this option is activated.
+"""
+    ),
+)
+
+invalid_password_hash_secret_key = cfg.StrOpt(
+    'invalid_password_hash_secret_key',
+    secret=True,
+    help=utils.fmt(
+        """
+If `report_invalid_password_hash` is configured, uses provided secret key when
+generating password hashes to make them unique and distinct from any other
+Keystone installations out there. Should be some secret static value specific
+to the current installation (the same value should be used in distributed
+installations working with the same backend, to make them all generate equal
+hashes for equal invalid passwords). 16 bytes (128 bits) or more is
+recommended.
+"""
+    ),
+)
+
+invalid_password_hash_function = cfg.StrOpt(
+    'invalid_password_hash_function',
+    default='sha256',
+    help=utils.fmt(
+        """
+If `report_invalid_password_hash` is configured, defines the hash function to
+be used by HMAC. Possible values are names suitable to hashlib.new() -
+https://docs.python.org/3/library/hashlib.html#hashlib.new.
+"""
+    ),
+)
+
+invalid_password_hash_max_chars = cfg.IntOpt(
+    'invalid_password_hash_max_chars',
+    min=1,
+    sample_default=5,
+    help=utils.fmt(
+        """
+If `report_invalid_password_hash` is configured, defines the number of
+characters of hash of invalid password to be returned. When not specified,
+returns full hash. Its length depends on implementation and
+`invalid_password_hash_function` configuration, but is typically 16+
+characters. It's recommended to use the least reasonable value however - it's
+the most effective measure to protect the hashes.
+"""
+    ),
+)
+
 
 GROUP_NAME = __name__.split('.')[-1]
 ALL_OPTS = [
@@ -162,6 +235,10 @@ ALL_OPTS = [
     password_regex,
     password_regex_description,
     change_password_upon_first_use,
+    report_invalid_password_hash,
+    invalid_password_hash_secret_key,
+    invalid_password_hash_function,
+    invalid_password_hash_max_chars,
 ]
 
 
