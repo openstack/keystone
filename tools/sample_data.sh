@@ -162,28 +162,16 @@ fi
 #
 # Volume service
 #
-openstack service create --name=cinderv2 \
-                         --description="Cinder Volume Service V2" \
-                         volumev2
-if [[ -z "$DISABLE_ENDPOINTS" ]]; then
-    openstack endpoint create --region RegionOne \
-        volume public "http://$CONTROLLER_PUBLIC_ADDRESS:8776/v2/\$(project_id)s"
-    openstack endpoint create --region RegionOne \
-        volume admin "http://$CONTROLLER_ADMIN_ADDRESS:8776/v2/\$(project_id)s"
-    openstack endpoint create --region RegionOne \
-        volume internal "http://$CONTROLLER_INTERNAL_ADDRESS:8776/v2/\$(project_id)s"
-fi
-
 openstack service create --name=cinderv3 \
                          --description="Cinder Volume Service V3" \
                          volumev3
 if [[ -z "$DISABLE_ENDPOINTS" ]]; then
     openstack endpoint create --region RegionOne \
-        volume public "http://$CONTROLLER_PUBLIC_ADDRESS:8776/v3/\$(project_id)s"
+        volume public "http://$CONTROLLER_PUBLIC_ADDRESS:8776/v3"
     openstack endpoint create --region RegionOne \
-        volume admin "http://$CONTROLLER_ADMIN_ADDRESS:8776/v3/\$(project_id)s"
+        volume admin "http://$CONTROLLER_ADMIN_ADDRESS:8776/v3"
     openstack endpoint create --region RegionOne \
-        volume internal "http://$CONTROLLER_INTERNAL_ADDRESS:8776/v3/\$(project_id)s"
+        volume internal "http://$CONTROLLER_INTERNAL_ADDRESS:8776/v3"
 fi
 
 #
