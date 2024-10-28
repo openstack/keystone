@@ -63,6 +63,8 @@ Parameters
    - is_domain: is_domain_query
    - name: project_name_query
    - parent_id: parent_id_query
+   - limit: limit_query
+   - marker: marker_query
 
 Response
 --------

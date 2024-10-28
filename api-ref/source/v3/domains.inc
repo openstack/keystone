@@ -41,6 +41,8 @@ Parameters
 
    - name: domain_name_query
    - enabled: domain_enabled_query
+   - limit: limit_query
+   - marker: marker_query
 
 Response
 --------

@@ -493,6 +493,40 @@ def _limit(query, hints):
     return query
 
 
+def filter_query(model, query, hints):
+    """Apply filtering to a query.
+
+    :param model: table model
+    :param query: query to apply filters to
+    :param hints: contains the list of filters and limit details.  This may
+                  be None, indicating that there are no filters or limits
+                  to be applied. If it's not None, then any filters
+                  satisfied here will be removed so that the caller will
+                  know if any filters remain.
+
+    :returns: query updated with any filters and limits satisfied
+
+    """
+    if hints is None:
+        return query
+
+    # First try and satisfy any filters
+    query = _filter(model, query, hints)
+
+    if hints.cannot_match:
+        # Nothing's going to match, so don't bother with the query.
+        return []
+
+    # NOTE(henry-nash): Any unsatisfied filters will have been left in
+    # the hints list for the controller to handle. We can only try and
+    # limit here if all the filters are already satisfied since, if not,
+    # doing so might mess up the final results. If there are still
+    # unsatisfied filters, we have to leave any limiting to the controller
+    # as well.
+
+    return query
+
+
 def filter_limit_query(model, query, hints):
     """Apply filtering and limit to a query.
 

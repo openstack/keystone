@@ -115,6 +115,11 @@ project_index_request_query = {
         "tags-any": parameter_types.tags,
         "not-tags": parameter_types.tags,
         "not-tags-any": parameter_types.tags,
+        "marker": {
+            "type": "string",
+            "description": "ID of the last fetched entry",
+        },
+        "limit": {"type": ["integer", "string"]},
     },
 }
 
