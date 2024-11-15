@@ -20,7 +20,6 @@ from keystone.tests.unit.resource import test_core
 
 
 class SqlDomainConfigModels(core_sql.BaseBackendSqlModels):
-
     def test_whitelisted_model(self):
         cols = (
             ('domain_id', sql.String, 64),

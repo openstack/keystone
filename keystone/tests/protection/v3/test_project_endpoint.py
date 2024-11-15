@@ -50,7 +50,9 @@ class _SystemUserProjectEndpointTests:
         )
         with self.test_client() as c:
             r = c.get(
-                '/v3/OS-EP-FILTER/endpoints/%s/projects' % endpoint['id'],
+                '/v3/OS-EP-FILTER/endpoints/{}/projects'.format(
+                    endpoint['id']
+                ),
                 headers=self.headers,
             )
             for project_itr in r.json['projects']:
@@ -75,8 +77,9 @@ class _SystemUserProjectEndpointTests:
         )
         with self.test_client() as c:
             c.get(
-                '/v3/OS-EP-FILTER/projects/%s/endpoints/%s'
-                % (project['id'], endpoint['id']),
+                '/v3/OS-EP-FILTER/projects/{}/endpoints/{}'.format(
+                    project['id'], endpoint['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.NO_CONTENT,
             )
@@ -100,7 +103,7 @@ class _SystemUserProjectEndpointTests:
         )
         with self.test_client() as c:
             r = c.get(
-                '/v3/OS-EP-FILTER/projects/%s/endpoints' % project['id'],
+                '/v3/OS-EP-FILTER/projects/{}/endpoints'.format(project['id']),
                 headers=self.headers,
             )
             for endpoint_itr in r.json['endpoints']:
@@ -108,7 +111,6 @@ class _SystemUserProjectEndpointTests:
 
 
 class _SystemReaderAndMemberProjectEndpointTests:
-
     def test_user_cannot_add_endpoint_to_project(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
@@ -124,8 +126,9 @@ class _SystemReaderAndMemberProjectEndpointTests:
         )
         with self.test_client() as c:
             c.put(
-                '/v3/OS-EP-FILTER/projects/%s/endpoints/%s'
-                % (project['id'], endpoint['id']),
+                '/v3/OS-EP-FILTER/projects/{}/endpoints/{}'.format(
+                    project['id'], endpoint['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -145,15 +148,15 @@ class _SystemReaderAndMemberProjectEndpointTests:
         )
         with self.test_client() as c:
             c.delete(
-                '/v3/OS-EP-FILTER/projects/%s/endpoints/%s'
-                % (project['id'], endpoint['id']),
+                '/v3/OS-EP-FILTER/projects/{}/endpoints/{}'.format(
+                    project['id'], endpoint['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
 
 
 class _DomainAndProjectUserProjectEndpointTests:
-
     def test_user_cannot_list_projects_for_endpoint(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
@@ -173,7 +176,9 @@ class _DomainAndProjectUserProjectEndpointTests:
         )
         with self.test_client() as c:
             c.get(
-                '/v3/OS-EP-FILTER/endpoints/%s/projects' % endpoint['id'],
+                '/v3/OS-EP-FILTER/endpoints/{}/projects'.format(
+                    endpoint['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -197,8 +202,9 @@ class _DomainAndProjectUserProjectEndpointTests:
         )
         with self.test_client() as c:
             c.get(
-                '/v3/OS-EP-FILTER/projects/%s/endpoints/%s'
-                % (project['id'], endpoint['id']),
+                '/v3/OS-EP-FILTER/projects/{}/endpoints/{}'.format(
+                    project['id'], endpoint['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -222,7 +228,7 @@ class _DomainAndProjectUserProjectEndpointTests:
         )
         with self.test_client() as c:
             c.get(
-                '/v3/OS-EP-FILTER/projects/%s/endpoints' % project['id'],
+                '/v3/OS-EP-FILTER/projects/{}/endpoints'.format(project['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -234,7 +240,6 @@ class SystemReaderTests(
     _SystemUserProjectEndpointTests,
     _SystemReaderAndMemberProjectEndpointTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -269,7 +274,6 @@ class SystemMemberTests(
     _SystemUserProjectEndpointTests,
     _SystemReaderAndMemberProjectEndpointTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -303,7 +307,6 @@ class SystemAdminTests(
     common_auth.AuthTestMixin,
     _SystemUserProjectEndpointTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -341,8 +344,9 @@ class SystemAdminTests(
         )
         with self.test_client() as c:
             c.put(
-                '/v3/OS-EP-FILTER/projects/%s/endpoints/%s'
-                % (project['id'], endpoint['id']),
+                '/v3/OS-EP-FILTER/projects/{}/endpoints/{}'.format(
+                    project['id'], endpoint['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.NO_CONTENT,
             )
@@ -365,8 +369,9 @@ class SystemAdminTests(
         )
         with self.test_client() as c:
             c.delete(
-                '/v3/OS-EP-FILTER/projects/%s/endpoints/%s'
-                % (project['id'], endpoint['id']),
+                '/v3/OS-EP-FILTER/projects/{}/endpoints/{}'.format(
+                    project['id'], endpoint['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.NO_CONTENT,
             )
@@ -378,7 +383,6 @@ class DomainUserTests(
     _DomainAndProjectUserProjectEndpointTests,
     _SystemReaderAndMemberProjectEndpointTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -417,7 +421,6 @@ class ProjectUserTests(
     _DomainAndProjectUserProjectEndpointTests,
     _SystemReaderAndMemberProjectEndpointTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -445,7 +448,6 @@ class ProjectUserTestsWithoutEnforceScope(
     _DomainAndProjectUserProjectEndpointTests,
     _SystemReaderAndMemberProjectEndpointTests,
 ):
-
     def _override_policy(self):
         # TODO(cmurphy): Remove this once the deprecated policies in
         # keystone.common.policies.project_endpoint have been removed. This is

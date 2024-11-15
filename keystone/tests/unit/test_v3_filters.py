@@ -117,7 +117,7 @@ class IdentityTestFilteredCase(filtering.FilterTests, test_v3.RestfulTestCase):
 
         """
         self._set_policy({"identity:list_users": []})
-        url_by_name = '/users?domain_id=%s' % self.domainB['id']
+        url_by_name = '/users?domain_id={}'.format(self.domainB['id'])
         r = self.get(url_by_name, auth=self.auth)
         # We should  get back two users, those in DomainB
         id_list = self._get_id_list_from_ref_list(r.result.get('users'))
@@ -146,14 +146,14 @@ class IdentityTestFilteredCase(filtering.FilterTests, test_v3.RestfulTestCase):
 
         # Try a few ways of specifying 'false'
         for val in ('0', 'false', 'False', 'FALSE', 'n', 'no', 'off'):
-            r = self.get('/domains?enabled=%s' % val, auth=self.auth)
+            r = self.get(f'/domains?enabled={val}', auth=self.auth)
             id_list = self._get_id_list_from_ref_list(r.result.get('domains'))
             self.assertEqual([self.domainC['id']], id_list)
 
         # Now try a few ways of specifying 'true' when we should get back
         # the other two domains, plus the default domain
         for val in ('1', 'true', 'True', 'TRUE', 'y', 'yes', 'on'):
-            r = self.get('/domains?enabled=%s' % val, auth=self.auth)
+            r = self.get(f'/domains?enabled={val}', auth=self.auth)
             id_list = self._get_id_list_from_ref_list(r.result.get('domains'))
             self.assertEqual(3, len(id_list))
             self.assertIn(self.domainA['id'], id_list)
@@ -180,7 +180,7 @@ class IdentityTestFilteredCase(filtering.FilterTests, test_v3.RestfulTestCase):
         new_policy = {"identity:list_domains": []}
         self._set_policy(new_policy)
 
-        my_url = '/domains?enabled&name=%s' % self.domainA['name']
+        my_url = '/domains?enabled&name={}'.format(self.domainA['name'])
         r = self.get(my_url, auth=self.auth)
         id_list = self._get_id_list_from_ref_list(r.result.get('domains'))
         self.assertEqual(1, len(id_list))
@@ -200,7 +200,7 @@ class IdentityTestFilteredCase(filtering.FilterTests, test_v3.RestfulTestCase):
         new_policy = {"identity:list_domains": []}
         self._set_policy(new_policy)
 
-        my_url = '/domains?enableds=0&name=%s' % self.domainA['name']
+        my_url = '/domains?enableds=0&name={}'.format(self.domainA['name'])
         r = self.get(my_url, auth=self.auth)
         id_list = self._get_id_list_from_ref_list(r.result.get('domains'))
 
@@ -227,7 +227,6 @@ class IdentityTestFilteredCase(filtering.FilterTests, test_v3.RestfulTestCase):
         # token.
         time = timeutils.utcnow()
         with freezegun.freeze_time(time) as frozen_datetime:
-
             self._set_policy({"identity:list_users": []})
             user = self.user1
             user['name'] = '%my%name%'
@@ -450,12 +449,7 @@ class IdentityPasswordExpiryFilteredTestCase(
         {operator}:{timestamp}
 
         """
-        url = '/users?password_expires_at={}:{}&password_expires_at={}:{}'.format(
-            first_operator,
-            first_time,
-            second_operator,
-            second_time,
-        )
+        url = f'/users?password_expires_at={first_operator}:{first_time}&password_expires_at={second_operator}:{second_time}'
         return url
 
     def _format_timestamp(self, timestamp):
@@ -656,8 +650,7 @@ class IdentityPasswordExpiryFilteredTestCase(
         """
         url = (
             '/groups/' + self.group_id + '/users'
-            '?password_expires_at=%s:%s&password_expires_at=%s:%s'
-            % (first_operator, first_time, second_operator, second_time)
+            f'?password_expires_at={first_operator}:{first_time}&password_expires_at={second_operator}:{second_time}'
         )
         return url
 
@@ -896,17 +889,17 @@ class IdentityTestListLimitCase(IdentityTestFilteredCase):
         if entity == 'policy':
             plural = 'policies'
         else:
-            plural = '%ss' % entity
+            plural = f'{entity}s'
 
-        self._set_policy({"identity:list_%s" % plural: []})
+        self._set_policy({f"identity:list_{plural}": []})
         self.config_fixture.config(list_limit=5)
         self.config_fixture.config(group=driver, list_limit=None)
-        r = self.get('/%s' % plural, auth=self.auth)
+        r = self.get(f'/{plural}', auth=self.auth)
         self.assertEqual(5, len(r.result.get(plural)))
         self.assertIs(r.result.get('truncated'), True)
 
         self.config_fixture.config(group=driver, list_limit=4)
-        r = self.get('/%s' % plural, auth=self.auth)
+        r = self.get(f'/{plural}', auth=self.auth)
         self.assertEqual(4, len(r.result.get(plural)))
         self.assertIs(r.result.get('truncated'), True)
 

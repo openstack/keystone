@@ -129,41 +129,17 @@ USERS = [
 ]
 
 ROLES = [
-    {
-        'id': ADMIN_ROLE_ID,
-        'name': 'admin',
-        'domain_id': None,
-    },
-    {
-        'id': MEMBER_ROLE_ID,
-        'name': 'member',
-        'domain_id': None,
-    },
+    {'id': ADMIN_ROLE_ID, 'name': 'admin', 'domain_id': None},
+    {'id': MEMBER_ROLE_ID, 'name': 'member', 'domain_id': None},
     {
         'id': '9fe2ff9ee4384b1894a90878d3e92bab',
         'name': '_member_',
         'domain_id': None,
     },
-    {
-        'id': OTHER_ROLE_ID,
-        'name': 'other',
-        'domain_id': None,
-    },
-    {
-        'id': uuid.uuid4().hex,
-        'name': 'browser',
-        'domain_id': None,
-    },
-    {
-        'id': uuid.uuid4().hex,
-        'name': 'writer',
-        'domain_id': None,
-    },
-    {
-        'id': uuid.uuid4().hex,
-        'name': 'service',
-        'domain_id': None,
-    },
+    {'id': OTHER_ROLE_ID, 'name': 'other', 'domain_id': None},
+    {'id': uuid.uuid4().hex, 'name': 'browser', 'domain_id': None},
+    {'id': uuid.uuid4().hex, 'name': 'writer', 'domain_id': None},
+    {'id': uuid.uuid4().hex, 'name': 'service', 'domain_id': None},
 ]
 
 # NOTE(morganfainberg): Admin assignment for replacing admin_token_auth
@@ -172,7 +148,7 @@ ROLE_ASSIGNMENTS = [
         'user': 'req_admin',
         'project_id': SERVICE_PROJECT_ID,
         'role_id': ADMIN_ROLE_ID,
-    },
+    }
 ]
 
 # TODO(wxy): We should add the root domain ``<<keystone.domain.root>>`` as well

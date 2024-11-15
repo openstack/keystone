@@ -29,7 +29,6 @@ PROVIDERS = provider_api.ProviderAPIs
 
 
 class TestJWSProvider(unit.TestCase):
-
     def setUp(self):
         super().setUp()
         self.config_fixture.config(group='token', provider='jws')

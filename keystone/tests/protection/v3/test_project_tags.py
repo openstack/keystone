@@ -89,14 +89,14 @@ class _SystemUserTests:
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/projects/%s/tags' % project['id'], headers=self.headers
+                '/v3/projects/{}/tags'.format(project['id']),
+                headers=self.headers,
             )
             self.assertTrue(len(r.json['tags']) == 1)
             self.assertEqual(tag, r.json['tags'][0])
 
 
 class _SystemMemberAndReaderTagTests:
-
     def test_user_cannot_create_project_tag(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
@@ -125,7 +125,7 @@ class _SystemMemberAndReaderTagTests:
 
         with self.test_client() as c:
             c.put(
-                '/v3/projects/%s/tags' % project['id'],
+                '/v3/projects/{}/tags'.format(project['id']),
                 headers=self.headers,
                 json=update,
                 expected_status_code=http.client.FORBIDDEN,
@@ -149,7 +149,6 @@ class _SystemMemberAndReaderTagTests:
 
 
 class _DomainAndProjectUserTagTests:
-
     def test_user_cannot_create_project_tag(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex,
@@ -178,7 +177,7 @@ class _DomainAndProjectUserTagTests:
 
         with self.test_client() as c:
             c.put(
-                '/v3/projects/%s/tags' % project['id'],
+                '/v3/projects/{}/tags'.format(project['id']),
                 headers=self.headers,
                 json=update,
                 expected_status_code=http.client.FORBIDDEN,
@@ -207,7 +206,6 @@ class SystemReaderTests(
     _SystemUserTests,
     _SystemMemberAndReaderTagTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -242,7 +240,6 @@ class SystemMemberTests(
     _SystemUserTests,
     _SystemMemberAndReaderTagTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -276,7 +273,6 @@ class SystemAdminTests(
     common_auth.AuthTestMixin,
     _SystemUserTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -325,7 +321,7 @@ class SystemAdminTests(
 
         with self.test_client() as c:
             c.put(
-                '/v3/projects/%s/tags' % project['id'],
+                '/v3/projects/{}/tags'.format(project['id']),
                 headers=self.headers,
                 json=update,
                 expected_status_code=http.client.OK,
@@ -348,7 +344,6 @@ class SystemAdminTests(
 
 
 class _DomainUserTagTests:
-
     def test_user_can_get_tag_for_project_in_domain(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex, unit.new_project_ref(domain_id=self.domain_id)
@@ -374,7 +369,8 @@ class _DomainUserTagTests:
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/projects/%s/tags' % project['id'], headers=self.headers
+                '/v3/projects/{}/tags'.format(project['id']),
+                headers=self.headers,
             )
             self.assertTrue(len(r.json['tags']) == 1)
             self.assertEqual(tag, r.json['tags'][0])
@@ -408,7 +404,7 @@ class _DomainUserTagTests:
 
         with self.test_client() as c:
             c.put(
-                '/v3/projects/%s/tags' % project['id'],
+                '/v3/projects/{}/tags'.format(project['id']),
                 headers=self.headers,
                 json=update,
                 expected_status_code=http.client.FORBIDDEN,
@@ -457,14 +453,13 @@ class _DomainUserTagTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/projects/%s/tags' % project['id'],
+                '/v3/projects/{}/tags'.format(project['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
 
 
 class _DomainMemberAndReaderTagTests:
-
     def test_user_cannot_create_project_tag_in_domain(self):
         project = PROVIDERS.resource_api.create_project(
             uuid.uuid4().hex, unit.new_project_ref(domain_id=self.domain_id)
@@ -492,7 +487,7 @@ class _DomainMemberAndReaderTagTests:
 
         with self.test_client() as c:
             c.put(
-                '/v3/projects/%s/tags' % project['id'],
+                '/v3/projects/{}/tags'.format(project['id']),
                 headers=self.headers,
                 json=update,
                 expected_status_code=http.client.FORBIDDEN,
@@ -519,7 +514,6 @@ class DomainAdminUserTests(
     common_auth.AuthTestMixin,
     _DomainUserTagTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -587,7 +581,7 @@ class DomainAdminUserTests(
 
         with self.test_client() as c:
             r = c.put(
-                '/v3/projects/%s/tags' % project['id'],
+                '/v3/projects/{}/tags'.format(project['id']),
                 headers=self.headers,
                 json=update,
                 expected_status_code=http.client.OK,
@@ -616,7 +610,6 @@ class DomainMemberUserTests(
     _DomainUserTagTests,
     _DomainMemberAndReaderTagTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -664,7 +657,6 @@ class DomainReaderUserTests(
     _DomainUserTagTests,
     _DomainMemberAndReaderTagTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -707,7 +699,6 @@ class DomainReaderUserTests(
 
 
 class _ProjectUserTagTests:
-
     def test_user_can_get_tag_for_project(self):
         tag = uuid.uuid4().hex
         PROVIDERS.resource_api.create_project_tag(self.project_id, tag)
@@ -725,7 +716,7 @@ class _ProjectUserTagTests:
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/projects/%s/tags' % self.project_id, headers=self.headers
+                f'/v3/projects/{self.project_id}/tags', headers=self.headers
             )
             self.assertTrue(len(r.json['tags']) == 1)
             self.assertEqual(tag, r.json['tags'][0])
@@ -758,7 +749,7 @@ class _ProjectUserTagTests:
 
         with self.test_client() as c:
             c.put(
-                '/v3/projects/%s/tags' % project['id'],
+                '/v3/projects/{}/tags'.format(project['id']),
                 headers=self.headers,
                 json=update,
                 expected_status_code=http.client.FORBIDDEN,
@@ -807,14 +798,13 @@ class _ProjectUserTagTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/projects/%s/tags' % project['id'],
+                '/v3/projects/{}/tags'.format(project['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
 
 
 class _ProjectMemberAndReaderTagTests:
-
     def test_user_cannot_create_project_tag(self):
         tag = uuid.uuid4().hex
         with self.test_client() as c:
@@ -832,7 +822,7 @@ class _ProjectMemberAndReaderTagTests:
 
         with self.test_client() as c:
             c.put(
-                '/v3/projects/%s/tags' % self.project_id,
+                f'/v3/projects/{self.project_id}/tags',
                 headers=self.headers,
                 json=update,
                 expected_status_code=http.client.FORBIDDEN,
@@ -855,7 +845,6 @@ class ProjectAdminTests(
     common_auth.AuthTestMixin,
     _ProjectUserTagTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -908,7 +897,7 @@ class ProjectAdminTests(
 
         with self.test_client() as c:
             c.put(
-                '/v3/projects/%s/tags' % self.project_id,
+                f'/v3/projects/{self.project_id}/tags',
                 headers=self.headers,
                 json=update,
                 expected_status_code=http.client.OK,
@@ -931,7 +920,6 @@ class ProjectMemberTests(
     _ProjectUserTagTests,
     _ProjectMemberAndReaderTagTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -979,7 +967,6 @@ class ProjectReaderTests(
     _ProjectUserTagTests,
     _ProjectMemberAndReaderTagTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()

@@ -107,11 +107,11 @@ def render_token_response_from_model(token, include_catalog=True):
         token_reference['token']['service_providers'] = sps
     if token.is_federated:
         PROVIDERS.federation_api.get_idp(token.identity_provider_id)
-        federated_dict = dict(
-            groups=token.federated_groups,
-            identity_provider={'id': token.identity_provider_id},
-            protocol={'id': token.protocol_id},
-        )
+        federated_dict = {
+            'groups': token.federated_groups,
+            'identity_provider': {'id': token.identity_provider_id},
+            'protocol': {'id': token.protocol_id},
+        }
         token_reference['token']['user']['OS-FEDERATION'] = federated_dict
         del token_reference['token']['user']['password_expires_at']
     if token.access_token_id:

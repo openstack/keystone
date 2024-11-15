@@ -132,7 +132,7 @@ def construct_resource_map(
     else:
         jh_data = None
     if not url.startswith('/'):
-        url = '/%s' % url
+        url = f'/{url}'
     return ResourceMap(
         resource=resource,
         url=url,
@@ -186,7 +186,6 @@ def _remove_content_type_on_204(resp):
 
 
 class APIBase(metaclass=abc.ABCMeta):
-
     @property
     @abc.abstractmethod
     def _name(self):
@@ -281,7 +280,7 @@ class APIBase(metaclass=abc.ABCMeta):
         api_url_prefix = api_url_prefix.rstrip('/')
 
         if api_url_prefix and not api_url_prefix.startswith('/'):
-            self._api_url_prefix = '/%s' % api_url_prefix
+            self._api_url_prefix = f'/{api_url_prefix}'
         else:
             # NOTE(morgan): If the api_url_prefix is empty fall back on the
             # class-level defined `_api_url_prefix` if it is set.
@@ -291,7 +290,7 @@ class APIBase(metaclass=abc.ABCMeta):
 
         if blueprint_url_prefix and not blueprint_url_prefix.startswith('/'):
             self._blueprint_url_prefix = self._build_bp_url_prefix(
-                '/%s' % blueprint_url_prefix
+                f'/{blueprint_url_prefix}'
             )
         else:
             self._blueprint_url_prefix = self._build_bp_url_prefix(
@@ -372,7 +371,7 @@ class APIBase(metaclass=abc.ABCMeta):
 
             # NOTE(morgan): The Prefix is automatically added by the API, so
             # we do not add it to the paths here.
-            collection_path = '/%s' % c_key
+            collection_path = f'/{c_key}'
             if getattr(r, '_id_path_param_name_override', None):
                 # The member_key doesn't match the "id" key in the url, make
                 # sure to use the correct path-key for ID.
@@ -380,19 +379,14 @@ class APIBase(metaclass=abc.ABCMeta):
             else:
                 member_id_key = f'{m_key}_id'
 
-            entity_path = '/{collection}/<string:{member}>'.format(
-                collection=c_key,
-                member=member_id_key,
-            )
+            entity_path = f'/{c_key}/<string:{member_id_key}>'
             # NOTE(morgan): The json-home form of the entity path is different
             # from the flask-url routing form. Must also include the prefix
             jh_e_path = _URL_SUBST.sub(
                 '{\\1}',
-                '%(pfx)s/%(e_path)s'
-                % {
-                    'pfx': self._api_url_prefix,
-                    'e_path': entity_path.lstrip('/'),
-                },
+                '{pfx}/{e_path}'.format(
+                    pfx=self._api_url_prefix, e_path=entity_path.lstrip('/')
+                ),
             )
 
             LOG.debug(
@@ -424,10 +418,7 @@ class APIBase(metaclass=abc.ABCMeta):
             )
             # NOTE(morgan): Add the prefix explicitly for JSON Home documents
             # to the collection path.
-            href_val = '{pfx}{collection_path}'.format(
-                pfx=self._api_url_prefix,
-                collection_path=collection_path,
-            )
+            href_val = f'{self._api_url_prefix}{collection_path}'
 
             # If additional parameters exist in the URL, add them to the
             # href-vars dict.
@@ -440,7 +431,7 @@ class APIBase(metaclass=abc.ABCMeta):
                 # means we know the params are in the "prefix". This guarantees
                 # the correct data in the json_home document with href-template
                 # and href-vars even on the "collection" entry
-                rel_data = dict()
+                rel_data = {}
                 rel_data['href-template'] = _URL_SUBST.sub('{\\1}', href_val)
                 rel_data['href-vars'] = additional_params
             else:
@@ -683,7 +674,7 @@ class ResourceBase(flask_restful.Resource):
         """Ensure the value matches the reference's ID, if any."""
         id_arg = None
         if cls.member_key is not None:
-            id_arg = flask.request.view_args.get('%s_id' % cls.member_key)
+            id_arg = flask.request.view_args.get(f'{cls.member_key}_id')
         if ref.get('id') is not None and id_arg != ref['id']:
             raise exception.ValidationError('Cannot change ID')
 
@@ -1108,8 +1099,8 @@ def full_url(path=''):
     subs = {'url': base_url(path), 'query_string': ''}
     qs = flask.request.environ.get('QUERY_STRING')
     if qs:
-        subs['query_string'] = '?%s' % qs
-    return '%(url)s%(query_string)s' % subs
+        subs['query_string'] = f'?{qs}'
+    return '{url}{query_string}'.format(**subs)
 
 
 def set_unenforced_ok():

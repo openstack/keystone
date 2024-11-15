@@ -85,7 +85,7 @@ class Provider(core.Provider):
                 primary_key_hash(keys),
             )
         except (TypeError, ValueError) as e:
-            msg = 'Credential could not be encrypted: %s' % str(e)
+            msg = f'Credential could not be encrypted: {str(e)}'
             tr_msg = _('Credential could not be encrypted: %s') % str(e)
             LOG.error(msg)
             raise exception.CredentialEncryptionError(tr_msg)

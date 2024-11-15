@@ -31,12 +31,7 @@ def _get_versions_list(identity_url):
         'id': 'v3.14',
         'status': 'stable',
         'updated': '2020-04-07T00:00:00Z',
-        'links': [
-            {
-                'rel': 'self',
-                'href': identity_url,
-            }
-        ],
+        'links': [{'rel': 'self', 'href': identity_url}],
         'media-types': [
             {'base': 'application/json', 'type': MEDIA_TYPE_JSON % 'v3'}
         ],
@@ -70,7 +65,7 @@ def get_versions():
             mimetype=MimeTypes.JSON_HOME,
         )
     else:
-        identity_url = '%s/' % ks_flask.base_url()
+        identity_url = f'{ks_flask.base_url()}/'
         versions = _get_versions_list(identity_url)
         # Set the preferred version to the latest "stable" version.
         # TODO(morgan): If we ever have more API versions find the latest
@@ -99,7 +94,7 @@ def get_version_v3():
             response=jsonutils.dumps(content), mimetype=MimeTypes.JSON_HOME
         )
     else:
-        identity_url = '%s/' % ks_flask.base_url()
+        identity_url = f'{ks_flask.base_url()}/'
         versions = _get_versions_list(identity_url)
         return flask.Response(
             response=jsonutils.dumps({'version': versions['v3']}),

@@ -18,7 +18,6 @@ from keystone import exception
 
 
 class ApplicationCredentialDriverBase(metaclass=abc.ABCMeta):
-
     @abc.abstractmethod
     def authenticate(self, application_credential_id, secret):
         """Validate an application credential.

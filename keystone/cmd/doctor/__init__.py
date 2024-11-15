@@ -50,8 +50,9 @@ def diagnose():
             # Some symptoms may take a long time to check, so let's keep
             # curious users posted on our progress as we go.
             print(
-                'Checking for %s...'
-                % symptom.__name__[len(SYMPTOM_PREFIX) :].replace('_', ' ')
+                'Checking for {}...'.format(
+                    symptom.__name__[len(SYMPTOM_PREFIX) :].replace('_', ' ')
+                )
             )
 
         # All symptoms are just callables that return true when they match the
@@ -65,9 +66,7 @@ def diagnose():
             # passing a string here. Also, we include a line break here to
             # visually separate the symptom's description from any other
             # checks -- it provides a better user experience.
-            print(
-                _('\nWARNING: %s') % _(symptom.__doc__)
-            )  # noqa: See comment above.
+            print(_('\nWARNING: %s') % _(symptom.__doc__))  # noqa: See comment above.
 
     return symptoms_found
 

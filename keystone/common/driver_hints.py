@@ -96,7 +96,7 @@ class Hints:
 
     def __init__(self):
         self.limit = None
-        self.filters = list()
+        self.filters = []
         self.cannot_match = False
 
     def add_filter(

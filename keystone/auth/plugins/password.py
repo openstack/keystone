@@ -23,7 +23,6 @@ PROVIDERS = provider_api.ProviderAPIs
 
 
 class Password(base.AuthMethodHandler):
-
     def authenticate(self, auth_payload):
         """Try to authenticate against the identity backend."""
         response_data = {}

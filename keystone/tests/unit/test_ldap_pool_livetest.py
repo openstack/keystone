@@ -62,7 +62,6 @@ class LiveLDAPPoolIdentity(
         self.test_user_enable_attribute_mask()
 
     def test_pool_size_expands_correctly(self):
-
         who = CONF.ldap.user
         cred = CONF.ldap.password
         # get related connection manager instance

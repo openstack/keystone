@@ -94,7 +94,7 @@ def _normalize_trust_roles(trust):
 
     trust['roles'] = trust_full_roles
     trust['roles_links'] = {
-        'self': ks_flask.base_url(path='/%s/roles' % trust['id']),
+        'self': ks_flask.base_url(path='/{}/roles'.format(trust['id'])),
         'next': None,
         'previous': None,
     }
@@ -374,7 +374,6 @@ class TrustResource(ks_flask.ResourceBase):
 # URL additions and does not have a collection key/member_key, we use
 # the flask-restful Resource, not the keystone ResourceBase
 class RolesForTrustListResource(flask_restful.Resource):
-
     @property
     def oslo_context(self):
         return flask.request.environ.get(context.REQUEST_CONTEXT_ENV, None)
@@ -429,7 +428,6 @@ class RolesForTrustListResource(flask_restful.Resource):
 # URL additions and does not have a collection key/member_key, we use
 # the flask-restful Resource, not the keystone ResourceBase
 class RoleForTrustResource(flask_restful.Resource):
-
     @property
     def oslo_context(self):
         return flask.request.environ.get(context.REQUEST_CONTEXT_ENV, None)

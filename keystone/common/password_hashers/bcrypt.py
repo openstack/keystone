@@ -26,11 +26,7 @@ class Bcrypt(password_hashers.PasswordHasher):
     ident_values: set[str] = {"$2$", "$2a$", "$2b$", "$2x$", "$2y$"}
 
     @staticmethod
-    def hash(
-        password: bytes,
-        rounds: int = 12,
-        **kwargs,
-    ) -> str:
+    def hash(password: bytes, rounds: int = 12, **kwargs) -> str:
         """Generate password hash string with ident and params
 
         https://pypi.org/project/bcrypt/
@@ -66,11 +62,7 @@ class Bcrypt_sha256(password_hashers.PasswordHasher):
     prefix: str = "$bcrypt-sha256$"
 
     @staticmethod
-    def hash(
-        password: bytes,
-        rounds: int = 12,
-        **kwargs,
-    ) -> str:
+    def hash(password: bytes, rounds: int = 12, **kwargs) -> str:
         """Generate password hash string with ident and params
 
         https://pypi.org/project/bcrypt/

@@ -91,9 +91,8 @@ class AuthTestMixin:
         username=None,
         user_domain_id=None,
         user_domain_name=None,
-        **kwargs
+        **kwargs,
     ):
-
         # NOTE(dstanek): just to ensure sanity in the tests
         self.assertEqual(
             1,
@@ -161,7 +160,7 @@ class AuthTestMixin:
         app_cred_id=None,
         app_cred_name=None,
         secret=None,
-        **kwargs
+        **kwargs,
     ):
         """Build auth dictionary.
 

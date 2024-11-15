@@ -52,7 +52,6 @@ LOG = log.getLogger(__name__)
 
 
 class BaseApp:
-
     name: str
 
     @classmethod
@@ -536,8 +535,7 @@ class ResetLastActive(BaseApp):
                 raise SystemExit('reset_last_active aborted.')
 
         LOG.debug(
-            "Resetting null values to current time %s",
-            timeutils.utcnow(),
+            "Resetting null values to current time %s", timeutils.utcnow()
         )
         drivers = backends.load_backends()
         identity_api = drivers['identity_api']
@@ -565,14 +563,14 @@ class BasePermissionsSetup(BaseApp):
             if a:
                 keystone_user_id = utils.get_unix_user(a)[0]
         except KeyError:
-            raise ValueError("Unknown user '%s' in --keystone-user" % a)
+            raise ValueError(f"Unknown user '{a}' in --keystone-user")
 
         try:
             a = CONF.command.keystone_group
             if a:
                 keystone_group_id = utils.get_unix_group(a)[0]
         except KeyError:
-            raise ValueError("Unknown group '%s' in --keystone-group" % a)
+            raise ValueError(f"Unknown group '{a}' in --keystone-group")
 
         return keystone_user_id, keystone_group_id
 
@@ -1180,7 +1178,6 @@ def _domain_config_finder(conf_dir):
 
 
 class DomainConfigUploadFiles:
-
     def __init__(self, domain_config_finder=_domain_config_finder):
         super().__init__()
         self.load_backends()
@@ -1518,12 +1515,9 @@ class MappingEngineTester(BaseApp):
         tester.normalize_assertion()
 
         if CONF.command.engine_debug:
+            print(f"Using Rules:\n{jsonutils.dumps(tester.rules, indent=2)}")
             print(
-                "Using Rules:\n%s" % (jsonutils.dumps(tester.rules, indent=2))
-            )
-            print(
-                "Using Assertion:\n%s"
-                % (jsonutils.dumps(tester.assertion, indent=2))
+                f"Using Assertion:\n{jsonutils.dumps(tester.assertion, indent=2)}"
             )
 
         rp = mapping_engine.RuleProcessor(

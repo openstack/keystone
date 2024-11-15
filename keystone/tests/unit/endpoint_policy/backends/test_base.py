@@ -60,7 +60,7 @@ class DriverTestCase:
         self.assertRaises(
             exception.PolicyAssociationNotFound,
             self.driver.check_policy_association,
-            **original_association
+            **original_association,
         )
 
     def test_check_policy_association(self):
@@ -76,7 +76,7 @@ class DriverTestCase:
         self.assertRaises(
             exception.PolicyAssociationNotFound,
             self.driver.check_policy_association,
-            **association
+            **association,
         )
 
     def test_delete_policy_association(self):
@@ -86,7 +86,7 @@ class DriverTestCase:
         self.assertRaises(
             exception.PolicyAssociationNotFound,
             self.driver.check_policy_association,
-            **association
+            **association,
         )
 
     def test_get_policy_association(self):
@@ -123,7 +123,7 @@ class DriverTestCase:
             self.assertRaises(
                 exception.PolicyAssociationNotFound,
                 self.driver.check_policy_association,
-                **association
+                **association,
             )
 
     def test_delete_association_by_service(self):
@@ -139,7 +139,7 @@ class DriverTestCase:
             self.assertRaises(
                 exception.PolicyAssociationNotFound,
                 self.driver.check_policy_association,
-                **association
+                **association,
             )
 
     def test_delete_association_by_region(self):
@@ -157,7 +157,7 @@ class DriverTestCase:
             self.assertRaises(
                 exception.PolicyAssociationNotFound,
                 self.driver.check_policy_association,
-                **association
+                **association,
             )
 
     def test_delete_association_by_policy(self):
@@ -175,5 +175,5 @@ class DriverTestCase:
             self.assertRaises(
                 exception.PolicyAssociationNotFound,
                 self.driver.check_policy_association,
-                **association
+                **association,
             )

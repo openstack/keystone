@@ -99,7 +99,9 @@ class IdentityProvidersResource(_ResourceBase):
         """
         base_path = ref['links'].get('self')
         if base_path is None:
-            base_path = '/'.join(ks_flask.base_url(path='/%s' % ref['id']))
+            base_path = '/'.join(
+                ks_flask.base_url(path='/{}'.format(ref['id']))
+            )
 
         for name in ['protocols']:
             ref['links'][name] = '/'.join([base_path, name])
@@ -188,7 +190,6 @@ class _IdentityProvidersProtocolsResourceBase(_ResourceBase):
 
 
 class IDPProtocolsListResource(_IdentityProvidersProtocolsResourceBase):
-
     def get(self, idp_id):
         """List protocols for an IDP.
 
@@ -205,7 +206,6 @@ class IDPProtocolsListResource(_IdentityProvidersProtocolsResourceBase):
 
 
 class IDPProtocolsCRUDResource(_IdentityProvidersProtocolsResourceBase):
-
     def get(self, idp_id, protocol_id):
         """Get protocols for an IDP.
 
@@ -448,7 +448,6 @@ class SAML2MetadataResource(flask_restful.Resource):
 
 
 class OSFederationAuthResource(flask_restful.Resource):
-
     @ks_flask.unenforced_api
     def get(self, idp_id, protocol_id):
         """Authenticate from dedicated uri endpoint.

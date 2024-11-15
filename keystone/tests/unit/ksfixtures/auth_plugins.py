@@ -36,7 +36,6 @@ class ConfigAuthPlugins(fixtures.Fixture):
 
 
 class LoadAuthPlugins(fixtures.Fixture):
-
     def __init__(self, *method_names):
         super().__init__()
         self.method_names = method_names

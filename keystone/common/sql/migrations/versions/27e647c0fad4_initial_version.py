@@ -46,8 +46,7 @@ def upgrade():
     if bind.engine.name == 'mysql':
         # Set default DB charset to UTF8.
         op.execute(
-            'ALTER DATABASE %s DEFAULT CHARACTER SET utf8'
-            % bind.engine.url.database
+            f'ALTER DATABASE {bind.engine.url.database} DEFAULT CHARACTER SET utf8'
         )
 
     op.create_table(
@@ -89,11 +88,7 @@ def upgrade():
         sql.Column('role_id', sql.String(64), nullable=False),
         sql.Column('inherited', sql.Boolean, default=False, nullable=False),
         sql.PrimaryKeyConstraint(
-            'type',
-            'actor_id',
-            'target_id',
-            'role_id',
-            'inherited',
+            'type', 'actor_id', 'target_id', 'role_id', 'inherited'
         ),
         sql.Index('ix_actor_id', 'actor_id'),
         mysql_engine='InnoDB',
@@ -109,8 +104,7 @@ def upgrade():
         sql.Column('external_id', sql.String(64)),
         sql.Column('user_id', sql.String(64)),
         sql.UniqueConstraint(
-            'external_id',
-            name='access_rule_external_id_key',
+            'external_id', name='access_rule_external_id_key'
         ),
         sql.UniqueConstraint(
             'user_id',
@@ -149,11 +143,7 @@ def upgrade():
         sql.Column('type', sql.String(length=255), nullable=False),
         sql.Column('extra', ks_sql.JsonBlob.impl),
         sql.Column('key_hash', sql.String(64), nullable=False),
-        sql.Column(
-            'encrypted_blob',
-            ks_sql.Text,
-            nullable=False,
-        ),
+        sql.Column('encrypted_blob', ks_sql.Text, nullable=False),
         mysql_engine='InnoDB',
         mysql_charset='utf8',
     )
@@ -166,9 +156,7 @@ def upgrade():
         sql.Column('description', sql.Text),
         sql.Column('extra', ks_sql.JsonBlob.impl),
         sql.UniqueConstraint(
-            'domain_id',
-            'name',
-            name='ixu_group_name_domain_id',
+            'domain_id', 'name', name='ixu_group_name_domain_id'
         ),
         mysql_engine='InnoDB',
         mysql_charset='utf8',
@@ -189,10 +177,7 @@ def upgrade():
             nullable=False,
         ),
         sql.UniqueConstraint(
-            'domain_id',
-            'local_id',
-            'entity_type',
-            name='domain_id',
+            'domain_id', 'local_id', 'entity_type', name='domain_id'
         ),
         mysql_engine='InnoDB',
         mysql_charset='utf8',
@@ -261,19 +246,13 @@ def upgrade():
         sql.Column(
             'domain_id',
             sql.String(length=64),
-            sql.ForeignKey(
-                'project.id',
-                name='project_domain_id_fkey',
-            ),
+            sql.ForeignKey('project.id', name='project_domain_id_fkey'),
             nullable=False,
         ),
         sql.Column(
             'parent_id',
             sql.String(64),
-            sql.ForeignKey(
-                'project.id',
-                name='project_parent_id_fkey',
-            ),
+            sql.ForeignKey('project.id', name='project_parent_id_fkey'),
             nullable=True,
         ),
         sql.Column(
@@ -284,9 +263,7 @@ def upgrade():
             default=False,
         ),
         sql.UniqueConstraint(
-            'domain_id',
-            'name',
-            name='ixu_project_name_domain_id',
+            'domain_id', 'name', name='ixu_project_name_domain_id'
         ),
         mysql_engine='InnoDB',
         mysql_charset='utf8',
@@ -439,9 +416,7 @@ def upgrade():
         ),
         sql.Column('description', sql.String(255), nullable=True),
         sql.UniqueConstraint(
-            'name',
-            'domain_id',
-            name='ixu_role_name_domain_id',
+            'name', 'domain_id', name='ixu_role_name_domain_id'
         ),
         mysql_engine='InnoDB',
         mysql_charset='utf8',
@@ -558,16 +533,8 @@ def upgrade():
             'expires_at_int',
             name='duplicate_trust_constraint_expanded',
         ),
-        sql.Column(
-            'redelegated_trust_id',
-            sql.String(64),
-            nullable=True,
-        ),
-        sql.Column(
-            'redelegation_count',
-            sql.Integer,
-            nullable=True,
-        ),
+        sql.Column('redelegated_trust_id', sql.String(64), nullable=True),
+        sql.Column('redelegation_count', sql.Integer, nullable=True),
         mysql_engine='InnoDB',
         mysql_charset='utf8',
     )
@@ -604,18 +571,14 @@ def upgrade():
         sql.Column(
             'user_id',
             sql.String(length=64),
-            sql.ForeignKey(
-                'user.id',
-                name='fk_user_group_membership_user_id',
-            ),
+            sql.ForeignKey('user.id', name='fk_user_group_membership_user_id'),
             primary_key=True,
         ),
         sql.Column(
             'group_id',
             sql.String(length=64),
             sql.ForeignKey(
-                'group.id',
-                name='fk_user_group_membership_group_id',
+                'group.id', name='fk_user_group_membership_group_id'
             ),
             primary_key=True,
         ),
@@ -720,10 +683,7 @@ def upgrade():
         sql.Column(
             'service_id',
             sql.String(length=64),
-            sql.ForeignKey(
-                'service.id',
-                name='endpoint_service_id_fkey',
-            ),
+            sql.ForeignKey('service.id', name='endpoint_service_id_fkey'),
             nullable=False,
         ),
         sql.Column('url', sql.Text, nullable=False),
@@ -738,10 +698,7 @@ def upgrade():
         sql.Column(
             'region_id',
             sql.String(length=255),
-            sql.ForeignKey(
-                'region.id',
-                name='fk_endpoint_region_id',
-            ),
+            sql.ForeignKey('region.id', name='fk_endpoint_region_id'),
             nullable=True,
         ),
         # NOTE(stevemar): The index was named 'service_id' in
@@ -835,10 +792,7 @@ def upgrade():
         # FIXME(stephenfin): This should have a foreign key constraint on
         # registered_limit.id, but sqlalchemy-migrate clearly didn't handle
         # creating a column with embedded FK info as was attempted in 048
-        sql.Column(
-            'registered_limit_id',
-            sql.String(64),
-        ),
+        sql.Column('registered_limit_id', sql.String(64)),
         sql.Column('domain_id', sql.String(64), nullable=True),
         # NOTE(stephenfin): Name chosen to preserve backwards compatibility
         # with names used for primary key unique constraints
@@ -850,12 +804,7 @@ def upgrade():
     op.create_table(
         'local_user',
         sql.Column('id', sql.Integer, primary_key=True, nullable=False),
-        sql.Column(
-            'user_id',
-            sql.String(64),
-            nullable=False,
-            unique=True,
-        ),
+        sql.Column('user_id', sql.String(64), nullable=False, unique=True),
         sql.Column('domain_id', sql.String(64), nullable=False),
         sql.Column('name', sql.String(255), nullable=False),
         sql.Column('failed_auth_count', sql.Integer, nullable=True),
@@ -874,11 +823,7 @@ def upgrade():
         'nonlocal_user',
         sql.Column('domain_id', sql.String(64), primary_key=True),
         sql.Column('name', sql.String(255), primary_key=True),
-        sql.Column(
-            'user_id',
-            sql.String(64),
-            nullable=False,
-        ),
+        sql.Column('user_id', sql.String(64), nullable=False),
         sql.ForeignKeyConstraint(
             ['user_id', 'domain_id'],
             ['user.id', 'user.domain_id'],
@@ -974,10 +919,7 @@ def upgrade():
         # only for sqlite, once we collapse 073 we can remove this constraint
         with op.batch_alter_table('assignment') as batch_op:
             batch_op.create_foreign_key(
-                'fk_assignment_role_id',
-                'role',
-                ['role_id'],
-                ['id'],
+                'fk_assignment_role_id', 'role', ['role_id'], ['id']
             )
 
     # TODO(stephenfin): Remove these procedures in a future contract migration
@@ -1064,9 +1006,7 @@ def upgrade():
         # FIXME(stephenfin): This should be dropped when we add the FK
         # constraint to this column
         op.create_index(
-            'registered_limit_id',
-            'limit',
-            ['registered_limit_id'],
+            'registered_limit_id', 'limit', ['registered_limit_id']
         )
 
         # FIXME(stephenfin): These are leftover from when we removed a FK

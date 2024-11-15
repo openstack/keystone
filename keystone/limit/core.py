@@ -28,7 +28,6 @@ MEMOIZE = cache.get_memoization_decorator(group='unified_limit')
 
 
 class Manager(manager.Manager):
-
     driver_namespace = 'keystone.unified_limit'
     _provides_api = 'unified_limit_api'
 

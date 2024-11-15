@@ -133,8 +133,7 @@ def skip_if_cache_disabled(*sections):
     In the code fragment::
 
         @skip_if_cache_is_disabled('assignment', 'token')
-        def test_method(*args):
-            ...
+        def test_method(*args): ...
 
     The method test_method would be skipped if caching is disabled globally via
     the `enabled` option in the `cache` section of the configuration or if
@@ -157,7 +156,7 @@ def skip_if_cache_disabled(*sections):
                 conf_sec = getattr(CONF, s, None)
                 if conf_sec is not None:
                     if not getattr(conf_sec, 'caching', True):
-                        raise unittest.SkipTest('%s caching disabled.' % s)
+                        raise unittest.SkipTest(f'{s} caching disabled.')
             return f(*args, **kwargs)
 
         return inner
@@ -174,7 +173,7 @@ def skip_if_cache_is_enabled(*sections):
                     conf_sec = getattr(CONF, s, None)
                     if conf_sec is not None:
                         if getattr(conf_sec, 'caching', True):
-                            raise unittest.SkipTest('%s caching enabled.' % s)
+                            raise unittest.SkipTest(f'{s} caching enabled.')
             return f(*args, **kwargs)
 
         return inner
@@ -228,7 +227,6 @@ NEEDS_REGION_ID = object()
 def new_endpoint_ref(
     service_id, interface='public', region_id=NEEDS_REGION_ID, **kwargs
 ):
-
     ref = {
         'id': uuid.uuid4().hex,
         'name': uuid.uuid4().hex,
@@ -349,11 +347,7 @@ def new_protocol_ref(protocol_id=None, idp_id=None, mapping_id=None, **kwargs):
 
 
 def new_identity_provider_ref(idp_id=None, **kwargs):
-    ref = {
-        'id': idp_id or 'ORG_IDP',
-        'enabled': True,
-        'description': '',
-    }
+    ref = {'id': idp_id or 'ORG_IDP', 'enabled': True, 'description': ''}
     ref.update(kwargs)
     return ref
 
@@ -382,11 +376,7 @@ def new_group_ref(domain_id, **kwargs):
 
 
 def new_credential_ref(user_id, project_id=None, type='cert', **kwargs):
-    ref = {
-        'id': uuid.uuid4().hex,
-        'user_id': user_id,
-        'type': type,
-    }
+    ref = {'id': uuid.uuid4().hex, 'user_id': user_id, 'type': type}
 
     if project_id:
         ref['project_id'] = project_id
@@ -486,13 +476,12 @@ def update_dn(dn1, dn2):
     dn1_attrs = {attr.oid: attr for attr in dn1}
     dn2_attrs = {attr.oid: attr for attr in dn2}
     dn1_attrs.update(dn2_attrs)
-    return x509.Name([attr for attr in dn1_attrs.values()])
+    return x509.Name(list(dn1_attrs.values()))
 
 
 def create_certificate(subject_dn, ca=None, ca_key=None):
     private_key = rsa.generate_private_key(
-        public_exponent=65537,
-        key_size=2048,
+        public_exponent=65537, key_size=2048
     )
     issuer = ca.subject if ca else subject_dn
     if not ca_key:
@@ -561,11 +550,7 @@ def new_policy_ref(**kwargs):
         'description': uuid.uuid4().hex,
         'enabled': True,
         # Store serialized JSON data as the blob to mimic real world usage.
-        'blob': json.dumps(
-            {
-                'data': uuid.uuid4().hex,
-            }
-        ),
+        'blob': json.dumps({'data': uuid.uuid4().hex}),
         'type': uuid.uuid4().hex,
     }
 
@@ -708,17 +693,12 @@ def _assert_expected_status(f):
             # an un-routed HTTP call was made. This allows us to avoid
             # misinterpreting HTTP 404 from Flask and HTTP 404 from a
             # resource that is not found (e.g. USER NOT FOUND) programmatically
-            raise AssertionError("I AM A TEAPOT(418): %s" % response.data)
+            raise AssertionError(f"I AM A TEAPOT(418): {response.data}")
 
         if response.status_code != expected_status_code:
             raise AssertionError(
                 'Expected HTTP Status does not match observed HTTP '
-                'Status: %(expected)s != %(observed)s (%(data)s)'
-                % {
-                    'expected': expected_status_code,
-                    'observed': response.status_code,
-                    'data': response.data,
-                }
+                f'Status: {expected_status_code} != {response.status_code} ({response.data})'
             )
 
         # return the original response object
@@ -828,13 +808,13 @@ class BaseTestCase(testtools.TestCase):
 
     def skip_if_env_not_set(self, env_var):
         if not os.environ.get(env_var):
-            self.skipTest('Env variable %s is not set.' % env_var)
+            self.skipTest(f'Env variable {env_var} is not set.')
 
     def skip_test_overrides(self, *args, **kwargs):
         if self._check_for_method_in_parents(self._testMethodName):
             return super().skipTest(*args, **kwargs)
         raise Exception(
-            '%r is not a previously defined test method' % self._testMethodName
+            f'{self._testMethodName!r} is not a previously defined test method'
         )
 
     def _check_for_method_in_parents(self, name):
@@ -853,10 +833,9 @@ class BaseTestCase(testtools.TestCase):
         # is a hard error and should not pass testing.
         def page_not_found_teapot(e):
             content = (
-                'TEST PROGRAMMING ERROR - Reached a 404 from an unrouted (`%s`'
+                f'TEST PROGRAMMING ERROR - Reached a 404 from an unrouted (`{flask.request.url}`'
                 ') path. Be sure the test is requesting the right resource '
                 'and that all blueprints are registered with the flask app.'
-                % flask.request.url
             )
             return content, 418
 
@@ -870,7 +849,6 @@ class BaseTestCase(testtools.TestCase):
 
 
 class TestCase(BaseTestCase):
-
     def config_files(self):
         return []
 
@@ -1062,12 +1040,14 @@ class TestCase(BaseTestCase):
                 pass
             for domain in fixtures.DOMAINS:
                 rv = PROVIDERS.resource_api.create_domain(domain['id'], domain)
-                attrname = 'domain_%s' % domain['id']
+                attrname = 'domain_{}'.format(domain['id'])
                 setattr(self, attrname, rv)
                 fixtures_to_cleanup.append(attrname)
 
             for project in fixtures.PROJECTS:
-                project_attr_name = 'project_%s' % project['name'].lower()
+                project_attr_name = 'project_{}'.format(
+                    project['name'].lower()
+                )
                 rv = PROVIDERS.resource_api.create_project(
                     project['id'], project
                 )
@@ -1076,7 +1056,7 @@ class TestCase(BaseTestCase):
 
             for role in fixtures.ROLES:
                 rv = PROVIDERS.role_api.create_role(role['id'], role)
-                attrname = 'role_%s' % role['name']
+                attrname = 'role_{}'.format(role['name'])
                 setattr(self, attrname, rv)
                 fixtures_to_cleanup.append(attrname)
 
@@ -1100,7 +1080,7 @@ class TestCase(BaseTestCase):
                 # Use the ID from the fixture as the attribute name, so
                 # that our tests can easily reference each user dict, while
                 # the ID in the dict will be the real public ID.
-                attrname = 'user_%s' % user['name']
+                attrname = 'user_{}'.format(user['name'])
                 setattr(self, attrname, user_copy)
                 fixtures_to_cleanup.append(attrname)
 
@@ -1108,7 +1088,7 @@ class TestCase(BaseTestCase):
                 role_id = role_assignment['role_id']
                 user = role_assignment['user']
                 project_id = role_assignment['project_id']
-                user_id = getattr(self, 'user_%s' % user)['id']
+                user_id = getattr(self, f'user_{user}')['id']
                 PROVIDERS.assignment_api.add_role_to_user_and_project(
                     user_id, project_id, role_id
                 )

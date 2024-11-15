@@ -30,6 +30,6 @@ def build_response(error):
 
     if error.code == 401:
         response.headers['WWW-Authenticate'] = (
-            'Keystone uri="%s"' % ks_flask.base_url()
+            f'Keystone uri="{ks_flask.base_url()}"'
         )
     return response

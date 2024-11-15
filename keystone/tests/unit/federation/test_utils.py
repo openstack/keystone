@@ -18,7 +18,6 @@ from keystone.tests import unit
 
 
 class TestFederationUtils(unit.TestCase):
-
     def setUp(self):
         super().setUp()
         self.mapping_id_mock = uuid.uuid4().hex

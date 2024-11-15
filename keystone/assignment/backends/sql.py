@@ -41,7 +41,6 @@ class AssignmentType:
 
 
 class Assignment(base.AssignmentDriverBase):
-
     @classmethod
     def default_role_driver(cls):
         return 'sql'
@@ -55,7 +54,6 @@ class Assignment(base.AssignmentDriverBase):
         project_id=None,
         inherited_to_projects=False,
     ):
-
         assignment_type = AssignmentType.calculate_type(
             user_id, group_id, project_id, domain_id
         )
@@ -182,11 +180,7 @@ class Assignment(base.AssignmentDriverBase):
                     )
                 )
         except sql.DBDuplicateEntry:
-            msg = 'User {} already has role {} in tenant {}'.format(
-                user_id,
-                role_id,
-                project_id,
-            )
+            msg = f'User {user_id} already has role {role_id} in tenant {project_id}'
             raise exception.Conflict(type='role grant', details=msg)
 
     def remove_role_from_user_and_project(self, user_id, project_id, role_id):
@@ -264,7 +258,6 @@ class Assignment(base.AssignmentDriverBase):
         project_ids=None,
         inherited_to_projects=None,
     ):
-
         def denormalize_role(ref):
             assignment = {}
             if ref.type == AssignmentType.USER_PROJECT:

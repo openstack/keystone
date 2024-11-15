@@ -40,9 +40,7 @@ class ShadowUsersTests(
             'enabled': True,
             'description': uuid.uuid4().hex,
         }
-        self.mapping = {
-            'id': uuid.uuid4().hex,
-        }
+        self.mapping = {'id': uuid.uuid4().hex}
         self.protocol = {
             'id': uuid.uuid4().hex,
             'idp_id': self.idp['id'],
@@ -68,7 +66,6 @@ class ShadowUsersTests(
 
 
 class TestUserWithFederatedUser(ShadowUsersTests):
-
     def setUp(self):
         super().setUp()
         self.useFixture(database.Database())

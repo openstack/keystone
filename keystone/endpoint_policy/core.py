@@ -97,7 +97,6 @@ class Manager(manager.Manager):
         )
 
     def list_endpoints_for_policy(self, policy_id):
-
         def _get_endpoint(endpoint_id, policy_id):
             try:
                 return PROVIDERS.catalog_api.get_endpoint(endpoint_id)
@@ -235,7 +234,6 @@ class Manager(manager.Manager):
         return matching_endpoints
 
     def get_policy_for_endpoint(self, endpoint_id):
-
         def _get_policy(policy_id, endpoint_id):
             try:
                 return PROVIDERS.policy_api.get_policy(policy_id)

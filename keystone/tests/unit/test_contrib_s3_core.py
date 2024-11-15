@@ -65,7 +65,7 @@ class S3ContribCore(test_v3.RestfulTestCase):
                 }
             },
             expected_status=http.client.OK,
-            **kwargs
+            **kwargs,
         )
         self.assertValidProjectScopedTokenResponse(
             resp, self.user, forbid_token_id=True

@@ -39,7 +39,6 @@ class IDMapping(sql.ModelBase, sql.ModelDictMixin):
 
 
 class Mapping(base.MappingDriverBase):
-
     def get_public_id(self, local_entity):
         # NOTE(henry-nash): Since the Public ID is regeneratable, rather
         # than search for the entry using the local entity values, we

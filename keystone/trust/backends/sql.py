@@ -41,10 +41,7 @@ class TrustModel(sql.ModelBase, sql.ModelDictMixinWithExtras):
     ]
     id = sql.Column(sql.String(64), primary_key=True)
     # user id of owner
-    trustor_user_id = sql.Column(
-        sql.String(64),
-        nullable=False,
-    )
+    trustor_user_id = sql.Column(sql.String(64), nullable=False)
     # user_id of user allowed to consume this preauth
     trustee_user_id = sql.Column(sql.String(64), nullable=False)
     project_id = sql.Column(sql.String(64))

@@ -39,9 +39,7 @@ SENSITIVE/PRIVILEGED DATA.
 )
 
 GROUP_NAME = __name__.split('.')[-1]
-ALL_OPTS = [
-    debug_middleware,
-]
+ALL_OPTS = [debug_middleware]
 
 
 def register_opts(conf):

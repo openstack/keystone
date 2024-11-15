@@ -26,7 +26,7 @@ class TestProviderAPIRegistry(unit.BaseTestCase):
         self.addCleanup(provider_api.ProviderAPIs._clear_registry_instances)
 
     def _create_manager_instance(self, provides_api=None):
-        provides_api = provides_api or '%s_api' % uuid.uuid4().hex
+        provides_api = provides_api or f'{uuid.uuid4().hex}_api'
 
         class TestManager(manager.Manager):
             _provides_api = provides_api
@@ -38,7 +38,7 @@ class TestProviderAPIRegistry(unit.BaseTestCase):
         return TestManager(driver_name=None)
 
     def test_deferred_gettr(self):
-        api_name = '%s_api' % uuid.uuid4().hex
+        api_name = f'{uuid.uuid4().hex}_api'
 
         class TestClass:
             descriptor = provider_api.ProviderAPIs.deferred_provider_lookup(

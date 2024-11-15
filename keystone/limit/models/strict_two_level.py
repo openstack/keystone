@@ -166,20 +166,20 @@ class StrictTwoLevelModel(base.ModelBase):
                 )
             except exception.InvalidLimit:
                 error = (
-                    "The resource limit (%(level)s: %(id)s, "
-                    "resource_name: %(resource_name)s, "
-                    "resource_limit: %(resource_limit)s, "
-                    "service_id: %(service_id)s, "
-                    "region_id: %(region_id)s) doesn't satisfy "
+                    "The resource limit ({level}: {id}, "
+                    "resource_name: {resource_name}, "
+                    "resource_limit: {resource_limit}, "
+                    "service_id: {service_id}, "
+                    "region_id: {region_id}) doesn't satisfy "
                     "current hierarchy model."
-                ) % {
-                    'level': 'project_id' if project_id else 'domain_id',
-                    'id': project_id or domain_id,
-                    'resource_name': resource_name,
-                    'resource_limit': resource_limit,
-                    'service_id': service_id,
-                    'region_id': region_id,
-                }
+                ).format(
+                    level='project_id' if project_id else 'domain_id',
+                    id=project_id or domain_id,
+                    resource_name=resource_name,
+                    resource_limit=resource_limit,
+                    service_id=service_id,
+                    region_id=region_id,
+                )
                 tr_error = _(
                     "The resource limit (%(level)s: %(id)s, "
                     "resource_name: %(resource_name)s, "

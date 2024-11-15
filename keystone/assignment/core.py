@@ -71,8 +71,8 @@ class Manager(manager.Manager):
 
         self.event_callbacks = {
             notifications.ACTIONS.deleted: {
-                'domain': [self._delete_domain_assignments],
-            },
+                'domain': [self._delete_domain_assignments]
+            }
         }
 
     def _delete_domain_assignments(
@@ -209,7 +209,6 @@ class Manager(manager.Manager):
         inherited_to_projects=False,
         context=None,
     ):
-
         # The parameters for this method must match the parameters for
         # create_grant so that the notifications.role_assignment decorator
         # will work.
@@ -286,7 +285,6 @@ class Manager(manager.Manager):
         inherited_to_projects=False,
         context=None,
     ):
-
         # The parameters for this method must match the parameters for
         # delete_grant so that the notifications.role_assignment decorator
         # will work.
@@ -326,16 +324,9 @@ class Manager(manager.Manager):
             target_id = project_id
 
         reason = (
-            'Invalidating the token cache because role %(role_id)s was '
-            'removed from %(actor_type)s %(actor_id)s on %(target_type)s '
-            '%(target_id)s.'
-            % {
-                'role_id': role_id,
-                'actor_type': actor_type,
-                'actor_id': actor_id,
-                'target_type': target_type,
-                'target_id': target_id,
-            }
+            f'Invalidating the token cache because role {role_id} was '
+            f'removed from {actor_type} {actor_id} on {target_type} '
+            f'{target_id}.'
         )
         notifications.invalidate_token_cache_notification(reason)
 
@@ -429,7 +420,6 @@ class Manager(manager.Manager):
         inherited_to_projects=False,
         initiator=None,
     ):
-
         # check if role exist before any processing
         PROVIDERS.role_api.get_role(role_id)
 
@@ -760,7 +750,7 @@ class Manager(manager.Manager):
             implied_roles_cache = {}
             role_refs_to_check = list(role_refs)
             ref_results = list(role_refs)
-            checked_role_refs = list()
+            checked_role_refs = []
             while role_refs_to_check:
                 next_ref = role_refs_to_check.pop()
                 checked_role_refs.append(next_ref)
@@ -1348,9 +1338,8 @@ class Manager(manager.Manager):
         role = PROVIDERS.role_api.get_role(role_id)
         if role.get('domain_id'):
             raise exception.ValidationError(
-                'Role %(role_id)s is a domain-specific role. Unable to use '
+                f'Role {role_id} is a domain-specific role. Unable to use '
                 'a domain-specific role in a system assignment.'
-                % {'role_id': role_id}
             )
         target_id = self._SYSTEM_SCOPE_TOKEN
         assignment_type = self._USER_SYSTEM
@@ -1420,9 +1409,8 @@ class Manager(manager.Manager):
         role = PROVIDERS.role_api.get_role(role_id)
         if role.get('domain_id'):
             raise exception.ValidationError(
-                'Role %(role_id)s is a domain-specific role. Unable to use '
+                f'Role {role_id} is a domain-specific role. Unable to use '
                 'a domain-specific role in a system assignment.'
-                % {'role_id': role_id}
             )
         target_id = self._SYSTEM_SCOPE_TOKEN
         assignment_type = self._GROUP_SYSTEM
@@ -1556,10 +1544,10 @@ class RoleManager(manager.Manager):
         notifications.Audit.deleted(self._ROLE, role_id, initiator)
         self.get_role.invalidate(self, role_id)
         reason = (
-            'Invalidating the token cache because role %(role_id)s has been '
+            f'Invalidating the token cache because role {role_id} has been '
             'removed. Role assignments for users will be recalculated and '
             'enforced accordingly the next time they authenticate or validate '
-            'a token' % {'role_id': role_id}
+            'a token'
         )
         notifications.invalidate_token_cache_notification(reason)
         COMPUTED_ASSIGNMENTS_REGION.invalidate()

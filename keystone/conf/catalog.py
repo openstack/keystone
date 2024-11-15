@@ -75,13 +75,7 @@ have enough services or endpoints to exceed a reasonable limit.
 
 
 GROUP_NAME = __name__.split('.')[-1]
-ALL_OPTS = [
-    template_file,
-    driver,
-    caching,
-    cache_time,
-    list_limit,
-]
+ALL_OPTS = [template_file, driver, caching, cache_time, list_limit]
 
 
 def register_opts(conf):

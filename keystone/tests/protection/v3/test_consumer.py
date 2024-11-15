@@ -31,7 +31,8 @@ class _SystemUserOauth1ConsumerTests:
         ref = PROVIDERS.oauth_api.create_consumer({'id': uuid.uuid4().hex})
         with self.test_client() as c:
             c.get(
-                '/v3/OS-OAUTH1/consumers/%s' % ref['id'], headers=self.headers
+                '/v3/OS-OAUTH1/consumers/{}'.format(ref['id']),
+                headers=self.headers,
             )
 
     def test_user_can_list_consumers(self):
@@ -41,7 +42,6 @@ class _SystemUserOauth1ConsumerTests:
 
 
 class _SystemReaderAndMemberOauth1ConsumerTests:
-
     def test_user_cannot_create_consumer(self):
         with self.test_client() as c:
             c.post(
@@ -55,7 +55,7 @@ class _SystemReaderAndMemberOauth1ConsumerTests:
         ref = PROVIDERS.oauth_api.create_consumer({'id': uuid.uuid4().hex})
         with self.test_client() as c:
             c.patch(
-                '/v3/OS-OAUTH1/consumers/%s' % ref['id'],
+                '/v3/OS-OAUTH1/consumers/{}'.format(ref['id']),
                 json={'consumer': {'description': uuid.uuid4().hex}},
                 expected_status_code=http.client.FORBIDDEN,
                 headers=self.headers,
@@ -65,7 +65,7 @@ class _SystemReaderAndMemberOauth1ConsumerTests:
         ref = PROVIDERS.oauth_api.create_consumer({'id': uuid.uuid4().hex})
         with self.test_client() as c:
             c.delete(
-                '/v3/OS-OAUTH1/consumers/%s' % ref['id'],
+                '/v3/OS-OAUTH1/consumers/{}'.format(ref['id']),
                 expected_status_code=http.client.FORBIDDEN,
                 headers=self.headers,
             )
@@ -77,7 +77,6 @@ class SystemReaderTests(
     _SystemUserOauth1ConsumerTests,
     _SystemReaderAndMemberOauth1ConsumerTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -112,7 +111,6 @@ class SystemMemberTests(
     _SystemUserOauth1ConsumerTests,
     _SystemReaderAndMemberOauth1ConsumerTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -146,7 +144,6 @@ class SystemAdminTests(
     common_auth.AuthTestMixin,
     _SystemUserOauth1ConsumerTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -181,7 +178,7 @@ class SystemAdminTests(
         ref = PROVIDERS.oauth_api.create_consumer({'id': uuid.uuid4().hex})
         with self.test_client() as c:
             c.patch(
-                '/v3/OS-OAUTH1/consumers/%s' % ref['id'],
+                '/v3/OS-OAUTH1/consumers/{}'.format(ref['id']),
                 json={'consumer': {'description': uuid.uuid4().hex}},
                 headers=self.headers,
             )
@@ -190,5 +187,6 @@ class SystemAdminTests(
         ref = PROVIDERS.oauth_api.create_consumer({'id': uuid.uuid4().hex})
         with self.test_client() as c:
             c.delete(
-                '/v3/OS-OAUTH1/consumers/%s' % ref['id'], headers=self.headers
+                '/v3/OS-OAUTH1/consumers/{}'.format(ref['id']),
+                headers=self.headers,
             )

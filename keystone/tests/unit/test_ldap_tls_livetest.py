@@ -35,7 +35,6 @@ def create_object(dn, attrs):
 
 
 class LiveTLSLDAPIdentity(test_ldap_livetest.LiveLDAPIdentity):
-
     def _ldap_skip_live(self):
         self.skip_if_env_not_set('ENABLE_TLS_LDAP_LIVE_TEST')
 

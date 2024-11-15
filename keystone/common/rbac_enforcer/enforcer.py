@@ -242,7 +242,7 @@ class RBACEnforcer:
                     member_name = None
                 func = getattr(resource, 'get_member_from_driver', None)
                 if member_name is not None and callable(func):
-                    key = '%s_id' % member_name
+                    key = f'{member_name}_id'
                     if key in (flask.request.view_args or {}):
                         # NOTE(morgan): For most correct setup, instantiate the
                         # view_class. There is no current support for passing

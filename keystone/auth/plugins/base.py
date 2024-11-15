@@ -45,13 +45,7 @@ class AuthMethodHandler(provider_api.ProviderAPIMixin, metaclass=abc.ABCMeta):
         to the re-scope type action. Here's an example of ``response_data`` on
         successful authentication::
 
-            {
-                "methods": [
-                    "password",
-                    "token"
-                ],
-                "user_id": "abc123"
-            }
+            {"methods": ["password", "token"], "user_id": "abc123"}
 
         Plugins are invoked in the order in which they are specified in the
         ``methods`` attribute of the ``identity`` object. For example,
@@ -61,23 +55,12 @@ class AuthMethodHandler(provider_api.ProviderAPIMixin, metaclass=abc.ABCMeta):
             {
                 "auth": {
                     "identity": {
-                        "custom-plugin": {
-                            "custom-data": "sdfdfsfsfsdfsf"
-                        },
-                        "methods": [
-                            "custom-plugin",
-                            "password",
-                            "token"
-                        ],
+                        "custom-plugin": {"custom-data": "sdfdfsfsfsdfsf"},
+                        "methods": ["custom-plugin", "password", "token"],
                         "password": {
-                            "user": {
-                                "id": "s23sfad1",
-                                "password": "secret"
-                            }
+                            "user": {"id": "s23sfad1", "password": "secret"}
                         },
-                        "token": {
-                            "id": "sdfafasdfsfasfasdfds"
-                        }
+                        "token": {"id": "sdfafasdfsfasfasdfds"},
                     }
                 }
             }

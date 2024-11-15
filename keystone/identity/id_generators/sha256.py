@@ -18,7 +18,6 @@ from keystone.identity import generator
 
 
 class Generator(generator.IDGenerator):
-
     def generate_public_ID(self, mapping):
         m = hashlib.sha256()
         for key in sorted(mapping.keys()):

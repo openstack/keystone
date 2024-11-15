@@ -50,7 +50,7 @@ class Manager(manager.Manager):
         if credential['type'] == 'ec2':
             decrypted_blob = json.loads(
                 PROVIDERS.credential_provider_api.decrypt(
-                    credential['encrypted_blob'],
+                    credential['encrypted_blob']
                 )
             )
         else:

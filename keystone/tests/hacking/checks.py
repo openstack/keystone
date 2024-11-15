@@ -123,7 +123,6 @@ def block_comments_begin_with_a_space(physical_line, line_number):
 
 
 class CheckForTranslationIssues(BaseASTChecker):
-
     name = "check_for_translation_issues"
     version = "1.0"
     LOGGING_CHECK_DESC = 'K005 Using translated string in logging'

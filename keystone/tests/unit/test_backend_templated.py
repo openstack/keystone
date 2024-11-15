@@ -29,7 +29,6 @@ BROKEN_WRITE_FUNCTIONALITY_MSG = (
 
 
 class TestTemplatedCatalog(unit.TestCase, catalog_tests.CatalogTests):
-
     DEFAULT_FIXTURE = {
         'RegionOne': {
             'compute': {
@@ -109,17 +108,17 @@ class TestTemplatedCatalog(unit.TestCase, catalog_tests.CatalogTests):
                     {
                         'interface': 'admin',
                         'region': 'RegionOne',
-                        'url': 'http://localhost:8774/v1.1/%s' % project_id,
+                        'url': f'http://localhost:8774/v1.1/{project_id}',
                     },
                     {
                         'interface': 'public',
                         'region': 'RegionOne',
-                        'url': 'http://localhost:8774/v1.1/%s' % project_id,
+                        'url': f'http://localhost:8774/v1.1/{project_id}',
                     },
                     {
                         'interface': 'internal',
                         'region': 'RegionOne',
-                        'url': 'http://localhost:8774/v1.1/%s' % project_id,
+                        'url': f'http://localhost:8774/v1.1/{project_id}',
                     },
                 ],
                 'type': 'compute',
@@ -169,32 +168,32 @@ class TestTemplatedCatalog(unit.TestCase, catalog_tests.CatalogTests):
                     {
                         'interface': 'admin',
                         'region': 'RegionOne',
-                        'url': 'http://region-one:8774/v1.1/%s' % project_id,
+                        'url': f'http://region-one:8774/v1.1/{project_id}',
                     },
                     {
                         'interface': 'public',
                         'region': 'RegionOne',
-                        'url': 'http://region-one:8774/v1.1/%s' % project_id,
+                        'url': f'http://region-one:8774/v1.1/{project_id}',
                     },
                     {
                         'interface': 'internal',
                         'region': 'RegionOne',
-                        'url': 'http://region-one:8774/v1.1/%s' % project_id,
+                        'url': f'http://region-one:8774/v1.1/{project_id}',
                     },
                     {
                         'interface': 'admin',
                         'region': 'RegionTwo',
-                        'url': 'http://region-two:8774/v1.1/%s' % project_id,
+                        'url': f'http://region-two:8774/v1.1/{project_id}',
                     },
                     {
                         'interface': 'public',
                         'region': 'RegionTwo',
-                        'url': 'http://region-two:8774/v1.1/%s' % project_id,
+                        'url': f'http://region-two:8774/v1.1/{project_id}',
                     },
                     {
                         'interface': 'internal',
                         'region': 'RegionTwo',
-                        'url': 'http://region-two:8774/v1.1/%s' % project_id,
+                        'url': f'http://region-two:8774/v1.1/{project_id}',
                     },
                 ],
                 'type': 'compute',

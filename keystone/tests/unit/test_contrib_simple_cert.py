@@ -16,13 +16,11 @@ from keystone.tests.unit import test_v3
 
 
 class BaseTestCase(test_v3.RestfulTestCase):
-
     CA_PATH = '/v3/OS-SIMPLE-CERT/ca'
     CERT_PATH = '/v3/OS-SIMPLE-CERT/certificates'
 
 
 class TestSimpleCert(BaseTestCase):
-
     def request_cert(self, path):
         self.request(
             app=self.public_app,

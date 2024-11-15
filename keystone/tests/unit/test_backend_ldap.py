@@ -48,7 +48,6 @@ PROVIDERS = provider_api.ProviderAPIs
 
 
 def _assert_backends(testcase, **kwargs):
-
     def _get_backend_cls(testcase, subsystem):
         observed_backend = getattr(testcase, subsystem + '_api').driver
         return observed_backend.__class__
@@ -114,13 +113,11 @@ def _assert_backends(testcase, **kwargs):
 
         else:
             raise ValueError(
-                '%r is not an expected value for entrypoint name'
-                % entrypoint_name
+                f'{entrypoint_name!r} is not an expected value for entrypoint name'
             )
 
 
 class IdentityTests(identity_tests.IdentityTests):
-
     def test_update_domain_set_immutable(self):
         self.skip_test_overrides('N/A: LDAP does not support multiple domains')
 
@@ -183,7 +180,6 @@ class IdentityTests(identity_tests.IdentityTests):
 
 
 class AssignmentTests(assignment_tests.AssignmentTests):
-
     def test_get_role_assignment_by_domain_not_found(self):
         self.skip_test_overrides('N/A: LDAP does not support multiple domains')
 
@@ -264,7 +260,6 @@ class AssignmentTests(assignment_tests.AssignmentTests):
 
 
 class ResourceTests(resource_tests.ResourceTests):
-
     def test_create_duplicate_project_name_in_different_domains(self):
         self.skip_test_overrides('Domains are read-only against LDAP')
 
@@ -366,7 +361,6 @@ class LDAPTestSetup:
 class BaseLDAPIdentity(
     LDAPTestSetup, IdentityTests, AssignmentTests, ResourceTests
 ):
-
     def _get_domain_fixture(self):
         """Return the static domain, since domains in LDAP are read-only."""
         return PROVIDERS.resource_api.get_domain(
@@ -402,7 +396,7 @@ class BaseLDAPIdentity(
 
         ldap_ = PROVIDERS.identity_api.driver.user.get_connection()
         res = ldap_.search_s(
-            user_dn, ldap.SCOPE_BASE, '(sn=%s)' % user['name']
+            user_dn, ldap.SCOPE_BASE, '(sn={})'.format(user['name'])
         )
         if enabled_attr_name in res[0][1]:
             return res[0][1][enabled_attr_name]
@@ -413,7 +407,7 @@ class BaseLDAPIdentity(
         """Regression test for building the tree names."""
         user_api = identity.backends.ldap.UserApi(CONF)
         self.assertTrue(user_api)
-        self.assertEqual("ou=Users,%s" % CONF.ldap.suffix, user_api.tree_dn)
+        self.assertEqual(f"ou=Users,{CONF.ldap.suffix}", user_api.tree_dn)
 
     def test_configurable_allowed_user_actions(self):
         user = self.new_user_ref(domain_id=CONF.identity.default_domain_id)
@@ -454,8 +448,7 @@ class BaseLDAPIdentity(
         domain_id = self.user_foo['domain_id']
         driver = PROVIDERS.identity_api._select_identity_driver(domain_id)
         driver.user.ldap_filter = '(|(cn={})(cn={}))'.format(
-            self.user_sna['id'],
-            self.user_two['id'],
+            self.user_sna['id'], self.user_two['id']
         )
         users = PROVIDERS.identity_api.list_users(
             domain_scope=self._set_domain_scope(domain_id), hints=hints
@@ -478,7 +471,9 @@ class BaseLDAPIdentity(
         self.assertEqual(numgroups, len(groups))
         # configure the group filter
         driver = PROVIDERS.identity_api._select_identity_driver(domain['id'])
-        driver.group.ldap_filter = '(|(ou=%s)(ou=%s))' % tuple(group_names[:2])
+        driver.group.ldap_filter = '(|(ou={})(ou={}))'.format(
+            *tuple(group_names[:2])
+        )
         # confirm that the group filter is working
         groups = PROVIDERS.identity_api.list_groups(
             domain_scope=self._set_domain_scope(domain['id'])
@@ -571,9 +566,7 @@ class BaseLDAPIdentity(
         # domains are sourced from, so that we would not need to override such
         # tests here. This is raised as bug 1373865.
         new_domain = self._get_domain_fixture()
-        new_group = unit.new_group_ref(
-            domain_id=new_domain['id'],
-        )
+        new_group = unit.new_group_ref(domain_id=new_domain['id'])
         new_group = PROVIDERS.identity_api.create_group(new_group)
         new_user = self.new_user_ref(domain_id=new_domain['id'])
         new_user = PROVIDERS.identity_api.create_user(new_user)
@@ -1004,10 +997,7 @@ class BaseLDAPIdentity(
 
     def test_update_user_name(self):
         """A user's name cannot be changed through the LDAP driver."""
-        self.assertRaises(
-            exception.Conflict,
-            super().test_update_user_name,
-        )
+        self.assertRaises(exception.Conflict, super().test_update_user_name)
 
     def test_user_id_comma(self):
         """Even if the user has a , in their ID, groups can be listed."""
@@ -1205,7 +1195,6 @@ class BaseLDAPIdentity(
 
 
 class LDAPIdentity(BaseLDAPIdentity):
-
     def assert_backends(self):
         _assert_backends(
             self, assignment='sql', identity='ldap', resource='sql'
@@ -1381,7 +1370,6 @@ class LDAPIdentity(BaseLDAPIdentity):
     def test_filter_ldap_result_by_attr(
         self, mock_simple_bind_s, mock_search_s, mock_connect
     ):
-
         # Mock the ldap search results to return user entries with
         # user_name_attribute('sn') value has emptyspaces, emptystring
         # and attibute itself is not set.
@@ -1394,13 +1382,7 @@ class LDAPIdentity(BaseLDAPIdentity):
                     'sn': ['junk1'],
                 },
             ),
-            (
-                '',
-                {
-                    'cn': [uuid.uuid4().hex],
-                    'email': [uuid.uuid4().hex],
-                },
-            ),
+            ('', {'cn': [uuid.uuid4().hex], 'email': [uuid.uuid4().hex]}),
             (
                 'sn=,dc=example,dc=com',
                 {
@@ -1634,10 +1616,7 @@ class LDAPIdentity(BaseLDAPIdentity):
         # the live tests.
         ldap_id_field = 'sn'
         ldap_id_value = uuid.uuid4().hex
-        dn = '{}={},ou=Users,cn=example,cn=com'.format(
-            ldap_id_field,
-            ldap_id_value,
-        )
+        dn = f'{ldap_id_field}={ldap_id_value},ou=Users,cn=example,cn=com'
         modlist = [
             ('objectClass', ['person', 'inetOrgPerson']),
             (ldap_id_field, [ldap_id_value]),
@@ -1920,7 +1899,7 @@ class LDAPIdentity(BaseLDAPIdentity):
         self.assertEqual(len(default_fixtures.USERS), len(users))
         user_ids = {user['id'] for user in users}
         expected_user_ids = {
-            getattr(self, 'user_%s' % user['name'])['id']
+            getattr(self, 'user_{}'.format(user['name']))['id']
             for user in default_fixtures.USERS
         }
         for user_ref in users:
@@ -2005,9 +1984,7 @@ class LDAPIdentity(BaseLDAPIdentity):
         # and attibute itself is not set.
         mock_ldap_get.return_value = (
             'cn=users,dc=example,dc=com',
-            {
-                'mail': [email1, email2],
-            },
+            {'mail': [email1, email2]},
         )
 
         # This is not a valid scenario, since we do not support multiple value
@@ -2066,9 +2043,7 @@ class LDAPIdentity(BaseLDAPIdentity):
     def test_id_attribute_not_found(self, mock_ldap_get):
         mock_ldap_get.return_value = (
             'cn=nobodycares,dc=example,dc=com',
-            {
-                'sn': [uuid.uuid4().hex],
-            },
+            {'sn': [uuid.uuid4().hex]},
         )
 
         user_api = identity.backends.ldap.UserApi(CONF)
@@ -2410,12 +2385,7 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity, unit.TestCase):
 
         # The filter, which _is_id_enabled is going to build, contains the
         # tree_dn, which better be escaped in this case.
-        exp_filter = '({}={}={},{})'.format(
-            mixin_impl.member_attribute,
-            mixin_impl.id_attr,
-            object_id,
-            sample_dn_filter_esc,
-        )
+        exp_filter = f'({mixin_impl.member_attribute}={mixin_impl.id_attr}={object_id},{sample_dn_filter_esc})'
 
         with mixin_impl.get_connection() as conn:
             m = self.useFixture(
@@ -2427,7 +2397,6 @@ class LDAPIdentityEnabledEmulation(LDAPIdentity, unit.TestCase):
 
 
 class LDAPPosixGroupsTest(LDAPTestSetup, unit.TestCase):
-
     def assert_backends(self):
         _assert_backends(self, identity='ldap')
 
@@ -2581,12 +2550,12 @@ class BaseMultiLDAPandSQLIdentity:
             role_id=self.role_member['id'],
         )
         for x in range(1, self.domain_count):
-            users['user%s' % x] = unit.create_user(
-                PROVIDERS.identity_api, self.domains['domain%s' % x]['id']
+            users[f'user{x}'] = unit.create_user(
+                PROVIDERS.identity_api, self.domains[f'domain{x}']['id']
             )
             PROVIDERS.assignment_api.create_grant(
-                user_id=users['user%s' % x]['id'],
-                domain_id=self.domains['domain%s' % x]['id'],
+                user_id=users[f'user{x}']['id'],
+                domain_id=self.domains[f'domain{x}']['id'],
                 role_id=self.role_member['id'],
             )
 
@@ -2630,7 +2599,6 @@ class BaseMultiLDAPandSQLIdentity:
                 pass
 
     def setup_initial_domains(self):
-
         def create_domain(domain):
             try:
                 ref = PROVIDERS.resource_api.create_domain(
@@ -2642,7 +2610,7 @@ class BaseMultiLDAPandSQLIdentity:
 
         self.domains = {}
         for x in range(1, self.domain_count):
-            domain = 'domain%s' % x
+            domain = f'domain{x}'
             self.domains[domain] = create_domain(
                 {'id': uuid.uuid4().hex, 'name': domain}
             )
@@ -2652,7 +2620,7 @@ class BaseMultiLDAPandSQLIdentity:
         users = self.create_users_across_domains()
 
         for user_num in range(self.domain_count):
-            user = 'user%s' % user_num
+            user = f'user{user_num}'
             with self.make_request():
                 PROVIDERS.identity_api.authenticate(
                     user_id=users[user]['id'], password=users[user]['password']
@@ -2755,7 +2723,7 @@ class MultiLDAPandSQLIdentity(
         self.assertEqual(len(default_fixtures.USERS) + 1, len(users))
         user_ids = {user['id'] for user in users}
         expected_user_ids = {
-            getattr(self, 'user_%s' % user['name'])['id']
+            getattr(self, 'user_{}'.format(user['name']))['id']
             for user in default_fixtures.USERS
         }
         expected_user_ids.add(_users['user0']['id'])
@@ -3414,7 +3382,7 @@ class DomainSpecificLDAPandSQLIdentity(
         self.assertEqual(len(default_fixtures.USERS) + 1, len(users))
         user_ids = {user['id'] for user in users}
         expected_user_ids = {
-            getattr(self, 'user_%s' % user['name'])['id']
+            getattr(self, 'user_{}'.format(user['name']))['id']
             for user in default_fixtures.USERS
         }
         expected_user_ids.add(_users['user0']['id'])
@@ -3652,7 +3620,6 @@ class DomainSpecificSQLIdentity(DomainSpecificLDAPandSQLIdentity):
 class LdapFilterTests(
     identity_tests.FilterTests, LDAPTestSetup, unit.TestCase
 ):
-
     def assert_backends(self):
         _assert_backends(self, identity='ldap')
 
@@ -3677,7 +3644,6 @@ class LdapFilterTests(
 
 
 class LDAPMatchingRuleInChainTests(LDAPTestSetup, unit.TestCase):
-
     def setUp(self):
         super().setUp()
 

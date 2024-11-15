@@ -117,10 +117,10 @@ class ConsumerResource(ks_flask.ResourceBase):
     def delete(self, consumer_id):
         ENFORCER.enforce_call(action='identity:delete_consumer')
         reason = (
-            'Invalidating token cache because consumer %(consumer_id)s has '
+            f'Invalidating token cache because consumer {consumer_id} has '
             'been deleted. Authorization for users with OAuth tokens will be '
             'recalculated and enforced accordingly the next time they '
-            'authenticate or validate a token.' % {'consumer_id': consumer_id}
+            'authenticate or validate a token.'
         )
         notifications.invalidate_token_cache_notification(reason)
         PROVIDERS.oauth_api.delete_consumer(
@@ -191,12 +191,11 @@ class RequestTokenResource(_OAuth1ResourceBase):
         )
 
         result = 'oauth_token={key}&oauth_token_secret={secret}'.format(
-            key=token_ref['id'],
-            secret=token_ref['request_secret'],
+            key=token_ref['id'], secret=token_ref['request_secret']
         )
 
         if CONF.oauth1.request_token_duration > 0:
-            expiry_bit = '&oauth_expires_at=%s' % token_ref['expires_at']
+            expiry_bit = '&oauth_expires_at={}'.format(token_ref['expires_at'])
             result += expiry_bit
 
         resp = flask.make_response(result, http.client.CREATED)
@@ -294,12 +293,11 @@ class AccessTokenResource(_OAuth1ResourceBase):
         )
 
         result = 'oauth_token={key}&oauth_token_secret={secret}'.format(
-            key=token_ref['id'],
-            secret=token_ref['access_secret'],
+            key=token_ref['id'], secret=token_ref['access_secret']
         )
 
         if CONF.oauth1.access_token_duration > 0:
-            expiry_bit = '&oauth_expires_at=%s' % (token_ref['expires_at'])
+            expiry_bit = '&oauth_expires_at={}'.format(token_ref['expires_at'])
             result += expiry_bit
 
         resp = flask.make_response(result, http.client.CREATED)

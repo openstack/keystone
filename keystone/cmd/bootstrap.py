@@ -26,7 +26,6 @@ PROVIDERS = provider_api.ProviderAPIs
 
 
 class Bootstrapper:
-
     def __init__(self):
         backends.load_backends()
 

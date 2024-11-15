@@ -116,7 +116,6 @@ class Project(sql.ModelBase, sql.ModelDictMixinWithExtras):
 
 
 class ProjectTag(sql.ModelBase, sql.ModelDictMixin):
-
     def to_dict(self):
         d = super().to_dict()
         return d

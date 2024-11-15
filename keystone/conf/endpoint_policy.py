@@ -28,9 +28,7 @@ to set this unless you are providing a custom entry point.
 
 
 GROUP_NAME = __name__.split('.')[-1]
-ALL_OPTS = [
-    driver,
-]
+ALL_OPTS = [driver]
 
 
 def register_opts(conf):

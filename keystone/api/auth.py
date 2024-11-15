@@ -466,15 +466,15 @@ class AuthAPI(ks_flask.APIBase):
             resource=AuthProjectsResource,
             url='/auth/projects',
             alternate_urls=[
-                dict(
-                    url='/OS-FEDERATION/projects',
-                    json_home=ks_flask.construct_json_home_data(
+                {
+                    'url': '/OS-FEDERATION/projects',
+                    'json_home': ks_flask.construct_json_home_data(
                         rel='projects',
                         resource_relation_func=(
                             json_home_relations.os_federation_resource_rel_func
                         ),
                     ),
-                )
+                }
             ],
             rel='auth_projects',
             resource_kwargs={},
@@ -483,15 +483,15 @@ class AuthAPI(ks_flask.APIBase):
             resource=AuthDomainsResource,
             url='/auth/domains',
             alternate_urls=[
-                dict(
-                    url='/OS-FEDERATION/domains',
-                    json_home=ks_flask.construct_json_home_data(
+                {
+                    'url': '/OS-FEDERATION/domains',
+                    'json_home': ks_flask.construct_json_home_data(
                         rel='domains',
                         resource_relation_func=(
                             json_home_relations.os_federation_resource_rel_func
                         ),
                     ),
-                )
+                }
             ],
             rel='auth_domains',
             resource_kwargs={},
@@ -590,7 +590,4 @@ class AuthFederationAPI(ks_flask.APIBase):
     ]
 
 
-APIs = (
-    AuthAPI,
-    AuthFederationAPI,
-)
+APIs = (AuthAPI, AuthFederationAPI)

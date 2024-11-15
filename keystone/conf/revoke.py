@@ -65,12 +65,7 @@ has no effect unless global and `[revoke] caching` are both enabled.
 
 
 GROUP_NAME = __name__.split('.')[-1]
-ALL_OPTS = [
-    driver,
-    expiration_buffer,
-    caching,
-    cache_time,
-]
+ALL_OPTS = [driver, expiration_buffer, caching, cache_time]
 
 
 def register_opts(conf):

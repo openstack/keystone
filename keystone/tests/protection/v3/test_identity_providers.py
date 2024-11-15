@@ -49,7 +49,7 @@ class _SystemUserIdentityProviderTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/OS-FEDERATION/identity_providers/%s' % idp['id'],
+                '/v3/OS-FEDERATION/identity_providers/{}'.format(idp['id']),
                 headers=self.headers,
             )
 
@@ -62,7 +62,7 @@ class _SystemReaderAndMemberIdentityProviderTests:
 
         with self.test_client() as c:
             c.put(
-                '/v3/OS-FEDERATION/identity_providers/%s' % uuid.uuid4().hex,
+                f'/v3/OS-FEDERATION/identity_providers/{uuid.uuid4().hex}',
                 json=create,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -77,7 +77,7 @@ class _SystemReaderAndMemberIdentityProviderTests:
 
         with self.test_client() as c:
             c.patch(
-                '/v3/OS-FEDERATION/identity_providers/%s' % idp['id'],
+                '/v3/OS-FEDERATION/identity_providers/{}'.format(idp['id']),
                 json=update,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -90,7 +90,7 @@ class _SystemReaderAndMemberIdentityProviderTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/OS-FEDERATION/identity_providers/%s' % idp['id'],
+                '/v3/OS-FEDERATION/identity_providers/{}'.format(idp['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -104,7 +104,7 @@ class _DomainAndProjectUserIdentityProviderTests:
 
         with self.test_client() as c:
             c.put(
-                '/v3/OS-FEDERATION/identity_providers/%s' % uuid.uuid4().hex,
+                f'/v3/OS-FEDERATION/identity_providers/{uuid.uuid4().hex}',
                 json=create,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -119,7 +119,7 @@ class _DomainAndProjectUserIdentityProviderTests:
 
         with self.test_client() as c:
             c.patch(
-                '/v3/OS-FEDERATION/identity_providers/%s' % idp['id'],
+                '/v3/OS-FEDERATION/identity_providers/{}'.format(idp['id']),
                 json=update,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -144,7 +144,7 @@ class _DomainAndProjectUserIdentityProviderTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/OS-FEDERATION/identity_providers/%s' % idp['id'],
+                '/v3/OS-FEDERATION/identity_providers/{}'.format(idp['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -156,7 +156,7 @@ class _DomainAndProjectUserIdentityProviderTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/OS-FEDERATION/identity_providers/%s' % idp['id'],
+                '/v3/OS-FEDERATION/identity_providers/{}'.format(idp['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -168,7 +168,6 @@ class SystemReaderTests(
     _SystemUserIdentityProviderTests,
     _SystemReaderAndMemberIdentityProviderTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -203,7 +202,6 @@ class SystemMemberTests(
     _SystemUserIdentityProviderTests,
     _SystemReaderAndMemberIdentityProviderTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -237,7 +235,6 @@ class SystemAdminTests(
     common_auth.AuthTestMixin,
     _SystemUserIdentityProviderTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -265,7 +262,7 @@ class SystemAdminTests(
 
         with self.test_client() as c:
             c.put(
-                '/v3/OS-FEDERATION/identity_providers/%s' % uuid.uuid4().hex,
+                f'/v3/OS-FEDERATION/identity_providers/{uuid.uuid4().hex}',
                 json=create,
                 headers=self.headers,
                 expected_status_code=http.client.CREATED,
@@ -280,7 +277,7 @@ class SystemAdminTests(
 
         with self.test_client() as c:
             c.patch(
-                '/v3/OS-FEDERATION/identity_providers/%s' % idp['id'],
+                '/v3/OS-FEDERATION/identity_providers/{}'.format(idp['id']),
                 json=update,
                 headers=self.headers,
             )
@@ -292,7 +289,7 @@ class SystemAdminTests(
 
         with self.test_client() as c:
             c.delete(
-                '/v3/OS-FEDERATION/identity_providers/%s' % idp['id'],
+                '/v3/OS-FEDERATION/identity_providers/{}'.format(idp['id']),
                 headers=self.headers,
             )
 
@@ -302,7 +299,6 @@ class DomainUserTests(
     common_auth.AuthTestMixin,
     _DomainAndProjectUserIdentityProviderTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -340,7 +336,6 @@ class ProjectUserTests(
     common_auth.AuthTestMixin,
     _DomainAndProjectUserIdentityProviderTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -367,7 +362,6 @@ class ProjectUserTestsWithoutEnforceScope(
     common_auth.AuthTestMixin,
     _DomainAndProjectUserIdentityProviderTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()

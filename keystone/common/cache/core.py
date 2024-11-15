@@ -27,7 +27,6 @@ CONF = keystone.conf.CONF
 
 
 class RegionInvalidationManager:
-
     REGION_KEY_PREFIX = '<<<region>>>:'
 
     def __init__(self, invalidation_region, region_name):
@@ -53,7 +52,6 @@ class RegionInvalidationManager:
 
 
 class DistributedInvalidationStrategy(region.RegionInvalidationStrategy):
-
     def __init__(self, region_manager):
         self._region_manager = region_manager
 
@@ -165,7 +163,7 @@ def configure_invalidation_region():
     config_dict['expiration_time'] = None  # we don't want an expiration
 
     CACHE_INVALIDATION_REGION.configure_from_config(
-        config_dict, '%s.' % CONF.cache.config_prefix
+        config_dict, f'{CONF.cache.config_prefix}.'
     )
 
     # NOTE(breton): Wrap the cache invalidation region to avoid excessive

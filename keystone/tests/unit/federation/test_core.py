@@ -23,7 +23,6 @@ PROVIDERS = provider_api.ProviderAPIs
 
 
 class TestFederationProtocol(unit.TestCase):
-
     def setUp(self):
         super().setUp()
         self.useFixture(database.Database())

@@ -37,7 +37,6 @@ _build_resource_relation = json_home_relations.os_oauth2_resource_rel_func
 
 
 class AccessTokenResource(ks_flask.ResourceBase):
-
     def _method_not_allowed(self):
         """Raise a method not allowed error."""
         raise exception.OAuth2OtherError(
@@ -361,11 +360,11 @@ class AccessTokenResource(ks_flask.ResourceBase):
             raise error
         client_cert_dn = {}
         for key in cert_subject_dn:
-            client_cert_dn['SSL_CLIENT_SUBJECT_DN_%s' % key.upper()] = (
+            client_cert_dn[f'SSL_CLIENT_SUBJECT_DN_{key.upper()}'] = (
                 cert_subject_dn.get(key)
             )
         for key in cert_issuer_dn:
-            client_cert_dn['SSL_CLIENT_ISSUER_DN_%s' % key.upper()] = (
+            client_cert_dn[f'SSL_CLIENT_ISSUER_DN_{key.upper()}'] = (
                 cert_issuer_dn.get(key)
             )
 

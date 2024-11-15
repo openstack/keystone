@@ -19,7 +19,6 @@ from keystone.tests.unit.ksfixtures import ldapdb
 
 
 class TestIdentityDriver(core.BaseTestCase, test_base.IdentityDriverTests):
-
     allows_name_update = False
     allows_self_service_change_password = False
     expected_is_domain_aware = False

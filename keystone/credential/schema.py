@@ -135,7 +135,7 @@ update_request_body: dict[str, Any] = {
             "properties": _credential_properties,
             "additionalProperties": True,
             "minProperties": 1,
-        },
+        }
     },
     "required": ["credential"],
 }

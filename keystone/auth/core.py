@@ -38,7 +38,7 @@ def _get_auth_driver_manager(namespace, plugin_name):
 
 def load_auth_method(method):
     plugin_name = CONF.auth.get(method) or 'default'
-    namespace = 'keystone.auth.%s' % method
+    namespace = f'keystone.auth.{method}'
     driver_manager = _get_auth_driver_manager(namespace, plugin_name)
     return driver_manager.driver
 
@@ -261,7 +261,7 @@ class AuthInfo(provider_api.ProviderAPIMixin):
         app_cred_api = PROVIDERS.application_credential_api
         app_creds = app_cred_api.list_application_credentials(user_id, hints)
         if len(app_creds) != 1:
-            message = "Could not find application credential: %s" % name
+            message = f"Could not find application credential: {name}"
             tr_message = _("Could not find application credential: %s") % name
             LOG.warning(message)
             raise exception.Unauthorized(tr_message)

@@ -38,7 +38,6 @@ CRED_TYPE_EC2 = ec2tokens.CRED_TYPE_EC2
 
 
 class CredentialBaseTestCase(test_v3.RestfulTestCase):
-
     def setUp(self):
         super().setUp()
         self.useFixture(
@@ -104,7 +103,6 @@ class CredentialTestCase(CredentialBaseTestCase):
     """Test credential CRUD."""
 
     def setUp(self):
-
         super().setUp()
 
         self.credential = unit.new_credential_ref(
@@ -149,7 +147,7 @@ class CredentialTestCase(CredentialBaseTestCase):
             credential['id'], credential
         )
 
-        r = self.get('/credentials?user_id=%s' % self.user['id'])
+        r = self.get('/credentials?user_id={}'.format(self.user['id']))
         self.assertValidCredentialListResponse(r, ref=self.credential)
         for cred in r.result['credentials']:
             self.assertEqual(self.user['id'], cred['user_id'])
@@ -216,9 +214,7 @@ class CredentialTestCase(CredentialBaseTestCase):
             credential_user2_cert['id'], credential_user2_cert
         )
 
-        r = self.get(
-            '/credentials?user_id=%s&type=ec2' % user1_id, token=token
-        )
+        r = self.get(f'/credentials?user_id={user1_id}&type=ec2', token=token)
         self.assertValidCredentialListResponse(r, ref=credential_user1_ec2)
         self.assertThat(r.result['credentials'], matchers.HasLength(1))
         cred = r.result['credentials'][0]
@@ -234,8 +230,9 @@ class CredentialTestCase(CredentialBaseTestCase):
     def test_get_credential(self):
         """Call ``GET /credentials/{credential_id}``."""
         r = self.get(
-            '/credentials/%(credential_id)s'
-            % {'credential_id': self.credential['id']}
+            '/credentials/{credential_id}'.format(
+                credential_id=self.credential['id']
+            )
         )
         self.assertValidCredentialResponse(r, self.credential)
 
@@ -246,8 +243,9 @@ class CredentialTestCase(CredentialBaseTestCase):
         )
         del ref['id']
         r = self.patch(
-            '/credentials/%(credential_id)s'
-            % {'credential_id': self.credential['id']},
+            '/credentials/{credential_id}'.format(
+                credential_id=self.credential['id']
+            ),
             body={'credential': ref},
         )
         self.assertValidCredentialResponse(r, ref)
@@ -263,9 +261,7 @@ class CredentialTestCase(CredentialBaseTestCase):
         # Updating the credential to ec2 requires a project_id
         update_ref = {'type': 'ec2', 'project_id': self.project_id}
         self.patch(
-            '/credentials/%(credential_id)s'
-            % {'credential_id': credential_id},
-            body={'credential': update_ref},
+            f'/credentials/{credential_id}', body={'credential': update_ref}
         )
 
     def test_update_credential_to_ec2_missing_project_id(self):
@@ -280,8 +276,7 @@ class CredentialTestCase(CredentialBaseTestCase):
         # will fail
         update_ref = {'type': 'ec2'}
         self.patch(
-            '/credentials/%(credential_id)s'
-            % {'credential_id': credential_id},
+            f'/credentials/{credential_id}',
             body={'credential': update_ref},
             expected_status=http.client.BAD_REQUEST,
         )
@@ -300,9 +295,7 @@ class CredentialTestCase(CredentialBaseTestCase):
         # update request will not fail
         update_ref = {'type': 'ec2'}
         self.patch(
-            '/credentials/%(credential_id)s'
-            % {'credential_id': credential_id},
-            body={'credential': update_ref},
+            f'/credentials/{credential_id}', body={'credential': update_ref}
         )
 
     def test_update_credential_non_owner(self):
@@ -335,8 +328,7 @@ class CredentialTestCase(CredentialBaseTestCase):
         # Cannot change the credential to be owned by another user
         update_ref = {'user_id': self.user_id, 'project_id': self.project_id}
         self.patch(
-            '/credentials/%(credential_id)s'
-            % {'credential_id': credential_id},
+            f'/credentials/{credential_id}',
             expected_status=403,
             auth=auth,
             body={'credential': update_ref},
@@ -356,8 +348,7 @@ class CredentialTestCase(CredentialBaseTestCase):
         blob['trust_id'] = uuid.uuid4().hex
         update_ref = {'blob': json.dumps(blob)}
         self.patch(
-            '/credentials/%(credential_id)s'
-            % {'credential_id': credential_id},
+            f'/credentials/{credential_id}',
             body={'credential': update_ref},
             expected_status=http.client.BAD_REQUEST,
         )
@@ -365,8 +356,7 @@ class CredentialTestCase(CredentialBaseTestCase):
         del blob['trust_id']
         update_ref = {'blob': json.dumps(blob)}
         self.patch(
-            '/credentials/%(credential_id)s'
-            % {'credential_id': credential_id},
+            f'/credentials/{credential_id}',
             body={'credential': update_ref},
             expected_status=http.client.BAD_REQUEST,
         )
@@ -385,8 +375,7 @@ class CredentialTestCase(CredentialBaseTestCase):
         blob['app_cred_id'] = uuid.uuid4().hex
         update_ref = {'blob': json.dumps(blob)}
         self.patch(
-            '/credentials/%(credential_id)s'
-            % {'credential_id': credential_id},
+            f'/credentials/{credential_id}',
             body={'credential': update_ref},
             expected_status=http.client.BAD_REQUEST,
         )
@@ -394,8 +383,7 @@ class CredentialTestCase(CredentialBaseTestCase):
         del blob['app_cred_id']
         update_ref = {'blob': json.dumps(blob)}
         self.patch(
-            '/credentials/%(credential_id)s'
-            % {'credential_id': credential_id},
+            f'/credentials/{credential_id}',
             body={'credential': update_ref},
             expected_status=http.client.BAD_REQUEST,
         )
@@ -414,8 +402,7 @@ class CredentialTestCase(CredentialBaseTestCase):
         blob['access_token_id'] = uuid.uuid4().hex
         update_ref = {'blob': json.dumps(blob)}
         self.patch(
-            '/credentials/%(credential_id)s'
-            % {'credential_id': credential_id},
+            f'/credentials/{credential_id}',
             body={'credential': update_ref},
             expected_status=http.client.BAD_REQUEST,
         )
@@ -423,8 +410,7 @@ class CredentialTestCase(CredentialBaseTestCase):
         del blob['access_token_id']
         update_ref = {'blob': json.dumps(blob)}
         self.patch(
-            '/credentials/%(credential_id)s'
-            % {'credential_id': credential_id},
+            f'/credentials/{credential_id}',
             body={'credential': update_ref},
             expected_status=http.client.BAD_REQUEST,
         )
@@ -443,8 +429,7 @@ class CredentialTestCase(CredentialBaseTestCase):
         blob['access_id'] = uuid.uuid4().hex
         update_ref = {'blob': json.dumps(blob)}
         self.patch(
-            '/credentials/%(credential_id)s'
-            % {'credential_id': credential_id},
+            f'/credentials/{credential_id}',
             body={'credential': update_ref},
             expected_status=http.client.BAD_REQUEST,
         )
@@ -452,8 +437,7 @@ class CredentialTestCase(CredentialBaseTestCase):
         del blob['access_id']
         update_ref = {'blob': json.dumps(blob)}
         self.patch(
-            '/credentials/%(credential_id)s'
-            % {'credential_id': credential_id},
+            f'/credentials/{credential_id}',
             body={'credential': update_ref},
             expected_status=http.client.BAD_REQUEST,
         )
@@ -461,8 +445,9 @@ class CredentialTestCase(CredentialBaseTestCase):
     def test_delete_credential(self):
         """Call ``DELETE /credentials/{credential_id}``."""
         self.delete(
-            '/credentials/%(credential_id)s'
-            % {'credential_id': self.credential['id']}
+            '/credentials/{credential_id}'.format(
+                credential_id=self.credential['id']
+            )
         )
 
     def test_delete_credential_retries_on_deadlock(self):
@@ -646,7 +631,7 @@ class TestCredentialTrustScoped(CredentialBaseTestCase):
             trustee_user_id=self.trustee_user_id,
             project_id=self.project_id,
             impersonation=True,
-            expires=dict(minutes=1),
+            expires={'minutes': 1},
             role_ids=[self.role_id],
         )
         del ref['id']
@@ -733,7 +718,7 @@ class TestCredentialAppCreds(CredentialBaseTestCase):
         ref = unit.new_application_credential_ref(roles=[{'id': self.role_id}])
         del ref['id']
         r = self.post(
-            '/users/%s/application_credentials' % self.user_id,
+            f'/users/{self.user_id}/application_credentials',
             body={'application_credential': ref},
         )
         app_cred = r.result['application_credential']
@@ -870,7 +855,7 @@ class TestCredentialAccessToken(CredentialBaseTestCase):
     def _authorize_request_token(self, request_id):
         if isinstance(request_id, bytes):
             request_id = request_id.decode()
-        return '/OS-OAUTH1/authorize/%s' % (request_id)
+        return f'/OS-OAUTH1/authorize/{request_id}'
 
     def _get_access_token(self):
         consumer = self._create_single_consumer()
@@ -986,7 +971,7 @@ class TestCredentialEc2(CredentialBaseTestCase):
         )
 
     def _get_ec2_cred_uri(self):
-        return '/users/%s/credentials/OS-EC2' % self.user_id
+        return f'/users/{self.user_id}/credentials/OS-EC2'
 
     def _get_ec2_cred(self):
         uri = self._get_ec2_cred_uri()

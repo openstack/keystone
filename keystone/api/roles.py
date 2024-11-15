@@ -220,13 +220,12 @@ class RoleImplicationListResource(flask_restful.Resource):
                 shared.build_implied_role_response_data(implied_role)
             )
         response_json['links'] = {
-            'self': ks_flask.base_url(path='/roles/%s/implies' % prior_role_id)
+            'self': ks_flask.base_url(path=f'/roles/{prior_role_id}/implies')
         }
         return response_json
 
 
 class RoleImplicationResource(flask_restful.Resource):
-
     def head(self, prior_role_id, implied_role_id=None):
         # TODO(morgan): deprecate "check_implied_role" policy, as a user must
         # have both check_implied_role and get_implied_role to use the head
@@ -266,8 +265,7 @@ class RoleImplicationResource(flask_restful.Resource):
         )
         response_json['links'] = {
             'self': ks_flask.base_url(
-                path='/roles/%(prior)s/implies/%(implies)s'
-                % {'prior': prior_role_id, 'implies': implied_role_id}
+                path=f'/roles/{prior_role_id}/implies/{implied_role_id}'
             )
         }
         return response_json

@@ -36,7 +36,6 @@ def create_object(dn, attrs):
 
 
 class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
-
     def setUp(self):
         self._ldap_skip_live()
         super().setUp()
@@ -107,16 +106,15 @@ class LiveLDAPIdentity(test_backend_ldap.LDAPIdentity):
         }
         aliased_users_ldif = {
             'objectclass': ['alias', 'extensibleObject'],
-            'aliasedobjectname': "ou=alt_users,%s" % CONF.ldap.suffix,
+            'aliasedobjectname': f"ou=alt_users,{CONF.ldap.suffix}",
         }
-        create_object("ou=alt_users,%s" % CONF.ldap.suffix, alt_users_ldif)
+        create_object(f"ou=alt_users,{CONF.ldap.suffix}", alt_users_ldif)
         create_object(
-            "%s=alt_fake1,ou=alt_users,%s"
-            % (CONF.ldap.user_id_attribute, CONF.ldap.suffix),
+            f"{CONF.ldap.user_id_attribute}=alt_fake1,ou=alt_users,{CONF.ldap.suffix}",
             alt_fake_user_ldif,
         )
         create_object(
-            "ou=alt_users,%s" % CONF.ldap.user_tree_dn, aliased_users_ldif
+            f"ou=alt_users,{CONF.ldap.user_tree_dn}", aliased_users_ldif
         )
 
         self.config_fixture.config(

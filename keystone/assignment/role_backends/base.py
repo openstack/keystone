@@ -29,7 +29,6 @@ CONF = keystone.conf.CONF
 
 
 class RoleDriverBase(metaclass=abc.ABCMeta):
-
     def _get_list_limit(self):
         return CONF.role.list_limit or CONF.list_limit
 

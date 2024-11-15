@@ -128,7 +128,6 @@ class LdapPoolCommonTestMixin:
         )
 
     def test_max_connection_error_raised(self):
-
         who = CONF.ldap.user
         cred = CONF.ldap.password
         # get related connection manager instance
@@ -149,7 +148,6 @@ class LdapPoolCommonTestMixin:
         ldappool_cm.size = CONF.ldap.pool_size
 
     def test_pool_size_expands_correctly(self):
-
         who = CONF.ldap.user
         cred = CONF.ldap.password
         # get related connection manager instance

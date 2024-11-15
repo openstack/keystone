@@ -61,12 +61,7 @@ deployment.
 
 
 GROUP_NAME = __name__.split('.')[-1]
-ALL_OPTS = [
-    driver,
-    caching,
-    cache_time,
-    list_limit,
-]
+ALL_OPTS = [driver, caching, cache_time, list_limit]
 
 
 def register_opts(conf):

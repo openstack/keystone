@@ -86,10 +86,8 @@ class _TraceMeta(type):
     @staticmethod
     def wrapper(__f, __classname):
         __argspec = inspect.getfullargspec(__f)
-        __fn_info = '{module}.{classname}.{funcname}'.format(
-            module=inspect.getmodule(__f).__name__,
-            classname=__classname,
-            funcname=__f.__name__,
+        __fn_info = (
+            f'{inspect.getmodule(__f).__name__}.{__classname}.{__f.__name__}'
         )
         # NOTE(morganfainberg): Omit "cls" and "self" when printing trace logs
         # the index can be calculated at wrap time rather than at runtime.

@@ -66,9 +66,7 @@ check_password = password_hashing.check_password
 # NOTE(hiromu): This dict defines alternative DN string for X.509. When
 # retriving DN from X.509, converting attributes types that are not listed
 # in the RFC4514 to a corresponding alternative DN string.
-ATTR_NAME_OVERRIDES = {
-    x509.NameOID.EMAIL_ADDRESS: "emailAddress",
-}
+ATTR_NAME_OVERRIDES = {x509.NameOID.EMAIL_ADDRESS: "emailAddress"}
 
 
 def resource_uuid(value):
@@ -217,7 +215,7 @@ def get_unix_user(user=None):
             try:
                 i = int(user)
             except ValueError:
-                raise KeyError("user name '%s' not found" % user)
+                raise KeyError(f"user name '{user}' not found")
             try:
                 user_info = pwd.getpwuid(i)
             except KeyError:
@@ -232,8 +230,7 @@ def get_unix_user(user=None):
     else:
         user_cls_name = reflection.get_class_name(user, fully_qualified=False)
         raise TypeError(
-            'user must be string, int or None; not %s (%r)'
-            % (user_cls_name, user)
+            f'user must be string, int or None; not {user_cls_name} ({user!r})'
         )
 
     return user_info.pw_uid, user_info.pw_name
@@ -278,7 +275,7 @@ def get_unix_group(group=None):
             try:
                 i = int(group)
             except ValueError:
-                raise KeyError("group name '%s' not found" % group)
+                raise KeyError(f"group name '{group}' not found")
             try:
                 group_info = grp.getgrgid(i)
             except KeyError:
@@ -295,15 +292,13 @@ def get_unix_group(group=None):
             group, fully_qualified=False
         )
         raise TypeError(
-            'group must be string, int or None; not %s (%r)'
-            % (group_cls_name, group)
+            f'group must be string, int or None; not {group_cls_name} ({group!r})'
         )
 
     return group_info.gr_gid, group_info.gr_name
 
 
 class WhiteListedItemFilter:
-
     def __init__(self, whitelist, data):
         self._whitelist = set(whitelist or [])
         self._data = data

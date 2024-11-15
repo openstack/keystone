@@ -456,9 +456,9 @@ def _verify_assertion_binary_is_installed():
         )
     except subprocess.CalledProcessError:
         msg = (
-            'Unable to locate %(binary)s binary on the system. Check to make '
+            f'Unable to locate {CONF.saml.xmlsec1_binary} binary on the system. Check to make '
             'sure it is installed.'
-        ) % {'binary': CONF.saml.xmlsec1_binary}
+        )
         tr_msg = _(
             'Unable to locate %(binary)s binary on the system. Check to '
             'make sure it is installed.'
@@ -491,16 +491,12 @@ def _sign_assertion(assertion):
     for option in ('keyfile', 'certfile'):
         if ',' in getattr(CONF.saml, option, ''):
             raise exception.UnexpectedError(
-                'The configuration value in `keystone.conf [saml] %s` cannot '
+                f'The configuration value in `keystone.conf [saml] {option}` cannot '
                 'contain a comma (`,`). Please fix your configuration.'
-                % option
             )
 
     # xmlsec1 --sign --privkey-pem privkey,cert --id-attr:ID <tag> <file>
-    certificates = '{idp_private_key},{idp_public_key}'.format(
-        idp_public_key=CONF.saml.certfile,
-        idp_private_key=CONF.saml.keyfile,
-    )
+    certificates = f'{CONF.saml.keyfile},{CONF.saml.certfile}'
 
     # Verify that the binary used to create the assertion actually exists on
     # the system. If it doesn't, log a warning for operators to go and install
@@ -589,15 +585,14 @@ class MetadataGenerator:
         return ed
 
     def _create_idp_sso_descriptor(self):
-
         def get_cert():
             try:
                 return sigver.read_cert_from_file(CONF.saml.certfile, 'pem')
             except (OSError, sigver.CertificateError) as e:
                 msg = (
-                    'Cannot open certificate %(cert_file)s.'
-                    'Reason: %(reason)s'
-                ) % {'cert_file': CONF.saml.certfile, 'reason': e}
+                    f'Cannot open certificate {CONF.saml.certfile}.'
+                    f'Reason: {e}'
+                )
                 tr_msg = _(
                     'Cannot open certificate %(cert_file)s.'
                     'Reason: %(reason)s'

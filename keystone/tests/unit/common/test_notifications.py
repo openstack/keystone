@@ -141,7 +141,6 @@ class AuditNotificationsTestCase(unit.BaseTestCase):
 
 
 class NotificationsTestCase(unit.BaseTestCase):
-
     def setUp(self):
         super().setUp()
         self.config_fixture = self.useFixture(config_fixture.Config(CONF))
@@ -172,7 +171,7 @@ class NotificationsTestCase(unit.BaseTestCase):
         # ensures and maintains these conditions.
         expected_args = [
             {},  # empty context
-            'identity.%s.created' % resource_type,  # event_type
+            f'identity.{resource_type}.created',  # event_type
             {'resource_info': resource},  # payload
         ]
 
@@ -193,7 +192,7 @@ class NotificationsTestCase(unit.BaseTestCase):
         resource = uuid.uuid4().hex
         resource_type = EXP_RESOURCE_TYPE
         operation = CREATED_OPERATION
-        event_type = 'identity.%s.created' % resource_type
+        event_type = f'identity.{resource_type}.created'
 
         # NOTE(diazjf): Here we add notification_opt_out to the
         # configuration so that we should return before _get_notifer is
@@ -205,7 +204,6 @@ class NotificationsTestCase(unit.BaseTestCase):
         with mock.patch.object(
             notifications._get_notifier(), 'info'
         ) as mocked:
-
             notifications._send_notification(
                 operation, resource_type, resource
             )
@@ -223,7 +221,7 @@ class NotificationsTestCase(unit.BaseTestCase):
         initiator = mock
         target = mock
         outcome = 'success'
-        event_type = 'identity.%s.created' % resource_type
+        event_type = f'identity.{resource_type}.created'
 
         conf = self.useFixture(config_fixture.Config(CONF))
         conf.config(notification_opt_out=[event_type])
@@ -231,7 +229,6 @@ class NotificationsTestCase(unit.BaseTestCase):
         with mock.patch.object(
             notifications._get_notifier(), 'info'
         ) as mocked:
-
             notifications._send_audit_notification(
                 action, initiator, outcome, target, event_type
             )
@@ -254,7 +251,6 @@ class NotificationsTestCase(unit.BaseTestCase):
         with mock.patch.object(
             notifications._get_notifier(), 'info'
         ) as mocked:
-
             notifications._send_audit_notification(
                 action, initiator, outcome, target, event_type
             )
@@ -262,7 +258,6 @@ class NotificationsTestCase(unit.BaseTestCase):
 
 
 class BaseNotificationTest(test_v3.RestfulTestCase):
-
     def setUp(self):
         super().setUp()
 
@@ -433,7 +428,6 @@ class BaseNotificationTest(test_v3.RestfulTestCase):
 
 
 class NotificationsForEntities(BaseNotificationTest):
-
     def test_create_group(self):
         group_ref = unit.new_group_ref(domain_id=self.domain_id)
         group_ref = PROVIDERS.identity_api.create_group(group_ref)
@@ -923,7 +917,7 @@ class NotificationsForEntities(BaseNotificationTest):
         self.assertIsNotNone(initiator.request_id)
 
     def test_initiator_global_request_id(self):
-        global_request_id = 'req-%s' % uuid.uuid4()
+        global_request_id = f'req-{uuid.uuid4()}'
         ref = unit.new_domain_ref()
         self.post(
             '/domains',
@@ -943,7 +937,6 @@ class NotificationsForEntities(BaseNotificationTest):
 
 
 class CADFNotificationsForPCIDSSEvents(BaseNotificationTest):
-
     def setUp(self):
         super().setUp()
         conf = self.useFixture(config_fixture.Config(CONF))
@@ -1151,7 +1144,6 @@ class CADFNotificationsForPCIDSSEvents(BaseNotificationTest):
 
 
 class CADFNotificationsForEntities(NotificationsForEntities):
-
     def setUp(self):
         super().setUp()
         self.config_fixture.config(notification_format='cadf')
@@ -1180,7 +1172,7 @@ class CADFNotificationsForEntities(NotificationsForEntities):
         self.assertIn('request_id', initiator)
 
     def test_initiator_global_request_id(self):
-        global_request_id = 'req-%s' % uuid.uuid4()
+        global_request_id = f'req-{uuid.uuid4()}'
         data = self.build_authentication_request(
             user_id=self.user_id, password=self.user['password']
         )
@@ -1204,9 +1196,7 @@ class CADFNotificationsForEntities(NotificationsForEntities):
 
 
 class TestEventCallbacks(test_v3.RestfulTestCase):
-
     class FakeManager:
-
         def _project_deleted_callback(
             self, service, resource_type, operation, payload
         ):
@@ -1347,7 +1337,6 @@ class TestEventCallbacks(test_v3.RestfulTestCase):
 
 
 class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
-
     LOCAL_HOST = 'localhost'
     ACTION = 'authenticate'
     ROLE_ASSIGNMENT = 'role_assignment'
@@ -1564,29 +1553,17 @@ class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
     ):
         self.put(url)
         action = f"{CREATED_OPERATION}.{self.ROLE_ASSIGNMENT}"
-        event_type = '{}.{}.{}'.format(
-            notifications.SERVICE,
-            self.ROLE_ASSIGNMENT,
-            CREATED_OPERATION,
-        )
+        event_type = f'{notifications.SERVICE}.{self.ROLE_ASSIGNMENT}.{CREATED_OPERATION}'
         self._assert_last_note(action, self.user_id, event_type)
         self._assert_event(role, project, domain, user, group)
         self.delete(url)
         action = f"{DELETED_OPERATION}.{self.ROLE_ASSIGNMENT}"
-        event_type = '{}.{}.{}'.format(
-            notifications.SERVICE,
-            self.ROLE_ASSIGNMENT,
-            DELETED_OPERATION,
-        )
+        event_type = f'{notifications.SERVICE}.{self.ROLE_ASSIGNMENT}.{DELETED_OPERATION}'
         self._assert_last_note(action, self.user_id, event_type)
         self._assert_event(role, project, domain, user, None)
 
     def test_user_project_grant(self):
-        url = '/projects/{}/users/{}/roles/{}'.format(
-            self.project_id,
-            self.user_id,
-            self.role_id,
-        )
+        url = f'/projects/{self.project_id}/users/{self.user_id}/roles/{self.role_id}'
         self._test_role_assignment(
             url, self.role_id, project=self.project_id, user=self.user_id
         )
@@ -1596,9 +1573,7 @@ class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
         group = PROVIDERS.identity_api.create_group(group_ref)
         PROVIDERS.identity_api.add_user_to_group(self.user_id, group['id'])
         url = '/domains/{}/groups/{}/roles/{}'.format(
-            self.domain_id,
-            group['id'],
-            self.role_id,
+            self.domain_id, group['id'], self.role_id
         )
         self._test_role_assignment(
             url, self.role_id, domain=self.domain_id, group=group['id']
@@ -1677,7 +1652,7 @@ class TestCallbackRegistration(unit.BaseTestCase):
         callback = 'keystone.tests.unit.common.test_notifications.callback'
         expected_log_data = {
             'callback': callback,
-            'event': 'identity.%s.created' % resource_type,
+            'event': f'identity.{resource_type}.created',
         }
         self.verify_log_message([expected_log_data])
 
@@ -1740,7 +1715,6 @@ class TestCallbackRegistration(unit.BaseTestCase):
 
 
 class CADFNotificationsDataTestCase(test_v3.RestfulTestCase):
-
     def config_overrides(self):
         super().config_overrides()
         # NOTE(lbragstad): This is a workaround since oslo.messaging version
@@ -1780,7 +1754,6 @@ class CADFNotificationsDataTestCase(test_v3.RestfulTestCase):
         with mock.patch.object(
             notifications._get_notifier(), 'info'
         ) as mocked:
-
             notifications._send_audit_notification(
                 action, initiator, outcome, target, event_type
             )

@@ -20,7 +20,6 @@ from keystone import exception
 
 
 class Role(base.RoleDriverBase):
-
     @sql.handle_conflicts(conflict_type='role')
     def create_role(self, role_id, role):
         with sql.session_for_write() as session:

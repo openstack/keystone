@@ -20,34 +20,28 @@ from keystone.i18n import _
 
 
 def build_v3_resource_relation(resource_name):
-    return (
-        'https://docs.openstack.org/api/openstack-identity/3/rel/%s'
-        % resource_name
-    )
+    return f'https://docs.openstack.org/api/openstack-identity/3/rel/{resource_name}'
 
 
 def build_v3_extension_resource_relation(
     extension_name, extension_version, resource_name
 ):
     return (
-        'https://docs.openstack.org/api/openstack-identity/3/ext/%s/%s/rel/'
-        '%s' % (extension_name, extension_version, resource_name)
+        f'https://docs.openstack.org/api/openstack-identity/3/ext/{extension_name}/{extension_version}/rel/'
+        f'{resource_name}'
     )
 
 
 def build_v3_parameter_relation(parameter_name):
-    return (
-        'https://docs.openstack.org/api/openstack-identity/3/param/%s'
-        % parameter_name
-    )
+    return f'https://docs.openstack.org/api/openstack-identity/3/param/{parameter_name}'
 
 
 def build_v3_extension_parameter_relation(
     extension_name, extension_version, parameter_name
 ):
     return (
-        'https://docs.openstack.org/api/openstack-identity/3/ext/%s/%s/param/'
-        '%s' % (extension_name, extension_version, parameter_name)
+        f'https://docs.openstack.org/api/openstack-identity/3/ext/{extension_name}/{extension_version}/param/'
+        f'{parameter_name}'
     )
 
 

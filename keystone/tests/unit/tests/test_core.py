@@ -25,7 +25,6 @@ LOG = log.getLogger(__name__)
 
 
 class BaseTestTestCase(unit.BaseTestCase):
-
     def test_unexpected_exit(self):
         # if a test calls sys.exit it raises rather than exiting.
         self.assertThat(
@@ -34,7 +33,6 @@ class BaseTestTestCase(unit.BaseTestCase):
 
 
 class TestOverrideSkipping(unit.BaseTestCase):
-
     class TestParent(unit.BaseTestCase):
         def test_in_parent(self):
             pass
@@ -70,7 +68,6 @@ class TestOverrideSkipping(unit.BaseTestCase):
 
 
 class TestTestCase(unit.TestCase):
-
     def test_bad_log(self):
         # If the arguments are invalid for the string in a log it raises an
         # exception during testing.

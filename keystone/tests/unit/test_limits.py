@@ -26,7 +26,6 @@ PROVIDERS = provider_api.ProviderAPIs
 
 
 class LimitModelTestCase(test_v3.RestfulTestCase):
-
     def test_get_default_limit_model_response_schema(self):
         schema = {
             'type': 'object',
@@ -39,7 +38,7 @@ class LimitModelTestCase(test_v3.RestfulTestCase):
                     },
                     'required': ['name', 'description'],
                     'additionalProperties': False,
-                },
+                }
             },
             'required': ['model'],
             'additionalProperties': False,
@@ -264,7 +263,9 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             'description': 'test description',
         }
         r = self.patch(
-            '/registered_limits/%s' % r.result['registered_limits'][0]['id'],
+            '/registered_limits/{}'.format(
+                r.result['registered_limits'][0]['id']
+            ),
             body={'registered_limit': update_ref},
             token=self.system_admin_token,
             expected_status=http.client.OK,
@@ -292,12 +293,10 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             token=self.system_admin_token,
             expected_status=http.client.CREATED,
         )
-        update_ref = {
-            'region_id': self.region_id,
-        }
+        update_ref = {'region_id': self.region_id}
         registered_limit_id = r.result['registered_limits'][0]['id']
         r = self.patch(
-            '/registered_limits/%s' % registered_limit_id,
+            f'/registered_limits/{registered_limit_id}',
             body={'registered_limit': update_ref},
             token=self.system_admin_token,
             expected_status=http.client.OK,
@@ -307,7 +306,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
 
         update_ref['region_id'] = ''
         r = self.patch(
-            '/registered_limits/%s' % registered_limit_id,
+            f'/registered_limits/{registered_limit_id}',
             body={'registered_limit': update_ref},
             token=self.system_admin_token,
             expected_status=http.client.BAD_REQUEST,
@@ -329,7 +328,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
         update_ref = {'description': 'test description'}
         registered_limit_id = r.result['registered_limits'][0]['id']
         r = self.patch(
-            '/registered_limits/%s' % registered_limit_id,
+            f'/registered_limits/{registered_limit_id}',
             body={'registered_limit': update_ref},
             token=self.system_admin_token,
             expected_status=http.client.OK,
@@ -341,7 +340,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
 
         update_ref['description'] = ''
         r = self.patch(
-            '/registered_limits/%s' % registered_limit_id,
+            f'/registered_limits/{registered_limit_id}',
             body={'registered_limit': update_ref},
             token=self.system_admin_token,
             expected_status=http.client.OK,
@@ -365,7 +364,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
         update_ref = {'region_id': None}
         registered_limit_id = r.result['registered_limits'][0]['id']
         r = self.patch(
-            '/registered_limits/%s' % registered_limit_id,
+            f'/registered_limits/{registered_limit_id}',
             body={'registered_limit': update_ref},
             token=self.system_admin_token,
             expected_status=http.client.OK,
@@ -403,7 +402,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
         # region_id=None" already. So update ref2's region_id to None will
         # raise 409 Conflict Error.
         self.patch(
-            '/registered_limits/%s' % registered_limit_id,
+            f'/registered_limits/{registered_limit_id}',
             body={'registered_limit': update_ref},
             token=self.system_admin_token,
             expected_status=http.client.CONFLICT,
@@ -417,7 +416,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             'default_limit': 5,
         }
         self.patch(
-            '/registered_limits/%s' % uuid.uuid4().hex,
+            f'/registered_limits/{uuid.uuid4().hex}',
             body={'registered_limit': update_ref},
             token=self.system_admin_token,
             expected_status=http.client.NOT_FOUND,
@@ -451,7 +450,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             update_ref5,
         ]:
             self.patch(
-                '/registered_limits/%s' % reg_id,
+                f'/registered_limits/{reg_id}',
                 body={'registered_limit': input_limit},
                 token=self.system_admin_token,
                 expected_status=http.client.BAD_REQUEST,
@@ -491,7 +490,9 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             'default_limit': 5,
         }
         self.patch(
-            '/registered_limits/%s' % r.result['registered_limits'][0]['id'],
+            '/registered_limits/{}'.format(
+                r.result['registered_limits'][0]['id']
+            ),
             body={'registered_limit': update_ref},
             token=self.system_admin_token,
             expected_status=http.client.FORBIDDEN,
@@ -535,7 +536,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             self.assertEqual(registered_limits[0][key], ref2[key])
 
         r = self.get(
-            '/registered_limits?service_id=%s' % self.service_id,
+            f'/registered_limits?service_id={self.service_id}',
             expected_status=http.client.OK,
         )
         registered_limits = r.result['registered_limits']
@@ -549,7 +550,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             self.assertEqual(registered_limits[0][key], ref1[key])
 
         r = self.get(
-            '/registered_limits?region_id=%s' % self.region_id2,
+            f'/registered_limits?region_id={self.region_id2}',
             expected_status=http.client.OK,
         )
         registered_limits = r.result['registered_limits']
@@ -587,7 +588,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
             '/registered_limits/fake_id', expected_status=http.client.NOT_FOUND
         )
         r = self.get(
-            '/registered_limits/%s' % id1, expected_status=http.client.OK
+            f'/registered_limits/{id1}', expected_status=http.client.OK
         )
         registered_limit = r.result['registered_limit']
         for key in [
@@ -614,7 +615,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
         )
         id1 = r.result['registered_limits'][0]['id']
         self.delete(
-            '/registered_limits/%s' % id1,
+            f'/registered_limits/{id1}',
             token=self.system_admin_token,
             expected_status=http.client.NO_CONTENT,
         )
@@ -656,7 +657,7 @@ class RegisteredLimitsTestCase(test_v3.RestfulTestCase):
 
         id = r.result['registered_limits'][0]['id']
         self.delete(
-            '/registered_limits/%s' % id, expected_status=http.client.FORBIDDEN
+            f'/registered_limits/{id}', expected_status=http.client.FORBIDDEN
         )
 
 
@@ -1005,7 +1006,7 @@ class LimitsTestCase(test_v3.RestfulTestCase):
         )
         update_ref = {'resource_limit': 5, 'description': 'test description'}
         r = self.patch(
-            '/limits/%s' % r.result['limits'][0]['id'],
+            '/limits/{}'.format(r.result['limits'][0]['id']),
             body={'limit': update_ref},
             token=self.system_admin_token,
             expected_status=http.client.OK,
@@ -1018,7 +1019,7 @@ class LimitsTestCase(test_v3.RestfulTestCase):
     def test_update_limit_not_found(self):
         update_ref = {'resource_limit': 5}
         self.patch(
-            '/limits/%s' % uuid.uuid4().hex,
+            f'/limits/{uuid.uuid4().hex}',
             body={'limit': update_ref},
             token=self.system_admin_token,
             expected_status=http.client.NOT_FOUND,
@@ -1047,7 +1048,7 @@ class LimitsTestCase(test_v3.RestfulTestCase):
             invalid_description_update,
         ]:
             self.patch(
-                '/limits/%s' % limit_id,
+                f'/limits/{limit_id}',
                 body={'limit': input_limit},
                 token=self.system_admin_token,
                 expected_status=http.client.BAD_REQUEST,
@@ -1096,7 +1097,7 @@ class LimitsTestCase(test_v3.RestfulTestCase):
                 self.assertEqual(limits[0][key], ref2[key])
 
         r = self.get(
-            '/limits?service_id=%s' % self.service_id2,
+            f'/limits?service_id={self.service_id2}',
             expected_status=http.client.OK,
         )
         limits = r.result['limits']
@@ -1105,7 +1106,7 @@ class LimitsTestCase(test_v3.RestfulTestCase):
             self.assertEqual(limits[0][key], ref2[key])
 
         r = self.get(
-            '/limits?region_id=%s' % self.region_id,
+            f'/limits?region_id={self.region_id}',
             expected_status=http.client.OK,
         )
         limits = r.result['limits']
@@ -1173,7 +1174,7 @@ class LimitsTestCase(test_v3.RestfulTestCase):
 
         # any project user can filter by their own project
         r = self.get(
-            '/limits?project_id=%s' % self.project_id,
+            f'/limits?project_id={self.project_id}',
             expected_status=http.client.OK,
         )
         limits = r.result['limits']
@@ -1182,7 +1183,7 @@ class LimitsTestCase(test_v3.RestfulTestCase):
 
         # a system scoped request can specify the project_id filter
         r = self.get(
-            '/limits?project_id=%s' % self.project_id,
+            f'/limits?project_id={self.project_id}',
             expected_status=http.client.OK,
             token=self.system_admin_token,
         )
@@ -1240,7 +1241,7 @@ class LimitsTestCase(test_v3.RestfulTestCase):
         # if non system scoped request contain domain_id filter, keystone
         # will return an empty list.
         r = self.get(
-            '/limits?domain_id=%s' % self.domain_id,
+            f'/limits?domain_id={self.domain_id}',
             expected_status=http.client.OK,
         )
         limits = r.result['limits']
@@ -1248,7 +1249,7 @@ class LimitsTestCase(test_v3.RestfulTestCase):
 
         # a system scoped request can specify the domain_id filter
         r = self.get(
-            '/limits?domain_id=%s' % self.domain_id,
+            f'/limits?domain_id={self.domain_id}',
             expected_status=http.client.OK,
             auth=self.build_authentication_request(
                 user_id=self.user['id'],
@@ -1287,7 +1288,7 @@ class LimitsTestCase(test_v3.RestfulTestCase):
             token=self.system_admin_token,
             expected_status=http.client.NOT_FOUND,
         )
-        r = self.get('/limits/%s' % id1, expected_status=http.client.OK)
+        r = self.get(f'/limits/{id1}', expected_status=http.client.OK)
         limit = r.result['limit']
         self.assertIsNone(limit['domain_id'])
         for key in [
@@ -1315,7 +1316,7 @@ class LimitsTestCase(test_v3.RestfulTestCase):
         id1 = r.result['limits'][0]['id']
 
         r = self.get(
-            '/limits/%s' % id1,
+            f'/limits/{id1}',
             expected_status=http.client.OK,
             auth=self.build_authentication_request(
                 user_id=self.user['id'],
@@ -1355,7 +1356,7 @@ class LimitsTestCase(test_v3.RestfulTestCase):
         )
         id1 = r.result['limits'][0]['id']
         self.delete(
-            '/limits/%s' % id1,
+            f'/limits/{id1}',
             token=self.system_admin_token,
             expected_status=http.client.NO_CONTENT,
         )
@@ -1374,7 +1375,6 @@ class LimitsTestCase(test_v3.RestfulTestCase):
 
 
 class StrictTwoLevelLimitsTestCase(LimitsTestCase):
-
     def setUp(self):
         super().setUp()
         # Most of these tests require system-scoped tokens. Let's have one on
@@ -1850,7 +1850,7 @@ class StrictTwoLevelLimitsTestCase(LimitsTestCase):
 
         update_dict = {'resource_limit': 9}
         self.patch(
-            '/limits/%s' % r.result['limits'][0]['id'],
+            '/limits/{}'.format(r.result['limits'][0]['id']),
             body={'limit': update_dict},
             token=self.system_admin_token,
             expected_status=http.client.OK,
@@ -1897,7 +1897,7 @@ class StrictTwoLevelLimitsTestCase(LimitsTestCase):
 
         update_dict = {'resource_limit': 11}
         self.patch(
-            '/limits/%s' % r.result['limits'][0]['id'],
+            '/limits/{}'.format(r.result['limits'][0]['id']),
             body={'limit': update_dict},
             token=self.system_admin_token,
             expected_status=http.client.FORBIDDEN,
@@ -1929,7 +1929,7 @@ class StrictTwoLevelLimitsTestCase(LimitsTestCase):
 
         update_dict = {'resource_limit': 9}
         self.patch(
-            '/limits/%s' % r.result['limits'][0]['id'],
+            '/limits/{}'.format(r.result['limits'][0]['id']),
             body={'limit': update_dict},
             token=self.system_admin_token,
             expected_status=http.client.OK,
@@ -1937,7 +1937,7 @@ class StrictTwoLevelLimitsTestCase(LimitsTestCase):
 
         update_dict = {'resource_limit': 11}
         self.patch(
-            '/limits/%s' % r.result['limits'][0]['id'],
+            '/limits/{}'.format(r.result['limits'][0]['id']),
             body={'limit': update_dict},
             token=self.system_admin_token,
             expected_status=http.client.FORBIDDEN,
@@ -1984,7 +1984,7 @@ class StrictTwoLevelLimitsTestCase(LimitsTestCase):
 
         update_dict = {'resource_limit': 8}
         self.patch(
-            '/limits/%s' % r.result['limits'][0]['id'],
+            '/limits/{}'.format(r.result['limits'][0]['id']),
             body={'limit': update_dict},
             token=self.system_admin_token,
             expected_status=http.client.OK,
@@ -2031,7 +2031,7 @@ class StrictTwoLevelLimitsTestCase(LimitsTestCase):
 
         update_dict = {'resource_limit': 6}
         self.patch(
-            '/limits/%s' % r.result['limits'][0]['id'],
+            '/limits/{}'.format(r.result['limits'][0]['id']),
             body={'limit': update_dict},
             token=self.system_admin_token,
             expected_status=http.client.FORBIDDEN,

@@ -52,7 +52,9 @@ class _SystemUserEndpointGroupsTests:
         )
         with self.test_client() as c:
             c.get(
-                '/v3/OS-EP-FILTER/endpoint_groups/%s' % endpoint_group['id'],
+                '/v3/OS-EP-FILTER/endpoint_groups/{}'.format(
+                    endpoint_group['id']
+                ),
                 headers=self.headers,
             )
 
@@ -72,8 +74,9 @@ class _SystemUserEndpointGroupsTests:
         )
         with self.test_client() as c:
             r = c.get(
-                '/v3/OS-EP-FILTER/endpoint_groups/%s/projects'
-                % endpoint_group['id'],
+                '/v3/OS-EP-FILTER/endpoint_groups/{}/projects'.format(
+                    endpoint_group['id']
+                ),
                 headers=self.headers,
             )
             projects = []
@@ -97,8 +100,9 @@ class _SystemUserEndpointGroupsTests:
         )
         with self.test_client() as c:
             r = c.get(
-                '/v3/OS-EP-FILTER/endpoint_groups/%s/endpoints'
-                % endpoint_group['id'],
+                '/v3/OS-EP-FILTER/endpoint_groups/{}/endpoints'.format(
+                    endpoint_group['id']
+                ),
                 headers=self.headers,
             )
             endpoints = []
@@ -122,8 +126,9 @@ class _SystemUserEndpointGroupsTests:
         )
         with self.test_client() as c:
             c.get(
-                '/v3/OS-EP-FILTER/endpoint_groups/%s/projects/%s'
-                % (endpoint_group['id'], project['id']),
+                '/v3/OS-EP-FILTER/endpoint_groups/{}/projects/{}'.format(
+                    endpoint_group['id'], project['id']
+                ),
                 headers=self.headers,
             )
 
@@ -143,7 +148,9 @@ class _SystemUserEndpointGroupsTests:
         )
         with self.test_client() as c:
             r = c.get(
-                '/v3/OS-EP-FILTER/projects/%s/endpoint_groups' % project['id'],
+                '/v3/OS-EP-FILTER/projects/{}/endpoint_groups'.format(
+                    project['id']
+                ),
                 headers=self.headers,
             )
             endpoint_groups = []
@@ -184,7 +191,9 @@ class _SystemReaderAndMemberUserEndpointGroupsTests:
 
         with self.test_client() as c:
             c.patch(
-                '/v3/OS-EP-FILTER/endpoint_groups/%s' % endpoint_group['id'],
+                '/v3/OS-EP-FILTER/endpoint_groups/{}'.format(
+                    endpoint_group['id']
+                ),
                 json=update,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -200,7 +209,9 @@ class _SystemReaderAndMemberUserEndpointGroupsTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/OS-EP-FILTER/endpoint_groups/%s' % endpoint_group['id'],
+                '/v3/OS-EP-FILTER/endpoint_groups/{}'.format(
+                    endpoint_group['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -218,8 +229,9 @@ class _SystemReaderAndMemberUserEndpointGroupsTests:
         )
         with self.test_client() as c:
             c.put(
-                '/v3/OS-EP-FILTER/endpoint_groups/%s/projects/%s'
-                % (endpoint_group['id'], project['id']),
+                '/v3/OS-EP-FILTER/endpoint_groups/{}/projects/{}'.format(
+                    endpoint_group['id'], project['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -237,15 +249,15 @@ class _SystemReaderAndMemberUserEndpointGroupsTests:
         )
         with self.test_client() as c:
             c.delete(
-                '/v3/OS-EP-FILTER/endpoint_groups/%s/projects/%s'
-                % (endpoint_group['id'], project['id']),
+                '/v3/OS-EP-FILTER/endpoint_groups/{}/projects/{}'.format(
+                    endpoint_group['id'], project['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
 
 
 class _DomainAndProjectUserEndpointGroupTests:
-
     def test_user_cannot_list_endpoint_groups(self):
         endpoint_group = unit.new_endpoint_group_ref(
             filters={'interface': 'public'}
@@ -270,7 +282,9 @@ class _DomainAndProjectUserEndpointGroupTests:
         )
         with self.test_client() as c:
             c.get(
-                '/v3/OS-EP-FILTER/endpoint_groups/%s' % endpoint_group['id'],
+                '/v3/OS-EP-FILTER/endpoint_groups/{}'.format(
+                    endpoint_group['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -291,8 +305,9 @@ class _DomainAndProjectUserEndpointGroupTests:
         )
         with self.test_client() as c:
             c.get(
-                '/v3/OS-EP-FILTER/endpoint_groups/%s/projects'
-                % endpoint_group['id'],
+                '/v3/OS-EP-FILTER/endpoint_groups/{}/projects'.format(
+                    endpoint_group['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -313,8 +328,9 @@ class _DomainAndProjectUserEndpointGroupTests:
         )
         with self.test_client() as c:
             c.get(
-                '/v3/OS-EP-FILTER/endpoint_groups/%s/endpoints'
-                % endpoint_group['id'],
+                '/v3/OS-EP-FILTER/endpoint_groups/{}/endpoints'.format(
+                    endpoint_group['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -335,8 +351,9 @@ class _DomainAndProjectUserEndpointGroupTests:
         )
         with self.test_client() as c:
             c.get(
-                '/v3/OS-EP-FILTER/endpoint_groups/%s/projects/%s'
-                % (endpoint_group['id'], project['id']),
+                '/v3/OS-EP-FILTER/endpoint_groups/{}/projects/{}'.format(
+                    endpoint_group['id'], project['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -357,7 +374,9 @@ class _DomainAndProjectUserEndpointGroupTests:
         )
         with self.test_client() as c:
             c.get(
-                '/v3/OS-EP-FILTER/projects/%s/endpoint_groups' % project['id'],
+                '/v3/OS-EP-FILTER/projects/{}/endpoint_groups'.format(
+                    project['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -392,7 +411,9 @@ class _DomainAndProjectUserEndpointGroupTests:
 
         with self.test_client() as c:
             c.patch(
-                '/v3/OS-EP-FILTER/endpoint_groups/%s' % endpoint_group['id'],
+                '/v3/OS-EP-FILTER/endpoint_groups/{}'.format(
+                    endpoint_group['id']
+                ),
                 json=update,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -408,7 +429,9 @@ class _DomainAndProjectUserEndpointGroupTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/OS-EP-FILTER/endpoint_groups/%s' % endpoint_group['id'],
+                '/v3/OS-EP-FILTER/endpoint_groups/{}'.format(
+                    endpoint_group['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -426,8 +449,9 @@ class _DomainAndProjectUserEndpointGroupTests:
         )
         with self.test_client() as c:
             c.put(
-                '/v3/OS-EP-FILTER/endpoint_groups/%s/projects/%s'
-                % (endpoint_group['id'], project['id']),
+                '/v3/OS-EP-FILTER/endpoint_groups/{}/projects/{}'.format(
+                    endpoint_group['id'], project['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -445,8 +469,9 @@ class _DomainAndProjectUserEndpointGroupTests:
         )
         with self.test_client() as c:
             c.delete(
-                '/v3/OS-EP-FILTER/endpoint_groups/%s/projects/%s'
-                % (endpoint_group['id'], project['id']),
+                '/v3/OS-EP-FILTER/endpoint_groups/{}/projects/{}'.format(
+                    endpoint_group['id'], project['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -458,7 +483,6 @@ class SystemReaderTests(
     _SystemUserEndpointGroupsTests,
     _SystemReaderAndMemberUserEndpointGroupsTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -493,7 +517,6 @@ class SystemMemberTests(
     _SystemUserEndpointGroupsTests,
     _SystemReaderAndMemberUserEndpointGroupsTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -527,7 +550,6 @@ class SystemAdminTests(
     common_auth.AuthTestMixin,
     _SystemUserEndpointGroupsTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -579,7 +601,9 @@ class SystemAdminTests(
 
         with self.test_client() as c:
             c.patch(
-                '/v3/OS-EP-FILTER/endpoint_groups/%s' % endpoint_group['id'],
+                '/v3/OS-EP-FILTER/endpoint_groups/{}'.format(
+                    endpoint_group['id']
+                ),
                 json=update,
                 headers=self.headers,
             )
@@ -594,7 +618,9 @@ class SystemAdminTests(
 
         with self.test_client() as c:
             c.delete(
-                '/v3/OS-EP-FILTER/endpoint_groups/%s' % endpoint_group['id'],
+                '/v3/OS-EP-FILTER/endpoint_groups/{}'.format(
+                    endpoint_group['id']
+                ),
                 headers=self.headers,
             )
 
@@ -611,8 +637,9 @@ class SystemAdminTests(
         )
         with self.test_client() as c:
             c.put(
-                '/v3/OS-EP-FILTER/endpoint_groups/%s/projects/%s'
-                % (endpoint_group['id'], project['id']),
+                '/v3/OS-EP-FILTER/endpoint_groups/{}/projects/{}'.format(
+                    endpoint_group['id'], project['id']
+                ),
                 headers=self.headers,
             )
 
@@ -632,8 +659,9 @@ class SystemAdminTests(
         )
         with self.test_client() as c:
             c.delete(
-                '/v3/OS-EP-FILTER/endpoint_groups/%s/projects/%s'
-                % (endpoint_group['id'], project['id']),
+                '/v3/OS-EP-FILTER/endpoint_groups/{}/projects/{}'.format(
+                    endpoint_group['id'], project['id']
+                ),
                 headers=self.headers,
             )
 
@@ -643,7 +671,6 @@ class DomainUserTests(
     common_auth.AuthTestMixin,
     _DomainAndProjectUserEndpointGroupTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -681,7 +708,6 @@ class ProjectUserTests(
     common_auth.AuthTestMixin,
     _DomainAndProjectUserEndpointGroupTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -708,7 +734,6 @@ class ProjectUserTestsWithoutEnforceScope(
     common_auth.AuthTestMixin,
     _DomainAndProjectUserEndpointGroupTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()

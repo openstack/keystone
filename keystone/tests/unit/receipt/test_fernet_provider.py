@@ -49,7 +49,7 @@ class TestFernetReceiptProvider(unit.TestCase):
             self.provider.validate_receipt,
             receipt_id,
         )
-        self.assertIn(receipt_id, '%s' % e)
+        self.assertIn(receipt_id, f'{e}')
 
 
 class TestValidate(unit.TestCase):
@@ -79,10 +79,7 @@ class TestValidate(unit.TestCase):
             domain_ref['id'], domain_ref
         )
 
-        rule_list = [
-            ['password', 'totp'],
-            ['password', 'totp', 'token'],
-        ]
+        rule_list = [['password', 'totp'], ['password', 'totp', 'token']]
 
         user_ref = unit.new_user_ref(domain_ref['id'])
         user_ref = PROVIDERS.identity_api.create_user(user_ref)
@@ -140,7 +137,6 @@ class TestReceiptFormatter(unit.TestCase):
 
 
 class TestPayloads(unit.TestCase):
-
     def setUp(self):
         super().setUp()
         self.useFixture(
@@ -394,7 +390,7 @@ class TestFernetKeyRotation(unit.TestCase):
         # Simulate the disk full situation
         mock_open = mock.mock_open()
         file_handle = mock_open()
-        file_handle.flush.side_effect = IOError('disk full')
+        file_handle.flush.side_effect = OSError('disk full')
 
         with mock.patch('keystone.common.fernet_utils.open', mock_open):
             self.assertRaises(IOError, key_utils.rotate_keys)
@@ -454,7 +450,6 @@ class TestFernetKeyRotation(unit.TestCase):
 
 
 class TestLoadKeys(unit.TestCase):
-
     def assertValidFernetKeys(self, keys):
         # Make sure each key is a non-empty string
         for key in keys:

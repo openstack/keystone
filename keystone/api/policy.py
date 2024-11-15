@@ -102,7 +102,6 @@ class PolicyResource(ks_flask.ResourceBase):
 
 
 class EndpointPolicyResource(flask_restful.Resource):
-
     def get(self, policy_id):
         ENFORCER.enforce_call(action='identity:list_endpoints_for_policy')
         PROVIDERS.policy_api.get_policy(policy_id)
@@ -120,7 +119,6 @@ class EndpointPolicyResource(flask_restful.Resource):
 
 
 class EndpointPolicyAssociations(flask_restful.Resource):
-
     def get(self, policy_id, endpoint_id):
         action = 'identity:check_policy_association_for_endpoint'
         ENFORCER.enforce_call(action=action)
@@ -153,7 +151,6 @@ class EndpointPolicyAssociations(flask_restful.Resource):
 
 
 class ServicePolicyAssociations(flask_restful.Resource):
-
     def get(self, policy_id, service_id):
         action = 'identity:check_policy_association_for_service'
         ENFORCER.enforce_call(action=action)
@@ -186,7 +183,6 @@ class ServicePolicyAssociations(flask_restful.Resource):
 
 
 class ServiceRegionPolicyAssociations(flask_restful.Resource):
-
     def get(self, policy_id, service_id, region_id):
         action = 'identity:check_policy_association_for_region_and_service'
         ENFORCER.enforce_call(action=action)

@@ -84,7 +84,7 @@ class Manager(manager.Manager):
                 [
                     notifications.INVALIDATE_TOKEN_CACHE,
                     self._drop_receipt_cache,
-                ],
+                ]
             ],
         }
 
@@ -160,7 +160,6 @@ class Manager(manager.Manager):
             )
 
     def issue_receipt(self, user_id, method_names, expires_at=None):
-
         receipt = receipt_model.ReceiptModel()
         receipt.user_id = user_id
         receipt.methods = method_names

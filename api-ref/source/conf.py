@@ -23,15 +23,9 @@
 # serve to show the default.
 
 html_theme = 'openstackdocs'
-html_theme_options = {
-    "sidebar_dropdown": "api_ref",
-    "sidebar_mode": "toc",
-}
+html_theme_options = {"sidebar_dropdown": "api_ref", "sidebar_mode": "toc"}
 
-extensions = [
-    'os_api_ref',
-    'openstackdocstheme',
-]
+extensions = ['os_api_ref', 'openstackdocstheme']
 
 
 # If extensions (or modules to document with autodoc) are in another directory,

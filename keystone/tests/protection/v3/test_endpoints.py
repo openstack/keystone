@@ -55,7 +55,9 @@ class _SystemUserEndpointTests:
         )
 
         with self.test_client() as c:
-            c.get('/v3/endpoints/%s' % endpoint['id'], headers=self.headers)
+            c.get(
+                '/v3/endpoints/{}'.format(endpoint['id']), headers=self.headers
+            )
 
 
 class _SystemReaderAndMemberUserEndpointTests:
@@ -91,7 +93,7 @@ class _SystemReaderAndMemberUserEndpointTests:
 
         with self.test_client() as c:
             c.patch(
-                '/v3/endpoints/%s' % endpoint['id'],
+                '/v3/endpoints/{}'.format(endpoint['id']),
                 json=update,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -108,14 +110,13 @@ class _SystemReaderAndMemberUserEndpointTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/endpoints/%s' % endpoint['id'],
+                '/v3/endpoints/{}'.format(endpoint['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
 
 
 class _DomainAndProjectUserEndpointTests:
-
     def test_user_cannot_create_endpoints(self):
         create = {
             'endpoint': {
@@ -163,7 +164,7 @@ class _DomainAndProjectUserEndpointTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/endpoints/%s' % endpoint['id'],
+                '/v3/endpoints/{}'.format(endpoint['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -181,7 +182,7 @@ class _DomainAndProjectUserEndpointTests:
 
         with self.test_client() as c:
             c.patch(
-                '/v3/endpoints/%s' % endpoint['id'],
+                '/v3/endpoints/{}'.format(endpoint['id']),
                 json=update,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -198,7 +199,7 @@ class _DomainAndProjectUserEndpointTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/endpoints/%s' % endpoint['id'],
+                '/v3/endpoints/{}'.format(endpoint['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -210,7 +211,6 @@ class SystemReaderTests(
     _SystemUserEndpointTests,
     _SystemReaderAndMemberUserEndpointTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -245,7 +245,6 @@ class SystemMemberTests(
     _SystemUserEndpointTests,
     _SystemReaderAndMemberUserEndpointTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -279,7 +278,6 @@ class SystemAdminTests(
     common_auth.AuthTestMixin,
     _SystemUserEndpointTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -330,7 +328,7 @@ class SystemAdminTests(
 
         with self.test_client() as c:
             c.patch(
-                '/v3/endpoints/%s' % endpoint['id'],
+                '/v3/endpoints/{}'.format(endpoint['id']),
                 json=update,
                 headers=self.headers,
             )
@@ -346,8 +344,7 @@ class SystemAdminTests(
 
         with self.test_client() as c:
             c.delete(
-                '/v3/endpoints/%s' % endpoint['id'],
-                headers=self.headers,
+                '/v3/endpoints/{}'.format(endpoint['id']), headers=self.headers
             )
 
 
@@ -356,7 +353,6 @@ class DomainUserTests(
     common_auth.AuthTestMixin,
     _DomainAndProjectUserEndpointTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -394,7 +390,6 @@ class ProjectUserTests(
     common_auth.AuthTestMixin,
     _DomainAndProjectUserEndpointTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -421,7 +416,6 @@ class ProjectUserTestsWithoutEnforceScope(
     common_auth.AuthTestMixin,
     _DomainAndProjectUserEndpointTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()

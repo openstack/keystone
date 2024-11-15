@@ -67,11 +67,7 @@ recommended value.
 
 
 GROUP_NAME = __name__.split('.')[-1]
-ALL_OPTS = [
-    driver,
-    generator,
-    backward_compatible_ids,
-]
+ALL_OPTS = [driver, generator, backward_compatible_ids]
 
 
 def register_opts(conf):

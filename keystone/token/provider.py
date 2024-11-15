@@ -108,7 +108,7 @@ class Manager(manager.Manager):
                 ['project', self._drop_token_cache],
             ],
             notifications.ACTIONS.internal: [
-                [notifications.INVALIDATE_TOKEN_CACHE, self._drop_token_cache],
+                [notifications.INVALIDATE_TOKEN_CACHE, self._drop_token_cache]
             ],
         }
 
@@ -254,7 +254,6 @@ class Manager(manager.Manager):
         thumbprint=None,
         parent_audit_id=None,
     ):
-
         # NOTE(lbragstad): Grab a blank token object and use composition to
         # build the token according to the authentication and authorization
         # context. This cuts down on the amount of logic we have to stuff into

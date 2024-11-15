@@ -691,12 +691,11 @@ class TokenAPITests:
 
         # grant the user a role on the project
         self.put(
-            '/projects/%(project_id)s/users/%(user_id)s/roles/%(role_id)s'
-            % {
-                'user_id': self.user['id'],
-                'project_id': project['id'],
-                'role_id': self.role['id'],
-            }
+            '/projects/{project_id}/users/{user_id}/roles/{role_id}'.format(
+                user_id=self.user['id'],
+                project_id=project['id'],
+                role_id=self.role['id'],
+            )
         )
 
         # make the new project the user's default project
@@ -915,8 +914,7 @@ class TokenAPITests:
 
     def test_create_system_token_with_user_id(self):
         path = '/system/users/{user_id}/roles/{role_id}'.format(
-            user_id=self.user['id'],
-            role_id=self.role_id,
+            user_id=self.user['id'], role_id=self.role_id
         )
         self.put(path=path)
 
@@ -931,8 +929,7 @@ class TokenAPITests:
 
     def test_create_system_token_with_username(self):
         path = '/system/users/{user_id}/roles/{role_id}'.format(
-            user_id=self.user['id'],
-            role_id=self.role_id,
+            user_id=self.user['id'], role_id=self.role_id
         )
         self.put(path=path)
 
@@ -958,8 +955,7 @@ class TokenAPITests:
 
     def test_system_token_is_invalid_after_disabling_user(self):
         path = '/system/users/{user_id}/roles/{role_id}'.format(
-            user_id=self.user['id'],
-            role_id=self.role_id,
+            user_id=self.user['id'], role_id=self.role_id
         )
         self.put(path=path)
 
@@ -1004,14 +1000,12 @@ class TokenAPITests:
 
         group = self.post('/groups', body=ref).json_body['group']
         path = '/system/groups/{group_id}/roles/{role_id}'.format(
-            group_id=group['id'],
-            role_id=self.role_id,
+            group_id=group['id'], role_id=self.role_id
         )
         self.put(path=path)
 
         path = '/groups/{group_id}/users/{user_id}'.format(
-            group_id=group['id'],
-            user_id=self.user['id'],
+            group_id=group['id'], user_id=self.user['id']
         )
         self.put(path=path)
 
@@ -1027,8 +1021,7 @@ class TokenAPITests:
 
     def test_revoke_system_token(self):
         path = '/system/users/{user_id}/roles/{role_id}'.format(
-            user_id=self.user['id'],
-            role_id=self.role_id,
+            user_id=self.user['id'], role_id=self.role_id
         )
         self.put(path=path)
 
@@ -1051,8 +1044,7 @@ class TokenAPITests:
         system_role = self.post('/roles', body=ref).json_body['role']
 
         path = '/system/users/{user_id}/roles/{role_id}'.format(
-            user_id=self.user['id'],
-            role_id=system_role['id'],
+            user_id=self.user['id'], role_id=system_role['id']
         )
         self.put(path=path)
 
@@ -1076,8 +1068,7 @@ class TokenAPITests:
         system_role = self.post('/roles', body=ref).json_body['role']
 
         path = '/system/users/{user_id}/roles/{role_id}'.format(
-            user_id=self.user['id'],
-            role_id=system_role['id'],
+            user_id=self.user['id'], role_id=system_role['id']
         )
         self.put(path=path)
 
@@ -1103,8 +1094,7 @@ class TokenAPITests:
         system_role = self.post('/roles', body=ref).json_body['role']
 
         path = '/system/users/{user_id}/roles/{role_id}'.format(
-            user_id=self.user['id'],
-            role_id=system_role['id'],
+            user_id=self.user['id'], role_id=system_role['id']
         )
         self.put(path=path)
 
@@ -1128,9 +1118,7 @@ class TokenAPITests:
     def test_create_domain_token_scoped_with_domain_id_and_user_id(self):
         # grant the user a role on the domain
         path = '/domains/{}/users/{}/roles/{}'.format(
-            self.domain['id'],
-            self.user['id'],
-            self.role['id'],
+            self.domain['id'], self.user['id'], self.role['id']
         )
         self.put(path=path)
 
@@ -1145,9 +1133,7 @@ class TokenAPITests:
     def test_create_domain_token_scoped_with_domain_id_and_username(self):
         # grant the user a role on the domain
         path = '/domains/{}/users/{}/roles/{}'.format(
-            self.domain['id'],
-            self.user['id'],
-            self.role['id'],
+            self.domain['id'], self.user['id'], self.role['id']
         )
         self.put(path=path)
 
@@ -1163,9 +1149,7 @@ class TokenAPITests:
     def test_create_domain_token_scoped_with_domain_id(self):
         # grant the user a role on the domain
         path = '/domains/{}/users/{}/roles/{}'.format(
-            self.domain['id'],
-            self.user['id'],
-            self.role['id'],
+            self.domain['id'], self.user['id'], self.role['id']
         )
         self.put(path=path)
 
@@ -1181,9 +1165,7 @@ class TokenAPITests:
     def test_create_domain_token_scoped_with_domain_name(self):
         # grant the user a role on the domain
         path = '/domains/{}/users/{}/roles/{}'.format(
-            self.domain['id'],
-            self.user['id'],
-            self.role['id'],
+            self.domain['id'], self.user['id'], self.role['id']
         )
         self.put(path=path)
 
@@ -1198,9 +1180,7 @@ class TokenAPITests:
     def test_create_domain_token_scoped_with_domain_name_and_username(self):
         # grant the user a role on the domain
         path = '/domains/{}/users/{}/roles/{}'.format(
-            self.domain['id'],
-            self.user['id'],
-            self.role['id'],
+            self.domain['id'], self.user['id'], self.role['id']
         )
         self.put(path=path)
 
@@ -1216,9 +1196,7 @@ class TokenAPITests:
     def test_create_domain_token_with_only_domain_name_and_username(self):
         # grant the user a role on the domain
         path = '/domains/{}/users/{}/roles/{}'.format(
-            self.domain['id'],
-            self.user['id'],
-            self.role['id'],
+            self.domain['id'], self.user['id'], self.role['id']
         )
         self.put(path=path)
 
@@ -1240,9 +1218,7 @@ class TokenAPITests:
 
         # grant the domain role to group
         path = '/domains/{}/groups/{}/roles/{}'.format(
-            self.domain['id'],
-            group['id'],
-            self.role['id'],
+            self.domain['id'], group['id'], self.role['id']
         )
         self.put(path=path)
 
@@ -1901,7 +1877,7 @@ class TokenAPITests:
         self.assertValidProjectScopedTokenResponse(r)
 
         # Disable trustee
-        trustee_update_ref = dict(enabled=False)
+        trustee_update_ref = {'enabled': False}
         PROVIDERS.identity_api.update_user(
             trustee_user['id'], trustee_update_ref
         )
@@ -1936,7 +1912,7 @@ class TokenAPITests:
         trust_ref = unit.new_trust_ref(
             trustor_user_id=self.user_id,
             trustee_user_id=trustee_ref['id'],
-            expires=dict(minutes=1),
+            expires={'minutes': 1},
             project_id=new_project_ref['id'],
             impersonation=True,
             role_ids=[self.role['id']],
@@ -1975,7 +1951,7 @@ class TokenAPITests:
         r = self._validate_token(trust_scoped_token)
         self.assertValidProjectScopedTokenResponse(r)
         # Change trustee's password
-        trustee_update_ref = dict(password='Password1')
+        trustee_update_ref = {'password': 'Password1'}
         PROVIDERS.identity_api.update_user(
             trustee_user['id'], trustee_update_ref
         )
@@ -1992,7 +1968,7 @@ class TokenAPITests:
         self.assertValidProjectScopedTokenResponse(r)
 
         # Disable the trustor
-        trustor_update_ref = dict(enabled=False)
+        trustor_update_ref = {'enabled': False}
         PROVIDERS.identity_api.update_user(self.user['id'], trustor_update_ref)
         # Ensure validating a token for a disabled user fails
         self._validate_token(
@@ -2007,7 +1983,7 @@ class TokenAPITests:
         self.assertValidProjectScopedTokenResponse(r)
 
         # Change trustor's password
-        trustor_update_ref = dict(password='Password1')
+        trustor_update_ref = {'password': 'Password1'}
         PROVIDERS.identity_api.update_user(self.user['id'], trustor_update_ref)
         # Ensure updating trustor's password revokes existing user's tokens
         self._validate_token(
@@ -2025,7 +2001,7 @@ class TokenAPITests:
         self.domain['enabled'] = False
         PROVIDERS.resource_api.update_domain(self.domain['id'], self.domain)
 
-        trustor_update_ref = dict(password='Password1')
+        trustor_update_ref = {'password': 'Password1'}
         PROVIDERS.identity_api.update_user(self.user['id'], trustor_update_ref)
         # Ensure updating trustor's password revokes existing user's tokens
         self._validate_token(
@@ -2407,9 +2383,7 @@ class TokenAPITests:
 
         # give the new user a role on a project
         path = '/projects/{}/users/{}/roles/{}'.format(
-            self.project['id'],
-            new_user['id'],
-            self.role['id'],
+            self.project['id'], new_user['id'], self.role['id']
         )
         self.put(path=path)
 
@@ -2430,9 +2404,7 @@ class TokenAPITests:
 
         # remove the roles from the user for the given scope
         path = '/projects/{}/users/{}/roles/{}'.format(
-            self.project['id'],
-            new_user['id'],
-            self.role['id'],
+            self.project['id'], new_user['id'], self.role['id']
         )
         self.delete(path=path)
 
@@ -2930,9 +2902,7 @@ class TokenAPITests:
     def _get_oauth2_access_token(
         self, client_id, client_cert_content, expected_status=http.client.OK
     ):
-        headers = {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        }
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         data = {'grant_type': 'client_credentials', 'client_id': client_id}
         extra_environ = {'SSL_CLIENT_CERT': client_cert_content}
         data = parse.urlencode(data).encode()
@@ -3142,7 +3112,6 @@ class AllowRescopeScopedTokenDisabledTests(test_v3.RestfulTestCase):
         )
 
     def test_rescoped_domain_token_disabled(self):
-
         self.domainA = unit.new_domain_ref()
         PROVIDERS.resource_api.create_domain(self.domainA['id'], self.domainA)
         PROVIDERS.assignment_api.create_grant(
@@ -3237,7 +3206,7 @@ class TestFernetTokenAPIs(
         self.assertValidProjectScopedTokenResponse(r)
 
         # Disable the trustor
-        trustor_update_ref = dict(enabled=False)
+        trustor_update_ref = {'enabled': False}
         PROVIDERS.identity_api.update_user(self.user['id'], trustor_update_ref)
         # Ensure validating a token for a disabled user fails
         self._validate_token(
@@ -3305,7 +3274,7 @@ class TestJWSTokenAPIs(test_v3.RestfulTestCase, TokenAPITests, TokenDataTests):
         self.assertValidProjectScopedTokenResponse(r)
 
         # Disable the trustor
-        trustor_update_ref = dict(enabled=False)
+        trustor_update_ref = {'enabled': False}
         PROVIDERS.identity_api.update_user(self.user['id'], trustor_update_ref)
         # Ensure validating a token for a disabled user fails
         self._validate_token(
@@ -3462,12 +3431,11 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
 
         # assign a new role
         self.put(
-            '/projects/%(project_id)s/users/%(user_id)s/roles/%(role_id)s'
-            % {
-                'project_id': self.projectA['id'],
-                'user_id': self.user1['id'],
-                'role_id': role['id'],
-            }
+            '/projects/{project_id}/users/{user_id}/roles/{role_id}'.format(
+                project_id=self.projectA['id'],
+                user_id=self.user1['id'],
+                role_id=role['id'],
+            )
         )
 
         # both tokens should remain valid
@@ -3506,13 +3474,11 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         )
         # Delete the grant, which should invalidate the token
         grant_url = (
-            '/projects/%(project_id)s/users/%(user_id)s/'
-            'roles/%(role_id)s'
-            % {
-                'project_id': self.project['id'],
-                'user_id': self.user['id'],
-                'role_id': self.role['id'],
-            }
+            '/projects/{project_id}/users/{user_id}/' 'roles/{role_id}'.format(
+                project_id=self.project['id'],
+                user_id=self.user['id'],
+                role_id=self.role['id'],
+            )
         )
         self.delete(grant_url)
         self.head(
@@ -3646,7 +3612,7 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         )
 
         # Delete the role, which should invalidate the tokens
-        role_url = '/roles/%s' % self.role1['id']
+        role_url = '/roles/{}'.format(self.role1['id'])
         self.delete(role_url)
 
         # Check the tokens that used role1 is invalid
@@ -3702,13 +3668,11 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         )
         # Assign a role, which should not affect the token
         grant_url = (
-            '/domains/%(domain_id)s/users/%(user_id)s/'
-            'roles/%(role_id)s'
-            % {
-                'domain_id': self.domainB['id'],
-                'user_id': self.user1['id'],
-                'role_id': self.role1['id'],
-            }
+            '/domains/{domain_id}/users/{user_id}/' 'roles/{role_id}'.format(
+                domain_id=self.domainB['id'],
+                user_id=self.user1['id'],
+                role_id=self.role1['id'],
+            )
         )
         self.put(grant_url)
         self.head(
@@ -3841,13 +3805,12 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         # Delete the group grant, which should invalidate the
         # tokens for user1 and user2
         grant_url = (
-            '/projects/%(project_id)s/groups/%(group_id)s/'
-            'roles/%(role_id)s'
-            % {
-                'project_id': self.projectA['id'],
-                'group_id': self.group1['id'],
-                'role_id': self.role1['id'],
-            }
+            '/projects/{project_id}/groups/{group_id}/'
+            'roles/{role_id}'.format(
+                project_id=self.projectA['id'],
+                group_id=self.group1['id'],
+                role_id=self.role1['id'],
+            )
         )
         self.delete(grant_url)
         PROVIDERS.assignment_api.delete_grant(
@@ -3902,13 +3865,11 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         )
         # Delete the grant, which should invalidate the token
         grant_url = (
-            '/domains/%(domain_id)s/groups/%(group_id)s/'
-            'roles/%(role_id)s'
-            % {
-                'domain_id': self.domainB['id'],
-                'group_id': self.group1['id'],
-                'role_id': self.role1['id'],
-            }
+            '/domains/{domain_id}/groups/{group_id}/' 'roles/{role_id}'.format(
+                domain_id=self.domainB['id'],
+                group_id=self.group1['id'],
+                role_id=self.role1['id'],
+            )
         )
         self.put(grant_url)
         self.head(
@@ -3958,8 +3919,9 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         # Remove user1 from group1, which should invalidate
         # the token
         self.delete(
-            '/groups/%(group_id)s/users/%(user_id)s'
-            % {'group_id': self.group1['id'], 'user_id': self.user1['id']}
+            '/groups/{group_id}/users/{user_id}'.format(
+                group_id=self.group1['id'], user_id=self.user1['id']
+            )
         )
         self.head(
             '/auth/tokens',
@@ -3974,8 +3936,9 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         )
         # Adding user2 to a group should not invalidate token
         self.put(
-            '/groups/%(group_id)s/users/%(user_id)s'
-            % {'group_id': self.group2['id'], 'user_id': self.user2['id']}
+            '/groups/{group_id}/users/{user_id}'.format(
+                group_id=self.group2['id'], user_id=self.user2['id']
+            )
         )
         self.head(
             '/auth/tokens',
@@ -3989,12 +3952,11 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         with freezegun.freeze_time(time) as frozen_datetime:
             # This group grant is not needed for the test
             self.delete(
-                '/projects/%(p_id)s/groups/%(g_id)s/roles/%(r_id)s'
-                % {
-                    'p_id': self.projectA['id'],
-                    'g_id': self.group1['id'],
-                    'r_id': self.role1['id'],
-                }
+                '/projects/{p_id}/groups/{g_id}/roles/{r_id}'.format(
+                    p_id=self.projectA['id'],
+                    g_id=self.group1['id'],
+                    r_id=self.role1['id'],
+                )
             )
 
             # NOTE(lbragstad): Here we advance the clock one second to pass
@@ -4024,12 +3986,11 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
 
             # delete relationships between user1 and projectA from setUp
             self.delete(
-                '/projects/%(p_id)s/users/%(u_id)s/roles/%(r_id)s'
-                % {
-                    'p_id': self.projectA['id'],
-                    'u_id': self.user1['id'],
-                    'r_id': self.role1['id'],
-                }
+                '/projects/{p_id}/users/{u_id}/roles/{r_id}'.format(
+                    p_id=self.projectA['id'],
+                    u_id=self.user1['id'],
+                    r_id=self.role1['id'],
+                )
             )
             # authorization for the first user should now fail
             self.head(
@@ -4265,13 +4226,10 @@ class TestTokenRevokeApi(TestTokenRevokeById):
             found,
             'event with correct values not in list, expected to '
             'find event with key-value pairs. Expected: '
-            '"%(expected)s" Events: "%(events)s"'
-            % {
-                'expected': ','.join(
-                    [f"'{k}={v}'" for k, v in kwargs.items()]
-                ),
-                'events': events,
-            },
+            '"{expected}" Events: "{events}"'.format(
+                expected=','.join([f"'{k}={v}'" for k, v in kwargs.items()]),
+                events=events,
+            ),
         )
 
     def test_list_delete_token_shows_in_event_list(self):
@@ -4320,7 +4278,6 @@ class TestTokenRevokeApi(TestTokenRevokeById):
         )
 
     def test_list_with_filter(self):
-
         self.role_data_fixtures()
         events = self.get('/OS-REVOKE/events').json_body['events']
         self.assertEqual(0, len(events))
@@ -4339,7 +4296,7 @@ class TestTokenRevokeApi(TestTokenRevokeById):
             timeutils.utcnow() + datetime.timedelta(seconds=1000)
         )
 
-        events = self.get('/OS-REVOKE/events?since=%s' % (future)).json_body[
+        events = self.get(f'/OS-REVOKE/events?since={future}').json_body[
             'events'
         ]
         self.assertEqual(0, len(events))
@@ -4499,7 +4456,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
             trustee_user_id=self.trustee_user['id'],
             project_id=self.project_id,
             impersonation=True,
-            expires=dict(minutes=1),
+            expires={'minutes': 1},
             role_ids=[self.role_id],
             allow_redelegation=True,
         )
@@ -4582,7 +4539,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
             trustee_user_id=self.trustee_user['id'],
             project_id=self.project_id,
             impersonation=True,
-            expires=dict(minutes=10),
+            expires={'minutes': 10},
             role_ids=[self.role_id],
         )
         self.post(
@@ -4699,7 +4656,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
             trustee_user_id=self.trustee_user['id'],
             project_id=self.project_id,
             impersonation=True,
-            expires=dict(minutes=1),
+            expires={'minutes': 1},
             role_names=[self.role['name']],
             allow_redelegation=True,
         )
@@ -4828,7 +4785,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
             trustee_user_id=trustee_user_2['id'],
             project_id=self.project_id,
             impersonation=False,
-            expires=dict(minutes=1),
+            expires={'minutes': 1},
             role_ids=[self.role_id],
             allow_redelegation=False,
         )
@@ -4984,7 +4941,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
             trustee_user_id=self.trustee_user['id'],
             project_id=self.project_id,
             impersonation=True,
-            expires=dict(minutes=1),
+            expires={'minutes': 1},
             role_ids=[self.role_id],
         )
 
@@ -5005,7 +4962,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
             trustee_user_id=self.trustee_user['id'],
             project_id=self.project_id,
             impersonation=True,
-            expires=dict(minutes=1),
+            expires={'minutes': 1},
             role_ids=[self.role_id],
         )
 
@@ -5022,13 +4979,11 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
         PROVIDERS.role_api.create_role(role['id'], role)
 
         grant_url = (
-            '/projects/%(project_id)s/users/%(user_id)s/'
-            'roles/%(role_id)s'
-            % {
-                'project_id': self.project_id,
-                'user_id': self.user_id,
-                'role_id': role['id'],
-            }
+            '/projects/{project_id}/users/{user_id}/' 'roles/{role_id}'.format(
+                project_id=self.project_id,
+                user_id=self.user_id,
+                role_id=role['id'],
+            )
         )
 
         # assign a new role
@@ -5040,7 +4995,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
             trustee_user_id=self.trustee_user['id'],
             project_id=self.project_id,
             impersonation=False,
-            expires=dict(minutes=1),
+            expires={'minutes': 1},
             role_ids=[role['id']],
         )
 
@@ -5080,12 +5035,11 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
 
         # assign the new role to trustee
         self.put(
-            '/projects/%(project_id)s/users/%(user_id)s/roles/%(role_id)s'
-            % {
-                'project_id': self.project_id,
-                'user_id': self.trustee_user['id'],
-                'role_id': role['id'],
-            }
+            '/projects/{project_id}/users/{user_id}/roles/{role_id}'.format(
+                project_id=self.project_id,
+                user_id=self.trustee_user['id'],
+                role_id=role['id'],
+            )
         )
 
         # create a trust from trustor -> trustee
@@ -5094,7 +5048,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
             trustee_user_id=self.trustee_user['id'],
             project_id=self.project_id,
             impersonation=True,
-            expires=dict(minutes=1),
+            expires={'minutes': 1},
             role_ids=[self.role_id],
         )
         r = self.post('/OS-TRUST/trusts', body={'trust': ref})
@@ -5114,7 +5068,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
             trustee_user_id=sub_trustee_user_id,
             project_id=self.project_id,
             impersonation=True,
-            expires=dict(minutes=1),
+            expires={'minutes': 1},
             role_ids=[role['id']],
         )
         r = self.post('/OS-TRUST/trusts', token=token, body={'trust': ref})
@@ -5144,7 +5098,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
             if event.get('OS-TRUST:trust_id') == trust_id:
                 found = True
         self.assertTrue(
-            found, 'event with trust_id %s not found in list' % trust_id
+            found, f'event with trust_id {trust_id} not found in list'
         )
 
     def test_delete_trust_revokes_tokens(self):
@@ -5153,7 +5107,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
             trustee_user_id=self.trustee_user['id'],
             project_id=self.project_id,
             impersonation=False,
-            expires=dict(minutes=1),
+            expires={'minutes': 1},
             role_ids=[self.role_id],
         )
         r = self.post('/OS-TRUST/trusts', body={'trust': ref})
@@ -5186,7 +5140,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
             trustee_user_id=self.trustee_user['id'],
             project_id=self.project_id,
             impersonation=False,
-            expires=dict(minutes=1),
+            expires={'minutes': 1},
             role_ids=[self.role_id],
         )
 
@@ -5216,7 +5170,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
             trustee_user_id=self.trustee_user['id'],
             project_id=self.project_id,
             impersonation=False,
-            expires=dict(minutes=1),
+            expires={'minutes': 1},
             role_ids=[self.role_id],
         )
 
@@ -5248,7 +5202,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
             trustee_user_id=self.trustee_user['id'],
             project_id=self.project_id,
             impersonation=False,
-            expires=dict(minutes=1),
+            expires={'minutes': 1},
             role_ids=[self.role_id],
         )
 
@@ -5273,7 +5227,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
             trustee_user_id=self.trustee_user['id'],
             project_id=self.project_id,
             impersonation=True,
-            expires=dict(minutes=1),
+            expires={'minutes': 1},
             role_ids=[self.role_id],
         )
 
@@ -5291,19 +5245,19 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
         trust_token = r.headers.get('X-Subject-Token')
 
         self.get(
-            '/OS-TRUST/trusts?trustor_user_id=%s' % self.user_id,
+            f'/OS-TRUST/trusts?trustor_user_id={self.user_id}',
             token=trust_token,
         )
 
         self.assertValidUserResponse(
             self.patch(
-                '/users/%s' % self.trustee_user['id'],
+                '/users/{}'.format(self.trustee_user['id']),
                 body={'user': {'password': uuid.uuid4().hex}},
             )
         )
 
         self.get(
-            '/OS-TRUST/trusts?trustor_user_id=%s' % self.user_id,
+            f'/OS-TRUST/trusts?trustor_user_id={self.user_id}',
             expected_status=http.client.UNAUTHORIZED,
             token=trust_token,
         )
@@ -5322,15 +5276,17 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
         self.assertValidRoleListResponse(resp, self.role)
 
         self.head(
-            '/OS-TRUST/trusts/%(trust_id)s/roles/%(role_id)s'
-            % {'trust_id': trust['id'], 'role_id': self.role['id']},
+            '/OS-TRUST/trusts/{trust_id}/roles/{role_id}'.format(
+                trust_id=trust['id'], role_id=self.role['id']
+            ),
             token=trust_token,
             expected_status=http.client.OK,
         )
 
         resp = self.get(
-            '/OS-TRUST/trusts/%(trust_id)s/roles/%(role_id)s'
-            % {'trust_id': trust['id'], 'role_id': self.role['id']},
+            '/OS-TRUST/trusts/{trust_id}/roles/{role_id}'.format(
+                trust_id=trust['id'], role_id=self.role['id']
+            ),
             token=trust_token,
         )
         self.assertValidRoleResponse(resp, self.role)
@@ -5341,7 +5297,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
             trustee_user_id=self.trustee_user['id'],
             project_id=self.project_id,
             impersonation=False,
-            expires=dict(minutes=1),
+            expires={'minutes': 1},
             role_ids=[self.role_id],
             remaining_uses=3,
         )
@@ -5359,12 +5315,11 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
         )
         self.v3_create_token(auth_data, expected_status=http.client.FORBIDDEN)
 
-        r = self.get('/OS-TRUST/trusts/%s' % trust_id)
+        r = self.get(f'/OS-TRUST/trusts/{trust_id}')
         self.assertEqual(3, r.result.get('trust').get('remaining_uses'))
 
 
 class TestTrustChain(test_v3.RestfulTestCase):
-
     def config_overrides(self):
         super().config_overrides()
         self.config_fixture.config(
@@ -5390,8 +5345,8 @@ class TestTrustChain(test_v3.RestfulTestCase):
             userB is trusting userC with trustC
 
         """
-        self.user_list = list()
-        self.trust_chain = list()
+        self.user_list = []
+        self.trust_chain = []
         for _ in range(3):
             user = unit.create_user(
                 PROVIDERS.identity_api, domain_id=self.domain_id
@@ -5405,7 +5360,7 @@ class TestTrustChain(test_v3.RestfulTestCase):
             trustee_user_id=trustee['id'],
             project_id=self.project_id,
             impersonation=True,
-            expires=dict(minutes=1),
+            expires={'minutes': 1},
             role_ids=[self.role_id],
             allow_redelegation=True,
             redelegation_count=3,
@@ -5481,14 +5436,15 @@ class TestTrustChain(test_v3.RestfulTestCase):
             if event.get('OS-TRUST:trust_id') == trust_id:
                 found = True
         self.assertTrue(
-            found, 'event with trust_id %s not found in list' % trust_id
+            found, f'event with trust_id {trust_id} not found in list'
         )
 
     def test_delete_trust_cascade(self):
         self.assert_user_authenticate(self.user_list[0])
         self.delete(
-            '/OS-TRUST/trusts/%(trust_id)s'
-            % {'trust_id': self.trust_chain[0]['id']}
+            '/OS-TRUST/trusts/{trust_id}'.format(
+                trust_id=self.trust_chain[0]['id']
+            )
         )
 
         headers = {'X-Subject-Token': self.last_token}
@@ -5502,8 +5458,9 @@ class TestTrustChain(test_v3.RestfulTestCase):
     def test_delete_broken_chain(self):
         self.assert_user_authenticate(self.user_list[0])
         self.delete(
-            '/OS-TRUST/trusts/%(trust_id)s'
-            % {'trust_id': self.trust_chain[0]['id']}
+            '/OS-TRUST/trusts/{trust_id}'.format(
+                trust_id=self.trust_chain[0]['id']
+            )
         )
 
         # Verify the two remaining trust have been deleted
@@ -5517,8 +5474,9 @@ class TestTrustChain(test_v3.RestfulTestCase):
 
             # Assert chained trust have been deleted
             self.get(
-                '/OS-TRUST/trusts/%(trust_id)s'
-                % {'trust_id': self.trust_chain[i + 1]['id']},
+                '/OS-TRUST/trusts/{trust_id}'.format(
+                    trust_id=self.trust_chain[i + 1]['id']
+                ),
                 token=auth_token,
                 expected_status=http.client.NOT_FOUND,
             )
@@ -5639,7 +5597,6 @@ class TestAuthContext(unit.TestCase):
 
 
 class TestAuthSpecificData(test_v3.RestfulTestCase):
-
     def test_get_catalog_with_project_scoped_token(self):
         """Call ``GET /auth/catalog`` with a project-scoped token."""
         r = self.get('/auth/catalog', expected_status=http.client.OK)
@@ -5653,8 +5610,9 @@ class TestAuthSpecificData(test_v3.RestfulTestCase):
         """Call ``GET /auth/catalog`` with a domain-scoped token."""
         # grant a domain role to a user
         self.put(
-            path='/domains/%s/users/%s/roles/%s'
-            % (self.domain['id'], self.user['id'], self.role['id'])
+            path='/domains/{}/users/{}/roles/{}'.format(
+                self.domain['id'], self.user['id'], self.role['id']
+            )
         )
 
         self.get(
@@ -5671,8 +5629,9 @@ class TestAuthSpecificData(test_v3.RestfulTestCase):
         """Call ``HEAD /auth/catalog`` with a domain-scoped token."""
         # grant a domain role to a user
         self.put(
-            path='/domains/%s/users/%s/roles/%s'
-            % (self.domain['id'], self.user['id'], self.role['id'])
+            path='/domains/{}/users/{}/roles/{}'.format(
+                self.domain['id'], self.user['id'], self.role['id']
+            )
         )
 
         self.head(
@@ -5764,11 +5723,7 @@ class TestAuthSpecificData(test_v3.RestfulTestCase):
         r = self.post('/domains', body={'domain': ref})
         authorized_domain_id = r.json['domain']['id']
 
-        path = '/domains/{domain_id}/users/{user_id}/roles/{role_id}'.format(
-            domain_id=authorized_domain_id,
-            user_id=self.user_id,
-            role_id=self.role_id,
-        )
+        path = f'/domains/{authorized_domain_id}/users/{self.user_id}/roles/{self.role_id}'
         self.put(path, expected_status=http.client.NO_CONTENT)
 
         r = self.get('/auth/domains', expected_status=http.client.OK)
@@ -5786,8 +5741,9 @@ class TestAuthSpecificData(test_v3.RestfulTestCase):
 
     def test_get_domains_with_project_scoped_token(self):
         self.put(
-            path='/domains/%s/users/%s/roles/%s'
-            % (self.domain['id'], self.user['id'], self.role['id'])
+            path='/domains/{}/users/{}/roles/{}'.format(
+                self.domain['id'], self.user['id'], self.role['id']
+            )
         )
 
         r = self.get('/auth/domains', expected_status=http.client.OK)
@@ -5796,16 +5752,16 @@ class TestAuthSpecificData(test_v3.RestfulTestCase):
 
     def test_head_domains_with_project_scoped_token(self):
         self.put(
-            path='/domains/%s/users/%s/roles/%s'
-            % (self.domain['id'], self.user['id'], self.role['id'])
+            path='/domains/{}/users/{}/roles/{}'.format(
+                self.domain['id'], self.user['id'], self.role['id']
+            )
         )
 
         self.head('/auth/domains', expected_status=http.client.OK)
 
     def test_get_system_roles_with_unscoped_token(self):
         path = '/system/users/{user_id}/roles/{role_id}'.format(
-            user_id=self.user['id'],
-            role_id=self.role_id,
+            user_id=self.user['id'], role_id=self.role_id
         )
         self.put(path=path)
 
@@ -5859,14 +5815,14 @@ class TestAuthSpecificData(test_v3.RestfulTestCase):
 
     def test_get_system_roles_with_project_scoped_token(self):
         path = '/system/users/{user_id}/roles/{role_id}'.format(
-            user_id=self.user['id'],
-            role_id=self.role_id,
+            user_id=self.user['id'], role_id=self.role_id
         )
         self.put(path=path)
 
         self.put(
-            path='/domains/%s/users/%s/roles/%s'
-            % (self.domain['id'], self.user['id'], self.role['id'])
+            path='/domains/{}/users/{}/roles/{}'.format(
+                self.domain['id'], self.user['id'], self.role['id']
+            )
         )
 
         domain_scoped_request = self.build_authentication_request(
@@ -5887,8 +5843,7 @@ class TestAuthSpecificData(test_v3.RestfulTestCase):
 
     def test_get_system_roles_with_domain_scoped_token(self):
         path = '/system/users/{user_id}/roles/{role_id}'.format(
-            user_id=self.user['id'],
-            role_id=self.role_id,
+            user_id=self.user['id'], role_id=self.role_id
         )
         self.put(path=path)
 
@@ -5926,7 +5881,6 @@ class TestTrustAuthFernetTokenProvider(TrustAPIBehavior, TestTrustChain):
 
 
 class TestAuthTOTP(test_v3.RestfulTestCase):
-
     def setUp(self):
         super().setUp()
         self.useFixture(
@@ -5999,7 +5953,7 @@ class TestAuthTOTP(test_v3.RestfulTestCase):
 
         for cred in itertools.chain(other_creds, totp_creds):
             self.delete(
-                '/credentials/%s' % cred['id'],
+                '/credentials/{}'.format(cred['id']),
                 expected_status=http.client.NO_CONTENT,
             )
 
@@ -6251,7 +6205,6 @@ class TestFetchRevocationList(test_v3.RestfulTestCase):
 
 
 class ApplicationCredentialAuth(test_v3.RestfulTestCase):
-
     def setUp(self):
         super().setUp()
         self.app_cred_api = PROVIDERS.application_credential_api

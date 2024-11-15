@@ -183,7 +183,6 @@ class ResourceOptionRegistry:
 
 
 class ResourceOption:
-
     def __init__(
         self,
         option_id,

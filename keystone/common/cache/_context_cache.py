@@ -11,6 +11,7 @@
 # under the License.
 
 """A dogpile.cache proxy that caches objects in the request local cache."""
+
 from dogpile.cache import api
 from dogpile.cache import proxy
 from oslo_context import context as oslo_context
@@ -28,7 +29,6 @@ def _register_model_handler(handler_class):
 
 
 class _ResponseCacheProxy(proxy.ProxyBackend):
-
     __key_pfx = '_request_cache_%s'
 
     def _get_request_context(self):

@@ -134,13 +134,15 @@ class TestTrustOperations(test_v3.RestfulTestCase):
         roles = self.assertValidRoleListResponse(r, self.role)
         self.assertIn(self.role['id'], [x['id'] for x in roles])
         self.head(
-            '/OS-TRUST/trusts/%(trust_id)s/roles/%(role_id)s'
-            % {'trust_id': trust['id'], 'role_id': self.role['id']},
+            '/OS-TRUST/trusts/{trust_id}/roles/{role_id}'.format(
+                trust_id=trust['id'], role_id=self.role['id']
+            ),
             expected_status=http.client.OK,
         )
         r = self.get(
-            '/OS-TRUST/trusts/%(trust_id)s/roles/%(role_id)s'
-            % {'trust_id': trust['id'], 'role_id': self.role['id']}
+            '/OS-TRUST/trusts/{trust_id}/roles/{role_id}'.format(
+                trust_id=trust['id'], role_id=self.role['id']
+            )
         )
         self.assertValidRoleResponse(r, self.role)
 
@@ -164,7 +166,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
             trustee_user_id=self.trustee_user_id,
             project_id=self.project_id,
             impersonation=False,
-            expires=dict(minutes=1),
+            expires={'minutes': 1},
             role_ids=[self.role_id],
         )
         for i in range(3):
@@ -186,7 +188,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
 
         # list all trusts for the trustor
         list_for_trustor_url = (
-            '/OS-TRUST/trusts?trustor_user_id=%s' % self.user_id
+            f'/OS-TRUST/trusts?trustor_user_id={self.user_id}'
         )
         r = self.get(list_for_trustor_url)
         self.head(list_for_trustor_url, expected_status=http.client.OK)
@@ -196,7 +198,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
 
         # list all trusts for trustee as the trustor
         list_as_trustor_url = (
-            '/OS-TRUST/trusts?trustee_user_id=%s' % self.user_id
+            f'/OS-TRUST/trusts?trustee_user_id={self.user_id}'
         )
         r = self.get(list_as_trustor_url)
         self.head(list_as_trustor_url, expected_status=http.client.OK)
@@ -242,7 +244,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
             trustee_user_id=self.trustee_user_id,
             project_id=self.project_id,
             impersonation=False,
-            expires=dict(minutes=1),
+            expires={'minutes': 1},
             role_ids=[self.role_id],
         )
         r = self.post('/OS-TRUST/trusts', body={'trust': ref})
@@ -415,7 +417,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
             trustee_user_id=self.trustee_user_id,
             project_id=self.project_id,
             impersonation=False,
-            expires=dict(minutes=1),
+            expires={'minutes': 1},
             role_ids=[self.role_id],
         )
         resp = self.post('/OS-TRUST/trusts', body={'trust': ref})
@@ -447,7 +449,7 @@ class TestTrustOperations(test_v3.RestfulTestCase):
             trustee_user_id=self.trustee_user_id,
             project_id=self.project_id,
             impersonation=True,
-            expires=dict(minutes=1),
+            expires={'minutes': 1},
             role_ids=[self.role_id],
         )
         resp = self.post('/OS-TRUST/trusts', body={'trust': ref})
@@ -605,7 +607,6 @@ class TestTrustOperations(test_v3.RestfulTestCase):
 
 
 class TrustsWithApplicationCredentials(test_v3.RestfulTestCase):
-
     def setUp(self):
         super().setUp()
         self.trustee_user = unit.create_user(
@@ -655,7 +656,7 @@ class TrustsWithApplicationCredentials(test_v3.RestfulTestCase):
             trustee_user_id=self.trustee_user_id,
             project_id=self.project_id,
             impersonation=False,
-            expires=dict(minutes=1),
+            expires={'minutes': 1},
             role_ids=[self.role_id],
         )
         r = self.post('/OS-TRUST/trusts', body={'trust': ref})

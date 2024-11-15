@@ -100,9 +100,9 @@ class Manager(manager.Manager):
         # provider removes a federated identity provider resource.
         reason = (
             'The token cache is being invalidated because identity provider '
-            '%(idp_id)s has been deleted. Authorization for federated users '
+            f'{idp_id} has been deleted. Authorization for federated users '
             'will be recalculated and enforced accordingly the next time '
-            'they authenticate or validate a token.' % {'idp_id': idp_id}
+            'they authenticate or validate a token.'
         )
         notifications.invalidate_token_cache_notification(reason)
 

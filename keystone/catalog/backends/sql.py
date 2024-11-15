@@ -333,7 +333,7 @@ class Catalog(base.CatalogDriverBase):
                 }
                 catalog.setdefault(region, {})
                 catalog[region].setdefault(service_type, default_service)
-                interface_url = '%sURL' % endpoint['interface']
+                interface_url = '{}URL'.format(endpoint['interface'])
                 catalog[region][service_type][interface_url] = url
 
             return catalog
@@ -355,12 +355,7 @@ class Catalog(base.CatalogDriverBase):
         d.update({'user_id': user_id})
         silent_keyerror_failures = []
         if project_id:
-            d.update(
-                {
-                    'tenant_id': project_id,
-                    'project_id': project_id,
-                }
-            )
+            d.update({'tenant_id': project_id, 'project_id': project_id})
         else:
             silent_keyerror_failures = ['tenant_id', 'project_id']
 
@@ -463,8 +458,7 @@ class Catalog(base.CatalogDriverBase):
 
     def _get_project_endpoint_ref(self, session, endpoint_id, project_id):
         endpoint_filter_ref = session.get(
-            ProjectEndpoint,
-            (endpoint_id, project_id),
+            ProjectEndpoint, (endpoint_id, project_id)
         )
         if endpoint_filter_ref is None:
             msg = _(
@@ -576,8 +570,7 @@ class Catalog(base.CatalogDriverBase):
         self, session, endpoint_group_id, project_id
     ):
         endpoint_group_project_ref = session.get(
-            ProjectEndpointGroupMembership,
-            (endpoint_group_id, project_id),
+            ProjectEndpointGroupMembership, (endpoint_group_id, project_id)
         )
         if endpoint_group_project_ref is None:
             msg = _('Endpoint Group Project Association not found')

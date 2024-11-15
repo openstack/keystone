@@ -28,7 +28,4 @@ depends_on = None
 
 def upgrade():
     with op.batch_alter_table('service_provider', schema=None) as batch_op:
-        batch_op.alter_column(
-            'relay_state_prefix',
-            server_default=None,
-        )
+        batch_op.alter_column('relay_state_prefix', server_default=None)

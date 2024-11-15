@@ -109,9 +109,7 @@ class OAuth2AuthnMethodsTests(test_v3.OAuth2RestfulTestCase):
         """client_secret_basic is used if a client sercret is found."""
         client_id = 'client_id'
         client_secret = 'client_secret'
-        headers = {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        }
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         data = {
             'grant_type': 'client_credentials',
             'client_id': client_id,
@@ -160,9 +158,7 @@ class OAuth2AuthnMethodsTests(test_v3.OAuth2RestfulTestCase):
         client_id = 'client_id'
         client_cert, _ = self._create_certificates()
         cert_content = self._get_cert_content(client_cert)
-        headers = {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        }
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         data = {'grant_type': 'client_credentials', 'client_id': client_id}
         _ = self._get_access_token(
             headers=headers,
@@ -189,10 +185,7 @@ class OAuth2AuthnMethodsTests(test_v3.OAuth2RestfulTestCase):
             'Content-Type': 'application/x-www-form-urlencoded',
             'Authorization': f'Basic {b64str}',
         }
-        data = {
-            'grant_type': 'client_credentials',
-            'client_id': client_id_c,
-        }
+        data = {'grant_type': 'client_credentials', 'client_id': client_id_c}
 
         _ = self._get_access_token(
             headers=headers,
@@ -229,8 +222,7 @@ class OAuth2SecretBasicTests(test_v3.OAuth2RestfulTestCase):
         LOG.debug(f'is_debug_enabled: {log.is_debug_enabled(CONF)}')
         LOG.debug(f'get_default_log_levels: {log.get_default_log_levels()}')
         self.config_fixture.config(
-            group='oauth2',
-            oauth2_authn_methods=['client_secret_basic'],
+            group='oauth2', oauth2_authn_methods=['client_secret_basic']
         )
 
     def _assert_error_resp(self, error_resp, error_msg, error_description):
@@ -329,9 +321,7 @@ class OAuth2SecretBasicTests(test_v3.OAuth2RestfulTestCase):
         """Test case when there is no client authorization."""
         client_name = 'client_name_test'
         app_cred = self._create_app_cred(self.user_id, client_name)
-        headers = {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        }
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         data = {
             'grant_type': 'client_credentials',
             'client_id': app_cred.get('id'),
@@ -356,9 +346,10 @@ class OAuth2SecretBasicTests(test_v3.OAuth2RestfulTestCase):
         client_id = app_cred.get('id')
 
         base = (
-            'username="%s", realm="%s", nonce="%s", uri="%s", '
-            'response="%s"'
-            % (client_id, 'realm', 'nonce', 'path', 'responding')
+            'username="{}", realm="{}", nonce="{}", uri="{}", '
+            'response="{}"'.format(
+                client_id, 'realm', 'nonce', 'path', 'responding'
+            )
         )
 
         headers = {
@@ -730,11 +721,9 @@ class OAuth2CertificateTests(test_v3.OAuth2RestfulTestCase):
         self.config_fixture.config(
             group='oauth2', oauth2_cert_dn_mapping_id='oauth2_mapping'
         )
-        (
-            self.oauth2_user,
-            self.oauth2_user_domain,
-            _,
-        ) = self._create_project_user()
+        (self.oauth2_user, self.oauth2_user_domain, _) = (
+            self._create_project_user()
+        )
         *_, self.client_cert, self.client_key = self._create_certificates(
             client_dn=unit.create_dn(
                 user_id=self.oauth2_user.get('id'),
@@ -829,26 +818,26 @@ class OAuth2CertificateTests(test_v3.OAuth2RestfulTestCase):
             remote = []
             for k in info:
                 if k == 'user.name':
-                    local_user['name'] = '{%s}' % index
+                    local_user['name'] = f'{{{index}}}'
                     remote.append({'type': info.get(k)})
                     index += 1
                 elif k == 'user.id':
-                    local_user['id'] = '{%s}' % index
+                    local_user['id'] = f'{{{index}}}'
                     remote.append({'type': info.get(k)})
                     index += 1
                 elif k == 'user.email':
-                    local_user['email'] = '{%s}' % index
+                    local_user['email'] = f'{{{index}}}'
                     remote.append({'type': info.get(k)})
                     index += 1
                 elif k == 'user.domain.name' or k == 'user.domain.id':
                     if not local_user.get('domain'):
                         local_user['domain'] = {}
                     if k == 'user.domain.name':
-                        local_user['domain']['name'] = '{%s}' % index
+                        local_user['domain']['name'] = f'{{{index}}}'
                         remote.append({'type': info.get(k)})
                         index += 1
                     else:
-                        local_user['domain']['id'] = '{%s}' % index
+                        local_user['domain']['id'] = f'{{{index}}}'
                         remote.append({'type': info.get(k)})
                         index += 1
                 else:
@@ -866,9 +855,7 @@ class OAuth2CertificateTests(test_v3.OAuth2RestfulTestCase):
         client_cert_content=None,
         expected_status=http.client.OK,
     ):
-        headers = {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        }
+        headers = {'Content-Type': 'application/x-www-form-urlencoded'}
         data = {'grant_type': 'client_credentials'}
         if client_id:
             data.update({'client_id': client_id})
@@ -1241,7 +1228,7 @@ class OAuth2CertificateTests(test_v3.OAuth2RestfulTestCase):
         self.assertUnauthorizedResp(resp)
         self.assertIn(
             'Get OAuth2.0 Access Token API: '
-            'mapping id %s is not found. ' % 'oauth2_mapping',
+            'mapping id {} is not found. '.format('oauth2_mapping'),
             self.log_fix.output,
         )
 
@@ -1274,7 +1261,7 @@ class OAuth2CertificateTests(test_v3.OAuth2RestfulTestCase):
         self.assertUnauthorizedResp(resp)
         self.assertIn(
             'Get OAuth2.0 Access Token API: '
-            'mapping id %s is not found. ' % 'oauth2_custom',
+            'mapping id {} is not found. '.format('oauth2_custom'),
             self.log_fix.output,
         )
         self.config_fixture.config(
@@ -1759,7 +1746,7 @@ class OAuth2CertificateTests(test_v3.OAuth2RestfulTestCase):
         self.assertUnauthorizedResp(resp)
         self.assertIn(
             'Get OAuth2.0 Access Token API: '
-            'the user does not exist. user id: %s' % user_id_not_exist,
+            f'the user does not exist. user id: {user_id_not_exist}',
             self.log_fix.output,
         )
 
@@ -1788,9 +1775,10 @@ class OAuth2CertificateTests(test_v3.OAuth2RestfulTestCase):
         )
         self.assertUnauthorizedResp(resp)
         self.assertIn(
-            'Get OAuth2.0 Access Token API: %s check failed. '
-            'DN value: %s, DB value: %s.'
-            % ('user id', user.get('id') + '_diff', user.get('id')),
+            'Get OAuth2.0 Access Token API: {} check failed. '
+            'DN value: {}, DB value: {}.'.format(
+                'user id', user.get('id') + '_diff', user.get('id')
+            ),
             self.log_fix.output,
         )
 
@@ -1819,9 +1807,10 @@ class OAuth2CertificateTests(test_v3.OAuth2RestfulTestCase):
         )
         self.assertUnauthorizedResp(resp)
         self.assertIn(
-            'Get OAuth2.0 Access Token API: %s check failed. '
-            'DN value: %s, DB value: %s.'
-            % ('user name', user.get('name') + '_diff', user.get('name')),
+            'Get OAuth2.0 Access Token API: {} check failed. '
+            'DN value: {}, DB value: {}.'.format(
+                'user name', user.get('name') + '_diff', user.get('name')
+            ),
             self.log_fix.output,
         )
 
@@ -1850,9 +1839,10 @@ class OAuth2CertificateTests(test_v3.OAuth2RestfulTestCase):
         )
         self.assertUnauthorizedResp(resp)
         self.assertIn(
-            'Get OAuth2.0 Access Token API: %s check failed. '
-            'DN value: %s, DB value: %s.'
-            % ('user email', user.get('email') + '_diff', user.get('email')),
+            'Get OAuth2.0 Access Token API: {} check failed. '
+            'DN value: {}, DB value: {}.'.format(
+                'user email', user.get('email') + '_diff', user.get('email')
+            ),
             self.log_fix.output,
         )
 
@@ -1881,9 +1871,8 @@ class OAuth2CertificateTests(test_v3.OAuth2RestfulTestCase):
         )
         self.assertUnauthorizedResp(resp)
         self.assertIn(
-            'Get OAuth2.0 Access Token API: %s check failed. '
-            'DN value: %s, DB value: %s.'
-            % (
+            'Get OAuth2.0 Access Token API: {} check failed. '
+            'DN value: {}, DB value: {}.'.format(
                 'user domain id',
                 user_domain.get('id') + '_diff',
                 user_domain.get('id'),
@@ -1916,9 +1905,8 @@ class OAuth2CertificateTests(test_v3.OAuth2RestfulTestCase):
         )
         self.assertUnauthorizedResp(resp)
         self.assertIn(
-            'Get OAuth2.0 Access Token API: %s check failed. '
-            'DN value: %s, DB value: %s.'
-            % (
+            'Get OAuth2.0 Access Token API: {} check failed. '
+            'DN value: {}, DB value: {}.'.format(
                 'user domain name',
                 user_domain.get('name') + '_diff',
                 user_domain.get('name'),

@@ -54,7 +54,6 @@ class CredentialModel(sql.ModelBase, sql.ModelDictMixinWithExtras):
 
 
 class Credential(base.CredentialDriverBase):
-
     # credential crud
 
     @sql.handle_conflicts(conflict_type='credential')

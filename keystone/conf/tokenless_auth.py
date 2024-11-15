@@ -61,11 +61,7 @@ this value.
 
 
 GROUP_NAME = __name__.split('.')[-1]
-ALL_OPTS = [
-    trusted_issuer,
-    protocol,
-    issuer_attribute,
-]
+ALL_OPTS = [trusted_issuer, protocol, issuer_attribute]
 
 
 def register_opts(conf):

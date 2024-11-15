@@ -27,7 +27,6 @@ class PolicyModel(sql.ModelBase, sql.ModelDictMixinWithExtras):
 
 
 class Policy(rules.Policy):
-
     @sql.handle_conflicts(conflict_type='policy')
     def create_policy(self, policy_id, policy):
         with sql.session_for_write() as session:

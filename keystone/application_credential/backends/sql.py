@@ -125,7 +125,6 @@ class ApplicationCredentialAccessRuleModel(sql.ModelBase, sql.ModelDictMixin):
 
 
 class ApplicationCredential(base.ApplicationCredentialDriverBase):
-
     def _check_secret(self, secret, app_cred_ref):
         secret_hash = app_cred_ref['secret_hash']
         return password_hashing.check_password(secret, secret_hash)

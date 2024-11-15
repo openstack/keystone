@@ -83,13 +83,7 @@ has no effect unless global caching and receipt caching are enabled.
 
 
 GROUP_NAME = __name__.split('.')[-1]
-ALL_OPTS = [
-    expiration,
-    provider,
-    caching,
-    cache_time,
-    cache_on_issue,
-]
+ALL_OPTS = [expiration, provider, caching, cache_time, cache_on_issue]
 
 
 def register_opts(conf):

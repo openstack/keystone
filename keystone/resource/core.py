@@ -612,9 +612,9 @@ class Manager(manager.Manager):
 
         reason = (
             'The token cache is being invalidate because project '
-            '%(project_id)s was deleted. Authorization will be recalculated '
+            f'{project_id} was deleted. Authorization will be recalculated '
             'and enforced accordingly the next time users authenticate or '
-            'validate a token.' % {'project_id': project_id}
+            'validate a token.'
         )
         notifications.invalidate_token_cache_notification(reason)
         return ret

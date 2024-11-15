@@ -18,7 +18,6 @@ from keystone import exception
 
 
 class FederationDriverBase(metaclass=abc.ABCMeta):
-
     @abc.abstractmethod
     def create_idp(self, idp_id, idp):
         """Create an identity provider.

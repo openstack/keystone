@@ -47,7 +47,7 @@ class FederationProtocolModel(sql.ModelBase, sql.ModelDictMixin):
 
     def to_dict(self):
         """Return a dictionary with model's attributes."""
-        d = dict()
+        d = {}
         for attr in self.__class__.attributes:
             d[attr] = getattr(self, attr)
         return d
@@ -102,7 +102,7 @@ class IdentityProviderModel(sql.ModelBase, sql.ModelDictMixin):
 
     def to_dict(self):
         """Return a dictionary with model's attributes."""
-        d = dict()
+        d = {}
         for attr in self.__class__.attributes:
             d[attr] = getattr(self, attr)
         d['remote_ids'] = []
@@ -129,7 +129,7 @@ class IdPRemoteIdsModel(sql.ModelBase, sql.ModelDictMixin):
 
     def to_dict(self):
         """Return a dictionary with model's attributes."""
-        d = dict()
+        d = {}
         for attr in self.__class__.attributes:
             d[attr] = getattr(self, attr)
         return d
@@ -153,7 +153,7 @@ class MappingModel(sql.ModelBase, sql.ModelDictMixin):
 
     def to_dict(self):
         """Return a dictionary with model's attributes."""
-        d = dict()
+        d = {}
         for attr in self.__class__.attributes:
             d[attr] = getattr(self, attr)
         d['rules'] = jsonutils.loads(d['rules'])
@@ -188,14 +188,13 @@ class ServiceProviderModel(sql.ModelBase, sql.ModelDictMixin):
 
     def to_dict(self):
         """Return a dictionary with model's attributes."""
-        d = dict()
+        d = {}
         for attr in self.__class__.attributes:
             d[attr] = getattr(self, attr)
         return d
 
 
 class Federation(base.FederationDriverBase):
-
     _CONFLICT_LOG_MSG = 'Conflict %(conflict_type)s: %(details)s'
 
     def _handle_idp_conflict(self, e):

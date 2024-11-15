@@ -23,7 +23,6 @@ from keystone.tests.unit import base_classes
 
 
 class TestTokenSerialization(base_classes.TestCaseWithBootstrap):
-
     def setUp(self):
         super().setUp()
         self.admin_user_id = self.bootstrapper.admin_user_id

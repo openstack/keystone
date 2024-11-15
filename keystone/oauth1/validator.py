@@ -24,7 +24,6 @@ PROVIDERS = provider_api.ProviderAPIs
 
 
 class OAuthValidator(provider_api.ProviderAPIMixin, oauth1.RequestValidator):
-
     # TODO(mhu) set as option probably?
     @property
     def enforce_ssl(self):

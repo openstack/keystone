@@ -112,8 +112,9 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
 
         # Retrieve its correspondent project
         r = self.get(
-            '/projects/%(project_id)s'
-            % {'project_id': r.result['domain']['id']}
+            '/projects/{project_id}'.format(
+                project_id=r.result['domain']['id']
+            )
         )
         self.assertValidProjectResponse(r)
 
@@ -220,10 +221,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         """Call ``PATCH /domains/{domain_id}``."""
         ref = unit.new_domain_ref()
         del ref['id']
-        r = self.patch(
-            f'/domains/{self.domain_id}',
-            body={'domain': ref},
-        )
+        r = self.patch(f'/domains/{self.domain_id}', body={'domain': ref})
         self.assertValidDomainResponse(r, ref)
 
     def test_update_domain_unsafe(self):
@@ -235,10 +233,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         )
         ref = unit.new_domain_ref(name=unsafe_name)
         del ref['id']
-        self.patch(
-            f'/domains/{self.domain_id}',
-            body={'domain': ref},
-        )
+        self.patch(f'/domains/{self.domain_id}', body={'domain': ref})
 
         unsafe_name = 'i am still not / safe'
         for config_setting in ['new', 'strict']:
@@ -260,10 +255,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         # By default, we should be able to create unsafe names
         ref = unit.new_domain_ref(name=unsafe_name)
         del ref['id']
-        self.patch(
-            f'/domains/{self.domain_id}',
-            body={'domain': ref},
-        )
+        self.patch(f'/domains/{self.domain_id}', body={'domain': ref})
 
     def test_update_domain_updates_is_domain_project(self):
         """Check the project that acts as a domain is updated.
@@ -277,14 +269,15 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
 
         # Disable it
         self.patch(
-            '/domains/%s' % r.result['domain']['id'],
+            '/domains/{}'.format(r.result['domain']['id']),
             body={'domain': {'enabled': False}},
         )
 
         # Retrieve its correspondent project
         r = self.get(
-            '/projects/%(project_id)s'
-            % {'project_id': r.result['domain']['id']}
+            '/projects/{project_id}'.format(
+                project_id=r.result['domain']['id']
+            )
         )
         self.assertValidProjectResponse(r)
 
@@ -475,10 +468,9 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         )
         # Disable and delete the domain with no error.
         self.patch(
-            f'/domains/{domain_id}',
-            body={'domain': {'enabled': False}},
+            f'/domains/{domain_id}', body={'domain': {'enabled': False}}
         )
-        self.delete('/domains/%s' % domain_id)
+        self.delete(f'/domains/{domain_id}')
         # The Idp is deleted as well
         self.get(
             '/OS-FEDERATION/identity_providers/test_idp',
@@ -497,36 +489,34 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
 
         # Retrieve its correspondent project
         self.get(
-            '/projects/%(project_id)s'
-            % {'project_id': r.result['domain']['id']}
+            '/projects/{project_id}'.format(
+                project_id=r.result['domain']['id']
+            )
         )
 
         # Delete the domain
         self.patch(
-            '/domains/%s' % r.result['domain']['id'],
+            '/domains/{}'.format(r.result['domain']['id']),
             body={'domain': {'enabled': False}},
         )
-        self.delete('/domains/%s' % r.result['domain']['id'])
+        self.delete('/domains/{}'.format(r.result['domain']['id']))
 
         # The created project is deleted as well
         self.get(
-            '/projects/%(project_id)s'
-            % {'project_id': r.result['domain']['id']},
+            '/projects/{project_id}'.format(
+                project_id=r.result['domain']['id']
+            ),
             expected_status=404,
         )
 
     def test_delete_default_domain(self):
         # Need to disable it first.
         self.patch(
-            '/domains/%(domain_id)s'
-            % {'domain_id': CONF.identity.default_domain_id},
+            f'/domains/{CONF.identity.default_domain_id}',
             body={'domain': {'enabled': False}},
         )
 
-        self.delete(
-            '/domains/%(domain_id)s'
-            % {'domain_id': CONF.identity.default_domain_id}
-        )
+        self.delete(f'/domains/{CONF.identity.default_domain_id}')
 
     def test_token_revoked_once_domain_disabled(self):
         """Test token from a disabled domain has been invalidated.
@@ -769,13 +759,9 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         """Call ``POST /projects``."""
         # Grant a domain role for the user
         collection_url = '/domains/{domain_id}/users/{user_id}/roles'.format(
-            domain_id=self.domain_id,
-            user_id=self.user['id'],
+            domain_id=self.domain_id, user_id=self.user['id']
         )
-        member_url = '{collection_url}/{role_id}'.format(
-            collection_url=collection_url,
-            role_id=self.role_id,
-        )
+        member_url = f'{collection_url}/{self.role_id}'
         self.put(member_url)
 
         # Create an authentication request for a domain scoped token
@@ -797,13 +783,9 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         """Call ``POST /projects``."""
         # Grant a domain role for the user
         collection_url = '/domains/{domain_id}/users/{user_id}/roles'.format(
-            domain_id=self.domain_id,
-            user_id=self.user['id'],
+            domain_id=self.domain_id, user_id=self.user['id']
         )
-        member_url = '{collection_url}/{role_id}'.format(
-            collection_url=collection_url,
-            role_id=self.role_id,
-        )
+        member_url = f'{collection_url}/{self.role_id}'
         self.put(member_url)
 
         # Create an authentication request for a domain scoped token
@@ -991,8 +973,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         project, tags = self._create_project_and_tags(num_of_tags=2)
         ref = {'project': {'name': 'tags and name'}}
         resp = self.patch(
-            '/projects/{project_id}'.format(project_id=project['id']),
-            body=ref,
+            '/projects/{project_id}'.format(project_id=project['id']), body=ref
         )
         url = '/projects?tags-any=%(values)s&name=%(name)s'
         resp = self.get(url % {'values': tags[0], 'name': 'tags and name'})
@@ -1020,8 +1001,9 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         # Query for projects[0] immediate children - it will
         # be only projects[1]
         r = self.get(
-            '/projects?parent_id=%(project_id)s'
-            % {'project_id': projects[0]['project']['id']}
+            '/projects?parent_id={project_id}'.format(
+                project_id=projects[0]['project']['id']
+            )
         )
         self.assertValidProjectListResponse(r)
 
@@ -1034,8 +1016,9 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         # Query for projects[1] immediate children - it will
         # be projects[2] and projects[3]
         r = self.get(
-            '/projects?parent_id=%(project_id)s'
-            % {'project_id': projects[1]['project']['id']}
+            '/projects?parent_id={project_id}'.format(
+                project_id=projects[1]['project']['id']
+            )
         )
         self.assertValidProjectListResponse(r)
 
@@ -1047,8 +1030,9 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
 
         # Query for projects[2] immediate children - it will be an empty list
         r = self.get(
-            '/projects?parent_id=%(project_id)s'
-            % {'project_id': projects[2]['project']['id']}
+            '/projects?parent_id={project_id}'.format(
+                project_id=projects[2]['project']['id']
+            )
         )
         self.assertValidProjectListResponse(r)
 
@@ -1064,9 +1048,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
 
     def test_get_head_project(self):
         """Call ``GET & HEAD /projects/{project_id}``."""
-        resource_url = '/projects/{project_id}'.format(
-            project_id=self.project_id
-        )
+        resource_url = f'/projects/{self.project_id}'
         r = self.get(resource_url)
         self.assertValidProjectResponse(r, self.project)
         self.head(resource_url, expected_status=http.client.OK)
@@ -1079,8 +1061,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         )
 
         self.get(
-            '/projects/%(project_id)s?parents_as_list'
-            % {'project_id': uuid.uuid4().hex},
+            f'/projects/{uuid.uuid4().hex}?parents_as_list',
             expected_status=http.client.NOT_FOUND,
         )
 
@@ -1092,8 +1073,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         )
 
         self.get(
-            '/projects/%(project_id)s?subtree_as_list'
-            % {'project_id': uuid.uuid4().hex},
+            f'/projects/{uuid.uuid4().hex}?subtree_as_list',
             expected_status=http.client.NOT_FOUND,
         )
 
@@ -1103,8 +1083,9 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
 
         # Query for projects[2] parents_as_ids
         r = self.get(
-            '/projects/%(project_id)s?parents_as_ids'
-            % {'project_id': projects[2]['project']['id']}
+            '/projects/{project_id}?parents_as_ids'.format(
+                project_id=projects[2]['project']['id']
+            )
         )
 
         self.assertValidProjectResponse(r, projects[2]['project'])
@@ -1132,8 +1113,9 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
 
         # Query for projects[0] parents_as_ids
         r = self.get(
-            '/projects/%(project_id)s?parents_as_ids'
-            % {'project_id': projects[0]['project']['id']}
+            '/projects/{project_id}?parents_as_ids'.format(
+                project_id=projects[0]['project']['id']
+            )
         )
 
         self.assertValidProjectResponse(r, projects[0]['project'])
@@ -1144,10 +1126,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         self.assertDictEqual(expected_dict, parents_as_ids)
 
         # Query for is_domain_project parents_as_ids
-        r = self.get(
-            '/projects/%(project_id)s?parents_as_ids'
-            % {'project_id': is_domain_project_id}
-        )
+        r = self.get(f'/projects/{is_domain_project_id}?parents_as_ids')
 
         parents_as_ids = r.result['project']['parents']
 
@@ -1181,8 +1160,9 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
 
         # Make the API call
         r = self.get(
-            '/projects/%(project_id)s?parents_as_list'
-            % {'project_id': subproject['project']['id']}
+            '/projects/{project_id}?parents_as_list'.format(
+                project_id=subproject['project']['id']
+            )
         )
         self.assertValidProjectResponse(r, subproject['project'])
 
@@ -1217,8 +1197,9 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
 
         # Make the API call
         r = self.get(
-            '/projects/%(project_id)s?parents_as_list'
-            % {'project_id': subproject['project']['id']}
+            '/projects/{project_id}?parents_as_list'.format(
+                project_id=subproject['project']['id']
+            )
         )
         self.assertValidProjectResponse(r, subproject['project'])
 
@@ -1237,8 +1218,9 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         projects = self._create_projects_hierarchy(hierarchy_size=2)
 
         self.get(
-            '/projects/%(project_id)s?parents_as_list&parents_as_ids'
-            % {'project_id': projects[1]['project']['id']},
+            '/projects/{project_id}?parents_as_list&parents_as_ids'.format(
+                project_id=projects[1]['project']['id']
+            ),
             expected_status=http.client.BAD_REQUEST,
         )
 
@@ -1297,8 +1279,9 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         # "include_limits" should work together with "parents_as_list" or
         # "subtree_as_list". Only using "include_limits" really does nothing.
         r = self.get(
-            '/projects/%(project_id)s?include_limits'
-            % {'project_id': subproject['project']['id']}
+            '/projects/{project_id}?include_limits'.format(
+                project_id=subproject['project']['id']
+            )
         )
 
         self.assertNotIn('parents', r.result['project'])
@@ -1307,8 +1290,9 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
 
         # using "include_limits" with "parents_as_list"
         r = self.get(
-            '/projects/%(project_id)s?include_limits&parents_as_list'
-            % {'project_id': subproject['project']['id']}
+            '/projects/{project_id}?include_limits&parents_as_list'.format(
+                project_id=subproject['project']['id']
+            )
         )
 
         self.assertEqual(2, len(r.result['project']['parents']))
@@ -1324,8 +1308,9 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
 
         # using "include_limits" with "subtree_as_list"
         r = self.get(
-            '/projects/%(project_id)s?include_limits&subtree_as_list'
-            % {'project_id': parent['project']['id']}
+            '/projects/{project_id}?include_limits&subtree_as_list'.format(
+                project_id=parent['project']['id']
+            )
         )
 
         self.assertEqual(2, len(r.result['project']['subtree']))
@@ -1449,8 +1434,9 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
 
         # Query for projects[0] subtree_as_ids
         r = self.get(
-            '/projects/%(project_id)s?subtree_as_ids'
-            % {'project_id': projects[0]['project']['id']}
+            '/projects/{project_id}?subtree_as_ids'.format(
+                project_id=projects[0]['project']['id']
+            )
         )
         self.assertValidProjectResponse(r, projects[0]['project'])
         subtree_as_ids = r.result['project']['subtree']
@@ -1475,8 +1461,9 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
 
         # Now query for projects[1] subtree_as_ids
         r = self.get(
-            '/projects/%(project_id)s?subtree_as_ids'
-            % {'project_id': projects[1]['project']['id']}
+            '/projects/{project_id}?subtree_as_ids'.format(
+                project_id=projects[1]['project']['id']
+            )
         )
         self.assertValidProjectResponse(r, projects[1]['project'])
         subtree_as_ids = r.result['project']['subtree']
@@ -1495,8 +1482,9 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
 
         # Now query for projects[3] subtree_as_ids
         r = self.get(
-            '/projects/%(project_id)s?subtree_as_ids'
-            % {'project_id': projects[3]['project']['id']}
+            '/projects/{project_id}?subtree_as_ids'.format(
+                project_id=projects[3]['project']['id']
+            )
         )
         self.assertValidProjectResponse(r, projects[3]['project'])
         subtree_as_ids = r.result['project']['subtree']
@@ -1530,8 +1518,9 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
 
         # Make the API call
         r = self.get(
-            '/projects/%(project_id)s?subtree_as_list'
-            % {'project_id': parent['project']['id']}
+            '/projects/{project_id}?subtree_as_list'.format(
+                project_id=parent['project']['id']
+            )
         )
         self.assertValidProjectResponse(r, parent['project'])
 
@@ -1565,8 +1554,9 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
 
         # Make the API call
         r = self.get(
-            '/projects/%(project_id)s?subtree_as_list'
-            % {'project_id': parent['project']['id']}
+            '/projects/{project_id}?subtree_as_list'.format(
+                project_id=parent['project']['id']
+            )
         )
         self.assertValidProjectResponse(r, parent['project'])
 
@@ -1585,8 +1575,9 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         projects = self._create_projects_hierarchy(hierarchy_size=2)
 
         self.get(
-            '/projects/%(project_id)s?subtree_as_list&subtree_as_ids'
-            % {'project_id': projects[1]['project']['id']},
+            '/projects/{project_id}?subtree_as_list&subtree_as_ids'.format(
+                project_id=projects[1]['project']['id']
+            ),
             expected_status=http.client.BAD_REQUEST,
         )
 
@@ -1596,10 +1587,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
             domain_id=self.domain_id, parent_id=self.project['parent_id']
         )
         del ref['id']
-        r = self.patch(
-            f'/projects/{self.project_id}',
-            body={'project': ref},
-        )
+        r = self.patch(f'/projects/{self.project_id}', body={'project': ref})
         self.assertValidProjectResponse(r, ref)
 
     def test_update_project_unsafe(self):
@@ -1615,10 +1603,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
             parent_id=self.project['parent_id'],
         )
         del ref['id']
-        self.patch(
-            f'/projects/{self.project_id}',
-            body={'project': ref},
-        )
+        self.patch(f'/projects/{self.project_id}', body={'project': ref})
 
         unsafe_name = 'i am still not / safe'
         for config_setting in ['new', 'strict']:
@@ -1648,10 +1633,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
             parent_id=self.project['parent_id'],
         )
         del ref['id']
-        self.patch(
-            f'/projects/{self.project_id}',
-            body={'project': ref},
-        )
+        self.patch(f'/projects/{self.project_id}', body={'project': ref})
 
     def test_update_project_domain_id(self):
         """Call ``PATCH /projects/{project_id}`` with domain_id.
@@ -1691,8 +1673,9 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         project['parent_id'] = resp.result['project']['parent_id']
         project['is_domain'] = True
         self.patch(
-            '/projects/%(project_id)s'
-            % {'project_id': resp.result['project']['id']},
+            '/projects/{project_id}'.format(
+                project_id=resp.result['project']['id']
+            ),
             body={'project': project},
             expected_status=http.client.BAD_REQUEST,
         )
@@ -1767,8 +1750,9 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         """Call ``DELETE /projects/{project_id}``."""
         projects = self._create_projects_hierarchy()
         self.delete(
-            '/projects/%(project_id)s'
-            % {'project_id': projects[0]['project']['id']},
+            '/projects/{project_id}'.format(
+                project_id=projects[0]['project']['id']
+            ),
             expected_status=http.client.FORBIDDEN,
         )
 
@@ -1808,13 +1792,11 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         case_tags = ['case', 'CASE']
         for tag in case_tags:
             self.put(
-                '/projects/%(project_id)s/tags/%(value)s'
-                % {'project_id': self.project_id, 'value': tag},
+                f'/projects/{self.project_id}/tags/{tag}',
                 expected_status=http.client.CREATED,
             )
         resp = self.get(
-            f'/projects/{self.project_id}',
-            expected_status=http.client.OK,
+            f'/projects/{self.project_id}', expected_status=http.client.OK
         )
         for tag in case_tags:
             self.assertIn(tag, resp.result['project']['tags'])
@@ -1822,34 +1804,37 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
     def test_get_single_project_tag(self):
         project, tags = self._create_project_and_tags()
         self.get(
-            '/projects/%(project_id)s/tags/%(value)s'
-            % {'project_id': project['id'], 'value': tags[0]},
+            '/projects/{project_id}/tags/{value}'.format(
+                project_id=project['id'], value=tags[0]
+            ),
             expected_status=http.client.NO_CONTENT,
         )
         self.head(
-            '/projects/%(project_id)s/tags/%(value)s'
-            % {'project_id': project['id'], 'value': tags[0]},
+            '/projects/{project_id}/tags/{value}'.format(
+                project_id=project['id'], value=tags[0]
+            ),
             expected_status=http.client.NO_CONTENT,
         )
 
     def test_get_project_tag_that_does_not_exist(self):
         project, _ = self._create_project_and_tags()
         self.get(
-            '/projects/%(project_id)s/tags/%(value)s'
-            % {'project_id': project['id'], 'value': uuid.uuid4().hex},
+            '/projects/{project_id}/tags/{value}'.format(
+                project_id=project['id'], value=uuid.uuid4().hex
+            ),
             expected_status=http.client.NOT_FOUND,
         )
 
     def test_delete_project_tag(self):
         project, tags = self._create_project_and_tags()
         self.delete(
-            '/projects/%(project_id)s/tags/%(value)s'
-            % {'project_id': project['id'], 'value': tags[0]},
+            '/projects/{project_id}/tags/{value}'.format(
+                project_id=project['id'], value=tags[0]
+            ),
             expected_status=http.client.NO_CONTENT,
         )
         self.get(
-            '/projects/%(project_id)s/tags/%(value)s'
-            % {'project_id': self.project_id, 'value': tags[0]},
+            f'/projects/{self.project_id}/tags/{tags[0]}',
             expected_status=http.client.NOT_FOUND,
         )
 
@@ -1860,8 +1845,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
             expected_status=http.client.NO_CONTENT,
         )
         self.get(
-            '/projects/%(project_id)s/tags/%(value)s'
-            % {'project_id': self.project_id, 'value': tags[0]},
+            f'/projects/{self.project_id}/tags/{tags[0]}',
             expected_status=http.client.NOT_FOUND,
         )
         resp = self.get(
@@ -1872,54 +1856,51 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
 
     def test_create_project_tag_invalid_project_id(self):
         self.put(
-            '/projects/%(project_id)s/tags/%(value)s'
-            % {'project_id': uuid.uuid4().hex, 'value': uuid.uuid4().hex},
+            f'/projects/{uuid.uuid4().hex}/tags/{uuid.uuid4().hex}',
             expected_status=http.client.NOT_FOUND,
         )
 
     def test_create_project_tag_unsafe_name(self):
         tag = uuid.uuid4().hex + ','
         self.put(
-            '/projects/%(project_id)s/tags/%(value)s'
-            % {'project_id': self.project_id, 'value': tag},
+            f'/projects/{self.project_id}/tags/{tag}',
             expected_status=http.client.BAD_REQUEST,
         )
 
     def test_create_project_tag_already_exists(self):
         project, tags = self._create_project_and_tags()
         self.put(
-            '/projects/%(project_id)s/tags/%(value)s'
-            % {'project_id': project['id'], 'value': tags[0]},
+            '/projects/{project_id}/tags/{value}'.format(
+                project_id=project['id'], value=tags[0]
+            ),
             expected_status=http.client.BAD_REQUEST,
         )
 
     def test_create_project_tag_over_tag_limit(self):
         project, _ = self._create_project_and_tags(num_of_tags=80)
         self.put(
-            '/projects/%(project_id)s/tags/%(value)s'
-            % {'project_id': project['id'], 'value': uuid.uuid4().hex},
+            '/projects/{project_id}/tags/{value}'.format(
+                project_id=project['id'], value=uuid.uuid4().hex
+            ),
             expected_status=http.client.BAD_REQUEST,
         )
 
     def test_create_project_tag_name_over_character_limit(self):
         tag = 'a' * 256
         self.put(
-            '/projects/%(project_id)s/tags/%(value)s'
-            % {'project_id': self.project_id, 'value': tag},
+            f'/projects/{self.project_id}/tags/{tag}',
             expected_status=http.client.BAD_REQUEST,
         )
 
     def test_delete_tag_invalid_project_id(self):
         self.delete(
-            '/projects/%(project_id)s/tags/%(value)s'
-            % {'project_id': uuid.uuid4().hex, 'value': uuid.uuid4().hex},
+            f'/projects/{uuid.uuid4().hex}/tags/{uuid.uuid4().hex}',
             expected_status=http.client.NOT_FOUND,
         )
 
     def test_delete_project_tag_not_found(self):
         self.delete(
-            '/projects/%(project_id)s/tags/%(value)s'
-            % {'project_id': self.project_id, 'value': uuid.uuid4().hex},
+            f'/projects/{self.project_id}/tags/{uuid.uuid4().hex}',
             expected_status=http.client.NOT_FOUND,
         )
 
@@ -1935,22 +1916,21 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
     def test_check_if_project_tag_exists(self):
         project, tags = self._create_project_and_tags(num_of_tags=5)
         self.head(
-            '/projects/%(project_id)s/tags/%(value)s'
-            % {'project_id': project['id'], 'value': tags[0]},
+            '/projects/{project_id}/tags/{value}'.format(
+                project_id=project['id'], value=tags[0]
+            ),
             expected_status=http.client.NO_CONTENT,
         )
 
     def test_list_project_tags_for_project_with_no_tags(self):
         resp = self.get(
-            f'/projects/{self.project_id}/tags',
-            expected_status=http.client.OK,
+            f'/projects/{self.project_id}/tags', expected_status=http.client.OK
         )
         self.assertEqual([], resp.result['tags'])
 
     def test_check_project_with_no_tags(self):
         self.head(
-            '/projects/%(project_id)s/tags/%(value)s'
-            % {'project_id': self.project_id, 'value': uuid.uuid4().hex},
+            f'/projects/{self.project_id}/tags/{uuid.uuid4().hex}',
             expected_status=http.client.NOT_FOUND,
         )
 
@@ -1967,8 +1947,9 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         tag = uuid.uuid4().hex
         project, tags = self._create_project_and_tags(num_of_tags=5)
         self.put(
-            '/projects/%(project_id)s/tags/%(value)s'
-            % {'project_id': project['id'], 'value': tag},
+            '/projects/{project_id}/tags/{value}'.format(
+                project_id=project['id'], value=tag
+            ),
             expected_status=http.client.CREATED,
         )
         resp = self.put(
@@ -1985,8 +1966,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         for char in invalid_chars:
             tags[0] = uuid.uuid4().hex + char
             self.put(
-                '/projects/%(project_id)s/tags'
-                % {'project_id': project['id']},
+                '/projects/{project_id}/tags'.format(project_id=project['id']),
                 body={'tags': tags},
                 expected_status=http.client.BAD_REQUEST,
             )
@@ -2016,13 +1996,10 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         role = resp.result['role']
 
         self.put(
-            '/OS-INHERIT/domains/%(domain_id)s/users/%(user_id)s/roles/'
-            '%(role_id)s/inherited_to_projects'
-            % {
-                'domain_id': domain['id'],
-                'user_id': user['id'],
-                'role_id': role['id'],
-            }
+            '/OS-INHERIT/domains/{domain_id}/users/{user_id}/roles/'
+            '{role_id}/inherited_to_projects'.format(
+                domain_id=domain['id'], user_id=user['id'], role_id=role['id']
+            )
         )
 
         resp = self.get('/users/{user}/projects'.format(user=user['id']))

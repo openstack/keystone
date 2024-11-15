@@ -133,7 +133,6 @@ _INVALID_NAMES = [True, 24, ' ', '', 'a' * 256, None]
 
 
 class CommonValidationTestCase(unit.BaseTestCase):
-
     def test_nullable_type_only(self):
         bool_without_enum = copy.deepcopy(parameter_types.boolean)
         bool_without_enum.pop('enum')
@@ -173,7 +172,6 @@ class CommonValidationTestCase(unit.BaseTestCase):
 
 
 class EntityValidationTestCase(unit.BaseTestCase):
-
     def setUp(self):
         super().setUp()
         self.resource_name = 'some resource name'
@@ -2151,18 +2149,13 @@ class ServiceProviderValidationTestCase(unit.BaseTestCase):
 
     def test_validate_sp_request_without_sp_url_fails(self):
         """Validate request fails without `sp_url`."""
-        request_to_validate = {
-            'auth_url': self.valid_auth_url,
-        }
+        request_to_validate = {'auth_url': self.valid_auth_url}
         self.assertRaises(
             exception.SchemaValidationError,
             self.create_sp_validator.validate,
             request_to_validate,
         )
-        request_to_validate = {
-            'auth_url': self.valid_auth_url,
-            'sp_url': None,
-        }
+        request_to_validate = {'auth_url': self.valid_auth_url, 'sp_url': None}
         self.assertRaises(
             exception.SchemaValidationError,
             self.create_sp_validator.validate,

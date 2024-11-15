@@ -183,7 +183,6 @@ class ReceiptFormatter:
 
 
 class ReceiptPayload:
-
     @classmethod
     def assemble(cls, user_id, methods, expires_at):
         """Assemble the payload of a receipt.

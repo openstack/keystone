@@ -47,7 +47,6 @@ def _sample_blank_token():
 
 
 class RevokeTests:
-
     def _assertTokenRevoked(self, token_data):
         self.assertRaises(
             exception.TokenNotFound,

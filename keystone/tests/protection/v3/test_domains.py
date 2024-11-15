@@ -29,7 +29,6 @@ PROVIDERS = provider_api.ProviderAPIs
 
 
 class _SystemUserDomainTests:
-
     def test_user_can_list_domains(self):
         domain = PROVIDERS.resource_api.create_domain(
             uuid.uuid4().hex, unit.new_domain_ref()
@@ -52,9 +51,7 @@ class _SystemUserDomainTests:
         )
 
         with self.test_client() as c:
-            r = c.get(
-                '/v3/domains?name=%s' % domain_name, headers=self.headers
-            )
+            r = c.get(f'/v3/domains?name={domain_name}', headers=self.headers)
             self.assertEqual(1, len(r.json['domains']))
             self.assertEqual(domain['id'], r.json['domains'][0]['id'])
 
@@ -87,12 +84,13 @@ class _SystemUserDomainTests:
         )
 
         with self.test_client() as c:
-            r = c.get('/v3/domains/%s' % domain['id'], headers=self.headers)
+            r = c.get(
+                '/v3/domains/{}'.format(domain['id']), headers=self.headers
+            )
             self.assertEqual(domain['id'], r.json['domain']['id'])
 
 
 class _SystemMemberAndReaderDomainTests:
-
     def test_user_cannot_create_a_domain(self):
         create = {'domain': {'name': uuid.uuid4().hex}}
 
@@ -112,7 +110,7 @@ class _SystemMemberAndReaderDomainTests:
         update = {'domain': {'description': uuid.uuid4().hex}}
         with self.test_client() as c:
             c.patch(
-                '/v3/domains/%s' % domain['id'],
+                '/v3/domains/{}'.format(domain['id']),
                 json=update,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -125,14 +123,13 @@ class _SystemMemberAndReaderDomainTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/domains/%s' % domain['id'],
+                '/v3/domains/{}'.format(domain['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
 
 
 class _DomainReaderDomainTests:
-
     def test_user_can_list_domains(self):
         # second domain, should be invisible to scoped reader
         second_domain = PROVIDERS.resource_api.create_domain(
@@ -157,7 +154,7 @@ class _DomainReaderDomainTests:
         with self.test_client() as c:
             # filtering for own domain should succeed
             r = c.get(
-                '/v3/domains?name=%s' % self.domain['name'],
+                '/v3/domains?name={}'.format(self.domain['name']),
                 headers=self.headers,
             )
             self.assertEqual(1, len(r.json['domains']))
@@ -168,7 +165,7 @@ class _DomainReaderDomainTests:
 
             # filtering for the second domain should yield no results
             r = c.get(
-                '/v3/domains?name=%s' % second_domain['name'],
+                '/v3/domains?name={}'.format(second_domain['name']),
                 headers=self.headers,
             )
             self.assertEqual(0, len(r.json['domains']))
@@ -199,10 +196,9 @@ class _DomainReaderDomainTests:
 
 
 class _ProjectUserDomainTests:
-
     def test_user_can_get_a_domain(self):
         with self.test_client() as c:
-            r = c.get('/v3/domains/%s' % self.domain_id, headers=self.headers)
+            r = c.get(f'/v3/domains/{self.domain_id}', headers=self.headers)
             self.assertEqual(self.domain_id, r.json['domain']['id'])
 
     def test_user_cannot_get_a_domain_they_are_not_authorized_to_access(self):
@@ -212,7 +208,7 @@ class _ProjectUserDomainTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/domains/%s' % domain['id'],
+                '/v3/domains/{}'.format(domain['id']),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -236,7 +232,7 @@ class _ProjectUserDomainTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/domains?name=%s' % domain_name,
+                f'/v3/domains?name={domain_name}',
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -262,7 +258,7 @@ class _ProjectUserDomainTests:
         update = {'domain': {'description': uuid.uuid4().hex}}
         with self.test_client() as c:
             c.patch(
-                '/v3/domains/%s' % domain['id'],
+                '/v3/domains/{}'.format(domain['id']),
                 json=update,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -286,7 +282,7 @@ class _ProjectUserDomainTests:
 
         with self.test_client() as c:
             update = {'domain': {'enabled': False}}
-            path = '/v3/domains/%s' % domain['id']
+            path = '/v3/domains/{}'.format(domain['id'])
             c.patch(
                 path,
                 json=update,
@@ -300,10 +296,9 @@ class _ProjectUserDomainTests:
             )
 
     def test_user_cannot_get_non_existant_domain_forbidden(self):
-
         with self.test_client() as c:
             c.get(
-                '/v3/domains/%s' % uuid.uuid4().hex,
+                f'/v3/domains/{uuid.uuid4().hex}',
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -315,7 +310,6 @@ class SystemReaderTests(
     _SystemUserDomainTests,
     _SystemMemberAndReaderDomainTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -352,7 +346,6 @@ class SystemMemberTests(
     _SystemUserDomainTests,
     _SystemMemberAndReaderDomainTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -388,7 +381,6 @@ class SystemAdminTests(
     common_auth.AuthTestMixin,
     _SystemUserDomainTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -417,7 +409,7 @@ class SystemAdminTests(
         update = {'domain': {'description': uuid.uuid4().hex}}
         with self.test_client() as c:
             c.patch(
-                '/v3/domains/%s' % domain['id'],
+                '/v3/domains/{}'.format(domain['id']),
                 json=update,
                 headers=self.headers,
             )
@@ -435,7 +427,7 @@ class SystemAdminTests(
 
         with self.test_client() as c:
             update = {'domain': {'enabled': False}}
-            path = '/v3/domains/%s' % domain['id']
+            path = '/v3/domains/{}'.format(domain['id'])
             c.patch(path, json=update, headers=self.headers)
             c.delete(path, headers=self.headers)
 
@@ -445,7 +437,6 @@ class DomainUserTests(
     common_auth.AuthTestMixin,
     _DomainReaderDomainTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -485,7 +476,6 @@ class ProjectReaderTests(
     common_auth.AuthTestMixin,
     _ProjectUserDomainTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -531,7 +521,6 @@ class ProjectMemberTests(
     common_auth.AuthTestMixin,
     _ProjectUserDomainTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -577,7 +566,6 @@ class ProjectAdminTests(
     common_auth.AuthTestMixin,
     _ProjectUserDomainTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()

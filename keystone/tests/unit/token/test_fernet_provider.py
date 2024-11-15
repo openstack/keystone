@@ -199,9 +199,7 @@ class TestValidate(unit.TestCase):
         # Check the user fields in the token result when use validate_v3_token
         # when the token has federated info.
 
-        group_ids = [
-            uuid.uuid4().hex,
-        ]
+        group_ids = [uuid.uuid4().hex]
         self._test_validate_v3_token_federted_info(group_ids)
 
     def test_validate_v3_token_federated_info_empty_group(self):
@@ -250,9 +248,7 @@ class TestValidate(unit.TestCase):
             trustor_user_id,
             trustee_user_id,
             project_id=project_ref['id'],
-            role_ids=[
-                role_ref['id'],
-            ],
+            role_ids=[role_ref['id']],
         )
         trust_ref = PROVIDERS.trust_api.create_trust(
             trust_ref['id'], trust_ref, trust_ref['roles']
@@ -286,7 +282,6 @@ class TestValidate(unit.TestCase):
 
 
 class TestValidateWithoutCache(TestValidate):
-
     def config_overrides(self):
         super().config_overrides()
         self.config_fixture.config(group='token', caching=False)
@@ -916,7 +911,7 @@ class TestFernetKeyRotation(unit.TestCase):
         # Simulate the disk full situation
         mock_open = mock.mock_open()
         file_handle = mock_open()
-        file_handle.flush.side_effect = IOError('disk full')
+        file_handle.flush.side_effect = OSError('disk full')
 
         with mock.patch('keystone.common.fernet_utils.open', mock_open):
             self.assertRaises(IOError, key_utils.rotate_keys)
@@ -976,7 +971,6 @@ class TestFernetKeyRotation(unit.TestCase):
 
 
 class TestLoadKeys(unit.TestCase):
-
     def assertValidFernetKeys(self, keys):
         # Make sure each key is a non-empty string
         for key in keys:

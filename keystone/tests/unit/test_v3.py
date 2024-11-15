@@ -41,7 +41,6 @@ TIME_FORMAT = unit.TIME_FORMAT
 class RestfulTestCase(
     unit.SQLDriverOverrides, rest.RestfulTestCase, common_auth.AuthTestMixin
 ):
-
     def generate_token_schema(
         self, system_scoped=False, domain_scoped=False, project_scoped=False
     ):
@@ -51,23 +50,12 @@ class RestfulTestCase(
             'items': {
                 'type': 'object',
                 'properties': {
-                    'id': {
-                        'type': 'string',
-                    },
-                    'name': {
-                        'type': 'string',
-                    },
-                    'description': {
-                        'type': 'string',
-                    },
-                    'options': {
-                        'type': 'object',
-                    },
+                    'id': {'type': 'string'},
+                    'name': {'type': 'string'},
+                    'description': {'type': 'string'},
+                    'options': {'type': 'object'},
                 },
-                'required': [
-                    'id',
-                    'name',
-                ],
+                'required': ['id', 'name'],
                 'additionalProperties': False,
             },
             'minItems': 1,
@@ -76,9 +64,7 @@ class RestfulTestCase(
         properties = {
             'audit_ids': {
                 'type': 'array',
-                'items': {
-                    'type': 'string',
-                },
+                'items': {'type': 'string'},
                 'minItems': 1,
                 'maxItems': 2,
             },
@@ -86,16 +72,8 @@ class RestfulTestCase(
                 'type': 'string',
                 'pattern': unit.TIME_FORMAT_REGEX,
             },
-            'issued_at': {
-                'type': 'string',
-                'pattern': unit.TIME_FORMAT_REGEX,
-            },
-            'methods': {
-                'type': 'array',
-                'items': {
-                    'type': 'string',
-                },
-            },
+            'issued_at': {'type': 'string', 'pattern': unit.TIME_FORMAT_REGEX},
+            'methods': {'type': 'array', 'items': {'type': 'string'}},
             'user': {
                 'type': 'object',
                 'required': ['id', 'name', 'domain', 'password_expires_at'],
@@ -145,10 +123,7 @@ class RestfulTestCase(
             # FIXME(lbragstad): Remove this in favor of the predefined
             # ROLES_SCHEMA dictionary once bug 1763510 is fixed.
             ROLES_SCHEMA['items']['properties']['domain_id'] = {
-                'type': [
-                    'null',
-                    'string',
-                ],
+                'type': ['null', 'string']
             }
             properties['roles'] = ROLES_SCHEMA
             properties['is_domain'] = {'type': 'boolean'}
@@ -352,9 +327,7 @@ class RestfulTestCase(
                         },
                     },
                     'scope': {
-                        'project': {
-                            'id': self.default_domain_project_id,
-                        }
+                        'project': {'id': self.default_domain_project_id}
                     },
                 }
             },
@@ -400,11 +373,7 @@ class RestfulTestCase(
                             }
                         },
                     },
-                    'scope': {
-                        'project': {
-                            'id': self.project['id'],
-                        }
-                    },
+                    'scope': {'project': {'id': self.project['id']}},
                 }
             },
         )
@@ -450,11 +419,7 @@ class RestfulTestCase(
                             }
                         },
                     },
-                    'scope': {
-                        'domain': {
-                            'id': self.domain['id'],
-                        }
-                    },
+                    'scope': {'domain': {'id': self.domain['id']}},
                 }
             },
         )
@@ -663,7 +628,7 @@ class RestfulTestCase(
         try:
             return datetime.datetime.strptime(dt, TIME_FORMAT)
         except Exception:
-            msg = '%s is not a valid ISO 8601 extended format date time.' % dt
+            msg = f'{dt} is not a valid ISO 8601 extended format date time.'
             raise AssertionError(msg)
 
     def assertValidTokenResponse(self, r, user=None, forbid_token_id=False):
@@ -1166,7 +1131,6 @@ class RestfulTestCase(
                     ref['links'] = links
 
     def assertRoleAssignmentInListResponse(self, resp, ref, expected=1):
-
         found_count = 0
         for entity in resp.result.get('role_assignments'):
             try:
@@ -1285,7 +1249,6 @@ class RestfulTestCase(
     # Service providers (federation)
 
     def assertValidServiceProvider(self, entity, ref=None, *args, **kwargs):
-
         attributes = frozenset(
             [
                 'auth_url',
@@ -1322,7 +1285,6 @@ class VersionTestCase(RestfulTestCase):
 # NOTE(gyee): test AuthContextMiddleware here instead of test_middleware.py
 # because we need the token
 class AuthContextMiddlewareTestCase(RestfulTestCase):
-
     def load_fixtures(self, fixtures):
         self.load_sample_data()
 
@@ -1350,7 +1312,6 @@ class AuthContextMiddlewareTestCase(RestfulTestCase):
         self.app_cred_r_secret = app_cred_ref['secret']
 
     def _middleware_request(self, token, extra_environ=None):
-
         def application(environ, start_response):
             body = b'body'
             headers = [
@@ -1414,9 +1375,7 @@ class AuthContextMiddlewareTestCase(RestfulTestCase):
     def test_domain_scoped_token_auth_context(self):
         # grant the domain role to user
         path = '/domains/{}/users/{}/roles/{}'.format(
-            self.domain['id'],
-            self.user['id'],
-            self.role['id'],
+            self.domain['id'], self.user['id'], self.role['id']
         )
         self.put(path=path)
 
@@ -1458,7 +1417,6 @@ class AuthContextMiddlewareTestCase(RestfulTestCase):
         self.assertFalse(req_context.is_admin)
 
     def test_auth_context_app_cred_with_rule(self):
-
         #
         # This is an open-coded _middleware_request(), which allows us to
         # supply paths and verify failure. We can refactor later if needed.
@@ -1546,12 +1504,12 @@ class AssignmentTestMixin:
                     query_params += 'scope.'
                 elif k not in ['user_id', 'group_id', 'role_id']:
                     raise ValueError(
-                        'Invalid key \'%s\' in provided filters.' % k
+                        f'Invalid key \'{k}\' in provided filters.'
                     )
 
                 query_params += '{}={}'.format(k.replace('_', '.'), v)
 
-        return '/role_assignments%s' % query_params
+        return f'/role_assignments{query_params}'
 
     def build_role_assignment_link(self, **attribs):
         """Build and return a role assignment link with provided attributes.
@@ -1574,7 +1532,7 @@ class AssignmentTestMixin:
         link += '/roles/' + attribs['role_id']
 
         if attribs.get('inherited_to_projects'):
-            return '/OS-INHERIT%s/inherited_to_projects' % link
+            return f'/OS-INHERIT{link}/inherited_to_projects'
 
         return link
 
@@ -1606,8 +1564,7 @@ class AssignmentTestMixin:
 
             if attribs.get('group_id'):
                 entity['links']['membership'] = '/groups/{}/users/{}'.format(
-                    attribs['group_id'],
-                    attribs['user_id'],
+                    attribs['group_id'], attribs['user_id']
                 )
         else:
             entity['group'] = {'id': attribs['group_id']}

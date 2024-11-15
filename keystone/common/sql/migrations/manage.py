@@ -134,14 +134,10 @@ def do_upgrade(config, cmd):
 
     if revision in upgrades.MILESTONES:
         expand_revisions = _find_milestone_revisions(
-            config,
-            revision,
-            upgrades.EXPAND_BRANCH,
+            config, revision, upgrades.EXPAND_BRANCH
         )
         contract_revisions = _find_milestone_revisions(
-            config,
-            revision,
-            upgrades.CONTRACT_BRANCH,
+            config, revision, upgrades.CONTRACT_BRANCH
         )
         # Expand revisions must be run before contract revisions
         revisions = expand_revisions + contract_revisions
@@ -152,10 +148,7 @@ def do_upgrade(config, cmd):
         # if not CONF.command.sql:
         #     run_sanity_checks(config, revision)
         do_alembic_command(
-            config,
-            cmd,
-            revision=revision,
-            sql=CONF.command.sql,
+            config, cmd, revision=revision, sql=CONF.command.sql
         )
 
 
@@ -179,8 +172,7 @@ def do_revision(config, cmd):
         for branch in branches:
             args = copy.copy(kwargs)
             version_path = upgrades.get_version_branch_path(
-                release=upgrades.CURRENT_RELEASE,
-                branch=branch,
+                release=upgrades.CURRENT_RELEASE, branch=branch
             )
             upgrades.check_bootstrap_new_branch(branch, version_path, args)
             do_alembic_command(config, cmd, **args)

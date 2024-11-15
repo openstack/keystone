@@ -42,7 +42,7 @@ class TestLoadAuthMethod(unit.BaseTestCase):
             plugin=mock.sentinel.plugin,
             obj=mock.sentinel.driver,
         )
-        auth_plugin_namespace = 'keystone.auth.%s' % method
+        auth_plugin_namespace = f'keystone.auth.{method}'
         fake_driver_manager = stevedore.DriverManager.make_test_instance(
             extension_, namespace=auth_plugin_namespace
         )

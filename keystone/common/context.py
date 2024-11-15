@@ -22,7 +22,6 @@ def _prop(name):
 
 
 class RequestContext(oslo_context.RequestContext):
-
     def __init__(self, **kwargs):
         self.username = kwargs.pop('username', None)
         self.project_tag_name = kwargs.pop('project_tag_name', None)

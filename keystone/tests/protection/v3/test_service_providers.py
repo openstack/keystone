@@ -48,8 +48,9 @@ class _SystemUserServiceProviderTests:
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/OS-FEDERATION/service_providers/%s'
-                % service_provider['id'],
+                '/v3/OS-FEDERATION/service_providers/{}'.format(
+                    service_provider['id']
+                ),
                 headers=self.headers,
             )
             self.assertEqual(
@@ -70,7 +71,7 @@ class _SystemReaderAndMemberUserServiceProviderTests:
 
         with self.test_client() as c:
             c.put(
-                '/v3/OS-FEDERATION/service_providers/%s' % uuid.uuid4().hex,
+                f'/v3/OS-FEDERATION/service_providers/{uuid.uuid4().hex}',
                 headers=self.headers,
                 json=create,
                 expected_status_code=http.client.FORBIDDEN,
@@ -85,8 +86,9 @@ class _SystemReaderAndMemberUserServiceProviderTests:
 
         with self.test_client() as c:
             c.patch(
-                '/v3/OS-FEDERATION/service_providers/%s'
-                % service_provider['id'],
+                '/v3/OS-FEDERATION/service_providers/{}'.format(
+                    service_provider['id']
+                ),
                 headers=self.headers,
                 json=update,
                 expected_status_code=http.client.FORBIDDEN,
@@ -99,8 +101,9 @@ class _SystemReaderAndMemberUserServiceProviderTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/OS-FEDERATION/service_providers/%s'
-                % service_provider['id'],
+                '/v3/OS-FEDERATION/service_providers/{}'.format(
+                    service_provider['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -119,7 +122,7 @@ class _DomainAndProjectUserServiceProviderTests:
 
         with self.test_client() as c:
             c.put(
-                '/v3/OS-FEDERATION/service_providers/%s' % uuid.uuid4().hex,
+                f'/v3/OS-FEDERATION/service_providers/{uuid.uuid4().hex}',
                 headers=self.headers,
                 json=create,
                 expected_status_code=http.client.FORBIDDEN,
@@ -134,8 +137,9 @@ class _DomainAndProjectUserServiceProviderTests:
 
         with self.test_client() as c:
             c.patch(
-                '/v3/OS-FEDERATION/service_providers/%s'
-                % service_provider['id'],
+                '/v3/OS-FEDERATION/service_providers/{}'.format(
+                    service_provider['id']
+                ),
                 headers=self.headers,
                 json=update,
                 expected_status_code=http.client.FORBIDDEN,
@@ -160,8 +164,9 @@ class _DomainAndProjectUserServiceProviderTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/OS-FEDERATION/service_providers/%s'
-                % service_provider['id'],
+                '/v3/OS-FEDERATION/service_providers/{}'.format(
+                    service_provider['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -173,8 +178,9 @@ class _DomainAndProjectUserServiceProviderTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/OS-FEDERATION/service_providers/%s'
-                % service_provider['id'],
+                '/v3/OS-FEDERATION/service_providers/{}'.format(
+                    service_provider['id']
+                ),
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -186,7 +192,6 @@ class SystemReaderTests(
     _SystemUserServiceProviderTests,
     _SystemReaderAndMemberUserServiceProviderTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -221,7 +226,6 @@ class SystemMemberTests(
     _SystemUserServiceProviderTests,
     _SystemReaderAndMemberUserServiceProviderTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -255,7 +259,6 @@ class SystemAdminTests(
     common_auth.AuthTestMixin,
     _SystemUserServiceProviderTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -288,7 +291,7 @@ class SystemAdminTests(
 
         with self.test_client() as c:
             c.put(
-                '/v3/OS-FEDERATION/service_providers/%s' % uuid.uuid4().hex,
+                f'/v3/OS-FEDERATION/service_providers/{uuid.uuid4().hex}',
                 headers=self.headers,
                 json=create,
                 expected_status_code=http.client.CREATED,
@@ -303,8 +306,9 @@ class SystemAdminTests(
 
         with self.test_client() as c:
             c.patch(
-                '/v3/OS-FEDERATION/service_providers/%s'
-                % service_provider['id'],
+                '/v3/OS-FEDERATION/service_providers/{}'.format(
+                    service_provider['id']
+                ),
                 headers=self.headers,
                 json=update,
             )
@@ -316,8 +320,9 @@ class SystemAdminTests(
 
         with self.test_client() as c:
             c.delete(
-                '/v3/OS-FEDERATION/service_providers/%s'
-                % service_provider['id'],
+                '/v3/OS-FEDERATION/service_providers/{}'.format(
+                    service_provider['id']
+                ),
                 headers=self.headers,
             )
 
@@ -327,7 +332,6 @@ class DomainUserTests(
     common_auth.AuthTestMixin,
     _DomainAndProjectUserServiceProviderTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -365,7 +369,6 @@ class ProjectUserTests(
     common_auth.AuthTestMixin,
     _DomainAndProjectUserServiceProviderTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -392,7 +395,6 @@ class ProjectUserTestsWithoutEnforceScope(
     common_auth.AuthTestMixin,
     _DomainAndProjectUserServiceProviderTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()

@@ -43,8 +43,7 @@ class _SystemUserImpliedRoleTests:
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/roles/%s/implies' % self.prior_role_id,
-                headers=self.headers,
+                f'/v3/roles/{self.prior_role_id}/implies', headers=self.headers
             )
             self.assertEqual(1, len(r.json['role_inference']['implies']))
 
@@ -55,13 +54,11 @@ class _SystemUserImpliedRoleTests:
 
         with self.test_client() as c:
             c.get(
-                '/v3/roles/%s/implies/%s'
-                % (self.prior_role_id, self.implied_role_id),
+                f'/v3/roles/{self.prior_role_id}/implies/{self.implied_role_id}',
                 headers=self.headers,
             )
             c.head(
-                '/v3/roles/%s/implies/%s'
-                % (self.prior_role_id, self.implied_role_id),
+                f'/v3/roles/{self.prior_role_id}/implies/{self.implied_role_id}',
                 headers=self.headers,
                 expected_status_code=http.client.NO_CONTENT,
             )
@@ -84,8 +81,7 @@ class _SystemReaderAndMemberImpliedRoleTests:
     def test_user_cannot_create_implied_roles(self):
         with self.test_client() as c:
             c.put(
-                '/v3/roles/%s/implies/%s'
-                % (self.prior_role_id, self.implied_role_id),
+                f'/v3/roles/{self.prior_role_id}/implies/{self.implied_role_id}',
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -97,8 +93,7 @@ class _SystemReaderAndMemberImpliedRoleTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/roles/%s/implies/%s'
-                % (self.prior_role_id, self.implied_role_id),
+                f'/v3/roles/{self.prior_role_id}/implies/{self.implied_role_id}',
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -111,7 +106,6 @@ class SystemReaderTests(
     _SystemUserImpliedRoleTests,
     _SystemReaderAndMemberImpliedRoleTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -149,7 +143,6 @@ class SystemMemberTests(
     _SystemUserImpliedRoleTests,
     _SystemReaderAndMemberImpliedRoleTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -186,7 +179,6 @@ class SystemAdminTests(
     _ImpliedRolesSetupMixin,
     _SystemUserImpliedRoleTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -214,8 +206,7 @@ class SystemAdminTests(
     def test_user_can_create_implied_roles(self):
         with self.test_client() as c:
             c.put(
-                '/v3/roles/%s/implies/%s'
-                % (self.prior_role_id, self.implied_role_id),
+                f'/v3/roles/{self.prior_role_id}/implies/{self.implied_role_id}',
                 headers=self.headers,
                 expected_status_code=http.client.CREATED,
             )
@@ -227,7 +218,6 @@ class SystemAdminTests(
 
         with self.test_client() as c:
             c.delete(
-                '/v3/roles/%s/implies/%s'
-                % (self.prior_role_id, self.implied_role_id),
+                f'/v3/roles/{self.prior_role_id}/implies/{self.implied_role_id}',
                 headers=self.headers,
             )

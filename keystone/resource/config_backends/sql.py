@@ -49,7 +49,6 @@ class ConfigRegister(sql.ModelBase, sql.ModelDictMixin):
 
 
 class DomainConfig(base.DomainConfigDriverBase):
-
     def choose_table(self, sensitive):
         if sensitive:
             return SensitiveConfig

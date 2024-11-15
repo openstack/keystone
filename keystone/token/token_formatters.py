@@ -185,7 +185,7 @@ class TokenFormatter:
         if len(token) > CONF.max_token_size:
             LOG.info(
                 f'Fernet token created with length of {len(token)} '
-                f'characters, which exceeds {CONF.max_token_size} characters',
+                f'characters, which exceeds {CONF.max_token_size} characters'
             )
 
         return token
@@ -807,7 +807,6 @@ class FederatedUnscopedPayload(BasePayload):
 
 
 class FederatedScopedPayload(FederatedUnscopedPayload):
-
     @classmethod
     def assemble(
         cls,

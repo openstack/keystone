@@ -23,7 +23,6 @@ CONF = keystone.conf.CONF
 
 
 class ConfigTestCase(unit.TestCase):
-
     def config_files(self):
         config_files = super().config_files()
 

@@ -72,15 +72,12 @@ class BannedDBSchemaOperations(fixtures.Fixture):
         for op in self._banned_ops:
             self.useFixture(
                 fixtures.MonkeyPatch(
-                    'alembic.op.%s' % op,
-                    self._explode(op, self._revision),
+                    f'alembic.op.{op}', self._explode(op, self._revision)
                 )
             )
 
 
-class KeystoneMigrationsWalk(
-    test_fixtures.OpportunisticDBTestMixin,
-):
+class KeystoneMigrationsWalk(test_fixtures.OpportunisticDBTestMixin):
     # Migrations can take a long time, particularly on underpowered CI nodes.
     # Give them some breathing room.
     TIMEOUT_SCALING_FACTOR = 4
@@ -142,12 +139,11 @@ class KeystoneMigrationsWalk(
             return
 
         self.assertIsNotNone(
-            getattr(self, '_check_%s' % version, None),
-            ('DB Migration %s does not have a test; you must add one')
-            % version,
+            getattr(self, f'_check_{version}', None),
+            (f'DB Migration {version} does not have a test; you must add one'),
         )
 
-        pre_upgrade = getattr(self, '_pre_upgrade_%s' % version, None)
+        pre_upgrade = getattr(self, f'_pre_upgrade_{version}', None)
         if pre_upgrade:
             pre_upgrade(connection)
 
@@ -166,7 +162,7 @@ class KeystoneMigrationsWalk(
         with BannedDBSchemaOperations(banned_ops, version):
             alembic_api.upgrade(self.config, version)
 
-        post_upgrade = getattr(self, '_check_%s' % version, None)
+        post_upgrade = getattr(self, f'_check_{version}', None)
         if post_upgrade:
             post_upgrade(connection)
 
@@ -219,8 +215,7 @@ class KeystoneMigrationsWalk(
         inspector = sqlalchemy.inspect(connection)
         constraints = inspector.get_unique_constraints('trust')
         self.assertNotIn(
-            'duplicate_trust_constraint',
-            {x['name'] for x in constraints},
+            'duplicate_trust_constraint', {x['name'] for x in constraints}
         )
 
         all_constraints = []
@@ -241,8 +236,7 @@ class KeystoneMigrationsWalk(
         inspector = sqlalchemy.inspect(connection)
         constraints = inspector.get_unique_constraints('trust')
         self.assertIn(
-            'duplicate_trust_constraint',
-            {x['name'] for x in constraints},
+            'duplicate_trust_constraint', {x['name'] for x in constraints}
         )
         constraint = [
             x for x in constraints if x['name'] == 'duplicate_trust_constraint'
@@ -353,7 +347,7 @@ class KeystoneMigrationsWalk(
         with self.engine.begin() as connection:
             self.config.attributes['connection'] = connection
             script = alembic_script.ScriptDirectory.from_config(self.config)
-            revisions = [x for x in script.walk_revisions()]
+            revisions = list(script.walk_revisions())
 
             # for some reason, 'walk_revisions' gives us the revisions in
             # reverse chronological order so we have to invert this

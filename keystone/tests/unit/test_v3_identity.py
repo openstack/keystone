@@ -171,7 +171,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
 
         # Query strings are not normalized: so we get all users back (like
         # self.user), not just the ones in the specified domain.
-        r = self.get('/users?domain-id=%s' % domain1['id'])
+        r = self.get('/users?domain-id={}'.format(domain1['id']))
         self.assertValidUserListResponse(r, ref=self.user)
         self.assertNotEqual(domain1['id'], self.user['domain_id'])
 
@@ -192,7 +192,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         # 'domain-id', then it'll be stored into extras rather than normalized,
         # and the user's actual 'domain_id' is not affected.
         r = self.patch(
-            '/users/%s' % user['id'],
+            '/users/{}'.format(user['id']),
             body={'user': {'domain-id': domain2['id']}},
         )
         self.assertEqual(domain2['id'], r.json['user']['domain-id'])
@@ -341,8 +341,9 @@ class IdentityTestCase(test_v3.RestfulTestCase):
     def test_add_user_to_group(self):
         """Call ``PUT /groups/{group_id}/users/{user_id}``."""
         self.put(
-            '/groups/%(group_id)s/users/%(user_id)s'
-            % {'group_id': self.group_id, 'user_id': self.user['id']}
+            '/groups/{group_id}/users/{user_id}'.format(
+                group_id=self.group_id, user_id=self.user['id']
+            )
         )
 
     def test_list_head_groups_for_user(self):
@@ -355,8 +356,9 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         )
 
         self.put(
-            '/groups/%(group_id)s/users/%(user_id)s'
-            % {'group_id': self.group_id, 'user_id': user1['id']}
+            '/groups/{group_id}/users/{user_id}'.format(
+                group_id=self.group_id, user_id=user1['id']
+            )
         )
 
         # Scenarios below are written to test the default policy configuration
@@ -399,42 +401,44 @@ class IdentityTestCase(test_v3.RestfulTestCase):
     def test_check_user_in_group(self):
         """Call ``HEAD /groups/{group_id}/users/{user_id}``."""
         self.put(
-            '/groups/%(group_id)s/users/%(user_id)s'
-            % {'group_id': self.group_id, 'user_id': self.user['id']}
+            '/groups/{group_id}/users/{user_id}'.format(
+                group_id=self.group_id, user_id=self.user['id']
+            )
         )
         self.head(
-            '/groups/%(group_id)s/users/%(user_id)s'
-            % {'group_id': self.group_id, 'user_id': self.user['id']}
+            '/groups/{group_id}/users/{user_id}'.format(
+                group_id=self.group_id, user_id=self.user['id']
+            )
         )
 
     def test_list_head_users_in_group(self):
         """Call ``GET & HEAD /groups/{group_id}/users``."""
         self.put(
-            '/groups/%(group_id)s/users/%(user_id)s'
-            % {'group_id': self.group_id, 'user_id': self.user['id']}
+            '/groups/{group_id}/users/{user_id}'.format(
+                group_id=self.group_id, user_id=self.user['id']
+            )
         )
-        resource_url = '/groups/{group_id}/users'.format(
-            group_id=self.group_id
-        )
+        resource_url = f'/groups/{self.group_id}/users'
         r = self.get(resource_url)
         self.assertValidUserListResponse(
             r, ref=self.user, resource_url=resource_url
         )
         self.assertIn(
-            f'/groups/{self.group_id}/users',
-            r.result['links']['self'],
+            f'/groups/{self.group_id}/users', r.result['links']['self']
         )
         self.head(resource_url, expected_status=http.client.OK)
 
     def test_remove_user_from_group(self):
         """Call ``DELETE /groups/{group_id}/users/{user_id}``."""
         self.put(
-            '/groups/%(group_id)s/users/%(user_id)s'
-            % {'group_id': self.group_id, 'user_id': self.user['id']}
+            '/groups/{group_id}/users/{user_id}'.format(
+                group_id=self.group_id, user_id=self.user['id']
+            )
         )
         self.delete(
-            '/groups/%(group_id)s/users/%(user_id)s'
-            % {'group_id': self.group_id, 'user_id': self.user['id']}
+            '/groups/{group_id}/users/{user_id}'.format(
+                group_id=self.group_id, user_id=self.user['id']
+            )
         )
 
     def test_update_ephemeral_user(self):
@@ -487,7 +491,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         # administrative password reset
         new_password = uuid.uuid4().hex
         self.patch(
-            '/users/%s' % user_ref['id'],
+            '/users/{}'.format(user_ref['id']),
             body={'user': {'password': new_password}},
         )
 
@@ -520,7 +524,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         # administrative password reset
         new_password = uuid.uuid4().hex
         r = self.patch(
-            '/users/%s' % user_ref['id'],
+            '/users/{}'.format(user_ref['id']),
             body={'user': {'password': new_password}},
         )
         self.assertValidUserResponse(r, user_ref)
@@ -537,12 +541,12 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         )
         lock_pw_opt = options.LOCK_PASSWORD_OPT.option_name
         update_user_body = {'user': {'options': {lock_pw_opt: True}}}
-        self.patch('/users/%s' % user_ref['id'], body=update_user_body)
+        self.patch('/users/{}'.format(user_ref['id']), body=update_user_body)
 
         # administrative password reset
         new_password = uuid.uuid4().hex
         r = self.patch(
-            '/users/%s' % user_ref['id'],
+            '/users/{}'.format(user_ref['id']),
             body={'user': {'password': new_password}},
         )
         self.assertValidUserResponse(r, user_ref)
@@ -697,10 +701,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         """Call ``PATCH /groups/{group_id}``."""
         group = unit.new_group_ref(domain_id=self.domain_id)
         del group['id']
-        r = self.patch(
-            f'/groups/{self.group_id}',
-            body={'group': group},
-        )
+        r = self.patch(f'/groups/{self.group_id}', body={'group': group})
         self.assertValidGroupResponse(r, group)
 
     def test_update_group_domain_id(self):
@@ -746,7 +747,7 @@ class IdentityTestCase(test_v3.RestfulTestCase):
         # administrative password reset
         new_password = uuid.uuid4().hex
         self.patch(
-            '/users/%s' % user_ref['id'],
+            '/users/{}'.format(user_ref['id']),
             body={'user': {'password': new_password}},
         )
 
@@ -786,7 +787,6 @@ class IdentityTestCase(test_v3.RestfulTestCase):
 
 
 class ChangePasswordTestCase(test_v3.RestfulTestCase):
-
     def setUp(self):
         super().setUp()
         self.user_ref = unit.create_user(
@@ -806,7 +806,7 @@ class ChangePasswordTestCase(test_v3.RestfulTestCase):
     def change_password(self, expected_status, **kwargs):
         """Return a test response for a change password request."""
         return self.post(
-            '/users/%s/password' % self.user_ref['id'],
+            '/users/{}/password'.format(self.user_ref['id']),
             body={'user': kwargs},
             token=self.token,
             expected_status=expected_status,
@@ -814,7 +814,6 @@ class ChangePasswordTestCase(test_v3.RestfulTestCase):
 
 
 class UserSelfServiceChangingPasswordsTestCase(ChangePasswordTestCase):
-
     def _create_user_with_expired_password(self):
         expire_days = CONF.security_compliance.password_expires_days + 1
         time = timeutils.utcnow() - datetime.timedelta(expire_days)
@@ -905,7 +904,7 @@ class UserSelfServiceChangingPasswordsTestCase(ChangePasswordTestCase):
             # Lock the user's password
             lock_pw_opt = options.LOCK_PASSWORD_OPT.option_name
             user_patch = {'user': {'options': {lock_pw_opt: True}}}
-            self.patch('/users/%s' % user_id, body=user_patch)
+            self.patch(f'/users/{user_id}', body=user_patch)
 
             # Fail, password is locked
             new_password = uuid.uuid4().hex
@@ -915,14 +914,14 @@ class UserSelfServiceChangingPasswordsTestCase(ChangePasswordTestCase):
                     'password': new_password,
                 }
             }
-            path = '/users/%s/password' % user_id
+            path = f'/users/{user_id}/password'
             self.post(path, body=body, expected_status=http.client.BAD_REQUEST)
 
             # Unlock the password, and change should work
             user_patch['user']['options'][lock_pw_opt] = False
-            self.patch('/users/%s' % user_id, body=user_patch)
+            self.patch(f'/users/{user_id}', body=user_patch)
 
-            path = '/users/%s/password' % user_id
+            path = f'/users/{user_id}/password'
             self.post(path, body=body, expected_status=http.client.NO_CONTENT)
 
             frozen_datetime.tick(delta=datetime.timedelta(seconds=1))
@@ -934,15 +933,15 @@ class UserSelfServiceChangingPasswordsTestCase(ChangePasswordTestCase):
                 auth_data, expected_status=http.client.CREATED
             )
 
-            path = '/users/%s' % user_id
+            path = f'/users/{user_id}'
             user = self.get(path).json_body['user']
             self.assertIn(lock_pw_opt, user['options'])
             self.assertFalse(user['options'][lock_pw_opt])
 
             # Completely unset the option from the user's reference
             user_patch['user']['options'][lock_pw_opt] = None
-            self.patch('/users/%s' % user_id, body=user_patch)
-            path = '/users/%s' % user_id
+            self.patch(f'/users/{user_id}', body=user_patch)
+            path = f'/users/{user_id}'
             user = self.get(path).json_body['user']
             self.assertNotIn(lock_pw_opt, user['options'])
 
@@ -975,7 +974,8 @@ class UserSelfServiceChangingPasswordsTestCase(ChangePasswordTestCase):
         # disable the user account
         self.user_ref['enabled'] = False
         self.patch(
-            '/users/%s' % self.user_ref['id'], body={'user': self.user_ref}
+            '/users/{}'.format(self.user_ref['id']),
+            body={'user': self.user_ref},
         )
 
         self.change_password(
@@ -1027,7 +1027,8 @@ class UserSelfServiceChangingPasswordsTestCase(ChangePasswordTestCase):
         # disable the user account
         self.user_ref['enabled'] = False
         self.patch(
-            '/users/%s' % self.user_ref['id'], body={'user': self.user_ref}
+            '/users/{}'.format(self.user_ref['id']),
+            body={'user': self.user_ref},
         )
 
         new_password = uuid.uuid4().hex
@@ -1135,7 +1136,6 @@ class UserSelfServiceChangingPasswordsTestCase(ChangePasswordTestCase):
 
 
 class PasswordValidationTestCase(ChangePasswordTestCase):
-
     def setUp(self):
         super().setUp()
         # passwords requires: 1 letter, 1 digit, 7 chars
@@ -1275,10 +1275,7 @@ class UserFederatedAttributesTests(test_v3.RestfulTestCase):
 
     def _test_list_users_with_federated_parameter(self, parameter):
         # construct the resource url based off what's passed in parameter
-        resource_url = '/users?{}={}'.format(
-            parameter[0],
-            self.fed_dict[parameter[0]],
-        )
+        resource_url = f'/users?{parameter[0]}={self.fed_dict[parameter[0]]}'
         for attr in parameter[1:]:
             resource_url += f'&{attr}={self.fed_dict[attr]}'
         r = self.get(resource_url)
@@ -1293,9 +1290,8 @@ class UserFederatedAttributesTests(test_v3.RestfulTestCase):
         if not any('unique_id' in x for x in parameter):
             # Check that we get two matches here since fed_user2 and fed_user3
             # both have the same idp and protocol
-            resource_url = '/users?{}={}'.format(
-                parameter[0],
-                self.fed_dict2[parameter[0]],
+            resource_url = (
+                f'/users?{parameter[0]}={self.fed_dict2[parameter[0]]}'
             )
             for attr in parameter[1:]:
                 resource_url += f'&{attr}={self.fed_dict2[attr]}'

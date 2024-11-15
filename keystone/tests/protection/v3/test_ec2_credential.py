@@ -28,7 +28,6 @@ PROVIDERS = provider_api.ProviderAPIs
 
 
 class _UserEC2CredentialTests:
-
     def test_user_can_get_their_ec2_credentials(self):
         project = unit.new_project_ref(
             domain_id=CONF.identity.default_domain_id
@@ -42,16 +41,15 @@ class _UserEC2CredentialTests:
 
         with self.test_client() as c:
             r = c.post(
-                '/v3/users/%s/credentials/OS-EC2' % self.user_id,
+                f'/v3/users/{self.user_id}/credentials/OS-EC2',
                 json={'tenant_id': project['id']},
                 headers=self.headers,
             )
 
             credential_id = r.json['credential']['access']
 
-            path = '/v3/users/{}/credentials/OS-EC2/{}'.format(
-                self.user_id,
-                credential_id,
+            path = (
+                f'/v3/users/{self.user_id}/credentials/OS-EC2/{credential_id}'
             )
             r = c.get(path, headers=self.headers)
             self.assertEqual(self.user_id, r.json['credential']['user_id'])
@@ -69,12 +67,12 @@ class _UserEC2CredentialTests:
 
         with self.test_client() as c:
             c.post(
-                '/v3/users/%s/credentials/OS-EC2' % self.user_id,
+                f'/v3/users/{self.user_id}/credentials/OS-EC2',
                 json={'tenant_id': project['id']},
                 headers=self.headers,
             )
 
-            path = '/v3/users/%s/credentials/OS-EC2' % self.user_id
+            path = f'/v3/users/{self.user_id}/credentials/OS-EC2'
             r = c.get(path, headers=self.headers)
             for credential in r.json['credentials']:
                 self.assertEqual(self.user_id, credential['user_id'])
@@ -92,7 +90,7 @@ class _UserEC2CredentialTests:
 
         with self.test_client() as c:
             c.post(
-                '/v3/users/%s/credentials/OS-EC2' % self.user_id,
+                f'/v3/users/{self.user_id}/credentials/OS-EC2',
                 json={'tenant_id': project['id']},
                 headers=self.headers,
                 expected_status_code=http.client.CREATED,
@@ -111,15 +109,14 @@ class _UserEC2CredentialTests:
 
         with self.test_client() as c:
             r = c.post(
-                '/v3/users/%s/credentials/OS-EC2' % self.user_id,
+                f'/v3/users/{self.user_id}/credentials/OS-EC2',
                 json={'tenant_id': project['id']},
                 headers=self.headers,
             )
             credential_id = r.json['credential']['access']
 
             c.delete(
-                '/v3/users/%s/credentials/OS-EC2/%s'
-                % (self.user_id, credential_id),
+                f'/v3/users/{self.user_id}/credentials/OS-EC2/{credential_id}',
                 headers=self.headers,
             )
 
@@ -139,7 +136,7 @@ class _UserEC2CredentialTests:
 
         with self.test_client() as c:
             c.post(
-                '/v3/users/%s/credentials/OS-EC2' % user['id'],
+                '/v3/users/{}/credentials/OS-EC2'.format(user['id']),
                 json={'tenant_id': project['id']},
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -169,22 +166,20 @@ class _UserEC2CredentialTests:
             headers = {'X-Auth-Token': token_id}
 
             r = c.post(
-                '/v3/users/%s/credentials/OS-EC2' % user['id'],
+                '/v3/users/{}/credentials/OS-EC2'.format(user['id']),
                 json={'tenant_id': project['id']},
                 headers=headers,
             )
             credential_id = r.json['credential']['access']
 
             c.delete(
-                '/v3/users/%s/credentials/OS-EC2/%s'
-                % (self.user_id, credential_id),
+                f'/v3/users/{self.user_id}/credentials/OS-EC2/{credential_id}',
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
 
 
 class _SystemUserTests:
-
     def test_user_can_get_ec2_credentials_for_others(self):
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
         user_password = user['password']
@@ -209,15 +204,14 @@ class _SystemUserTests:
             headers = {'X-Auth-Token': token_id}
 
             r = c.post(
-                '/v3/users/%s/credentials/OS-EC2' % user['id'],
+                '/v3/users/{}/credentials/OS-EC2'.format(user['id']),
                 json={'tenant_id': project['id']},
                 headers=headers,
             )
             credential_id = r.json['credential']['access']
 
-            path = '/v3/users/{}/credentials/OS-EC2/{}'.format(
-                self.user_id,
-                credential_id,
+            path = (
+                f'/v3/users/{self.user_id}/credentials/OS-EC2/{credential_id}'
             )
             c.get(
                 path, headers=self.headers, expected_status_code=http.client.OK
@@ -225,7 +219,6 @@ class _SystemUserTests:
 
 
 class _SystemReaderAndMemberTests:
-
     def test_user_cannot_list_ec2_credentials_for_others(self):
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
         user_password = user['password']
@@ -250,12 +243,12 @@ class _SystemReaderAndMemberTests:
             headers = {'X-Auth-Token': token_id}
 
             c.post(
-                '/v3/users/%s/credentials/OS-EC2' % user['id'],
+                '/v3/users/{}/credentials/OS-EC2'.format(user['id']),
                 json={'tenant_id': project['id']},
                 headers=headers,
             )
 
-            path = '/v3/users/%s/credentials/OS-EC2' % self.user_id
+            path = f'/v3/users/{self.user_id}/credentials/OS-EC2'
             r = c.get(path, headers=self.headers)
             self.assertEqual([], r.json['credentials'])
 
@@ -266,7 +259,6 @@ class SystemReaderTests(
     _SystemUserTests,
     _SystemReaderAndMemberTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -301,7 +293,6 @@ class SystemMemberTests(
     _SystemUserTests,
     _SystemReaderAndMemberTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -335,7 +326,6 @@ class SystemAdminTests(
     common_auth.AuthTestMixin,
     _SystemUserTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -382,12 +372,12 @@ class SystemAdminTests(
             headers = {'X-Auth-Token': token_id}
 
             c.post(
-                '/v3/users/%s/credentials/OS-EC2' % user['id'],
+                '/v3/users/{}/credentials/OS-EC2'.format(user['id']),
                 json={'tenant_id': project['id']},
                 headers=headers,
             )
 
-            path = '/v3/users/%s/credentials/OS-EC2' % self.user_id
+            path = f'/v3/users/{self.user_id}/credentials/OS-EC2'
             r = c.get(path, headers=self.headers)
             self.assertEqual([], r.json['credentials'])
 
@@ -407,7 +397,7 @@ class SystemAdminTests(
 
         with self.test_client() as c:
             c.post(
-                '/v3/users/%s/credentials/OS-EC2' % user['id'],
+                '/v3/users/{}/credentials/OS-EC2'.format(user['id']),
                 json={'tenant_id': project['id']},
                 headers=self.headers,
             )
@@ -436,15 +426,14 @@ class SystemAdminTests(
             headers = {'X-Auth-Token': token_id}
 
             r = c.post(
-                '/v3/users/%s/credentials/OS-EC2' % user['id'],
+                '/v3/users/{}/credentials/OS-EC2'.format(user['id']),
                 json={'tenant_id': project['id']},
                 headers=headers,
             )
             credential_id = r.json['credential']['access']
 
             c.delete(
-                '/v3/users/%s/credentials/OS-EC2/%s'
-                % (self.user_id, credential_id),
+                f'/v3/users/{self.user_id}/credentials/OS-EC2/{credential_id}',
                 headers=self.headers,
             )
 
@@ -455,7 +444,6 @@ class ProjectAdminTests(
     _UserEC2CredentialTests,
     _SystemReaderAndMemberTests,
 ):
-
     def _override_policy(self):
         # TODO(cmurphy): Remove this once the deprecated policies in
         # keystone.common.policies.ec2_credential have been removed. This is

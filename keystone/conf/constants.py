@@ -16,7 +16,6 @@ package.
 
 """
 
-
 _DEFAULT_AUTH_METHODS = [
     'external',
     'password',

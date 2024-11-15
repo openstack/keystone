@@ -37,7 +37,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         ref = unit.new_region_ref()
         region_id = ref.pop('id')
         r = self.put(
-            '/regions/%s' % region_id,
+            f'/regions/{region_id}',
             body={'region': ref},
             expected_status=http.client.CREATED,
         )
@@ -51,7 +51,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         ref = unit.new_region_ref()
         region_id = ref['id']
         r = self.put(
-            '/regions/%s' % region_id,
+            f'/regions/{region_id}',
             body={'region': ref},
             expected_status=http.client.CREATED,
         )
@@ -65,13 +65,13 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         ref = unit.new_region_ref()
         region_id = ref['id']
         self.put(
-            '/regions/%s' % region_id,
+            f'/regions/{region_id}',
             body={'region': ref},
             expected_status=http.client.CREATED,
         )
         # Create region again with duplicate id
         self.put(
-            '/regions/%s' % region_id,
+            f'/regions/{region_id}',
             body={'region': ref},
             expected_status=http.client.CONFLICT,
         )
@@ -163,7 +163,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
 
         # but instead of using that ID, make up a new, conflicting one
         self.put(
-            '/regions/%s' % uuid.uuid4().hex,
+            f'/regions/{uuid.uuid4().hex}',
             body={'region': ref},
             expected_status=http.client.BAD_REQUEST,
         )
@@ -187,7 +187,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         new_region = self._create_region_with_parent_id(parent_id)
         new_region = self._create_region_with_parent_id(parent_id)
 
-        r = self.get('/regions?parent_region_id=%s' % parent_id)
+        r = self.get(f'/regions?parent_region_id={parent_id}')
 
         for region in r.result['regions']:
             self.assertEqual(parent_id, region['parent_region_id'])
@@ -203,10 +203,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         """Call ``PATCH /regions/{region_id}``."""
         region = unit.new_region_ref()
         del region['id']
-        r = self.patch(
-            f'/regions/{self.region_id}',
-            body={'region': region},
-        )
+        r = self.patch(f'/regions/{self.region_id}', body={'region': region})
         self.assertValidRegionResponse(r, region)
 
     def test_update_region_without_description_keeps_original(self):
@@ -217,10 +214,11 @@ class CatalogTestCase(test_v3.RestfulTestCase):
 
         region_updates = {
             # update with something that's not the description
-            'parent_region_id': self.region_id,
+            'parent_region_id': self.region_id
         }
         resp = self.patch(
-            '/regions/%s' % region_ref['id'], body={'region': region_updates}
+            '/regions/{}'.format(region_ref['id']),
+            body={'region': region_updates},
         )
 
         # NOTE(dstanek): Keystone should keep the original description.
@@ -232,10 +230,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         """Call ``PATCH /regions/{region_id}``."""
         region = unit.new_region_ref(description=None)
         del region['id']
-        r = self.patch(
-            f'/regions/{self.region_id}',
-            body={'region': region},
-        )
+        r = self.patch(f'/regions/{self.region_id}', body={'region': region})
 
         # NOTE(dstanek): Keystone should turn the provided None value into
         # an empty string before storing in the backend.
@@ -371,9 +366,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
 
     def test_get_head_service(self):
         """Call ``GET & HEAD /services/{service_id}``."""
-        resource_url = '/services/{service_id}'.format(
-            service_id=self.service_id
-        )
+        resource_url = f'/services/{self.service_id}'
         r = self.get(resource_url)
         self.assertValidServiceResponse(r, self.service)
         self.head(resource_url, expected_status=http.client.OK)
@@ -383,8 +376,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         service = unit.new_service_ref()
         del service['id']
         r = self.patch(
-            f'/services/{self.service_id}',
-            body={'service': service},
+            f'/services/{self.service_id}', body={'service': service}
         )
         self.assertValidServiceResponse(r, service)
 
@@ -419,7 +411,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         """Call ``GET /endpoints?interface={interface}``."""
         ref = self._create_random_endpoint(interface='internal')
 
-        response = self.get('/endpoints?interface=%s' % ref['interface'])
+        response = self.get('/endpoints?interface={}'.format(ref['interface']))
         self.assertValidEndpointListResponse(response, ref=ref)
 
         for endpoint in response.json['endpoints']:
@@ -429,7 +421,9 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         """Call ``GET /endpoints?service_id={service_id}``."""
         ref = self._create_random_endpoint()
 
-        response = self.get('/endpoints?service_id=%s' % ref['service_id'])
+        response = self.get(
+            '/endpoints?service_id={}'.format(ref['service_id'])
+        )
         self.assertValidEndpointListResponse(response, ref=ref)
 
         for endpoint in response.json['endpoints']:
@@ -439,7 +433,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         """Call ``GET /endpoints?region_id={region_id}``."""
         ref = self._create_random_endpoint()
 
-        response = self.get('/endpoints?region_id=%s' % ref['region_id'])
+        response = self.get('/endpoints?region_id={}'.format(ref['region_id']))
         self.assertValidEndpointListResponse(response, ref=ref)
 
         for endpoint in response.json['endpoints']:
@@ -456,7 +450,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         parent_region_id = parent_region.result['region']['id']
         self._create_random_endpoint(parent_region_id=parent_region_id)
 
-        response = self.get('/endpoints?region_id=%s' % parent_region_id)
+        response = self.get(f'/endpoints?region_id={parent_region_id}')
         self.assertEqual(0, len(response.json['endpoints']))
 
     def test_list_endpoints_with_multiple_filters(self):
@@ -469,8 +463,9 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         # interface and region_id specified
         ref = self._create_random_endpoint(interface='internal')
         response = self.get(
-            '/endpoints?interface=%s&region_id=%s'
-            % (ref['interface'], ref['region_id'])
+            '/endpoints?interface={}&region_id={}'.format(
+                ref['interface'], ref['region_id']
+            )
         )
         self.assertValidEndpointListResponse(response, ref=ref)
 
@@ -481,8 +476,9 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         # interface and service_id specified
         ref = self._create_random_endpoint(interface='internal')
         response = self.get(
-            '/endpoints?interface=%s&service_id=%s'
-            % (ref['interface'], ref['service_id'])
+            '/endpoints?interface={}&service_id={}'.format(
+                ref['interface'], ref['service_id']
+            )
         )
         self.assertValidEndpointListResponse(response, ref=ref)
 
@@ -493,8 +489,9 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         # region_id and service_id specified
         ref = self._create_random_endpoint(interface='internal')
         response = self.get(
-            '/endpoints?region_id=%s&service_id=%s'
-            % (ref['region_id'], ref['service_id'])
+            '/endpoints?region_id={}&service_id={}'.format(
+                ref['region_id'], ref['service_id']
+            )
         )
         self.assertValidEndpointListResponse(response, ref=ref)
 
@@ -505,8 +502,9 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         # interface, region_id and service_id specified
         ref = self._create_random_endpoint(interface='internal')
         response = self.get(
-            ('/endpoints?interface=%s&region_id=%s&service_id=%s')
-            % (ref['interface'], ref['region_id'], ref['service_id'])
+            ('/endpoints?interface={}&region_id={}&service_id={}').format(
+                ref['interface'], ref['region_id'], ref['service_id']
+            )
         )
         self.assertValidEndpointListResponse(response, ref=ref)
 
@@ -524,13 +522,13 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         """
         self._create_random_endpoint(interface='internal')
 
-        response = self.get('/endpoints?interface=%s' % uuid.uuid4().hex)
+        response = self.get(f'/endpoints?interface={uuid.uuid4().hex}')
         self.assertEqual(0, len(response.json['endpoints']))
 
-        response = self.get('/endpoints?region_id=%s' % uuid.uuid4().hex)
+        response = self.get(f'/endpoints?region_id={uuid.uuid4().hex}')
         self.assertEqual(0, len(response.json['endpoints']))
 
-        response = self.get('/endpoints?service_id=%s' % uuid.uuid4().hex)
+        response = self.get(f'/endpoints?service_id={uuid.uuid4().hex}')
         self.assertEqual(0, len(response.json['endpoints']))
 
     def test_create_endpoint_no_enabled(self):
@@ -646,9 +644,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
 
     def test_get_head_endpoint(self):
         """Call ``GET & HEAD /endpoints/{endpoint_id}``."""
-        resource_url = '/endpoints/{endpoint_id}'.format(
-            endpoint_id=self.endpoint_id
-        )
+        resource_url = f'/endpoints/{self.endpoint_id}'
         r = self.get(resource_url)
         self.assertValidEndpointResponse(r, self.endpoint)
         self.head(resource_url, expected_status=http.client.OK)
@@ -662,8 +658,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         )
         del ref['id']
         r = self.patch(
-            f'/endpoints/{self.endpoint_id}',
-            body={'endpoint': ref},
+            f'/endpoints/{self.endpoint_id}', body={'endpoint': ref}
         )
         ref['enabled'] = True
         self.assertValidEndpointResponse(r, ref)
@@ -732,11 +727,12 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         PROVIDERS.catalog_api.create_endpoint(ref['id'], ref)
 
         # delete the endpoint
-        self.delete('/endpoints/%s' % ref['id'])
+        self.delete('/endpoints/{}'.format(ref['id']))
 
         # make sure it's deleted (GET should return Not Found)
         self.get(
-            '/endpoints/%s' % ref['id'], expected_status=http.client.NOT_FOUND
+            '/endpoints/{}'.format(ref['id']),
+            expected_status=http.client.NOT_FOUND,
         )
 
     def test_endpoint_create_with_valid_url(self):
@@ -790,9 +786,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
 
 
 class TestMultiRegion(test_v3.RestfulTestCase):
-
     def test_catalog_with_multi_region_reports_all_endpoints(self):
-
         # Create two separate regions
         first_region = self.post(
             '/regions', body={'region': unit.new_region_ref()}

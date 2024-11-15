@@ -361,7 +361,6 @@ class UtilsTestCase(unit.BaseTestCase):
 
 
 class ServiceHelperTests(unit.BaseTestCase):
-
     @application.fail_gracefully
     def _do_test(self):
         raise Exception("Test Exc")
@@ -371,7 +370,6 @@ class ServiceHelperTests(unit.BaseTestCase):
 
 
 class FernetUtilsTestCase(unit.BaseTestCase):
-
     def setUp(self):
         super().setUp()
         self.config_fixture = self.useFixture(config_fixture.Config(CONF))

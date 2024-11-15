@@ -29,7 +29,6 @@ PROVIDERS = provider_api.ProviderAPIs
 
 
 class IdentityTests:
-
     def _get_domain_fixture(self):
         domain = unit.new_domain_ref()
         PROVIDERS.resource_api.create_domain(domain['id'], domain)
@@ -471,7 +470,7 @@ class IdentityTests:
         self.assertEqual(len(default_fixtures.USERS), len(users))
         user_ids = {user['id'] for user in users}
         expected_user_ids = {
-            getattr(self, 'user_%s' % user['name'])['id']
+            getattr(self, 'user_{}'.format(user['name']))['id']
             for user in default_fixtures.USERS
         }
         for user_ref in users:
@@ -1139,9 +1138,7 @@ class IdentityTests:
         # The test is designed for multiple domains only
         def create_domains(domain_count, domain_name_prefix):
             for _ in range(domain_count):
-                domain_name = '{}-{}'.format(
-                    domain_name_prefix, uuid.uuid4().hex
-                )
+                domain_name = f'{domain_name_prefix}-{uuid.uuid4().hex}'
                 domain = unit.new_domain_ref(name=domain_name)
                 self.domain_list[domain_name] = (
                     PROVIDERS.resource_api.create_domain(domain['id'], domain)

@@ -25,7 +25,6 @@ PROVIDERS = provider_api.ProviderAPIs
 
 
 class RoleTests:
-
     def test_get_role_returns_not_found(self):
         self.assertRaises(
             exception.RoleNotFound,

@@ -89,7 +89,9 @@ def _load_sqlalchemy_models():
             # The root will be prefixed with an instance of os.sep, which will
             # make the root after replacement '.<root>', the 'keystone' part
             # of the module path is always added to the front
-            module_root = 'keystone.%s' % root.replace(os.sep, '.').lstrip('.')
+            module_root = 'keystone.{}'.format(
+                root.replace(os.sep, '.').lstrip('.')
+            )
             module_components = module_root.split('.')
             module_without_backends = ''
             for x in range(0, len(module_components) - 1):

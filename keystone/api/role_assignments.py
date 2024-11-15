@@ -315,16 +315,16 @@ class RoleAssignmentsResource(ks_flask.ResourceBase):
 
             if 'domain_id' in entity.get('indirect', {}):
                 inherited_assignment = True
-                formatted_link = (
-                    '/domains/%s' % entity['indirect']['domain_id']
+                formatted_link = '/domains/{}'.format(
+                    entity['indirect']['domain_id']
                 )
             elif 'project_id' in entity.get('indirect', {}):
                 inherited_assignment = True
-                formatted_link = (
-                    '/projects/%s' % entity['indirect']['project_id']
+                formatted_link = '/projects/{}'.format(
+                    entity['indirect']['project_id']
                 )
             else:
-                formatted_link = '/projects/%s' % entity['project_id']
+                formatted_link = '/projects/{}'.format(entity['project_id'])
         elif 'domain_id' in entity:
             if 'domain_name' in entity:
                 formatted_entity['scope'] = {
@@ -337,7 +337,7 @@ class RoleAssignmentsResource(ks_flask.ResourceBase):
                 formatted_entity['scope'] = {
                     'domain': {'id': entity['domain_id']}
                 }
-            formatted_link = '/domains/%s' % entity['domain_id']
+            formatted_link = '/domains/{}'.format(entity['domain_id'])
         elif 'system' in entity:
             formatted_link = '/system'
             formatted_entity['scope'] = {'system': entity['system']}
@@ -356,13 +356,16 @@ class RoleAssignmentsResource(ks_flask.ResourceBase):
                 formatted_entity['user'] = {'id': entity['user_id']}
             if 'group_id' in entity.get('indirect', {}):
                 membership_url = ks_flask.base_url(
-                    path='/groups/%s/users/%s'
-                    % (entity['indirect']['group_id'], entity['user_id'])
+                    path='/groups/{}/users/{}'.format(
+                        entity['indirect']['group_id'], entity['user_id']
+                    )
                 )
                 formatted_entity['links']['membership'] = membership_url
-                formatted_link += '/groups/%s' % entity['indirect']['group_id']
+                formatted_link += '/groups/{}'.format(
+                    entity['indirect']['group_id']
+                )
             else:
-                formatted_link += '/users/%s' % entity['user_id']
+                formatted_link += '/users/{}'.format(entity['user_id'])
         elif 'group_id' in entity:
             if 'group_name' in entity:
                 formatted_entity['group'] = {
@@ -375,7 +378,7 @@ class RoleAssignmentsResource(ks_flask.ResourceBase):
                 }
             else:
                 formatted_entity['group'] = {'id': entity['group_id']}
-            formatted_link += '/groups/%s' % entity['group_id']
+            formatted_link += '/groups/{}'.format(entity['group_id'])
 
         if 'role_name' in entity:
             formatted_entity['role'] = {
@@ -395,18 +398,17 @@ class RoleAssignmentsResource(ks_flask.ResourceBase):
             formatted_entity['role'] = {'id': entity['role_id']}
         prior_role_link = ''
         if 'role_id' in entity.get('indirect', {}):
-            formatted_link += '/roles/%s' % entity['indirect']['role_id']
+            formatted_link += '/roles/{}'.format(entity['indirect']['role_id'])
             prior_role_link = '/prior_role/{prior}/implies/{implied}'.format(
-                prior=entity['role_id'],
-                implied=entity['indirect']['role_id'],
+                prior=entity['role_id'], implied=entity['indirect']['role_id']
             )
         else:
-            formatted_link += '/roles/%s' % entity['role_id']
+            formatted_link += '/roles/{}'.format(entity['role_id'])
 
         if inherited_assignment:
             formatted_entity['scope']['OS-INHERIT:inherited_to'] = 'projects'
             formatted_link = (
-                '/OS-INHERIT%s/inherited_to_projects' % formatted_link
+                f'/OS-INHERIT{formatted_link}/inherited_to_projects'
             )
 
         formatted_entity['links']['assignment'] = ks_flask.base_url(

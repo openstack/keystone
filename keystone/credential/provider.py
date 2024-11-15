@@ -17,7 +17,6 @@ CONF = keystone.conf.CONF
 
 
 class Manager(manager.Manager):
-
     driver_namespace = 'keystone.credential.provider'
     _provides_api = 'credential_provider_api'
 

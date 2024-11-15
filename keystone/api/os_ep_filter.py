@@ -235,12 +235,11 @@ class EPFilterGroupsProjectsResource(ks_flask.ResourceBase):
     @classmethod
     def _add_self_referential_link(cls, ref, collection_name=None):
         url = (
-            '/OS-EP-FILTER/endpoint_groups/%(endpoint_group_id)s'
-            '/projects/%(project_id)s'
-            % {
-                'endpoint_group_id': ref['endpoint_group_id'],
-                'project_id': ref['project_id'],
-            }
+            '/OS-EP-FILTER/endpoint_groups/{endpoint_group_id}'
+            '/projects/{project_id}'.format(
+                endpoint_group_id=ref['endpoint_group_id'],
+                project_id=ref['project_id'],
+            )
         )
         ref.setdefault('links', {})
         ref['links']['self'] = url

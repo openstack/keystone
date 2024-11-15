@@ -154,7 +154,6 @@ class PolicyTestCase(unit.TestCase):
 
 
 class PolicyScopeTypesEnforcementTestCase(unit.TestCase):
-
     def setUp(self):
         super().setUp()
         rule = common_policy.RuleDefault(
@@ -189,14 +188,13 @@ class PolicyScopeTypesEnforcementTestCase(unit.TestCase):
 
 
 class PolicyJsonTestCase(unit.TestCase):
-
     def _get_default_policy_rules(self):
         """Return a dictionary of all in-code policies.
 
         All policies have a default value that is maintained in code.
         This method returns a dictionary containing all default policies.
         """
-        rules = dict()
+        rules = {}
         for rule in policies.list_rules():
             rules[rule.name] = rule.check_str
         return rules
@@ -279,7 +277,6 @@ class PolicyJsonTestCase(unit.TestCase):
 
 
 class GeneratePolicyFileTestCase(unit.TestCase):
-
     def test_policy_generator_from_command_line(self):
         # This test ensures keystone.common.policy:get_enforcer ignores
         # unexpected arguments before handing them off to oslo.config, which

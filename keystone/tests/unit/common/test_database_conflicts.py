@@ -40,7 +40,7 @@ class DuplicateTestCase(test_v3.RestfulTestCase):
         try:
             PROVIDERS.resource_api.create_domain(domain['id'], domain)
         except exception.Conflict as e:
-            self.assertIn("%s" % domain['name'], repr(e))
+            self.assertIn("{}".format(domain['name']), repr(e))
         else:
             self.fail("Creating duplicate domain did not raise a conflict")
 
@@ -51,7 +51,7 @@ class DuplicateTestCase(test_v3.RestfulTestCase):
         try:
             PROVIDERS.resource_api.create_project(project['id'], project)
         except exception.Conflict as e:
-            self.assertIn("%s" % project['name'], repr(e))
+            self.assertIn("{}".format(project['name']), repr(e))
         else:
             self.fail("Creating duplicate project did not raise a conflict")
 
@@ -63,7 +63,8 @@ class DuplicateTestCase(test_v3.RestfulTestCase):
             PROVIDERS.identity_api.create_user(user)
         except exception.Conflict as e:
             self.assertIn(
-                "Duplicate entry found with name %s" % user['name'], repr(e)
+                "Duplicate entry found with name {}".format(user['name']),
+                repr(e),
             )
         else:
             self.fail("Create duplicate user did not raise a conflict")
@@ -76,7 +77,8 @@ class DuplicateTestCase(test_v3.RestfulTestCase):
             PROVIDERS.role_api.create_role(role['id'], role)
         except exception.Conflict as e:
             self.assertIn(
-                "Duplicate entry found with name %s" % role['name'], repr(e)
+                "Duplicate entry found with name {}".format(role['name']),
+                repr(e),
             )
         else:
             self.fail("Create duplicate role did not raise a conflict")
@@ -88,7 +90,8 @@ class DuplicateTestCase(test_v3.RestfulTestCase):
             PROVIDERS.identity_api.create_group(group)
         except exception.Conflict as e:
             self.assertIn(
-                "Duplicate entry found with name %s" % group['name'], repr(e)
+                "Duplicate entry found with name {}".format(group['name']),
+                repr(e),
             )
         else:
             self.fail("Create duplicate group did not raise a conflict")
@@ -100,7 +103,9 @@ class DuplicateTestCase(test_v3.RestfulTestCase):
             PROVIDERS.policy_api.create_policy(policy_ref['id'], policy_ref)
         except exception.Conflict as e:
             self.assertIn(
-                "Duplicate entry found with name %s" % policy_ref['name'],
+                "Duplicate entry found with name {}".format(
+                    policy_ref['name']
+                ),
                 repr(e),
             )
         else:
@@ -118,7 +123,8 @@ class DuplicateTestCase(test_v3.RestfulTestCase):
             )
         except exception.Conflict as e:
             self.assertIn(
-                "Duplicate entry found with ID %s" % credential['id'], repr(e)
+                "Duplicate entry found with ID {}".format(credential['id']),
+                repr(e),
             )
         else:
             self.fail("Create duplicate credential did not raise a conflict")
@@ -140,7 +146,8 @@ class DuplicateTestCase(test_v3.RestfulTestCase):
             )
         except exception.Conflict as e:
             self.assertIn(
-                "Duplicate entry found with ID %s" % trust_ref['id'], repr(e)
+                "Duplicate entry found with ID {}".format(trust_ref['id']),
+                repr(e),
             )
         else:
             self.fail("Create duplicate trust did not raise a conflict")
@@ -157,7 +164,7 @@ class DuplicateTestCase(test_v3.RestfulTestCase):
             )
         except exception.Conflict as e:
             self.assertIn(
-                "Duplicate entry found with ID %s" % self.mapping['id'],
+                "Duplicate entry found with ID {}".format(self.mapping['id']),
                 repr(e),
             )
         else:
@@ -175,7 +182,7 @@ class DuplicateTestCase(test_v3.RestfulTestCase):
             )
         except exception.Conflict as e:
             self.assertIn(
-                "Duplicate entry found with ID %s" % self.mapping['id'],
+                "Duplicate entry found with ID {}".format(self.mapping['id']),
                 repr(e),
             )
         # Any other exception will cause the test to fail
@@ -186,7 +193,7 @@ class DuplicateTestCase(test_v3.RestfulTestCase):
         try:
             PROVIDERS.catalog_api.create_region(region_ref)
         except exception.Conflict as e:
-            self.assertIn("Duplicate ID, %s" % region_ref['id'], repr(e))
+            self.assertIn("Duplicate ID, {}".format(region_ref['id']), repr(e))
         else:
             self.fail("Create duplicate region did not raise a conflict")
 
@@ -212,7 +219,7 @@ class DuplicateTestCase(test_v3.RestfulTestCase):
             )
         except exception.Conflict as e:
             self.assertIn(
-                "Duplicate entry found with ID %s" % protocol_ret['id'],
+                "Duplicate entry found with ID {}".format(protocol_ret['id']),
                 repr(e),
             )
         else:
@@ -246,7 +253,7 @@ class DuplicateTestCase(test_v3.RestfulTestCase):
             )
         except exception.Conflict as e:
             self.assertIn(
-                "Duplicate entry found with ID %s" % protocol_ret['id'],
+                "Duplicate entry found with ID {}".format(protocol_ret['id']),
                 repr(e),
             )
         # Any other exception will fail the test
@@ -273,7 +280,7 @@ class DuplicateTestCase(test_v3.RestfulTestCase):
             )
         except exception.Conflict as e:
             self.assertIn(
-                "Duplicate entry found with ID %s" % protocol_ret['id'],
+                "Duplicate entry found with ID {}".format(protocol_ret['id']),
                 repr(e),
             )
         # Any other exception will fail the test
@@ -291,7 +298,8 @@ class DuplicateTestCase(test_v3.RestfulTestCase):
             PROVIDERS.federation_api.create_sp('SP1', sp)
         except exception.Conflict as e:
             self.assertIn(
-                "Duplicate entry found with ID %s" % service_ref['id'], repr(e)
+                "Duplicate entry found with ID {}".format(service_ref['id']),
+                repr(e),
             )
         else:
             self.fail("Create duplicate sp did not raise a conflict")

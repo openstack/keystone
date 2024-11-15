@@ -102,15 +102,15 @@ _password_change_properties = {
     'password': {'type': 'string'},
 }
 if getattr(CONF, 'strict_password_check', None):
-    _password_change_properties['password'][
-        'maxLength'
-    ] = CONF.identity.max_password_length
+    _password_change_properties['password']['maxLength'] = (
+        CONF.identity.max_password_length
+    )
 
 if getattr(CONF, 'security_compliance', None):
     if getattr(CONF.security_compliance, 'password_regex', None):
-        _password_change_properties['password'][
-            'pattern'
-        ] = CONF.security_compliance.password_regex
+        _password_change_properties['password']['pattern'] = (
+            CONF.security_compliance.password_regex
+        )
 
 password_change = {
     'type': 'object',

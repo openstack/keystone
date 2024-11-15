@@ -66,7 +66,6 @@ def _convert_v3_to_ec2_credential(credential):
 
 
 def _format_token_entity(entity):
-
     formatted_entity = entity.copy()
     access_token_id = formatted_entity['id']
     user_id = formatted_entity.get('authorizing_user_id', '')
@@ -76,8 +75,7 @@ def _format_token_entity(entity):
         formatted_entity.pop('access_secret')
 
     url = (
-        '/users/%(user_id)s/OS-OAUTH1/access_tokens/%(access_token_id)s'
-        '/roles' % {'user_id': user_id, 'access_token_id': access_token_id}
+        f'/users/{user_id}/OS-OAUTH1/access_tokens/{access_token_id}' '/roles'
     )
 
     formatted_entity.setdefault('links', {})
@@ -418,19 +416,19 @@ class UserOSEC2CredentialsResourceListCreate(_UserOSEC2CredBaseResource):
         PROVIDERS.identity_api.get_user(user_id)
         tenant_id = self.request_body_json.get('tenant_id')
         PROVIDERS.resource_api.get_project(tenant_id)
-        blob = dict(
-            access=uuid.uuid4().hex,
-            secret=uuid.uuid4().hex,
-            trust_id=self.oslo_context.trust_id,
-        )
+        blob = {
+            'access': uuid.uuid4().hex,
+            'secret': uuid.uuid4().hex,
+            'trust_id': self.oslo_context.trust_id,
+        }
         credential_id = utils.hash_access_key(blob['access'])
-        cred_data = dict(
-            user_id=user_id,
-            project_id=tenant_id,
-            blob=jsonutils.dumps(blob),
-            id=credential_id,
-            type=CRED_TYPE_EC2,
-        )
+        cred_data = {
+            'user_id': user_id,
+            'project_id': tenant_id,
+            'blob': jsonutils.dumps(blob),
+            'id': credential_id,
+            'type': CRED_TYPE_EC2,
+        }
         PROVIDERS.credential_api.create_credential(credential_id, cred_data)
         ref = _convert_v3_to_ec2_credential(cred_data)
         return self.wrap_member(ref), http.client.CREATED
@@ -537,10 +535,10 @@ class OAuth1AccessTokenCRUDResource(_OAuth1ResourceBase):
         access_token = PROVIDERS.oauth_api.get_access_token(access_token_id)
         reason = (
             'Invalidating the token cache because an access token for '
-            'consumer %(consumer_id)s has been deleted. Authorization for '
+            'consumer {consumer_id} has been deleted. Authorization for '
             'users with OAuth tokens will be recalculated and enforced '
             'accordingly the next time they authenticate or validate a '
-            'token.' % {'consumer_id': access_token['consumer_id']}
+            'token.'.format(consumer_id=access_token['consumer_id'])
         )
         notifications.invalidate_token_cache_notification(reason)
         PROVIDERS.oauth_api.delete_access_token(
@@ -752,8 +750,7 @@ class UserAppCredGetDeleteResource(ks_flask.ResourceBase):
         """
         target = _update_request_user_id_attribute()
         ENFORCER.enforce_call(
-            action='identity:get_application_credential',
-            target_attr=target,
+            action='identity:get_application_credential', target_attr=target
         )
         ref = PROVIDERS.application_credential_api.get_application_credential(
             application_credential_id
@@ -787,11 +784,7 @@ class UserAccessRuleListResource(ks_flask.ResourceBase):
 
         GET/HEAD /v3/users/{user_id}/access_rules
         """
-        filters = (
-            'service',
-            'path',
-            'method',
-        )
+        filters = ('service', 'path', 'method')
         ENFORCER.enforce_call(
             action='identity:list_access_rules',
             filters=filters,

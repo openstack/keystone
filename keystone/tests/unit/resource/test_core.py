@@ -29,7 +29,6 @@ PROVIDERS = provider_api.ProviderAPIs
 
 
 class TestResourceManagerNoFixtures(unit.SQLDriverOverrides, unit.TestCase):
-
     def setUp(self):
         super().setUp()
         self.useFixture(database.Database())
@@ -69,7 +68,6 @@ class TestResourceManagerNoFixtures(unit.SQLDriverOverrides, unit.TestCase):
 
 
 class DomainConfigDriverTests:
-
     def _domain_config_crud(self, sensitive):
         domain = uuid.uuid4().hex
         group = uuid.uuid4().hex
@@ -262,7 +260,6 @@ class DomainConfigDriverTests:
 
 
 class DomainConfigTests:
-
     def setUp(self):
         self.domain = unit.new_domain_ref()
         PROVIDERS.resource_api.create_domain(self.domain['id'], self.domain)

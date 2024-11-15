@@ -87,10 +87,7 @@ class User(sql.ModelBase, sql.ModelDictMixinWithExtras):
     created_at = sql.Column(sql.DateTime, nullable=True)
     last_active_at = sql.Column(sql.Date, nullable=True)
     # unique constraint needed here to support composite fk constraints
-    __table_args__: ty.Any = (
-        sql.UniqueConstraint('id', 'domain_id'),
-        {},
-    )
+    __table_args__: ty.Any = (sql.UniqueConstraint('id', 'domain_id'), {})
 
     # NOTE(stevemar): we use a hybrid property here because we leverage the
     # expression method, see `@name.expression` and `LocalUser.name` below.
@@ -353,25 +350,16 @@ class Password(sql.ModelBase, sql.ModelDictMixin):
     # in the model are no longer required.
     # created_at default set here to safe guard in case it gets missed
     _created_at = sql.Column(
-        'created_at',
-        sql.DateTime,
-        nullable=False,
-        default=timeutils.utcnow,
+        'created_at', sql.DateTime, nullable=False, default=timeutils.utcnow
     )
     _expires_at = sql.Column('expires_at', sql.DateTime, nullable=True)
     # set the default to 0, a 0 indicates it is unset.
     created_at_int = sql.Column(
-        sql.DateTimeInt(),
-        nullable=False,
-        default=0,
-        server_default='0',
+        sql.DateTimeInt(), nullable=False, default=0, server_default='0'
     )
     expires_at_int = sql.Column(sql.DateTimeInt(), nullable=True)
     self_service = sql.Column(
-        sql.Boolean,
-        default=False,
-        nullable=False,
-        server_default='0',
+        sql.Boolean, default=False, nullable=False, server_default='0'
     )
 
     @hybrid_property

@@ -33,9 +33,10 @@ def extract_receipt(auth_context):
 
         if auth_context['user_id'] != receipt.user_id:
             raise exception.ReceiptNotFound(
-                "AuthContext user_id: %s does not match "
-                "user_id for supplied auth receipt: %s"
-                % (auth_context['user_id'], receipt.user_id),
+                "AuthContext user_id: {} does not match "
+                "user_id for supplied auth receipt: {}".format(
+                    auth_context['user_id'], receipt.user_id
+                ),
                 receipt_id=receipt_id,
             )
     else:

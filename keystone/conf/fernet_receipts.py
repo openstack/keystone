@@ -62,10 +62,7 @@ this value means that additional secondary keys will be kept in the rotation.
 
 
 GROUP_NAME = __name__.split('.')[-1]
-ALL_OPTS = [
-    key_repository,
-    max_active_keys,
-]
+ALL_OPTS = [key_repository, max_active_keys]
 
 
 def register_opts(conf):

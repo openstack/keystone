@@ -40,7 +40,6 @@ PROVIDERS = provider_api.ProviderAPIs
 
 
 class MiddlewareRequestTestBase(unit.TestCase):
-
     MIDDLEWARE_CLASS: ty.Any = None  # override this in subclasses
 
     def _application(self):
@@ -79,7 +78,6 @@ class MiddlewareRequestTestBase(unit.TestCase):
         # response rather than the error that is raised.
 
         class _Failing(self.MIDDLEWARE_CLASS):
-
             _called = False
 
             def fill_context(i_self, *i_args, **i_kwargs):
@@ -112,7 +110,6 @@ class MiddlewareRequestTestBase(unit.TestCase):
 class AuthContextMiddlewareTest(
     test_backend_sql.SqlTests, MiddlewareRequestTestBase
 ):
-
     MIDDLEWARE_CLASS = auth_context.AuthContextMiddleware
 
     def setUp(self):
@@ -742,8 +739,8 @@ class AuthContextMiddlewareTest(
         auth = tokenless_auth.TokenlessAuthHelper(env)
         expected_msg = (
             'Could not determine Identity Provider ID. The '
-            'configuration option %s was not found in the '
-            'request environment.' % CONF.tokenless_auth.issuer_attribute
+            f'configuration option {CONF.tokenless_auth.issuer_attribute} was not found in the '
+            'request environment.'
         )
         # Check the content of the exception message as well
         self.assertRaisesRegex(

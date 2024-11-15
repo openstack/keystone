@@ -101,7 +101,7 @@ MFA_RULES_OPT = resource_options.ResourceOption(
             'items': {
                 # Of Strings, each string must be unique, minimum 1
                 # element
-                'type': 'string',
+                'type': 'string'
             },
             'minItems': 1,
             'uniqueItems': True,

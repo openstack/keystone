@@ -36,10 +36,7 @@
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = [
-    'openstackdocstheme',
-    'reno.sphinxext',
-]
+extensions = ['openstackdocstheme', 'reno.sphinxext']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -202,7 +199,7 @@ latex_documents = [
         'Keystone Release Notes Documentation',
         'Keystone Developers',
         'manual',
-    ),
+    )
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -258,7 +255,7 @@ texinfo_documents = [
         'KeystoneReleaseNotes',
         'Identity, Authentication and Access Management for OpenStack.',
         'Miscellaneous',
-    ),
+    )
 ]
 
 # Documents to append as an appendix to all manuals.

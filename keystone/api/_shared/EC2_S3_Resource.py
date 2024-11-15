@@ -110,15 +110,15 @@ class ResourceBase(ks_flask.ResourceBase):
             loaded = cred['blob']
 
         # Convert to the legacy format
-        cred_data = dict(
-            user_id=cred.get('user_id'),
-            project_id=cred.get('project_id'),
-            access=loaded.get('access'),
-            secret=loaded.get('secret'),
-            trust_id=loaded.get('trust_id'),
-            app_cred_id=loaded.get('app_cred_id'),
-            access_token_id=loaded.get('access_token_id'),
-        )
+        cred_data = {
+            'user_id': cred.get('user_id'),
+            'project_id': cred.get('project_id'),
+            'access': loaded.get('access'),
+            'secret': loaded.get('secret'),
+            'trust_id': loaded.get('trust_id'),
+            'app_cred_id': loaded.get('app_cred_id'),
+            'access_token_id': loaded.get('access_token_id'),
+        }
 
         # validate the signature
         self._check_signature(cred_data, credentials)

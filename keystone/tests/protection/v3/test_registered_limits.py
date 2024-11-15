@@ -42,7 +42,7 @@ class _UserRegisteredLimitTests:
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/registered_limits/%s' % limit_id, headers=self.headers
+                f'/v3/registered_limits/{limit_id}', headers=self.headers
             )
             self.assertEqual(limit_id, r.json['registered_limit']['id'])
 
@@ -100,7 +100,7 @@ class _UserRegisteredLimitTests:
             update = {'registered_limit': {'default_limit': 5}}
 
             c.patch(
-                '/v3/registered_limits/%s' % limit_id,
+                f'/v3/registered_limits/{limit_id}',
                 json=update,
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
@@ -121,7 +121,7 @@ class _UserRegisteredLimitTests:
 
         with self.test_client() as c:
             c.delete(
-                '/v3/registered_limits/%s' % limit_id,
+                f'/v3/registered_limits/{limit_id}',
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
@@ -165,7 +165,6 @@ class SystemMemberTests(
     common_auth.AuthTestMixin,
     _UserRegisteredLimitTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -197,7 +196,6 @@ class SystemMemberTests(
 class SystemAdminTests(
     base_classes.TestCaseWithBootstrap, common_auth.AuthTestMixin
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -235,7 +233,7 @@ class SystemAdminTests(
 
         with self.test_client() as c:
             r = c.get(
-                '/v3/registered_limits/%s' % limit_id, headers=self.headers
+                f'/v3/registered_limits/{limit_id}', headers=self.headers
             )
             self.assertEqual(limit_id, r.json['registered_limit']['id'])
 
@@ -288,7 +286,7 @@ class SystemAdminTests(
             update = {'registered_limit': {'default_limit': 5}}
 
             c.patch(
-                '/v3/registered_limits/%s' % limit_id,
+                f'/v3/registered_limits/{limit_id}',
                 json=update,
                 headers=self.headers,
             )
@@ -307,9 +305,7 @@ class SystemAdminTests(
         limit_id = limits[0]['id']
 
         with self.test_client() as c:
-            c.delete(
-                '/v3/registered_limits/%s' % limit_id, headers=self.headers
-            )
+            c.delete(f'/v3/registered_limits/{limit_id}', headers=self.headers)
 
 
 class DomainUserTests(
@@ -317,7 +313,6 @@ class DomainUserTests(
     common_auth.AuthTestMixin,
     _UserRegisteredLimitTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -355,7 +350,6 @@ class ProjectUserTests(
     common_auth.AuthTestMixin,
     _UserRegisteredLimitTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()
@@ -384,7 +378,6 @@ class ProjectUserTestsWithoutEnforceScope(
     common_auth.AuthTestMixin,
     _UserRegisteredLimitTests,
 ):
-
     def setUp(self):
         super().setUp()
         self.loadapp()

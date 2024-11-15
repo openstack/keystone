@@ -67,7 +67,7 @@ class EndpointResource(ks_flask.ResourceBase):
             try:
                 PROVIDERS.catalog_api.get_region(endpoint['region_id'])
             except exception.RegionNotFound:
-                region = dict(id=endpoint['region_id'])
+                region = {'id': endpoint['region_id']}
                 PROVIDERS.catalog_api.create_region(
                     region, initiator=notifications.build_audit_initiator()
                 )

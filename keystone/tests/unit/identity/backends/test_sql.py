@@ -25,7 +25,6 @@ class TestIdentityDriver(
     test_base.BaseTestCase,
     id_test_base.IdentityDriverTests,
 ):
-
     expected_is_domain_aware = True
     expected_default_assignment_driver = 'sql'
     expected_is_sql = True

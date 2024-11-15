@@ -48,13 +48,7 @@ v3_EXPECTED_RESPONSE = {
 
 v3_VERSION_RESPONSE = {"version": v3_EXPECTED_RESPONSE}
 
-VERSIONS_RESPONSE = {
-    "versions": {
-        "values": [
-            v3_EXPECTED_RESPONSE,
-        ]
-    }
-}
+VERSIONS_RESPONSE = {"versions": {"values": [v3_EXPECTED_RESPONSE]}}
 
 _build_ec2tokens_relation = functools.partial(
     json_home.build_v3_extension_resource_relation,
@@ -232,9 +226,7 @@ V3_JSON_HOME_RESOURCES = {
     },
     json_home.build_v3_resource_relation('domain'): {
         'href-template': '/domains/{domain_id}',
-        'href-vars': {
-            'domain_id': json_home.Parameters.DOMAIN_ID,
-        },
+        'href-vars': {'domain_id': json_home.Parameters.DOMAIN_ID},
     },
     json_home.build_v3_resource_relation('domain_group_role'): {
         'href-template': '/domains/{domain_id}/groups/{group_id}/roles/{role_id}',
@@ -270,9 +262,7 @@ V3_JSON_HOME_RESOURCES = {
     json_home.build_v3_resource_relation('endpoint'): {
         'href-template': '/endpoints/{endpoint_id}',
         'href-vars': {
-            'endpoint_id': json_home.build_v3_parameter_relation(
-                'endpoint_id'
-            ),
+            'endpoint_id': json_home.build_v3_parameter_relation('endpoint_id')
         },
     },
     json_home.build_v3_resource_relation('endpoints'): {'href': '/endpoints'},
@@ -290,9 +280,7 @@ V3_JSON_HOME_RESOURCES = {
     },
     _build_ec2tokens_relation(resource_name='user_credentials'): {
         'href-template': '/users/{user_id}/credentials/OS-EC2',
-        'href-vars': {
-            'user_id': json_home.Parameters.USER_ID,
-        },
+        'href-vars': {'user_id': json_home.Parameters.USER_ID},
     },
     REVOCATIONS_RELATION: {'href': '/auth/tokens/OS-PKI/revoked'},
     'https://docs.openstack.org/api/openstack-identity/3/ext/OS-REVOKE/1.0/rel'
@@ -305,9 +293,7 @@ V3_JSON_HOME_RESOURCES = {
     },
     _build_trust_relation(resource_name='trust'): {
         'href-template': '/OS-TRUST/trusts/{trust_id}',
-        'href-vars': {
-            'trust_id': TRUST_ID_PARAMETER_RELATION,
-        },
+        'href-vars': {'trust_id': TRUST_ID_PARAMETER_RELATION},
     },
     _build_trust_relation(resource_name='trust_role'): {
         'href-template': '/OS-TRUST/trusts/{trust_id}/roles/{role_id}',
@@ -318,9 +304,7 @@ V3_JSON_HOME_RESOURCES = {
     },
     _build_trust_relation(resource_name='trust_roles'): {
         'href-template': '/OS-TRUST/trusts/{trust_id}/roles',
-        'href-vars': {
-            'trust_id': TRUST_ID_PARAMETER_RELATION,
-        },
+        'href-vars': {'trust_id': TRUST_ID_PARAMETER_RELATION},
     },
     _build_trust_relation(resource_name='trusts'): {
         'href': '/OS-TRUST/trusts'
@@ -329,9 +313,7 @@ V3_JSON_HOME_RESOURCES = {
     's3tokens': {'href': '/s3tokens'},
     json_home.build_v3_resource_relation('group'): {
         'href-template': '/groups/{group_id}',
-        'href-vars': {
-            'group_id': json_home.Parameters.GROUP_ID,
-        },
+        'href-vars': {'group_id': json_home.Parameters.GROUP_ID},
     },
     json_home.build_v3_resource_relation('group_user'): {
         'href-template': '/groups/{group_id}/users/{user_id}',
@@ -342,23 +324,19 @@ V3_JSON_HOME_RESOURCES = {
     },
     json_home.build_v3_resource_relation('group_users'): {
         'href-template': '/groups/{group_id}/users',
-        'href-vars': {
-            'group_id': json_home.Parameters.GROUP_ID,
-        },
+        'href-vars': {'group_id': json_home.Parameters.GROUP_ID},
     },
     json_home.build_v3_resource_relation('groups'): {'href': '/groups'},
     json_home.build_v3_resource_relation('policies'): {'href': '/policies'},
     json_home.build_v3_resource_relation('policy'): {
         'href-template': '/policies/{policy_id}',
         'href-vars': {
-            'policy_id': json_home.build_v3_parameter_relation('policy_id'),
+            'policy_id': json_home.build_v3_parameter_relation('policy_id')
         },
     },
     json_home.build_v3_resource_relation('project'): {
         'href-template': '/projects/{project_id}',
-        'href-vars': {
-            'project_id': json_home.Parameters.PROJECT_ID,
-        },
+        'href-vars': {'project_id': json_home.Parameters.PROJECT_ID},
     },
     json_home.build_v3_resource_relation('project_group_role'): {
         'href-template': '/projects/{project_id}/groups/{group_id}/roles/{role_id}',
@@ -401,15 +379,13 @@ V3_JSON_HOME_RESOURCES = {
     json_home.build_v3_resource_relation('region'): {
         'href-template': '/regions/{region_id}',
         'href-vars': {
-            'region_id': json_home.build_v3_parameter_relation('region_id'),
+            'region_id': json_home.build_v3_parameter_relation('region_id')
         },
     },
     json_home.build_v3_resource_relation('regions'): {'href': '/regions'},
     json_home.build_v3_resource_relation('role'): {
         'href-template': '/roles/{role_id}',
-        'href-vars': {
-            'role_id': json_home.Parameters.ROLE_ID,
-        },
+        'href-vars': {'role_id': json_home.Parameters.ROLE_ID},
     },
     json_home.build_v3_resource_relation('implied_roles'): {
         'href-template': '/roles/{prior_role_id}/implies',
@@ -423,7 +399,7 @@ V3_JSON_HOME_RESOURCES = {
         },
     },
     json_home.build_v3_resource_relation('role_inferences'): {
-        'href': '/role_inferences',
+        'href': '/role_inferences'
     },
     json_home.build_v3_resource_relation('role_assignments'): {
         'href': '/role_assignments'
@@ -438,27 +414,19 @@ V3_JSON_HOME_RESOURCES = {
     json_home.build_v3_resource_relation('services'): {'href': '/services'},
     json_home.build_v3_resource_relation('user'): {
         'href-template': '/users/{user_id}',
-        'href-vars': {
-            'user_id': json_home.Parameters.USER_ID,
-        },
+        'href-vars': {'user_id': json_home.Parameters.USER_ID},
     },
     json_home.build_v3_resource_relation('user_change_password'): {
         'href-template': '/users/{user_id}/password',
-        'href-vars': {
-            'user_id': json_home.Parameters.USER_ID,
-        },
+        'href-vars': {'user_id': json_home.Parameters.USER_ID},
     },
     json_home.build_v3_resource_relation('user_groups'): {
         'href-template': '/users/{user_id}/groups',
-        'href-vars': {
-            'user_id': json_home.Parameters.USER_ID,
-        },
+        'href-vars': {'user_id': json_home.Parameters.USER_ID},
     },
     json_home.build_v3_resource_relation('user_projects'): {
         'href-template': '/users/{user_id}/projects',
-        'href-vars': {
-            'user_id': json_home.Parameters.USER_ID,
-        },
+        'href-vars': {'user_id': json_home.Parameters.USER_ID},
     },
     json_home.build_v3_resource_relation('users'): {'href': '/users'},
     json_home.build_v3_extension_resource_relation(
@@ -467,9 +435,7 @@ V3_JSON_HOME_RESOURCES = {
     _build_federation_rel(resource_name='domains'): {'href': '/auth/domains'},
     _build_federation_rel(resource_name='websso'): {
         'href-template': '/auth/OS-FEDERATION/websso/{protocol_id}',
-        'href-vars': {
-            'protocol_id': PROTOCOL_ID_PARAM_RELATION,
-        },
+        'href-vars': {'protocol_id': PROTOCOL_ID_PARAM_RELATION},
     },
     _build_federation_rel(resource_name='projects'): {
         'href': '/auth/projects'
@@ -494,9 +460,7 @@ V3_JSON_HOME_RESOURCES = {
     },
     _build_federation_rel(resource_name='identity_provider'): {
         'href-template': '/OS-FEDERATION/identity_providers/{idp_id}',
-        'href-vars': {
-            'idp_id': IDP_ID_PARAMETER_RELATION,
-        },
+        'href-vars': {'idp_id': IDP_ID_PARAMETER_RELATION},
     },
     _build_federation_rel(resource_name='identity_providers_websso'): {
         'href-template': FEDERATED_IDP_SPECIFIC_WEBSSO,
@@ -507,15 +471,11 @@ V3_JSON_HOME_RESOURCES = {
     },
     _build_federation_rel(resource_name='service_provider'): {
         'href-template': '/OS-FEDERATION/service_providers/{sp_id}',
-        'href-vars': {
-            'sp_id': SP_ID_PARAMETER_RELATION,
-        },
+        'href-vars': {'sp_id': SP_ID_PARAMETER_RELATION},
     },
     _build_federation_rel(resource_name='mapping'): {
         'href-template': '/OS-FEDERATION/mappings/{mapping_id}',
-        'href-vars': {
-            'mapping_id': MAPPING_ID_PARAM_RELATION,
-        },
+        'href-vars': {'mapping_id': MAPPING_ID_PARAM_RELATION},
     },
     _build_federation_rel(resource_name='identity_provider_protocol'): {
         'href-template': BASE_IDP_PROTOCOL + '/{protocol_id}',
@@ -546,15 +506,11 @@ V3_JSON_HOME_RESOURCES = {
     },
     _build_oauth1_rel(resource_name='authorize_request_token'): {
         'href-template': '/OS-OAUTH1/authorize/{request_token_id}',
-        'href-vars': {
-            'request_token_id': REQUEST_TOKEN_ID_PARAMETER_RELATION,
-        },
+        'href-vars': {'request_token_id': REQUEST_TOKEN_ID_PARAMETER_RELATION},
     },
     _build_oauth1_rel(resource_name='consumer'): {
         'href-template': '/OS-OAUTH1/consumers/{consumer_id}',
-        'href-vars': {
-            'consumer_id': CONSUMER_ID_PARAMETER_RELATION,
-        },
+        'href-vars': {'consumer_id': CONSUMER_ID_PARAMETER_RELATION},
     },
     _build_oauth1_rel(resource_name='user_access_token'): {
         'href-template': BASE_ACCESS_TOKEN,
@@ -565,9 +521,7 @@ V3_JSON_HOME_RESOURCES = {
     },
     _build_oauth1_rel(resource_name='user_access_tokens'): {
         'href-template': '/users/{user_id}/OS-OAUTH1/access_tokens',
-        'href-vars': {
-            'user_id': json_home.Parameters.USER_ID,
-        },
+        'href-vars': {'user_id': json_home.Parameters.USER_ID},
     },
     _build_oauth1_rel(resource_name='user_access_token_role'): {
         'href-template': BASE_ACCESS_TOKEN + '/roles/{role_id}',
@@ -586,9 +540,7 @@ V3_JSON_HOME_RESOURCES = {
     },
     _build_ep_policy_rel(resource_name='endpoint_policy'): {
         'href-template': '/endpoints/{endpoint_id}/OS-ENDPOINT-POLICY/policy',
-        'href-vars': {
-            'endpoint_id': json_home.Parameters.ENDPOINT_ID,
-        },
+        'href-vars': {'endpoint_id': json_home.Parameters.ENDPOINT_ID},
     },
     _build_ep_policy_rel(resource_name='endpoint_policy_association'): {
         'href-template': BASE_EP_POLICY + '/endpoints/{endpoint_id}',
@@ -599,9 +551,7 @@ V3_JSON_HOME_RESOURCES = {
     },
     _build_ep_policy_rel(resource_name='policy_endpoints'): {
         'href-template': BASE_EP_POLICY + '/endpoints',
-        'href-vars': {
-            'policy_id': json_home.Parameters.POLICY_ID,
-        },
+        'href-vars': {'policy_id': json_home.Parameters.POLICY_ID},
     },
     _build_ep_policy_rel(
         resource_name='region_and_service_policy_association'
@@ -625,7 +575,7 @@ V3_JSON_HOME_RESOURCES = {
     _build_ep_filter_rel(resource_name='endpoint_group'): {
         'href-template': '/OS-EP-FILTER/endpoint_groups/{endpoint_group_id}',
         'href-vars': {
-            'endpoint_group_id': ENDPOINT_GROUP_ID_PARAMETER_RELATION,
+            'endpoint_group_id': ENDPOINT_GROUP_ID_PARAMETER_RELATION
         },
     },
     _build_ep_filter_rel(
@@ -642,14 +592,12 @@ V3_JSON_HOME_RESOURCES = {
     },
     _build_ep_filter_rel(resource_name='endpoint_projects'): {
         'href-template': '/OS-EP-FILTER/endpoints/{endpoint_id}/projects',
-        'href-vars': {
-            'endpoint_id': json_home.Parameters.ENDPOINT_ID,
-        },
+        'href-vars': {'endpoint_id': json_home.Parameters.ENDPOINT_ID},
     },
     _build_ep_filter_rel(resource_name='endpoints_in_endpoint_group'): {
         'href-template': BASE_EP_FILTER + '/endpoints',
         'href-vars': {
-            'endpoint_group_id': ENDPOINT_GROUP_ID_PARAMETER_RELATION,
+            'endpoint_group_id': ENDPOINT_GROUP_ID_PARAMETER_RELATION
         },
     },
     _build_ep_filter_rel(resource_name='project_endpoint_groups'): {
@@ -658,9 +606,7 @@ V3_JSON_HOME_RESOURCES = {
             + '/projects/{project_id}'
             + '/endpoint_groups'
         ),
-        'href-vars': {
-            'project_id': json_home.Parameters.PROJECT_ID,
-        },
+        'href-vars': {'project_id': json_home.Parameters.PROJECT_ID},
     },
     _build_ep_filter_rel(resource_name='project_endpoint'): {
         'href-template': (
@@ -673,16 +619,14 @@ V3_JSON_HOME_RESOURCES = {
     },
     _build_ep_filter_rel(resource_name='project_endpoints'): {
         'href-template': '/OS-EP-FILTER/projects/{project_id}/endpoints',
-        'href-vars': {
-            'project_id': json_home.Parameters.PROJECT_ID,
-        },
+        'href-vars': {'project_id': json_home.Parameters.PROJECT_ID},
     },
     _build_ep_filter_rel(
         resource_name='projects_associated_with_endpoint_group'
     ): {
         'href-template': BASE_EP_FILTER + '/projects',
         'href-vars': {
-            'endpoint_group_id': ENDPOINT_GROUP_ID_PARAMETER_RELATION,
+            'endpoint_group_id': ENDPOINT_GROUP_ID_PARAMETER_RELATION
         },
     },
     _build_os_inherit_rel(
@@ -921,7 +865,7 @@ class VersionTestCase(unit.TestCase):
         for version in expected['versions']['values']:
             if version['id'].startswith('v3'):
                 self._paste_in_port(
-                    version, 'http://localhost:%s/v3/' % self.public_port
+                    version, f'http://localhost:{self.public_port}/v3/'
                 )
         self.assertThat(data, _VersionsEqual(expected))
 
@@ -947,7 +891,7 @@ class VersionTestCase(unit.TestCase):
         data = jsonutils.loads(resp.body)
         expected = v3_VERSION_RESPONSE
         self._paste_in_port(
-            expected['version'], 'http://localhost:%s/v3/' % self.public_port
+            expected['version'], f'http://localhost:{self.public_port}/v3/'
         )
         self.assertEqual(expected, data)
 
@@ -979,7 +923,7 @@ class VersionTestCase(unit.TestCase):
         data = jsonutils.loads(resp.body)
         expected = v3_VERSION_RESPONSE
         self._paste_in_port(
-            expected['version'], 'http://localhost:%s/v3/' % self.public_port
+            expected['version'], f'http://localhost:{self.public_port}/v3/'
         )
         self.assertEqual(expected, data)
 
@@ -987,7 +931,7 @@ class VersionTestCase(unit.TestCase):
         v3_only_response = {"versions": {"values": [v3_EXPECTED_RESPONSE]}}
         self._paste_in_port(
             v3_only_response['versions']['values'][0],
-            'http://localhost:%s/v3/' % self.public_port,
+            f'http://localhost:{self.public_port}/v3/',
         )
         resp = client.get('/')
         self.assertEqual(300, resp.status_int)
@@ -1106,7 +1050,7 @@ class VersionSingleAppTestCase(unit.TestCase):
         self.assertEqual(300, resp.status_int)
         data = jsonutils.loads(resp.body)
         expected = VERSIONS_RESPONSE
-        url_with_port = 'http://localhost:%s/v3/' % self.public_port
+        url_with_port = f'http://localhost:{self.public_port}/v3/'
         for version in expected['versions']['values']:
             # TODO(morgan): Eliminate the need to do the "paste-in-port" part
             # of the tests. Ultimately, this is very hacky and shows we are
