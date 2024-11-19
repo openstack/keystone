@@ -117,20 +117,51 @@ process is key to being able to debug later on.
 Normal keystone
 ---------------
 
-.. seqdiag::
+.. graphviz::
    :name: normal-keystone
    :alt: Diagram of keystone's normal auth flow, in which a user agent
          authenticates and authorizes themself with keystone and obtains a
          scoped token to pass to an OpenStack service.
 
-   seqdiag {
-     default_fontsize = 13;
-     useragent [label = "User Agent"]; keystone [label = "Keystone"]; openstack [label = "OpenStack"];
-     useragent -> keystone [label = "GET /v3/auth/tokens"];
-     keystone -> keystone [label = "Authenticate"];
-     keystone -> keystone [label = "Authorize"];
-     useragent <- keystone [label = "Scoped token"];
-     useragent -> openstack [label = "GET /v2.1/servers"];
+   digraph {
+       nodesep=1
+       node [shape=point]
+
+       // first column
+       useragent_top [label = "User Agent" shape="box"]
+       useragent_bottom [label = "User Agent" shape="box"]
+       // chain rows of the column
+       useragent_top -> u0 [arrowhead="none" style="dashed"]
+       u0 -> u1 -> u2 [arrowhead="none" style="bold"]
+       u2 -> useragent_bottom  [arrowhead="none" style="dashed"]
+
+       // second column
+       keystone_top [label = "Keystone" shape="box"]
+       keystone_bottom [label = "Keystone" shape="box"]
+       keystone_top -> k0 [arrowhead="none" style="dashed"]
+       k0 -> k1 -> k2 -> k3 [arrowhead="none" style="bold"]
+       k3 -> keystone_bottom  [arrowhead="none" style="dashed"]
+
+       openstack_top [label = "OpenStack" shape="box"]
+       openstack_bottom [label = "OpenStack" shape="box"]
+       openstack_top -> o0 -> openstack_bottom  [arrowhead="none" style="dashed"]
+
+       // Order columns
+       useragent_top -> keystone_top -> openstack_top [style="invis"]
+
+       // Event links
+       u0 -> k0 [weight=0 label = "GET /v3/auth/tokens"]
+       k1 -> k1 [weight=0 label = "Authenticate"]
+       k2 -> k2 [weight=0 label = "Authorize"]
+       u1 -> k3 [weight=0 label = "Scoped token" dir="back"]
+       u2 -> o0 [weight=0 xlabel = "GET /v2.1/servers"]
+
+       // bind nodes to levels
+       {rank=same; useragent_top keystone_top openstack_top }
+       {rank=same; u0 k0 }
+       {rank=same; u1 k3 }
+       {rank=same; u2 o0 }
+       {rank=same; useragent_bottom keystone_bottom openstack_bottom }
    }
 
 In a normal keystone flow, the user requests a scoped token directly from
@@ -147,26 +178,61 @@ SAML2.0
 SAML2.0 WebSSO
 ~~~~~~~~~~~~~~
 
-.. seqdiag::
+.. graphviz::
    :name: saml2-websso
    :alt: Diagram of a standard WebSSO authentication flow.
 
-   seqdiag {
-     edge_length = 325;
-     default_fontsize = 13;
-     useragent [label = "User Agent"]; sp [label = "Service Provider"]; idp [label = "Identity Provider"];
-     useragent -> sp [label = "GET /secure"];
-     useragent <- sp [label = "HTTP 302
-                               Location: https://idp/auth?
-                                         SAMLRequest=req"];
-     useragent -> idp [label = "GET /auth?SAMLRequest=req"];
-     idp -> idp [label = "Authenticate"];
-     useragent <- idp [label = "HTTP 200
-                                SAMLResponse in HTML form"];
-     useragent -> sp [label = "POST /assertionconsumerservice"];
-     sp -> sp [label = "Validate"];
-     useragent <- sp [label = "HTTP 302; Location: /secure"];
-     useragent -> sp [label = "GET /secure"];
+   digraph {
+       nodesep=1
+       node [shape=point]
+
+       // first column
+       useragent_top [label = "User Agent" shape="box"]
+       useragent_bottom [label = "User Agent" shape="box"]
+       // chain rows of the column
+       useragent_top -> u0  [arrowhead="none" style="dashed"]
+       u0 -> u1 -> u2 -> u3 -> u4 -> u5 -> u6 [arrowhead="none" style="bold"]
+       u6 -> useragent_bottom  [arrowhead="none" style="dashed"]
+
+       // second column
+       sp_top [label = "Service Provider" shape="box"]
+       sp_bottom [label = "Service Provider" shape="box"]
+       sp_top -> sp0 [arrowhead="none" style="dashed"]
+       sp0 -> sp1 [arrowhead="none" style="bold"]
+       sp1 -> sp2 [arrowhead="none" style="dashed"]
+       sp2 -> sp3 -> sp4 [arrowhead="none" style="bold"]
+       sp4 -> sp5 -> sp_bottom [arrowhead="none" style="dashed"]
+
+       idp_top [label = "Identity Provider" shape="box"]
+       idp_bottom [label = "Identity Provider" shape="box"]
+       idp_top -> idp0 [arrowhead="none" style="dashed"]
+       idp0 -> idp1 -> idp2 [arrowhead="none" style="bold"]
+       idp2 -> idp_bottom  [arrowhead="none" style="dashed"]
+
+       // Order columns
+       useragent_top -> sp_top -> idp_top [style="invis"]
+
+       // Event links
+       u0 -> sp0 [weight=0 xlabel = "GET /secure"]
+       u1 -> sp1 [weight=0 xlabel = "HTTP 302\nLocation: https://idp/auth?SAMLRequest=req" dir=back]
+       u2 -> idp0 [weight=0 xlabel = "GET /auth?SAMLRequest=req"]
+       idp1 -> idp1 [weight=0 xlabel = "Authenticate"]
+       u3 -> idp2 [weight=0 xlabel = "HTTP 200\nSAMLResponse in HTML form" dir=back]
+       u4 -> sp2 [weigth=0 xlabel= "POST /assertionconsumerservice"]
+       sp3 -> sp3 [weight=0 xlabel = "Validate"]
+       u5 -> sp4 [ weight=0 xlabel = "HTTP 302; Location: /secure" dir=back]
+       u6 -> sp5 [weight=0 xlabel = "GET /secure"]
+
+       // bind nodes to levels
+       {rank=same; useragent_top sp_top idp_top }
+       {rank=same; u0 sp0 }
+       {rank=same; u1 sp1 }
+       {rank=same; u2 idp0 }
+       {rank=same; u3 idp2 }
+       {rank=same; u4 sp2 }
+       {rank=same; u5 sp4 }
+       {rank=same; u6 sp5 }
+       {rank=same; useragent_bottom sp_bottom idp_bottom }
    }
 
 This diagram shows a standard `WebSSO`_ authentication flow, not one involving
@@ -194,25 +260,60 @@ redirect back to the original resource the user had requested.
 SAML2.0 ECP
 ~~~~~~~~~~~
 
-.. seqdiag::
+.. graphviz::
    :name: saml2-ecp
    :alt: Diagram of a standard ECP authentication flow.
 
-   seqdiag {
-     default_fontsize = 13;
-     useragent [label = "User Agent"]; sp [label = "Service Provider"]; idp [label = "Identity Provider"];
-     useragent -> sp [label = "GET /secure"];
-     useragent <- sp [label = "HTTP 200
-                               SAML Request"];
-     useragent -> idp [label = "POST /auth
-                                SAML Request"];
-     idp -> idp [label = "Authenticate"];
-     useragent <- idp [label = "HTTP 200
-                                SAMLResponse in SOAP"];
-     useragent -> sp [label = "POST /responseconsumer"];
-     sp -> sp [label = "Validate"];
-     useragent <- sp [label = "HTTP 200 /secure"];
-   }
+    digraph {
+        nodesep=1
+        node [shape=point]
+
+        // first column
+        useragent_top [label = "User Agent" shape="box"]
+        useragent_bottom [label = "User Agent" shape="box"]
+        // chain rows of the column
+        useragent_top -> u0 [arrowhead="none" style="dashed"]
+        u0 -> u1 -> u2 -> u3 -> u4 -> u5 [arrowhead="none" style="bold"]
+        u5 -> useragent_bottom  [arrowhead="none" style="dashed"]
+
+        // second column
+        sp_top [label = "Service Provider" shape="box"]
+        sp_bottom [label = "Service Provider" shape="box"]
+        sp_top -> sp0 [arrowhead="none" style="dashed"]
+        sp0 -> sp1 [arrowhead="none" style="bold"]
+        sp1 -> sp2 [arrowhead="none" style="dashed"]
+        sp2 -> sp3 -> sp4 [arrowhead="none" style="bold"]
+        sp4 -> sp_bottom  [arrowhead="none" style="dashed"]
+
+        idp_top [label = "Identity Provider" shape="box"]
+        idp_bottom [label = "Identity Provider" shape="box"]
+        idp_top -> idp0 [arrowhead="none" style="dashed"]
+        idp0 -> idp1 -> idp2 [arrowhead="none" style="bold"]
+        idp2 -> idp_bottom  [arrowhead="none" style="dashed"]
+
+        // Order columns
+        useragent_top -> sp_top -> idp_top [style="invis"]
+
+        // Event links
+        u0 -> sp0 [weight=0 xlabel = "GET /secure"]
+        u1 -> sp1 [weight=0 xlabel = "HTTP 200\nSAML Request" dir=back]
+        u2 -> idp0 [weight=0 xlabel = "POST /auth\nSAML Request"]
+        idp1 -> idp1 [weight=0 xlabel = "Authenticate"]
+        u3 -> idp2 [weight=0 xlabel = "HTTP 200\nSAMLResponse in SOAP" dir=back]
+        u4 -> sp2 [weigth=0 xlabel= "POST /assertionconsumerservice"]
+        sp3 -> sp3 [weight=0 xlabel = "Validate"]
+        u5 -> sp4 [ weight=0 xlabel = "HTTP 200; Location: /secure" dir=back]
+
+        // bind nodes to levels
+        {rank=same; useragent_top sp_top idp_top }
+        {rank=same; u0 sp0 }
+        {rank=same; u1 sp1 }
+        {rank=same; u2 idp0 }
+        {rank=same; u3 idp2 }
+        {rank=same; u4 sp2 }
+        {rank=same; u5 sp4 }
+        {rank=same; useragent_bottom sp_bottom idp_bottom }
+    }
 
 `ECP`_ is another SAML profile. Generally the flow is similar to the WebSSO
 flow, but it is designed for a client that natively understands SAML, for
@@ -231,36 +332,89 @@ WebSSO with keystone and horizon
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-.. seqdiag::
+.. graphviz::
    :name: saml2-keystone-horizon
    :alt: Diagram of the SAML2.0 WebSSO auth flow specific to horizon, keystone, and the
          HTTPD module acting as service provider.
 
-   seqdiag {
-     default_fontsize = 13;
-     useragent [label = "User Agent"]; horizon [label = "Horizon"]; httpd [label = "HTTPD", color = "lightgrey"]; keystone [label = "Keystone", color = "lightgrey"]; idp [label = "Identity Provider"];
-     useragent -> horizon [label = "POST /auth/login"];
-     useragent <- horizon [label = "HTTP 302
-                                    Location:
-                                    /v3/auth/OS-FEDERATION
-                                    /websso/saml2"];
-     useragent -> httpd [label = "GET /v3/auth/OS-FEDERATION/websso/saml2"];
-     useragent <- httpd [label = "HTTP 302
-                                   Location: https://idp/auth?SAMLRequest=req"];
-     useragent -> idp [label = "GET /auth"];
-     idp -> idp [label = "Authenticate"];
-     useragent <- idp [label = "HTTP 200
-                                SAMLResponse in HTML form"];
-     useragent -> httpd [label = "POST /assertionconsumerservice"];
-     httpd -> httpd [label = "Validate"];
-     useragent <- httpd [label = "HTTP 302
-                                   Location: /v3/auth/OS-FEDERATION/websso/saml2"];
-     useragent -> keystone [label = "GET /v3/auth/OS-FEDERATION/websso/saml2"];
-     keystone -> keystone [label = "Issue token"];
-     useragent <- keystone [label = "HTTP 200
-                                     HTML form containing unscoped token"];
-     useragent -> horizon [label = "POST /auth/websso"];
-     useragent <- horizon [label = "successful login"];
+   digraph {
+       nodesep=1
+       node [shape=point]
+
+       // first column
+       useragent_top [label = "User Agent" shape="box"]
+       useragent_bottom [label = "User Agent" shape="box"]
+       // chain rows of the column
+       useragent_top -> u0 [arrowhead="none" style="dashed"]
+       u0 -> u1 -> u2 -> u3 -> u4 -> u5 -> u6 -> u7 -> u8 -> u9 -> u10 -> u11  [arrowhead="none" style="bold"]
+       u11 -> useragent_bottom  [arrowhead="none" style="bold"]
+
+       // second column
+       h_top [label = "Horizon" shape="box"]
+       h_bottom [label = "Horizon" shape="box"]
+       h_top -> h0 [arrowhead="none" style="dashed"]
+       h0 -> h1 [arrowhead="none" style="bold"]
+       h1 -> h2 [arrowhead="none" style="dashed"]
+       h2 -> h3 [arrowhead="none" style="bold"]
+       h3 -> h_bottom [arrowhead="none" style="dashed"]
+
+       // second column
+       http_top [label = "Httpd" shape="box"]
+       http_bottom [label = "Httpd" shape="box"]
+       http_top -> http0 [arrowhead="none" style="dashed"]
+       http0 -> http1 [arrowhead="none" style="bold"]
+       http1 -> http2 [arrowhead="none" style="dashed"]
+       http2 -> http3 -> http4 [arrowhead="none" style="bold"]
+       http4 -> http_bottom  [arrowhead="none" style="dashed"]
+
+       // second column
+       k_top [label = "Keystone" shape="box"]
+       k_bottom [label = "Keystone" shape="box"]
+       k_top -> k0 [arrowhead="none" style="dashed"]
+       k0 -> k1 -> k2 [arrowhead="none" style="bold"]
+       k2 -> k_bottom  [arrowhead="none" style="dashed"]
+
+       idp_top [label = "Identity Provider" shape="box"]
+       idp_bottom [label = "Identity Provider" shape="box"]
+       idp_top -> idp0 [arrowhead="none" style="dashed"]
+       idp0 -> idp1 -> idp2 [arrowhead="none" style="bold"]
+       idp2 -> idp_bottom [arrowhead="none" style="dashed"]
+
+       // Order columns
+       useragent_top -> h_top -> http_top -> k_top -> idp_top [style="invis"]
+
+       // Event links
+       u0 -> h0 [weight=0 xlabel = "POST /v3/auth/tokens"]
+       u1 -> h1 [weight=0 xlabel = "HTTP 302\nLocation: /v3/auth/OS-FEDERATION/webssol/saml2" dir=back]
+       u2 -> http0 [weight=0 xlabel = "GET /v3/auth/OS-FEDERATION/websso/saml2"]
+       u3 -> http1 [weight=0 xlabel = "HTTP 302\nLocation: https://idp/auth?SAMLRequest=req" dir=back]
+       u4 -> idp0 [weight=0 xlabel = "GET /auth"]
+       idp1 -> idp1 [weight=0 xlabel = "Authenticate"]
+       u5 -> idp2 [weight=0 xlabel = "HTTP 200\nSAMLResonse in HTML form" dir=back]
+       u6 -> http2 [weight=0 xlabel = "POST /assertionconsumerservice"]
+       http3 -> http3 [weight=0 xlabel = "Validate"]
+       u7 -> http4 [weight=0 xlabel = "HTTP 302\nLocation: /v3/auth/OS-FEDERATION/websso/saml2" dir=back]
+       u8 -> k0 [weight=0 xlabel="GET /v3/auth/OS-FEDERATION/websso/saml2"]
+       k1 -> k1 [weight=0 xlabel="Issue token"]
+       u9 -> k2 [weight=0 xlabel="HTTP 200\nHTML form containing unscoped token" dir=back]
+       u10 -> h2 [weight=0 xlabel="POST /auth/websso"]
+       u11 -> h3 [weight=0 xlabel="successful login" dir=back]
+
+       // bind nodes to levels
+       {rank=same;useragent_top;h_top;http_top;k_top;idp_top}
+       {rank=same;u0;h0 }
+       {rank=same;u1;h1 }
+       {rank=same;u2;http0 }
+       {rank=same;u3;http1 }
+       {rank=same;u4;idp0 }
+       {rank=same;u5;idp2 }
+       {rank=same;u6;http2 }
+       {rank=same;u7;http4 }
+       {rank=same;u8;k0 }
+       {rank=same;u9;k2 }
+       {rank=same;u10;h2}
+       {rank=same;u11;h3}
+       {rank=same;useragent_bottom;h_bottom;http_bottom;k_bottom;idp_bottom}
    }
 
 Keystone is not a web front-end, which means horizon needs to handle some parts
@@ -292,29 +446,68 @@ secure resource it requests from keystone.
 Keystone to Keystone
 ~~~~~~~~~~~~~~~~~~~~
 
-.. seqdiag::
+.. graphviz::
    :name: keystone-to-keystone
    :alt: Diagram of the IdP-initiated auth flow in a keystone-to-keystone model.
 
-   seqdiag {
-     edge_length = 240;
-     default_fontsize = 13;
-     useragent [label = "User Agent"]; sp [label = "Service Provider"]; idp [label = "Identity Provider"];
-     useragent -> idp [label = "POST /v3/auth/tokens"];
-     idp -> idp [label = "Authenticate"];
-     useragent <- idp [label = "HTTP 201
-                                X-Subject-Token: token"];
-     useragent -> idp [label = "POST /v3/auth/OS-FEDERATION/saml2/ecp"];
-     useragent <- idp [label = "HTTP 201
-                                SAMLResponse in SOAP envelope"];
-     useragent -> sp [label = "POST /PAOS-url"];
-     sp -> sp [label = "Validate"];
-     useragent <- sp [label = "HTTP 302"];
-     useragent -> sp [label = "GET /v3/OS-FED/.../auth"];
-     useragent <- sp [label = "HTTP 201
-                               X-Subject-Token: unscoped token"];
-     useragent -> sp [label = "POST /v3/auth/tokens
-                               (request scoped token)"];
+   digraph {
+       nodesep=1
+       node [shape=point]
+
+       // first column
+       useragent_top [label = "User Agent" shape="box"]
+       useragent_bottom [label = "User Agent" shape="box"]
+       // chain rows of the column
+       useragent_top -> u0 [arrowhead="none" style="dashed"]
+       u0 -> u1 -> u2 -> u3 -> u4 -> u5 -> u6 -> u7 -> u8 [arrowhead="none" style="bold"]
+       u8 -> useragent_bottom  [arrowhead="none" style="dashed"]
+
+       // second column
+       sp_top [label = "Service Provider" shape="box"]
+       sp_bottom [label = "Service Provider" shape="box"]
+       sp_top -> sp0 [arrowhead="none" style="dashed"]
+       sp0 -> sp1 -> sp2 [arrowhead="none" style="bold"]
+       sp2 -> sp3 [arrowhead="none" style="dashed"]
+       sp3 -> sp4 [arrowhead="none" style="bold"]
+       sp4 -> sp5 [arrowhead="none" style="dashed"]
+       sp5 -> sp_bottom [arrowhead="none" style="dashed"]
+
+       idp_top [label = "Identity Provider" shape="box"]
+       idp_bottom [label = "Identity Provider" shape="box"]
+       idp_top -> idp0  [arrowhead="none" style="dashed"]
+       idp0 -> idp1 -> idp2 [arrowhead="none" style="bold"]
+       idp2 -> idp3 [arrowhead="none" style="dashed"]
+       idp3 -> idp4 [arrowhead="none" style="bold"]
+       idp4 -> idp_bottom  [arrowhead="none" style="dashed"]
+
+       // Order columns
+       useragent_top -> sp_top -> idp_top [style="invis"]
+
+       // Event links
+       u0 -> idp0 [weight=0 xlabel = "POST /v3/auth/tokens"]
+       idp1 -> idp1 [weight=0 xlabel = "Authenticate"]
+       u1 -> idp2 [weight=0 xlabel = "HTTP 201\nX-Subject-Token: token" dir=back]
+       u2 -> idp3 [weight=0 xlabel = "POST /v3/auth/OS-FEDERATION/saml2/ecp"]
+       u3 -> idp4 [weight=0 xlabel = "HTTP 201\nSAMLResponse in SOAP envelope" dir=back]
+       u4 -> sp0 [weight=0 xlabel = "POST /PAOS-url"]
+       sp1 -> sp1 [weight=0 xlabel = "Validate"]
+       u5 -> sp2 [weight=0 xlabel = "HTTP 302" dir=back]
+       u6 -> sp3 [weight=0 xlabel = "GET /v3/OS-FED/.../auth"]
+       u7 -> sp4 [weight=0 xlabel = "HTTP 201\nX-Subject-Token: unscoped token" dir=back]
+       u8 -> sp5 [weight=0 xlabel = "POST /v3/auth/tokens\n(request scoped token)"]
+
+       // bind nodes to levels
+       {rank=same;useragent_top;sp_top;idp_top}
+       {rank=same;u0;idp0 }
+       {rank=same;u1;idp2 }
+       {rank=same;u2;idp3 }
+       {rank=same;u3;idp4 }
+       {rank=same;u4;sp0 }
+       {rank=same;u5;sp2 }
+       {rank=same;u6;sp3 }
+       {rank=same;u7;sp4 }
+       {rank=same;u8;sp5 }
+       {rank=same;useragent_bottom;sp_bottom;idp_bottom}
    }
 
 When keystone is used as an Identity Provider in a Keystone to Keystone
@@ -339,31 +532,67 @@ OpenID Connect
 OpenID Connect Authentication Flow
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. seqdiag::
+.. graphviz::
    :name: openidc
    :alt: Diagram of a standard OpenID Connect authentication flow
    :align: left
 
-   seqdiag {
-     edge_length = 330;
-     default_fontsize = 13;
-     useragent [label = "User Agent"]; sp [label = "Service Provider"]; idp [label = "Identity Provider"];
-     useragent -> sp [label = "GET /secure"];
-     useragent <- sp [label = "HTTP 302
-                               Location: https://idp/auth?
-                               client_id=XXX&redirect_uri=https://sp/secure"];
-     useragent -> idp [label = "GET /auth?client_id=XXX&redirect_uri=https://sp/secure"];
-     idp -> idp [label = "Authenticate"];
-     useragent <- idp [label = "HTTP 302
-                                Location: https://sp/auth?code=XXX"];
-     useragent -> sp [label = "GET /auth?code=XXX"];
-     sp -> idp [label = "POST https://idp/token
-                         code=XXX&redirect_uri=https://sp/secure"];
-     sp <- idp [label = "HTTP 200
-                         {\"access_code\": \"XXX\",
-                          \"id_token\": \"XXX\"}"];
-     useragent <- sp [label = "HTTP 302; Location: /secure"];
-     useragent -> sp [label = "GET /secure"];
+   digraph auth {
+       nodesep=1
+       node [shape=point]
+
+       // first column
+       useragent_top [label = "User Agent" shape="box"]
+       useragent_bottom [label = "User Agent" shape="box"]
+       // chain rows of the column
+       useragent_top -> u0 [arrowhead="none" style="dashed"]
+       u0 -> u1 -> u2 -> u3 -> u4 -> u5 -> u6 [arrowhead="none" style="bold"]
+       u6 -> useragent_bottom  [arrowhead="none" style="dashed"]
+
+       // second column
+       sp_top [label = "Service Provider" shape="box"]
+       sp_bottom [label = "Service Provider" shape="box"]
+       sp_top -> sp0 [arrowhead="none" style="dashed"]
+       sp0 -> sp1 [arrowhead="none" style="bold"]
+       sp1 -> sp2 [arrowhead="none" style="dashed"]
+       sp2 -> sp3 -> sp4 -> sp5 [arrowhead="none" style="bold"]
+       sp5 -> sp6  -> sp_bottom [arrowhead="none" style="dashed"]
+
+       idp_top [label = "Identity Provider" shape="box"]
+       idp_bottom [label = "Identity Provider" shape="box"]
+       idp_top -> idp0 [arrowhead="none" style="dashed"]
+       idp0 -> idp1 -> idp2 [arrowhead="none" style="bold"]
+       idp2 -> idp3 [arrowhead="none" style="dashed"]
+       idp3 -> idp4 [arrowhead="none" style="bold"]
+       idp4 -> idp_bottom  [arrowhead="none" style="dashed"]
+
+       // Order columns
+       useragent_top -> sp_top -> idp_top [style="invis"]
+
+       // Event links
+       u0 -> sp0 [weight=0 xlabel = "GET /secure"]
+       u1 -> sp1 [weight=0 xlabel = "HTTP 302\nLocation: https://idp/auth?client_id=XXX&redirect_uri=https://sp/secure" dir=back]
+       u2 -> idp0 [weight=0 xlabel = "GET /auth?client_id=XXX&redirect_uri=https://sp/secure"]
+       idp1 -> idp1 [weight=0 xlabel = "Authenticate"]
+       u3 -> idp2 [weight=0 xlabel = "HTTP 302\nLocation: https://sp/auth?code=XXX" dir=back]
+       u4 -> sp2 [weight=0 xlabel = "GET /auth?code=XXX"]
+       sp3 -> idp3 [weight=0 xlabel = "POST https://idp/token?code=XXX&redirect_uri=https://sp/secure"]
+       sp4 -> idp4 [weight=0 xlabel = "HTTP 200\n{\"access_code\": \"XXX\", \"id_token\": \"XXX\"}" dir=back]
+       u5 -> sp5 [weight=0 xlabel = "HTTP 302; Location: /secure" dir=back]
+       u6 -> sp6 [weight=0 xlabel = "GET /secure"]
+
+       // bind nodes to levels
+       {rank=same;useragent_top;sp_top;idp_top}
+       {rank=same;u0;sp0}
+       {rank=same;u1;sp1}
+       {rank=same;u2;idp0}
+       {rank=same;u3;idp2}
+       {rank=same;u4;sp2}
+       {rank=same;sp3;idp3}
+       {rank=same;sp4;idp4}
+       {rank=same;u5;sp5}
+       {rank=same;u6;sp6}
+       {rank=same;useragent_bottom;sp_bottom;idp_bottom }
    }
 
 OpenID Connect is different from any SAML2.0 flow because the negotiation is not
@@ -382,47 +611,93 @@ and exchange it for an ID token.
 OpenID Connect with keystone and horizon
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. seqdiag::
+.. graphviz::
    :name: oidc-keystone-horizon
    :alt: Diagram of the OpenID Connect WebSSO auth flow specific to horizon,
          keystone, and the HTTPD module acting as service provider.
 
-   seqdiag {
-     edge_length = 200
-     default_fontsize = 13;
-     useragent [label = "User Agent"]; horizon [label = "Horizon"]; httpd [label = "HTTPD", color = "lightgrey"]; keystone [label = "Keystone", color = "lightgrey"]; idp [label = "Identity Provider"];
-     useragent -> horizon [label = "POST /auth/login"];
-     useragent <- horizon [label = "HTTP 302
-                                    Location:
-                                    /v3/auth/OS-FEDERATION
-                                    /websso/openid"];
-     useragent -> httpd [label = "GET /v3/auth/OS-FEDERATION/websso/openid"];
-     useragent <- httpd [label = "HTTP 302
-                                   Location:
-                                   https://idp/auth?
-                                   client_id=XXX&
-                                   redirect_uri=https://sp/v3/auth/OS-FEDERATION/websso"];
-     useragent -> idp [label = "GET /auth?client_id=XXX&
-                                    redirect_uri=https://sp/v3/auth/OS-FEDERATION/websso"];
-     idp -> idp [label = "Authenticate"];
-     useragent <- idp [label = "HTTP 302
-                                Location: https://sp/v3/auth/OS-FEDERATION/websso"];
-     useragent -> httpd [label = "GET /v3/auth/OS-FEDERATION/websso"];
-     httpd -> idp [label = "POST https://idp/token
-                                 code=XXX&
-                                 redirect_uri=https://sp/v3/auth/OS-FEDERATION/websso"];
-     httpd <- idp [label = "HTTP 200
-                           {\"access_code\": \"XXX\",
-                            \"id_token\": \"XXX\"}"];
-     useragent <- httpd [label = "HTTP 302
-                                  Location: /v3/auth/OS-FEDERATION/websso/mapped"];
-     useragent -> keystone [label = "GET /v3/auth/OS-FEDERATION/websso/mapped"];
-     keystone -> keystone [label = "Issue token"];
-     useragent <- keystone [label = "HTTP 200
-                                     HTML form containing unscoped token"];
-     useragent -> horizon [label = "POST /auth/websso"];
-     useragent <- horizon [label = "successful login"];
-   }
+    digraph {
+        nodesep=1
+        node [shape=point]
+
+        // first column
+        useragent_top [label = "User Agent" shape="box"]
+        useragent_bottom [label = "User Agent" shape="box"]
+        // chain rows of the column
+        useragent_top -> u0 [arrowhead="none" style="dashed"]
+        u0 -> u1 -> u2 -> u3 -> u4 -> u5 -> u6 -> u7 -> u8 -> u9 -> u10 -> u11 [arrowhead="none" style="bold"]
+        u11 -> useragent_bottom  [arrowhead="none" style="dashed"]
+
+        // second column
+        h_top [label = "Horizon" shape="box"]
+        h_bottom [label = "Horizon" shape="box"]
+        h_top -> h0 [arrowhead="none" style="dashed"]
+        h0 -> h1 [arrowhead="none" style="bold"]
+        h1 -> h2 [arrowhead="none" style="dashed"]
+        h2 -> h3 [arrowhead="none" style="bold"]
+        h3 -> h_bottom [arrowhead="none" style="dashed"]
+
+        http_top [label = "Httpd" shape="box"]
+        http_bottom [label = "Httpd" shape="box"]
+        http_top -> http0 [arrowhead="none" style="dashed"]
+        http0 -> http1 [arrowhead="none" style="bold"]
+        http1 -> http2 [arrowhead="none" style="dashed"]
+        http2 -> http3 -> http4 -> http5 [arrowhead="none" style="bold"]
+        http5 -> http_bottom  [arrowhead="none" style="dashed"]
+
+        k_top [label = "Keystone" shape="box"]
+        k_bottom [label = "Keystone" shape="box"]
+        k_top -> k0 [arrowhead="none" style="dashed"]
+        k0 -> k1 -> k2  [arrowhead="none" style="bold"]
+        k2 -> k_bottom  [arrowhead="none" style="dashed"]
+
+        idp_top [label = "Identity Provider" shape="box"]
+        idp_bottom [label = "Identity Provider" shape="box"]
+        idp_top -> idp0 [arrowhead="none" style="dashed"]
+        idp0 -> idp1 -> idp2 [arrowhead="none" style="bold"]
+        idp2 -> idp3 [arrowhead="none" style="dashed"]
+        idp3 -> idp4 [arrowhead="none" style="bold"]
+        idp4 -> idp_bottom  [arrowhead="none" style="dashed"]
+
+        // Order columns
+        useragent_top -> h_top -> http_top -> k_top -> idp_top [style="invis"]
+
+        // Event links
+        u0 -> h0 [weight=0 xlabel = "POST /v3/auth/tokens"]
+        u1 -> h1 [weight=0 xlabel = "HTTP 302\nLocation: /v3/auth/OS-FEDERATION/webssol/openid" dir=back]
+        u2 -> http0 [weight=0 xlabel = "GET /v3/auth/OS-FEDERATION/websso/openid"]
+        u3 -> http1 [weight=0 xlabel = "HTTP 302\nLocation: https://idp/auth?client_id=XXX&redirect_uri=https://sp/v3/auth/OS-FEDERATION/websso" dir=back]
+        u4 -> idp0 [weight=0 xlabel = "GET /auth?client_id=XXX&redirect_uri=https://sp/v3/auth/OS-FEDERATION/websso"]
+        idp1 -> idp1 [weight=0 xlabel = "Authenticate"]
+        u5 -> idp2 [weight=0 xlabel = "HTTP 203\nLocation: https://sp/v3/auth/OS-FEDERATION/websso" dir=back]
+        u6 -> http2 [weight=0 xlabel = "GET /v3/auth/OS-FEDERATION/websso"]
+        http3 -> idp3 [weight=0 xlabel = "POST https://idp/tokencode=XXX&redirect_uri=https://sp/v3/auth/OS-FEDERATION/websso"]
+        http4 -> idp4 [weight=0 xlabel = "HTTP 200\n{\"access_code\": \"XXX\"\n\"id_token\": \"XXX\"}" dir=back]
+        u7 -> http5 [weight=0 xlabel = "HTTP 302\nLocation: /v3/auth/OS-FEDERATION/websso/mapped" dir=back]
+        u8 -> k0 [weight=0 xlabel="GET /v3/auth/OS-FEDERATION/websso/mapped"]
+        k1 -> k1 [weight=0 xlabel="Issue token"]
+        u9 -> k2 [weight=0 xlabel="HTTP 200\nHTML form containing unscoped token" dir=back]
+        u10 -> h2 [weight=0 xlabel="POST /auth/websso"]
+        u11 -> h3 [weight=0 xlabel="successful login" dir=back]
+
+        // bind nodes to levels
+        {rank=same;useragent_top;h_top;http_top;k_top;idp_top}
+        {rank=same;u0;h0 }
+        {rank=same;u1;h1 }
+        {rank=same;u2;http0 }
+        {rank=same;u3;http1 }
+        {rank=same;u4;idp0 }
+        {rank=same;u5;idp2 }
+        {rank=same;u6;http2 }
+        {rank=same;http3;idp3 }
+        {rank=same;http4;idp4 }
+        {rank=same;u7;http5 }
+        {rank=same;u8;k0 }
+        {rank=same;u9;k2 }
+        {rank=same;u10;h2}
+        {rank=same;u11;h3}
+        {rank=same;useragent_bottom;h_bottom;http_bottom;k_bottom;idp_bottom}
+    }
 
 From horizon and keystone's point of view, the authentication flow is the same
 for OpenID Connect as it is for SAML2.0. It is only the HTTPD OpenIDC module

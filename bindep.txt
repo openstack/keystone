@@ -34,3 +34,6 @@ python3-devel [platform:rpm]
 
 libmariadb-devel [platform:suse]
 openldap2-devel [platform:suse]
+
+# Required for sphinx graphviz image generation
+graphviz [test doc]

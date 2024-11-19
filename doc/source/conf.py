@@ -34,6 +34,7 @@
 # ones.
 extensions = [
     'sphinx.ext.coverage',
+    'sphinx.ext.graphviz',
     'sphinx.ext.viewcode',
     'sphinx.ext.todo',
     'oslo_config.sphinxconfiggen',
@@ -42,9 +43,7 @@ extensions = [
     'openstackdocstheme',
     'oslo_policy.sphinxext',
     'sphinxcontrib.apidoc',
-    'sphinxcontrib.seqdiag',
     'sphinx_feature_classification.support_matrix',
-    'sphinxcontrib.blockdiag',
 ]
 
 blockdiag_html_image_format = 'SVG'

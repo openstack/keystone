@@ -174,10 +174,11 @@ child of project `Alpha`. All projects assume a default limit of 10 cores via a
 registered limit. The labels in the diagrams below use shorthand notation for
 `limit` and `usage` as `l` and `u`, respectively:
 
-.. blockdiag::
+.. graphviz::
 
-   blockdiag {
+   digraph {
       orientation = portrait;
+      node [shape=box]
 
       Alpha [label="Alpha (u=0)"];
       Beta [label=" Beta (u=0)"];
@@ -188,10 +189,11 @@ Each project may use up to 10 cores because of the registered limit and none of
 the projects have an override. Using flat enforcement, you're allowed to
 ``UPDATE LIMIT on Alpha to 20``:
 
-.. blockdiag::
+.. graphviz::
 
-   blockdiag {
+   digraph {
       orientation = portrait;
+      node [shape=box]
 
       Alpha [label="Alpha (l=20, u=0)", textcolor = "#00af00"];
       Beta [label=" Beta (u=0)"];
@@ -202,10 +204,11 @@ the projects have an override. Using flat enforcement, you're allowed to
 You're also allowed to ``UPDATE LIMIT on Charlie to 30``, even though `Charlie`
 is a sub-project of both `Beta` and `Alpha`.
 
-.. blockdiag::
+.. graphviz::
 
-   blockdiag {
+   digraph {
       orientation = portrait;
+      node [shape=box]
 
       Alpha [label="Alpha (l=20, u=0)"];
       Beta [label=" Beta (u=0)"];
@@ -220,10 +223,11 @@ Conversely, you can simulate hierarchical enforcement by adjusting limits
 through the project tree manually. For example, let's still assume 10 is the
 default limit imposed by an existing registered limit:
 
-.. blockdiag::
+.. graphviz::
 
-   blockdiag {
+   digraph {
       orientation = portrait;
+      node [shape=box]
 
       Alpha [label="Alpha (u=0)"];
       Beta [label=" Beta (u=0)"];
@@ -232,10 +236,11 @@ default limit imposed by an existing registered limit:
 
 You may set a project-specific override to ``UPDATE LIMIT on Alpha to 30``:
 
-.. blockdiag::
+.. graphviz::
 
-   blockdiag {
+   digraph {
       orientation = portrait;
+      node [shape=box]
 
       Alpha [label="Alpha (l=30, u=0)", textcolor = "#00af00"];
       Beta [label=" Beta (u=0)"];
@@ -244,10 +249,11 @@ You may set a project-specific override to ``UPDATE LIMIT on Alpha to 30``:
 
 Next you can ``UPDATE LIMIT on Beta to 20``:
 
-.. blockdiag::
+.. graphviz::
 
-   blockdiag {
+   digraph {
       orientation = portrait;
+      node [shape=box]
 
       Alpha [label="Alpha (l=30, u=0)"];
       Beta [label=" Beta (l=20, u=0)", textcolor = "#00af00"];
@@ -258,10 +264,11 @@ Theoretically, the entire project tree consisting of `Alpha`, `Beta`, and
 `Charlie` is limited to 60 cores. If you'd like to ensure only 30 cores are
 used within the entire hierarchy, you can ``UPDATE LIMIT on Alpha to 0``:
 
-.. blockdiag::
+.. graphviz::
 
-   blockdiag {
+   digraph {
       orientation = portrait;
+      node [shape=box]
 
       Alpha [label="Alpha (l=0, u=0)", textcolor = "#00af00"];
       Beta [label=" Beta (l=20, u=0)"];
@@ -322,10 +329,11 @@ is cores and the default registered limit for cores is 10. Also assume we have
 the following project hierarchy where `Alpha` has a limit of 20 cores and its
 usage is currently 4:
 
-.. blockdiag::
+.. graphviz::
 
-   blockdiag {
+   digraph {
       orientation = portrait;
+      node [shape=box]
 
       Alpha -> Beta;
       Alpha -> Charlie;
@@ -337,10 +345,11 @@ usage is currently 4:
 
 Technically, both `Beta` and `Charlie` can use up to 8 cores each:
 
-.. blockdiag::
+.. graphviz::
 
-   blockdiag {
+   digraph {
       orientation = portrait;
+      node [shape=box]
 
       Alpha -> Beta;
       Alpha -> Charlie;
@@ -356,10 +365,11 @@ and check the usage of each project in the hierarchy to see that the total
 usage of `Alpha`, `Beta`, and `Charlie` is equal to the limit of the tree, set
 by `Alpha.limit`:
 
-.. blockdiag::
+.. graphviz::
 
-   blockdiag {
+   digraph {
       orientation = portrait;
+      node [shape=box]
 
       Alpha -> Beta;
       Alpha -> Charlie;
@@ -372,10 +382,11 @@ by `Alpha.limit`:
 Despite the usage of the tree being equal to the limit, we can still add
 children to the tree:
 
-.. blockdiag::
+.. graphviz::
 
-   blockdiag {
+   digraph {
       orientation = portrait;
+      node [shape=box]
 
       Alpha -> Beta;
       Alpha -> Charlie;
@@ -390,10 +401,11 @@ children to the tree:
 Even though the project can be created, the current usage of cores across the
 tree prevents `Delta` from claiming any cores:
 
-.. blockdiag::
+.. graphviz::
 
-   blockdiag {
+   digraph {
       orientation = portrait;
+      node [shape=box]
 
       Alpha -> Beta;
       Alpha -> Charlie;
@@ -408,10 +420,11 @@ tree prevents `Delta` from claiming any cores:
 Creating a grandchild of project `Alpha` is forbidden because it violates the
 two-level hierarchical constraint:
 
-.. blockdiag::
+.. graphviz::
 
-   blockdiag {
+   digraph {
       orientation = portrait;
+      node [shape=box]
 
       Alpha -> Beta;
       Alpha -> Charlie;
@@ -434,10 +447,11 @@ but may be implemented with a separate model.
 Granting `Beta` the ability to claim more cores can be done by giving `Beta` a
 project-specific override for cores
 
-.. blockdiag::
+.. graphviz::
 
-   blockdiag {
+   digraph {
       orientation = portrait;
+      node [shape=box]
 
       Alpha -> Beta;
       Alpha -> Charlie;
@@ -451,10 +465,11 @@ Note that regardless of this update, any subsequent requests to claim more
 cores in the tree will be rejected since the usage is equal to the limit of the
 `Alpha`. `Beta` can claim cores if they are released from `Alpha` or `Charlie`:
 
-.. blockdiag::
+.. graphviz::
 
-   blockdiag {
+   digraph {
       orientation = portrait;
+      node [shape=box]
 
       Alpha -> Beta;
       Alpha -> Charlie;
@@ -464,10 +479,11 @@ cores in the tree will be rejected since the usage is equal to the limit of the
       Charlie [label="Charlie (u=6)", textcolor = "#00af00"];
    }
 
-.. blockdiag::
+.. graphviz::
 
-   blockdiag {
+   digraph {
       orientation = portrait;
+      node [shape=box]
 
       Alpha -> Beta;
       Alpha -> Charlie;
@@ -482,10 +498,11 @@ able to claim any more cores because the total usage of the tree is equal to
 the limit of `Alpha`, thus preventing `Charlie` from reclaiming the cores it
 had:
 
-.. blockdiag::
+.. graphviz::
 
-   blockdiag {
+   digraph {
       orientation = portrait;
+      node [shape=box]
 
       Alpha -> Beta;
       Alpha -> Charlie;
@@ -502,10 +519,11 @@ is forbidden. Even though it is possible for the sum of all limits under
 limit of the parent would result in strange user experience and be misleading
 since the total usage of the tree would be capped at the limit of the parent:
 
-.. blockdiag::
+.. graphviz::
 
-   blockdiag {
+   digraph {
       orientation = portrait;
+      node [shape=box]
 
       Alpha -> Beta;
       Alpha -> Charlie;
@@ -515,10 +533,11 @@ since the total usage of the tree would be capped at the limit of the parent:
       Charlie [label="Charlie (u=0)"];
    }
 
-.. blockdiag::
+.. graphviz::
 
-   blockdiag {
+   digraph {
       orientation = portrait;
+      node [shape=box]
 
       Alpha -> Beta;
       Alpha -> Charlie;
@@ -533,10 +552,11 @@ since the total usage of the tree would be capped at the limit of the parent:
 Finally, let's still assume the default registered limit for cores is 10, but
 we're going to create project `Alpha` with a limit of 6 cores.
 
-.. blockdiag::
+.. graphviz::
 
-   blockdiag {
+   digraph {
       orientation = portrait;
+      node [shape=box]
 
       Alpha;
 
@@ -548,10 +568,11 @@ API ensures that project `Beta` doesn't assume the default of 10, despite the
 registered limit of 10 cores. Instead, the child assumes the parent's limit
 since no single child limit should exceed the limit of the parent:
 
-.. blockdiag::
+.. graphviz::
 
-   blockdiag {
+   digraph {
       orientation = portrait;
+      node [shape=box]
 
       Alpha -> Beta;
 
@@ -562,9 +583,10 @@ since no single child limit should exceed the limit of the parent:
 This behavior is consistent regardless of the number of children added under
 project `Alpha`.
 
-.. blockdiag::
+.. graphviz::
 
-   blockdiag {
+   digraph {
+      node [shape=box]
       orientation = portrait;
 
       Alpha -> Beta;
