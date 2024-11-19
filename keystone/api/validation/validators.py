@@ -114,7 +114,10 @@ def _validate_string_length(
     )
 
 
-@jsonschema.FormatChecker.cls_checks("date-time")
+_FORMAT_CHECKER = jsonschema.FormatChecker()
+
+
+@_FORMAT_CHECKER.checks("date-time")
 def _validate_datetime_format(instance: object) -> bool:
     # format checks constrain to the relevant primitive type
     # https://github.com/OAI/OpenAPI-Specification/issues/3148
@@ -128,7 +131,7 @@ def _validate_datetime_format(instance: object) -> bool:
         return True
 
 
-@jsonschema.FormatChecker.cls_checks("uuid")
+@_FORMAT_CHECKER.checks("uuid")
 def _validate_uuid_format(instance: object) -> bool:
     # format checks constrain to the relevant primitive type
     # https://github.com/OAI/OpenAPI-Specification/issues/3148
@@ -136,40 +139,6 @@ def _validate_uuid_format(instance: object) -> bool:
         return True
 
     return uuidutils.is_uuid_like(instance)
-
-
-class FormatChecker(jsonschema.FormatChecker):
-    """A FormatChecker can output the message from cause exception.
-
-    We need understandable validation errors messages for users. When a
-    custom checker has an exception, the FormatChecker will output a
-    readable message provided by the checker.
-    """
-
-    def check(self, param_value, format):
-        """Check whether the param_value conforms to the given format.
-
-        :param param_value: the param_value to check
-        :type: any primitive type (str, number, bool)
-        :param str format: the format that param_value should conform to
-        :raises: :exc:`FormatError` if param_value does not conform to format
-        """
-        if format not in self.checkers:
-            return
-
-        # For safety reasons custom checkers can be registered with
-        # allowed exception types. Anything else will fall into the
-        # default formatter.
-        func, raises = self.checkers[format]
-        result, cause = None, None
-
-        try:
-            result = func(param_value)
-        except raises as e:
-            cause = e
-        if not result:
-            msg = f"{param_value!r} is not a {format!r}"
-            raise jsonschema_exc.FormatError(msg, cause=cause)
 
 
 class _SchemaValidator:
@@ -201,8 +170,7 @@ class _SchemaValidator:
         validator_cls = jsonschema.validators.extend(
             self.validator_org, validators
         )
-        format_checker = FormatChecker()
-        self.validator = validator_cls(schema, format_checker=format_checker)
+        self.validator = validator_cls(schema, format_checker=_FORMAT_CHECKER)
 
     def validate(self, *args, **kwargs):
         try:
