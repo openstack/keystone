@@ -3060,8 +3060,8 @@ class LimitValidationTestCase(unit.BaseTestCase):
 
         create_registered_limits = limit_schema.registered_limit_create
         update_registered_limits = limit_schema.registered_limit_update
-        create_limits = limit_schema.limit_create
-        update_limits = limit_schema.limit_update
+        create_limits = limit_schema.limits_create_request_body
+        update_limits = limit_schema.limit_update_request_body
 
         self.create_registered_limits_validator = validators.SchemaValidator(
             create_registered_limits
@@ -3222,55 +3222,60 @@ class LimitValidationTestCase(unit.BaseTestCase):
             )
 
     def test_validate_project_limit_create_request_succeeds(self):
-        request_to_validate = [
-            {
-                'project_id': uuid.uuid4().hex,
-                'service_id': uuid.uuid4().hex,
-                'region_id': 'RegionOne',
-                'resource_name': 'volume',
-                'resource_limit': 10,
-                'description': 'test description',
-            }
-        ]
+        request_to_validate = {
+            "limits": [
+                {
+                    'project_id': uuid.uuid4().hex,
+                    'service_id': uuid.uuid4().hex,
+                    'region_id': 'RegionOne',
+                    'resource_name': 'volume',
+                    'resource_limit': 10,
+                    'description': 'test description',
+                }
+            ]
+        }
         self.create_limits_validator.validate(request_to_validate)
 
     def test_validate_domain_limit_create_request_succeeds(self):
-        request_to_validate = [
-            {
-                'domain_id': uuid.uuid4().hex,
-                'service_id': uuid.uuid4().hex,
-                'region_id': 'RegionOne',
-                'resource_name': 'volume',
-                'resource_limit': 10,
-                'description': 'test description',
-            }
-        ]
+        request_to_validate = {
+            "limits": [
+                {
+                    'domain_id': uuid.uuid4().hex,
+                    'service_id': uuid.uuid4().hex,
+                    'region_id': 'RegionOne',
+                    'resource_name': 'volume',
+                    'resource_limit': 10,
+                    'description': 'test description',
+                }
+            ]
+        }
         self.create_limits_validator.validate(request_to_validate)
 
     def test_validate_limit_create_request_without_optional(self):
-        request_to_validate = [
-            {
-                'project_id': uuid.uuid4().hex,
-                'service_id': uuid.uuid4().hex,
-                'resource_name': 'volume',
-                'resource_limit': 10,
-            }
-        ]
+        request_to_validate = {
+            "limits": [
+                {
+                    'project_id': uuid.uuid4().hex,
+                    'service_id': uuid.uuid4().hex,
+                    'resource_name': 'volume',
+                    'resource_limit': 10,
+                }
+            ]
+        }
         self.create_limits_validator.validate(request_to_validate)
 
     def test_validate_limit_update_request_succeeds(self):
         request_to_validate = {
-            'resource_limit': 10,
-            'description': 'test description',
+            "limit": {'resource_limit': 10, 'description': 'test description'}
         }
         self.update_limits_validator.validate(request_to_validate)
 
     def test_validate_limit_update_request_without_optional(self):
-        request_to_validate = {'resource_limit': 10}
+        request_to_validate = {"limit": {'resource_limit': 10}}
         self.update_limits_validator.validate(request_to_validate)
 
     def test_validate_limit_request_with_no_parameters(self):
-        request_to_validate = []
+        request_to_validate = {"limits": []}
         # At least one property should be given.
         self.assertRaises(
             exception.SchemaValidationError,
@@ -3292,17 +3297,19 @@ class LimitValidationTestCase(unit.BaseTestCase):
             {'description': 123},
         ]
         for invalid_attribute in _INVALID_FORMATS:
-            request_to_validate = [
-                {
-                    'project_id': uuid.uuid4().hex,
-                    'service_id': uuid.uuid4().hex,
-                    'region_id': 'RegionOne',
-                    'resource_name': 'volume',
-                    'resource_limit': 10,
-                    'description': 'test description',
-                }
-            ]
-            request_to_validate[0].update(invalid_attribute)
+            request_to_validate = {
+                "limits": [
+                    {
+                        'project_id': uuid.uuid4().hex,
+                        'service_id': uuid.uuid4().hex,
+                        'region_id': 'RegionOne',
+                        'resource_name': 'volume',
+                        'resource_limit': 10,
+                        'description': 'test description',
+                    }
+                ]
+            }
+            request_to_validate['limits'][0].update(invalid_attribute)
 
             self.assertRaises(
                 exception.SchemaValidationError,
@@ -3311,16 +3318,18 @@ class LimitValidationTestCase(unit.BaseTestCase):
             )
 
     def test_validate_limit_create_request_with_invalid_domain(self):
-        request_to_validate = [
-            {
-                'domain_id': 'fake_id',
-                'service_id': uuid.uuid4().hex,
-                'region_id': 'RegionOne',
-                'resource_name': 'volume',
-                'resource_limit': 10,
-                'description': 'test description',
-            }
-        ]
+        request_to_validate = {
+            "limits": [
+                {
+                    'domain_id': 'fake_id',
+                    'service_id': uuid.uuid4().hex,
+                    'region_id': 'RegionOne',
+                    'resource_name': 'volume',
+                    'resource_limit': 10,
+                    'description': 'test description',
+                }
+            ]
+        }
         self.assertRaises(
             exception.SchemaValidationError,
             self.create_limits_validator.validate,
@@ -3338,8 +3347,8 @@ class LimitValidationTestCase(unit.BaseTestCase):
             {'description': 123},
         ]
         for invalid_desc in _INVALID_FORMATS:
-            request_to_validate = [
-                {
+            request_to_validate = {
+                "limit": {
                     'project_id': uuid.uuid4().hex,
                     'service_id': uuid.uuid4().hex,
                     'region_id': 'RegionOne',
@@ -3347,8 +3356,8 @@ class LimitValidationTestCase(unit.BaseTestCase):
                     'resource_limit': 10,
                     'description': 'test description',
                 }
-            ]
-            request_to_validate[0].update(invalid_desc)
+            }
+            request_to_validate['limit'].update(invalid_desc)
 
             self.assertRaises(
                 exception.SchemaValidationError,
@@ -3357,15 +3366,17 @@ class LimitValidationTestCase(unit.BaseTestCase):
             )
 
     def test_validate_limit_create_request_with_addition_input_fails(self):
-        request_to_validate = [
-            {
-                'service_id': uuid.uuid4().hex,
-                'region_id': 'RegionOne',
-                'resource_name': 'volume',
-                'resource_limit': 10,
-                'more_key': 'more_value',
-            }
-        ]
+        request_to_validate = {
+            "limits": [
+                {
+                    'service_id': uuid.uuid4().hex,
+                    'region_id': 'RegionOne',
+                    'resource_name': 'volume',
+                    'resource_limit': 10,
+                    'more_key': 'more_value',
+                }
+            ]
+        }
         self.assertRaises(
             exception.SchemaValidationError,
             self.create_limits_validator.validate,
@@ -3374,9 +3385,11 @@ class LimitValidationTestCase(unit.BaseTestCase):
 
     def test_validate_limit_update_request_with_addition_input_fails(self):
         request_to_validate = {
-            'id': uuid.uuid4().hex,
-            'resource_limit': 10,
-            'more_key': 'more_value',
+            "limit": {
+                'id': uuid.uuid4().hex,
+                'resource_limit': 10,
+                'more_key': 'more_value',
+            }
         }
         self.assertRaises(
             exception.SchemaValidationError,
@@ -3393,16 +3406,18 @@ class LimitValidationTestCase(unit.BaseTestCase):
             'resource_name',
             'resource_limit',
         ]:
-            request_to_validate = [
-                {
-                    'project_id': uuid.uuid4().hex,
-                    'service_id': uuid.uuid4().hex,
-                    'region_id': 'RegionOne',
-                    'resource_name': 'volume',
-                    'resource_limit': 10,
-                }
-            ]
-            request_to_validate[0].pop(key)
+            request_to_validate = {
+                "limits": [
+                    {
+                        'project_id': uuid.uuid4().hex,
+                        'service_id': uuid.uuid4().hex,
+                        'region_id': 'RegionOne',
+                        'resource_name': 'volume',
+                        'resource_limit': 10,
+                    }
+                ]
+            }
+            request_to_validate['limits'][0].pop(key)
             self.assertRaises(
                 exception.SchemaValidationError,
                 self.create_limits_validator.validate,
@@ -3416,16 +3431,18 @@ class LimitValidationTestCase(unit.BaseTestCase):
             'resource_name',
             'resource_limit',
         ]:
-            request_to_validate = [
-                {
-                    'domain_id': uuid.uuid4().hex,
-                    'service_id': uuid.uuid4().hex,
-                    'region_id': 'RegionOne',
-                    'resource_name': 'volume',
-                    'resource_limit': 10,
-                }
-            ]
-            request_to_validate[0].pop(key)
+            request_to_validate = {
+                "limits": [
+                    {
+                        'domain_id': uuid.uuid4().hex,
+                        'service_id': uuid.uuid4().hex,
+                        'region_id': 'RegionOne',
+                        'resource_name': 'volume',
+                        'resource_limit': 10,
+                    }
+                ]
+            }
+            request_to_validate['limits'][0].pop(key)
             self.assertRaises(
                 exception.SchemaValidationError,
                 self.create_limits_validator.validate,
@@ -3433,17 +3450,19 @@ class LimitValidationTestCase(unit.BaseTestCase):
             )
 
     def test_validate_limit_create_request_with_both_project_and_domain(self):
-        request_to_validate = [
-            {
-                'project_id': uuid.uuid4().hex,
-                'domain_id': uuid.uuid4().hex,
-                'service_id': uuid.uuid4().hex,
-                'region_id': 'RegionOne',
-                'resource_name': 'volume',
-                'resource_limit': 10,
-                'description': 'test description',
-            }
-        ]
+        request_to_validate = {
+            "limits": [
+                {
+                    'project_id': uuid.uuid4().hex,
+                    'domain_id': uuid.uuid4().hex,
+                    'service_id': uuid.uuid4().hex,
+                    'region_id': 'RegionOne',
+                    'resource_name': 'volume',
+                    'resource_limit': 10,
+                    'description': 'test description',
+                }
+            ]
+        }
         self.assertRaises(
             exception.SchemaValidationError,
             self.create_limits_validator.validate,
