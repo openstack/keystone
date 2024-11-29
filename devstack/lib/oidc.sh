@@ -89,7 +89,7 @@ function configure_federation {
             python3 $OIDC_PLUGIN/tools/oidc/setup_keycloak_client.py
     fi
 
-    local keystone_apache_conf=$(apache_site_config_for keystone-wsgi-public)
+    local keystone_apache_conf=$(apache_site_config_for keystone-api)
     cat $OIDC_PLUGIN/files/oidc/apache_oidc.conf | sudo tee -a $keystone_apache_conf
     sudo sed -i -e "
         s|%OIDC_CLIENT_ID%|$OIDC_CLIENT_ID|g;

@@ -37,7 +37,7 @@ ATTRIBUTE_MAP="/etc/shibboleth/attribute-map.xml"
 
 function configure_apache {
     if [[ "$WSGI_MODE" == "uwsgi" ]]; then
-        local keystone_apache_conf=$(apache_site_config_for keystone-wsgi-public)
+        local keystone_apache_conf=$(apache_site_config_for keystone-api)
 
         echo "ProxyPass /Shibboleth.sso !" | sudo tee -a $keystone_apache_conf
 
