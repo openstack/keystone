@@ -25,8 +25,30 @@ name: dict[str, Any] = {
 }
 
 boolean = {
-    "type": ["boolean", "string"],
-    "enum": [True, "True", "TRUE", "true", False, "False", "FALSE", "false"],
+    "type": ["boolean", "string", "null"],
+    "enum": [
+        True,
+        "True",
+        "TRUE",
+        "true",
+        False,
+        "False",
+        "FALSE",
+        "false",
+        "",
+        "1",
+        "0",
+        "y",
+        "Y",
+        "n",
+        "N",
+        "on",
+        "ON",
+        "off",
+        "OFF",
+        "yes",
+        "no",
+    ],
 }
 
 description: dict[str, Any] = {

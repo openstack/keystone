@@ -678,19 +678,19 @@ class DomainValidationTestCase(unit.BaseTestCase):
 
         self.domain_name = 'My Domain'
 
-        create = resource_schema.domain_create
-        update = resource_schema.domain_update
+        create = resource_schema.domain_create_request_body
+        update = resource_schema.domain_update_request_body
         self.create_domain_validator = validators.SchemaValidator(create)
         self.update_domain_validator = validators.SchemaValidator(update)
 
     def test_validate_domain_request(self):
         """Make sure we successfully validate a create domain request."""
-        request_to_validate = {'name': self.domain_name}
+        request_to_validate = {"domain": {"name": self.domain_name}}
         self.create_domain_validator.validate(request_to_validate)
 
     def test_validate_domain_request_without_name_fails(self):
         """Make sure we raise an exception when `name` isn't included."""
-        request_to_validate = {'enabled': True}
+        request_to_validate = {"domain": {"enabled": True}}
         self.assertRaises(
             exception.SchemaValidationError,
             self.create_domain_validator.validate,
@@ -701,8 +701,7 @@ class DomainValidationTestCase(unit.BaseTestCase):
         """Validate `enabled` as boolean-like values for domains."""
         for valid_enabled in _VALID_ENABLED_FORMATS:
             request_to_validate = {
-                'name': self.domain_name,
-                'enabled': valid_enabled,
+                "domain": {"name": self.domain_name, "enabled": valid_enabled}
             }
             self.create_domain_validator.validate(request_to_validate)
 
@@ -710,8 +709,10 @@ class DomainValidationTestCase(unit.BaseTestCase):
         """Exception is raised when `enabled` isn't a boolean-like value."""
         for invalid_enabled in _INVALID_ENABLED_FORMATS:
             request_to_validate = {
-                'name': self.domain_name,
-                'enabled': invalid_enabled,
+                "domain": {
+                    "name": self.domain_name,
+                    "enabled": invalid_enabled,
+                }
             }
             self.assertRaises(
                 exception.SchemaValidationError,
@@ -722,14 +723,15 @@ class DomainValidationTestCase(unit.BaseTestCase):
     def test_validate_domain_request_with_valid_description(self):
         """Test that we validate `description` in create domain requests."""
         request_to_validate = {
-            'name': self.domain_name,
-            'description': 'My Domain',
+            "domain": {"name": self.domain_name, "description": "My Domain"}
         }
         self.create_domain_validator.validate(request_to_validate)
 
     def test_validate_domain_request_with_invalid_description_fails(self):
         """Exception is raised when `description` is a non-string value."""
-        request_to_validate = {'name': self.domain_name, 'description': False}
+        request_to_validate = {
+            "domain": {"name": self.domain_name, "description": False}
+        }
         self.assertRaises(
             exception.SchemaValidationError,
             self.create_domain_validator.validate,
@@ -739,7 +741,7 @@ class DomainValidationTestCase(unit.BaseTestCase):
     def test_validate_domain_request_with_name_too_long(self):
         """Exception is raised when `name` is too long."""
         long_domain_name = 'a' * 65
-        request_to_validate = {'name': long_domain_name}
+        request_to_validate = {"domain": {"name": long_domain_name}}
         self.assertRaises(
             exception.SchemaValidationError,
             self.create_domain_validator.validate,
@@ -749,7 +751,7 @@ class DomainValidationTestCase(unit.BaseTestCase):
     def test_validate_domain_create_fails_with_invalid_name(self):
         """Exception when validating a create request with invalid `name`."""
         for invalid_name in _INVALID_NAMES:
-            request_to_validate = {'name': invalid_name}
+            request_to_validate = {"domain": {'name': invalid_name}}
             self.assertRaises(
                 exception.SchemaValidationError,
                 self.create_domain_validator.validate,
@@ -758,8 +760,7 @@ class DomainValidationTestCase(unit.BaseTestCase):
 
     def test_validate_domain_create_with_tags(self):
         request_to_validate = {
-            'name': uuid.uuid4().hex,
-            'tags': ['foo', 'bar'],
+            "domain": {'name': uuid.uuid4().hex, 'tags': ['foo', 'bar']}
         }
         self.create_domain_validator.validate(request_to_validate)
 
@@ -768,8 +769,7 @@ class DomainValidationTestCase(unit.BaseTestCase):
         for char in invalid_chars:
             tag = uuid.uuid4().hex + char
             request_to_validate = {
-                'name': uuid.uuid4().hex,
-                'tags': ['foo', tag],
+                "domain": {'name': uuid.uuid4().hex, 'tags': ['foo', tag]}
             }
             self.assertRaises(
                 exception.SchemaValidationError,
@@ -780,8 +780,7 @@ class DomainValidationTestCase(unit.BaseTestCase):
     def test_validate_domain_create_with_tag_name_too_long(self):
         invalid_name = 'a' * 256
         request_to_validate = {
-            'name': uuid.uuid4().hex,
-            'tags': ['foo', invalid_name],
+            "domain": {"name": uuid.uuid4().hex, "tags": ["foo", invalid_name]}
         }
         self.assertRaises(
             exception.SchemaValidationError,
@@ -791,7 +790,9 @@ class DomainValidationTestCase(unit.BaseTestCase):
 
     def test_validate_domain_create_with_too_many_tags(self):
         tags = [uuid.uuid4().hex for _ in range(81)]
-        request_to_validate = {'name': uuid.uuid4().hex, 'tags': tags}
+        request_to_validate = {
+            "domain": {"name": uuid.uuid4().hex, "tags": tags}
+        }
         self.assertRaises(
             exception.SchemaValidationError,
             self.create_domain_validator.validate,
@@ -800,7 +801,7 @@ class DomainValidationTestCase(unit.BaseTestCase):
 
     def test_validate_domain_update_request(self):
         """Test that we validate a domain update request."""
-        request_to_validate = {'domain_id': uuid.uuid4().hex}
+        request_to_validate = {"domain": {"domain_id": uuid.uuid4().hex}}
         self.update_domain_validator.validate(request_to_validate)
 
     def test_validate_domain_update_request_with_no_parameters_fails(self):
@@ -814,8 +815,8 @@ class DomainValidationTestCase(unit.BaseTestCase):
 
     def test_validate_domain_update_request_with_name_too_long_fails(self):
         """Exception raised when updating a domain with `name` too long."""
-        long_domain_name = 'a' * 65
-        request_to_validate = {'name': long_domain_name}
+        long_domain_name = "a" * 65
+        request_to_validate = {"domain": {"name": long_domain_name}}
         self.assertRaises(
             exception.SchemaValidationError,
             self.update_domain_validator.validate,
@@ -825,7 +826,7 @@ class DomainValidationTestCase(unit.BaseTestCase):
     def test_validate_domain_update_fails_with_invalid_name(self):
         """Exception when validating an update request with invalid `name`."""
         for invalid_name in _INVALID_NAMES:
-            request_to_validate = {'name': invalid_name}
+            request_to_validate = {"domain": {"name": invalid_name}}
             self.assertRaises(
                 exception.SchemaValidationError,
                 self.update_domain_validator.validate,
@@ -834,8 +835,7 @@ class DomainValidationTestCase(unit.BaseTestCase):
 
     def test_validate_domain_update_with_tags(self):
         request_to_validate = {
-            'name': uuid.uuid4().hex,
-            'tags': ['foo', 'bar'],
+            "domain": {"name": uuid.uuid4().hex, "tags": ["foo", "bar"]}
         }
         self.update_domain_validator.validate(request_to_validate)
 
@@ -844,8 +844,7 @@ class DomainValidationTestCase(unit.BaseTestCase):
         for char in invalid_chars:
             tag = uuid.uuid4().hex + char
             request_to_validate = {
-                'name': uuid.uuid4().hex,
-                'tags': ['foo', tag],
+                "domain": {"name": uuid.uuid4().hex, "tags": ["foo", tag]}
             }
             self.assertRaises(
                 exception.SchemaValidationError,
@@ -856,8 +855,7 @@ class DomainValidationTestCase(unit.BaseTestCase):
     def test_validate_domain_update_with_tag_name_too_long(self):
         invalid_name = 'a' * 256
         request_to_validate = {
-            'name': uuid.uuid4().hex,
-            'tags': ['foo', invalid_name],
+            "domain": {"name": uuid.uuid4().hex, "tags": ["foo", invalid_name]}
         }
         self.assertRaises(
             exception.SchemaValidationError,
@@ -867,7 +865,9 @@ class DomainValidationTestCase(unit.BaseTestCase):
 
     def test_validate_domain_update_with_too_many_tags(self):
         tags = [uuid.uuid4().hex for _ in range(81)]
-        request_to_validate = {'name': uuid.uuid4().hex, 'tags': tags}
+        request_to_validate = {
+            "domain": {"name": uuid.uuid4().hex, "tags": tags}
+        }
         self.assertRaises(
             exception.SchemaValidationError,
             self.update_domain_validator.validate,
