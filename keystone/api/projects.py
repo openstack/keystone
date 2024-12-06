@@ -175,7 +175,9 @@ class ProjectsResource(ks_flask.ResourceBase):
             filters=filters,
             target_attr=target,
         )
-        hints = self.build_driver_hints(filters)
+        hints = self.build_driver_hints(
+            filters, default_limit=PROVIDERS.resource_api._get_list_limit()
+        )
 
         # If 'is_domain' has not been included as a query, we default it to
         # False (which in query terms means '0')

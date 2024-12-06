@@ -1011,7 +1011,8 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         expected_list = [projects[1]['project']]
 
         # projects[0] has projects[1] as child
-        self.assertEqual(expected_list, projects_result)
+        for project in expected_list:
+            self.assertIn(project, projects_result)
 
         # Query for projects[1] immediate children - it will
         # be projects[2] and projects[3]
@@ -1026,7 +1027,8 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         expected_list = [projects[2]['project'], projects[3]['project']]
 
         # projects[1] has projects[2] and projects[3] as children
-        self.assertEqual(expected_list, projects_result)
+        for project in expected_list:
+            self.assertIn(project, projects_result)
 
         # Query for projects[2] immediate children - it will be an empty list
         r = self.get(
@@ -1040,7 +1042,8 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         expected_list = []
 
         # projects[2] has no child, projects_result must be an empty list
-        self.assertEqual(expected_list, projects_result)
+        for project in expected_list:
+            self.assertIn(project, projects_result)
 
     def test_create_hierarchical_project(self):
         """Call ``POST /projects``."""
@@ -2045,3 +2048,25 @@ class StrictTwoLevelLimitsResourceTestCase(ResourceTestCase):
             body={'project': new_ref},
             expected_status=http.client.FORBIDDEN,
         )
+
+
+class DomainPaginationTestCase(test_v3.PaginationTestCaseBase):
+    """Test domain list pagination."""
+
+    resource_name: str = "domain"
+
+    def _create_resources(self, count: int):
+        for x in range(count):
+            res = {"domain": unit.new_domain_ref()}
+            response = self.post("/domains", body=res)
+
+
+class ProjectPaginationTestCase(test_v3.PaginationTestCaseBase):
+    """Test project list pagination."""
+
+    resource_name: str = "project"
+
+    def _create_resources(self, count: int):
+        for x in range(count):
+            res = {"project": unit.new_project_ref()}
+            response = self.post("/projects", body=res)

@@ -12,11 +12,14 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
-
 import functools
+import typing as ty
 
+import keystone.conf
 from keystone import exception
 from keystone.i18n import _
+
+CONF = keystone.conf.CONF
 
 
 def truncated(f):
@@ -51,7 +54,7 @@ def truncated(f):
         ref_list = f(self, hints, *args, **kwargs)
 
         # If we got more than the original limit then trim back the list and
-        # mark it truncated.  In both cases, make sure we set the limit back
+        # mark it truncated. In both cases, make sure we set the limit back
         # to its original value.
         if len(ref_list) > list_limit:
             hints.set_limit(list_limit, truncated=True)
@@ -95,12 +98,17 @@ class Hints:
     """
 
     def __init__(self):
-        self.limit = None
+        self.limit: ty.Optional[dict[str, ty.Any]] = None
+        self.marker: ty.Optional[str] = None
         self.filters = []
         self.cannot_match = False
 
     def add_filter(
-        self, name, value, comparator='equals', case_sensitive=False
+        self,
+        name,
+        value,
+        comparator: str = 'equals',
+        case_sensitive: bool = False,
     ):
         """Add a filter to the filters list, which is publicly accessible."""
         self.filters.append(
@@ -118,6 +126,57 @@ class Hints:
             if entry['name'] == name and entry['comparator'] == 'equals':
                 return entry
 
-    def set_limit(self, limit, truncated=False):
+    def set_limit(self, limit: int, truncated: bool = False):
         """Set a limit to indicate the list should be truncated."""
         self.limit = {'limit': limit, 'truncated': truncated}
+
+    def get_limit_or_max(self) -> int:
+        """Get page limit or max page size
+
+        Return page limit (size) as requested by user (or API flow) or the
+        maximum page size if not present. This method is invoked by the SQL
+        drivers.
+
+        :returns int: Page size
+        """
+        limit: ty.Optional[int] = (
+            self.limit.get("limit") if self.limit else None
+        )
+        return int(limit) if limit else CONF.max_db_limit
+
+    def get_limit_with_default(
+        self, default_limit: ty.Optional[int] = None
+    ) -> int:
+        """Return page limit for the query.
+
+        1. `limit` was set in the query parameters:
+            `min(limit, MAX_LIMIT)`
+
+        2. `limit` is not set and `default_limit` is set:
+            `min(default_limit, MAX_LIMIT)`
+
+        2. `limit` is null, `default_limit` is null, `CONF.list_limit` is set:
+            `min(CONF.list_limit, MAX_LIMIT)`
+
+        3. `limit` is null, `default_limit` is null, `CONF.list_limit` is null:
+            `CONF.max_db_limit`
+
+        """
+
+        _user_limit: ty.Optional[int] = (
+            self.limit.get("limit") if self.limit else None
+        )
+        _absolute_limit: int = CONF.max_db_limit
+        # when default (as resource specific) is not set try to get the global
+        # default
+        _default_limit: ty.Optional[int] = default_limit or CONF.list_limit
+        if _user_limit:
+            return min(_user_limit, _absolute_limit)
+        elif _default_limit:
+            return min(_default_limit, _absolute_limit)
+        else:
+            return CONF.max_db_limit
+
+    def set_marker(self, marker: str):
+        """Set a marker pointing to the last entry of the page."""
+        self.marker = marker

@@ -1,0 +1,12 @@
+---
+features:
+  - |
+    New configuration variable `max_db_limit` is added to set an absolute limit
+    amount of entries fetched from the database at a single time. It is used in
+    resource pagination. Existing option `list_limit` is optional and describes
+    preferred count of entries while `max_db_limit` sets top limit applied to
+    user input and individual `list_limit` options.
+  - |
+    Project and domain listing supports pagination. Query parameters `limit`
+    and `marker` are added and work as described in `API-SIG doc
+    <https://specs.openstack.org/openstack/api-sig/guidelines/pagination_filter_sort.html>`_

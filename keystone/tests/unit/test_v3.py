@@ -12,8 +12,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import abc
 import datetime
 import http.client
+import typing as ty
 import uuid
 
 import oslo_context.context
@@ -1658,3 +1660,189 @@ class AssignmentTestMixin:
         )
 
         return entity
+
+
+class PaginationTestCaseBase(RestfulTestCase):
+    """Base test for the resource pagination."""
+
+    resource_name: ty.Optional[str] = None
+
+    def setUp(self):
+        super().setUp()
+        if not self.resource_name:
+            self.skipTest("Not testing the base")
+
+    @abc.abstractmethod
+    def _create_resources(self, count: int):
+        """Method creating given count of test resources
+
+        This is an abstract method and must be implemented by every test
+        class inheriting from this base class.
+        """
+        pass
+
+    def test_list_requested_limit(self):
+        """Test requesting certain page size"""
+        count_resources: int = 6
+        self._create_resources(count_resources)
+
+        for expected_length in range(1, count_resources):
+            response = self.get(
+                f"/{self.resource_name}s?limit={expected_length}"
+            )
+            res_list = response.json_body[f"{self.resource_name}s"]
+            res_links = response.json_body["links"]
+            self.assertEqual(
+                expected_length,
+                len(res_list),
+                "Requested count of entries returned",
+            )
+            self.assertEqual(
+                f"http://localhost/v3/{self.resource_name}s?limit={expected_length}&marker={res_list[-1]['id']}",
+                res_links.get("next"),
+                "Next page link contains limit and marker",
+            )
+
+        # Try fetching with explicitly very high page size
+        response = self.get(
+            f"/{self.resource_name}s?limit={count_resources+100}"
+        )
+        res_list = response.json_body[f"{self.resource_name}s"]
+        res_links = response.json_body["links"]
+        self.assertGreaterEqual(
+            len(res_list), count_resources, "All test resources are returned"
+        )
+        self.assertIsNone(res_links.get("next"), "Next page link is empty")
+
+        response = self.get(f"/{self.resource_name}s?limit=1&sort_key=name")
+        res_list = response.json_body[f"{self.resource_name}s"]
+        res_links = response.json_body["links"]
+        self.assertEqual(
+            f"http://localhost/v3/{self.resource_name}s?limit=1&sort_key=name&marker={res_list[-1]['id']}",
+            res_links.get("next"),
+            "Next page link contains limit and marker as well as other passed keys",
+        )
+
+        self.config_fixture.config(list_limit=2)
+        response = self.get(f"/{self.resource_name}s?limit=10")
+        res_list = response.json_body[f"{self.resource_name}s"]
+        self.assertGreaterEqual(
+            len(response.json_body[f"{self.resource_name}s"]),
+            count_resources,
+            "Requested limit higher then default wins",
+        )
+
+    def test_list_requested_limit_too_high(self):
+        """Test passing limit exceeding the system max"""
+        self.config_fixture.config(max_db_limit=4)
+
+        count_resources: int = 6
+        self._create_resources(count_resources)
+
+        response = self.get(f"/{self.resource_name}s?limit={count_resources}")
+        res_list = response.json_body[f"{self.resource_name}s"]
+        res_links = response.json_body['links']
+        self.assertEqual(
+            4,
+            len(res_list),
+            "max_db_limit overrides requested count of entries",
+        )
+        self.assertEqual(
+            f"http://localhost/v3/{self.resource_name}s?limit=4&marker={res_list[-1]['id']}",
+            res_links.get("next"),
+            "Next page link contains corrected limit and marker",
+        )
+
+    def test_list_default_limit(self):
+        """Tests listing resources without limit set"""
+        count_resources: int = 6
+        self._create_resources(count_resources)
+
+        self.config_fixture.config(list_limit=2)
+
+        response = self.get(f'/{self.resource_name}s')
+        res_list = response.json_body[f"{self.resource_name}s"]
+        res_links = response.json_body['links']
+        self.assertEqual(2, len(res_list), "default limit is applied")
+        self.assertEqual(
+            f"http://localhost/v3/{self.resource_name}s?marker={res_list[-1]['id']}&limit=2",
+            res_links.get("next"),
+            "Next page link contains corrected limit and marker",
+        )
+
+        self.config_fixture.config(group="resource", list_limit=3)
+
+        response = self.get(f'/{self.resource_name}s')
+        res_list = response.json_body[f"{self.resource_name}s"]
+        res_links = response.json_body['links']
+        self.assertEqual(3, len(res_list), "default resource limit is applied")
+        self.assertEqual(
+            f"http://localhost/v3/{self.resource_name}s?marker={res_list[-1]['id']}&limit=3",
+            res_links.get("next"),
+            "Next page link contains corrected limit and marker",
+        )
+
+    def _consume_paginated_list(
+        self, limit: ty.Optional[int] = None
+    ) -> tuple[list[dict], int]:
+        """Fetch all paginated resources"""
+        found_resources: list = []
+        pages: int = 0
+        if limit:
+            response = self.get(f"/{self.resource_name}s?limit={limit}")
+        else:
+            response = self.get(f"/{self.resource_name}s")
+            pages = 1
+        res_links = response.json_body['links']
+        while "next" in res_links:
+            # Put fetched resources into the found list
+            found_resources.extend(
+                response.json_body.get(f"{self.resource_name}s")
+            )
+
+            # Get the relative url of the next page (since testhelper only supports that)
+            next_url = res_links.get("next", "")
+            if next_url:
+                next_rel_url = next_url[next_url.find("/v3") + 3 :]
+                # fetch next page
+                response = self.get(next_rel_url)
+                res_links = response.json_body['links']
+                pages += 1
+            else:
+                break
+        return (found_resources, pages)
+
+    def test_list_consume_all_resources(self):
+        """Test paginating through all resources (simulate user SDK)"""
+        count_resources: int = 50
+        page_size: int = 5
+        self._create_resources(count_resources)
+        response = self.get(f"/{self.resource_name}s")
+        current_count = len(response.json_body[f"{self.resource_name}s"])
+
+        # Set pagination default at 5
+        self.config_fixture.config(group="resource", list_limit=page_size)
+
+        (found_resources, pages) = self._consume_paginated_list()
+        self.assertGreaterEqual(
+            len(found_resources),
+            count_resources,
+            "Fetched at least all pre-created resources",
+        )
+        self.assertGreaterEqual(
+            pages,
+            current_count // page_size,
+            "At least as many pages consumed as expected",
+        )
+
+        (found_resources, pages) = self._consume_paginated_list(limit=100)
+        self.assertGreaterEqual(
+            len(found_resources),
+            count_resources,
+            "Fetched at least all pre-created resources",
+        )
+        self.assertGreaterEqual(
+            pages,
+            current_count // 100,
+            "At least as many pages consumed as expected",
+        )

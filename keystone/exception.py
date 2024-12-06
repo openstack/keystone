@@ -443,6 +443,10 @@ class NotFound(Error):
     title = http.client.responses[http.client.NOT_FOUND]
 
 
+class MarkerNotFound(NotFound):
+    message_format = _("Marker %(marker)s could not be found.")
+
+
 class EndpointNotFound(NotFound):
     message_format = _("Could not find endpoint: %(endpoint_id)s.")
 

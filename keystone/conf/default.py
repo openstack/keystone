@@ -97,6 +97,20 @@ projects from placing an unnecessary load on the system.
     ),
 )
 
+max_db_limit = cfg.IntOpt(
+    'max_db_limit',
+    default=1000,
+    min=0,
+    help=utils.fmt(
+        """
+As a query can potentially return many thousands of items, you can limit the
+maximum number of items in a single response by setting this option.
+While `list_limit` is used to set the default page size this parameter sets
+global maximum that cannot be exceded.
+"""
+    ),
+)
+
 strict_password_check = cfg.BoolOpt(
     'strict_password_check',
     default=False,
@@ -177,6 +191,7 @@ ALL_OPTS = [
     max_param_size,
     max_token_size,
     list_limit,
+    max_db_limit,
     strict_password_check,
     insecure_debug,
     default_publisher_id,

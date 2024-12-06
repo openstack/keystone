@@ -20,6 +20,7 @@ import types
 from oslo_log import log
 import stevedore
 
+from keystone.common.driver_hints import Hints
 from keystone.common import provider_api
 from keystone.i18n import _
 
@@ -56,9 +57,14 @@ def response_truncated(f):
         if kwargs.get('hints') is None:
             return f(self, *args, **kwargs)
 
-        list_limit = self.driver._get_list_limit()
-        if list_limit:
-            kwargs['hints'].set_limit(list_limit)
+        # Set default limit if not there already
+        if (
+            isinstance(kwargs['hints'], Hints)
+            and kwargs['hints'].limit is None
+        ):
+            list_limit = self.driver._get_list_limit()
+            if list_limit:
+                kwargs['hints'].set_limit(list_limit)
         return f(self, *args, **kwargs)
 
     return wrapper
