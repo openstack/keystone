@@ -18,10 +18,11 @@ import http.client
 import flask
 import flask_restful
 
+from keystone.api import validation
 from keystone.common import json_home
 from keystone.common import provider_api
 from keystone.common import rbac_enforcer
-from keystone.common import validation
+from keystone.common import validation as ks_validation
 import keystone.conf
 from keystone import exception
 from keystone.resource import schema
@@ -83,17 +84,13 @@ class DomainResource(ks_flask.ResourceBase):
         api='resource_api', method='get_domain'
     )
 
-    def get(self, domain_id=None):
-        """Get domain or list domains.
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(schema.domain_get_response_body)
+    def get(self, domain_id: str):
+        """Get domain
 
-        GET/HEAD /v3/domains
         GET/HEAD /v3/domains/{domain_id}
         """
-        if domain_id is not None:
-            return self._get_domain(domain_id)
-        return self._list_domains()
-
-    def _get_domain(self, domain_id):
         ENFORCER.enforce_call(
             action='identity:get_domain',
             build_target=_build_domain_enforcement_target,
@@ -101,48 +98,8 @@ class DomainResource(ks_flask.ResourceBase):
         domain = PROVIDERS.resource_api.get_domain(domain_id)
         return self.wrap_member(domain)
 
-    def _list_domains(self):
-        filters = ['name', 'enabled']
-        target = None
-        if self.oslo_context.domain_id:
-            target = {'domain': {'id': self.oslo_context.domain_id}}
-        ENFORCER.enforce_call(
-            action='identity:list_domains', filters=filters, target_attr=target
-        )
-        hints = self.build_driver_hints(filters)
-        refs = PROVIDERS.resource_api.list_domains(hints=hints)
-        if self.oslo_context.domain_id:
-            domain_id = self.oslo_context.domain_id
-            filtered_refs = [ref for ref in refs if ref['id'] == domain_id]
-        else:
-            filtered_refs = refs
-        return self.wrap_collection(filtered_refs, hints=hints)
-
-    def post(self):
-        """Create domain.
-
-        POST /v3/domains
-        """
-        ENFORCER.enforce_call(action='identity:create_domain')
-        domain = self.request_body_json.get('domain', {})
-        validation.lazy_validate(schema.domain_create, domain)
-
-        domain_id = domain.get('explicit_domain_id')
-        if domain_id is None:
-            domain = self._assign_unique_id(domain)
-        else:
-            # Domain ID validation provided by PyCADF
-            try:
-                self._validate_id_format(domain_id)
-            except ValueError:
-                raise exception.DomainIdInvalid
-            domain['id'] = domain_id
-        domain = self._normalize_dict(domain)
-        ref = PROVIDERS.resource_api.create_domain(
-            domain['id'], domain, initiator=self.audit_initiator
-        )
-        return self.wrap_member(ref), http.client.CREATED
-
+    @validation.request_body_schema(schema.domain_update_request_body)
+    @validation.response_body_schema(schema.domain_update_response_body)
     def patch(self, domain_id):
         """Update domain.
 
@@ -150,7 +107,6 @@ class DomainResource(ks_flask.ResourceBase):
         """
         ENFORCER.enforce_call(action='identity:update_domain')
         domain = self.request_body_json.get('domain', {})
-        validation.lazy_validate(schema.domain_update, domain)
         PROVIDERS.resource_api.get_domain(domain_id)
         ref = PROVIDERS.resource_api.update_domain(
             domain_id, domain, initiator=self.audit_initiator
@@ -167,6 +123,65 @@ class DomainResource(ks_flask.ResourceBase):
             domain_id, initiator=self.audit_initiator
         )
         return None, http.client.NO_CONTENT
+
+
+class DomainsResource(ks_flask.ResourceBase):
+    collection_key = 'domains'
+    member_key = 'domain'
+    get_member_from_driver = PROVIDERS.deferred_provider_lookup(
+        api='resource_api', method='get_domain'
+    )
+
+    @validation.request_query_schema(schema.domain_index_request_query)
+    @validation.response_body_schema(schema.domain_index_response_body)
+    def get(self):
+        """List domains.
+
+        GET/HEAD /v3/domains
+        """
+        filters = ['name', 'enabled']
+        target = None
+        if self.oslo_context.domain_id:
+            target = {'domain': {'id': self.oslo_context.domain_id}}
+        ENFORCER.enforce_call(
+            action='identity:list_domains', filters=filters, target_attr=target
+        )
+        hints = self.build_driver_hints(filters)
+        refs = PROVIDERS.resource_api.list_domains(hints=hints)
+        if self.oslo_context.domain_id:
+            domain_id = self.oslo_context.domain_id
+            filtered_refs = [ref for ref in refs if ref['id'] == domain_id]
+        else:
+            filtered_refs = refs
+        return self.wrap_collection(filtered_refs, hints=hints)
+
+    @validation.request_body_schema(schema.domain_create_request_body)
+    @validation.response_body_schema(schema.domain_create_response_body)
+    def post(self):
+        """Create domain.
+
+        POST /v3/domains
+        """
+        ENFORCER.enforce_call(action='identity:create_domain')
+        domain = self.request_body_json.get('domain', {})
+
+        # Pop explicit_domain_id if passed not to return it back
+        domain_id = domain.pop('explicit_domain_id', None)
+        if domain_id is None:
+            domain = self._assign_unique_id(domain)
+        else:
+            # Domain ID validation provided by PyCADF
+            try:
+                self._validate_id_format(domain_id)
+            except ValueError:
+                raise exception.DomainIdInvalid
+            domain['id'] = domain_id
+        domain = self._normalize_dict(domain)
+        domain.pop("explicit_domain_id", None)
+        ref = PROVIDERS.resource_api.create_domain(
+            domain['id'], domain, initiator=self.audit_initiator
+        )
+        return self.wrap_member(ref), http.client.CREATED
 
 
 class DomainConfigBase(ks_flask.ResourceBase):
@@ -490,8 +505,21 @@ class DomainAPI(ks_flask.APIBase):
     CONFIG_OPTION = json_home.build_v3_parameter_relation('config_option')
     _name = 'domains'
     _import_name = __name__
-    resources = [DomainResource]
     resource_mapping = [
+        ks_flask.construct_resource_map(
+            resource=DomainsResource,
+            url=('/domains'),
+            resource_kwargs={},
+            rel='domains',
+            path_vars=None,
+        ),
+        ks_flask.construct_resource_map(
+            resource=DomainResource,
+            url=('/domains/<string:domain_id>'),
+            resource_kwargs={},
+            rel='domain',
+            path_vars={"domain_id": json_home.Parameters.DOMAIN_ID},
+        ),
         ks_flask.construct_resource_map(
             resource=DomainConfigResource,
             url=('/domains/<string:domain_id>/config'),

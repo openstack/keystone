@@ -19,6 +19,7 @@ from keystone.resource.backends import resource_options as ro
 
 _name_properties = {
     'type': 'string',
+    'description': 'The resource name.',
     'minLength': 1,
     'maxLength': 64,
     'pattern': r'[\S]+',
@@ -75,30 +76,6 @@ project_update = {
     'type': 'object',
     'properties': _project_properties,
     # NOTE(lbragstad): Make sure at least one property is being updated
-    'minProperties': 1,
-    'additionalProperties': True,
-}
-
-_domain_properties = {
-    'description': validation.nullable(old_parameter_types.description),
-    'enabled': parameter_types.boolean,
-    'name': _name_properties,
-    'tags': project_tags_update,
-}
-
-domain_create = {
-    'type': 'object',
-    'properties': _domain_properties,
-    # TODO(lbragstad): According to the V3 API spec, name isn't required but
-    # the current implementation in assignment.controller:DomainV3 requires a
-    # name for the domain.
-    'required': ['name'],
-    'additionalProperties': True,
-}
-
-domain_update = {
-    'type': 'object',
-    'properties': _domain_properties,
     'minProperties': 1,
     'additionalProperties': True,
 }
@@ -177,6 +154,7 @@ project_update_request_body: dict[str, Any] = {
                 ),
                 'enabled': parameter_types.boolean,
                 'name': _name_properties,
+                'options': ro.PROJECT_OPTIONS_REGISTRY.json_schema,
                 'tags': _project_tags_list_properties,
             },
         }
@@ -185,6 +163,107 @@ project_update_request_body: dict[str, Any] = {
 }
 
 project_update_response_body: dict[str, Any] = project_get_response_body
+
+_domain_properties = {
+    "description": validation.nullable(parameter_types.description),
+    "enabled": {
+        "description": "If set to true, domain is enabled. If set to false, domain is disabled.",
+        **parameter_types.boolean,
+    },
+    "name": _name_properties,
+    "options": ro.PROJECT_OPTIONS_REGISTRY.json_schema,
+    "tags": project_tags_update,
+}
+
+domain_schema: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "id": {"type": "string", "readOnly": True},
+        "links": response_types.resource_links,
+        **_domain_properties,
+    },
+    "additionalProperties": False,
+}
+
+domain_get_response_body: dict[str, Any] = {
+    "type": "object",
+    "properties": {"domain": domain_schema},
+    "required": ["domain"],
+    "additionalProperties": False,
+}
+
+domain_index_request_query: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "enabled": {
+            "description": "If set to true, then only domains that are enabled will be returned, if set to false only that are disabled will be returned. Any value other than 0, including no value, will be interpreted as true.",
+            **parameter_types.boolean,
+        },
+        "name": _name_properties,
+        "marker": {
+            "type": "string",
+            "description": "ID of the last fetched entry",
+        },
+        "limit": {"type": ["integer", "string"]},
+    },
+    "additionalProperties": "False",
+}
+
+domain_index_response_body: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "domains": {"type": "array", "items": domain_schema},
+        "links": response_types.links,
+        "truncated": response_types.truncated,
+    },
+    "additionalProperties": False,
+}
+
+domain_update_request_body: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "domain": {
+            "type": "object",
+            "properties": _domain_properties,
+            "minProperties": 1,
+        }
+    },
+    "required": ["domain"],
+    "additionalProperties": False,
+}
+
+domain_update_response_body: dict[str, Any] = {
+    "type": "object",
+    "properties": {"domain": domain_schema},
+    "required": ["domain"],
+    "additionalProperties": False,
+}
+
+domain_create_request_body: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "domain": {
+            "type": "object",
+            "properties": {
+                "explicit_domain_id": {
+                    "description": "The ID of the domain. A domain created this way will not use an auto-generated ID, but will use the ID passed in instead. Identifiers passed in this way must conform to the existing ID generation scheme: UUID4 without dashes.",
+                    **parameter_types.domain_id,
+                },
+                **_domain_properties,
+            },
+            "required": ["name"],
+        }
+    },
+    "required": ["domain"],
+    "additionalProperties": False,
+}
+
+domain_create_response_body: dict[str, Any] = {
+    "type": "object",
+    "properties": {"domain": domain_schema},
+    "required": ["domain"],
+    "additionalProperties": False,
+}
 
 tags_response_body: dict[str, Any] = response_types.tags
 
