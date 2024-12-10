@@ -10,27 +10,113 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
+from keystone.api.validation import parameter_types
+from keystone.api.validation import response_types
 from keystone.assignment.role_backends import resource_options as ro
-from keystone.common.validation import parameter_types
+from keystone.common import validation
 
 # Schema for Identity v3 API
 
-_role_properties = {
-    'name': parameter_types.name,
-    'description': parameter_types.description,
-    'options': ro.ROLE_OPTIONS_REGISTRY.json_schema,
+_role_properties: dict[str, Any] = {
+    "name": parameter_types.name,
+    "description": validation.nullable(parameter_types.description),
+    "domain_id": validation.nullable(parameter_types.domain_id),
+    "options": ro.ROLE_OPTIONS_REGISTRY.json_schema,
+}
+# NOTE(0weng): Multiple response body examples in the docs are
+# incorrectly missing the `options` field.
+
+# Common schema of `Role` resource
+role_schema: dict[str, Any] = {
+    "type": "object",
+    "description": "A role object.",
+    "properties": {
+        "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The role ID.",
+            "readOnly": True,
+        },
+        "links": response_types.resource_links,
+        **_role_properties,
+    },
+    "additionalProperties": True,
 }
 
-role_create = {
-    'type': 'object',
-    'properties': _role_properties,
-    'required': ['name'],
-    'additionalProperties': True,
+# Response body of API operations returning a single role
+# `GET /roles/{role_id}`, `POST /roles`, and `PATCH /roles/{role_id}`
+role_show_response_body: dict[str, Any] = {
+    "type": "object",
+    "properties": {"role": role_schema},
+    "additionalProperties": False,
 }
 
-role_update = {
-    'type': 'object',
-    'properties': _role_properties,
-    'minProperties': 1,
-    'additionalProperties': True,
+# Query parameters of the `GET /roles` API operation
+# returning a list of roles
+roles_index_request_query: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "name": parameter_types.name,
+        "domain_id": parameter_types.domain_id,
+    },
+    "additionalProperties": False,
+}
+
+# Response body of the `GET /roles` API operation
+# returning a list of roles
+roles_index_response_body: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "links": response_types.links,
+        "roles": {
+            "type": "array",
+            "items": role_schema,
+            "description": "A list of role objects.",
+        },
+        "truncated": response_types.truncated,
+    },
+    "additionalProperties": False,
+}
+
+# Request body of the `POST /roles` API operation
+role_create_request_body = {
+    "type": "object",
+    "properties": {
+        "role": {
+            "type": "object",
+            "properties": _role_properties,
+            "description": "A role object.",
+            "required": ["name"],
+            "additionalProperties": True,
+        }
+    },
+    "required": ["role"],
+    "additionalProperties": False,
+}
+
+# FIXME(0weng): There's no error if additional properties are added
+# at the top level, e.g. POST/PATCH with this body:
+# {"role": {"some_key":"some_value"}, "no_error": "no_error_here"}
+# Is this intended, or should it be disallowed by the schema (as it is here)?
+# 400 errors do occur if the "role" property is missing
+# (the error message is that '{}' is not enough properties,
+# so I imagine extra properties are removed)
+# or no properties are provided.
+
+# Request body of the `PATCH /roles/{role_id}` operation
+role_update_request_body = {
+    "type": "object",
+    "properties": {
+        "role": {
+            "type": "object",
+            "properties": _role_properties,
+            "description": "A role object.",
+            "minProperties": 1,
+            "additionalProperties": True,
+        }
+    },
+    "required": ["role"],
+    "additionalProperties": False,
 }
