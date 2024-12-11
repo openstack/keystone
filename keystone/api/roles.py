@@ -218,6 +218,8 @@ def _build_enforcement_target_ref():
 
 
 class RoleImplicationListResource(flask_restful.Resource):
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(schema.role_inference_show_response_body)
     def get(self, prior_role_id):
         """List Implied Roles.
 
@@ -243,6 +245,8 @@ class RoleImplicationListResource(flask_restful.Resource):
 
 
 class RoleImplicationResource(flask_restful.Resource):
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(None)
     def head(self, prior_role_id, implied_role_id=None):
         # TODO(morgan): deprecate "check_implied_role" policy, as a user must
         # have both check_implied_role and get_implied_role to use the head
@@ -261,6 +265,8 @@ class RoleImplicationResource(flask_restful.Resource):
         # here is incorrect. It is maintained as is for API contract reasons.
         return None, http.client.NO_CONTENT
 
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(schema.implied_role_show_response_body)
     def get(self, prior_role_id, implied_role_id):
         """Get implied role.
 
@@ -287,6 +293,8 @@ class RoleImplicationResource(flask_restful.Resource):
         }
         return response_json
 
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(schema.implied_role_show_response_body)
     def put(self, prior_role_id, implied_role_id):
         """Create implied role.
 
@@ -300,6 +308,8 @@ class RoleImplicationResource(flask_restful.Resource):
         response_json = self._get_implied_role(prior_role_id, implied_role_id)
         return response_json, http.client.CREATED
 
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(None)
     def delete(self, prior_role_id, implied_role_id):
         """Delete implied role.
 
