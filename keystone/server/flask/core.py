@@ -188,8 +188,18 @@ def setup_app_middleware(app):
 
     # CCloud
     if os.environ.get('SENTRY_DSN', None):
+        processors = (
+            'raven.processors.SanitizePasswordsProcessor',
+            'raven.processors.SanitizeKeysProcessor',
+            'raven.processors.RemovePostDataProcessor',
+        )
+        sanitize_keys = [
+            'old_password', 'new_password', 'password', 'cred', 'secret',
+            'passwd', 'credentials']
         app.config['SENTRY_CONFIG'] = {
             'ignore_exceptions': [exception.NotFound, exception.Unauthorized],
+            'processors': processors,
+            'sanitize_keys': sanitize_keys,
         }
 
         sentry = Sentry()
