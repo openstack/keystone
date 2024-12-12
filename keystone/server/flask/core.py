@@ -197,7 +197,8 @@ def setup_app_middleware(app):
             'old_password', 'new_password', 'password', 'cred', 'secret',
             'passwd', 'credentials']
         app.config['SENTRY_CONFIG'] = {
-            'ignore_exceptions': [exception.NotFound, exception.Unauthorized],
+            'ignore_exceptions': [exception.NotFound, exception.Unauthorized,
+                                  'INVALID_CREDENTIALS'],
             'processors': processors,
             'sanitize_keys': sanitize_keys,
         }
