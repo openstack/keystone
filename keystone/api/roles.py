@@ -18,17 +18,80 @@ import flask
 import flask_restful
 
 from keystone.api._shared import implied_roles as shared
+from keystone.api import validation
 from keystone.assignment import schema
 from keystone.common import json_home
 from keystone.common import provider_api
 from keystone.common import rbac_enforcer
-from keystone.common import validation
 import keystone.conf
 from keystone.server import flask as ks_flask
 
 CONF = keystone.conf.CONF
 ENFORCER = rbac_enforcer.RBACEnforcer
 PROVIDERS = provider_api.ProviderAPIs
+
+
+class RolesResource(ks_flask.ResourceBase):
+    collection_key = 'roles'
+    member_key = 'role'
+    get_member_from_driver = PROVIDERS.deferred_provider_lookup(
+        api='role_api', method='get_role'
+    )
+
+    def _is_domain_role(self, role):
+        return bool(role.get('domain_id'))
+
+    @validation.request_query_schema(schema.roles_index_request_query)
+    @validation.response_body_schema(schema.roles_index_response_body)
+    def get(self):
+        """List roles.
+
+        GET/HEAD /v3/roles
+        """
+        filters = ['name', 'domain_id']
+        domain_filter = flask.request.args.get('domain_id')
+        if domain_filter:
+            ENFORCER.enforce_call(
+                action='identity:list_domain_roles', filters=filters
+            )
+        else:
+            ENFORCER.enforce_call(
+                action='identity:list_roles', filters=filters
+            )
+
+        hints = self.build_driver_hints(filters)
+        if not domain_filter:
+            # NOTE(jamielennox): To handle the default case of not domain_id
+            # defined the role_assignment backend does some hackery to
+            # distinguish between global and domain scoped roles. This backend
+            # behaviour relies upon a value of domain_id being set (not just
+            # defaulting to None). Manually set the filter if its not
+            # provided.
+            hints.add_filter('domain_id', None)
+        refs = PROVIDERS.role_api.list_roles(hints=hints)
+        return self.wrap_collection(refs, hints=hints)
+
+    @validation.request_body_schema(schema.role_create_request_body)
+    @validation.response_body_schema(schema.role_show_response_body)
+    def post(self):
+        """Create role.
+
+        POST /v3/roles
+        """
+        role = self.request_body_json.get('role', {})
+        if self._is_domain_role(role):
+            target = {'role': role}
+            ENFORCER.enforce_call(
+                action='identity:create_domain_role', target_attr=target
+            )
+        else:
+            ENFORCER.enforce_call(action='identity:create_role')
+        role = self._assign_unique_id(role)
+        role = self._normalize_dict(role)
+        ref = PROVIDERS.role_api.create_role(
+            role['id'], role, initiator=self.audit_initiator
+        )
+        return self.wrap_member(ref), http.client.CREATED
 
 
 class RoleResource(ks_flask.ResourceBase):
@@ -41,17 +104,13 @@ class RoleResource(ks_flask.ResourceBase):
     def _is_domain_role(self, role):
         return bool(role.get('domain_id'))
 
-    def get(self, role_id=None):
-        """Get role or list roles.
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(schema.role_show_response_body)
+    def get(self, role_id):
+        """Get role.
 
-        GET/HEAD /v3/roles
         GET/HEAD /v3/roles/{role_id}
         """
-        if role_id is not None:
-            return self._get_role(role_id)
-        return self._list_roles()
-
-    def _get_role(self, role_id):
         err = None
         role = {}
         try:
@@ -80,51 +139,8 @@ class RoleResource(ks_flask.ResourceBase):
                 )
         return self.wrap_member(role)
 
-    def _list_roles(self):
-        filters = ['name', 'domain_id']
-        domain_filter = flask.request.args.get('domain_id')
-        if domain_filter:
-            ENFORCER.enforce_call(
-                action='identity:list_domain_roles', filters=filters
-            )
-        else:
-            ENFORCER.enforce_call(
-                action='identity:list_roles', filters=filters
-            )
-
-        hints = self.build_driver_hints(filters)
-        if not domain_filter:
-            # NOTE(jamielennox): To handle the default case of not domain_id
-            # defined the role_assignment backend does some hackery to
-            # distinguish between global and domain scoped roles. This backend
-            # behaviour relies upon a value of domain_id being set (not just
-            # defaulting to None). Manually set the filter if its not
-            # provided.
-            hints.add_filter('domain_id', None)
-        refs = PROVIDERS.role_api.list_roles(hints=hints)
-        return self.wrap_collection(refs, hints=hints)
-
-    def post(self):
-        """Create role.
-
-        POST /v3/roles
-        """
-        role = self.request_body_json.get('role', {})
-        if self._is_domain_role(role):
-            target = {'role': role}
-            ENFORCER.enforce_call(
-                action='identity:create_domain_role', target_attr=target
-            )
-        else:
-            ENFORCER.enforce_call(action='identity:create_role')
-        validation.lazy_validate(schema.role_create, role)
-        role = self._assign_unique_id(role)
-        role = self._normalize_dict(role)
-        ref = PROVIDERS.role_api.create_role(
-            role['id'], role, initiator=self.audit_initiator
-        )
-        return self.wrap_member(ref), http.client.CREATED
-
+    @validation.request_body_schema(schema.role_update_request_body)
+    @validation.response_body_schema(schema.role_show_response_body)
     def patch(self, role_id):
         """Update role.
 
@@ -151,13 +167,14 @@ class RoleResource(ks_flask.ResourceBase):
                     member_target=role,
                 )
         request_body_role = self.request_body_json.get('role', {})
-        validation.lazy_validate(schema.role_update, request_body_role)
         self._require_matching_id(request_body_role)
         ref = PROVIDERS.role_api.update_role(
             role_id, request_body_role, initiator=self.audit_initiator
         )
         return self.wrap_member(ref)
 
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(None)
     def delete(self, role_id):
         """Delete role.
 
@@ -299,8 +316,23 @@ class RoleImplicationResource(flask_restful.Resource):
 class RoleAPI(ks_flask.APIBase):
     _name = 'roles'
     _import_name = __name__
-    resources = [RoleResource]
     resource_mapping = [
+        ks_flask.construct_resource_map(
+            resource=RolesResource,
+            url='/roles',
+            resource_kwargs={},
+            rel="roles",
+            path_vars=None,
+        ),
+        ks_flask.construct_resource_map(
+            resource=RoleResource,
+            url='/roles/<string:role_id>',
+            resource_kwargs={},
+            rel="role",
+            path_vars={
+                'role_id': json_home.build_v3_parameter_relation("role_id")
+            },
+        ),
         ks_flask.construct_resource_map(
             resource=RoleImplicationListResource,
             url='/roles/<string:prior_role_id>/implies',
