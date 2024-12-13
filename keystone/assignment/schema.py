@@ -120,3 +120,106 @@ role_update_request_body = {
     "required": ["role"],
     "additionalProperties": False,
 }
+
+# Individual properties of a returned prior/implied role
+_implied_role_properties: dict[str, Any] = {
+    "id": {
+        "type": "string",
+        "format": "uuid",
+        "description": "The role ID.",
+        "readOnly": True,
+    },
+    "links": response_types.resource_links,
+    "name": parameter_types.name,
+}
+
+# Common schema of prior role
+prior_role_schema: dict[str, Any] = {
+    "type": "object",
+    "description": "A prior role object.",
+    "properties": _implied_role_properties,
+    "additionalProperties": False,
+}
+
+# Common schema of implied role
+implied_role_schema: dict[str, Any] = {
+    "type": "object",
+    "description": "An implied role object.",
+    "properties": _implied_role_properties,
+    "additionalProperties": False,
+}
+
+# Response body of API operations returning a single implied role
+# `GET /v3/roles/{prior_role_id}/implies/{implies_role_id}`
+# and `PUT /v3/roles/{prior_role_id}/implies/{implies_role_id}`
+implied_role_show_response_body: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "role_inference": {
+            "type": "object",
+            "description": (
+                "Role inference object that contains "
+                "prior_role object and implies object."
+            ),
+            "properties": {
+                "prior_role": prior_role_schema,
+                "implies": implied_role_schema,
+            },
+            "additionalProperties": False,
+        },
+        "links": response_types.links,
+    },
+    "additionalProperties": False,
+}
+
+# Response body of the `GET /v3/roles/{prior_role_id}/implies` API operation
+# returning a single role inference
+role_inference_show_response_body: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "role_inference": {
+            "type": "object",
+            "description": "A role inference object.",
+            "properties": {
+                "prior_role": prior_role_schema,
+                "implies": {
+                    "type": "array",
+                    "items": implied_role_schema,
+                    "description": "A list of implied role objects.",
+                },
+            },
+            "additionalProperties": False,
+        },
+        "links": response_types.links,
+    },
+    "additionalProperties": False,
+}
+
+# Response body of the `GET /v3/role_inferences` API operation
+# returning a list of role inferences
+role_inferences_index_response_body: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "role_inferences": {
+            "type": "array",
+            "description": "A list of role inference objects.",
+            "items": {
+                "type": "object",
+                "properties": {
+                    # NOTE(0weng): The example in the docs incorrectly
+                    # includes the `description` field in the output.
+                    "prior_role": prior_role_schema,
+                    "implies": {
+                        "type": "array",
+                        "items": implied_role_schema,
+                        "description": "A list of implied role objects.",
+                    },
+                },
+                "additionalProperties": False,
+            },
+            "additionalProperties": False,
+        },
+        "links": response_types.links,
+    },
+    "additionalProperties": False,
+}

@@ -15,6 +15,8 @@
 import flask_restful
 
 from keystone.api._shared import implied_roles as shared
+from keystone.api import validation
+from keystone.assignment import schema
 from keystone.common import provider_api
 from keystone.common import rbac_enforcer
 from keystone.server import flask as ks_flask
@@ -24,6 +26,10 @@ PROVIDERS = provider_api.ProviderAPIs
 
 
 class RoleInferencesResource(flask_restful.Resource):
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(
+        schema.role_inferences_index_response_body
+    )
     def get(self):
         """List role inference rules.
 
