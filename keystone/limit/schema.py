@@ -17,42 +17,167 @@ from typing import Any
 from keystone.api.validation import parameter_types
 from keystone.api.validation import response_types
 from keystone.common import validation
-from keystone.common.validation import parameter_types as old_parameter_types
-
-_registered_limit_properties = {
-    'service_id': old_parameter_types.id_string,
-    'region_id': {'type': ['null', 'string']},
-    'resource_name': {'type': 'string', 'minLength': 1, 'maxLength': 255},
-    'default_limit': {
-        'type': 'integer',
-        'minimum': -1,
-        'maximum': 0x7FFFFFFF,  # The maximum value a signed INT may have
-    },
-    'description': validation.nullable(old_parameter_types.description),
-}
-
-_registered_limit_create = {
-    'type': 'object',
-    'properties': _registered_limit_properties,
-    'additionalProperties': False,
-    'required': ['service_id', 'resource_name', 'default_limit'],
-}
-
-registered_limit_create = {
-    'type': 'array',
-    'items': _registered_limit_create,
-    'minItems': 1,
-}
-registered_limit_update = {
-    'type': 'object',
-    'properties': _registered_limit_properties,
-    'additionalProperties': False,
-}
 
 _limit_integer_type = {
     "type": "integer",
     "minimum": -1,
     "maximum": 0x7FFFFFFF,  # The maximum value a signed INT may have
+}
+
+_registered_limit_properties = {
+    "service_id": {
+        "type": "string",
+        "format": "uuid",
+        "description": (
+            "The UUID of the service to which the registered limit belongs."
+        ),
+    },
+    "region_id": {
+        "description": (
+            "The ID of the region that contains the service endpoint."
+        ),
+        **parameter_types.region_id,
+    },
+    "resource_name": parameter_types.name,
+    "default_limit": {
+        "description": "The default limit for the registered limit.",
+        **_limit_integer_type,
+    },
+    "description": validation.nullable(parameter_types.description),
+}
+
+# Common schema of `Registered Limit` resource
+registered_limit_schema: dict[str, Any] = {
+    "type": "object",
+    "description": "A registered limit object.",
+    "properties": {
+        "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "The registered limit ID.",
+            "readOnly": True,
+        },
+        "links": response_types.resource_links,
+        **_registered_limit_properties,
+    },
+    "additionalProperties": False,
+}
+
+# Response body of API operations returning a single registered limit
+# `GET /registered_limits/{registered_limit_id}` and
+# `PATCH /registered_limits/{registered_limit_id}`
+registered_limit_show_response_body: dict[str, Any] = {
+    "type": "object",
+    "properties": {"registered_limit": registered_limit_schema},
+    "additionalProperties": False,
+}
+
+# Query parameters of the `GET /registered_limits` API operation
+# returning a list of registered limits
+registered_limits_index_request_query: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "service_id": {
+            "type": "string",
+            "format": "uuid",
+            "description": ("Filters the response by a service ID."),
+        },
+        "region_id": {
+            "description": ("Filters the response by a region ID."),
+            **parameter_types.region_id,
+        },
+        "resource_name": {
+            "description": {
+                "Filters the response by a specified resource name."
+            },
+            **parameter_types.name,
+        },
+    },
+    "additionalProperties": False,
+}
+
+# Response body of the `GET /registered_limits` API operation
+# returning a list of registered limits
+registered_limits_index_response_body: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "links": response_types.links,
+        "registered_limits": {
+            "type": "array",
+            "items": registered_limit_schema,
+            "description": "A list of registered limit objects.",
+        },
+        "truncated": response_types.truncated,
+    },
+    "additionalProperties": False,
+}
+
+# Individual properties for creating a new registered limit
+_registered_limit_create = {
+    "type": "object",
+    "properties": _registered_limit_properties,
+    "additionalProperties": False,
+    "required": ["service_id", "resource_name", "default_limit"],
+}
+
+# Request body of the `POST /registered_limits` API operation
+registered_limits_create_request_body = {
+    "type": "object",
+    "properties": {
+        "registered_limits": {
+            "type": "array",
+            "items": _registered_limit_create,
+            "minItems": 1,
+            "description": "A list of registered limit objects.",
+        }
+    },
+    "required": ["registered_limits"],
+    "additionalProperties": False,
+}
+
+# Response body of the `POST /registered_limits` API operation
+registered_limits_create_response_body: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "registered_limits": {
+            "type": "array",
+            "items": registered_limit_schema,
+            "description": "A list of registered limit objects.",
+        },
+        "truncated": response_types.truncated,
+    },
+    "additionalProperties": False,
+}
+
+# Request body of the `PATCH /registered_limits/{registered_limit_id}`
+# operation
+registered_limit_update_request_body = {
+    "type": "object",
+    "properties": {
+        "registered_limit": {
+            "type": "object",
+            "description": "Updates to make to a registered limit.",
+            "properties": {
+                "service_id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "description": (
+                        "The UUID of the service to which "
+                        "the registered limit belongs."
+                    ),
+                },
+                "region_id": parameter_types.region_id,
+                "resource_name": parameter_types.name,
+                "default_limit": _limit_integer_type,
+                "description": validation.nullable(
+                    parameter_types.description
+                ),
+            },
+            "additionalProperties": False,
+        }
+    },
+    "additionalProperties": False,
+    "required": ["registered_limit"],
 }
 
 # Individual properties of the `Limit`
