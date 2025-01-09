@@ -178,17 +178,10 @@ class UserResource(ks_flask.ResourceBase):
         api='identity_api', method='get_user'
     )
 
-    def get(self, user_id=None):
-        """Get a user resource or list users.
-
-        GET/HEAD /v3/users
-        GET/HEAD /v3/users/{user_id}
-        """
-        if user_id is not None:
-            return self._get_user(user_id)
-        return self._list_users()
-
-    def _get_user(self, user_id):
+    @validation.request_query_schema(None)
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(schema.user_get_response_body)
+    def get(self, user_id: str):
         """Get a user resource.
 
         GET/HEAD /v3/users/{user_id}
@@ -200,7 +193,55 @@ class UserResource(ks_flask.ResourceBase):
         ref = PROVIDERS.identity_api.get_user(user_id)
         return self.wrap_member(ref)
 
-    def _list_users(self):
+    @validation.request_query_schema(None)
+    @validation.request_body_schema(schema.user_update_request)
+    @validation.response_body_schema(schema.user_update_request)
+    def patch(self, user_id: str):
+        """Update a user.
+
+        PATCH /v3/users/{user_id}
+        """
+        ENFORCER.enforce_call(
+            action='identity:update_user',
+            build_target=_build_user_target_enforcement,
+        )
+        PROVIDERS.identity_api.get_user(user_id)
+        user_data = self.request_body_json.get('user', {})
+        self._require_matching_id(user_data)
+        ref = PROVIDERS.identity_api.update_user(
+            user_id, user_data, initiator=self.audit_initiator
+        )
+        return self.wrap_member(ref)
+
+    @validation.request_query_schema(None)
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(None)
+    def delete(self, user_id: str):
+        """Delete a user.
+
+        DELETE /v3/users/{user_id}
+        """
+        ENFORCER.enforce_call(
+            action='identity:delete_user',
+            build_target=_build_user_target_enforcement,
+        )
+        PROVIDERS.identity_api.delete_user(
+            user_id, initiator=self.audit_initiator
+        )
+        return None, http.client.NO_CONTENT
+
+
+class UsersResource(ks_flask.ResourceBase):
+    collection_key = 'users'
+    member_key = 'user'
+    get_member_from_driver = PROVIDERS.deferred_provider_lookup(
+        api='identity_api', method='get_user'
+    )
+
+    @validation.request_query_schema(schema.user_index_request_query)
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(schema.user_index_response_body)
+    def get(self):
         """List users.
 
         GET/HEAD /v3/users
@@ -242,6 +283,9 @@ class UserResource(ks_flask.ResourceBase):
 
         return self.wrap_collection(users, hints=hints)
 
+    @validation.request_query_schema(None)
+    @validation.request_body_schema(schema.user_create_request)
+    @validation.response_body_schema(schema.user_create_request)
     def post(self):
         """Create a user.
 
@@ -252,45 +296,12 @@ class UserResource(ks_flask.ResourceBase):
         ENFORCER.enforce_call(
             action='identity:create_user', target_attr=target
         )
-        ks_validation.lazy_validate(schema.user_create, user_data)
         user_data = self._normalize_dict(user_data)
         user_data = self._normalize_domain_id(user_data)
         ref = PROVIDERS.identity_api.create_user(
             user_data, initiator=self.audit_initiator
         )
         return self.wrap_member(ref), http.client.CREATED
-
-    def patch(self, user_id):
-        """Update a user.
-
-        PATCH /v3/users/{user_id}
-        """
-        ENFORCER.enforce_call(
-            action='identity:update_user',
-            build_target=_build_user_target_enforcement,
-        )
-        PROVIDERS.identity_api.get_user(user_id)
-        user_data = self.request_body_json.get('user', {})
-        ks_validation.lazy_validate(schema.user_update, user_data)
-        self._require_matching_id(user_data)
-        ref = PROVIDERS.identity_api.update_user(
-            user_id, user_data, initiator=self.audit_initiator
-        )
-        return self.wrap_member(ref)
-
-    def delete(self, user_id):
-        """Delete a user.
-
-        DELETE /v3/users/{user_id}
-        """
-        ENFORCER.enforce_call(
-            action='identity:delete_user',
-            build_target=_build_user_target_enforcement,
-        )
-        PROVIDERS.identity_api.delete_user(
-            user_id, initiator=self.audit_initiator
-        )
-        return None, http.client.NO_CONTENT
 
 
 class UserChangePasswordResource(ks_flask.ResourceBase):
@@ -840,8 +851,21 @@ class UserAccessRuleGetDeleteResource(ks_flask.ResourceBase):
 class UserAPI(ks_flask.APIBase):
     _name = 'users'
     _import_name = __name__
-    resources = [UserResource]
     resource_mapping = [
+        ks_flask.construct_resource_map(
+            resource=UsersResource,
+            url='/users',
+            resource_kwargs={},
+            rel='users',
+            path_vars={},
+        ),
+        ks_flask.construct_resource_map(
+            resource=UserResource,
+            url='/users/<string:user_id>',
+            resource_kwargs={},
+            rel='user',
+            path_vars={'user_id': json_home.Parameters.USER_ID},
+        ),
         ks_flask.construct_resource_map(
             resource=UserChangePasswordResource,
             url='/users/<string:user_id>/password',
