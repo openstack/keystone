@@ -186,25 +186,86 @@ user_update_request: dict[str, Any] = {
 
 user_update_response_body: dict[str, Any] = user_get_response_body
 
-_group_properties = {
+group_index_request_query: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "domain_id": parameter_types.domain_id,
+        "name": parameter_types.name,
+    },
+    "additionalProperties": False,
+}
+
+_group_properties: dict[str, Any] = {
     'description': validation.nullable(parameter_types.description),
     'domain_id': parameter_types.id_string,
+    'id': {"type": "string", "description": "The user ID.", "readOnly": True},
     'name': _identity_name,
 }
 
-group_create = {
-    'type': 'object',
-    'properties': _group_properties,
-    'required': ['name'],
-    'additionalProperties': True,
+group_schema: dict[str, Any] = {
+    "type": "object",
+    "properties": _group_properties,
+    # NOTE(gtema) Group resource supports additional attributes which are stored
+    # in the `extra` DB field
+    "additionalProperties": True,
 }
 
-group_update = {
-    'type': 'object',
-    'properties': _group_properties,
-    'minProperties': 1,
-    'additionalProperties': True,
+group_index_response_body: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "groups": {
+            "type": "array",
+            "items": group_schema,
+            "description": "A list of group objects",
+        },
+        "links": response_types.links,
+        "truncated": response_types.truncated,
+    },
+    "required": ["groups"],
+    "additionalProperties": False,
 }
+
+group_get_response_body: dict[str, Any] = {
+    "type": "object",
+    "properties": {"group": group_schema},
+    "required": ["group"],
+    "additionalProperties": False,
+}
+
+group_create_request_body: dict[str, Any] = {
+    'type': 'object',
+    'properties': {
+        'group': {
+            'type': 'object',
+            'properties': _group_properties,
+            'required': ['name'],
+            'additionalProperties': True,
+        }
+    },
+    "required": ["group"],
+    "additionalProperties": False,
+}
+
+group_create_response_body = group_get_response_body
+
+group_update_properties = copy.deepcopy(_group_properties)
+# It is not allowed anymore to update domain of the existing group
+group_update_properties.pop("domain_id", None)
+group_update_request_body: dict[str, Any] = {
+    'type': 'object',
+    'properties': {
+        'group': {
+            'type': 'object',
+            'properties': group_update_properties,
+            'minProperties': 1,
+            'additionalProperties': True,
+        }
+    },
+    "required": ["group"],
+    'additionalProperties': False,
+}
+
+group_update_response_body = group_get_response_body
 
 _password_change_properties = {
     'original_password': {'type': 'string'},
