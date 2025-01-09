@@ -2054,6 +2054,7 @@ class DomainPaginationTestCase(test_v3.PaginationTestCaseBase):
     """Test domain list pagination."""
 
     resource_name: str = "domain"
+    config_group: str = "resource"
 
     def _create_resources(self, count: int):
         for x in range(count):
@@ -2065,8 +2066,41 @@ class ProjectPaginationTestCase(test_v3.PaginationTestCaseBase):
     """Test project list pagination."""
 
     resource_name: str = "project"
+    config_group: str = "resource"
 
     def _create_resources(self, count: int):
         for x in range(count):
             res = {"project": unit.new_project_ref()}
             response = self.post("/projects", body=res)
+
+
+class UserPaginationTestCase(test_v3.PaginationTestCaseBase):
+    """Test user list pagination."""
+
+    resource_name: str = "user"
+    config_group: str = "identity"
+
+    def _create_resources(self, count: int):
+        for x in range(count):
+            res = {
+                "user": unit.new_user_ref(
+                    domain_id=CONF.identity.default_domain_id
+                )
+            }
+            response = self.post("/users", body=res)
+
+
+class GroupPaginationTestCase(test_v3.PaginationTestCaseBase):
+    """Test group list pagination."""
+
+    resource_name: str = "group"
+    config_group: str = "identity"
+
+    def _create_resources(self, count: int):
+        for x in range(count):
+            res = {
+                "group": unit.new_group_ref(
+                    domain_id=CONF.identity.default_domain_id
+                )
+            }
+            response = self.post("/groups", body=res)

@@ -73,6 +73,13 @@ user_index_request_query: dict[str, Any] = {
             "type": "string",
             "description": "Filters the response by a unique ID.",
         },
+        "marker": {
+            "type": "string",
+            "description": "ID of the last fetched entry",
+        },
+        "limit": {"type": ["integer", "string"]},
+        "sort_key": parameter_types.sort_key,
+        "sort_dir": parameter_types.sort_dir,
     },
     "additionalProperties": True,
 }
@@ -191,6 +198,13 @@ group_index_request_query: dict[str, Any] = {
     "properties": {
         "domain_id": parameter_types.domain_id,
         "name": parameter_types.name,
+        "marker": {
+            "type": "string",
+            "description": "ID of the last fetched entry",
+        },
+        "limit": {"type": ["integer", "string"]},
+        "sort_key": parameter_types.sort_key,
+        "sort_dir": parameter_types.sort_dir,
     },
     "additionalProperties": False,
 }

@@ -464,6 +464,19 @@ service_type_query:
   in: query
   required: false
   type: string
+sort_dir:
+  description: |
+    Sort direction. A valid value is asc (ascending) or desc
+    (descending).
+  in: query
+  required: false
+  type: string
+sort_key:
+  description: |
+    Sorts resources by attribute
+  in: query
+  required: false
+  type: string
 subtree_as_ids:
   description: |
     The entire child hierarchy will be included as nested dictionaries

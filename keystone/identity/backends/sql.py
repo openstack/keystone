@@ -15,6 +15,7 @@
 import datetime
 
 from oslo_db import api as oslo_db_api
+from oslo_db.sqlalchemy import utils as sqlalchemyutils
 from oslo_utils import timeutils
 import sqlalchemy
 
@@ -186,8 +187,39 @@ class Identity(base.IdentityDriverBase):
             query, hints = self._create_password_expires_query(
                 session, query, hints
             )
-            user_refs = sql.filter_limit_query(model.User, query, hints)
-            return [base.filter_user(x.to_dict()) for x in user_refs]
+            query = sql.filter_query(model.User, query, hints)
+            marker_row = None
+            if hints.marker is not None:
+                marker_row = (
+                    session.query(model.User)
+                    .filter_by(id=hints.marker)
+                    .first()
+                )
+                if not marker_row:
+                    raise exception.MarkerNotFound(marker=hints.marker)
+
+            user_refs = sqlalchemyutils.paginate_query(
+                query,
+                model.User,
+                hints.get_limit_or_max(),
+                ["id"],
+                marker=marker_row,
+            )
+
+            data = user_refs.all()
+            if hints.limit:
+                # the `common.manager.response_truncated` decorator expects
+                # that when driver truncates results it should also raise
+                # 'truncated' flag to indicate that. Since we do not really
+                # know whether there are more records once we applied filters
+                # we can only "assume" and set the flag when count of records
+                # is equal to what we have limited to.
+                # NOTE(gtema) get rid of that once proper pagination is
+                # enabled for all resources
+                if len(data) >= hints.limit["limit"]:
+                    hints.limit["truncated"] = True
+
+            return [base.filter_user(x.to_dict()) for x in data]
 
     def unset_default_project_id(self, project_id):
         with sql.session_for_write() as session:
@@ -441,8 +473,41 @@ class Identity(base.IdentityDriverBase):
     def list_groups(self, hints):
         with sql.session_for_read() as session:
             query = session.query(model.Group)
-            refs = sql.filter_limit_query(model.Group, query, hints)
-            return [ref.to_dict() for ref in refs]
+
+            query = sql.filter_query(model.Group, query, hints)
+
+            marker_row = None
+            if hints.marker is not None:
+                marker_row = (
+                    session.query(model.Group)
+                    .filter_by(id=hints.marker)
+                    .first()
+                )
+                if not marker_row:
+                    raise exception.MarkerNotFound(marker=hints.marker)
+
+            group_refs = sqlalchemyutils.paginate_query(
+                query,
+                model.Group,
+                hints.get_limit_or_max(),
+                ["id"],
+                marker=marker_row,
+            )
+
+            data = group_refs.all()
+            if hints.limit:
+                # the `common.manager.response_truncated` decorator expects
+                # that when driver truncates results it should also raise
+                # 'truncated' flag to indicate that. Since we do not really
+                # know whether there are more records once we applied filters
+                # we can only "assume" and set the flag when count of records
+                # is equal to what we have limited to.
+                # NOTE(gtema) get rid of that once proper pagination is
+                # enabled for all resources
+                if len(data) >= hints.limit["limit"]:
+                    hints.limit["truncated"] = True
+
+            return [ref.to_dict() for ref in data]
 
     def _get_group(self, session, group_id):
         ref = session.get(model.Group, group_id)
