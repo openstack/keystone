@@ -54,6 +54,20 @@ def check_immutable_update(
     immutable = check_resource_immutable(original_resource_ref)
     if immutable:
         new_options = new_resource_ref.get('options', {})
+        if type == "domain":
+            if (
+                new_resource_ref.get("is_domain", False) == True
+                and not new_resource_ref.get("domain_id")
+                and not new_resource_ref.get("parent_id")
+            ):
+                # To keep next check happy - reject certain props for the domain set by default in
+                # `get_project_from_domain` if those ARE default
+                new_resource_ref.pop("is_domain")
+                new_resource_ref.pop("domain_id")
+                new_resource_ref.pop("parent_id")
+        # If resource is currently immutable - raise error in attempt to
+        # update more then 1 property while making resource mutable
+        # (first make mutable then update rest)
         if (
             (len(new_resource_ref.keys()) > 1)
             or (IMMUTABLE_OPT.option_name not in new_options)

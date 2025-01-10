@@ -2184,13 +2184,18 @@ class ResourceTests:
         # domains are projects, this should be the same as the project version
         domain_id = uuid.uuid4().hex
 
-        domain = {'name': uuid.uuid4().hex, 'id': domain_id, 'is_domain': True}
+        domain = {
+            'name': uuid.uuid4().hex,
+            'id': domain_id,
+            'is_domain': True,
+            'options': {ro_opt.IMMUTABLE_OPT.option_name: True},
+        }
 
         PROVIDERS.resource_api.create_domain(domain_id, domain)
         domain_via_manager = PROVIDERS.resource_api.get_domain(domain_id)
         self.assertTrue('options' in domain_via_manager)
-        self.assertFalse(
-            ro_opt.IMMUTABLE_OPT.option_name in domain_via_manager['options']
+        self.assertTrue(
+            domain_via_manager['options'][ro_opt.IMMUTABLE_OPT.option_name]
         )
 
         update_domain = {'options': {ro_opt.IMMUTABLE_OPT.option_name: False}}
