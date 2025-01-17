@@ -1,0 +1,6 @@
+---
+features:
+   - |
+    User and group listing supports pagination. Query parameters `limit`
+    and `marker` are added and work as described in `API-SIG doc
+    <https://specs.openstack.org/openstack/api-sig/guidelines/pagination_filter_sort.html>`_

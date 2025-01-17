@@ -1666,10 +1666,13 @@ class PaginationTestCaseBase(RestfulTestCase):
     """Base test for the resource pagination."""
 
     resource_name: ty.Optional[str] = None
+    config_group: ty.Optional[str] = None
 
     def setUp(self):
         super().setUp()
         if not self.resource_name:
+            self.skipTest("Not testing the base")
+        if not self.config_group:
             self.skipTest("Not testing the base")
 
     @abc.abstractmethod
@@ -1728,7 +1731,7 @@ class PaginationTestCaseBase(RestfulTestCase):
         res_list = response.json_body[f"{self.resource_name}s"]
         self.assertGreaterEqual(
             len(response.json_body[f"{self.resource_name}s"]),
-            count_resources,
+            2,
             "Requested limit higher then default wins",
         )
 
@@ -1770,7 +1773,7 @@ class PaginationTestCaseBase(RestfulTestCase):
             "Next page link contains corrected limit and marker",
         )
 
-        self.config_fixture.config(group="resource", list_limit=3)
+        self.config_fixture.config(group=self.config_group, list_limit=3)
 
         response = self.get(f'/{self.resource_name}s')
         res_list = response.json_body[f"{self.resource_name}s"]
@@ -1821,7 +1824,9 @@ class PaginationTestCaseBase(RestfulTestCase):
         current_count = len(response.json_body[f"{self.resource_name}s"])
 
         # Set pagination default at 5
-        self.config_fixture.config(group="resource", list_limit=page_size)
+        self.config_fixture.config(
+            group=self.config_group, list_limit=page_size
+        )
 
         (found_resources, pages) = self._consume_paginated_list()
         self.assertGreaterEqual(

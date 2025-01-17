@@ -118,3 +118,14 @@ id_string: dict[str, Any] = {
     "maxLength": 64,
     "pattern": r"^[a-zA-Z0-9-]+$",
 }
+
+sort_key: dict[str, Any] = {
+    "type": "string",
+    "description": "Sorts resources by attribute.",
+}
+
+sort_dir: dict[str, Any] = {
+    "type": "string",
+    "description": "Sort direction. A valid value is asc (ascending) or desc (descending).",
+    "enum": ["asc", "desc"],
+}
