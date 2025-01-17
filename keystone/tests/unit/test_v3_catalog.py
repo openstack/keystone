@@ -522,7 +522,7 @@ class CatalogTestCase(test_v3.RestfulTestCase):
         """
         self._create_random_endpoint(interface='internal')
 
-        response = self.get(f'/endpoints?interface={uuid.uuid4().hex}')
+        response = self.get(f'/endpoints?interface=admin')
         self.assertEqual(0, len(response.json['endpoints']))
 
         response = self.get(f'/endpoints?region_id={uuid.uuid4().hex}')

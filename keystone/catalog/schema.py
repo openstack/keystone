@@ -10,6 +10,9 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from typing import Any
+
+from keystone.api.validation import response_types
 from keystone.common import validation
 from keystone.common.validation import parameter_types
 
@@ -59,27 +62,171 @@ service_update = {
     'additionalProperties': True,
 }
 
+# Individual properties of 'Endpoint'
 _endpoint_properties = {
-    'enabled': parameter_types.boolean,
-    'interface': {'type': 'string', 'enum': ['admin', 'internal', 'public']},
-    'region_id': {'type': 'string'},
-    'region': {'type': 'string'},
-    'service_id': {'type': 'string'},
-    'url': parameter_types.url,
+    "enabled": {
+        "type": "boolean",
+        "description": (
+            "Indicates whether the endpoint appears in the service "
+            "catalog -false. The endpoint does not appear in the service "
+            "catalog. -true. The endpoint appears in the service catalog."
+        ),
+    },
+    "interface": {
+        "type": "string",
+        "enum": ["admin", "internal", "public"],
+        "description": (
+            "The interface type, which describes the visibility of the "
+            "endpoint. Value is: -public. Visible by end users on a "
+            "publicly available network interface. -internal. Visible "
+            "by end users on an unmetered internal network interface. -admin. "
+            "Visible by administrative users on a secure network interface."
+        ),
+    },
+    "region_id": {
+        "type": ["string", "null"],
+        "description": (
+            "(Since v3.2) The ID of the region that contains the "
+            "service endpoint."
+        ),
+        "x-openstack": {"min-ver": 3.2},
+    },
+    "region": {
+        "type": ["string", "null"],
+        "description": (
+            "(Deprecated in v3.2) The geographic location of "
+            "the service endpoint."
+        ),
+        "x-openstack": {"max-ver": 3.2},
+    },
+    "service_id": {
+        "type": "string",
+        "description": "The UUID of the service to which the endpoint belongs",
+    },
+    "url": {
+        "type": "string",
+        "description": "The endpoint URL.",
+        "minLength": 0,
+        "maxLength": 225,
+        "pattern": "^[a-zA-Z0-9+.-]+:.+",
+    },
+    "name": {"type": "string", "description": "The name of the endpoint."},
+    "description": {
+        "type": ["string", "null"],
+        "description": "A description of the endpoint.",
+    },
 }
 
-endpoint_create = {
-    'type': 'object',
-    'properties': _endpoint_properties,
-    'required': ['interface', 'service_id', 'url'],
-    'additionalProperties': True,
+# Common schema of `Endpoint` resource
+endpoint_schema: dict[str, Any] = {
+    "type": "object",
+    "description": "An endpoint object",
+    "properties": {
+        "id": {
+            "type": "string",
+            "readOnly": True,
+            "description": "The endpoint ID",
+        },
+        "links": response_types.resource_links,
+        **_endpoint_properties,
+    },
+    "additionalProperties": False,
 }
 
-endpoint_update = {
-    'type': 'object',
-    'properties': _endpoint_properties,
-    'minProperties': 1,
-    'additionalProperties': True,
+# Query parameters of the `/endpoints` API
+endpoint_index_request_query: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "interface": {
+            "type": "string",
+            "enum": ["admin", "internal", "public"],
+            "description": (
+                "The interface type, which describes the visibility of the "
+                "endpoint. Value is: -public. Visible by end users on a "
+                "publicly available network interface. -internal. Visible "
+                "by end users on an unmetered internal network interface."
+                "-admin. Visible by administrative users on a secure "
+                "network interface."
+            ),
+        },
+        "region_id": {
+            "type": ["string", "null"],
+            "description": (
+                "(Since v3.2) The ID of the region that contains the "
+                "service endpoint."
+            ),
+            "x-openstack": {"min-ver": 3.2},
+        },
+        "service_id": {
+            "type": "string",
+            "description": "The UUID of the service to which the "
+            "endpoint belongs",
+        },
+    },
+    "additionalProperties": False,
+}
+
+# Response of the `/endpoints` API
+endpoint_index_response_body: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "endpoints": {
+            "type": "array",
+            "items": endpoint_schema,
+            "description": "A list of endpoint objects.",
+        },
+        "links": response_types.links,
+        "truncated": response_types.truncated,
+    },
+    "additionalProperties": False,
+}
+
+endpoint_request_query: dict[str, Any] = {
+    "type": "object",
+    "properties": {},
+    "additionalProperties": False,
+}
+
+# Response of the `/endpoints` API returning a single endpoint
+endpoint_response_body: dict[str, Any] = {
+    "type": "object",
+    "description": "An endpoint object",
+    "properties": {"endpoint": endpoint_schema},
+    "additionalProperties": False,
+}
+
+# Request body of the `POST /endpoints` operation
+endpoint_create_request_body: dict[str, Any] = {
+    "type": "object",
+    "description": "An endpoint object",
+    "properties": {
+        "endpoint": {
+            "type": "object",
+            "properties": {
+                "id": {"type": "string", "description": "The endpoint ID."},
+                **_endpoint_properties,
+            },
+            "required": ["interface", "service_id", "url"],
+            "additionalProperties": True,
+        }
+    },
+    "additionalProperties": False,
+}
+
+# Request body of the `PATCH /endpoints/{endpoint_id}`
+endpoint_update_request_body: dict[str, Any] = {
+    "type": "object",
+    "description": "An endpoint object",
+    "properties": {
+        "endpoint": {
+            "type": "object",
+            "properties": _endpoint_properties,
+            "additionalProperties": True,
+            "minProperties": 1,
+        }
+    },
+    "required": ["endpoint"],
+    "additionalProperties": False,
 }
 
 _endpoint_group_properties = {

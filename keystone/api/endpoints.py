@@ -17,12 +17,12 @@ import http.client
 import flask_restful
 
 from keystone.api._shared import json_home_relations
+from keystone.api import validation
 from keystone.catalog import schema
 from keystone.common import json_home
 from keystone.common import provider_api
 from keystone.common import rbac_enforcer
 from keystone.common import utils
-from keystone.common import validation
 from keystone import exception
 from keystone import notifications
 from keystone.server import flask as ks_flask
@@ -39,47 +39,47 @@ def _filter_endpoint(ref):
     return ref
 
 
-class EndpointResource(ks_flask.ResourceBase):
+def _validate_endpoint_region(endpoint):
+    """Ensure the region for the endpoint exists.
+
+    If 'region_id' is used to specify the region, then we will let the
+    manager/driver take care of this.  If, however, 'region' is used,
+    then for backward compatibility, we will auto-create the region.
+
+    """
+    if (
+        endpoint.get('region_id') is None
+        and endpoint.get('region') is not None
+    ):
+        # To maintain backward compatibility with clients that are
+        # using the v3 API in the same way as they used the v2 API,
+        # create the endpoint region, if that region does not exist
+        # in keystone.
+        endpoint['region_id'] = endpoint.pop('region')
+        try:
+            PROVIDERS.catalog_api.get_region(endpoint['region_id'])
+        except exception.RegionNotFound:
+            region = {'id': endpoint['region_id']}
+            PROVIDERS.catalog_api.create_region(
+                region, initiator=notifications.build_audit_initiator()
+            )
+    return endpoint
+
+
+class EndpointsResource(ks_flask.ResourceBase):
     collection_key = 'endpoints'
     member_key = 'endpoint'
     get_member_from_driver = PROVIDERS.deferred_provider_lookup(
         api='catalog_api', method='get_endpoint'
     )
 
-    @staticmethod
-    def _validate_endpoint_region(endpoint):
-        """Ensure the region for the endpoint exists.
+    @validation.request_query_schema(schema.endpoint_index_request_query)
+    @validation.response_body_schema(schema.endpoint_index_response_body)
+    def get(self):
+        """List all endpoints.
 
-        If 'region_id' is used to specify the region, then we will let the
-        manager/driver take care of this.  If, however, 'region' is used,
-        then for backward compatibility, we will auto-create the region.
-
+        GET /v3/endpoints
         """
-        if (
-            endpoint.get('region_id') is None
-            and endpoint.get('region') is not None
-        ):
-            # To maintain backward compatibility with clients that are
-            # using the v3 API in the same way as they used the v2 API,
-            # create the endpoint region, if that region does not exist
-            # in keystone.
-            endpoint['region_id'] = endpoint.pop('region')
-            try:
-                PROVIDERS.catalog_api.get_region(endpoint['region_id'])
-            except exception.RegionNotFound:
-                region = {'id': endpoint['region_id']}
-                PROVIDERS.catalog_api.create_region(
-                    region, initiator=notifications.build_audit_initiator()
-                )
-        return endpoint
-
-    def _get_endpoint(self, endpoint_id):
-        ENFORCER.enforce_call(action='identity:get_endpoint')
-        return self.wrap_member(
-            _filter_endpoint(PROVIDERS.catalog_api.get_endpoint(endpoint_id))
-        )
-
-    def _list_endpoints(self):
         filters = ['interface', 'service_id', 'region_id']
         ENFORCER.enforce_call(
             action='identity:list_endpoints', filters=filters
@@ -90,29 +90,51 @@ class EndpointResource(ks_flask.ResourceBase):
             [_filter_endpoint(r) for r in refs], hints=hints
         )
 
-    def get(self, endpoint_id=None):
-        if endpoint_id is not None:
-            return self._get_endpoint(endpoint_id)
-        return self._list_endpoints()
-
+    @validation.request_body_schema(schema.endpoint_create_request_body)
+    @validation.response_body_schema(schema.endpoint_response_body)
     def post(self):
+        """Create new endpoints.
+
+        POST /v3/endpoints
+        """
         ENFORCER.enforce_call(action='identity:create_endpoint')
         endpoint = self.request_body_json.get('endpoint')
-        validation.lazy_validate(schema.endpoint_create, endpoint)
         utils.check_endpoint_url(endpoint['url'])
         endpoint = self._assign_unique_id(self._normalize_dict(endpoint))
-        endpoint = self._validate_endpoint_region(endpoint)
+        endpoint = _validate_endpoint_region(endpoint)
         ref = PROVIDERS.catalog_api.create_endpoint(
             endpoint['id'], endpoint, initiator=self.audit_initiator
         )
         return self.wrap_member(_filter_endpoint(ref)), http.client.CREATED
 
+
+class EndpointResource(ks_flask.ResourceBase):
+    collection_key = 'endpoints'
+    member_key = 'endpoint'
+
+    @validation.request_query_schema(schema.endpoint_request_query)
+    @validation.response_body_schema(schema.endpoint_response_body)
+    def get(self, endpoint_id):
+        """Show endpoint details
+
+        GET /v3/endpoints/{endpoint_id}
+        """
+        ENFORCER.enforce_call(action='identity:get_endpoint')
+        return self.wrap_member(
+            _filter_endpoint(PROVIDERS.catalog_api.get_endpoint(endpoint_id))
+        )
+
+    @validation.request_body_schema(schema.endpoint_update_request_body)
+    @validation.response_body_schema(schema.endpoint_response_body)
     def patch(self, endpoint_id):
+        """Update existing endpoints.
+
+        PATCH /v3/endpoints/{endpoint_id}
+        """
         ENFORCER.enforce_call(action='identity:update_endpoint')
         endpoint = self.request_body_json.get('endpoint')
-        validation.lazy_validate(schema.endpoint_update, endpoint)
         self._require_matching_id(endpoint)
-        endpoint = self._validate_endpoint_region(endpoint)
+        endpoint = _validate_endpoint_region(endpoint)
         ref = PROVIDERS.catalog_api.update_endpoint(
             endpoint_id, endpoint, initiator=self.audit_initiator
         )
@@ -141,8 +163,21 @@ class EndpointPolicyEndpointResource(flask_restful.Resource):
 class EndpointAPI(ks_flask.APIBase):
     _name = 'endpoints'
     _import_name = __name__
-    resources = [EndpointResource]
     resource_mapping = [
+        ks_flask.construct_resource_map(
+            resource=EndpointsResource,
+            url='/endpoints',
+            resource_kwargs={},
+            rel="endpoints",
+            path_vars=None,
+        ),
+        ks_flask.construct_resource_map(
+            resource=EndpointResource,
+            url='/endpoints/<string:endpoint_id>',
+            resource_kwargs={},
+            rel="endpoint",
+            path_vars={'endpoint_id': json_home.Parameters.ENDPOINT_ID},
+        ),
         ks_flask.construct_resource_map(
             resource=EndpointPolicyEndpointResource,
             url='/endpoints/<string:endpoint_id>/OS-ENDPOINT-POLICY/policy',
@@ -150,7 +185,7 @@ class EndpointAPI(ks_flask.APIBase):
             rel='endpoint_policy',
             resource_relation_func=_resource_rel_func,
             path_vars={'endpoint_id': json_home.Parameters.ENDPOINT_ID},
-        )
+        ),
     ]
 
 
