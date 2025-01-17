@@ -18,10 +18,11 @@ import http.client
 import flask
 import flask_restful
 
+from keystone.api import validation
 from keystone.common import json_home
 from keystone.common import provider_api
 from keystone.common import rbac_enforcer
-from keystone.common import validation
+from keystone.common import validation as ks_validation
 import keystone.conf
 from keystone import exception
 from keystone.identity import schema
@@ -54,23 +55,10 @@ class GroupsResource(ks_flask.ResourceBase):
         api='identity_api', method='get_group'
     )
 
-    def get(self, group_id=None):
-        if group_id is not None:
-            return self._get_group(group_id)
-        return self._list_groups()
-
-    def _get_group(self, group_id):
-        """Get a group reference.
-
-        GET/HEAD /groups/{group_id}
-        """
-        ENFORCER.enforce_call(
-            action='identity:get_group',
-            build_target=_build_group_target_enforcement,
-        )
-        return self.wrap_member(PROVIDERS.identity_api.get_group(group_id))
-
-    def _list_groups(self):
+    @validation.request_query_schema(schema.group_index_request_query)
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(schema.group_index_response_body)
+    def get(self):
         """List groups.
 
         GET/HEAD /groups
@@ -95,6 +83,9 @@ class GroupsResource(ks_flask.ResourceBase):
             refs = filtered_refs
         return self.wrap_collection(refs, hints=hints)
 
+    @validation.request_query_schema(None)
+    @validation.request_body_schema(schema.group_create_request_body)
+    @validation.response_body_schema(schema.group_create_response_body)
     def post(self):
         """Create group.
 
@@ -105,7 +96,6 @@ class GroupsResource(ks_flask.ResourceBase):
         ENFORCER.enforce_call(
             action='identity:create_group', target_attr=target
         )
-        validation.lazy_validate(schema.group_create, group)
         group = self._normalize_dict(group)
         group = self._normalize_domain_id(group)
         ref = PROVIDERS.identity_api.create_group(
@@ -113,7 +103,32 @@ class GroupsResource(ks_flask.ResourceBase):
         )
         return self.wrap_member(ref), http.client.CREATED
 
-    def patch(self, group_id):
+
+class GroupResource(ks_flask.ResourceBase):
+    collection_key = 'groups'
+    member_key = 'group'
+    get_member_from_driver = PROVIDERS.deferred_provider_lookup(
+        api='identity_api', method='get_group'
+    )
+
+    @validation.request_query_schema(None)
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(schema.group_get_response_body)
+    def get(self, group_id: str):
+        """Get a group reference.
+
+        GET/HEAD /groups/{group_id}
+        """
+        ENFORCER.enforce_call(
+            action='identity:get_group',
+            build_target=_build_group_target_enforcement,
+        )
+        return self.wrap_member(PROVIDERS.identity_api.get_group(group_id))
+
+    @validation.request_query_schema(None)
+    @validation.request_body_schema(schema.group_update_request_body)
+    @validation.response_body_schema(schema.group_update_response_body)
+    def patch(self, group_id: str):
         """Update group.
 
         PATCH /groups/{group_id}
@@ -123,14 +138,16 @@ class GroupsResource(ks_flask.ResourceBase):
             build_target=_build_group_target_enforcement,
         )
         group = self.request_body_json.get('group', {})
-        validation.lazy_validate(schema.group_update, group)
         self._require_matching_id(group)
         ref = PROVIDERS.identity_api.update_group(
             group_id, group, initiator=self.audit_initiator
         )
         return self.wrap_member(ref)
 
-    def delete(self, group_id):
+    @validation.request_query_schema(None)
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(None)
+    def delete(self, group_id: str):
         """Delete group.
 
         DELETE /groups/{group_id}
@@ -245,8 +262,21 @@ class UserGroupCRUDResource(flask_restful.Resource):
 class GroupAPI(ks_flask.APIBase):
     _name = 'groups'
     _import_name = __name__
-    resources = [GroupsResource]
     resource_mapping = [
+        ks_flask.construct_resource_map(
+            resource=GroupsResource,
+            url='/groups',
+            resource_kwargs={},
+            rel='groups',
+            path_vars={},
+        ),
+        ks_flask.construct_resource_map(
+            resource=GroupResource,
+            url='/groups/<string:group_id>',
+            resource_kwargs={},
+            rel='group',
+            path_vars={'group_id': json_home.Parameters.GROUP_ID},
+        ),
         ks_flask.construct_resource_map(
             resource=GroupUsersResource,
             url='/groups/<string:group_id>/users',

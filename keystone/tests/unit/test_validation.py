@@ -2616,28 +2616,30 @@ class GroupValidationTestCase(unit.BaseTestCase):
 
         self.group_name = uuid.uuid4().hex
 
-        create = identity_schema.group_create
-        update = identity_schema.group_update
+        create = identity_schema.group_create_request_body
+        update = identity_schema.group_update_request_body
         self.create_group_validator = validators.SchemaValidator(create)
         self.update_group_validator = validators.SchemaValidator(update)
 
     def test_validate_group_create_succeeds(self):
         """Validate create group requests."""
-        request_to_validate = {'name': self.group_name}
+        request_to_validate = {'group': {'name': self.group_name}}
         self.create_group_validator.validate(request_to_validate)
 
     def test_validate_group_create_succeeds_with_all_parameters(self):
         """Validate create group requests with all parameters."""
         request_to_validate = {
-            'name': self.group_name,
-            'description': uuid.uuid4().hex,
-            'domain_id': uuid.uuid4().hex,
+            'group': {
+                'name': self.group_name,
+                'description': uuid.uuid4().hex,
+                'domain_id': uuid.uuid4().hex,
+            }
         }
         self.create_group_validator.validate(request_to_validate)
 
     def test_validate_group_create_fails_without_group_name(self):
         """Exception raised when group name is not provided in request."""
-        request_to_validate = {'description': uuid.uuid4().hex}
+        request_to_validate = {'group': {'description': uuid.uuid4().hex}}
         self.assertRaises(
             exception.SchemaValidationError,
             self.create_group_validator.validate,
@@ -2647,15 +2649,14 @@ class GroupValidationTestCase(unit.BaseTestCase):
     def test_validate_group_create_succeeds_with_extra_parameters(self):
         """Validate extra attributes on group create requests."""
         request_to_validate = {
-            'name': self.group_name,
-            'other_attr': uuid.uuid4().hex,
+            'group': {'name': self.group_name, 'other_attr': uuid.uuid4().hex}
         }
         self.create_group_validator.validate(request_to_validate)
 
     def test_validate_group_create_fails_with_invalid_name(self):
         """Exception when validating a create request with invalid `name`."""
         for invalid_name in _INVALID_NAMES:
-            request_to_validate = {'name': invalid_name}
+            request_to_validate = {'group': {'name': invalid_name}}
             self.assertRaises(
                 exception.SchemaValidationError,
                 self.create_group_validator.validate,
@@ -2664,12 +2665,12 @@ class GroupValidationTestCase(unit.BaseTestCase):
 
     def test_validate_group_update_succeeds(self):
         """Validate group update requests."""
-        request_to_validate = {'description': uuid.uuid4().hex}
+        request_to_validate = {'group': {'description': uuid.uuid4().hex}}
         self.update_group_validator.validate(request_to_validate)
 
     def test_validate_group_update_fails_with_no_parameters(self):
         """Exception raised when no parameters passed in on update."""
-        request_to_validate = {}
+        request_to_validate = {'group': {}}
         self.assertRaises(
             exception.SchemaValidationError,
             self.update_group_validator.validate,
@@ -2678,13 +2679,13 @@ class GroupValidationTestCase(unit.BaseTestCase):
 
     def test_validate_group_update_succeeds_with_extra_parameters(self):
         """Validate group update requests with extra parameters."""
-        request_to_validate = {'other_attr': uuid.uuid4().hex}
+        request_to_validate = {'group': {'other_attr': uuid.uuid4().hex}}
         self.update_group_validator.validate(request_to_validate)
 
     def test_validate_group_update_fails_with_invalid_name(self):
         """Exception when validating an update request with invalid `name`."""
         for invalid_name in _INVALID_NAMES:
-            request_to_validate = {'name': invalid_name}
+            request_to_validate = {'group': {'name': invalid_name}}
             self.assertRaises(
                 exception.SchemaValidationError,
                 self.update_group_validator.validate,
