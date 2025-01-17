@@ -351,9 +351,16 @@ remaining_uses:
   in: body
   required: false
   type: boolean
+request_token_client_id_body:
+  description: |
+    When use OAuth 2.0 Mutual-TLS Client Authentication, the value must be set
+    to an user ID.
+  in: body
+  required: true
+  type: string
 request_token_grant_type_body_required:
   description: |
-    Value MUST be set to "client_credentials".
+    Value must be set to "client_credentials".
   in: body
   required: true
   type: string

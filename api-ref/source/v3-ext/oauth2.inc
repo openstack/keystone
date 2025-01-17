@@ -20,8 +20,9 @@ Definitions
   will be delegated, and the entity that registers Clients.
 
 - *Client:* An application making protected resource requests on behalf of the
-  User. The credentials of the client are created though the Application
-  Credentials API.
+  User. When use OAuth 2.0 Client Secret Authentication, the credentials of the
+  client are created though the Application Credentials API. When use OAuth 2.0
+  Mutual-TLS Client Authentication, the client is equal to the OpenStack user.
 
 - *Access Token:* A token used by the Client to make protected resource
   requests with the delegated roles.
@@ -31,7 +32,8 @@ Delegated Authentication Flow
 
 Delegated Authentication via OAuth 2.0 is done in four steps:
 
-#. An Identity API service User creates an `application credential`_.
+#. An Identity API service User creates an `application credential`_. When use
+   OAuth 2.0 Mutual-TLS Client Authentication, this step can be ignored.
 
 #. The Client authenticates with the authorization server on the Keystone and
    requests a new Access Token.
@@ -53,10 +55,12 @@ Create Access Token
 Enables a user to create an access token.
 The user makes a request to the token endpoint by adding the following
 parameters using the "application/x-www-form-urlencoded" format with
-a character encoding of UTF-8 in the HTTP request entity-body. And the
-request should use the basic authentication header which contains the
-application credentials information to authenticate a user through the
-authorization server.
+a character encoding of UTF-8 in the HTTP request entity-body. When use
+OAuth 2.0 Client Secret Authentication, the request should use the basic
+authentication header which contains the application credentials information
+to authenticate a user through the authorization server. When use OAuth 2.0
+Mutual-TLS Client Authentication, the request should contain the parameter
+"client_id" and should use TLS certificates.
 
 Relationship: ``https://docs.openstack.org/api/openstack-identity/3/ext/OS-OAUTH2/1.0/rel/token``
 
@@ -69,6 +73,7 @@ Parameters
 .. rest_parameters:: parameters.yaml
 
     - grant_type: request_token_grant_type_body_required
+    - client_id: request_token_client_id_body
 
 Example
 ~~~~~~~
