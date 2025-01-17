@@ -10,15 +10,19 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import copy
+from typing import Any
+
+from keystone.api.validation import parameter_types
+from keystone.api.validation import response_types
 from keystone.common import validation
-from keystone.common.validation import parameter_types
 import keystone.conf
 from keystone.identity.backends import resource_options as ro
 
 CONF = keystone.conf.CONF
 
 
-_identity_name = {
+_identity_name: dict[str, Any] = {
     'type': 'string',
     'minLength': 1,
     'maxLength': 255,
@@ -27,7 +31,54 @@ _identity_name = {
 
 # Schema for Identity v3 API
 
-_user_properties = {
+user_index_request_query: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "domain_id": parameter_types.domain_id,
+        "enabled": {
+            "description": "Whether the identity provider is enabled or not",
+            **parameter_types.boolean,
+        },
+        "idp_id": {
+            "type": "string",
+            "description": "Filters the response by an identity provider ID.",
+        },
+        "name": parameter_types.name,
+        "password_expires_at": {
+            "type": "string",
+            "description": (
+                "Filter results based on which user passwords have "
+                "expired. The query should include an operator and "
+                "a timestamp with a colon (:) separating the two, for "
+                "example: `password_expires_at={operator}:{timestamp}`\n"
+                "Valid operators are: lt, lte, gt, gte, eq, and neq\n"
+                "  - lt: expiration time lower than the timestamp\n"
+                "  - lte: expiration time lower than or equal to the timestamp\n"
+                "  - gt: expiration time higher than the timestamp\n"
+                "  - gte: expiration time higher than or equal to the timestamp\n"
+                "  - eq: expiration time equal to the timestamp\n"
+                "  - neq: expiration time not equal to the timestamp\n\n"
+                "Valid timestamps are of the form: `YYYY-MM-DDTHH:mm:ssZ`."
+                "For example:"
+                "`/v3/users?password_expires_at=lt:2016-12-08T22:02:00Z`\n"
+                "The example would return a list of users whose password "
+                "expired before the timestamp `(2016-12-08T22:02:00Z).`"
+            ),
+        },
+        "protocol_id": {
+            "type": "string",
+            "description": "Filters the response by a protocol ID.",
+        },
+        "unique_id": {
+            "type": "string",
+            "description": "Filters the response by a unique ID.",
+        },
+    },
+    "additionalProperties": True,
+}
+
+_user_properties: dict[str, Any] = {
+    'id': {"type": "string", "description": "The user ID.", "readOnly": True},
     'default_project_id': validation.nullable(parameter_types.id_string),
     'description': validation.nullable(parameter_types.description),
     'domain_id': parameter_types.id_string,
@@ -54,28 +105,86 @@ _user_properties = {
             'required': ['idp_id', 'protocols'],
         },
     },
+    'links': response_types.links,
     'name': _identity_name,
-    'password': {'type': ['string', 'null']},
+    'password_expires_at': {
+        "type": ["string", "null"],
+        "format": "date-time",
+        "description": (
+            "The date and time when the password expires. The time zone is UTC. "
+            "This is a response object attribute; not valid for requests. A "
+            "null value indicates that the password never expires."
+        ),
+        "readOnly": True,
+    },
     'options': ro.USER_OPTIONS_REGISTRY.json_schema,
 }
 
-# TODO(notmorgan): Provide a mechanism for options to supply real jsonschema
-# validation based upon the option object and the option validator(s)
-user_create = {
-    'type': 'object',
-    'properties': _user_properties,
-    'required': ['name'],
-    'options': {'type': 'object'},
-    'additionalProperties': True,
+user_schema: dict[str, Any] = {
+    "type": "object",
+    "properties": _user_properties,
+    # NOTE(gtema) User resource supports additional attributes which are stored
+    # in the `extra` DB field
+    "additionalProperties": True,
 }
 
-user_update = {
-    'type': 'object',
-    'properties': _user_properties,
-    'minProperties': 1,
-    'options': {'type': 'object'},
-    'additionalProperties': True,
+user_index_response_body: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "users": {"type": "array", "items": user_schema},
+        "links": response_types.links,
+        "truncated": response_types.truncated,
+    },
+    "additionalProperties": False,
 }
+
+user_get_response_body: dict[str, Any] = {
+    "type": "object",
+    "properties": {"user": user_schema},
+    "required": ["user"],
+    "additionalProperties": False,
+}
+
+user_create_request: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "user": {
+            "type": "object",
+            "properties": {
+                "password": {"type": ["string", "null"]},
+                **_user_properties,
+            },
+            "required": ["name"],
+            "additionalProperties": True,
+        }
+    },
+    "required": ["user"],
+    "additionalProperties": False,
+}
+
+user_create_response_body: dict[str, Any] = user_get_response_body
+
+user_update_properties = copy.deepcopy(_user_properties)
+# It is not allowed anymore to update domain of the existing user
+user_update_properties.pop("domain_id", None)
+user_update_request: dict[str, Any] = {
+    'type': 'object',
+    'properties': {
+        'user': {
+            'type': 'object',
+            'properties': {
+                'password': {'type': ['string', 'null']},
+                **user_update_properties,
+            },
+            'minProperties': 1,
+            'additionalProperties': True,
+        }
+    },
+    'required': ['user'],
+    'additionalProperties': False,
+}
+
+user_update_response_body: dict[str, Any] = user_get_response_body
 
 _group_properties = {
     'description': validation.nullable(parameter_types.description),
