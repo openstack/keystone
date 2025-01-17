@@ -14,17 +14,6 @@ from oslo_config import cfg
 
 from keystone.conf import utils
 
-template_file = cfg.StrOpt(
-    'template_file',
-    default='default_catalog.templates',
-    help=utils.fmt(
-        """
-Absolute path to the file used for the templated catalog backend. This option
-is only used if the `[catalog] driver` is set to `templated`.
-"""
-    ),
-)
-
 driver = cfg.StrOpt(
     'driver',
     default='sql',
@@ -32,9 +21,8 @@ driver = cfg.StrOpt(
         """
 Entry point for the catalog driver in the `keystone.catalog` namespace.
 Keystone provides a `sql` option (which supports basic CRUD operations through
-SQL), a `templated` option (which loads the catalog from a templated catalog
-file on disk), and a `endpoint_filter.sql` option (which supports arbitrary
-service catalogs per project).
+SQL) and a `endpoint_filter.sql` option (which supports arbitrary service
+catalogs per project).
 """
     ),
 )
@@ -75,7 +63,7 @@ have enough services or endpoints to exceed a reasonable limit.
 
 
 GROUP_NAME = __name__.split('.')[-1]
-ALL_OPTS = [template_file, driver, caching, cache_time, list_limit]
+ALL_OPTS = [driver, caching, cache_time, list_limit]
 
 
 def register_opts(conf):

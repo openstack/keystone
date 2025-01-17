@@ -1,0 +1,6 @@
+---
+upgrade:
+  - |
+    The templated catalog driver has been removed.
+    The ``[catalog] template_file`` option, which was used by the templated
+    catalog driver has also been removed.

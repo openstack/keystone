@@ -897,11 +897,7 @@ class TestCase(BaseTestCase):
             enabled=True,
             proxies=['oslo_cache.testing.CacheIsolatingProxy'],
         )
-        self.config_fixture.config(
-            group='catalog',
-            driver='sql',
-            template_file=dirs.tests('default_catalog.templates'),
-        )
+        self.config_fixture.config(group='catalog', driver='sql')
         self.config_fixture.config(
             group='saml', certfile=signing_certfile, keyfile=signing_keyfile
         )
