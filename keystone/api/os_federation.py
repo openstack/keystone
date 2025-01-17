@@ -21,10 +21,11 @@ from oslo_serialization import jsonutils
 
 from keystone.api._shared import authentication
 from keystone.api._shared import json_home_relations
+from keystone.api import validation
 from keystone.common import provider_api
 from keystone.common import rbac_enforcer
 from keystone.common import render_token
-from keystone.common import validation
+from keystone.common import validation as ks_validation
 import keystone.conf
 from keystone import exception
 from keystone.federation import schema
@@ -44,7 +45,9 @@ IDP_ID_PARAMETER_RELATION = _build_param_relation(parameter_name='idp_id')
 PROTOCOL_ID_PARAMETER_RELATION = _build_param_relation(
     parameter_name='protocol_id'
 )
-SP_ID_PARAMETER_RELATION = _build_param_relation(parameter_name='sp_id')
+SERVICE_PROVIDER_ID_PARAMETER_RELATION = _build_param_relation(
+    parameter_name='service_provider_id'
+)
 
 
 def _combine_lists_uniquely(a, b):
@@ -145,7 +148,7 @@ class IdentityProvidersResource(_ResourceBase):
         """
         ENFORCER.enforce_call(action='identity:create_identity_provider')
         idp = self.request_body_json.get('identity_provider', {})
-        validation.lazy_validate(schema.identity_provider_create, idp)
+        ks_validation.lazy_validate(schema.identity_provider_create, idp)
         idp = self._normalize_dict(idp)
         idp.setdefault('enabled', False)
         idp_ref = PROVIDERS.federation_api.create_idp(idp_id, idp)
@@ -154,7 +157,7 @@ class IdentityProvidersResource(_ResourceBase):
     def patch(self, idp_id):
         ENFORCER.enforce_call(action='identity:update_identity_provider')
         idp = self.request_body_json.get('identity_provider', {})
-        validation.lazy_validate(schema.identity_provider_update, idp)
+        ks_validation.lazy_validate(schema.identity_provider_update, idp)
         idp = self._normalize_dict(idp)
         idp_ref = PROVIDERS.federation_api.update_idp(idp_id, idp)
         return self.wrap_member(idp_ref)
@@ -223,7 +226,7 @@ class IDPProtocolsCRUDResource(_IdentityProvidersProtocolsResourceBase):
         """
         ENFORCER.enforce_call(action='identity:create_protocol')
         protocol = self.request_body_json.get('protocol', {})
-        validation.lazy_validate(schema.protocol_create, protocol)
+        ks_validation.lazy_validate(schema.protocol_create, protocol)
         protocol = self._normalize_dict(protocol)
         ref = PROVIDERS.federation_api.create_protocol(
             idp_id, protocol_id, protocol
@@ -238,7 +241,7 @@ class IDPProtocolsCRUDResource(_IdentityProvidersProtocolsResourceBase):
         """
         ENFORCER.enforce_call(action='identity:update_protocol')
         protocol = self.request_body_json.get('protocol', {})
-        validation.lazy_validate(schema.protocol_update, protocol)
+        ks_validation.lazy_validate(schema.protocol_update, protocol)
         ref = PROVIDERS.federation_api.update_protocol(
             idp_id, protocol_id, protocol
         )
@@ -360,23 +363,15 @@ class ServiceProvidersResource(_ResourceBase):
             'sp_url',
         ]
     )
-    _id_path_param_name_override = 'sp_id'
     api_prefix = '/OS-FEDERATION'
 
-    def get(self, sp_id=None):
-        if sp_id is not None:
-            return self._get_service_provider(sp_id)
-        return self._list_service_providers()
-
-    def _get_service_provider(self, sp_id):
-        """Get a service provider.
-
-        GET/HEAD /OS-FEDERATION/service_providers/{sp_id}
-        """
-        ENFORCER.enforce_call(action='identity:get_service_provider')
-        return self.wrap_member(PROVIDERS.federation_api.get_sp(sp_id))
-
-    def _list_service_providers(self):
+    @validation.request_query_schema(
+        schema.service_provider_index_request_query
+    )
+    @validation.response_body_schema(
+        schema.service_provider_index_response_body
+    )
+    def get(self):
         """List service providers.
 
         GET/HEAD /OS-FEDERATION/service_providers
@@ -392,39 +387,76 @@ class ServiceProvidersResource(_ResourceBase):
         ]
         return self.wrap_collection(refs, hints=hints)
 
-    def put(self, sp_id):
+
+class ServiceProviderResource(_ResourceBase):
+    collection_key = 'service_providers'
+    member_key = 'service_provider'
+    _public_parameters = frozenset(
+        [
+            'auth_url',
+            'id',
+            'enabled',
+            'description',
+            'links',
+            'relay_state_prefix',
+            'sp_url',
+        ]
+    )
+    api_prefix = '/OS-FEDERATION'
+
+    @validation.request_query_schema(
+        schema.service_provider_index_request_query
+    )
+    @validation.response_body_schema(schema.service_provider_response_body)
+    def get(self, service_provider_id):
+        """Get a service provider.
+
+        GET/HEAD /OS-FEDERATION/service_providers/{service_provider_id}
+        """
+        ENFORCER.enforce_call(action='identity:get_service_provider')
+        return self.wrap_member(
+            PROVIDERS.federation_api.get_sp(service_provider_id)
+        )
+
+    @validation.request_body_schema(
+        schema.service_provider_create_request_body
+    )
+    @validation.response_body_schema(schema.service_provider_response_body)
+    def put(self, service_provider_id):
         """Create a service provider.
 
-        PUT /OS-FEDERATION/service_providers/{sp_id}
+        PUT /OS-FEDERATION/service_providers/{service_provider_id}
         """
         ENFORCER.enforce_call(action='identity:create_service_provider')
         sp = self.request_body_json.get('service_provider', {})
-        validation.lazy_validate(schema.service_provider_create, sp)
         sp = self._normalize_dict(sp)
         sp.setdefault('enabled', False)
         sp.setdefault('relay_state_prefix', CONF.saml.relay_state_prefix)
-        sp_ref = PROVIDERS.federation_api.create_sp(sp_id, sp)
+        sp_ref = PROVIDERS.federation_api.create_sp(service_provider_id, sp)
         return self.wrap_member(sp_ref), http.client.CREATED
 
-    def patch(self, sp_id):
+    @validation.request_body_schema(
+        schema.service_provider_update_request_body
+    )
+    @validation.response_body_schema(schema.service_provider_response_body)
+    def patch(self, service_provider_id):
         """Update a service provider.
 
-        PATCH /OS-FEDERATION/service_providers/{sp_id}
+        PATCH /OS-FEDERATION/service_providers/{service_provider_id}
         """
         ENFORCER.enforce_call(action='identity:update_service_provider')
         sp = self.request_body_json.get('service_provider', {})
-        validation.lazy_validate(schema.service_provider_update, sp)
         sp = self._normalize_dict(sp)
-        sp_ref = PROVIDERS.federation_api.update_sp(sp_id, sp)
+        sp_ref = PROVIDERS.federation_api.update_sp(service_provider_id, sp)
         return self.wrap_member(sp_ref)
 
-    def delete(self, sp_id):
+    def delete(self, service_provider_id):
         """Delete a service provider.
 
-        DELETE /OS-FEDERATION/service_providers/{sp_id}
+        DELETE /OS-FEDERATION/service_providers/{service_provider_id}
         """
         ENFORCER.enforce_call(action='identity:delete_service_provider')
-        PROVIDERS.federation_api.delete_sp(sp_id)
+        PROVIDERS.federation_api.delete_sp(service_provider_id)
         return None, http.client.NO_CONTENT
 
 
@@ -570,8 +602,26 @@ class OSFederationServiceProvidersAPI(ks_flask.APIBase):
     _name = 'service_providers'
     _import_name = __name__
     _api_url_prefix = '/OS-FEDERATION'
-    resources = [ServiceProvidersResource]
-    resource_mapping = []
+    resource_mapping = [
+        ks_flask.construct_resource_map(
+            resource=ServiceProvidersResource,
+            url='/service_providers',
+            resource_kwargs={},
+            rel="service_providers",
+            resource_relation_func=_build_resource_relation,
+            path_vars=None,
+        ),
+        ks_flask.construct_resource_map(
+            resource=ServiceProviderResource,
+            url='/service_providers/<string:service_provider_id>',
+            resource_kwargs={},
+            rel="service_provider",
+            resource_relation_func=_build_resource_relation,
+            path_vars={
+                'service_provider_id': SERVICE_PROVIDER_ID_PARAMETER_RELATION
+            },
+        ),
+    ]
 
 
 APIs = (
