@@ -12,16 +12,22 @@
 
 from typing import Any
 
+from keystone.api.validation import parameter_types
 from keystone.api.validation import response_types
-from keystone.common.validation import parameter_types
+from keystone.assignment.role_backends import resource_options as ro
+from keystone.common import validation
 
 _role_response_properties = {
     "type": "array",
     "items": {
         "type": "object",
         "properties": {
+            "description": validation.nullable(parameter_types.description),
+            "domain_id": validation.nullable(parameter_types.domain_id),
             "id": parameter_types.id_string,
             "name": parameter_types.name,
+            "options": ro.ROLE_OPTIONS_REGISTRY.json_schema,
+            "links": response_types.links,
         },
         "additionalProperties": False,
     },
@@ -121,22 +127,31 @@ _trust_properties = {
             "redelegatable, regardless of the value of allow_redelegation."
         ),
     },
+    "redelegated_trust_id": {
+        "type": ["string", "null"],
+        "description": (
+            "Returned with redelegated trust provides information "
+            "about the predecessor in the trust chain.",
+        ),
+    },
 }
 
 trust_schema: dict[str, Any] = {
     "type": "object",
     "description": "A trust object.",
     "properties": {
+        "deleted_at": {"type": ["string", "null"]},
         "id": {
             "type": "string",
             "readOnly": True,
             "description": "The ID of the trust.",
         },
-        "links": response_types.resource_links,
+        "links": response_types.links,
+        "roles": _role_response_properties,
+        "roles_links": response_types.links,
         **_trust_properties,
-        **_role_response_properties,
     },
-    "additionalProperties": True,
+    "additionalProperties": False,
 }
 
 trust_index_request_query: dict[str, Any] = {
