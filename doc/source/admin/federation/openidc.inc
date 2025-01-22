@@ -22,9 +22,28 @@ Setting Up OpenID Connect
 See :ref:`keystone-as-sp` before proceeding with these OpenIDC-specific
 instructions.
 
-These examples use Google as an OpenID Connect Identity Provider. The Service
+When using OpenID Connect, you must have a third party `OpenID Provider or
+Identity Provider`_. Some examples of OpenID Connect Providers are Google,
+Keycloak, Microsoft Entra, and GitLab. Keystone will use `mod_auth_openidc`_
+to enable Keystone to act as an OpenID Connect Relying Party, which is
+the name of an application that depends on an OpenID Connect Provider for
+identity. You must add an OpenID Connect Client representing the Keystone
+Service Provider in your OpenID Connect Provider.
+
+Claims are pieces of user details or attributes provided by the OpenID
+Connect Provider to the OpenID Connect Relying Party. Claims can be
+retrieved from the ID token or from the UserInfo endpoint. Claims are
+requested by specifying scopes, which map to sets of claims.
+
+For the purposes of consistency with the rest of the Keystone documentation,
+the term Service Provider will be used which means Keystone acting as
+a Service Provider and is equivilent to OpenID Connect Relying Party.
+
+These examples use Google as an OpenID Connect Provider. The Service
 Provider must be added to the Identity Provider in the `Google API console`_.
 
+.. _OpenID Provider or Identity Provider: https://openid.net/developers/how-connect-works/
+.. _mod_auth_openidc: https://github.com/OpenIDC/mod_auth_openidc
 .. _Google API console: https://console.developers.google.com/
 
 Configuring Apache HTTPD for mod_auth_openidc
@@ -56,6 +75,7 @@ options:
 .. code-block:: apache
 
    OIDCClaimPrefix "OIDC-"
+   OIDCClaimDelimiter ";"
    OIDCResponseType "id_token"
    OIDCScope "openid email profile"
    OIDCProviderMetadataURL https://accounts.google.com/.well-known/openid-configuration
@@ -65,9 +85,21 @@ options:
    OIDCCryptoPassphrase <random string>
    OIDCRedirectURI https://sp.keystone.example.org/v3/redirect_uri
 
-``OIDCScope`` is the list of attributes that the user will authorize the
+``OIDCClaimPrefix`` prefixes all claims with the value, which will then
+be prefixed with ``HTTP_`` when presented to Keystone, with dashes ("-")
+converted to underscores ("_") and uppercased. Resulting in the ``iss`` claim
+being presented to Keystone as ``HTTP_OIDC_ISS`` using the ``OIDCClaimPrefix``
+from above. Claims are pieces of JSON data but Apache only forwards on string
+data to Keystone. So by default lists are converted to comma (",") separated
+strings while Keystone's mapping code expects them to be semi-colon (";")
+separated. To properly support this set the ``OIDCClaimDelimiter`` to utilize
+semi-colons (";"). ``OIDCResponseType`` specifies the OpenID Connect Flow
+which will be used. To use the Implicit Flow then specify the value ``id_token``
+and to use the Authorization Code Flow, specify the value ``code``. Some OpenID
+Connect Providers do not enable Implicit Flow by default.
+``OIDCScope`` is the list of attributes or claims that the user will authorize the
 Identity Provider to send to the Service Provider. ``OIDCClientID`` and
-``OIDCClientSecret`` must be generated and obtained from the Identity Provider.
+``OIDCClientSecret`` must be generated and obtained from the Identity Provider,
 ``OIDCProviderMetadataURL`` is a URL from which the Service Provider will fetch
 the Identity Provider's metadata. ``OIDCOAuthVerifyJwksUri`` is a URL from
 which the Service Provider will download the public key from the Identity
@@ -146,6 +178,7 @@ set your OIDC options like the following options:
 .. code-block:: apache
 
     OIDCClaimPrefix "OIDC-"
+    OIDCClaimDelimiter ";"
     OIDCResponseType "id_token"
     OIDCScope "openid email profile"
     OIDCMetadataDir <IDP metadata directory>

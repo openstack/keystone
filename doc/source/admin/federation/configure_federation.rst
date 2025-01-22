@@ -62,8 +62,8 @@ information and use them consistently throughout your configuration:
 
 You will also need to decide what HTTPD module to use as a Service Provider.
 This guide provides examples for ``mod_shib`` and ``mod_auth_mellon`` as SAML
-service providers, and ``mod_auth_openidc`` as an OpenID Connect Service
-Provider.
+service providers, and ``mod_auth_openidc`` as an OpenID Connect Relying
+Party.
 
 .. note::
 
