@@ -404,9 +404,7 @@ class ServiceProviderResource(_ResourceBase):
     )
     api_prefix = '/OS-FEDERATION'
 
-    @validation.request_query_schema(
-        schema.service_provider_index_request_query
-    )
+    @validation.request_query_schema(None)
     @validation.response_body_schema(schema.service_provider_response_body)
     def get(self, service_provider_id):
         """Get a service provider.
