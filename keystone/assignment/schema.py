@@ -223,3 +223,197 @@ role_inferences_index_response_body: dict[str, Any] = {
     },
     "additionalProperties": False,
 }
+
+# Common schema of `Role Assignment` resource
+role_assignment_schema: dict[str, Any] = {
+    "type": "object",
+    "description": "A role assignment object.",
+    "properties": {
+        "links": {
+            "type": "object",
+            "properties": {
+                "assignment": {"type": "string", "format": "uri"},
+                "membership": {"type": "string", "format": "uri"},
+                "prior_role": {"type": "string", "format": "uri"},
+            },
+            "required": ["assignment"],
+            "additionalProperties": False,
+        },
+        "role": {
+            "type": "object",
+            "properties": {
+                "domain": {
+                    "type": "object",
+                    "properties": {
+                        "id": parameter_types.id_string,
+                        "name": parameter_types.name,
+                    },
+                    "required": ["id"],
+                    "additionalProperties": False,
+                },
+                "id": parameter_types.id_string,
+                "name": parameter_types.name,
+            },
+            "required": ["id"],
+            "additionalProperties": False,
+        },
+        "scope": {
+            "properties": {
+                "project": {
+                    "type": "object",
+                    "properties": {
+                        "domain": {
+                            "type": "object",
+                            "properties": {
+                                "id": parameter_types.id_string,
+                                "name": parameter_types.name,
+                            },
+                            "required": ["id"],
+                            "additionalProperties": False,
+                        },
+                        "id": parameter_types.id_string,
+                        "name": parameter_types.name,
+                    },
+                    "required": ["id"],
+                    "additionalProperties": False,
+                },
+                "OS-INHERIT:inherited_to": {"const": "projects"},
+                "domain": {
+                    "type": "object",
+                    "properties": {
+                        "id": parameter_types.id_string,
+                        "name": parameter_types.name,
+                    },
+                    "required": ["id"],
+                },
+                "system": {
+                    "type": "object",
+                    "properties": {"all": {"const": True}},
+                    "required": ["all"],
+                },
+            },
+            "oneOf": [
+                {"required": ["project"]},
+                {"required": ["domain"]},
+                {"required": ["system"]},
+            ],
+            "additionalProperties": False,
+        },
+        "user": {
+            "type": "object",
+            "properties": {
+                "domain": {
+                    "type": "object",
+                    "properties": {
+                        "id": parameter_types.id_string,
+                        "name": parameter_types.name,
+                    },
+                    "required": ["id"],
+                    "additionalProperties": False,
+                },
+                "id": parameter_types.id_string,
+                "name": parameter_types.name,
+            },
+            "required": ["id"],
+            "additionalProperties": False,
+        },
+        "group": {
+            "type": "object",
+            "properties": {
+                "domain": {
+                    "type": "object",
+                    "properties": {
+                        "id": parameter_types.id_string,
+                        "name": parameter_types.name,
+                    },
+                    "required": ["id"],
+                    "additionalProperties": False,
+                },
+                "id": parameter_types.id_string,
+                "name": parameter_types.name,
+            },
+            "required": ["id"],
+            "additionalProperties": False,
+        },
+    },
+    "required": ["role", "links", "scope"],
+    "oneOf": [{"required": ["user"]}, {"required": ["group"]}],
+    "additionalProperties": False,
+}
+
+# Query parameters of the `GET /role_assignments` API operation
+# returning a list of role assignments
+role_assignments_index_request_query: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        # NOTE(0weng): `effective`, `include_names`, and `include_subtree`
+        # are all key-only query parameters and will interpret the parameter
+        # as true for any value except 0 and for no value at all.
+        "effective": {},
+        "include_names": {},
+        "include_subtree": {},
+        "group.id": parameter_types.id_string,
+        "role.id": parameter_types.id_string,
+        # NOTE(0weng): Similar to the previous note, `scope.system`
+        # accepts anything, but it will only be interpreted as true if
+        # its value is "all"; otherwise it's ignored.
+        "scope.system": {},
+        "scope.domain.id": parameter_types.domain_id,
+        "scope.project.id": parameter_types.project_id,
+        "user.id": parameter_types.id_string,
+        # NOTE(0weng): `scope.OS-INHERIT:inherited_to` accepts anything,
+        # but it will only show inherited role assignments if its value is
+        # `projects`; otherwise, only non-inherited role assignments are shown.
+        "scope.OS-INHERIT:inherited_to": {},
+    },
+    "dependentRequired": {"include_subtree": ["scope.project.id"]},
+    # NOTE(0weng): {"not": {"required": "some_property"}} indicates that
+    # the property is not allowed to be present, not that it's optional.
+    "oneOf": [
+        {"required": ["scope.project.id"]},
+        {"required": ["scope.domain.id"]},
+        {"required": ["scope.system"]},
+        {
+            "allOf": [
+                {"not": {"required": ["scope.project.id"]}},
+                {"not": {"required": ["scope.domain.id"]}},
+                {"not": {"required": ["scope.system"]}},
+            ]
+        },
+    ],
+    "oneOf": [
+        {"required": ["user.id"]},
+        {"required": ["group.id"]},
+        {
+            "allOf": [
+                {"not": {"required": ["user.id"]}},
+                {"not": {"required": ["group.id"]}},
+            ]
+        },
+    ],
+    "not": {
+        "required": [
+            "effective",
+            "scope.domain.id",
+            "scope.OS-INHERIT:inherited_to",
+        ]
+    },
+    "not": {"required": ["effective", "group"]},
+    "additionalProperties": False,
+}
+
+# Response body of the `GET /role_assignments` API operation
+# returning a list of role assignments
+role_assignments_index_response_body: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "links": response_types.links,
+        "role_assignments": {
+            "type": "array",
+            "items": role_assignment_schema,
+            "description": "A list of role assignment objects.",
+        },
+        "truncated": response_types.truncated,
+    },
+    "additionalProperties": False,
+}
