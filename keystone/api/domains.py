@@ -345,6 +345,8 @@ class DefaultConfigOptionResource(flask_restful.Resource):
 
 
 class DomainUserListResource(flask_restful.Resource):
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(schema.grants_get_response_body)
     def get(self, domain_id=None, user_id=None):
         """Get user grant.
 
@@ -366,6 +368,8 @@ class DomainUserResource(ks_flask.ResourceBase):
     member_key = 'grant'
     collection_key = 'grants'
 
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(None)
     def get(self, domain_id=None, user_id=None, role_id=None):
         """Check if a user has a specific role on the domain.
 
@@ -383,6 +387,8 @@ class DomainUserResource(ks_flask.ResourceBase):
         )
         return None, http.client.NO_CONTENT
 
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(None)
     def put(self, domain_id=None, user_id=None, role_id=None):
         """Create a role to a user on a domain.
 
@@ -401,6 +407,8 @@ class DomainUserResource(ks_flask.ResourceBase):
         )
         return None, http.client.NO_CONTENT
 
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(None)
     def delete(self, domain_id=None, user_id=None, role_id=None):
         """Revoke a role from user on a domain.
 
@@ -423,8 +431,10 @@ class DomainUserResource(ks_flask.ResourceBase):
 
 
 class DomainGroupListResource(flask_restful.Resource):
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(schema.grants_get_response_body)
     def get(self, domain_id=None, group_id=None):
-        """List all domain grats for a specific group.
+        """List all domain grants for a specific group.
 
         GET/HEAD /v3/domains/{domain_id}/groups/{group_id}/roles
         """
@@ -444,6 +454,8 @@ class DomainGroupResource(ks_flask.ResourceBase):
     member_key = 'grant'
     collection_key = 'grants'
 
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(None)
     def get(self, domain_id=None, group_id=None, role_id=None):
         """Check if a group has a specific role on a domain.
 
@@ -461,6 +473,8 @@ class DomainGroupResource(ks_flask.ResourceBase):
         )
         return None, http.client.NO_CONTENT
 
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(None)
     def put(self, domain_id=None, group_id=None, role_id=None):
         """Grant a role to a group on a domain.
 
@@ -479,6 +493,8 @@ class DomainGroupResource(ks_flask.ResourceBase):
         )
         return None, http.client.NO_CONTENT
 
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(None)
     def delete(self, domain_id=None, group_id=None, role_id=None):
         """Revoke a role from a group on a domain.
 

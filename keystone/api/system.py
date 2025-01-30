@@ -18,10 +18,12 @@ import http.client
 import flask
 import flask_restful
 
+from keystone.api import validation
 from keystone.common import json_home
 from keystone.common import provider_api
 from keystone.common import rbac_enforcer
 from keystone import exception
+from keystone.resource import schema
 from keystone.server import flask as ks_flask
 
 ENFORCER = rbac_enforcer.RBACEnforcer
@@ -55,6 +57,8 @@ def _build_enforcement_target(allow_non_existing=False):
 
 
 class SystemUsersListResource(flask_restful.Resource):
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(schema.grants_get_response_body)
     def get(self, user_id):
         """List all system grants for a specific user.
 
@@ -71,6 +75,8 @@ class SystemUsersListResource(flask_restful.Resource):
 
 
 class SystemUsersResource(flask_restful.Resource):
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(None)
     def get(self, user_id, role_id):
         """Check if a user has a specific role on the system.
 
@@ -83,6 +89,8 @@ class SystemUsersResource(flask_restful.Resource):
         PROVIDERS.assignment_api.check_system_grant_for_user(user_id, role_id)
         return None, http.client.NO_CONTENT
 
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(None)
     def put(self, user_id, role_id):
         """Grant a role to a user on the system.
 
@@ -95,6 +103,8 @@ class SystemUsersResource(flask_restful.Resource):
         PROVIDERS.assignment_api.create_system_grant_for_user(user_id, role_id)
         return None, http.client.NO_CONTENT
 
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(None)
     def delete(self, user_id, role_id):
         """Revoke a role from user on the system.
 
@@ -111,6 +121,8 @@ class SystemUsersResource(flask_restful.Resource):
 
 
 class SystemGroupsRolesListResource(flask_restful.Resource):
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(schema.grants_get_response_body)
     def get(self, group_id):
         """List all system grants for a specific group.
 
@@ -127,6 +139,8 @@ class SystemGroupsRolesListResource(flask_restful.Resource):
 
 
 class SystemGroupsRolestResource(flask_restful.Resource):
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(None)
     def get(self, group_id, role_id):
         """Check if a group has a specific role on the system.
 
@@ -141,6 +155,8 @@ class SystemGroupsRolestResource(flask_restful.Resource):
         )
         return None, http.client.NO_CONTENT
 
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(None)
     def put(self, group_id, role_id):
         """Grant a role to a group on the system.
 
@@ -155,6 +171,8 @@ class SystemGroupsRolestResource(flask_restful.Resource):
         )
         return None, http.client.NO_CONTENT
 
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(None)
     def delete(self, group_id, role_id):
         """Revoke a role from the group on the system.
 
