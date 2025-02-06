@@ -1808,17 +1808,19 @@ class EndpointGroupValidationTestCase(unit.BaseTestCase):
     def setUp(self):
         super().setUp()
 
-        create = catalog_schema.endpoint_group_create
-        update = catalog_schema.endpoint_group_update
+        create = catalog_schema.endpoint_group_create_request_body
+        update = catalog_schema.endpoint_group_update_request_body
         self.create_endpoint_grp_validator = validators.SchemaValidator(create)
         self.update_endpoint_grp_validator = validators.SchemaValidator(update)
 
     def test_validate_endpoint_group_request_succeeds(self):
         """Test that we validate an endpoint group request."""
         request_to_validate = {
-            'description': 'endpoint group description',
-            'filters': {'interface': 'admin'},
-            'name': 'endpoint_group_name',
+            'endpoint_group': {
+                'description': 'endpoint group description',
+                'filters': {'interface': 'admin'},
+                'name': 'endpoint_group_name',
+            }
         }
         self.create_endpoint_grp_validator.validate(request_to_validate)
 
@@ -1829,19 +1831,23 @@ class EndpointGroupValidationTestCase(unit.BaseTestCase):
         parameters passed for creating an endpoint group.
         """
         request_to_validate = {
-            'filters': {'interface': 'admin'},
-            'name': 'endpoint_group_name',
+            'endpoint_group': {
+                'filters': {'interface': 'admin'},
+                'name': 'endpoint_group_name',
+            }
         }
         self.create_endpoint_grp_validator.validate(request_to_validate)
 
     def test_validate_endpoint_group_create_succeeds_with_valid_filters(self):
         """Validate `filters` in endpoint group create requests."""
         request_to_validate = {
-            'description': 'endpoint group description',
-            'name': 'endpoint_group_name',
+            'endpoint_group': {
+                'description': 'endpoint group description',
+                'name': 'endpoint_group_name',
+            }
         }
         for valid_filters in _VALID_FILTERS:
-            request_to_validate['filters'] = valid_filters
+            request_to_validate['endpoint_group']['filters'] = valid_filters
             self.create_endpoint_grp_validator.validate(request_to_validate)
 
     def test_validate_create_endpoint_group_fails_with_invalid_filters(self):
@@ -1851,11 +1857,13 @@ class EndpointGroupValidationTestCase(unit.BaseTestCase):
         used as `filters` in endpoint group create request.
         """
         request_to_validate = {
-            'description': 'endpoint group description',
-            'name': 'endpoint_group_name',
+            'endpoint_group': {
+                'description': 'endpoint group description',
+                'name': 'endpoint_group_name',
+            }
         }
         for invalid_filters in _INVALID_FILTERS:
-            request_to_validate['filters'] = invalid_filters
+            request_to_validate['endpoint_group']['filters'] = invalid_filters
             self.assertRaises(
                 exception.SchemaValidationError,
                 self.create_endpoint_grp_validator.validate,
@@ -1865,8 +1873,10 @@ class EndpointGroupValidationTestCase(unit.BaseTestCase):
     def test_validate_endpoint_group_create_fails_without_name(self):
         """Exception raised when `name` isn't in endpoint group request."""
         request_to_validate = {
-            'description': 'endpoint group description',
-            'filters': {'interface': 'admin'},
+            'endpoint_group': {
+                'description': 'endpoint group description',
+                'filters': {'interface': 'admin'},
+            }
         }
         self.assertRaises(
             exception.SchemaValidationError,
@@ -1877,8 +1887,10 @@ class EndpointGroupValidationTestCase(unit.BaseTestCase):
     def test_validate_endpoint_group_create_fails_without_filters(self):
         """Exception raised when `filters` isn't in endpoint group request."""
         request_to_validate = {
-            'description': 'endpoint group description',
-            'name': 'endpoint_group_name',
+            'endpoint_group': {
+                'description': 'endpoint group description',
+                'name': 'endpoint_group_name',
+            }
         }
         self.assertRaises(
             exception.SchemaValidationError,
@@ -1889,9 +1901,11 @@ class EndpointGroupValidationTestCase(unit.BaseTestCase):
     def test_validate_endpoint_group_update_request_succeeds(self):
         """Test that we validate an endpoint group update request."""
         request_to_validate = {
-            'description': 'endpoint group description',
-            'filters': {'interface': 'admin'},
-            'name': 'endpoint_group_name',
+            'endpoint_group': {
+                'description': 'endpoint group description',
+                'filters': {'interface': 'admin'},
+                'name': 'endpoint_group_name',
+            }
         }
         self.update_endpoint_grp_validator.validate(request_to_validate)
 
@@ -1910,19 +1924,25 @@ class EndpointGroupValidationTestCase(unit.BaseTestCase):
         This test ensures that passing only a `name` passes validation
         on update endpoint group request.
         """
-        request_to_validate = {'name': 'endpoint_group_name'}
+        request_to_validate = {
+            'endpoint_group': {'name': 'endpoint_group_name'}
+        }
         self.update_endpoint_grp_validator.validate(request_to_validate)
 
     def test_validate_endpoint_group_update_succeeds_with_valid_filters(self):
         """Validate `filters` as dict values."""
         for valid_filters in _VALID_FILTERS:
-            request_to_validate = {'filters': valid_filters}
+            request_to_validate = {
+                'endpoint_group': {'filters': valid_filters}
+            }
             self.update_endpoint_grp_validator.validate(request_to_validate)
 
     def test_validate_endpoint_group_update_fails_with_invalid_filters(self):
         """Exception raised when passing invalid `filters` in request."""
         for invalid_filters in _INVALID_FILTERS:
-            request_to_validate = {'filters': invalid_filters}
+            request_to_validate = {
+                'endpoint_group': {'filters': invalid_filters}
+            }
             self.assertRaises(
                 exception.SchemaValidationError,
                 self.update_endpoint_grp_validator.validate,
