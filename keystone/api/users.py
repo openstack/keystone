@@ -679,6 +679,12 @@ class UserAppCredListCreateResource(ks_flask.ResourceBase):
             roles = token.roles
         return roles
 
+    @validation.request_query_schema(
+        app_cred_schema.application_credential_index_request_query
+    )
+    @validation.response_body_schema(
+        app_cred_schema.application_credential_index_response_body
+    )
     def get(self, user_id):
         """List application credentials for user.
 
@@ -693,6 +699,12 @@ class UserAppCredListCreateResource(ks_flask.ResourceBase):
         refs = app_cred_api.list_application_credentials(user_id, hints=hints)
         return self.wrap_collection(refs, hints=hints)
 
+    @validation.request_body_schema(
+        app_cred_schema.application_credential_create_request_body
+    )
+    @validation.response_body_schema(
+        app_cred_schema.application_credential_create_response_body
+    )
     def post(self, user_id):
         """Create application credential.
 
@@ -701,9 +713,6 @@ class UserAppCredListCreateResource(ks_flask.ResourceBase):
         ENFORCER.enforce_call(action='identity:create_application_credential')
         app_cred_data = self.request_body_json.get(
             'application_credential', {}
-        )
-        ks_validation.lazy_validate(
-            app_cred_schema.application_credential_create, app_cred_data
         )
         token = self.auth_context['token']
         _check_unrestricted_application_credential(token)
@@ -754,6 +763,12 @@ class UserAppCredGetDeleteResource(ks_flask.ResourceBase):
     collection_key = 'application_credentials'
     member_key = 'application_credential'
 
+    @validation.request_body_schema(
+        app_cred_schema.application_credential_request_body
+    )
+    @validation.response_body_schema(
+        app_cred_schema.application_credential_response_body
+    )
     def get(self, user_id, application_credential_id):
         """Get application credential resource.
 
