@@ -10,15 +10,16 @@
 # Andi Chandler <andi@gowling.com>, 2020. #zanata
 # Andi Chandler <andi@gowling.com>, 2022. #zanata
 # Andi Chandler <andi@gowling.com>, 2023. #zanata
+# Andi Chandler <andi@gowling.com>, 2024. #zanata
 msgid ""
 msgstr ""
 "Project-Id-Version: keystone VERSION\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2023-07-19 18:47+0000\n"
+"POT-Creation-Date: 2025-02-06 14:03+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2023-07-03 01:24+0000\n"
+"PO-Revision-Date: 2024-10-01 01:15+0000\n"
 "Last-Translator: Andi Chandler <andi@gowling.com>\n"
 "Language: en_GB\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -843,6 +844,18 @@ msgid "Invalid input for field scope/project: id or name must be present."
 msgstr "Invalid input for field scope/project: id or name must be present."
 
 #, python-format
+msgid ""
+"Invalid input for field/attribute %(path)s. Value: %(value)s. %(message)s"
+msgstr ""
+"Invalid input for field/attribute %(path)s. Value: %(value)s. %(message)s"
+
+#, python-format
+msgid ""
+"Invalid input for query parameters %(path)s. Value: %(value)s. %(message)s"
+msgstr ""
+"Invalid input for query parameters %(path)s. Value: %(value)s. %(message)s"
+
+#, python-format
 msgid "Invalid mapping id: %s"
 msgstr "Invalid mapping id: %s"
 
@@ -1181,6 +1194,10 @@ msgid ""
 msgstr ""
 "String length exceeded. The length of string '%(string)s' exceeds the limit "
 "of column %(type)s(CHAR(%(length)d))."
+
+#, python-format
+msgid "The '%s' can not be None."
+msgstr "The '%s' can not be None."
 
 msgid ""
 "The 'expires_at' must not be before now. The server could not comply with "

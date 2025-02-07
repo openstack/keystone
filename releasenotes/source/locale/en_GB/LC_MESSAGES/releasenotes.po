@@ -8,11 +8,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Keystone Release Notes\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-09-06 15:54+0000\n"
+"POT-Creation-Date: 2025-02-06 13:58+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2024-09-11 10:36+0000\n"
+"PO-Revision-Date: 2024-10-01 01:15+0000\n"
 "Last-Translator: Andi Chandler <andi@gowling.com>\n"
 "Language-Team: English (United Kingdom)\n"
 "Language: en_GB\n"
@@ -138,17 +138,11 @@ msgstr "18.0.0"
 msgid "18.1.0"
 msgstr "18.1.0"
 
-msgid "18.1.0-11"
-msgstr "18.1.0-11"
-
 msgid "19.0.0"
 msgstr "19.0.0"
 
 msgid "19.0.1"
 msgstr "19.0.1"
-
-msgid "19.0.1-10"
-msgstr "19.0.1-10"
 
 msgid "20.0.0"
 msgstr "20.0.0"
@@ -158,6 +152,9 @@ msgstr "20.0.1"
 
 msgid "20.0.1-7"
 msgstr "20.0.1-7"
+
+msgid "2023.1 Series Release Notes"
+msgstr "2023.1 Series Release Notes"
 
 msgid "2023.2 Series Release Notes"
 msgstr "2023.2 Series Release Notes"
@@ -192,9 +189,6 @@ msgstr "23.0.1"
 msgid "23.0.2"
 msgstr "23.0.2"
 
-msgid "23.0.2-1"
-msgstr "23.0.2-1"
-
 msgid "24.0.0"
 msgstr "24.0.0"
 
@@ -203,9 +197,6 @@ msgstr "24.0.0-15"
 
 msgid "25.0.0"
 msgstr "25.0.0"
-
-msgid "25.0.0-44"
-msgstr "25.0.0-44"
 
 msgid "25.0.0-8"
 msgstr "25.0.0-8"
@@ -278,6 +269,15 @@ msgstr ""
 "default."
 
 msgid ""
+"A side-effect of this command is that it resets the amount of time that an "
+"unused account is active for.  Unused accounts will remain active until the "
+"configured days have elapsed since the day the command is run."
+msgstr ""
+"A side-effect of this command is that it resets the amount of time that an "
+"unused account is active for.  Unused accounts will remain active until the "
+"configured days have elapsed since the day the command is run."
+
+msgid ""
 "Add ``cache_on_issue`` flag to ``[token]`` section that enables placing "
 "issued tokens to validation cache thus reducing the first validation time as "
 "if token is already validated and token data cached."
@@ -309,11 +309,31 @@ msgstr ""
 "manage mapping_populate --help``"
 
 msgid ""
+"Added a new command to the admin cli tool: `keystone-manage "
+"reset_last_active`.  This new command updates the database to overwritet any "
+"NULL values in `last_active_at` in the user table to the current time. This "
+"is a necessary step to fix Bug #2074018. See launchpad for details."
+msgstr ""
+"Added a new command to the admin cli tool: `keystone-manage "
+"reset_last_active`.  This new command updates the database to overwritet any "
+"NULL values in `last_active_at` in the user table to the current time. This "
+"is a necessary step to fix Bug #2074018. See launchpad for details."
+
+msgid ""
 "Added an option ``--check`` to ``keystone-manage db_sync``, the option will "
 "allow a user to check the status of rolling upgrades in the database."
 msgstr ""
 "Added an option ``--check`` to ``keystone-manage db_sync``, the option will "
 "allow a user to check the status of rolling upgrades in the database."
+
+msgid ""
+"Added support for the ``bcrypt_sha256`` password hashing algorythm, which "
+"does workaround limitation on a password length BCrypt have by running the "
+"password through HMAC-SHA2-256 first."
+msgstr ""
+"Added support for the ``bcrypt_sha256`` password hashing algorythm, which "
+"does workaround limitation on a password length BCrypt have by running the "
+"password through HMAC-SHA2-256 first."
 
 msgid ""
 "Adjust configuration tools as necessary, see the ``fixes`` section for more "
@@ -2031,6 +2051,12 @@ msgstr "``delete user``"
 msgid "``identity:create_domain``"
 msgstr "``identity:create_domain``"
 
+msgid "``identity:get_domain``"
+msgstr "``identity:get_domain``"
+
+msgid "``identity:list_domains``"
+msgstr "``identity:list_domains``"
+
 msgid "``identity:update_domain``"
 msgstr "``identity:update_domain``"
 
@@ -2117,6 +2143,9 @@ msgstr "``pool_maxsize``"
 msgid "``pool_unused_timeout``"
 msgstr "``pool_unused_timeout``"
 
+msgid "``public_admin_host``"
+msgstr "``public_admin_host``"
+
 msgid "``public_admin_port``"
 msgstr "``public_admin_port``"
 
@@ -2126,8 +2155,17 @@ msgstr "``public_bind_host``"
 msgid "``public_bind_port``"
 msgstr "``public_bind_port``"
 
+msgid "``pydev-debug-host``"
+msgstr "``pydev-debug-host``"
+
+msgid "``pydev-debug-port``"
+msgstr "``pydev-debug-port``"
+
 msgid "``remove user from group``"
 msgstr "``remove user from group``"
+
+msgid "``standard-threads``"
+msgstr "``standard-threads``"
 
 msgid "``update group``"
 msgstr "``update group``"
@@ -2181,6 +2219,19 @@ msgstr "lt - password expires before the timestamp"
 
 msgid "lte - password expires at or before timestamp"
 msgstr "lte - password expires at or before timestamp"
+
+msgid "maximum number of credentials a user is permitted to create."
+msgstr "maximum number of credentials a user is permitted to create."
+
+msgid ""
+"mysql -h <mysql host> -D keystone -p -P <mysql port> -u keystone -e 'delete "
+"from local_user where user_id in (select user_id from federated_user);'"
+msgstr ""
+"mysql -h <mysql host> -D keystone -p -P <mysql port> -u keystone -e 'delete "
+"from local_user where user_id in (select user_id from federated_user);'"
+
+msgid "mysql db example:"
+msgstr "mysql db example:"
 
 msgid ""
 "mysqldump -h <mysql host> -p -P <mysql port> -u keystone keystone "
