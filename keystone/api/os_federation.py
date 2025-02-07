@@ -109,21 +109,13 @@ class IdentityProvidersResource(_ResourceBase):
         for name in ['protocols']:
             ref['links'][name] = '/'.join([base_path, name])
 
-    def get(self, idp_id=None):
-        if idp_id is not None:
-            return self._get_idp(idp_id)
-        return self._list_idps()
-
-    def _get_idp(self, idp_id):
-        """Get an IDP resource.
-
-        GET/HEAD /OS-FEDERATION/identity_providers/{idp_id}
-        """
-        ENFORCER.enforce_call(action='identity:get_identity_provider')
-        ref = PROVIDERS.federation_api.get_idp(idp_id)
-        return self.wrap_member(ref)
-
-    def _list_idps(self):
+    @validation.request_query_schema(
+        schema.identity_provider_index_request_query
+    )
+    @validation.response_body_schema(
+        schema.identity_provider_index_response_body
+    )
+    def get(self):
         """List all identity providers.
 
         GET/HEAD /OS-FEDERATION/identity_providers
@@ -141,6 +133,41 @@ class IdentityProvidersResource(_ResourceBase):
             self._add_related_links(r)
         return collection
 
+
+class IdentityProviderResource(_ResourceBase):
+    collection_key = 'identity_providers'
+    member_key = 'identity_provider'
+    api_prefix = '/OS-FEDERATION'
+    _public_parameters = frozenset(
+        [
+            'id',
+            'enabled',
+            'description',
+            'remote_ids',
+            'links',
+            'domain_id',
+            'authorization_ttl',
+        ]
+    )
+    _id_path_param_name_override = 'idp_id'
+
+    @validation.request_query_schema(schema.identity_provider_request_query)
+    @validation.response_body_schema(
+        schema.identity_provider_index_response_body
+    )
+    def get(self, idp_id=None):
+        """Get an IDP resource.
+
+        GET/HEAD /OS-FEDERATION/identity_providers/{idp_id}
+        """
+        ENFORCER.enforce_call(action='identity:get_identity_provider')
+        ref = PROVIDERS.federation_api.get_idp(idp_id)
+        return self.wrap_member(ref)
+
+    @validation.request_body_schema(
+        schema.identity_provider_create_request_body
+    )
+    @validation.response_body_schema(schema.identity_provider_response_body)
     def put(self, idp_id):
         """Create an idp resource for federated authentication.
 
@@ -148,16 +175,18 @@ class IdentityProvidersResource(_ResourceBase):
         """
         ENFORCER.enforce_call(action='identity:create_identity_provider')
         idp = self.request_body_json.get('identity_provider', {})
-        ks_validation.lazy_validate(schema.identity_provider_create, idp)
         idp = self._normalize_dict(idp)
         idp.setdefault('enabled', False)
         idp_ref = PROVIDERS.federation_api.create_idp(idp_id, idp)
         return self.wrap_member(idp_ref), http.client.CREATED
 
+    @validation.request_body_schema(
+        schema.identity_provider_update_request_body
+    )
+    @validation.response_body_schema(schema.identity_provider_response_body)
     def patch(self, idp_id):
         ENFORCER.enforce_call(action='identity:update_identity_provider')
         idp = self.request_body_json.get('identity_provider', {})
-        ks_validation.lazy_validate(schema.identity_provider_update, idp)
         idp = self._normalize_dict(idp)
         idp_ref = PROVIDERS.federation_api.update_idp(idp_id, idp)
         return self.wrap_member(idp_ref)
@@ -554,8 +583,25 @@ class OSFederationIdentityProvidersAPI(ks_flask.APIBase):
     _name = 'identity_providers'
     _import_name = __name__
     _api_url_prefix = '/OS-FEDERATION'
-    resources = [IdentityProvidersResource]
-    resource_mapping = []
+    resources = []
+    resource_mapping = [
+        ks_flask.construct_resource_map(
+            resource=IdentityProvidersResource,
+            url='/identity_providers',
+            resource_kwargs={},
+            rel="identity_providers",
+            resource_relation_func=_build_resource_relation,
+            path_vars=None,
+        ),
+        ks_flask.construct_resource_map(
+            resource=IdentityProviderResource,
+            url='/identity_providers/<string:idp_id>',
+            resource_kwargs={},
+            rel="identity_provider",
+            resource_relation_func=_build_resource_relation,
+            path_vars={'idp_id': IDP_ID_PARAMETER_RELATION},
+        ),
+    ]
 
 
 class OSFederationIdentityProvidersProtocolsAPI(ks_flask.APIBase):
