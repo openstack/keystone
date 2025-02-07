@@ -21,7 +21,6 @@ from keystone.common import password_hashers
 from keystone.common.password_hashers import bcrypt
 from keystone.common.password_hashers import pbkdf2
 from keystone.common.password_hashers import scrypt
-from keystone.common.password_hashers import sha512_crypt
 import keystone.conf
 from keystone import exception
 from keystone.i18n import _
@@ -31,13 +30,7 @@ LOG = log.getLogger(__name__)
 
 SUPPORTED_HASHERS: frozenset[type[password_hashers.PasswordHasher]] = (
     frozenset(
-        [
-            scrypt.Scrypt,
-            bcrypt.Bcrypt,
-            bcrypt.Bcrypt_sha256,
-            sha512_crypt.Sha512_crypt,
-            pbkdf2.Sha512,
-        ]
+        [scrypt.Scrypt, bcrypt.Bcrypt, bcrypt.Bcrypt_sha256, pbkdf2.Sha512]
     )
 )
 
