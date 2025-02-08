@@ -391,6 +391,8 @@ class _ProjectGrantResourceBase(ks_flask.ResourceBase):
 
 
 class ProjectUserGrantResource(_ProjectGrantResourceBase):
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(None)
     def get(self, project_id, user_id, role_id):
         """Check grant for project, user, role.
 
@@ -414,6 +416,8 @@ class ProjectUserGrantResource(_ProjectGrantResourceBase):
         )
         return None, http.client.NO_CONTENT
 
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(None)
     def put(self, project_id, user_id, role_id):
         """Grant role for user on project.
 
@@ -438,6 +442,8 @@ class ProjectUserGrantResource(_ProjectGrantResourceBase):
         )
         return None, http.client.NO_CONTENT
 
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(None)
     def delete(self, project_id, user_id, role_id):
         """Delete grant of role for user on project.
 
@@ -465,6 +471,8 @@ class ProjectUserGrantResource(_ProjectGrantResourceBase):
 
 
 class ProjectUserListGrantResource(_ProjectGrantResourceBase):
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(schema.grants_get_response_body)
     def get(self, project_id, user_id):
         """List grants for user on project.
 
@@ -488,6 +496,8 @@ class ProjectUserListGrantResource(_ProjectGrantResourceBase):
 
 
 class ProjectGroupGrantResource(_ProjectGrantResourceBase):
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(None)
     def get(self, project_id, group_id, role_id):
         """Check grant for project, group, role.
 
@@ -511,6 +521,8 @@ class ProjectGroupGrantResource(_ProjectGrantResourceBase):
         )
         return None, http.client.NO_CONTENT
 
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(None)
     def put(self, project_id, group_id, role_id):
         """Grant role for group on project.
 
@@ -535,6 +547,8 @@ class ProjectGroupGrantResource(_ProjectGrantResourceBase):
         )
         return None, http.client.NO_CONTENT
 
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(None)
     def delete(self, project_id, group_id, role_id):
         """Delete grant of role for group on project.
 
@@ -562,6 +576,8 @@ class ProjectGroupGrantResource(_ProjectGrantResourceBase):
 
 
 class ProjectGroupListGrantResource(_ProjectGrantResourceBase):
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(schema.grants_get_response_body)
     def get(self, project_id, group_id):
         """List grants for group on project.
 

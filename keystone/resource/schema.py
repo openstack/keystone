@@ -11,8 +11,10 @@
 # under the License.
 from typing import Any
 
+
 from keystone.api.validation import parameter_types
 from keystone.api.validation import response_types
+from keystone.assignment.schema import role_schema
 from keystone.common import validation
 from keystone.common.validation import parameter_types as old_parameter_types
 from keystone.resource.backends import resource_options as ro
@@ -271,6 +273,22 @@ tags_update_request_body: dict[str, Any] = {
     "type": "object",
     "properties": {
         "tags": {"type": "array", "items": _project_tag_name_properties}
+    },
+    "additionalProperties": False,
+}
+
+# Response body of the `GET /[projects|domains]/{id}/[users|groups]/{id}/roles`
+# API operations returning a list of roles
+# Also used for the `GET /system/[users|groups]/{id}/roles` API operations
+grants_get_response_body: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "links": response_types.links,
+        "roles": {
+            "type": "array",
+            "items": {**role_schema, "additionalProperties": False},
+        },
+        "truncated": response_types.truncated,
     },
     "additionalProperties": False,
 }
