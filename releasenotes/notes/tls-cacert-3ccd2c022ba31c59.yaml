@@ -1,0 +1,6 @@
+---
+upgrade:
+  - |
+    Either ``[ldap] tls_cacertfile`` or ``[ldap] tls_cacertdir`` must be
+    configured if ``[ldap] use_tls`` is true or LDAP URL uses the ``ldaps://``
+    scheme. LDAP authentication will fail if this configuration is absent.
