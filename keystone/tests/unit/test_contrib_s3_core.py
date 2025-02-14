@@ -39,6 +39,13 @@ class S3ContribCore(test_v3.RestfulTestCase):
         PROVIDERS.credential_api.create_credential(
             self.credential['id'], self.credential
         )
+        # Cert credential so that we can test when type != ec2
+        self.cert_blob, self.cert_cred = unit.new_cert_credential(
+            self.user['id'], self.project_id
+        )
+        PROVIDERS.credential_api.create_credential(
+            self.cert_cred['id'], self.cert_cred
+        )
 
     def test_http_get_method_not_allowed(self):
         resp = self.get(
@@ -103,6 +110,36 @@ class S3ContribCore(test_v3.RestfulTestCase):
                 }
             },
             expected_status=http.client.UNAUTHORIZED,
+        )
+
+    def test_bad_credential_type(self):
+        self.post(
+            '/s3tokens',
+            body={
+                'credentials': {
+                    'access': self.cert_blob['access'],
+                    'signature': base64.b64encode(
+                        b'totally not the sig'
+                    ).strip(),
+                    'token': base64.b64encode(b'string to sign').strip(),
+                }
+            },
+            expected_status=http.client.NOT_FOUND,
+        )
+
+    def test_nonexistent_access_key(self):
+        self.post(
+            '/s3tokens',
+            body={
+                'credentials': {
+                    'access': 'somelongaccesskeythatdoesnotexist',
+                    'signature': base64.b64encode(
+                        b'totally not the sig'
+                    ).strip(),
+                    'token': base64.b64encode(b'string to sign').strip(),
+                }
+            },
+            expected_status=http.client.NOT_FOUND,
         )
 
     def test_good_signature_v1(self):
