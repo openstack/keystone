@@ -2856,15 +2856,13 @@ class AssignmentInheritanceTestCase(
             '/role_assignments?include_subtree=True',
             expected_status=http.client.BAD_REQUEST,
         )
-        error_msg = (
-            "scope.project.id must be specified if include_subtree "
-            "is also specified"
-        )
+        error_msg = "'scope.project.id' is a dependency of 'include_subtree'"
         self.assertEqual(error_msg, r.result['error']['message'])
         r = self.get(
             '/role_assignments?scope.project.id&include_subtree=True',
             expected_status=http.client.BAD_REQUEST,
         )
+        error_msg = "Invalid input for field/attribute scope.project.id. Value: . '' should be non-empty"
         self.assertEqual(error_msg, r.result['error']['message'])
 
     def test_get_role_assignments_for_project_tree(self):

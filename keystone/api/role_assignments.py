@@ -14,6 +14,8 @@
 
 import flask
 
+from keystone.api import validation
+from keystone.assignment import schema
 from keystone.common import provider_api
 from keystone.common import rbac_enforcer
 from keystone import exception
@@ -34,6 +36,12 @@ class RoleAssignmentsResource(ks_flask.ResourceBase):
     collection_key = 'role_assignments'
     member_key = 'role_assignment'
 
+    @validation.request_query_schema(
+        schema.role_assignments_index_request_query
+    )
+    @validation.response_body_schema(
+        schema.role_assignments_index_response_body
+    )
     def get(self):
         """List all role assignments.
 
