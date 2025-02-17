@@ -27,7 +27,7 @@ The canonical client library is available at:
 
 Documentation for cloud administrators is available at:
 
-    https://docs.openstack.org/
+    https://docs.openstack.org/keystone/latest/
 
 The source of documentation for cloud administrators is available at:
 
