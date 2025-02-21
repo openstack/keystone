@@ -1309,30 +1309,32 @@ class ServiceValidationTestCase(unit.BaseTestCase):
     def setUp(self):
         super().setUp()
 
-        create = catalog_schema.service_create
-        update = catalog_schema.service_update
+        create = catalog_schema.service_create_request_body
+        update = catalog_schema.service_update_request_body
         self.create_service_validator = validators.SchemaValidator(create)
         self.update_service_validator = validators.SchemaValidator(update)
 
     def test_validate_service_create_succeeds(self):
         """Test that we validate a service create request."""
         request_to_validate = {
-            'name': 'Nova',
-            'description': 'OpenStack Compute Service',
-            'enabled': True,
-            'type': 'compute',
+            'service': {
+                'name': 'Nova',
+                'description': 'OpenStack Compute Service',
+                'enabled': True,
+                'type': 'compute',
+            }
         }
         self.create_service_validator.validate(request_to_validate)
 
     def test_validate_service_create_succeeds_with_required_parameters(self):
         """Validate a service create request with the required parameters."""
         # The only parameter type required for service creation is 'type'
-        request_to_validate = {'type': 'compute'}
+        request_to_validate = {'service': {'type': 'compute'}}
         self.create_service_validator.validate(request_to_validate)
 
     def test_validate_service_create_fails_without_type(self):
         """Exception raised when trying to create a service without `type`."""
-        request_to_validate = {'name': 'Nova'}
+        request_to_validate = {'service': {'name': 'Nova'}}
         self.assertRaises(
             exception.SchemaValidationError,
             self.create_service_validator.validate,
@@ -1342,8 +1344,10 @@ class ServiceValidationTestCase(unit.BaseTestCase):
     def test_validate_service_create_succeeds_with_extra_parameters(self):
         """Test that extra parameters pass validation on create service."""
         request_to_validate = {
-            'other_attr': uuid.uuid4().hex,
-            'type': uuid.uuid4().hex,
+            'service': {
+                'other_attr': uuid.uuid4().hex,
+                'type': uuid.uuid4().hex,
+            }
         }
         self.create_service_validator.validate(request_to_validate)
 
@@ -1351,8 +1355,7 @@ class ServiceValidationTestCase(unit.BaseTestCase):
         """Validate boolean values as enabled values on service create."""
         for valid_enabled in _VALID_ENABLED_FORMATS:
             request_to_validate = {
-                'enabled': valid_enabled,
-                'type': uuid.uuid4().hex,
+                'service': {'enabled': valid_enabled, 'type': uuid.uuid4().hex}
             }
             self.create_service_validator.validate(request_to_validate)
 
@@ -1364,8 +1367,10 @@ class ServiceValidationTestCase(unit.BaseTestCase):
         """
         for invalid_enabled in _INVALID_ENABLED_FORMATS:
             request_to_validate = {
-                'enabled': invalid_enabled,
-                'type': uuid.uuid4().hex,
+                'service': {
+                    'enabled': invalid_enabled,
+                    'type': uuid.uuid4().hex,
+                }
             }
             self.assertRaises(
                 exception.SchemaValidationError,
@@ -1376,7 +1381,9 @@ class ServiceValidationTestCase(unit.BaseTestCase):
     def test_validate_service_create_fails_when_name_too_long(self):
         """Exception raised when `name` is greater than 255 characters."""
         long_name = 'a' * 256
-        request_to_validate = {'type': 'compute', 'name': long_name}
+        request_to_validate = {
+            'service': {'type': 'compute', 'name': long_name}
+        }
         self.assertRaises(
             exception.SchemaValidationError,
             self.create_service_validator.validate,
@@ -1385,7 +1392,7 @@ class ServiceValidationTestCase(unit.BaseTestCase):
 
     def test_validate_service_create_fails_when_name_too_short(self):
         """Exception is raised when `name` is too short."""
-        request_to_validate = {'type': 'compute', 'name': ''}
+        request_to_validate = {'service': {'type': 'compute', 'name': ''}}
         self.assertRaises(
             exception.SchemaValidationError,
             self.create_service_validator.validate,
@@ -1395,7 +1402,7 @@ class ServiceValidationTestCase(unit.BaseTestCase):
     def test_validate_service_create_fails_when_type_too_long(self):
         """Exception is raised when `type` is too long."""
         long_type_name = 'a' * 256
-        request_to_validate = {'type': long_type_name}
+        request_to_validate = {'service': {'type': long_type_name}}
         self.assertRaises(
             exception.SchemaValidationError,
             self.create_service_validator.validate,
@@ -1404,7 +1411,7 @@ class ServiceValidationTestCase(unit.BaseTestCase):
 
     def test_validate_service_create_fails_when_type_too_short(self):
         """Exception is raised when `type` is too short."""
-        request_to_validate = {'type': ''}
+        request_to_validate = {'service': {'type': ''}}
         self.assertRaises(
             exception.SchemaValidationError,
             self.create_service_validator.validate,
@@ -1414,10 +1421,12 @@ class ServiceValidationTestCase(unit.BaseTestCase):
     def test_validate_service_update_request_succeeds(self):
         """Test that we validate a service update request."""
         request_to_validate = {
-            'name': 'Cinder',
-            'type': 'volume',
-            'description': 'OpenStack Block Storage',
-            'enabled': False,
+            'service': {
+                'name': 'Cinder',
+                'type': 'volume',
+                'description': 'OpenStack Block Storage',
+                'enabled': False,
+            }
         }
         self.update_service_validator.validate(request_to_validate)
 
@@ -1432,19 +1441,19 @@ class ServiceValidationTestCase(unit.BaseTestCase):
 
     def test_validate_service_update_succeeds_with_extra_parameters(self):
         """Validate updating a service with extra parameters."""
-        request_to_validate = {'other_attr': uuid.uuid4().hex}
+        request_to_validate = {'service': {'other_attr': uuid.uuid4().hex}}
         self.update_service_validator.validate(request_to_validate)
 
     def test_validate_service_update_succeeds_with_valid_enabled(self):
         """Validate boolean formats as `enabled` on service update."""
         for valid_enabled in _VALID_ENABLED_FORMATS:
-            request_to_validate = {'enabled': valid_enabled}
+            request_to_validate = {'service': {'enabled': valid_enabled}}
             self.update_service_validator.validate(request_to_validate)
 
     def test_validate_service_update_fails_with_invalid_enabled(self):
         """Exception raised when boolean-like values as `enabled`."""
         for invalid_enabled in _INVALID_ENABLED_FORMATS:
-            request_to_validate = {'enabled': invalid_enabled}
+            request_to_validate = {'service': {'enabled': invalid_enabled}}
             self.assertRaises(
                 exception.SchemaValidationError,
                 self.update_service_validator.validate,
@@ -1454,7 +1463,7 @@ class ServiceValidationTestCase(unit.BaseTestCase):
     def test_validate_service_update_fails_with_name_too_long(self):
         """Exception is raised when `name` is too long on update."""
         long_name = 'a' * 256
-        request_to_validate = {'name': long_name}
+        request_to_validate = {'service': {'name': long_name}}
         self.assertRaises(
             exception.SchemaValidationError,
             self.update_service_validator.validate,
@@ -1463,7 +1472,7 @@ class ServiceValidationTestCase(unit.BaseTestCase):
 
     def test_validate_service_update_fails_with_name_too_short(self):
         """Exception is raised when `name` is too short on update."""
-        request_to_validate = {'name': ''}
+        request_to_validate = {'service': {'name': ''}}
         self.assertRaises(
             exception.SchemaValidationError,
             self.update_service_validator.validate,
@@ -1473,7 +1482,7 @@ class ServiceValidationTestCase(unit.BaseTestCase):
     def test_validate_service_update_fails_with_type_too_long(self):
         """Exception is raised when `type` is too long on update."""
         long_type_name = 'a' * 256
-        request_to_validate = {'type': long_type_name}
+        request_to_validate = {'service': {'type': long_type_name}}
         self.assertRaises(
             exception.SchemaValidationError,
             self.update_service_validator.validate,
@@ -1482,7 +1491,7 @@ class ServiceValidationTestCase(unit.BaseTestCase):
 
     def test_validate_service_update_fails_with_type_too_short(self):
         """Exception is raised when `type` is too short on update."""
-        request_to_validate = {'type': ''}
+        request_to_validate = {'service': {'type': ''}}
         self.assertRaises(
             exception.SchemaValidationError,
             self.update_service_validator.validate,

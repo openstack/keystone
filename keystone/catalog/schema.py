@@ -16,8 +16,6 @@ from keystone.api.validation import parameter_types
 from keystone.api.validation import response_types
 from keystone.common import validation
 
-_service_properties_type = {'type': 'string', 'minLength': 1, 'maxLength': 255}
-
 _region_properties = {
     'description': validation.nullable(parameter_types.description),
     # NOTE(lbragstad): Regions use ID differently. The user can specify the ID
@@ -41,25 +39,118 @@ region_update = {
 }
 
 # Schema for Service v3
-
+# Individual properties of 'Service'
 _service_properties = {
-    'enabled': parameter_types.boolean,
-    'name': parameter_types.name,
-    'type': _service_properties_type,
+    "enabled": {
+        "type": "boolean",
+        "description": (
+            "Defines whether the service and its endpoints appear in the "
+            "service catalog - false. The service and its endpoints do "
+            "not appear in the service catalog - true."
+        ),
+    },
+    "type": {
+        "type": "string",
+        "description": (
+            "The service type, which describes the API implemented by the "
+            "service. Value is compute, ec2, identity, image, network, "
+            "or volume."
+        ),
+        "minLength": 1,
+        "maxLength": 255,
+    },
 }
 
-service_create = {
-    'type': 'object',
-    'properties': _service_properties,
-    'required': ['type'],
-    'additionalProperties': True,
+_service_name_properties = {
+    "name": {
+        "type": "string",
+        "description": "The service name.",
+        "minLength": 1,
+        "maxLength": 255,
+    }
 }
 
-service_update = {
-    'type': 'object',
-    'properties': _service_properties,
-    'minProperties': 1,
-    'additionalProperties': True,
+# Common schema of `Service` resource
+service_schema: dict[str, Any] = {
+    "type": "object",
+    "description": "A service object",
+    "properties": {
+        "id": {
+            "type": "string",
+            "readOnly": True,
+            "description": (
+                "The UUID of the service to which the endpoint belongs."
+            ),
+        },
+        "name": {
+            "type": "string",
+            "description": "The service name.",
+            "minLength": 0,
+            "maxLength": 255,
+        },
+        "links": response_types.resource_links,
+        **_service_properties,
+    },
+    "additionalProperties": True,
+}
+
+# Query parameters of the `/services` API
+service_index_request_query: dict[str, Any] = {
+    "type": "object",
+    "properties": {},
+    "additionalProperties": True,
+}
+
+# Response of the `/services` API
+service_index_response_body: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "services": {
+            "type": "array",
+            "items": service_schema,
+            "description": "A list of service object.",
+        },
+        "links": response_types.links,
+        "truncated": response_types.truncated,
+    },
+    "additionalProperties": False,
+}
+
+# Response of the `/services` API returning a single service
+service_response_body: dict[str, Any] = {
+    "type": "object",
+    "description": "A service object.",
+    "properties": {"service": service_schema},
+    "additionalProperties": False,
+}
+
+# Request body of the `POST /services` operation
+service_create_request_body: dict[str, Any] = {
+    "type": "object",
+    "description": "A service object.",
+    "properties": {
+        "service": {
+            "type": "object",
+            "properties": {**_service_properties, **_service_name_properties},
+            "additionalProperties": True,
+            "required": ["type"],
+        }
+    },
+}
+
+# Request body of the `PATCH /services/{service_id}` operation
+service_update_request_body: dict[str, Any] = {
+    "type": "object",
+    "description": "A service object.",
+    "properties": {
+        "service": {
+            "type": "object",
+            "properties": {**_service_properties, **_service_name_properties},
+            "additionalProperties": True,
+            "minProperties": 1,
+        }
+    },
+    "required": ["service"],
 }
 
 # Individual properties of 'Endpoint'
