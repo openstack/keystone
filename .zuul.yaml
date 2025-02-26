@@ -16,7 +16,8 @@
     timeout: 4200
     required-projects:
       - openstack/keystone
-      - openstack/keystone-tempest-plugin
+      - name: openstack/keystone-tempest-plugin
+        override-checkout: wallaby-last
     vars:
       tox_envlist: all
       tempest_test_regex: 'keystone_tempest_plugin'
