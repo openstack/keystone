@@ -2968,24 +2968,24 @@ class FederationProtocolValidationTestCase(unit.BaseTestCase):
     def setUp(self):
         super().setUp()
 
-        create = federation_schema.protocol_create
-        update = federation_schema.protocol_update
+        create = federation_schema.protocol_create_request_body
+        update = federation_schema.protocol_update_request_body
         self.create_protocol_validator = validators.SchemaValidator(create)
         self.update_protocol_validator = validators.SchemaValidator(update)
 
     def test_validate_protocol_request_succeeds(self):
         """Test that we validate a protocol request successfully."""
-        request_to_validate = {'mapping_id': uuid.uuid4().hex}
+        request_to_validate = {"protocol": {"mapping_id": uuid.uuid4().hex}}
         self.create_protocol_validator.validate(request_to_validate)
 
     def test_validate_protocol_request_succeeds_with_nonuuid_mapping_id(self):
         """Test that we allow underscore in mapping_id value."""
-        request_to_validate = {'mapping_id': 'my_mapping_id'}
+        request_to_validate = {"protocol": {"mapping_id": "my_mapping_id"}}
         self.create_protocol_validator.validate(request_to_validate)
 
     def test_validate_protocol_request_fails_with_invalid_params(self):
         """Exception raised when unknown parameter is found."""
-        request_to_validate = {'bogus': uuid.uuid4().hex}
+        request_to_validate = {"protocol": {"bogus": uuid.uuid4().hex}}
         self.assertRaises(
             exception.SchemaValidationError,
             self.create_protocol_validator.validate,
@@ -2994,7 +2994,7 @@ class FederationProtocolValidationTestCase(unit.BaseTestCase):
 
     def test_validate_protocol_request_no_parameters(self):
         """Test that schema validation with empty request body."""
-        request_to_validate = {}
+        request_to_validate = {"protocol": {}}
         # 'mapping_id' is required.
         self.assertRaises(
             exception.SchemaValidationError,
@@ -3004,7 +3004,7 @@ class FederationProtocolValidationTestCase(unit.BaseTestCase):
 
     def test_validate_protocol_request_fails_with_invalid_mapping_id(self):
         """Exception raised when mapping_id is not string."""
-        request_to_validate = {'mapping_id': 12334}
+        request_to_validate = {"protocol": {"mapping_id": 12334}}
         self.assertRaises(
             exception.SchemaValidationError,
             self.create_protocol_validator.validate,
@@ -3013,17 +3013,17 @@ class FederationProtocolValidationTestCase(unit.BaseTestCase):
 
     def test_validate_protocol_request_succeeds_on_update(self):
         """Test that we validate a protocol update request successfully."""
-        request_to_validate = {'mapping_id': uuid.uuid4().hex}
+        request_to_validate = {"protocol": {"mapping_id": uuid.uuid4().hex}}
         self.update_protocol_validator.validate(request_to_validate)
 
     def test_validate_update_protocol_request_succeeds_with_nonuuid_id(self):
         """Test that we allow underscore in mapping_id value when updating."""
-        request_to_validate = {'mapping_id': 'my_mapping_id'}
+        request_to_validate = {"protocol": {"mapping_id": "my_mapping_id"}}
         self.update_protocol_validator.validate(request_to_validate)
 
     def test_validate_update_protocol_request_fails_with_invalid_params(self):
         """Exception raised when unknown parameter in protocol update."""
-        request_to_validate = {'bogus': uuid.uuid4().hex}
+        request_to_validate = {"protocol": {"bogus": uuid.uuid4().hex}}
         self.assertRaises(
             exception.SchemaValidationError,
             self.update_protocol_validator.validate,
@@ -3043,7 +3043,7 @@ class FederationProtocolValidationTestCase(unit.BaseTestCase):
     def test_validate_update_protocol_request_fails_with_invalid_id(self):
         """Test that updating a protocol with a non-string mapping_id fail."""
         for bad_mapping_id in [12345, True]:
-            request_to_validate = {'mapping_id': bad_mapping_id}
+            request_to_validate = {"protocol": {"mapping_id": bad_mapping_id}}
             self.assertRaises(
                 exception.SchemaValidationError,
                 self.update_protocol_validator.validate,
