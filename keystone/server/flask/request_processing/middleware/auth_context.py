@@ -447,7 +447,7 @@ class AuthContextMiddleware(
                 'trust_id': request_context.trust_id,
                 'trustor_id': request_context.trustor_id,
                 'trustee_id': request_context.trustee_id,
-                'domain_id': request_context._domain_id,
+                'domain_id': request_context.domain_id,
                 'domain_name': request_context.domain_name,
                 'group_ids': request_context.group_ids,
                 'token': self.token,
