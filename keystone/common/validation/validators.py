@@ -16,6 +16,8 @@ import re
 import jsonschema
 from oslo_config import cfg
 from oslo_log import log
+from oslo_utils import timeutils
+from oslo_utils import uuidutils
 
 from keystone import exception
 from keystone.i18n import _
@@ -51,6 +53,33 @@ def validate_password(password):
             raise exception.PasswordValidationError(detail=detail)
 
 
+_FORMAT_CHECKER = jsonschema.FormatChecker()
+
+
+@_FORMAT_CHECKER.checks("date-time")
+def _validate_datetime_format(instance: object) -> bool:
+    # format checks constrain to the relevant primitive type
+    # https://github.com/OAI/OpenAPI-Specification/issues/3148
+    if not isinstance(instance, str):
+        return True
+    try:
+        timeutils.parse_isotime(instance)
+    except ValueError:
+        return False
+    else:
+        return True
+
+
+@_FORMAT_CHECKER.checks("uuid")
+def _validate_uuid_format(instance: object) -> bool:
+    # format checks constrain to the relevant primitive type
+    # https://github.com/OAI/OpenAPI-Specification/issues/3148
+    if not isinstance(instance, str):
+        return True
+
+    return uuidutils.is_uuid_like(instance)
+
+
 class SchemaValidator:
     """Resource reference validator class."""
 
@@ -69,8 +98,7 @@ class SchemaValidator:
         validator_cls = jsonschema.validators.extend(
             self.validator_org, validators
         )
-        fc = jsonschema.FormatChecker()
-        self.validator = validator_cls(schema, format_checker=fc)
+        self.validator = validator_cls(schema, format_checker=_FORMAT_CHECKER)
 
     def validate(self, *args, **kwargs):
         try:
