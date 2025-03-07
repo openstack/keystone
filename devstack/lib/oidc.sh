@@ -112,8 +112,8 @@ function register_federation {
     openstack role add --group $federated_users --project $federated_project member
 
     openstack identity provider create \
-	--remote-id $OIDC_ISSUER_BASE \
-	--domain $DOMAIN_NAME $IDP_ID
+        --remote-id $OIDC_ISSUER_BASE \
+        --domain $DOMAIN_NAME $IDP_ID
 }
 
 function configure_tests_settings {
