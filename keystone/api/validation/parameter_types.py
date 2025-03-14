@@ -54,6 +54,7 @@ boolean = {
 description: dict[str, Any] = {
     "type": "string",
     "description": "The resource description.",
+    "maxLength": 255,
 }
 
 domain_id: dict[str, Any] = {
