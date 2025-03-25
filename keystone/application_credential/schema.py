@@ -70,7 +70,9 @@ access_rule_schema: dict[str, Any] = {
 index_request_query: dict[str, Any] = {
     "type": "object",
     "properties": {},
-    "additionalProperties": False,
+    # TODO(stephenfin): Change this to False once we have schemas for all
+    # resources. Doing so will remove comparator (name__icontains) support.
+    "additionalProperties": True,
 }
 
 # Response of the `/access_rules` API
@@ -92,7 +94,9 @@ rule_index_response_body: dict[str, Any] = {
 rule_show_request_query: dict[str, Any] = {
     "type": "object",
     "properties": {},
-    "additionalProperties": False,
+    # TODO(stephenfin): Change this to False once we have schemas for all
+    # resources.
+    "additionalProperties": True,
 }
 
 # Response of `/access_rules/{access_rule_id}` API returning
@@ -216,7 +220,9 @@ application_credential_index_request_query: dict[str, Any] = {
             ),
         }
     },
-    "additionalProperties": False,
+    # TODO(stephenfin): Change this to False once we have schemas for all
+    # resources. Doing so will remove comparator (name__icontains) support.
+    "additionalProperties": True,
 }
 
 # Response of the `/application_credentials` API

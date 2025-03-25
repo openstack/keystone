@@ -170,7 +170,10 @@ trust_index_request_query: dict[str, Any] = {
             "the trust.",
         },
     },
-    "additionalProperties": False,
+    # TODO(stephenfin): Change this to False once we have schemas for all
+    # resources. Doing so will remove comparator (trustor_user_id__icontains)
+    # support.
+    "additionalProperties": True,
 }
 
 trust_index_response_body: dict[str, Any] = {
@@ -190,7 +193,9 @@ trust_index_response_body: dict[str, Any] = {
 trust_request_query: dict[str, Any] = {
     "type": "object",
     "properties": {},
-    "additionalProperties": False,
+    # TODO(stephenfin): Change this to False once we have schemas for all
+    # resources.
+    "additionalProperties": True,
 }
 
 trust_response_body: dict[str, Any] = {

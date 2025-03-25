@@ -12,6 +12,7 @@
 
 import datetime
 import http.client
+import unittest
 import uuid
 
 from oslo_utils import timeutils
@@ -742,7 +743,10 @@ class ApplicationCredentialTestCase(test_v3.RestfulTestCase):
             ar = r.json["access_rules"]
             self.assertEqual(access_rules[0]["method"], ar[0]["method"])
 
-    def test_list_access_rules_wrong_qp(self):
+    # TODO(stephenfin): This will pass once we increase strictness of the query
+    # string validation
+    @unittest.expectedFailure
+    def test_list_access_rules_invalid_qs(self):
         with self.test_client() as c:
             token = self.get_scoped_token()
             # Invoke GET access_rules with unsupported query parameters and
@@ -778,6 +782,15 @@ class ApplicationCredentialTestCase(test_v3.RestfulTestCase):
                 expected_status_code=http.client.OK,
                 headers={"X-Auth-Token": token},
             )
+
+    # TODO(stephenfin): This will pass once we increase strictness of the query
+    # string validation
+    @unittest.expectedFailure
+    def test_show_access_rule_invalid_qs(self):
+        with self.test_client() as c:
+            token = self.get_scoped_token()
+            # Invoke GET access_rules/{id} with unsupported query parameters and
+            # trigger internal validation
             c.get(
                 f"/v3/users/{self.user_id}/access_rules/{access_rule_id}"
                 "?foo=bar",

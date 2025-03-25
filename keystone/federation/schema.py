@@ -96,7 +96,9 @@ service_provider_index_request_query: dict[str, Any] = {
             "description": "Whether the service provider is enabled or not",
         },
     },
-    "additionalProperties": False,
+    # TODO(stephenfin): Change this to False once we have schemas for all
+    # resources. Doing so will remove comparator (id__icontains) support.
+    "additionalProperties": True,
 }
 
 service_provider_index_response_body: dict[str, Any] = {
