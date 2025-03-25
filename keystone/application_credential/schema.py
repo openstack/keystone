@@ -65,18 +65,43 @@ access_rule_schema: dict[str, Any] = {
     "additionalProperties": False,
 }
 
-# Query parameters of the `/users/{user_id}/access_rules` and
-# `/application_credentials/{application_credential_id}` APIs
-index_request_query: dict[str, Any] = {
+# Query parameters of the `/users/{user_id}/access_rules` API
+access_rule_index_request_query: dict[str, Any] = {
     "type": "object",
-    "properties": {},
+    "properties": {
+        # NOTE(stephenfin): We don't reuse _access_rules_properties since these
+        # filters are currently far less strict that the request body of the
+        # POST and PATCH operations. We may wish to change this in a future
+        # version.
+        "service": {
+            "type": "string",
+            "description": (
+                "The service type identifier for the service that the "
+                "application is permitted to access."
+            ),
+        },
+        "path": {
+            "type": "string",
+            "description": (
+                "The API path that the application credential is "
+                "permitted to access."
+            ),
+        },
+        "method": {
+            "type": "string",
+            "description": (
+                "The request method that the application credential is "
+                "permitted to use for a given API endpoint."
+            ),
+        },
+    },
     # TODO(stephenfin): Change this to False once we have schemas for all
     # resources. Doing so will remove comparator (name__icontains) support.
     "additionalProperties": True,
 }
 
 # Response of the `/access_rules` API
-rule_index_response_body: dict[str, Any] = {
+access_rule_index_response_body: dict[str, Any] = {
     "type": "object",
     "properties": {
         "access_rules": {
@@ -91,7 +116,7 @@ rule_index_response_body: dict[str, Any] = {
 
 # /access/rules/{access_rule_id}
 # GET request query parameters
-rule_show_request_query: dict[str, Any] = {
+access_rule_show_request_query: dict[str, Any] = {
     "type": "object",
     "properties": {},
     # TODO(stephenfin): Change this to False once we have schemas for all
@@ -101,7 +126,7 @@ rule_show_request_query: dict[str, Any] = {
 
 # Response of `/access_rules/{access_rule_id}` API returning
 # single access rule
-rule_show_response_body: dict[str, Any] = {
+access_rule_show_response_body: dict[str, Any] = {
     "type": "object",
     "description": "An access rule object.",
     "properties": {"access_rule": access_rule_schema},

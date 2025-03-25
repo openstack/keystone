@@ -806,8 +806,12 @@ class UserAccessRuleListResource(ks_flask.ResourceBase):
     collection_key = 'access_rules'
     member_key = 'access_rule'
 
-    @validation.request_query_schema(app_cred_schema.index_request_query)
-    @validation.response_body_schema(app_cred_schema.rule_index_response_body)
+    @validation.request_query_schema(
+        app_cred_schema.access_rule_index_request_query
+    )
+    @validation.response_body_schema(
+        app_cred_schema.access_rule_index_response_body
+    )
     def get(self, user_id):
         """List access rules for user.
 
@@ -830,8 +834,12 @@ class UserAccessRuleGetDeleteResource(ks_flask.ResourceBase):
     collection_key = 'access_rules'
     member_key = 'access_rule'
 
-    @validation.request_query_schema(app_cred_schema.rule_show_request_query)
-    @validation.response_body_schema(app_cred_schema.rule_show_response_body)
+    @validation.request_query_schema(
+        app_cred_schema.access_rule_show_request_query
+    )
+    @validation.response_body_schema(
+        app_cred_schema.access_rule_show_response_body
+    )
     def get(self, user_id, access_rule_id):
         """Get access rule resource.
 
