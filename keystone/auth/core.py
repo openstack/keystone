@@ -484,14 +484,20 @@ class UserMFARulesValidator(provider_api.ProviderAPIMixin):
             )
             return True
 
+        has_valid_auth_methods: bool = False
+
         for r in rules:
             # NOTE(notmorgan): We only check against the actually loaded
             # auth methods meaning that the keystone administrator may
             # disable an auth method, and a rule will still pass making it
             # impossible to accidently lock-out a subset of users with a
             # bad keystone.conf
+            # NOTE(gtema): https://bugs.launchpad.net/keystone/+bug/2102096
+            # requires that the rule containing only wrong methods is ignored
             r_set = set(r).intersection(cls._auth_methods())
-            if set(auth_methods).issuperset(r_set):
+            if r_set:
+                has_valid_auth_methods = True
+            if r_set and set(auth_methods).issuperset(r_set):
                 # Rule Matches no need to continue, return here.
                 LOG.debug(
                     'Auth methods for user `%(user_id)s`, `%(methods)s` '
@@ -506,12 +512,21 @@ class UserMFARulesValidator(provider_api.ProviderAPIMixin):
                 )
                 return True
 
-        LOG.debug(
-            'Auth methods for user `%(user_id)s`, `%(methods)s` did not '
-            'match a MFA rule in `%(rules)s`.',
-            {'user_id': user_id, 'methods': auth_methods, 'rules': rules},
-        )
-        return False
+        if has_valid_auth_methods:
+            LOG.debug(
+                'Auth methods for user `%(user_id)s`, `%(methods)s` did not '
+                'match a MFA rule in `%(rules)s`.',
+                {'user_id': user_id, 'methods': auth_methods, 'rules': rules},
+            )
+            return False
+        else:
+            LOG.debug(
+                'Auth methods for user `%(user_id)s`, `%(methods)s` did not '
+                'match a MFA rule in `%(rules)s`. Since all methods are invalid '
+                'allowing user to login to prevent lockout.',
+                {'user_id': user_id, 'methods': auth_methods, 'rules': rules},
+            )
+            return True
 
     @staticmethod
     def _parse_rule_structure(rules, user_id):
@@ -551,8 +566,7 @@ class UserMFARulesValidator(provider_api.ProviderAPIMixin):
                 # Rule was not a list, it is invalid, drop the rule from
                 # being considered.
                 LOG.info(
-                    'Ignoring Rule %(type)r; rule must be a list of '
-                    'strings.',
+                    'Ignoring Rule %(type)r; rule must be a list of strings.',
                     {'type': type(r_list)},
                 )
                 continue

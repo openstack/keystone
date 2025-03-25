@@ -21,7 +21,9 @@ from keystone.api._shared import authentication
 from keystone import auth
 from keystone.auth.plugins import base
 from keystone.auth.plugins import mapped
+from keystone.common import provider_api
 from keystone import exception
+from keystone.identity.backends import resource_options as ro
 from keystone.tests import unit
 from keystone.tests.unit.ksfixtures import auth_plugins
 
@@ -29,6 +31,7 @@ from keystone.tests.unit.ksfixtures import auth_plugins
 METHOD_NAME = 'simple_challenge_response'
 EXPECTED_RESPONSE = uuid.uuid4().hex
 DEMO_USER_ID = uuid.uuid4().hex
+PROVIDERS = provider_api.ProviderAPIs
 
 
 class SimpleChallengeResponse(base.AuthMethodHandler):
@@ -143,6 +146,98 @@ class TestAuthPluginDynamicOptions(TestAuthPlugin):
         config_files = super().config_files()
         config_files.append(unit.dirs.tests_conf('test_auth_plugin.conf'))
         return config_files
+
+
+class TestAuthMFA(unit.TestCase):
+    def setUp(self):
+        super().setUp()
+
+    def test_check_auth_methods_against_rules(self):
+        auth_names = ["password", "application_credential", "totp"]
+        self.useFixture(
+            auth_plugins.ConfigAuthPlugins(
+                self.config_fixture, methods=auth_names
+            )
+        )
+        self.useFixture(auth_plugins.LoadAuthPlugins(*auth_names))
+        sot = auth.core.UserMFARulesValidator
+        user_id = uuid.uuid4().hex
+        user = {
+            "id": user_id,
+            "name": uuid.uuid4().hex,
+            "enabled": True,
+            "options": {
+                ro.MFA_ENABLED_OPT.option_name: True,
+                ro.MFA_RULES_OPT.option_name: [["password", "totp"]],
+            },
+        }
+
+        identity_mock = mock.MagicMock()
+        PROVIDERS._register_provider_api("identity_api", identity_mock)
+
+        identity_mock.get_user.return_value = user
+        self.assertTrue(
+            sot.check_auth_methods_against_rules(user_id, ["password", "totp"])
+        )
+        self.assertFalse(
+            sot.check_auth_methods_against_rules(user_id, ["totp"])
+        )
+        self.assertFalse(
+            sot.check_auth_methods_against_rules(user_id, ["password"])
+        )
+
+        # Test that a rule containing invalid auth method does not lock the user out
+        identity_mock.get_user.return_value.update(
+            {
+                "options": {
+                    ro.MFA_ENABLED_OPT.option_name: True,
+                    ro.MFA_RULES_OPT.option_name: [
+                        ["password", "totp"],
+                        ["password", "fake"],
+                    ],
+                }
+            }
+        )
+        self.assertFalse(
+            sot.check_auth_methods_against_rules(user_id, ["totp"])
+        )
+        self.assertTrue(
+            sot.check_auth_methods_against_rules(user_id, ["password"])
+        )
+
+        # Test that a rule containing only invalid auth method is ignored
+        # (https://bugs.launchpad.net/keystone/+bug/2102096)
+        identity_mock.get_user.return_value.update(
+            {
+                "options": {
+                    ro.MFA_ENABLED_OPT.option_name: True,
+                    ro.MFA_RULES_OPT.option_name: [
+                        ["password", "totp"],
+                        ["fake"],
+                    ],
+                }
+            }
+        )
+        self.assertFalse(
+            sot.check_auth_methods_against_rules(user_id, ["totp"])
+        )
+        self.assertFalse(
+            sot.check_auth_methods_against_rules(user_id, ["password"])
+        )
+
+        # Test that a only rule containing only invalid auth method is not
+        # locking user out
+        identity_mock.get_user.return_value.update(
+            {
+                "options": {
+                    ro.MFA_ENABLED_OPT.option_name: True,
+                    ro.MFA_RULES_OPT.option_name: [["fake", "fake2"]],
+                }
+            }
+        )
+        self.assertTrue(
+            sot.check_auth_methods_against_rules(user_id, ["password"])
+        )
 
 
 class TestMapped(unit.TestCase):
