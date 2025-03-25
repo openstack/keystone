@@ -70,6 +70,9 @@ index_request_query: dict[str, Any] = {
             ),
         },
     },
+    # TODO(stephenfin): Change this to False once we have schemas for all
+    # resources. Doing so will remove comparator (type__icontains) support.
+    "additionalProperties": True,
 }
 
 # Response of the `/credentials` API

@@ -100,6 +100,9 @@ project_index_request_query = {
         },
         "limit": {"type": ["integer", "string"]},
     },
+    # TODO(stephenfin): Change this to False once we have schemas for all
+    # resources. Doing so will remove comparator (name__icontains) support.
+    "additionalProperties": True,
 }
 
 project_schema: dict[str, Any] = {
@@ -208,7 +211,9 @@ domain_index_request_query: dict[str, Any] = {
         },
         "limit": {"type": ["integer", "string"]},
     },
-    "additionalProperties": "False",
+    # TODO(stephenfin): Change this to False once we have schemas for all
+    # resources. Doing so will remove comparator (name__icontains) support.
+    "additionalProperties": True,
 }
 
 domain_index_response_body: dict[str, Any] = {

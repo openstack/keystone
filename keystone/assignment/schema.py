@@ -61,7 +61,9 @@ roles_index_request_query: dict[str, Any] = {
         "name": parameter_types.name,
         "domain_id": parameter_types.domain_id,
     },
-    "additionalProperties": False,
+    # TODO(stephenfin): Change this to False once we have schemas for all
+    # resources. Doing so will remove comparator (name__icontains) support.
+    "additionalProperties": True,
 }
 
 # Response body of the `GET /roles` API operation
@@ -399,7 +401,9 @@ role_assignments_index_request_query: dict[str, Any] = {
         ]
     },
     "not": {"required": ["effective", "group"]},
-    "additionalProperties": False,
+    # TODO(stephenfin): Change this to False once we have schemas for all
+    # resources. Doing so will remove comparator (user.id__icontains) support.
+    "additionalProperties": True,
 }
 
 # Response body of the `GET /role_assignments` API operation

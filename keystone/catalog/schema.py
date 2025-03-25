@@ -254,7 +254,10 @@ endpoint_index_request_query: dict[str, Any] = {
             "endpoint belongs",
         },
     },
-    "additionalProperties": False,
+    # TODO(stephenfin): Change this to False once we have schemas for all
+    # resources. Doing so will remove comparator (interface__icontains)
+    # support.
+    "additionalProperties": True,
 }
 
 # Response of the `/endpoints` API

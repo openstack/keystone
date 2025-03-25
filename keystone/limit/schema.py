@@ -93,7 +93,10 @@ registered_limits_index_request_query: dict[str, Any] = {
             **parameter_types.name,
         },
     },
-    "additionalProperties": False,
+    # TODO(stephenfin): Change this to False once we have schemas for all
+    # resources. Doing so will remove comparator (service_id__icontains)
+    # support.
+    "additionalProperties": True,
 }
 
 # Response body of the `GET /registered_limits` API operation
@@ -257,7 +260,10 @@ limits_index_request_query: dict[str, Any] = {
             **parameter_types.domain_id,
         },
     },
-    "additionalProperties": False,
+    # TODO(stephenfin): Change this to False once we have schemas for all
+    # resources. Doing so will remove comparator (project_id__icontains)
+    # support.
+    "additionalProperties": True,
 }
 
 # Response body of the `GET /limits` API operation
