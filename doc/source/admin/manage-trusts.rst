@@ -8,14 +8,14 @@ guide on using trusts </user/trusts>`.
 
 
 Removing Expired Trusts
-===========================================================
+=======================
 
 In the SQL trust stores expired and soft deleted trusts, that are not
 automatically removed. These trusts can be removed with::
 
     $ keystone-manage trust_flush [options]
 
- OPTIONS (optional):
+    OPTIONS (optional):
 
         --project-id <string>:
                     To purge trusts of given project-id.

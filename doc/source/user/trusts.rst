@@ -76,3 +76,38 @@ The delegation parameters are:
    See the administrator guide on :doc:`removing expired trusts
    </admin/manage-trusts>` for recommended
    maintenance procedures.
+
+
+Usage
+=====
+
+Trusts can be created using the ``openstack trust create`` command.
+This command expects a *trustor*, a *trustee*, and a *project* and list of
+*roles* that the trust is being delegated for.
+
+For example, if you are the ``admin`` user and wish to delegate the ``admin``
+role to the user ``demo`` for the project ``admin``:
+
+.. code-block:: shell
+
+   $ openstack trust create --role admin --project admin admin demo
+
+This will return a response including a ``trust_id``.
+This ``trust_id`` can then be used during authentication for the user ``demo``.
+For example, you can specify the following in ``clouds.yaml``:
+
+.. code-block:: yaml
+
+    devstack:
+        auth:
+            auth_url: 'http://example.com/identity'
+            username: 'demo'
+            password: '***'
+            trust_id: '95946f9eef864fdc993079d8fe3e5747'
+        identity_api_version: '3'
+        region_name: RegionOne
+        volume_api_version: '3'
+
+Tokens returned when using a trust have a different format.
+You can inspect this by running a command with the ``--debug`` flag using the
+above cloud.
