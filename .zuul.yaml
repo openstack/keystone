@@ -146,6 +146,7 @@
               - ^doc/.*$
               - ^etc/.*$
               - ^keystone/tests/unit/.*$
+              - ^\.pre-commit-config\.yaml$
               - ^releasenotes/.*$
         - keystone-dsvm-py3-functional-fips:
             voting: false
@@ -167,6 +168,7 @@
               - ^doc/.*$
               - ^etc/.*$
               - ^keystone/tests/unit/.*$
+              - ^\.pre-commit-config\.yaml$
               - ^releasenotes/.*$
               - ^setup.cfg$
         - tempest-full-py3:
