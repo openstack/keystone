@@ -450,6 +450,74 @@ both a ``reasonCode`` and ``reasonType``.
        "message_id": "9a97e9d0-fef1-4852-8e82-bb693358bc46"
    }
 
+Example Notification - Invalid Password Authentication
+------------------------------------------------------
+
+The following is an example of a notification that is sent when a user provided
+invalid password.
+
+Note the ``payload``'s ``action`` is ``authenticate`` and ``outcome`` is
+``failure``.
+
+.. code-block:: javascript
+
+    {
+        "_unique_id": "b218f7fd79494ef2a3ab96af4b13a71b",
+        "event_type": "identity.authenticate",
+        "message_id": "e23bee7e-0753-4824-885c-e0f86179671f",
+        "payload": {
+            "action": "authenticate",
+            "attachments": [
+                {
+                    "content": "EpDKTqHklwreBBXhXv81jlYkYNfcDYj2XBrKrMGrjac",
+                    "name": "partial_password_hash",
+                    "typeURI": "mime:text/plain"
+                }
+            ],
+            "eventTime": "2025-03-27T17:09:37.318590+0000",
+            "eventType": "activity",
+            "id": "7f160bb3-762c-5dee-93a3-e4c46324a6d8",
+            "initiator": {
+                "host": {
+                    "address": "127.0.0.1",
+                    "agent": "openstacksdk/4.3.0 keystoneauth1/5.9.1 python-requests/2.32.3 CPython/3.12.7"
+                },
+                "id": "d7bec06f41254509987354d0c0581cdc",
+                "request_id": "req-214d0f85-74a4-441b-85b5-c1159341d577",
+                "typeURI": "service/security/account/user",
+                "user_id": "d7bec06f41254509987354d0c0581cdc",
+                "username": "admin"
+            },
+            "observer": {
+                "id": "f11c53400a5247baa2f120ff36c66b8f",
+                "typeURI": "service/security"
+            },
+            "outcome": "failure",
+            "target": {
+                "id": "5ca93d89-b1fd-5245-9c37-508f0a034289",
+                "typeURI": "service/security/account/user"
+            },
+            "typeURI": "http://schemas.dmtf.org/cloud/audit/1.0/event"
+        },
+        "priority": "INFO",
+        "publisher_id": "identity.host1234",
+        "timestamp": "2025-03-27 17:09:37.318895"
+    }
+
+In this example, the ``payload`` also contains ``attachments`` portion with
+``partial_password_hash`` `attachment
+<https://docs.openstack.org/pycadf/latest/specification/attachments.html>`_,
+which only shows up when
+:oslo.config:option:`security_compliance.report_invalid_password_hash`
+configuration option is explicitly set to ``event``. The ``content`` value
+could be then further analyzed to distinguish password attacks from e.g.
+external user automations that did not timely update rotated password, by
+analyzing variability of the hash value - the hash value would be changing if
+submitted password is changing (e.g. because of bruteforce or dictionary
+attack). See the configuration options documentation, and find more details in
+the corresponding `Keystone spec
+<https://specs.openstack.org/openstack/keystone-specs/specs/keystone/2025.1/pci-dss-invalid-password-reporting.html>`_.
+
 Basic Notifications
 ===================
 
