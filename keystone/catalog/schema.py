@@ -98,6 +98,8 @@ service_schema: dict[str, Any] = {
 service_index_request_query: dict[str, Any] = {
     "type": "object",
     "properties": {},
+    # TODO(stephenfin): Change this to False once we have schemas for all
+    # resources.
     "additionalProperties": True,
 }
 
@@ -278,7 +280,9 @@ endpoint_index_response_body: dict[str, Any] = {
 endpoint_request_query: dict[str, Any] = {
     "type": "object",
     "properties": {},
-    "additionalProperties": False,
+    # TODO(stephenfin): Change this to False once we have schemas for all
+    # resources.
+    "additionalProperties": True,
 }
 
 # Response of the `/endpoints` API returning a single endpoint
@@ -406,6 +410,8 @@ endpoint_group_index_request_query: dict[str, Any] = {
             "description": "The name of the endpoint group.",
         }
     },
+    # TODO(stephenfin): Change this to False once we have schemas for all
+    # resources. Doing so will remove comparator (name__icontains) support.
     "additionalProperties": False,
 }
 

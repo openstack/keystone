@@ -208,7 +208,9 @@ group_index_request_query: dict[str, Any] = {
         "sort_key": parameter_types.sort_key,
         "sort_dir": parameter_types.sort_dir,
     },
-    "additionalProperties": False,
+    # TODO(stephenfin): Change this to False once we have schemas for all
+    # resources. Doing so will remove comparator (name__icontains) support.
+    "additionalProperties": True,
 }
 
 _group_properties: dict[str, Any] = {
