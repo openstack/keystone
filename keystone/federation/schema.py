@@ -213,6 +213,8 @@ identity_provider_index_request_query: dict[str, Any] = {
             "description": "Whether the identity provider is enabled or not",
         },
     },
+    # TODO(stephenfin): Change this to False once we have schemas for all
+    # resources. Doing so will remove comparator (name__icontains) support.
     "additionalProperties": True,
 }
 
@@ -232,6 +234,8 @@ identity_provider_index_response_body: dict[str, Any] = {
 identity_provider_request_query: dict[str, Any] = {
     "type": "object",
     "properties": {},
+    # TODO(stephenfin): Change this to False once we have schemas for all
+    # resources.
     "additionalProperties": True,
 }
 
