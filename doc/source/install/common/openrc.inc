@@ -29,12 +29,6 @@ scripts to load appropriate credentials for client operations.
 
 #. Create and edit the ``admin-openrc`` file and add the following content:
 
-   .. note::
-
-      The OpenStack client also supports using a ``clouds.yaml`` file.
-      For more information, see
-      the `os-client-config <http://docs.openstack.org/os-client-config/latest>`_.
-
    .. code-block:: bash
 
       export OS_PROJECT_DOMAIN_NAME=Default
@@ -42,7 +36,7 @@ scripts to load appropriate credentials for client operations.
       export OS_PROJECT_NAME=admin
       export OS_USERNAME=admin
       export OS_PASSWORD=ADMIN_PASS
-      export OS_AUTH_URL=http://controller:5000/v3
+      export OS_AUTH_URL=https://controller:5000/v3
       export OS_IDENTITY_API_VERSION=3
       export OS_IMAGE_API_VERSION=2
 
@@ -60,7 +54,7 @@ scripts to load appropriate credentials for client operations.
       export OS_PROJECT_NAME=myproject
       export OS_USERNAME=myuser
       export OS_PASSWORD=DEMO_PASS
-      export OS_AUTH_URL=http://controller:5000/v3
+      export OS_AUTH_URL=https://controller:5000/v3
       export OS_IDENTITY_API_VERSION=3
       export OS_IMAGE_API_VERSION=2
 

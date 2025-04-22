@@ -21,7 +21,7 @@ services.
 
    .. code-block:: console
 
-      $ openstack --os-auth-url http://controller:5000/v3 \
+      $ openstack --os-auth-url https://controller:5000/v3 \
         --os-project-domain-name Default --os-user-domain-name Default \
         --os-project-name admin --os-username admin token issue
 
@@ -47,7 +47,7 @@ services.
 
    .. code-block:: console
 
-      $ openstack --os-auth-url http://controller:5000/v3 \
+      $ openstack --os-auth-url https://controller:5000/v3 \
         --os-project-domain-name Default --os-user-domain-name Default \
         --os-project-name myproject --os-username myuser token issue
 

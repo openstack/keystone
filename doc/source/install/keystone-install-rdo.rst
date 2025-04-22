@@ -138,9 +138,9 @@ Install and configure components
    .. code-block:: console
 
       # keystone-manage bootstrap --bootstrap-password ADMIN_PASS \
-        --bootstrap-admin-url http://controller:5000/v3/ \
-        --bootstrap-internal-url http://controller:5000/v3/ \
-        --bootstrap-public-url http://controller:5000/v3/ \
+        --bootstrap-admin-url https://controller:5000/v3/ \
+        --bootstrap-internal-url https://controller:5000/v3/ \
+        --bootstrap-public-url https://controller:5000/v3/ \
         --bootstrap-region-id RegionOne
 
    .. end
@@ -201,7 +201,7 @@ Finalize the installation
       $ export OS_PROJECT_NAME=admin
       $ export OS_USER_DOMAIN_NAME=Default
       $ export OS_PROJECT_DOMAIN_NAME=Default
-      $ export OS_AUTH_URL=http://controller:5000/v3
+      $ export OS_AUTH_URL=https://controller:5000/v3
       $ export OS_IDENTITY_API_VERSION=3
 
    .. end
