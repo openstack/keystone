@@ -1,0 +1,4 @@
+# os-openapi is installed directly from git since we do not do releases (yet?)
+os-openapi @ git+https://opendev.org/openstack/openapi
+
+os-api-ref>=1.4.0 # Apache-2.0
