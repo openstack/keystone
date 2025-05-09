@@ -62,7 +62,7 @@ Install and configure components
 
    .. code-block:: console
 
-      # dnf install openstack-keystone httpd python3-mod_wsgi
+      # dnf install openstack-keystone httpd uwsgi-plugin-python3
 
    .. end
 
@@ -164,11 +164,11 @@ Configure the Apache HTTP server
 
    The ``ServerName`` entry will need to be added if it does not already exist.
 
-#. Create a link to the ``/usr/share/keystone/wsgi-keystone.conf`` file:
+#. Create a link to the ``/usr/share/keystone/uwsgi-keystone.conf`` file:
 
    .. code-block:: console
 
-      # ln -s /usr/share/keystone/wsgi-keystone.conf /etc/httpd/conf.d/
+      # ln -s /usr/share/keystone/uwsgi-keystone.conf /etc/httpd/conf.d/
 
    .. end
 
