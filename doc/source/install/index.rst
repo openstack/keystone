@@ -17,6 +17,5 @@ the Apache HTTP server to handle requests.
 .. toctree::
    :maxdepth: 3
 
-   index-obs
    index-rdo
    index-ubuntu
