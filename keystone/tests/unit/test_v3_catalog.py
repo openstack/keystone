@@ -780,11 +780,13 @@ class TestMultiRegion(test_v3.RestfulTestCase):
 
         # Create two services with the same type but separate name.
         first_service = self.post(
-            '/services', body={'service': unit.new_service_ref(type='foobar')}
+            '/services',
+            body={'service': unit.new_service_ref(type='identity')},
         ).json_body['service']
 
         second_service = self.post(
-            '/services', body={'service': unit.new_service_ref(type='foobar')}
+            '/services',
+            body={'service': unit.new_service_ref(type='identity')},
         ).json_body['service']
 
         # Create an endpoint for each service
