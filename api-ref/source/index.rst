@@ -10,6 +10,11 @@ Contents:
     v3/index
     v3-ext/index
 
+.. toctree::
+    :maxdepth: 1
+
+    openapi
+
 Indices and tables
 ==================
 
