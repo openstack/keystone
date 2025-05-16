@@ -305,8 +305,8 @@ limit_model_show_response_body: dict[str, Any] = {
                     "description": "The name of the enforcement model.",
                 },
             },
-        },
-        "additionalProperties": False,
+            "additionalProperties": False,
+        }
     },
     "additionalProperties": False,
 }
