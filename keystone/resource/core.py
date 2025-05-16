@@ -318,10 +318,7 @@ class Manager(manager.Manager):
         for project in parents_list:
             if not project.get('enabled', True):
                 raise exception.ForbiddenNotSecurity(
-                    _(
-                        'Cannot enable project %s since it has disabled '
-                        'parents'
-                    )
+                    _('Cannot enable project %s since it has disabled parents')
                     % project_id
                 )
 

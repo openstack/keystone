@@ -89,7 +89,7 @@ def resource_options_ref_to_mapper(ref, option_class):
     clear_options = set_options.difference(
         ref.resource_options_registry.option_ids
     )
-    options.update({x: None for x in clear_options})
+    options.update(dict.fromkeys(clear_options))
 
     # Set the resource options for user in the Attribute Mapping.
     for r_opt_id, r_opt_value in options.items():

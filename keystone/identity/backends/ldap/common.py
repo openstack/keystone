@@ -1151,8 +1151,7 @@ class KeystoneLDAPHandler(LDAPHandler):
         if attrlist is not None:
             attrlist = [attr for attr in attrlist if attr is not None]
         LOG.debug(
-            'LDAP search: base=%s scope=%s filterstr=%s '
-            'attrs=%s attrsonly=%s',
+            'LDAP search: base=%s scope=%s filterstr=%s attrs=%s attrsonly=%s',
             base,
             scope,
             filterstr,
@@ -1732,7 +1731,7 @@ class BaseLdap:
         if not attr:
             attr_name = f'{self.options_name}_{self.attribute_options_names[ldap_attr_name]}_attribute'
             raise ValueError(
-                f'"{attr}" is not a valid value for' f' "{attr_name}"'
+                f'"{attr}" is not a valid value for "{attr_name}"'
             )
 
         # consider attr = "cn" and
@@ -1766,9 +1765,7 @@ class BaseLdap:
 
     def _ldap_get(self, object_id, ldap_filter=None):
         query = (
-            '(&({id_attr}={id})'
-            '{filter}'
-            '(objectClass={object_class}))'.format(
+            '(&({id_attr}={id}){filter}(objectClass={object_class}))'.format(
                 id_attr=self.id_attr,
                 id=ldap.filter.escape_filter_chars(str(object_id)),
                 filter=ldap_filter or self.ldap_filter or '',

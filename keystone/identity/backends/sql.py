@@ -387,10 +387,7 @@ class Identity(base.IdentityDriverBase):
                 self.get_group(group_id)
                 self.get_user(user_id)
                 raise exception.NotFound(
-                    _(
-                        "User '%(user_id)s' not found in"
-                        " group '%(group_id)s'"
-                    )
+                    _("User '%(user_id)s' not found in group '%(group_id)s'")
                     % {'user_id': user_id, 'group_id': group_id}
                 )
             session.delete(membership_ref)

@@ -101,7 +101,7 @@ def wip(message, expected_exception=Exception, bug=None):
                 )
 
             raise AssertionError(
-                f'Work In Progress Test Passed{bugstr}: ' f'{message}'
+                f'Work In Progress Test Passed{bugstr}: {message}'
             )
 
         return run_test

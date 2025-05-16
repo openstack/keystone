@@ -474,8 +474,7 @@ class TokenModel:
                 'disabled'
             )
             tr_msg = _(
-                'Unable to validate token because project %(id)s is '
-                'disabled'
+                'Unable to validate token because project %(id)s is disabled'
             ) % {'id': self.project_id}
             LOG.warning(msg)
             raise exception.ProjectNotFound(tr_msg)

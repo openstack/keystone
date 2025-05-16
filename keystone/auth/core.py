@@ -551,8 +551,7 @@ class UserMFARulesValidator(provider_api.ProviderAPIMixin):
                 # Rule was not a list, it is invalid, drop the rule from
                 # being considered.
                 LOG.info(
-                    'Ignoring Rule %(type)r; rule must be a list of '
-                    'strings.',
+                    'Ignoring Rule %(type)r; rule must be a list of strings.',
                     {'type': type(r_list)},
                 )
                 continue

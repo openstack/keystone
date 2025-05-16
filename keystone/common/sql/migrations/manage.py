@@ -125,7 +125,7 @@ def do_upgrade(config, cmd):
             if delta < 0:
                 msg = _('Negative delta (downgrade) not supported')
                 raise SystemExit(msg)
-            revision = '%s+%d' % (revision, delta)
+            revision = f"{revision}+{delta}"
 
         # leave branchless 'head' revision request backward compatible by
         # applying all heads in all available branches.

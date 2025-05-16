@@ -3474,7 +3474,7 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         )
         # Delete the grant, which should invalidate the token
         grant_url = (
-            '/projects/{project_id}/users/{user_id}/' 'roles/{role_id}'.format(
+            '/projects/{project_id}/users/{user_id}/roles/{role_id}'.format(
                 project_id=self.project['id'],
                 user_id=self.user['id'],
                 role_id=self.role['id'],
@@ -3668,7 +3668,7 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         )
         # Assign a role, which should not affect the token
         grant_url = (
-            '/domains/{domain_id}/users/{user_id}/' 'roles/{role_id}'.format(
+            '/domains/{domain_id}/users/{user_id}/roles/{role_id}'.format(
                 domain_id=self.domainB['id'],
                 user_id=self.user1['id'],
                 role_id=self.role1['id'],
@@ -3805,8 +3805,7 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         # Delete the group grant, which should invalidate the
         # tokens for user1 and user2
         grant_url = (
-            '/projects/{project_id}/groups/{group_id}/'
-            'roles/{role_id}'.format(
+            '/projects/{project_id}/groups/{group_id}/roles/{role_id}'.format(
                 project_id=self.projectA['id'],
                 group_id=self.group1['id'],
                 role_id=self.role1['id'],
@@ -3865,7 +3864,7 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
         )
         # Delete the grant, which should invalidate the token
         grant_url = (
-            '/domains/{domain_id}/groups/{group_id}/' 'roles/{role_id}'.format(
+            '/domains/{domain_id}/groups/{group_id}/roles/{role_id}'.format(
                 domain_id=self.domainB['id'],
                 group_id=self.group1['id'],
                 role_id=self.role1['id'],
@@ -4979,7 +4978,7 @@ class TrustAPIBehavior(test_v3.RestfulTestCase):
         PROVIDERS.role_api.create_role(role['id'], role)
 
         grant_url = (
-            '/projects/{project_id}/users/{user_id}/' 'roles/{role_id}'.format(
+            '/projects/{project_id}/users/{user_id}/roles/{role_id}'.format(
                 project_id=self.project_id,
                 user_id=self.user_id,
                 role_id=role['id'],

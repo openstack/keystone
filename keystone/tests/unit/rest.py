@@ -111,8 +111,8 @@ class RestfulTestCase(unit.TestCase):
         """
         self.assertTrue(
             200 <= response.status_code <= 299,
-            'Status code %d is outside of the expected range (2xx)\n\n%s'
-            % (response.status, response.body),
+            f'Status code {response.status} is outside of the expected range '
+            f'(2xx)\n\n${response.body}',
         )
 
     def assertResponseStatus(self, response, expected_status):

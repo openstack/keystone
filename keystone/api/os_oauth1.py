@@ -259,12 +259,10 @@ class AccessTokenResource(_OAuth1ResourceBase):
                 raise exception.Unauthorized(message=msg)
             if req_token['consumer_id'] != consumer_id:
                 msg = (
-                    'Provided consumer key does not match stored consumer '
-                    'key.'
+                    'Provided consumer key does not match stored consumer key.'
                 )
                 tr_msg = _(
-                    'Provided consumer key does not match stored '
-                    'consumer key.'
+                    'Provided consumer key does not match stored consumer key.'
                 )
                 LOG.warning(msg)
                 raise exception.Unauthorized(message=tr_msg)

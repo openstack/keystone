@@ -2236,7 +2236,7 @@ class AssignmentInheritanceTestCase(
         self.assertRoleAssignmentInListResponse(result, assignment)
 
         collection_url = (
-            '/role_assignments?include_names&' 'user.id={user_id}'.format(
+            '/role_assignments?include_names&user.id={user_id}'.format(
                 user_id=user['id']
             )
         )
@@ -2928,8 +2928,7 @@ class AssignmentInheritanceTestCase(
         # With subtree=0, we should also only get the one assignment on the
         # root project
         collection_url = (
-            f'/role_assignments?scope.project.id={root_id}'
-            '&include_subtree=0'
+            f'/role_assignments?scope.project.id={root_id}&include_subtree=0'
         )
         r = self.get(collection_url)
         self.assertValidRoleAssignmentListResponse(
@@ -3889,8 +3888,7 @@ class UserSystemRoleAssignmentTestCase(
         # make sure the role_assignment API doesn't include the system role
         # assignment when we filter based on project
         path = (
-            '/role_assignments?scope.project.id={project_id}&'
-            'user.id={user_id}'
+            '/role_assignments?scope.project.id={project_id}&user.id={user_id}'
         ).format(project_id=self.project['id'], user_id=self.user['id'])
         response = self.get(path)
         self.assertEqual(len(response.json_body['role_assignments']), 1)
@@ -3951,8 +3949,7 @@ class UserSystemRoleAssignmentTestCase(
         # make sure the role_assignment API doesn't include the system role
         # assignment when we filter based on domain
         path = (
-            '/role_assignments?scope.domain.id={domain_id}&'
-            'user.id={user_id}'
+            '/role_assignments?scope.domain.id={domain_id}&user.id={user_id}'
         ).format(domain_id=self.user['domain_id'], user_id=self.user['id'])
         response = self.get(path)
         self.assertEqual(len(response.json_body['role_assignments']), 1)
@@ -4201,7 +4198,7 @@ class GroupSystemRoleAssignmentTestCase(
 
         # assign a role to the group on a domain
         domain_member_url = (
-            '/domains/{domain_id}/groups/{group_id}/' 'roles/{role_id}'.format(
+            '/domains/{domain_id}/groups/{group_id}/roles/{role_id}'.format(
                 domain_id=group['domain_id'],
                 group_id=group['id'],
                 role_id=domain_role_id,

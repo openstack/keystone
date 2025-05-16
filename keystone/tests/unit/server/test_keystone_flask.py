@@ -609,8 +609,9 @@ class TestKeystoneFlaskCommon(rest.RestfulTestCase):
             },
             'https://docs.openstack.org/api/openstack-identity/3/'
             'rel/arguments': {'href': '/v3/arguments'},
-            'https://docs.openstack.org/api/openstack-identity/3/'
-            'rel/test': {'href': '/v3/test_api'},
+            'https://docs.openstack.org/api/openstack-identity/3/rel/test': {
+                'href': '/v3/test_api'
+            },
         }
 
         resource_map = flask_common.construct_resource_map(

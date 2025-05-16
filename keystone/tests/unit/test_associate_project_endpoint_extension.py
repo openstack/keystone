@@ -1128,7 +1128,7 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
         )
 
         # recover list of projects associated with endpoint group
-        url = f'/OS-EP-FILTER/endpoint_groups/{endpoint_group_id}' '/projects'
+        url = f'/OS-EP-FILTER/endpoint_groups/{endpoint_group_id}/projects'
         self.get(url, expected_status=http.client.OK)
         self.head(url, expected_status=http.client.OK)
 
@@ -1164,7 +1164,7 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
         )
 
         # recover list of endpoints associated with endpoint group
-        url = f'/OS-EP-FILTER/endpoint_groups/{endpoint_group_id}' '/endpoints'
+        url = f'/OS-EP-FILTER/endpoint_groups/{endpoint_group_id}/endpoints'
         r = self.get(url, expected_status=http.client.OK)
         self.assertNotEmpty(r.result['endpoints'])
         self.assertEqual(endpoint_id, r.result['endpoints'][0].get('id'))
@@ -1315,7 +1315,7 @@ class EndpointGroupCRUDTestCase(EndpointFilterTestCase):
         # remove endpoint group, the associated endpoint_group project will
         # be removed as well.
         endpoint_group_url = (
-            '/OS-EP-FILTER/endpoint_groups/' f'{endpoint_group_id}'
+            f'/OS-EP-FILTER/endpoint_groups/{endpoint_group_id}'
         )
         self.delete(endpoint_group_url)
         self.get(endpoint_group_url, expected_status=http.client.NOT_FOUND)

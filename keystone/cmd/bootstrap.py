@@ -309,8 +309,7 @@ class Bootstrapper:
             )
         except exception.Conflict:
             LOG.info(
-                'User %(username)s already has role %(role)s on '
-                'the system.',
+                'User %(username)s already has role %(role)s on the system.',
                 {
                     'username': self.admin_username,
                     'role': self.admin_role_name,

@@ -157,8 +157,7 @@ BASE_ACCESS_TOKEN = (
 )
 
 FEDERATED_AUTH_URL = (
-    '/OS-FEDERATION/identity_providers/{idp_id}'
-    '/protocols/{protocol_id}/auth'
+    '/OS-FEDERATION/identity_providers/{idp_id}/protocols/{protocol_id}/auth'
 )
 FEDERATED_IDP_SPECIFIC_WEBSSO = (
     '/auth/OS-FEDERATION/identity_providers/'
@@ -849,7 +848,7 @@ class VersionTestCase(unit.TestCase):
         self.public_port = random.randint(40000, 60000)
 
         self.config_fixture.config(
-            public_endpoint='http://localhost:%d' % self.public_port
+            public_endpoint=f"http://localhost:{self.public_port}"
         )
 
     def config_overrides(self):
@@ -1036,7 +1035,7 @@ class VersionSingleAppTestCase(unit.TestCase):
         self.public_port = random.randint(40000, 60000)
 
         self.config_fixture.config(
-            public_endpoint='http://localhost:%d' % self.public_port
+            public_endpoint=f"http://localhost:{self.public_port}"
         )
 
     def config_overrides(self):

@@ -390,13 +390,11 @@ class FernetUtilsTestCase(unit.BaseTestCase):
         )
         fernet_utilities.load_keys()
         expected_debug_message = (
-            'Loaded 2 Fernet keys from %(dir)s, but `[fernet_tokens] '
-            'max_active_keys = %(max)d`; perhaps there have not been enough '
-            'key rotations to reach `max_active_keys` yet?'
-        ) % {
-            'dir': CONF.fernet_tokens.key_repository,
-            'max': CONF.fernet_tokens.max_active_keys,
-        }
+            f'Loaded 2 Fernet keys from {CONF.fernet_tokens.key_repository}, '
+            f'but `[fernet_tokens] max_active_keys = '
+            f'{CONF.fernet_tokens.max_active_keys}`; perhaps there have not '
+            'been enough key rotations to reach `max_active_keys` yet?'
+        )
         self.assertIn(expected_debug_message, logging_fixture.output)
 
     def test_debug_message_not_logged_when_loading_fernet_credential_key(self):
@@ -415,11 +413,9 @@ class FernetUtilsTestCase(unit.BaseTestCase):
         )
         fernet_utilities.load_keys()
         debug_message = (
-            'Loaded 2 Fernet keys from %(dir)s, but `[credential] '
-            'max_active_keys = %(max)d`; perhaps there have not been enough '
-            'key rotations to reach `max_active_keys` yet?'
-        ) % {
-            'dir': CONF.credential.key_repository,
-            'max': credential_fernet.MAX_ACTIVE_KEYS,
-        }
+            f'Loaded 2 Fernet keys from {CONF.credential.key_repository}, but '
+            '`[credential] max_active_keys = '
+            f'{credential_fernet.MAX_ACTIVE_KEYS}`; perhaps there have not '
+            'been enough key rotations to reach `max_active_keys` yet?'
+        )
         self.assertNotIn(debug_message, logging_fixture.output)

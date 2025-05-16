@@ -83,9 +83,7 @@ class AccessTokenResource(ks_flask.ResourceBase):
                 http.client.responses[http.client.BAD_REQUEST],
                 _('The parameter grant_type is required.'),
             )
-            LOG.info(
-                'Get OAuth2.0 Access Token API: ' f'{error.message_format}'
-            )
+            LOG.info(f'Get OAuth2.0 Access Token API: {error.message_format}')
             raise error
         if grant_type != 'client_credentials':
             error = exception.OAuth2UnsupportedGrantType(
@@ -94,9 +92,7 @@ class AccessTokenResource(ks_flask.ResourceBase):
                 _('The parameter grant_type %s is not supported.')
                 % grant_type,
             )
-            LOG.info(
-                'Get OAuth2.0 Access Token API: ' f'{error.message_format}'
-            )
+            LOG.info(f'Get OAuth2.0 Access Token API: {error.message_format}')
             raise error
 
         auth_method = ''
@@ -202,8 +198,7 @@ class AccessTokenResource(ks_flask.ResourceBase):
                 _('Client authentication failed.'),
             )
             LOG.info(
-                'Get OAuth2.0 Access Token API: '
-                'mapping id %s is not found. ',
+                'Get OAuth2.0 Access Token API: mapping id %s is not found. ',
                 mapping_id,
             )
             raise error

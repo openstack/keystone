@@ -816,7 +816,9 @@ class CadfRoleAssignmentNotificationWrapper:
             Using named arguments, i.e.::
 
                 create_grant(
-                    user_id=user['id'], domain_id=domain['id'], role_id=role['id']
+                    user_id=user['id'],
+                    domain_id=domain['id'],
+                    role_id=role['id'],
                 )
 
             Or, using positional arguments, i.e.::

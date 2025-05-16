@@ -1514,18 +1514,18 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
             # DELETE/PATCH/PUT on non-trailing `/` results in
             # METHOD_NOT_ALLOWED
             c.delete(
-                f'/v3/OS-FEDERATION/identity_providers/{idp_id}' '/protocols',
+                f'/v3/OS-FEDERATION/identity_providers/{idp_id}/protocols',
                 headers={'X-Auth-Token': token},
                 expected_status_code=http.client.METHOD_NOT_ALLOWED,
             )
             c.patch(
-                f'/v3/OS-FEDERATION/identity_providers/{idp_id}' '/protocols/',
+                f'/v3/OS-FEDERATION/identity_providers/{idp_id}/protocols/',
                 json={'protocol': protocol},
                 headers={'X-Auth-Token': token},
                 expected_status_code=http.client.METHOD_NOT_ALLOWED,
             )
             c.put(
-                f'/v3/OS-FEDERATION/identity_providers/{idp_id}' '/protocols',
+                f'/v3/OS-FEDERATION/identity_providers/{idp_id}/protocols',
                 json={'protocol': protocol},
                 headers={'X-Auth-Token': token},
                 expected_status_code=http.client.METHOD_NOT_ALLOWED,
@@ -1535,18 +1535,18 @@ class FederatedIdentityProviderTests(test_v3.RestfulTestCase):
             # remapped to without the trailing '/' by the normalization
             # middleware.
             c.delete(
-                f'/v3/OS-FEDERATION/identity_providers/{idp_id}' '/protocols/',
+                f'/v3/OS-FEDERATION/identity_providers/{idp_id}/protocols/',
                 headers={'X-Auth-Token': token},
                 expected_status_code=http.client.METHOD_NOT_ALLOWED,
             )
             c.patch(
-                f'/v3/OS-FEDERATION/identity_providers/{idp_id}' '/protocols/',
+                f'/v3/OS-FEDERATION/identity_providers/{idp_id}/protocols/',
                 json={'protocol': protocol},
                 headers={'X-Auth-Token': token},
                 expected_status_code=http.client.METHOD_NOT_ALLOWED,
             )
             c.put(
-                f'/v3/OS-FEDERATION/identity_providers/{idp_id}' '/protocols/',
+                f'/v3/OS-FEDERATION/identity_providers/{idp_id}/protocols/',
                 json={'protocol': protocol},
                 headers={'X-Auth-Token': token},
                 expected_status_code=http.client.METHOD_NOT_ALLOWED,
