@@ -19,9 +19,10 @@ from unittest import mock
 import uuid
 
 import fixtures
+from importlib.metadata import entry_points
 import ldap
 from oslo_log import versionutils
-import pkg_resources
+
 from testtools import matchers
 
 from keystone.common import cache
@@ -57,8 +58,9 @@ def _assert_backends(testcase, **kwargs):
         return observed_backend.__class__
 
     def _get_entrypoint_cls(subsystem, name):
-        entrypoint = entrypoint_map['keystone.' + subsystem][name]
-        return entrypoint.resolve()
+        (ep,) = entry_points(group=f"keystone.{subsystem}", name=name)
+        if ep:
+            return ep.load()
 
     def _load_domain_specific_configs(manager):
         if (
@@ -81,10 +83,6 @@ def _assert_backends(testcase, **kwargs):
             'observed_cls': observed_cls,
             'subsystem': subsystem,
         }
-
-    env = pkg_resources.Environment()
-    keystone_dist = env['keystone'][0]
-    entrypoint_map = pkg_resources.get_entry_map(keystone_dist)
 
     for subsystem, entrypoint_name in kwargs.items():
         if isinstance(entrypoint_name, str):
