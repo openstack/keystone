@@ -42,10 +42,9 @@ Ubuntu 16.04 and Apache 2.4.18.
 
 To enable federation, you'll need to run keystone behind a web server such as
 Apache rather than running the WSGI application directly with uWSGI or Gunicorn.
-See the installation guide for :ref:`SUSE <suse_configure_apache>`,
-:ref:`RedHat <redhat_configure_apache>` or :ref:`Ubuntu
-<ubuntu_configure_apache>` to configure the Apache web server for
-keystone.
+See the installation guide for :ref:`RedHat <redhat_configure_apache>`
+or :ref:`Ubuntu <ubuntu_configure_apache>` to configure the Apache web server
+for keystone.
 
 Throughout the rest of the guide, you will need to decide on three pieces of
 information and use them consistently throughout your configuration:
@@ -248,8 +247,7 @@ Configuring an HTTPD auth module
 This guide currently only includes examples for the Apache web server, but it
 possible to use SAML, OpenIDC, and other auth modules in other web servers. See
 the installation guides for running keystone behind Apache for
-:ref:`SUSE <suse_configure_apache>`, :ref:`RedHat
-<redhat_configure_apache>` or :ref:`Ubuntu <ubuntu_configure_apache>`.
+:ref:`RedHat <redhat_configure_apache>` or :ref:`Ubuntu <ubuntu_configure_apache>`.
 
 Configure protected endpoints
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
