@@ -17,6 +17,7 @@ import threading
 from keystone.server import wsgi
 
 application = None
-with threading.Lock():
+lock = threading.Lock()
+with lock:
     if application is None:
         application = wsgi.initialize_public_application()
