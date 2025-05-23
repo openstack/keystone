@@ -223,7 +223,7 @@ endpoint_schema: dict[str, Any] = {
         "links": response_types.resource_links,
         **_endpoint_properties,
     },
-    "additionalProperties": False,
+    "additionalProperties": True,
 }
 
 # Query parameters of the `/endpoints` API
