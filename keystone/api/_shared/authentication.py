@@ -56,7 +56,12 @@ def _check_and_set_default_scoping(auth_info, auth_context):
 
     default_project_id = user_ref.get('default_project_id')
     if not default_project_id:
-        # User has no default project. He shall get an unscoped token.
+        # User has no default project. They shall get an unscoped token.
+        msg = (
+            "User %(user_id)s doesn't have a default project. "
+            " The token will be unscoped rather than scoped to a project."
+        )
+        LOG.debug(msg, {'user_id': user_ref['id']})
         return
 
     # make sure user's default project is legit before scoping to it
