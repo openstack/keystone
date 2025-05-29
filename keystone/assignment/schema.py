@@ -313,7 +313,7 @@ role_assignment_schema: dict[str, Any] = {
                     "required": ["id"],
                     "additionalProperties": False,
                 },
-                "id": parameter_types.id_string,
+                "id": parameter_types.user_id,
                 "name": parameter_types.name,
             },
             "required": ["id"],
@@ -362,7 +362,7 @@ role_assignments_index_request_query: dict[str, Any] = {
         "scope.system": {},
         "scope.domain.id": parameter_types.domain_id,
         "scope.project.id": parameter_types.project_id,
-        "user.id": parameter_types.id_string,
+        "user.id": parameter_types.user_id,
         # NOTE(0weng): `scope.OS-INHERIT:inherited_to` accepts anything,
         # but it will only show inherited role assignments if its value is
         # `projects`; otherwise, only non-inherited role assignments are shown.
