@@ -178,6 +178,13 @@ def authenticate(auth_info, auth_context):
                 resp_method_names = resp.response_data.pop('method_names', [])
                 auth_context['method_names'].extend(resp_method_names)
                 auth_context.update(resp.response_data or {})
+                # NOTE(gtema): When trying to get token from
+                # application_credential based token we need to restore
+                # application_credential_id to prevent escaping its bounds.
+                if "application_credential_id" in resp:
+                    auth_context["application_credential_id"] = resp[
+                        "application_credential_id"
+                    ]
             elif resp.response_body:
                 auth_response['methods'].append(method_name)
                 auth_response[method_name] = resp.response_body
@@ -226,7 +233,14 @@ def authenticate_for_token(auth=None):
         app_cred_id = None
         if 'application_credential' in method_names:
             token_auth = auth_info.auth['identity']
-            app_cred_id = token_auth['application_credential']['id']
+            if "application_credential" in token_auth:
+                app_cred_id = token_auth['application_credential']['id']
+            elif "application_credential_id" in auth_context:
+                app_cred_id = auth_context["application_credential_id"]
+            else:
+                raise exception.MissingApplicationCredentialId(
+                    user_id=auth_context['user_id']
+                )
 
         # Do MFA Rule Validation for the user
         if not core.UserMFARulesValidator.check_auth_methods_against_rules(
