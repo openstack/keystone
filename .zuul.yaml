@@ -23,12 +23,6 @@
       devstack_localrc:
         TEMPEST_PLUGINS: "/opt/stack/keystone-tempest-plugin"
 
-# TODO(stephenfin): Remove this when references to it have been removed from
-# keystone-tempest-plugin
-- job:
-    name: keystone-dsvm-py3-functional
-    parent: keystone-tempest
-
 - job:
     name: keystone-tempest-fips
     parent: keystone-tempest
@@ -38,12 +32,6 @@
     pre-run: playbooks/enable-fips.yaml
     vars:
       nslookup_target: "opendev.org"
-
-# TODO(stephenfin): Remove this when references to it have been removed from
-# keystone-tempest-plugin
-- job:
-    name: keystone-dsvm-py3-functional-fips
-    parent: keystone-tempest-fips
 
 - job:
     name: keystone-tempest-oidc-federation
@@ -57,12 +45,6 @@
         keystone-oidc-federation: true
       devstack_plugins:
         keystone: https://opendev.org/openstack/keystone
-
-# TODO(stephenfin): Remove this when references to it have been removed from
-# keystone-tempest-plugin
-- job:
-    name: keystone-dsvm-functional-oidc-federation
-    parent: keystone-tempest-oidc-federation
 
 - job:
     name: keystone-tempest-federation
@@ -80,24 +62,12 @@
         /etc/shibboleth: logs
         /var/log/shibboleth: logs
 
-# TODO(stephenfin): Remove this when references to it have been removed from
-# keystone-tempest-plugin
-- job:
-    name: keystone-dsvm-py3-functional-federation-ubuntu-jammy
-    parent: keystone-tempest-federation
-
 - job:
     name: keystone-tempest-federation-k2k
     parent: keystone-tempest-federation
     vars:
       devstack_localrc:
         IDP_ID: k2k
-
-# TODO(stephenfin): Remove this when references to it have been removed from
-# keystone-tempest-plugin
-- job:
-    name: keystone-dsvm-py3-functional-federation-ubuntu-jammy-k2k
-    parent: keystone-tempest-federation-k2k
 
 - job:
     name: keystone-tempest-ldap-domain-specific-driver
