@@ -462,8 +462,7 @@ class Catalog(base.CatalogDriverBase):
         )
         if endpoint_filter_ref is None:
             msg = _(
-                'Endpoint %(endpoint_id)s not found in project '
-                '%(project_id)s'
+                'Endpoint %(endpoint_id)s not found in project %(project_id)s'
             ) % {'endpoint_id': endpoint_id, 'project_id': project_id}
             raise exception.NotFound(msg)
         return endpoint_filter_ref

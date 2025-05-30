@@ -1075,8 +1075,7 @@ class Manager(manager.Manager):
                 )
                 if project_ref['is_domain'] is True:
                     msg = _(
-                        "User's default project ID cannot be a "
-                        "domain ID: %s"
+                        "User's default project ID cannot be a domain ID: %s"
                     )
                     raise exception.ValidationError(
                         message=(msg % default_project_id)

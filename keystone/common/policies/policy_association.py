@@ -219,8 +219,7 @@ policy_association_policies = [
         check_str=base.RULE_ADMIN_REQUIRED,
         scope_types=['system', 'project'],
         description=(
-            'Associate a policy to a specific region and service '
-            'combination.'
+            'Associate a policy to a specific region and service combination.'
         ),
         operations=[
             {

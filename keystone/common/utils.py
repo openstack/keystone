@@ -219,12 +219,12 @@ def get_unix_user(user=None):
             try:
                 user_info = pwd.getpwuid(i)
             except KeyError:
-                raise KeyError("user id %d not found" % i)
+                raise KeyError(f"user id {i} not found")
     elif isinstance(user, int):
         try:
             user_info = pwd.getpwuid(user)
         except KeyError:
-            raise KeyError("user id %d not found" % user)
+            raise KeyError("user id {user} not found")
     elif user is None:
         user_info = pwd.getpwuid(os.geteuid())
     else:
@@ -279,12 +279,12 @@ def get_unix_group(group=None):
             try:
                 group_info = grp.getgrgid(i)
             except KeyError:
-                raise KeyError("group id %d not found" % i)
+                raise KeyError("group id {i} not found")
     elif isinstance(group, int):
         try:
             group_info = grp.getgrgid(group)
         except KeyError:
-            raise KeyError("group id %d not found" % group)
+            raise KeyError("group id {group} not found")
     elif group is None:
         group_info = grp.getgrgid(os.getegid())
     else:

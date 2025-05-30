@@ -394,8 +394,7 @@ class Forbidden(SecurityError):
 
 class ForbiddenAction(Forbidden):
     message_format = _(
-        "You are not authorized to perform the"
-        " requested action: %(action)s."
+        "You are not authorized to perform the requested action: %(action)s."
     )
 
 
@@ -584,8 +583,7 @@ class LimitNotFound(NotFound):
 
 class NoLimitReference(Forbidden):
     message_format = _(
-        "Unable to create a limit that has no corresponding "
-        "registered limit."
+        "Unable to create a limit that has no corresponding registered limit."
     )
 
 
@@ -612,8 +610,7 @@ class ConfigRegistrationNotFound(Exception):
 
 class ApplicationCredentialNotFound(NotFound):
     message_format = _(
-        "Could not find Application Credential: "
-        "%(application_credential_id)s."
+        "Could not find Application Credential: %(application_credential_id)s."
     )
 
 
@@ -705,8 +702,7 @@ class NotImplemented(Error):
 
 class Gone(Error):
     message_format = _(
-        "The service you have requested is no"
-        " longer available on this server."
+        "The service you have requested is no longer available on this server."
     )
     code = int(http.client.GONE)
     title = http.client.responses[http.client.GONE]
@@ -714,8 +710,7 @@ class Gone(Error):
 
 class ConfigFileNotFound(UnexpectedError):
     debug_message_format = _(
-        "The Keystone configuration file %(config_file)s "
-        "could not be found."
+        "The Keystone configuration file %(config_file)s could not be found."
     )
 
 

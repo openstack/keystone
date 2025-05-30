@@ -452,8 +452,7 @@ class RBACEnforcer:
                 # if there is an error getting the target, log it and move
                 # on. Raise an explicit 403, we have failed policy checks.
                 LOG.warning(
-                    'Unable to extract inferred target data during '
-                    'enforcement'
+                    'Unable to extract inferred target data during enforcement'
                 )
                 LOG.debug(e, exc_info=True)
                 raise exception.ForbiddenAction(action=action)

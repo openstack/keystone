@@ -1115,10 +1115,7 @@ class MappingPurge(BaseApp):
                 return resource_manager.get_domain_by_name(name)['id']
             except KeyError:
                 raise ValueError(
-                    _(
-                        "Unknown domain '%(name)s' specified by "
-                        "--domain-name"
-                    )
+                    _("Unknown domain '%(name)s' specified by --domain-name")
                     % {'name': name}
                 )
 
@@ -1618,8 +1615,7 @@ class MappingPopulate(BaseApp):
             default=None,
             required=True,
             help=(
-                "Name of the domain configured to use "
-                "domain-specific backend"
+                "Name of the domain configured to use domain-specific backend"
             ),
         )
         return parser

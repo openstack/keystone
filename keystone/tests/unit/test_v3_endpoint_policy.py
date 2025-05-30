@@ -82,15 +82,14 @@ class EndpointPolicyTestCase(test_v3.RestfulTestCase):
     def test_crud_for_policy_for_explicit_endpoint(self):
         """PUT, HEAD and DELETE for explicit endpoint policy."""
         url = (
-            '/policies/{policy_id}/OS-ENDPOINT-POLICY'
-            '/endpoints/{endpoint_id}'
+            '/policies/{policy_id}/OS-ENDPOINT-POLICY/endpoints/{endpoint_id}'
         ).format(policy_id=self.policy['id'], endpoint_id=self.endpoint['id'])
         self._crud_test(url)
 
     def test_crud_for_policy_for_service(self):
         """PUT, HEAD and DELETE for service endpoint policy."""
         url = (
-            '/policies/{policy_id}/OS-ENDPOINT-POLICY' '/services/{service_id}'
+            '/policies/{policy_id}/OS-ENDPOINT-POLICY/services/{service_id}'
         ).format(policy_id=self.policy['id'], service_id=self.service['id'])
         self._crud_test(url)
 
@@ -116,14 +115,14 @@ class EndpointPolicyTestCase(test_v3.RestfulTestCase):
         )
 
         self.head(
-            '/endpoints/{endpoint_id}/OS-ENDPOINT-POLICY' '/policy'.format(
+            '/endpoints/{endpoint_id}/OS-ENDPOINT-POLICY/policy'.format(
                 endpoint_id=self.endpoint['id']
             ),
             expected_status=http.client.OK,
         )
 
         r = self.get(
-            '/endpoints/{endpoint_id}/OS-ENDPOINT-POLICY' '/policy'.format(
+            '/endpoints/{endpoint_id}/OS-ENDPOINT-POLICY/policy'.format(
                 endpoint_id=self.endpoint['id']
             )
         )
@@ -142,8 +141,7 @@ class EndpointPolicyTestCase(test_v3.RestfulTestCase):
 
     def test_endpoint_association_cleanup_when_endpoint_deleted(self):
         url = (
-            '/policies/{policy_id}/OS-ENDPOINT-POLICY'
-            '/endpoints/{endpoint_id}'
+            '/policies/{policy_id}/OS-ENDPOINT-POLICY/endpoints/{endpoint_id}'
         ).format(policy_id=self.policy['id'], endpoint_id=self.endpoint['id'])
 
         self.put(url)
@@ -193,7 +191,7 @@ class EndpointPolicyTestCase(test_v3.RestfulTestCase):
 
     def test_service_association_cleanup_when_service_deleted(self):
         url = (
-            '/policies/{policy_id}/OS-ENDPOINT-POLICY' '/services/{service_id}'
+            '/policies/{policy_id}/OS-ENDPOINT-POLICY/services/{service_id}'
         ).format(policy_id=self.policy['id'], service_id=self.service['id'])
 
         self.put(url)
@@ -207,7 +205,7 @@ class EndpointPolicyTestCase(test_v3.RestfulTestCase):
 
     def test_service_association_cleanup_when_policy_deleted(self):
         url = (
-            '/policies/{policy_id}/OS-ENDPOINT-POLICY' '/services/{service_id}'
+            '/policies/{policy_id}/OS-ENDPOINT-POLICY/services/{service_id}'
         ).format(policy_id=self.policy['id'], service_id=self.service['id'])
 
         self.put(url)

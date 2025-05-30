@@ -49,7 +49,7 @@ SYSTEM_ADMIN = 'role:admin and system_scope:all'
 DOMAIN_READER = 'role:reader and domain_id:%(target.domain_id)s'
 RULE_SYSTEM_ADMIN_OR_OWNER = '(' + SYSTEM_ADMIN + ') or rule:owner'
 ADMIN_OR_SYSTEM_READER_OR_OWNER = (
-    '(' + RULE_ADMIN_REQUIRED + ') or ' '(' + SYSTEM_READER + ') or rule:owner'
+    '(' + RULE_ADMIN_REQUIRED + ') or (' + SYSTEM_READER + ') or rule:owner'
 )
 RULE_ADMIN_OR_SYSTEM_READER = 'rule:admin_required or (' + SYSTEM_READER + ')'
 
@@ -60,7 +60,7 @@ ADMIN_OR_SYSTEM_READER_OR_CRED_OWNER = (
     'or user_id:%(target.credential.user_id)s'
 )
 ADMIN_OR_CRED_OWNER = (
-    '(' + RULE_ADMIN_REQUIRED + ') ' 'or user_id:%(target.credential.user_id)s'
+    '(' + RULE_ADMIN_REQUIRED + ') or user_id:%(target.credential.user_id)s'
 )
 
 # This rule template is meant for restricting role assignments done by domain

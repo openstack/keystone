@@ -1708,7 +1708,7 @@ class PaginationTestCaseBase(RestfulTestCase):
 
         # Try fetching with explicitly very high page size
         response = self.get(
-            f"/{self.resource_name}s?limit={count_resources+100}"
+            f"/{self.resource_name}s?limit={count_resources + 100}"
         )
         res_list = response.json_body[f"{self.resource_name}s"]
         res_links = response.json_body["links"]

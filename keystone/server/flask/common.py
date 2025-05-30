@@ -481,8 +481,7 @@ class APIBase(metaclass=abc.ABCMeta):
         for r in self.resource_mapping:
             alt_url_json_home_data = []
             LOG.debug(
-                'Adding resource routes to API %(name)s: '
-                '[%(url)r %(kwargs)r]',
+                'Adding resource routes to API %(name)s: [%(url)r %(kwargs)r]',
                 {'name': self._name, 'url': r.url, 'kwargs': r.kwargs},
             )
             urls = [r.url]

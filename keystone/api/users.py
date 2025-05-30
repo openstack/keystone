@@ -75,9 +75,7 @@ def _format_token_entity(entity):
     if 'access_secret' in entity:
         formatted_entity.pop('access_secret')
 
-    url = (
-        f'/users/{user_id}/OS-OAUTH1/access_tokens/{access_token_id}' '/roles'
-    )
+    url = f'/users/{user_id}/OS-OAUTH1/access_tokens/{access_token_id}/roles'
 
     formatted_entity.setdefault('links', {})
     formatted_entity['links']['roles'] = ks_flask.base_url(url)
@@ -1027,8 +1025,7 @@ class UserAPI(ks_flask.APIBase):
         ks_flask.construct_resource_map(
             resource=UserAccessRuleGetDeleteResource,
             url=(
-                '/users/<string:user_id>/access_rules/'
-                '<string:access_rule_id>'
+                '/users/<string:user_id>/access_rules/<string:access_rule_id>'
             ),
             resource_kwargs={},
             rel='access_rule',

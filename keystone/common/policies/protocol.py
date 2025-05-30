@@ -109,8 +109,7 @@ protocol_policies = [
         operations=[
             {
                 'path': (
-                    '/v3/OS-FEDERATION/identity_providers/{idp_id}/'
-                    'protocols'
+                    '/v3/OS-FEDERATION/identity_providers/{idp_id}/protocols'
                 ),
                 'method': 'GET',
             }

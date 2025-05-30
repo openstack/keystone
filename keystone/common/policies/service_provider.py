@@ -60,8 +60,7 @@ service_provider_policies = [
         operations=[
             {
                 'path': (
-                    '/v3/OS-FEDERATION/service_providers/'
-                    '{service_provider_id}'
+                    '/v3/OS-FEDERATION/service_providers/{service_provider_id}'
                 ),
                 'method': 'PUT',
             }
@@ -87,15 +86,13 @@ service_provider_policies = [
         operations=[
             {
                 'path': (
-                    '/v3/OS-FEDERATION/service_providers/'
-                    '{service_provider_id}'
+                    '/v3/OS-FEDERATION/service_providers/{service_provider_id}'
                 ),
                 'method': 'GET',
             },
             {
                 'path': (
-                    '/v3/OS-FEDERATION/service_providers/'
-                    '{service_provider_id}'
+                    '/v3/OS-FEDERATION/service_providers/{service_provider_id}'
                 ),
                 'method': 'HEAD',
             },
@@ -110,8 +107,7 @@ service_provider_policies = [
         operations=[
             {
                 'path': (
-                    '/v3/OS-FEDERATION/service_providers/'
-                    '{service_provider_id}'
+                    '/v3/OS-FEDERATION/service_providers/{service_provider_id}'
                 ),
                 'method': 'PATCH',
             }
@@ -126,8 +122,7 @@ service_provider_policies = [
         operations=[
             {
                 'path': (
-                    '/v3/OS-FEDERATION/service_providers/'
-                    '{service_provider_id}'
+                    '/v3/OS-FEDERATION/service_providers/{service_provider_id}'
                 ),
                 'method': 'DELETE',
             }

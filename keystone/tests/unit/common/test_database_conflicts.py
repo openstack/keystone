@@ -224,8 +224,7 @@ class DuplicateTestCase(test_v3.RestfulTestCase):
             )
         else:
             self.fail(
-                "Create duplicate federation_protocol did not raise "
-                "a conflict"
+                "Create duplicate federation_protocol did not raise a conflict"
             )
 
     def test_federation_protocol_duplicate_conflict_with_id_in_id(self):
