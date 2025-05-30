@@ -122,17 +122,6 @@
 
 # Experimental
 - job:
-    name: keystone-tox-patch_cover
-    parent: openstack-tox
-    description: |
-      Run test for keystone project.
-
-      Uses tox with the ``patch_cover`` environment.
-    vars:
-      tox_envlist: patch_cover
-
-# Experimental
-- job:
     name: keystone-grenade-multinode
     parent: grenade-multinode
     required-projects:
@@ -219,7 +208,6 @@
         - keystone-protection-functional
     experimental:
       jobs:
-        - keystone-tox-patch_cover
         - keystone-grenade-multinode:
             irrelevant-files: *irrelevant-files
         - openstack-ansible-keystone-rolling-upgrade:
