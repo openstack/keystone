@@ -14,6 +14,7 @@
 
 import flask
 from oslo_log import log
+import typing as ty
 
 from keystone.auth.plugins import base
 from keystone.auth.plugins import mapped
@@ -21,6 +22,7 @@ from keystone.common import provider_api
 import keystone.conf
 from keystone import exception
 from keystone.i18n import _
+from keystone.models.token_model import TokenModel
 
 LOG = log.getLogger(__name__)
 
@@ -49,13 +51,12 @@ class Token(base.AuthMethodHandler):
         # for re-scoping and we want to maintain the values. Most
         # AuthMethodHandlers do no such thing and this is not required.
         response_data.setdefault('method_names', []).extend(token.methods)
-
         return base.AuthHandlerResponse(
             status=True, response_body=None, response_data=response_data
         )
 
 
-def token_authenticate(token):
+def token_authenticate(token: TokenModel) -> dict[str, ty.Any]:
     response_data = {}
     try:
         # Do not allow tokens used for delegation to
@@ -87,6 +88,20 @@ def token_authenticate(token):
                     'Using a system-scoped token to create a project-scoped '
                     'or domain-scoped token is not allowed.'
                 )
+            )
+        elif token.application_credential:
+            # NOTE(gtema): when getting token from token (initially issued by
+            # application credential) it is necessary to ensure scope is not
+            # requested.
+            if project_scoped or domain_scoped:
+                raise exception.ForbiddenAction(
+                    action=_(
+                        "Using an application credential token to create a "
+                        "project-scoped or domain-scoped token is not allowed."
+                    )
+                )
+            response_data["application_credential_id"] = (
+                token.application_credential["id"]
             )
 
         if not CONF.token.allow_rescope_scoped_token:
