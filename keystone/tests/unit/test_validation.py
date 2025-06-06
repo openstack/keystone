@@ -1229,39 +1229,45 @@ class RegionValidationTestCase(unit.BaseTestCase):
 
         self.region_name = 'My Region'
 
-        create = catalog_schema.region_create
-        update = catalog_schema.region_update
+        create = catalog_schema.region_create_request_body
+        update = catalog_schema.region_update_request_body
         self.create_region_validator = validators.SchemaValidator(create)
         self.update_region_validator = validators.SchemaValidator(update)
 
-    def test_validate_region_request(self):
+    def test_validate_region_create_request(self):
         """Test that we validate a basic region request."""
         # Create_region doesn't take any parameters in the request so let's
         # make sure we cover that case.
-        request_to_validate = {}
+        request_to_validate = {'region': {}}
         self.create_region_validator.validate(request_to_validate)
 
     def test_validate_region_create_request_with_parameters(self):
         """Test that we validate a region request with parameters."""
         request_to_validate = {
-            'id': 'us-east',
-            'description': 'US East Region',
-            'parent_region_id': 'US Region',
+            'region': {
+                'id': 'us-east',
+                'description': 'US East Region',
+                'parent_region_id': 'US Region',
+            }
         }
         self.create_region_validator.validate(request_to_validate)
 
     def test_validate_region_create_with_uuid(self):
         """Test that we validate a region request with a UUID as the id."""
         request_to_validate = {
-            'id': uuid.uuid4().hex,
-            'description': 'US East Region',
-            'parent_region_id': uuid.uuid4().hex,
+            'region': {
+                'id': uuid.uuid4().hex,
+                'description': 'US East Region',
+                'parent_region_id': uuid.uuid4().hex,
+            }
         }
         self.create_region_validator.validate(request_to_validate)
 
     def test_validate_region_create_fails_with_invalid_region_id(self):
         """Exception raised when passing invalid `id` in request."""
-        request_to_validate = {'id': 1234, 'description': 'US East Region'}
+        request_to_validate = {
+            'region': {'id': 1234, 'description': 'US East Region'}
+        }
         self.assertRaises(
             exception.SchemaValidationError,
             self.create_region_validator.validate,
@@ -1270,32 +1276,29 @@ class RegionValidationTestCase(unit.BaseTestCase):
 
     def test_validate_region_create_succeeds_with_extra_parameters(self):
         """Validate create region request with extra values."""
-        request_to_validate = {'other_attr': uuid.uuid4().hex}
-        self.create_region_validator.validate(request_to_validate)
-
-    def test_validate_region_create_succeeds_with_no_parameters(self):
-        """Validate create region request with no parameters."""
-        request_to_validate = {}
+        request_to_validate = {'region': {'other_attr': uuid.uuid4().hex}}
         self.create_region_validator.validate(request_to_validate)
 
     def test_validate_region_update_succeeds(self):
         """Test that we validate a region update request."""
         request_to_validate = {
-            'id': 'us-west',
-            'description': 'US West Region',
-            'parent_region_id': 'us-region',
+            'region': {
+                'id': 'us-west',
+                'description': 'US West Region',
+                'parent_region_id': 'us-region',
+            }
         }
         self.update_region_validator.validate(request_to_validate)
 
     def test_validate_region_update_succeeds_with_extra_parameters(self):
         """Validate extra attributes in the region update request."""
-        request_to_validate = {'other_attr': uuid.uuid4().hex}
+        request_to_validate = {'region': {'other_attr': uuid.uuid4().hex}}
         self.update_region_validator.validate(request_to_validate)
 
     def test_validate_region_update_fails_with_no_parameters(self):
         """Exception raised when passing no parameters in a region update."""
         # An update request should consist of at least one value to update
-        request_to_validate = {}
+        request_to_validate = {'region': {}}
         self.assertRaises(
             exception.SchemaValidationError,
             self.update_region_validator.validate,

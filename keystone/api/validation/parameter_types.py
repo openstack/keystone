@@ -54,6 +54,7 @@ boolean = {
 description: dict[str, Any] = {
     "type": "string",
     "description": "The resource description.",
+    "maxLength": 255,
 }
 
 # User IDs can come from LDAP and LDAP has no constraints on length or format.

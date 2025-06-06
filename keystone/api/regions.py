@@ -14,10 +14,11 @@
 
 import http.client
 
+from keystone.api import validation
 from keystone.catalog import schema
+from keystone.common import json_home
 from keystone.common import provider_api
 from keystone.common import rbac_enforcer
-from keystone.common import validation
 from keystone import exception
 from keystone.i18n import _
 from keystone.server import flask as ks_flask
@@ -26,30 +27,24 @@ ENFORCER = rbac_enforcer.RBACEnforcer
 PROVIDERS = provider_api.ProviderAPIs
 
 
-class RegionResource(ks_flask.ResourceBase):
+class RegionsResource(ks_flask.ResourceBase):
     collection_key = 'regions'
     member_key = 'region'
 
-    def _get_region(self, region_id):
-        ENFORCER.enforce_call(action='identity:get_region')
-        return self.wrap_member(PROVIDERS.catalog_api.get_region(region_id))
-
-    def _list_regions(self):
+    @validation.request_query_schema(schema.regions_index_request_query)
+    @validation.response_body_schema(schema.regions_index_response_body)
+    def get(self):
         filters = ['parent_region_id']
         ENFORCER.enforce_call(action='identity:list_regions', filters=filters)
         hints = self.build_driver_hints(filters)
         refs = PROVIDERS.catalog_api.list_regions(hints)
         return self.wrap_collection(refs, hints=hints)
 
-    def get(self, region_id=None):
-        if region_id is not None:
-            return self._get_region(region_id)
-        return self._list_regions()
-
+    @validation.request_body_schema(schema.region_create_request_body)
+    @validation.response_body_schema(schema.region_show_response_body)
     def post(self):
         ENFORCER.enforce_call(action='identity:create_region')
         region = self.request_body_json.get('region')
-        validation.lazy_validate(schema.region_create, region)
         region = self._normalize_dict(region)
         if not region.get('id'):
             # NOTE(morgan): even though we officially only support 'id' setting
@@ -61,10 +56,22 @@ class RegionResource(ks_flask.ResourceBase):
         )
         return self.wrap_member(ref), http.client.CREATED
 
+
+class RegionResource(ks_flask.ResourceBase):
+    collection_key = 'regions'
+    member_key = 'region'
+
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(schema.region_show_response_body)
+    def get(self, region_id=None):
+        ENFORCER.enforce_call(action='identity:get_region')
+        return self.wrap_member(PROVIDERS.catalog_api.get_region(region_id))
+
+    @validation.request_body_schema(schema.region_create_request_body)
+    @validation.response_body_schema(schema.region_show_response_body)
     def put(self, region_id):
         ENFORCER.enforce_call(action='identity:create_region')
         region = self.request_body_json.get('region')
-        validation.lazy_validate(schema.region_create, region)
         region = self._normalize_dict(region)
         if 'id' not in region:
             region['id'] = region_id
@@ -82,10 +89,11 @@ class RegionResource(ks_flask.ResourceBase):
         )
         return self.wrap_member(ref), http.client.CREATED
 
+    @validation.request_body_schema(schema.region_update_request_body)
+    @validation.response_body_schema(schema.region_show_response_body)
     def patch(self, region_id):
         ENFORCER.enforce_call(action='identity:update_region')
         region = self.request_body_json.get('region')
-        validation.lazy_validate(schema.region_update, region)
         self._require_matching_id(region)
         return self.wrap_member(
             PROVIDERS.catalog_api.update_region(
@@ -93,6 +101,8 @@ class RegionResource(ks_flask.ResourceBase):
             )
         )
 
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(None)
     def delete(self, region_id):
         ENFORCER.enforce_call(action='identity:delete_region')
         return (
@@ -106,8 +116,24 @@ class RegionResource(ks_flask.ResourceBase):
 class RegionAPI(ks_flask.APIBase):
     _name = 'regions'
     _import_name = __name__
-    resources = [RegionResource]
-    resource_mapping = []
+    resource_mapping = [
+        ks_flask.construct_resource_map(
+            resource=RegionsResource,
+            url='/regions',
+            resource_kwargs={},
+            rel="regions",
+            path_vars=None,
+        ),
+        ks_flask.construct_resource_map(
+            resource=RegionResource,
+            url='/regions/<string:region_id>',
+            resource_kwargs={},
+            rel="region",
+            path_vars={
+                'region_id': json_home.build_v3_parameter_relation("region_id")
+            },
+        ),
+    ]
 
 
 APIs = (RegionAPI,)

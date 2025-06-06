@@ -16,26 +16,105 @@ from keystone.api.validation import parameter_types
 from keystone.api.validation import response_types
 from keystone.common import validation
 
-_region_properties = {
-    'description': validation.nullable(parameter_types.description),
+# Individual properties of `Region`
+_region_properties: dict[str, Any] = {
+    "description": validation.nullable(parameter_types.description),
     # NOTE(lbragstad): Regions use ID differently. The user can specify the ID
     # or it will be generated automatically.
-    'id': {'type': 'string'},
-    'parent_region_id': {'type': ['string', 'null']},
+    "id": {**parameter_types.region_id, "description": "The region ID."},
+    "parent_region_id": {
+        **parameter_types.region_id,
+        "description": "To make this region a child of another region, set this parameter to the ID of the parent region.",
+    },
 }
 
-region_create = {
-    'type': 'object',
-    'properties': _region_properties,
-    'additionalProperties': True,
-    # NOTE(lbragstad): No parameters are required for creating regions.
+# Common schema of the returned `Region` resource
+region_schema: dict[str, Any] = {
+    "type": "object",
+    "description": "A region object.",
+    "properties": {
+        "links": response_types.resource_links,
+        **_region_properties,
+    },
+    "required": ["id", "parent_region_id", "description", "links"],
+    "additionalProperties": True,
 }
 
-region_update = {
-    'type': 'object',
-    'properties': _region_properties,
-    'minProperties': 1,
-    'additionalProperties': True,
+# Response body of API operations returning a single region
+# `GET /regions/{region_id}`, `POST /regions`, `PATCH /regions/{region_id}`,
+# and `PUT /regions/{region_id}`
+region_show_response_body: dict[str, Any] = {
+    "type": "object",
+    "properties": {"region": region_schema},
+    "required": ["region"],
+    "additionalProperties": False,
+}
+
+# Query parameters of the `GET /regions` API operation
+# returning a list of regions
+regions_index_request_query: dict[str, Any] = {
+    "type": "object",
+    "properties": {"parent_region_id": parameter_types.region_id},
+    "additionalProperties": False,
+}
+
+# Response body of the `GET /regions` API operation
+# returning a list of regions
+regions_index_response_body: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "links": response_types.links,
+        "regions": {
+            "type": "array",
+            "items": region_schema,
+            "description": "A list of region objects.",
+        },
+        "truncated": response_types.truncated,
+    },
+    "required": ["regions"],
+    "additionalProperties": False,
+}
+
+# Request body of the `POST /regions` and `PUT /regions/{region_id}`
+# API operations
+region_create_request_body = {
+    "type": "object",
+    "properties": {
+        "region": {
+            "type": "object",
+            "properties": {
+                **_region_properties,
+                "id": {
+                    **parameter_types.region_id,
+                    # Empty ID is allowed
+                    "minLength": 0,
+                    "description": "The region ID.",
+                },
+            },
+            # NOTE(lbragstad): No parameters are required for creating regions.
+            "additionalProperties": True,
+        }
+    },
+    "required": ["region"],
+    "additonalProperties": False,
+}
+
+# Request body of the `PATCH /regions/{region_id}` operation
+region_update_request_body = {
+    "type": "object",
+    "properties": {
+        "region": {
+            "type": "object",
+            # `id` is only allowed as a property if the value
+            # matches the `region_id` value in the path.
+            "properties": _region_properties,
+            "description": "A region object.",
+            "minProperties": 1,
+            "additionalProperties": True,
+        }
+    },
+    "required": ["region"],
+    "additionalProperties": False,
 }
 
 # Schema for Service v3
