@@ -56,6 +56,16 @@ description: dict[str, Any] = {
     "description": "The resource description.",
 }
 
+# User IDs can come from LDAP and LDAP has no constraints on length or format.
+# Therefore we have no minLength, maxLength, or pattern here. Note that this
+# only applies to read-operations (the LDAP backend is read-only) and write
+# operations that hit the database *can* impose these constraints, but we
+# (thankfully!) don't let people set their own IDs anyway so...
+user_id: dict[str, Any] = {
+    "type": "string",
+    "description": "The ID of the user.",
+}
+
 domain_id: dict[str, Any] = {
     "type": "string",
     "minLength": 1,

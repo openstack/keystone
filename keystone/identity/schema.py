@@ -87,7 +87,7 @@ user_index_request_query: dict[str, Any] = {
 }
 
 _user_properties: dict[str, Any] = {
-    'id': {"type": "string", "description": "The user ID.", "readOnly": True},
+    'id': parameter_types.user_id,
     'default_project_id': validation.nullable(parameter_types.id_string),
     'description': validation.nullable(parameter_types.description),
     'domain_id': parameter_types.id_string,
