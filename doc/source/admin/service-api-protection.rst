@@ -217,7 +217,6 @@ following query:
     | admin  | admin@Default          |                        |         |        | all    | False     |
     | admin  | operator@Default       |                        |         |        | all    | False     |
     | reader |                        | system-support@Default |         |        | all    | False     |
-    | admin  | operator@Default       |                        |         |        | all    | False     |
     | member | system-support@Default |                        |         |        | all    | False     |
     +--------+------------------------+------------------------+---------+--------+--------+-----------+
 
