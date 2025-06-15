@@ -61,7 +61,6 @@ _trust_properties = {
     },
     "project_id": {
         "type": ["string", "null"],
-        "format": "uuid",
         "description": (
             "Identifies the project upon which the trustor is "
             "delegating authorization."
