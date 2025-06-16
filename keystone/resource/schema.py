@@ -19,6 +19,26 @@ from keystone.common import validation
 from keystone.common.validation import parameter_types as old_parameter_types
 from keystone.resource.backends import resource_options as ro
 
+domain_id: dict[str, Any] = {
+    "type": "string",
+    "description": "The ID of the domain.",
+}
+
+domain_name: dict[str, Any] = {
+    "type": "string",
+    "description": "The name of the domain.",
+}
+
+project_id: dict[str, Any] = {
+    "type": "string",
+    "description": "The ID of the project.",
+}
+
+default_project_id: dict[str, Any] = {
+    "type": ["string", "null"],
+    "description": "The ID of the project.",
+}
+
 _name_properties = {
     'type': 'string',
     'description': 'The resource name.',
