@@ -17,11 +17,65 @@ from keystone.api.validation import response_types
 from keystone.assignment.role_backends import resource_options as ro
 from keystone.common import validation
 
-# Schema for Identity v3 API
+# NOTE(gtema): we duplicate domain/project/user/domain schemas here because
+# otherwise we get circular dependencies and additionally amount of tiny
+# differences is too big to handle.
+domain_id: dict[str, Any] = {
+    "type": "string",
+    "description": "The ID of the domain.",
+}
+
+domain_name: dict[str, Any] = {
+    "type": "string",
+    "description": "The name of the domain.",
+}
+
+domain_embed: dict[str, Any] = {
+    "type": "object",
+    "properties": {"id": domain_id, "name": domain_name},
+    "required": ["id"],
+    "additionalProperties": False,
+}
+
+project_id: dict[str, Any] = {
+    "type": "string",
+    "description": "The ID of the project.",
+}
+
+project_name: dict[str, Any] = {
+    "type": "string",
+    "description": "The name of the project.",
+}
+
+project_embed: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "id": project_id,
+        "name": project_name,
+        "domain": domain_embed,
+    },
+    "required": ["id"],
+    "additionalProperties": False,
+}
+
+role_id: dict[str, Any] = {
+    "type": "string",
+    "description": "The ID of the role.",
+}
+
+role_name: dict[str, Any] = {
+    "type": "string",
+    "description": "The name of the role.",
+    "minLength": 1,
+    "maxLength": 255,
+}
 
 _role_properties: dict[str, Any] = {
-    "name": parameter_types.name,
-    "description": validation.nullable(parameter_types.description),
+    "name": {**role_name, "pattern": r"[\S]+"},
+    "description": {
+        "type": ["string", "null"],
+        "description": "The resource description.",
+    },
     "domain_id": validation.nullable(parameter_types.domain_id),
     "options": ro.ROLE_OPTIONS_REGISTRY.json_schema,
 }
@@ -33,14 +87,15 @@ role_schema: dict[str, Any] = {
     "type": "object",
     "description": "A role object.",
     "properties": {
-        "id": {
-            "type": "string",
-            "format": "uuid",
-            "description": "The role ID.",
-            "readOnly": True,
+        "id": role_id,
+        "name": role_name,
+        "description": {
+            "type": ["string", "null"],
+            "description": "The role description.",
         },
+        "domain_id": validation.nullable(domain_id),
+        "options": ro.ROLE_OPTIONS_REGISTRY.json_schema,
         "links": response_types.resource_links,
-        **_role_properties,
     },
     "additionalProperties": True,
 }
@@ -125,14 +180,9 @@ role_update_request_body = {
 
 # Individual properties of a returned prior/implied role
 _implied_role_properties: dict[str, Any] = {
-    "id": {
-        "type": "string",
-        "format": "uuid",
-        "description": "The role ID.",
-        "readOnly": True,
-    },
+    "id": role_id,
+    "name": role_name,
     "links": response_types.resource_links,
-    "name": parameter_types.name,
 }
 
 # Common schema of prior role
@@ -244,50 +294,18 @@ role_assignment_schema: dict[str, Any] = {
         "role": {
             "type": "object",
             "properties": {
-                "domain": {
-                    "type": "object",
-                    "properties": {
-                        "id": parameter_types.id_string,
-                        "name": parameter_types.name,
-                    },
-                    "required": ["id"],
-                    "additionalProperties": False,
-                },
-                "id": parameter_types.id_string,
-                "name": parameter_types.name,
+                "id": role_id,
+                "name": role_name,
+                "domain": domain_embed,
             },
             "required": ["id"],
             "additionalProperties": False,
         },
         "scope": {
             "properties": {
-                "project": {
-                    "type": "object",
-                    "properties": {
-                        "domain": {
-                            "type": "object",
-                            "properties": {
-                                "id": parameter_types.id_string,
-                                "name": parameter_types.name,
-                            },
-                            "required": ["id"],
-                            "additionalProperties": False,
-                        },
-                        "id": parameter_types.id_string,
-                        "name": parameter_types.name,
-                    },
-                    "required": ["id"],
-                    "additionalProperties": False,
-                },
+                "project": project_embed,
+                "domain": domain_embed,
                 "OS-INHERIT:inherited_to": {"const": "projects"},
-                "domain": {
-                    "type": "object",
-                    "properties": {
-                        "id": parameter_types.id_string,
-                        "name": parameter_types.name,
-                    },
-                    "required": ["id"],
-                },
                 "system": {
                     "type": "object",
                     "properties": {"all": {"const": True}},
@@ -304,17 +322,14 @@ role_assignment_schema: dict[str, Any] = {
         "user": {
             "type": "object",
             "properties": {
-                "domain": {
-                    "type": "object",
-                    "properties": {
-                        "id": parameter_types.id_string,
-                        "name": parameter_types.name,
-                    },
-                    "required": ["id"],
-                    "additionalProperties": False,
+                # NOTE(gtema): do not validate properties in the response
+                # since depending on that backend those may fail.
+                "id": {"type": "string", "description": "The ID of the user"},
+                "name": {
+                    "type": "string",
+                    "description": "The name of the user",
                 },
-                "id": parameter_types.user_id,
-                "name": parameter_types.name,
+                "domain": domain_embed,
             },
             "required": ["id"],
             "additionalProperties": False,
@@ -322,17 +337,12 @@ role_assignment_schema: dict[str, Any] = {
         "group": {
             "type": "object",
             "properties": {
-                "domain": {
-                    "type": "object",
-                    "properties": {
-                        "id": parameter_types.id_string,
-                        "name": parameter_types.name,
-                    },
-                    "required": ["id"],
-                    "additionalProperties": False,
+                "id": {"type": "string", "description": "The ID of the group"},
+                "name": {
+                    "type": "string",
+                    "description": "The name of the group",
                 },
-                "id": parameter_types.id_string,
-                "name": parameter_types.name,
+                "domain": domain_embed,
             },
             "required": ["id"],
             "additionalProperties": False,
