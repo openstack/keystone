@@ -332,11 +332,9 @@ group_index_response_body: dict[str, Any] = {
 
 group_get_response_body: dict[str, Any] = {
     "type": "object",
-    "properties": {
-        "group": group_schema,
-        "required": ["group"],
-        "additionalProperties": False,
-    },
+    "properties": {"group": group_schema},
+    "required": ["group"],
+    "additionalProperties": False,
 }
 
 group_create_request_body: dict[str, Any] = {
