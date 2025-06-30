@@ -32,7 +32,6 @@ _credential_properties = {
     },
     "user_id": {
         "type": "string",
-        "format": "uuid",
         "description": "The ID of the user who owns the credential.",
     },
 }
@@ -59,7 +58,6 @@ index_request_query: dict[str, Any] = {
     "properties": {
         "user_id": {
             "type": "string",
-            "format": "uuid",
             "description": "Filters the response by a user ID.",
         },
         "type": {
