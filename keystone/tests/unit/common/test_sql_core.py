@@ -11,13 +11,13 @@
 # under the License.
 
 
-from sqlalchemy.ext import declarative
+from sqlalchemy.orm import declarative_base
 
 from keystone.common import sql
 from keystone.tests import unit
 from keystone.tests.unit import utils
 
-ModelBase = declarative.declarative_base()
+ModelBase = declarative_base()
 
 
 class TestModel(ModelBase, sql.ModelDictMixin):  # type: ignore
