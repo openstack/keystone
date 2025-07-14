@@ -1,3 +1,5 @@
+python-binary-memcached
+
 git+https://github.com/sapcc/raven-python.git@ccloud#egg=raven[flask]
 git+https://github.com/sapcc/openstack-watcher-middleware.git#egg=watcher-middleware
 git+https://github.com/funkyHat/py-radius@install_requires#egg=py-radius
