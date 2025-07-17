@@ -61,7 +61,8 @@ class FernetUtils:
                     'config_group': self.config_group,
                 },
             )
-        # CCloud: we don't care, since k8s volumes from secrets can't be configured to be read-only
+        # CCloud: we don't care, since k8s volumes from secrets can't be
+        # configured to be read-only
         # else:
         #     # ensure the key repository isn't world-readable
         #     stat_info = os.stat(self.key_repository)

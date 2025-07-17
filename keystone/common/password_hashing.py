@@ -181,6 +181,7 @@ def hash_password(password: str) -> str:
             % CONF.identity.password_hash_algorithm
         )
 
+
 def generate_partial_password_hash(password: str, salt: str) -> str:
     """Generates partial password hash for reporting purposes.
 

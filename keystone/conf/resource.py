@@ -90,8 +90,8 @@ bootstrap_project_domain_name = cfg.StrOpt(
     'bootstrap_project_domain_name',
     help=utils.fmt("""
 Name of the domain that owns the `bootstrap_project_name`. If left unset, then
-there is no admin project. `[resource] bootstrap_project_name` must also be set to
-use this option.
+there is no admin project. `[resource] bootstrap_project_name` must also be set
+to use this option.
 """)
 )
 

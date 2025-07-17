@@ -1398,7 +1398,7 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
         )
 
     def test_list_projects_is_domain_filter_domain_scoped_token(self):
-        """Call ``GET /projects?is_domain=True/False`` with domain scope"""
+        """Call ``GET /projects?is_domain=True/False`` with domain scope."""
         # grant the domain role to user
         path = '/domains/%s/users/%s/roles/%s' % (
             self.domain_id, self.user['id'], self.role['id'])

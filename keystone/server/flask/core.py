@@ -69,7 +69,8 @@ _APP_MIDDLEWARE = (
     ),
 )
 
-# ccloud: additional ccloud specific middleware that needs to sit 'behind' the AuthContextMiddleware
+# ccloud: additional ccloud specific middleware that needs to sit 'behind' the
+# AuthContextMiddleware
 _CC_MIDDLEWARE = (
     # CCloud: add watcher middleware
     _Middleware(namespace='watcher.middleware',
@@ -83,13 +84,13 @@ _CC_MIDDLEWARE = (
                 ep='lifesaver',
                 conf={}),
     # CCloud: add rate_limit middleware
-    #_Middleware(namespace='rate_limit.middleware',
-    #            ep='rate-limit',
-    #            conf={'config_file': '/etc/keystone/ratelimit.yaml',
-    #                  'service_type': 'identity',
-    #                  'rate_limit_by': 'initiator_project_id',
-    #                  'backend_host': 'keystone-sapcc-rate-limit',
-    #                  'backend_timeout_seconds': '1'}),
+    # _Middleware(namespace='rate_limit.middleware',
+    #             ep='rate-limit',
+    #             conf={'config_file': '/etc/keystone/ratelimit.yaml',
+    #                   'service_type': 'identity',
+    #                   'rate_limit_by': 'initiator_project_id',
+    #                   'backend_host': 'keystone-sapcc-rate-limit',
+    #                   'backend_timeout_seconds': '1'}),
 )
 
 # NOTE(morgan): ORDER HERE IS IMPORTANT! Each of these middlewares are
@@ -151,7 +152,8 @@ def setup_app_middleware(app):
         if mw.ep == 'watcher' and os.environ.get('WATCHER_DISABLED', None):
             continue
 
-        loaded = stevedore.DriverManager(mw.namespace, mw.ep, invoke_on_load=False)
+        loaded = stevedore.DriverManager(mw.namespace, mw.ep,
+                                         invoke_on_load=False)
         factory_func = loaded.driver.factory({}, **mw.conf)
         app.wsgi_app = factory_func(app.wsgi_app)
 
