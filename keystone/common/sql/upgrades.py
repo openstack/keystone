@@ -90,7 +90,7 @@ def _find_alembic_conf():
         for branch in MIGRATION_BRANCHES:
             version_path = os.path.join(VERSIONS_PATH, release, branch)
             version_paths.append(version_path)
-    config.set_main_option('version_locations', ' '.join(version_paths))
+    config.set_main_option('version_locations', os.pathsep.join(version_paths))
 
     return config
 
