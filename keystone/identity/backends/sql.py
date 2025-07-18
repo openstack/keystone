@@ -263,6 +263,7 @@ class Identity(base.IdentityDriverBase):
         with sql.session_for_write() as session:
             user_ref = self._get_user(session, user_id)
             old_user_dict = user_ref.to_dict()
+            old_user_dict.pop('password', None)
             for k in user:
                 old_user_dict[k] = user[k]
             new_user = model.User.from_dict(old_user_dict)
