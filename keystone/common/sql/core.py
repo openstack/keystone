@@ -32,9 +32,9 @@ from oslo_utils import timeutils
 from osprofiler import opts as profiler
 import osprofiler.sqlalchemy
 import sqlalchemy as sql
-from sqlalchemy.ext import declarative
 from sqlalchemy.orm.attributes import flag_modified
 from sqlalchemy.orm.attributes import InstrumentedAttribute
+from sqlalchemy.orm import declarative_base
 from sqlalchemy import types as sql_types
 
 from keystone.common import driver_hints
@@ -46,7 +46,7 @@ from keystone.i18n import _
 CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
-ModelBase = declarative.declarative_base()
+ModelBase = declarative_base()
 
 
 # For exporting to other modules
