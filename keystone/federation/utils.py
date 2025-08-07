@@ -14,6 +14,7 @@
 
 import ast
 import copy
+import json
 import re
 
 import flask
@@ -59,6 +60,15 @@ PROJECTS_SCHEMA = {
         "properties": {"name": {"type": "string"}, "roles": ROLE_PROPERTIES},
     },
 }
+
+DOMAIN_SCHEMA = {
+    "type": "object",
+    "properties": {"id": {"type": "string"}, "name": {"type": "string"}},
+    "additionalProperties": False,
+}
+DEFAULT_SCHEMA_VERSION = "1.0"
+SCHEMA_VERSION_HONOR_DOMAIN = "2.0"
+SCHEMA_VERSION_SYNC_PROJECT_ASSIGNMENTS_WITH_IDP_STATE = "3.0"
 
 IDP_ATTRIBUTE_MAPPING_SCHEMA_1_0 = {
     "type": "object",
@@ -179,14 +189,7 @@ IDP_ATTRIBUTE_MAPPING_SCHEMA_1_0 = {
                 "regex": {"type": "boolean"},
             },
         },
-        "domain": {
-            "type": "object",
-            "properties": {
-                "id": {"type": "string"},
-                "name": {"type": "string"},
-            },
-            "additionalProperties": False,
-        },
+        "domain": DOMAIN_SCHEMA,
         "group_by_id": {
             "type": "object",
             "properties": {"id": {"type": "string"}},
@@ -207,18 +210,24 @@ IDP_ATTRIBUTE_MAPPING_SCHEMA_1_0 = {
 
 # `IDP_ATTRIBUTE_MAPPING_SCHEMA_2_0` adds the domain option for projects,
 # the goal is to work in a similar fashion as `user` and `groups` properties
-IDP_ATTRIBUTE_MAPPING_SCHEMA_2_0 = copy.deepcopy(
+IDP_ATTRIBUTE_MAPPING_SCHEMA_2_0: dict = copy.deepcopy(
     IDP_ATTRIBUTE_MAPPING_SCHEMA_1_0
 )
 
-PROJECTS_SCHEMA_2_0 = copy.deepcopy(PROJECTS_SCHEMA)
-PROJECTS_SCHEMA_2_0["items"]["properties"]["domain"] = {  # type: ignore[index]
-    "$ref": "#/definitions/domain"
-}
+PROJECTS_SCHEMA_2_0: dict = copy.deepcopy(PROJECTS_SCHEMA)
+PROJECTS_SCHEMA_2_0["items"]["properties"]["domain"] = DOMAIN_SCHEMA
 
-IDP_ATTRIBUTE_MAPPING_SCHEMA_2_0['properties']['rules']['items']['properties'][  # type: ignore[index]
+IDP_ATTRIBUTE_MAPPING_SCHEMA_2_0['properties']['rules']['items']['properties'][
     'local'
 ]['items']['properties']['projects'] = PROJECTS_SCHEMA_2_0
+
+IDP_ATTRIBUTE_MAPPING_SCHEMA_3_0: dict = copy.deepcopy(
+    IDP_ATTRIBUTE_MAPPING_SCHEMA_2_0
+)
+
+IDP_ATTRIBUTE_MAPPING_SCHEMA_3_0['properties']['rules']['items']['properties'][
+    'local'
+]['items']['properties']['projects_json'] = {"type": "string"}
 
 
 def get_default_attribute_mapping_schema_version():
@@ -697,7 +706,10 @@ class RuleProcessor:
                     self._ast_literal_eval(identity_value['group_ids'])
                 )
 
-            if 'projects' in identity_value:
+            if (
+                'projects' in identity_value
+                or 'projects_json' in identity_value
+            ):
                 projects = self.extract_projects(identity_value)
 
         self.normalize_user(user, identity_value.get('domain'))
@@ -747,22 +759,45 @@ class RuleProcessor:
         LOG.debug('local: %s', local)
         new = {}
         for k, v in local.items():
-            if isinstance(v, dict):
-                new_value = self._update_local_mapping(v, direct_maps)
-            elif isinstance(v, list):
-                new_value = [
-                    self._update_local_mapping(item, direct_maps) for item in v
-                ]
-            else:
-                try:
-                    new_value = v.format(*direct_maps)
-                except IndexError:
-                    raise exception.DirectMappingError(
-                        mapping_id=self.mapping_id
-                    )
+            LOG.debug(
+                "Processing rule [%s] for key [%s] with parameters [%s]",
+                v,
+                k,
+                direct_maps,
+            )
+            new_value = self.process_rule_mapping(direct_maps, k, v)
+            LOG.debug(
+                "The rule [%s] for key [%s] was mapped to [%s] using "
+                "parameters [%s].",
+                v,
+                k,
+                new_value,
+                direct_maps,
+            )
 
             new[k] = new_value
         return new
+
+    def process_rule_mapping(self, direct_maps, key, rule):
+        if isinstance(rule, dict):
+            new_value = self._update_local_mapping(rule, direct_maps)
+        elif isinstance(rule, list):
+            new_value = [
+                self._update_local_mapping(item, direct_maps) for item in rule
+            ]
+        else:
+            try:
+                new_value = rule.format(*direct_maps)
+            except IndexError:
+                LOG.debug(
+                    "Error while processing rule [%s] for key [%s] "
+                    "with parameters [%s].",
+                    rule,
+                    key,
+                    direct_maps.__dict__,
+                )
+                raise exception.DirectMappingError(mapping_id=self.mapping_id)
+        return new_value
 
     def _verify_all_requirements(self, requirements, assertion):
         """Compare remote requirements of a rule against the assertion.
@@ -959,7 +994,10 @@ class RuleProcessorToHonorDomainOption(RuleProcessor):
         super().__init__(mapping_id, rules)
 
     def extract_projects(self, identity_value):
-        projects = identity_value.get("projects", [])
+        projects = super().extract_projects(identity_value)
+        return self.normalize_projects(identity_value, projects)
+
+    def normalize_projects(self, identity_value, projects):
         default_mapping_domain = identity_value.get("domain")
         for project in projects:
             if not project.get("domain"):
@@ -988,14 +1026,89 @@ class RuleProcessorToHonorDomainOption(RuleProcessor):
             )
 
 
+class RuleProcessorForProjectJsonAttribute(RuleProcessorToHonorDomainOption):
+    """Handles the 'project_json' property in the attribute mapping
+
+    This rule processor is designed to handle the `project_json` attribute
+    configured at the root of the attribute mapping. When this attribute is
+    configured, we load it (the JSON that it contains), and append to the
+    possible set of hard-coded projects that we find at `projects` property.
+    """
+
+    PATTERN_PROJECT_JSON_INDEX = r"\{?(\d+)\}?"
+
+    def __init__(self, mapping_id, rules):
+        super().__init__(mapping_id, rules)
+
+        self.regular_expression_index_of_project_json = re.compile(
+            RuleProcessorForProjectJsonAttribute.PATTERN_PROJECT_JSON_INDEX
+        )
+
+    def extract_projects(self, identity_value):
+        projects = super().extract_projects(identity_value)
+        projects += identity_value.get('projects_json', [])
+        return self.normalize_projects(identity_value, projects)
+
+    def process_rule_mapping(self, direct_maps, key, rule):
+        # I left the handling of both 'projects' and 'projects_json'.
+        # This can help people to combine the old method with the new approach as well.
+        if key != "projects_json" and key != "projects":
+            return super().process_rule_mapping(direct_maps, key, rule)
+
+        if key == "projects" and not isinstance(rule, str):
+            return super().process_rule_mapping(direct_maps, key, rule)
+
+        matcher = self.regular_expression_index_of_project_json.match(rule)
+
+        if matcher:
+            project_json_index = matcher.group(1)
+            projects_json = direct_maps[int(project_json_index)]
+            if isinstance(projects_json, str):
+                projects_json = json.loads(projects_json)
+            LOG.debug(
+                "%s key was solved to value [%s] at index [%s] of "
+                "parameters [%s].",
+                key,
+                projects_json,
+                project_json_index,
+                direct_maps,
+            )
+            RuleProcessorForProjectJsonAttribute.validate_projects_json(
+                projects_json
+            )
+
+            return projects_json
+        else:
+            raise exception.SchemaValidationError(
+                f"The rule [{rule}] for key [{key}] does not match the expected"
+                f" pattern [{RuleProcessorForProjectJsonAttribute.PATTERN_PROJECT_JSON_INDEX}]."
+            )
+
+    @staticmethod
+    def validate_projects_json(projects_json):
+        json_validator = jsonschema.Draft4Validator(PROJECTS_SCHEMA_2_0)
+        messages = ''
+        for error in sorted(
+            json_validator.iter_errors(projects_json), key=str
+        ):
+            messages = messages + error.message + "\n"
+        if messages:
+            LOG.error("Error validating 'projects_json': [%s].", messages)
+            raise exception.ValidationError(messages)
+
+
 IDP_ATTRIBUTE_MAPPING_SCHEMAS = {
-    "1.0": {
+    DEFAULT_SCHEMA_VERSION: {
         "schema": IDP_ATTRIBUTE_MAPPING_SCHEMA_1_0,
         "processor": RuleProcessor,
     },
-    "2.0": {
+    SCHEMA_VERSION_HONOR_DOMAIN: {
         "schema": IDP_ATTRIBUTE_MAPPING_SCHEMA_2_0,
         "processor": RuleProcessorToHonorDomainOption,
+    },
+    SCHEMA_VERSION_SYNC_PROJECT_ASSIGNMENTS_WITH_IDP_STATE: {
+        "schema": IDP_ATTRIBUTE_MAPPING_SCHEMA_3_0,
+        "processor": RuleProcessorForProjectJsonAttribute,
     },
 }
 

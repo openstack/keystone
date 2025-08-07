@@ -1038,3 +1038,14 @@ then it will map to a group with the same name and same domain's name in the SP.
 The possible attributes that can be used in a mapping are `openstack_user`,
 `openstack_user_domain`, `openstack_roles`, `openstack_project`,
 `openstack_project_domain` and `openstack_groups`.
+
+Attribute mapping schema versions
+---------------------------------
+
+The following are the different schema versions one can adopt for the attribute mapping to be registered in Keystone.
+
+* ``1.0``: is the default initial version that represents the behavior of Keystone when the schema processing was first introduced.
+
+* ``2.0``:  this rule processor is designed to handle the `domain` attribute configured at the root of the attribute mapping. When this attribute is configured, we should take it as the default one for the attribute mapping, instead of the domain of the IdP. Moreover, we should respect the override to it that can take place at the `groups`, `user`, and `projects` attributes definition.
+
+* ``3.0``:  this rule processor is designed to handle the `project_json` attribute configured at the root of the attribute mapping. When this attribute is configured, we load it (the JSON that it contains) and append it to the possible set of hard-coded projects that we find at `projects` property.

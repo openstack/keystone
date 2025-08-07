@@ -173,6 +173,9 @@ class Manager(manager.Manager):
         )
 
         mapped_properties = rule_processor.process(assertion_data)
+        mapped_properties['schema_version'] = mapping.get(
+            'schema_version', utils.DEFAULT_SCHEMA_VERSION
+        )
         return mapped_properties, mapping['id']
 
     def create_protocol(self, idp_id, protocol_id, protocol):
