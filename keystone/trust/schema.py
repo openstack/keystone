@@ -151,7 +151,7 @@ trust_schema: dict[str, Any] = {
         "roles_links": response_types.links,
         **_trust_properties,
     },
-    "additionalProperties": False,
+    "additionalProperties": True,
 }
 
 trust_index_request_query: dict[str, Any] = {
