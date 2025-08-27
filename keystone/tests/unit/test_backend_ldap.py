@@ -21,7 +21,7 @@ import uuid
 import fixtures
 import ldap
 from oslo_log import versionutils
-import pkg_resources
+import pkg_resources  # type: ignore
 from testtools import matchers
 
 from keystone.common import cache
