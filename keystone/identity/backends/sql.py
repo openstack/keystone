@@ -76,6 +76,8 @@ class Identity(base.IdentityDriverBase):
             raise exception.UserDisabled(user_id=user_id)
         elif user_ref.password_is_expired:
             raise exception.PasswordExpired(user_id=user_id)
+        if password_hashing.is_deprecated_hash(user_ref.password):
+            self._rehash_password(user_id, password)
         # successful auth, reset failed count if present
         if user_ref.local_user.failed_auth_count:
             self._reset_failed_auth(user_id)
@@ -126,6 +128,12 @@ class Identity(base.IdentityDriverBase):
             user_ref = session.get(model.User, user_id)
             user_ref.local_user.failed_auth_count = 0
             user_ref.local_user.failed_auth_at = None
+
+    def _rehash_password(self, user_id, password):
+        with sql.session_for_write() as session:
+            user_ref = session.get(model.User, user_id)
+            user_ref.password_ref.password_hash = \
+                password_hashing.hash_password(password)
 
     # user crud
 

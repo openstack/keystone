@@ -72,10 +72,30 @@ class UserPasswordHashingTestsNoCompat(test_backend_sql.SqlTests):
         )
 
     def test_configured_algorithm_used(self):
+        user_ref = self._get_user(self.user_foo['id'])
+        self.assertEqual(
+            passlib.hash.scrypt,
+            password_hashing._get_hasher_from_ident(user_ref.password))
+
+    def _get_user(self, user_id):
         with sql.session_for_read() as session:
             user_ref = PROVIDERS.identity_api._get_user(
-                session, self.user_foo['id']
+                session, user_id
             )
+        return user_ref
+
+    def test_deprecated_password_hash_is_updated_on_auth(self):
+        user_ref = self._get_user(self.user_foo['id'])
+        with sql.session_for_write() as session:
+            old_hash = passlib.hash.sha512_crypt.hash(
+                self.user_foo['password'])
+            user_ref.password_ref.password_hash = old_hash
+            session.add(user_ref.password_ref)
+
+        PROVIDERS.identity_api.driver.authenticate(self.user_foo['id'],
+                                                   self.user_foo['password'])
+        user_ref = self._get_user(self.user_foo['id'])
+
         self.assertEqual(
             password_hashers.scrypt.Scrypt,
             password_hashing._get_hasher_from_ident(user_ref.password),

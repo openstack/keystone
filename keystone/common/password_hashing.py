@@ -36,7 +36,10 @@ SUPPORTED_HASHERS: frozenset[type[password_hashers.PasswordHasher]] = (
     )
 )
 
-_HASHER_NAME_MAP = {hasher.name: hasher for hasher in SUPPORTED_HASHERS}
+DEPRECATED_HASHERS = frozenset([passlib.hash.sha512_crypt])
+
+_HASHER_NAME_MAP = {hasher.name: hasher for hasher in
+                    SUPPORTED_HASHERS | DEPRECATED_HASHERS}
 
 
 # NOTE(notmorgan): Build the list of prefixes. This comprehension builds
@@ -63,7 +66,7 @@ _HASHER_IDENT_MAP = {
     for module, prefix in itertools.chain(
         *[
             zip([mod] * len(ident), ident)
-            for mod, ident in _get_hash_ident(SUPPORTED_HASHERS)
+            for mod, ident in _get_hash_ident(SUPPORTED_HASHERS | DEPRECATED_HASHERS)
         ]
     )
 }
@@ -132,6 +135,11 @@ def check_password(password: str, hashed: str) -> bool:
     password_utf8 = verify_length_and_trunc_password(password)
     hasher = _get_hasher_from_ident(hashed)
     return hasher.verify(password_utf8, hashed)
+
+
+def is_deprecated_hash(hashed):
+    """Check if the password is using a deprecated hash."""
+    return _get_hasher_from_ident(hashed) in DEPRECATED_HASHERS
 
 
 def hash_user_password(user):
