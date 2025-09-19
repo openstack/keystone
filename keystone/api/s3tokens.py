@@ -22,11 +22,14 @@ from oslo_serialization import jsonutils
 
 from keystone.api._shared import EC2_S3_Resource
 from keystone.api._shared import json_home_relations
+from keystone.common import rbac_enforcer
 from keystone.common import render_token
 from keystone.common import utils
 from keystone import exception
 from keystone.i18n import _
 from keystone.server import flask as ks_flask
+
+ENFORCER = rbac_enforcer.RBACEnforcer
 
 
 def _calculate_signature_v1(string_to_sign, secret_key):
@@ -90,12 +93,14 @@ class S3Resource(EC2_S3_Resource.ResourceBase):
             raise exception.Unauthorized(
                 message=_('Credential signature mismatch'))
 
-    @ks_flask.unenforced_api
     def post(self):
         """Authenticate s3token.
 
         POST /v3/s3tokens
         """
+        # Use standard Keystone policy enforcement for s3tokens access
+        ENFORCER.enforce_call(action='identity:s3tokens_validate')
+
         token = self.handle_authenticate()
         token_reference = render_token.render_token_response_from_model(token)
         resp_body = jsonutils.dumps(token_reference)
