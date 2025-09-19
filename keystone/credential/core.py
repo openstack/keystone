@@ -47,6 +47,10 @@ class Manager(manager.Manager):
 
     def _decrypt_credential(self, credential):
         """Return a decrypted credential reference."""
+        if 'blob' in credential and 'encrypted_blob' not in credential:
+            # Already decrypted
+            return credential
+
         if credential['type'] == 'ec2':
             decrypted_blob = json.loads(
                 PROVIDERS.credential_provider_api.decrypt(
