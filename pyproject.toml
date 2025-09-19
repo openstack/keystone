@@ -1,3 +1,182 @@
 [build-system]
 requires = ["pbr>=6.1.1"]
 build-backend = "pbr.build"
+
+[project]
+name = "keystone"
+description = "OpenStack Identity"
+authors = [
+    {name = "OpenStack", email = "openstack-discuss@lists.openstack.org"},
+]
+readme = {file = "README.rst", content-type = "text/x-rst"}
+license = {text = "Apache-2.0"}
+dynamic = ["version", "dependencies"]
+requires-python = ">=3.10"
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+
+[project.urls]
+Homepage = "https://docs.openstack.org/keystone"
+Repository = "https://opendev.org/openstack/keystone"
+Bugs = "https://bugs.launchpad.net/keystone"
+
+[project.entry-points."keystone.assignment"]
+sql = "keystone.assignment.backends.sql:Assignment"
+
+[project.entry-points."keystone.auth.application_credential"]
+default = "keystone.auth.plugins.application_credential:ApplicationCredential"
+
+[project.entry-points."keystone.auth.external"]
+default = "keystone.auth.plugins.external:DefaultDomain"
+DefaultDomain = "keystone.auth.plugins.external:DefaultDomain"
+Domain = "keystone.auth.plugins.external:Domain"
+
+[project.entry-points."keystone.auth.kerberos"]
+default = "keystone.auth.plugins.external:KerberosDomain"
+
+[project.entry-points."keystone.auth.oauth1"]
+default = "keystone.auth.plugins.oauth1:OAuth"
+
+[project.entry-points."keystone.auth.openid"]
+default = "keystone.auth.plugins.mapped:Mapped"
+
+[project.entry-points."keystone.auth.password"]
+default = "keystone.auth.plugins.password:Password"
+
+[project.entry-points."keystone.auth.saml2"]
+default = "keystone.auth.plugins.mapped:Mapped"
+
+[project.entry-points."keystone.auth.token"]
+default = "keystone.auth.plugins.token:Token"
+
+[project.entry-points."keystone.auth.totp"]
+default = "keystone.auth.plugins.totp:TOTP"
+
+[project.entry-points."keystone.auth.x509"]
+default = "keystone.auth.plugins.mapped:Mapped"
+
+[project.entry-points."keystone.auth.mapped"]
+default = "keystone.auth.plugins.mapped:Mapped"
+
+[project.entry-points."keystone.catalog"]
+sql = "keystone.catalog.backends.sql:Catalog"
+
+[project.entry-points."keystone.credential"]
+sql = "keystone.credential.backends.sql:Credential"
+
+[project.entry-points."keystone.credential.provider"]
+fernet = "keystone.credential.providers.fernet:Provider"
+
+[project.entry-points."keystone.identity"]
+ldap = "keystone.identity.backends.ldap:Identity"
+sql = "keystone.identity.backends.sql:Identity"
+
+[project.entry-points."keystone.identity.id_generator"]
+sha256 = "keystone.identity.id_generators.sha256:Generator"
+
+[project.entry-points."keystone.identity.id_mapping"]
+sql = "keystone.identity.mapping_backends.sql:Mapping"
+
+[project.entry-points."keystone.identity.shadow_users"]
+sql = "keystone.identity.shadow_backends.sql:ShadowUsers"
+
+[project.entry-points."keystone.policy"]
+rules = "keystone.policy.backends.rules:Policy"
+sql = "keystone.policy.backends.sql:Policy"
+
+[project.entry-points."keystone.resource"]
+sql = "keystone.resource.backends.sql:Resource"
+
+[project.entry-points."keystone.resource.domain_config"]
+sql = "keystone.resource.config_backends.sql:DomainConfig"
+
+[project.entry-points."keystone.role"]
+sql = "keystone.assignment.role_backends.sql:Role"
+
+[project.entry-points."keystone.token.provider"]
+fernet = "keystone.token.providers.fernet:Provider"
+jws = "keystone.token.providers.jws:Provider"
+
+[project.entry-points."keystone.receipt.provider"]
+fernet = "keystone.receipt.providers.fernet:Provider"
+
+[project.entry-points."keystone.trust"]
+sql = "keystone.trust.backends.sql:Trust"
+
+[project.entry-points."keystone.unified_limit"]
+sql = "keystone.limit.backends.sql:UnifiedLimit"
+
+[project.entry-points."keystone.endpoint_filter"]
+sql = "keystone.catalog.backends.sql:Catalog"
+
+[project.entry-points."keystone.endpoint_policy"]
+sql = "keystone.endpoint_policy.backends.sql:EndpointPolicy"
+
+[project.entry-points."keystone.federation"]
+sql = "keystone.federation.backends.sql:Federation"
+
+[project.entry-points."keystone.oauth1"]
+sql = "keystone.oauth1.backends.sql:OAuth1"
+
+[project.entry-points."keystone.revoke"]
+sql = "keystone.revoke.backends.sql:Revoke"
+
+[project.entry-points."keystone.application_credential"]
+sql = "keystone.application_credential.backends.sql:ApplicationCredential"
+
+[project.entry-points."keystone.unified_limit.model"]
+flat = "keystone.limit.models.flat:FlatModel"
+strict_two_level = "keystone.limit.models.strict_two_level:StrictTwoLevelModel"
+
+[project.entry-points."keystone.server_middleware"]
+cors = "oslo_middleware:CORS"
+sizelimit = "oslo_middleware:RequestBodySizeLimiter"
+http_proxy_to_wsgi = "oslo_middleware:HTTPProxyToWSGI"
+osprofiler = "osprofiler.web:WsgiMiddleware"
+request_id = "oslo_middleware:RequestId"
+debug = "oslo_middleware:Debug"
+
+[project.entry-points."oslo.config.opts"]
+keystone = "keystone.conf.opts:list_opts"
+
+[project.entry-points."oslo.config.opts.defaults"]
+keystone = "keystone.conf:set_external_opts_defaults"
+
+[project.entry-points."oslo.policy.enforcer"]
+keystone = "keystone.common.rbac_enforcer.policy:get_enforcer"
+
+[project.entry-points."oslo.policy.policies"]
+# With the move of default policy in code list_rules returns a list of
+# the default defined polices.
+keystone = "keystone.common.policies:list_rules"
+
+[project.scripts]
+keystone-manage = "keystone.cmd.manage:main"
+keystone-status = "keystone.cmd.status:main"
+
+[project.optional-dependencies]
+ldap = [
+    "python-ldap>=3.0.0", # PSF
+    "ldappool>=2.3.1", # MPL
+]
+
+[tool.setuptools]
+packages = [
+    "keystone"
+]
+
+[tool.setuptools.data-files]
+"etc/keystone" = [
+    "etc/sso_callback_template.html",
+]
