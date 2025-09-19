@@ -62,20 +62,34 @@ class EC2ContribCoreV3(test_v3.RestfulTestCase):
             },
         }
         credentials['signature'] = signer.generate(credentials)
+        # Authenticate as system admin by default unless overridden via kwargs
+        token = None
+        if 'noauth' in kwargs and kwargs['noauth']:
+            token = None
+        else:
+            PROVIDERS.assignment_api.create_system_grant_for_user(
+                self.user_id, self.role_id
+            )
+            token = self.get_system_scoped_token()
+
+        expected_status = kwargs.get('expected_status', http.client.OK)
         resp = self.post(
             '/ec2tokens',
             body={'credentials': credentials},
-            expected_status=http.client.OK,
-            **kwargs
+            expected_status=expected_status,
+            token=token,
+            noauth=kwargs.get('noauth'),
         )
-        self.assertValidProjectScopedTokenResponse(resp, self.user)
+        if expected_status == http.client.OK:
+            self.assertValidProjectScopedTokenResponse(resp, self.user)
 
     def test_valid_authentication_response_with_proper_secret(self):
         self._test_valid_authentication_response_with_proper_secret()
 
     def test_valid_authentication_response_with_proper_secret_noauth(self):
+        # ec2 endpoint now enforces RBAC; unauthenticated should be denied
         self._test_valid_authentication_response_with_proper_secret(
-            noauth=True
+            expected_status=http.client.UNAUTHORIZED, noauth=True
         )
 
     def test_valid_authentication_response_with_signature_v4(self):

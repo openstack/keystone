@@ -48,7 +48,7 @@ class S3ContribCore(test_v3.RestfulTestCase):
         )
         self.assertEqual(http.client.METHOD_NOT_ALLOWED, resp.status_code)
 
-    def _test_good_response(self, **kwargs):
+    def _test_good_response(self, expected_status=http.client.OK, **kwargs):
         sts = 'string to sign'  # opaque string from swift3
         sig = hmac.new(
             self.cred_blob['secret'].encode('ascii'),
@@ -64,18 +64,23 @@ class S3ContribCore(test_v3.RestfulTestCase):
                     'token': base64.b64encode(sts.encode('ascii')).strip(),
                 }
             },
-            expected_status=http.client.OK,
-            **kwargs
+            expected_status=expected_status,
+            **kwargs,
         )
-        self.assertValidProjectScopedTokenResponse(
-            resp, self.user, forbid_token_id=True
-        )
+        if expected_status == http.client.OK:
+            self.assertValidProjectScopedTokenResponse(
+                resp, self.user, forbid_token_id=True
+            )
+        else:
+            self.assertValidErrorResponse(resp)
 
     def test_good_response(self):
         self._test_good_response()
 
     def test_good_response_noauth(self):
-        self._test_good_response(noauth=True)
+        # s3tokens now requires service/admin auth; unauthenticated should be
+        # denied
+        self._test_good_response(http.client.UNAUTHORIZED, noauth=True)
 
     def test_bad_request(self):
         self.post(
