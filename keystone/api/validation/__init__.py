@@ -19,6 +19,10 @@ import flask
 from oslo_serialization import jsonutils
 
 from keystone.api.validation import validators
+import keystone.conf
+from keystone import exception
+
+CONF = keystone.conf.CONF
 
 
 def validated(cls):
@@ -138,26 +142,40 @@ def response_body_schema(schema: ty.Optional[ty.Dict[str, ty.Any]] = None):
         def wrapper(*args, **kwargs):
             response = func(*args, **kwargs)
 
-            if schema is not None:
-                # In Flask it is not uncommon that the method return a tuple of
-                # body and the status code. In the runtime Keystone only return
-                # a body, but some of the used testtools do return a tuple.
-                if isinstance(response, tuple):
-                    _body = response[0]
-                else:
-                    _body = response
+            if CONF.api.response_validation == 'ignore':
+                # don't waste our time checking anything if we're ignoring
+                # schema errors
+                return response
 
-                # NOTE(stephenfin): If our response is an object, we need to
-                # serializer and deserialize to convert e.g. date-time
-                # to strings
-                _body = jsonutils.dump_as_bytes(_body)
+            if schema is None:
+                return response
 
-                if _body == b"":
-                    body = None
-                else:
-                    body = jsonutils.loads(_body)
+            # In Flask it is not uncommon that the method return a tuple of
+            # body and the status code. In the runtime Keystone only return
+            # a body, but some of the used testtools do return a tuple.
+            if isinstance(response, tuple):
+                _body = response[0]
+            else:
+                _body = response
 
+            # NOTE(stephenfin): If our response is an object, we need to
+            # serializer and deserialize to convert e.g. date-time
+            # to strings
+            _body = jsonutils.dump_as_bytes(_body)
+
+            if _body == b'':
+                body = None
+            else:
+                body = jsonutils.loads(_body)
+
+            try:
                 _schema_validator(schema, body, args, kwargs, is_body=True)
+            except exception.SchemaValidationError:
+                if CONF.api.response_validation == 'warn':
+                    LOG.exception('Schema failed to validate')
+                else:
+                    raise
+
             return response
 
         wrapper._response_body_schema = schema
