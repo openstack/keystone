@@ -94,8 +94,9 @@
     description: |
       Run unit tests with main branch of SQLAlchemy, alembic and oslo.db.
       Takes advantage of the base tox job's install-siblings feature.
-    # The job only tests the latest and shouldn't be run on the stable branches
-    branches: ^[^(stable)]
+    # The job only tests the latest and shouldn't be run on the stable or
+    # unmaintained branches
+    branches: ^[^(stable|unmaintained)]
     required-projects:
       - name: github.com/sqlalchemy/sqlalchemy
         override-checkout: main
@@ -155,7 +156,6 @@
       - openstack-python3-jobs-arm64
     check:
       jobs:
-        - keystone-tox-py310-with-sqlalchemy-2x
         - keystone-dsvm-py3-functional:
             irrelevant-files: &irrelevant-files
               - ^.*\.rst$
@@ -198,7 +198,6 @@
             irrelevant-files: *irrelevant-files
     gate:
       jobs:
-        - keystone-tox-py310-with-sqlalchemy-2x
         - keystone-dsvm-py3-functional:
             irrelevant-files: *irrelevant-files
         - keystone-dsvm-py3-functional-federation-ubuntu-jammy-k2k:
