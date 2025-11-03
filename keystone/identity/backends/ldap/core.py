@@ -434,23 +434,26 @@ class GroupApi(common_ldap.BaseLdap):
         """Return a list of user dns which are members of a group."""
         group_ref = self.get(group_id)
         group_dn = group_ref['dn']
+        attribute = self.member_attribute
 
         try:
             if self.group_ad_nesting:
                 # NOTE(ayoung): LDAP_SCOPE is used here instead of hard-
                 # coding to SCOPE_SUBTREE to get through the unit tests.
                 # However, it is also probably more correct.
+                attribute = "distinguishedName"
                 attrs = self._ldap_get_list(
-                    self.tree_dn,
+                    self.user_tree_dn,
                     self.LDAP_SCOPE,
                     query_params={
-                        f"member:{LDAP_MATCHING_RULE_IN_CHAIN}:": group_dn
+                        f"memberOf:{LDAP_MATCHING_RULE_IN_CHAIN}:": group_dn
                     },
-                    attrlist=[self.member_attribute],
+                    attrlist=[attribute],
+                    object_class=self.user_objectclass,
                 )
             else:
                 attrs = self._ldap_get_list(
-                    group_dn, ldap.SCOPE_BASE, attrlist=[self.member_attribute]
+                    group_dn, ldap.SCOPE_BASE, attrlist=[attribute]
                 )
 
         except ldap.NO_SUCH_OBJECT:
@@ -458,7 +461,7 @@ class GroupApi(common_ldap.BaseLdap):
 
         users = []
         for dn, member in attrs:
-            user_dns = member.get(self.member_attribute, [])
+            user_dns = member.get(attribute, [])
             for user_dn in user_dns:
                 users.append(user_dn)
         return users
