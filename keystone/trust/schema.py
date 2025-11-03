@@ -46,8 +46,7 @@ _trust_properties = {
     },
     "trustee_user_id": {
         "type": "string",
-        "description": "Represents the user who is capable of consuming "
-        "the trust.",
+        "description": "Represents the user who is capable of consuming the trust.",
     },
     "impersonation": {
         "type": "boolean",
@@ -62,8 +61,7 @@ _trust_properties = {
     "project_id": {
         "type": ["string", "null"],
         "description": (
-            "Identifies the project upon which the trustor is "
-            "delegating authorization."
+            "Identifies the project upon which the trustor is delegating authorization."
         ),
     },
     "remaining_uses": {
@@ -130,7 +128,7 @@ _trust_properties = {
         "type": ["string", "null"],
         "description": (
             "Returned with redelegated trust provides information "
-            "about the predecessor in the trust chain.",
+            "about the predecessor in the trust chain."
         ),
     },
 }
@@ -165,8 +163,7 @@ trust_index_request_query: dict[str, Any] = {
         },
         "trustee_user_id": {
             "type": "string",
-            "description": "Represents the user who is capable of consuming "
-            "the trust.",
+            "description": "Represents the user who is capable of consuming the trust.",
         },
     },
     # TODO(stephenfin): Change this to False once we have schemas for all
