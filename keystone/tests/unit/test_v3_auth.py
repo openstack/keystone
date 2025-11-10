@@ -874,18 +874,29 @@ class TokenAPITests:
         # Make sure the token is valid
         r = self._validate_token(unscoped_token)
         self.assertValidUnscopedTokenResponse(r)
+        user_id = self.user["id"]
+        domain_id, driver, entity_id = (
+            PROVIDERS.identity_api._get_domain_driver_and_entity_id(user_id)
+        )
+        user = PROVIDERS.identity_api.get_user(user_id)
+        user["enabled"] = False
         # Disable the user
-        self._set_user_enabled(self.user, enabled=False)
+        PROVIDERS.identity_api._update_user_with_federated_objects(
+            user, driver, entity_id
+        )
+        PROVIDERS.identity_api.get_user.invalidate(self, user_id)
         # Ensure validating a token for a disabled user fails
         self._validate_token(
             unscoped_token, expected_status=http.client.NOT_FOUND
         )
-        # Enable the user
-        self._set_user_enabled(self.user)
-        # Ensure validating a token for a re-enabled user fails
-        self._validate_token(
-            unscoped_token, expected_status=http.client.NOT_FOUND
+        # Re-enable the user
+        user["enabled"] = True
+        PROVIDERS.identity_api._update_user_with_federated_objects(
+            user, driver, entity_id
         )
+        PROVIDERS.identity_api.get_user.invalidate(self, user_id)
+        # Ensure validating a token for a re-enabled user passes
+        self._validate_token(unscoped_token, expected_status=http.client.OK)
 
     def test_unscoped_token_is_invalid_after_disabling_user_domain(self):
         unscoped_token = self._get_unscoped_token()
