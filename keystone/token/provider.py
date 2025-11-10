@@ -214,7 +214,32 @@ class Manager(manager.Manager):
             raise exception.TokenNotFound(_('Failed to validate token'))
 
         if current_time < expiry:
+            # Check for the normal revocation
             self.check_revocation(token)
+
+            # Token is not revoked, but maybe it should've been.
+            if token.user_id:
+                # NOTE: in readonly backend drivers (the ones where the user
+                # can be deactivated remotely without involving Keystone)
+                # there is no token revocation event for the user deactivation.
+                # As such it is necessary to implement an additional check.
+                # Due to the caching of the `_validate_token` function it is
+                # not enough to have the validation in the token model itself.
+                # On the other side we cannot really use the same revocation
+                # strategy, since when the user gets re-enabled (i.e. it was
+                # accidentially disabled) it would not be able to login for a
+                # token TTL time (since we do not know when exactly the user
+                # was disabled/enabled (revocation to expire).
+                # See bug https://bugs.launchpad.net/keystone/+bug/2122615
+                user = PROVIDERS.identity_api.get_user(token.user_id)
+
+                if user and not user.get('enabled'):
+                    LOG.warn(
+                        'Unable to validate token because user '
+                        f' {token.user_id} is disabled'
+                    )
+                    raise exception.UserDisabled(user_id=token.user_id)
+
             # Token has not expired and has not been revoked.
             return None
         else:
