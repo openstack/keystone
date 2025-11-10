@@ -1,0 +1,8 @@
+---
+security:
+  - |
+    A potential security related issue is fixed where a token of the user from a
+    read-only backend (i.e. LDAP) continues being accepted after the user is
+    disabled in the backend. This is caused by the fact that Keystone does not
+    receive any notification for that and is not able to revoke such tokens.
+    See https://bugs.launchpad.net/keystone/+bug/2122615 for details.
