@@ -120,6 +120,47 @@ class _UserEC2CredentialTests:
                 headers=self.headers,
             )
 
+
+class _SystemUserTests:
+    def test_user_can_get_ec2_credentials_for_others(self):
+        user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
+        user_password = user['password']
+        user = PROVIDERS.identity_api.create_user(user)
+        project = unit.new_project_ref(
+            domain_id=CONF.identity.default_domain_id
+        )
+        project = PROVIDERS.resource_api.create_project(project['id'], project)
+        PROVIDERS.assignment_api.create_grant(
+            self.bootstrapper.reader_role_id,
+            user_id=user['id'],
+            project_id=project['id'],
+        )
+        user_auth = self.build_authentication_request(
+            user_id=user['id'],
+            password=user_password,
+            project_id=project['id'],
+        )
+        with self.test_client() as c:
+            r = c.post('/v3/auth/tokens', json=user_auth)
+            token_id = r.headers['X-Subject-Token']
+            headers = {'X-Auth-Token': token_id}
+
+            r = c.post(
+                '/v3/users/{}/credentials/OS-EC2'.format(user['id']),
+                json={'tenant_id': project['id']},
+                headers=headers,
+            )
+            credential_id = r.json['credential']['access']
+
+            path = (
+                f'/v3/users/{self.user_id}/credentials/OS-EC2/{credential_id}'
+            )
+            c.get(
+                path, headers=self.headers, expected_status_code=http.client.OK
+            )
+
+
+class _SystemUserNegativeTests:
     def test_user_cannot_create_ec2_credentials_for_others(self):
         user = PROVIDERS.identity_api.create_user(
             unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
@@ -179,45 +220,6 @@ class _UserEC2CredentialTests:
             )
 
 
-class _SystemUserTests:
-    def test_user_can_get_ec2_credentials_for_others(self):
-        user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
-        user_password = user['password']
-        user = PROVIDERS.identity_api.create_user(user)
-        project = unit.new_project_ref(
-            domain_id=CONF.identity.default_domain_id
-        )
-        project = PROVIDERS.resource_api.create_project(project['id'], project)
-        PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.reader_role_id,
-            user_id=user['id'],
-            project_id=project['id'],
-        )
-        user_auth = self.build_authentication_request(
-            user_id=user['id'],
-            password=user_password,
-            project_id=project['id'],
-        )
-        with self.test_client() as c:
-            r = c.post('/v3/auth/tokens', json=user_auth)
-            token_id = r.headers['X-Subject-Token']
-            headers = {'X-Auth-Token': token_id}
-
-            r = c.post(
-                '/v3/users/{}/credentials/OS-EC2'.format(user['id']),
-                json={'tenant_id': project['id']},
-                headers=headers,
-            )
-            credential_id = r.json['credential']['access']
-
-            path = (
-                f'/v3/users/{self.user_id}/credentials/OS-EC2/{credential_id}'
-            )
-            c.get(
-                path, headers=self.headers, expected_status_code=http.client.OK
-            )
-
-
 class _SystemReaderAndMemberTests:
     def test_user_cannot_list_ec2_credentials_for_others(self):
         user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
@@ -257,6 +259,7 @@ class SystemReaderTests(
     base_classes.TestCaseWithBootstrap,
     common_auth.AuthTestMixin,
     _SystemUserTests,
+    _SystemUserNegativeTests,
     _SystemReaderAndMemberTests,
 ):
     def setUp(self):
@@ -291,6 +294,7 @@ class SystemMemberTests(
     base_classes.TestCaseWithBootstrap,
     common_auth.AuthTestMixin,
     _SystemUserTests,
+    _SystemUserNegativeTests,
     _SystemReaderAndMemberTests,
 ):
     def setUp(self):
@@ -454,7 +458,7 @@ class ProjectAdminTests(
         # will cause these specific tests to fail since we're trying to correct
         # this broken behavior with better scope checking.
         reader_or_cred_owner = bp.ADMIN_OR_SYSTEM_READER_OR_CRED_OWNER
-        reader_or_owner = bp.RULE_SYSTEM_READER_OR_OWNER
+        reader_or_owner = bp.ADMIN_OR_SYSTEM_READER_OR_OWNER
         admin_or_cred_owner = bp.ADMIN_OR_CRED_OWNER
         with open(self.policy_file_name, 'w') as f:
             overridden_policies = {
