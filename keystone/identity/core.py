@@ -806,10 +806,16 @@ class Manager(manager.Manager):
         if not self._is_mapping_needed(driver):
             return ref_list
 
-        # build a map of refs for fast look-up
+        # build a map of refs for fast look-up, normalizing local_id to str
         refs_map = {}
         for r in ref_list:
-            refs_map[(r['id'], entity_type, r['domain_id'])] = r
+            local_id_val = r['id']
+            if isinstance(local_id_val, bytes):
+                # Normalize bytes from backend (e.g. LDAP) to string for
+                # consistent mapping lookups
+                local_id_val = local_id_val.decode('utf-8')
+                r['id'] = local_id_val
+            refs_map[(local_id_val, entity_type, r['domain_id'])] = r
 
         # fetch all mappings for the domain, lookup the user at the map built
         # at previous step and replace his id.
