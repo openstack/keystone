@@ -319,6 +319,16 @@ class KeystoneMigrationsWalk(test_fixtures.OpportunisticDBTestMixin):
 
         self.assertIn('schema_version', all_column_names)
 
+    def _pre_upgrade_e8725d6fa226(self, connection):
+        inspector = sqlalchemy.inspect(connection)
+        indexes = inspector.get_indexes('project_endpoint_group')
+        self.assertNotIn('idx_project_id', {x['name'] for x in indexes})
+
+    def _check_e8725d6fa226(self, connection):
+        inspector = sqlalchemy.inspect(connection)
+        indexes = inspector.get_indexes('project_endpoint_group')
+        self.assertIn('idx_project_id', {x['name'] for x in indexes})
+
     def test_single_base_revision(self):
         """Ensure we only have a single base revision.
 
