@@ -156,7 +156,8 @@ create projects without an initial tag. This field can be set multiple times in
 order to set multiple default tags, for example:
 default_tag=tag_0
 default_tag=tag_1
-"""))
+"""),
+)
 
 notification_format = cfg.StrOpt(
     'notification_format',

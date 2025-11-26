@@ -33,4 +33,4 @@ def symptom_unreasonable_max_token_size():
     """
     # return 'fernet' in CONF.token.provider and CONF.max_token_size > 255
     # CCloud: we are using ldap, hence the max_token_size needs to go up.
-    return ('fernet' in CONF.token.provider and CONF.max_token_size > 268)
+    return 'fernet' in CONF.token.provider and CONF.max_token_size > 268

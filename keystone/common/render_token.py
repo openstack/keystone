@@ -97,11 +97,14 @@ def render_token_response_from_model(token, include_catalog=True):
         # ccloud: additional bootstrap project support
         bootstrap_name = CONF.resource.bootstrap_project_name
         bootstrap_domain_name = CONF.resource.bootstrap_project_domain_name
-        if bootstrap_name and bootstrap_domain_name and \
-                not token_reference['token'].get('is_admin_project', False):
+        if (
+            bootstrap_name
+            and bootstrap_domain_name
+            and not token_reference['token'].get('is_admin_project', False)
+        ):
             is_ap = (
-                token.project['name'] == bootstrap_name and
-                bootstrap_domain_name == token.project_domain['name']
+                token.project['name'] == bootstrap_name
+                and bootstrap_domain_name == token.project_domain['name']
             )
             token_reference['token']['is_admin_project'] = is_ap
     if include_catalog and not token.unscoped:

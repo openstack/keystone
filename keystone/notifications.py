@@ -948,7 +948,14 @@ class _CatalogHelperObj(provider_api.ProviderAPIMixin):
 
 
 def _send_audit_notification(
-    action, initiator, outcome, target, event_type, reason=None, attachments=None, **kwargs
+    action,
+    initiator,
+    outcome,
+    target,
+    event_type,
+    reason=None,
+    attachments=None,
+    **kwargs,
 ):
     """Send CADF notification to inform observers about the affected resource.
 

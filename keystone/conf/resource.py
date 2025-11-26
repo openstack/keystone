@@ -92,7 +92,7 @@ bootstrap_project_domain_name = cfg.StrOpt(
 Name of the domain that owns the `bootstrap_project_name`. If left unset, then
 there is no admin project. `[resource] bootstrap_project_name` must also be set
 to use this option.
-""")
+"""),
 )
 
 bootstrap_project_name = cfg.StrOpt(
@@ -105,7 +105,7 @@ assignments on that specific project should apply equally across every project.
 If left unset, then there is no admin project, and thus no explicit means of
 cross-project role assignments. `[resource] bootstrap_project_domain_name` must
 also be set to use this option.
-""")
+"""),
 )
 
 project_name_url_safe = cfg.StrOpt(

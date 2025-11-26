@@ -364,7 +364,13 @@ class BaseNotificationTest(test_v3.RestfulTestCase):
             self.assertEqual(actor_operation, note['actor_operation'])
 
     def _assert_last_audit(
-        self, resource_id, operation, resource_type, target_uri, reason=None, attachments=None
+        self,
+        resource_id,
+        operation,
+        resource_type,
+        target_uri,
+        reason=None,
+        attachments=None,
     ):
         # NOTE(stevemar): If 'cadf' format is not used, then simply
         # return since this assertion is not valid.

@@ -863,12 +863,9 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
                 tags.pop()
                 # add default tag instead
                 tags += _DEFAULT_TAG
-            ref = unit.new_project_ref(
-                domain_id=self.domain_id,
-                tags=tags)
+            ref = unit.new_project_ref(domain_id=self.domain_id, tags=tags)
         else:
-            ref = unit.new_project_without_tags_ref(
-                domain_id=self.domain_id)
+            ref = unit.new_project_without_tags_ref(domain_id=self.domain_id)
         resp = self.post('/projects', body={'project': ref})
         return resp.result['project'], tags
 
@@ -1400,36 +1397,46 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
     def test_list_projects_is_domain_filter_domain_scoped_token(self):
         """Call ``GET /projects?is_domain=True/False`` with domain scope."""
         # grant the domain role to user
-        path = '/domains/%s/users/%s/roles/%s' % (
-            self.domain_id, self.user['id'], self.role['id'])
+        path = '/domains/{}/users/{}/roles/{}'.format(
+            self.domain_id, self.user['id'], self.role['id']
+        )
         self.put(path=path)
 
         auth = self.build_authentication_request(
             user_id=self.user['id'],
             password=self.user['password'],
-            domain_id=self.domain_id)
+            domain_id=self.domain_id,
+        )
 
         # Check that listing the domains does not result in an empty list
         new_is_domain_project = unit.new_project_ref(is_domain=True)
         new_is_domain_project = PROVIDERS.resource_api.create_project(
-            new_is_domain_project['id'], new_is_domain_project)
+            new_is_domain_project['id'], new_is_domain_project
+        )
 
-        r = self.get('/projects?is_domain=True', auth=auth,
-                     expected_status=200)
-        self.assertIn(new_is_domain_project['id'],
-                      [p['id'] for p in r.result['projects']])
+        r = self.get(
+            '/projects?is_domain=True', auth=auth, expected_status=200
+        )
+        self.assertIn(
+            new_is_domain_project['id'],
+            [p['id'] for p in r.result['projects']],
+        )
 
         # Check that the projects are still being filtered
         # The previously created is_domain project is a domain, so
         # we can reuse it for the project
         new_regular_project = unit.new_project_ref(
-            is_domain=False, domain_id=new_is_domain_project['id'])
+            is_domain=False, domain_id=new_is_domain_project['id']
+        )
         new_regular_project = PROVIDERS.resource_api.create_project(
-            new_regular_project['id'], new_regular_project)
-        r = self.get('/projects?is_domain=False', auth=auth,
-                     expected_status=200)
-        self.assertNotIn(new_regular_project['id'],
-                         [p['id'] for p in r.result['projects']])
+            new_regular_project['id'], new_regular_project
+        )
+        r = self.get(
+            '/projects?is_domain=False', auth=auth, expected_status=200
+        )
+        self.assertNotIn(
+            new_regular_project['id'], [p['id'] for p in r.result['projects']]
+        )
 
     def test_list_project_is_domain_filter_default(self):
         """Default project list should not see projects acting as domains."""
@@ -1814,11 +1821,12 @@ class ResourceTestCase(test_v3.RestfulTestCase, test_v3.AssignmentTestMixin):
                 self.config_fixture.config(default_tag=config_setting)
             for tag_number in [0, 10]:
                 project, tags = self._create_project_and_tags(
-                    num_of_tags=tag_number, with_default_tag=True)
+                    num_of_tags=tag_number, with_default_tag=True
+                )
                 ref = self.get(
-                    '/projects/%(project_id)s' % {
-                        'project_id': project['id']},
-                    expected_status=http.client.OK)
+                    '/projects/{project_id}'.format(project_id=project['id']),
+                    expected_status=http.client.OK,
+                )
                 self.assertIn('tags', ref.result['project'])
                 for tag in tags:
                     self.assertIn(tag, ref.result['project']['tags'])

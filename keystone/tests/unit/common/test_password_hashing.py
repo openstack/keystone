@@ -91,6 +91,7 @@ class TestPasswordHashing(unit.BaseTestCase):
             hashed = password_hashing.hash_password(password)
             self.assertTrue(password_hashing.check_password(password, hashed))
 
+
 class TestGeneratePartialPasswordHash(unit.BaseTestCase):
     def setUp(self):
         super().setUp()

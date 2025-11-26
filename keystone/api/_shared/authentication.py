@@ -243,8 +243,10 @@ def authenticate_for_token(auth=None):
                     'after authenticating with application credentials'
                 )
                 raise exception.Unauthorized(
-                    _('Cannot reauthenticate with a token issued with '
-                      'application credentials')
+                    _(
+                        'Cannot reauthenticate with a token issued with '
+                        'application credentials'
+                    )
                 )
 
         # Do MFA Rule Validation for the user

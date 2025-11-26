@@ -195,7 +195,8 @@ class ProjectsResource(ks_flask.ResourceBase):
         # requested; otherwise all domains are getting filtered out
         try:
             is_domain_requested = utils.attr_as_boolean(
-                flask.request.args['is_domain'])
+                flask.request.args['is_domain']
+            )
         except KeyError:
             is_domain_requested = False
 
