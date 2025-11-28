@@ -1619,8 +1619,9 @@ class SecurityComplianceDoctorTests(unit.TestCase):
 class TokensDoctorTests(unit.TestCase):
     def test_unreasonable_max_token_size_raised(self):
         # Symptom Detected: the max_token_size for fernet is greater than 255
+        # ccloud: not 255, but 268
         self.config_fixture.config(group='token', provider='fernet')
-        self.config_fixture.config(max_token_size=256)
+        self.config_fixture.config(max_token_size=269)
         self.assertTrue(tokens.symptom_unreasonable_max_token_size())
 
     def test_unreasonable_max_token_size_not_raised(self):
@@ -1630,8 +1631,9 @@ class TokensDoctorTests(unit.TestCase):
         self.assertFalse(tokens.symptom_unreasonable_max_token_size())
 
         # No Symptom Detected: the max_token_size for fernet is 255 or less
+        # ccloud: not 255, but 268
         self.config_fixture.config(group='token', provider='fernet')
-        self.config_fixture.config(max_token_size=255)
+        self.config_fixture.config(max_token_size=268)
         self.assertFalse(tokens.symptom_unreasonable_max_token_size())
 
 

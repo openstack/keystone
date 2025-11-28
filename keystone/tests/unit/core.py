@@ -304,6 +304,12 @@ def new_project_ref(domain_id=None, is_domain=False, **kwargs):
     return ref
 
 
+def new_project_without_tags_ref(domain_id=None, is_domain=False, **kwargs):
+    ref = new_project_ref(domain_id=domain_id, is_domain=is_domain, **kwargs)
+    ref.pop('tags')
+    return ref
+
+
 def new_user_ref(domain_id, project_id=None, **kwargs):
     ref = {
         'id': uuid.uuid4().hex,

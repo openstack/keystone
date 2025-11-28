@@ -77,6 +77,9 @@ DOMAIN_MANAGER_ALLOWED_ROLES = (
 
 rules = [
     policy.RuleDefault(
+        name='cloud_admin', check_str='role:admin and is_admin_project:True'
+    ),
+    policy.RuleDefault(
         name='admin_required', check_str='role:admin or is_admin:1'
     ),
     policy.RuleDefault(name='service_role', check_str='role:service'),

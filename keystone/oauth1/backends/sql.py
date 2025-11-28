@@ -207,7 +207,7 @@ class OAuth1(base.Oauth1DriverBase):
             token_dict['authorizing_user_id'] = user_id
             token_dict['verifier'] = ''.join(
                 random.sample(base.VERIFIER_CHARS, 8)
-            )
+            )  # nosec
             token_dict['role_ids'] = jsonutils.dumps(role_ids)
 
             new_token = RequestToken.from_dict(token_dict)

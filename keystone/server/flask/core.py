@@ -25,10 +25,15 @@ except ImportError:
 
 from keystone.common import profiler
 import keystone.conf
+from keystone import exception
 import keystone.server
 from keystone.server.flask import application
 from keystone.server.flask.request_processing.middleware import auth_context
 from keystone.server.flask.request_processing.middleware import url_normalize
+
+# CCloud
+import logging
+from raven.contrib.flask import Sentry
 
 # NOTE(morgan): Middleware Named Tuple with the following values:
 #   * "namespace": namespace for the entry_point
@@ -62,6 +67,32 @@ _APP_MIDDLEWARE = (
     _Middleware(
         namespace='keystone.server_middleware', ep='request_id', conf={}
     ),
+)
+
+# ccloud: additional ccloud specific middleware that needs to sit 'behind' the
+# AuthContextMiddleware
+_CC_MIDDLEWARE = (
+    # CCloud: add watcher middleware
+    _Middleware(
+        namespace='watcher.middleware',
+        ep='watcher',
+        conf={
+            'service_type': 'identity',
+            'config_file': '/etc/keystone/watcher.yaml',
+            'include_initiator_user_id_in_metric': 'true',
+            'include_target_project_id_in_metric': 'false',
+        },
+    ),
+    # CCloud: add lifesaver middleware
+    _Middleware(namespace='lifesaver.middleware', ep='lifesaver', conf={}),
+    # CCloud: add rate_limit middleware
+    # _Middleware(namespace='rate_limit.middleware',
+    #             ep='rate-limit',
+    #             conf={'config_file': '/etc/keystone/ratelimit.yaml',
+    #                   'service_type': 'identity',
+    #                   'rate_limit_by': 'initiator_project_id',
+    #                   'backend_host': 'keystone-sapcc-rate-limit',
+    #                   'backend_timeout_seconds': '1'}),
 )
 
 # NOTE(morgan): ORDER HERE IS IMPORTANT! Each of these middlewares are
@@ -103,6 +134,8 @@ def setup_app_middleware(app):
 
     MW = _APP_MIDDLEWARE
     IMW = _KEYSTONE_MIDDLEWARE
+    # ccloud
+    CMW = _CC_MIDDLEWARE
 
     # Add in optional (config-based) middleware
     # NOTE(morgan): Each of these may need to be in a specific location
@@ -114,6 +147,18 @@ def setup_app_middleware(app):
                 namespace='keystone.server_middleware', ep='debug', conf={}
             ),
         ) + _APP_MIDDLEWARE
+
+    # Apply ccloud Middleware. Need to sit 'behind' the AuthContextMiddleware
+    for mw in reversed(CMW):
+        # CCloud: optionally skip the watcher middleware (like in unit-tests)
+        if mw.ep == 'watcher' and os.environ.get('WATCHER_DISABLED', None):
+            continue
+
+        loaded = stevedore.DriverManager(
+            mw.namespace, mw.ep, invoke_on_load=False
+        )
+        factory_func = loaded.driver.factory({}, **mw.conf)
+        app.wsgi_app = factory_func(app.wsgi_app)
 
     # Apply internal-only Middleware (e.g. AuthContextMiddleware). These
     # are below all externally loaded middleware in request processing.
@@ -145,6 +190,36 @@ def setup_app_middleware(app):
 
     # Apply werkzeug specific middleware
     app.wsgi_app = proxy_fix.ProxyFix(app.wsgi_app)
+
+    # CCloud
+    if os.environ.get('SENTRY_DSN', None):
+        processors = (
+            'raven.processors.SanitizePasswordsProcessor',
+            'raven.processors.SanitizeKeysProcessor',
+            'raven.processors.RemovePostDataProcessor',
+        )
+        sanitize_keys = [
+            'old_password',
+            'new_password',
+            'password',
+            'cred',
+            'secret',
+            'passwd',
+            'credentials',
+        ]
+        app.config['SENTRY_CONFIG'] = {
+            'ignore_exceptions': [
+                exception.NotFound,
+                exception.Unauthorized,
+                'INVALID_CREDENTIALS',
+            ],
+            'processors': processors,
+            'sanitize_keys': sanitize_keys,
+        }
+
+        sentry = Sentry()
+        sentry.init_app(app, logging=True, level=logging.ERROR)
+
     return app
 
 

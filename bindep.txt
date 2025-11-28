@@ -37,3 +37,9 @@ openldap2-devel [platform:suse]
 
 # Required for sphinx graphviz image generation
 graphviz [test doc]
+
+# otherwise, it fails to build psycopg2, python-ldap
+build-essential [test]
+
+# otherwise, it fails to recognize pbr version
+git [test]

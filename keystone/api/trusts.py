@@ -224,7 +224,9 @@ class TrustsResource(TrustResourceBase):
             )
             if not flask.request.args:
                 # NOTE(morgan): Admin can list all trusts.
-                ENFORCER.enforce_call(action='admin_required')
+                # ENFORCER.enforce_call(action='admin_required')
+                # ccloud: only allow cloud-admins to list all trusts
+                ENFORCER.enforce_call(action='cloud_admin')
 
         if not flask.request.args:
             trusts += PROVIDERS.trust_api.list_trusts()

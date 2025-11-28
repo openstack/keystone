@@ -70,6 +70,9 @@ class Error(Exception, metaclass=_KeystoneExceptionMeta):
     code: ty.Optional[int] = None
     title: ty.Optional[str] = None
     message_format: ty.Optional[str] = None
+    # ccloud: keep the original message for logging, regardless of
+    # insecure_debug setting
+    message = None
 
     def __init__(self, message=None, **kwargs):
         try:
@@ -297,6 +300,11 @@ class SecurityError(Error):
 
     def _build_message(self, message, **kwargs):
         """Only returns detailed messages in insecure_debug mode."""
+        # ccloud: always keep original message for logging, regardless of
+        # insecure_debug setting
+        if message:
+            self.message = message
+
         if message and CONF.insecure_debug:
             if isinstance(message, str):
                 # Only do replacement if message is string. The message is

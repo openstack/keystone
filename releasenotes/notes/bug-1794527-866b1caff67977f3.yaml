@@ -18,4 +18,4 @@ features:
     the old one, and having spurious failures, or undesirecd domain_id
     matching.
 
-    https://specs.openstack.org/openstack/keystone-specs/specs/keystone/stein/explicit-domains-ids.html
+    https://specs.openstack.org/openstack/keystone-specs/specs/keystone/train/explicit-domains-ids.html

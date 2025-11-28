@@ -317,7 +317,8 @@ class AuthContextMiddleware(
                 'Cannot find client issuer in env by the '
                 'issuer attribute - %s.'
             )
-            LOG.info(msg, CONF.tokenless_auth.issuer_attribute)
+            # ccloud: this is only relevant for debug sessions
+            LOG.debug(msg, CONF.tokenless_auth.issuer_attribute)
             return False
 
         if issuer in CONF.tokenless_auth.trusted_issuer:
