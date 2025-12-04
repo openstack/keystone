@@ -132,8 +132,9 @@ class Identity(base.IdentityDriverBase):
     def _rehash_password(self, user_id, password):
         with sql.session_for_write() as session:
             user_ref = session.get(model.User, user_id)
-            user_ref.password_ref.password_hash = \
+            user_ref.password_ref.password_hash = (
                 password_hashing.hash_password(password)
+            )
 
     # user crud
 

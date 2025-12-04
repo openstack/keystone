@@ -18,6 +18,7 @@ import hmac
 import itertools
 
 from oslo_log import log
+import passlib.hash
 
 from keystone.common import password_hashers
 from keystone.common.password_hashers import bcrypt
@@ -38,8 +39,9 @@ SUPPORTED_HASHERS: frozenset[type[password_hashers.PasswordHasher]] = (
 
 DEPRECATED_HASHERS = frozenset([passlib.hash.sha512_crypt])
 
-_HASHER_NAME_MAP = {hasher.name: hasher for hasher in
-                    SUPPORTED_HASHERS | DEPRECATED_HASHERS}
+_HASHER_NAME_MAP = {
+    hasher.name: hasher for hasher in SUPPORTED_HASHERS | DEPRECATED_HASHERS
+}
 
 
 # NOTE(notmorgan): Build the list of prefixes. This comprehension builds
@@ -66,7 +68,9 @@ _HASHER_IDENT_MAP = {
     for module, prefix in itertools.chain(
         *[
             zip([mod] * len(ident), ident)
-            for mod, ident in _get_hash_ident(SUPPORTED_HASHERS | DEPRECATED_HASHERS)
+            for mod, ident in _get_hash_ident(
+                SUPPORTED_HASHERS | DEPRECATED_HASHERS
+            )
         ]
     )
 }
