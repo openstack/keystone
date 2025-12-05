@@ -53,6 +53,16 @@ class RevocationEvent(sql.ModelBase, sql.ModelDictMixin):
             'audit_id',
             'issued_before',
         ),
+        sql.Index(
+            'ix_revocation_event_project_id_user_id', 'project_id', 'user_id'
+        ),
+        sql.Index(
+            'ix_revocation_event_composite',
+            'issued_before',
+            'user_id',
+            'project_id',
+            'audit_id',
+        ),
     )
 
 
