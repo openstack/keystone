@@ -19,6 +19,7 @@ import oslo_messaging
 from oslo_middleware import cors
 from osprofiler import opts as profiler
 
+from keystone.conf import api
 from keystone.conf import application_credential
 from keystone.conf import assignment
 from keystone.conf import auth
@@ -54,8 +55,8 @@ from keystone.conf import wsgi
 
 CONF = cfg.CONF
 
-
 conf_modules = [
+    api,
     application_credential,
     assignment,
     auth,
@@ -89,7 +90,6 @@ conf_modules = [
     unified_limit,
     wsgi,
 ]
-
 
 oslo_messaging.set_transport_defaults(control_exchange='keystone')
 
