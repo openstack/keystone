@@ -16,6 +16,7 @@ import functools
 import typing as ty
 
 import flask
+from oslo_log import log
 from oslo_serialization import jsonutils
 
 from keystone.api.validation import validators
@@ -23,6 +24,7 @@ import keystone.conf
 from keystone import exception
 
 CONF = keystone.conf.CONF
+LOG = log.getLogger(__name__)
 
 
 def validated(cls):
