@@ -37,7 +37,7 @@ EXPAND_BRANCH = 'expand'
 DATA_MIGRATION_BRANCH = 'data_migration'
 CONTRACT_BRANCH = 'contract'
 
-RELEASES = ('yoga', 'bobcat', '2024.01', '2025.02')
+RELEASES = ('yoga', 'bobcat', '2024.1', '2025.2')
 MILESTONES = (
     'yoga',
     # Do not add the milestone until the end of the release
