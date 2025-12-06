@@ -909,34 +909,7 @@ class SystemMemberTests(
             )
 
 
-class SystemAdminTests(
-    base_classes.TestCaseWithBootstrap,
-    common_auth.AuthTestMixin,
-    _UserCredentialTests,
-    _SystemUserCredentialTests,
-):
-    def setUp(self):
-        super().setUp()
-        self.loadapp()
-        self.useFixture(ksfixtures.Policy(self.config_fixture))
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
-
-        # Reuse the system administrator account created during
-        # ``keystone-manage bootstrap``
-        self.user_id = self.bootstrapper.admin_user_id
-        auth = self.build_authentication_request(
-            user_id=self.user_id,
-            password=self.bootstrapper.admin_password,
-            system=True,
-        )
-
-        # Grab a token using the persona we're testing and prepare headers
-        # for requests we'll be making in the tests.
-        with self.test_client() as c:
-            r = c.post('/v3/auth/tokens', json=auth)
-            self.token_id = r.headers['X-Subject-Token']
-            self.headers = {'X-Auth-Token': self.token_id}
-
+class _AdminCredentialTests:
     def test_user_can_create_credentials_for_other_users(self):
         user = PROVIDERS.identity_api.create_user(
             unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
@@ -1052,6 +1025,36 @@ class SystemAdminTests(
             )
 
 
+class SystemAdminTests(
+    base_classes.TestCaseWithBootstrap,
+    common_auth.AuthTestMixin,
+    _UserCredentialTests,
+    _SystemUserCredentialTests,
+    _AdminCredentialTests,
+):
+    def setUp(self):
+        super().setUp()
+        self.loadapp()
+        self.useFixture(ksfixtures.Policy(self.config_fixture))
+        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
+
+        # Reuse the system administrator account created during
+        # ``keystone-manage bootstrap``
+        self.user_id = self.bootstrapper.admin_user_id
+        auth = self.build_authentication_request(
+            user_id=self.user_id,
+            password=self.bootstrapper.admin_password,
+            system=True,
+        )
+
+        # Grab a token using the persona we're testing and prepare headers
+        # for requests we'll be making in the tests.
+        with self.test_client() as c:
+            r = c.post('/v3/auth/tokens', json=auth)
+            self.token_id = r.headers['X-Subject-Token']
+            self.headers = {'X-Auth-Token': self.token_id}
+
+
 class ProjectReaderTests(
     base_classes.TestCaseWithBootstrap,
     common_auth.AuthTestMixin,
@@ -1140,7 +1143,7 @@ class ProjectAdminTests(
     base_classes.TestCaseWithBootstrap,
     common_auth.AuthTestMixin,
     _UserCredentialTests,
-    _ProjectUsersTests,
+    _AdminCredentialTests,
 ):
     def setUp(self):
         super().setUp()
