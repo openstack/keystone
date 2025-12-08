@@ -47,3 +47,4 @@ etc/keystone.policy.yaml.sample
 
 # openapi specs in the api-ref are built dynamically
 api-ref/source/openapi/v*.yaml
+/wrk
