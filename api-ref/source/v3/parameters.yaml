@@ -935,6 +935,13 @@ endpoint:
   in: body
   required: true
   type: object
+endpoint_description:
+  description: |
+    The endpoint description. It is returned only when set on the
+    resource.
+  in: body
+  required: false
+  type: string
 endpoint_enabled:
   description: |
     Indicates whether the endpoint appears in the

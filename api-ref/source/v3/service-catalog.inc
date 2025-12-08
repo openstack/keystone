@@ -338,6 +338,7 @@ Parameters
    - endpoints: endpoints
    - id: endpoint_id
    - name: endpoint_name
+   - description: endpoint_description
 
 Status Codes
 ~~~~~~~~~~~~
@@ -383,6 +384,7 @@ Parameters
    - service_id: service_id
    - region_id: region_id_not_required
    - name: endpoint_name
+   - description: endpoint_description
 
 Example
 ~~~~~~~
@@ -408,6 +410,7 @@ Parameters
    - id: endpoint_id
    - name: endpoint_name
    - region_id: region_id_required
+   - description: endpoint_description
 
 Status Codes
 ~~~~~~~~~~~~
@@ -458,6 +461,7 @@ Parameters
    - region: endpoint_region
    - interface: endpoint_interface
    - service_id: service_id
+   - description: endpoint_description
 
 Status Codes
 ~~~~~~~~~~~~
@@ -504,6 +508,7 @@ Parameters
    - service_id: service_id
    - endpoint_id: endpoint_id_path
    - name: endpoint_name
+   - description: endpoint_description
 
 Example
 ~~~~~~~
@@ -527,6 +532,7 @@ Parameters
    - interface: endpoint_interface
    - name: endpoint_name
    - service_id: service_id
+   - description: endpoint_description
 
 Status Codes
 ~~~~~~~~~~~~
