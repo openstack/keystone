@@ -978,9 +978,14 @@ endpoint_links:
   type: object
 endpoint_name:
   description: |
-    The endpoint name.
+    (Deprecated) The endpoint name. The field will only be returned in responses
+    when set on the resource.
+
+    This field is deprecated as it provides no value. Endpoints are better
+    described by the combination of service, region and interface they describe
+    or by their ID.
   in: body
-  required: true
+  required: false
   type: string
 endpoint_region:
   description: |
