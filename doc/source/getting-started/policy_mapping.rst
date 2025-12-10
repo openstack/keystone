@@ -246,7 +246,7 @@ identity:get_access_rule                                   GET /v3/users/{user_i
 identity:list_access_rules                                 GET /v3/users/{user_id}/access_rules
 identity:delete_access_rule                                DELETE /v3/users/{user_id}/access_rules/{access_rule_id}
 identity:s3tokens_validate                                 POST /v3/s3tokens
-identity:ec2tokens_validate                                POST /v3/es2tokens
+identity:ec2tokens_validate                                POST /v3/ec2tokens
 
 =========================================================  ===
 
