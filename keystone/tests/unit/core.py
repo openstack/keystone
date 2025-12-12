@@ -925,6 +925,8 @@ class TestCase(BaseTestCase):
         # allowed in the `[identity] password_hash_rounds` setting
         self.config_fixture.config(group='identity', password_hash_rounds=4)
 
+        self.config_fixture.config(group='api', response_validation='error')
+
         self.useFixture(
             ksfixtures.KeyRepository(
                 self.config_fixture,
