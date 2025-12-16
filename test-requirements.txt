@@ -17,7 +17,6 @@ oslotest>=3.2.0 # Apache-2.0
 # test wsgi apps without starting an http server
 WebTest>=2.0.27 # MIT
 testtools>=2.2.0 # MIT
-tempest>=17.1.0 # Apache-2.0
 
 # Functional tests.
 requests>=2.14.2 # Apache-2.0
