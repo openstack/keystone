@@ -1,4 +1,4 @@
-hacking
+hacking~=6.1.0 # Apache-2.0
 stestr>=1.0.0 # Apache-2.0
 freezegun>=0.3.6 # Apache-2.0
 
