@@ -207,7 +207,7 @@ domain_schema: dict[str, Any] = {
         "links": response_types.resource_links,
         **_domain_properties,
     },
-    "additionalProperties": False,
+    "additionalProperties": True,
 }
 
 domain_get_response_body: dict[str, Any] = {
@@ -278,6 +278,7 @@ domain_create_request_body: dict[str, Any] = {
                 },
                 **_domain_properties,
             },
+            "additionalProperties": True,
             "required": ["name"],
         }
     },
