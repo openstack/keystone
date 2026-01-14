@@ -78,7 +78,14 @@ class LimitsResource(ks_flask.ResourceBase):
         hints = self.build_driver_hints(filters)
 
         filtered_refs = []
-        if self.oslo_context.system_scope:
+
+        superuser = (
+            self.oslo_context.system_scope
+            or ('admin' in self.oslo_context.roles)
+            or ('service' in self.oslo_context.roles)
+        )
+
+        if superuser:
             refs = PROVIDERS.unified_limit_api.list_limits(hints)
             filtered_refs = refs
         elif self.oslo_context.domain_id:

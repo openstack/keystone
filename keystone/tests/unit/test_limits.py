@@ -678,9 +678,27 @@ class LimitsTestCase(test_v3.RestfulTestCase):
         member_role = PROVIDERS.role_api.create_role(
             member_role['id'], member_role
         )
+        self.member_role_id = member_role['id']
         PROVIDERS.role_api.create_implied_role(self.role_id, member_role['id'])
         PROVIDERS.role_api.create_implied_role(
             member_role['id'], reader_role['id']
+        )
+
+        # Create a user with member role for testing non-admin scenarios
+        self.member_user = unit.create_user(
+            PROVIDERS.identity_api, domain_id=self.domain_id
+        )
+        self.member_user_id = self.member_user['id']
+        PROVIDERS.assignment_api.create_grant(
+            self.member_role_id,
+            user_id=self.member_user_id,
+            domain_id=self.domain_id,
+        )
+        # Also grant member role on project for project-scoped token tests
+        PROVIDERS.assignment_api.create_grant(
+            self.member_role_id,
+            user_id=self.member_user_id,
+            project_id=self.project_id,
         )
 
         # Most of these tests require system-scoped tokens. Let's have one on
@@ -760,6 +778,12 @@ class LimitsTestCase(test_v3.RestfulTestCase):
         )
         PROVIDERS.assignment_api.create_system_grant_for_user(
             self.user_id, self.role_id
+        )
+        # Grant member_user access to project_2 for testing
+        PROVIDERS.assignment_api.create_grant(
+            self.member_role_id,
+            user_id=self.member_user_id,
+            project_id=self.project_2_id,
         )
 
     def test_create_project_limit(self):
@@ -1154,7 +1178,15 @@ class LimitsTestCase(test_v3.RestfulTestCase):
         )
 
         # non system scoped request will get the limits in its project.
-        r = self.get('/limits', expected_status=http.client.OK)
+        r = self.get(
+            '/limits',
+            expected_status=http.client.OK,
+            auth=self.build_authentication_request(
+                user_id=self.member_user['id'],
+                password=self.member_user['password'],
+                project_id=self.project_id,
+            ),
+        )
         limits = r.result['limits']
         self.assertEqual(1, len(limits))
         self.assertEqual(self.project_id, limits[0]['project_id'])
@@ -1163,8 +1195,8 @@ class LimitsTestCase(test_v3.RestfulTestCase):
             '/limits',
             expected_status=http.client.OK,
             auth=self.build_authentication_request(
-                user_id=self.user['id'],
-                password=self.user['password'],
+                user_id=self.member_user['id'],
+                password=self.member_user['password'],
                 project_id=self.project_2_id,
             ),
         )
@@ -1176,6 +1208,11 @@ class LimitsTestCase(test_v3.RestfulTestCase):
         r = self.get(
             f'/limits?project_id={self.project_id}',
             expected_status=http.client.OK,
+            auth=self.build_authentication_request(
+                user_id=self.member_user['id'],
+                password=self.member_user['password'],
+                project_id=self.project_id,
+            ),
         )
         limits = r.result['limits']
         self.assertEqual(1, len(limits))
@@ -1216,8 +1253,8 @@ class LimitsTestCase(test_v3.RestfulTestCase):
             '/limits',
             expected_status=http.client.OK,
             auth=self.build_authentication_request(
-                user_id=self.user['id'],
-                password=self.user['password'],
+                user_id=self.member_user['id'],
+                password=self.member_user['password'],
                 domain_id=self.domain_id,
             ),
         )
@@ -1243,6 +1280,11 @@ class LimitsTestCase(test_v3.RestfulTestCase):
         r = self.get(
             f'/limits?domain_id={self.domain_id}',
             expected_status=http.client.OK,
+            auth=self.build_authentication_request(
+                user_id=self.member_user['id'],
+                password=self.member_user['password'],
+                project_id=self.project_id,
+            ),
         )
         limits = r.result['limits']
         self.assertEqual(0, len(limits))

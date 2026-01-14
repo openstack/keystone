@@ -1,0 +1,5 @@
+---
+fixes:
+  - |
+    Fixed Bug #2137711:  Updated the hard-coded policy for GET /v3/limits
+    to allow unfiltered access for project-admin and service users.
