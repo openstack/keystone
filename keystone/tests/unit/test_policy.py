@@ -15,6 +15,7 @@
 
 import os
 import subprocess
+import sys
 from unittest import mock
 import uuid
 
@@ -281,10 +282,13 @@ class GeneratePolicyFileTestCase(unit.TestCase):
         # This test ensures keystone.common.policy:get_enforcer ignores
         # unexpected arguments before handing them off to oslo.config, which
         # will fail and prevent users from generating policy files.
+        env = os.environ.copy()
+        env['PYTHONPATH'] = ':'.join(sys.path)
         ret_val = subprocess.Popen(
             ['oslopolicy-policy-generator', '--namespace', 'keystone'],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
+            env=env,
         )
         output = ret_val.communicate()
         self.assertEqual(ret_val.returncode, 0, output)
