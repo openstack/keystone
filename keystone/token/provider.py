@@ -234,9 +234,9 @@ class Manager(manager.Manager):
                 user = PROVIDERS.identity_api.get_user(token.user_id)
 
                 if user and not user.get('enabled'):
-                    LOG.warn(
-                        'Unable to validate token because user '
-                        f' {token.user_id} is disabled'
+                    LOG.warning(
+                        'Unable to validate token because user %s is deleted',
+                        token.user_id,
                     )
                     raise exception.UserDisabled(user_id=token.user_id)
 
