@@ -147,7 +147,7 @@ rules.
    By default, group memberships that a user gets from a mapping are only valid
    for the duration of the token. It is possible to persist these groups
    memberships for a limited period of time. To enable this, either
-   set the ``authorization_ttl` attribute of the identity provider, or the
+   set the ``authorization_ttl`` attribute of the identity provider, or the
    ``[federation] default_authorization_ttl`` in the keystone.conf file. This
    value is in minutes, and will result in a lag from when a user is removed
    from a group in the identity provider, and when that will happen in keystone.
