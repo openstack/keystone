@@ -49,7 +49,6 @@
 - job:
     name: keystone-tempest-federation
     parent: keystone-tempest
-    nodeset: openstack-single-node-jammy
     vars:
       devstack_localrc:
         TEMPEST_PLUGINS: "/opt/stack/keystone-tempest-plugin"
