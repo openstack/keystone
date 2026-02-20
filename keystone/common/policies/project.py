@@ -17,7 +17,8 @@ from keystone.common.policies import base
 
 SYSTEM_READER_OR_DOMAIN_READER_OR_PROJECT_USER = (
     '(' + base.SYSTEM_READER + ') or '
-    '(role:reader and domain_id:%(target.project.domain_id)s) or '
+    '(role:reader and domain_id:%(target.project.domain_id)s and '
+    'not None:%(target.project.domain_id)s) or '
     'project_id:%(target.project.id)s'
 )
 ADMIN_OR_SYSTEM_READER_OR_DOMAIN_READER_OR_PROJECT_USER = (
@@ -29,7 +30,8 @@ ADMIN_OR_SYSTEM_READER_OR_DOMAIN_READER_OR_PROJECT_USER = (
 
 SYSTEM_ADMIN_OR_DOMAIN_ADMIN_OR_PROJECT_ADMIN = (
     '(' + base.SYSTEM_ADMIN + ') or '
-    '(role:admin and domain_id:%(target.project.domain_id)s) or '
+    '(role:admin and domain_id:%(target.project.domain_id)s and '
+    'not None:%(target.project.domain_id)s) or '
     '(role:admin and project_id:%(target.project.id)s)'
 )
 
@@ -65,7 +67,8 @@ ADMIN_OR_SYSTEM_READER_OR_DOMAIN_READER = (
 
 ADMIN_OR_DOMAIN_MANAGER = (
     '(' + base.RULE_ADMIN_REQUIRED + ') or '
-    '(role:manager and domain_id:%(target.project.domain_id)s)'
+    '(role:manager and domain_id:%(target.project.domain_id)s and '
+    'not None:%(target.project.domain_id)s)'
 )
 
 DEPRECATED_REASON = (
