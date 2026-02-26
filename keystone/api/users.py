@@ -423,6 +423,8 @@ class UserOSEC2CredentialsResourceListCreate(_UserOSEC2CredBaseResource):
         ENFORCER.enforce_call(
             action='identity:ec2_create_credential', target_attr=target
         )
+        token = self.auth_context['token']
+        _check_unrestricted_application_credential(token)
         PROVIDERS.identity_api.get_user(user_id)
         tenant_id = self.request_body_json.get('tenant_id')
         PROVIDERS.resource_api.get_project(tenant_id)
