@@ -62,6 +62,10 @@ ADMIN_OR_SYSTEM_READER_OR_CRED_OWNER = (
 ADMIN_OR_CRED_OWNER = (
     '(' + RULE_ADMIN_REQUIRED + ') or user_id:%(target.credential.user_id)s'
 )
+ADMIN_OR_MEMBER_AND_CRED_OWNER = (
+    '(' + RULE_ADMIN_REQUIRED + ') or '
+    '(role:member and user_id:%(target.credential.user_id)s)'
+)
 
 # This rule template is meant for restricting role assignments done by domain
 # managers. It is intended to restrict the roles a domain manager can assign or
