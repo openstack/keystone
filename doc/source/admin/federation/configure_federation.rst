@@ -506,10 +506,227 @@ Remember to restart the web server when finished configuring horizon:
 Authenticating
 --------------
 
+Use the CLI to authenticate with an OpenID Connect Identity Provider
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``python-openstackclient`` can be used to authenticate a federated user
+with an OpenID Connect Identity Provider to keystone. There are several
+authentication plugins available depending on your use case:
+
+* ``v3oidcpassword``: Resource Owner Password Credentials flow - authenticate
+  with username and password directly to the Identity Provider
+* ``v3oidcclientcredentials``: Client Credentials flow - authenticate using
+  OAuth 2.0 client credentials (service accounts)
+* ``v3oidcaccesstoken``: Access Token flow - authenticate using a pre-obtained
+  access token
+* ``v3oidcauthcode``: Authorization Code flow - authenticate using an OAuth 2.0
+  authorization code obtained via browser redirect
+* ``v3oidcdeviceauthz``: Device Authorization flow (RFC 8628) - authenticate
+  using the device authorization grant for devices with limited input capability
+
+To use any of these plugins, you must have:
+
+* The name of the Identity Provider resource in keystone (configured in
+  `Create an Identity Provider`_)
+* The name of the federation protocol configured in keystone (configured in
+  `Create a Protocol`_)
+* The OIDC client credentials (client ID and client secret) registered with
+  your Identity Provider
+* The discovery endpoint URL for your Identity Provider
+
+The discovery endpoint can be found at a well-known location for most OpenID
+Connect providers:
+
+.. code-block:: console
+
+   $ curl -s https://keycloak.example.org/auth/realms/myrealm/.well-known/openid-configuration | python3 -m json.tool
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+v3oidcpassword - Resource Owner Password Flow
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This flow allows direct authentication with username and password. It is the
+simplest flow but requires the client to handle user credentials directly.
+
+.. code-block:: bash
+
+   export OS_AUTH_TYPE=v3oidcpassword
+   export OS_AUTH_URL=https://sp.keystone.example.org/v3
+   export OS_IDENTITY_API_VERSION=3
+   export OS_IDENTITY_PROVIDER=myidp
+   export OS_PROTOCOL=openid
+   export OS_CLIENT_ID=keystone
+   export OS_CLIENT_SECRET=your-client-secret
+   export OS_USERNAME=myuser
+   export OS_PASSWORD=mypassword
+   export OS_DISCOVERY_ENDPOINT=https://idp.example.org/.well-known/openid-configuration
+   openstack token issue
+
+To get a scoped token:
+
+.. code-block:: bash
+
+   export OS_PROJECT_NAME=myproject
+   export OS_PROJECT_DOMAIN_NAME=Default
+   openstack token issue
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+v3oidcclientcredentials - Client Credentials Flow
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This flow is used for service-to-service authentication where no user context
+is required. The client authenticates using its own credentials (client ID and
+secret) rather than user credentials.
+
+.. note::
+
+   The Identity Provider must have Service Accounts enabled for the OIDC client
+   to use this flow.
+
+.. code-block:: bash
+
+   export OS_AUTH_TYPE=v3oidcclientcredentials
+   export OS_AUTH_URL=https://sp.keystone.example.org/v3
+   export OS_IDENTITY_API_VERSION=3
+   export OS_IDENTITY_PROVIDER=myidp
+   export OS_PROTOCOL=openid
+   export OS_CLIENT_ID=keystone
+   export OS_CLIENT_SECRET=your-client-secret
+   export OS_DISCOVERY_ENDPOINT=https://idp.example.org/.well-known/openid-configuration
+   openstack token issue
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+v3oidcaccesstoken - Access Token Flow
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This flow allows you to use a pre-obtained access token to authenticate.
+This is useful when you have already obtained an access token through another
+mechanism (e.g., a web application or another OAuth 2.0 flow).
+
+First, obtain an access token from your Identity Provider:
+
+.. code-block:: bash
+
+   ACCESS_TOKEN=$(curl -s -X POST \
+     "https://idp.example.org/auth/realms/myrealm/protocol/openid-connect/token" \
+     -H "Content-Type: application/x-www-form-urlencoded" \
+     -d "grant_type=password" \
+     -d "client_id=keystone" \
+     -d "client_secret=your-client-secret" \
+     -d "username=myuser" \
+     -d "password=mypassword" \
+     -d "scope=openid profile email" | python3 -c "import sys,json; print(json.load(sys.stdin)['access_token'])")
+
+Then use the access token to authenticate to keystone:
+
+.. code-block:: bash
+
+   export OS_AUTH_TYPE=v3oidcaccesstoken
+   export OS_AUTH_URL=https://sp.keystone.example.org/v3
+   export OS_IDENTITY_API_VERSION=3
+   export OS_IDENTITY_PROVIDER=myidp
+   export OS_PROTOCOL=openid
+   export OS_ACCESS_TOKEN=$ACCESS_TOKEN
+   openstack token issue
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+v3oidcauthcode - Authorization Code Flow
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This flow is the standard OAuth 2.0 authorization code flow, typically used
+in web applications. It requires obtaining an authorization code through a
+browser-based redirect flow, then exchanging it for tokens.
+
+First, obtain an authorization code by directing a user to the authorization
+endpoint. The authorization code will be returned to the redirect URI:
+
+.. code-block:: text
+
+   https://idp.example.org/auth/realms/myrealm/protocol/openid-connect/auth?
+     client_id=keystone&
+     redirect_uri=https://sp.keystone.example.org/v3/redirect_uri&
+     response_type=code&
+     scope=openid%20profile%20email&
+     state=random_state
+
+After the user authenticates, the Identity Provider will redirect to the
+redirect URI with the authorization code as a query parameter.
+
+Then use the authorization code to authenticate:
+
+.. code-block:: bash
+
+   export OS_AUTH_TYPE=v3oidcauthcode
+   export OS_AUTH_URL=https://sp.keystone.example.org/v3
+   export OS_IDENTITY_API_VERSION=3
+   export OS_IDENTITY_PROVIDER=myidp
+   export OS_PROTOCOL=openid
+   export OS_CLIENT_ID=keystone
+   export OS_CLIENT_SECRET=your-client-secret
+   export OS_DISCOVERY_ENDPOINT=https://idp.example.org/.well-known/openid-configuration
+   export OS_REDIRECT_URI=https://sp.keystone.example.org/v3/redirect_uri
+   export OS_CODE=your-authorization-code
+   openstack token issue
+
+.. note::
+
+   The redirect URI must be registered with the Identity Provider and must
+   exactly match the value configured in the OIDC client settings.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+v3oidcdeviceauthz - Device Authorization Flow
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+This flow (RFC 8628) is designed for devices with limited input capability,
+such as smart TVs, IoT devices, or CLI tools. The user authenticates on a
+separate device with a browser.
+
+.. note::
+
+   This plugin requires keystoneauth1 version 5.2.0 or later and Python 3.10+.
+   The Identity Provider must have Device Authorization Grant enabled for the
+   OIDC client.
+
+.. code-block:: bash
+
+   export OS_AUTH_TYPE=v3oidcdeviceauthz
+   export OS_AUTH_URL=https://sp.keystone.example.org/v3
+   export OS_IDENTITY_API_VERSION=3
+   export OS_IDENTITY_PROVIDER=myidp
+   export OS_PROTOCOL=openid
+   export OS_CLIENT_ID=keystone
+   export OS_CLIENT_SECRET=your-client-secret
+   export OS_DISCOVERY_ENDPOINT=https://idp.example.org/.well-known/openid-configuration
+   openstack token issue
+
+The command will display a verification URL and a user code. Open the URL in
+a browser on any device, enter the user code, and authenticate. The CLI will
+poll the Identity Provider and complete authentication once the user has
+authorized the request.
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Find available scopes (OpenID Connect)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To list the projects or domains you have access to with OpenID Connect:
+
+.. code-block:: bash
+
+   export OS_AUTH_TYPE=v3oidcpassword
+   export OS_AUTH_URL=https://sp.keystone.example.org/v3
+   export OS_IDENTITY_API_VERSION=3
+   export OS_IDENTITY_PROVIDER=myidp
+   export OS_PROTOCOL=openid
+   export OS_CLIENT_ID=keystone
+   export OS_CLIENT_SECRET=your-client-secret
+   export OS_USERNAME=myuser
+   export OS_PASSWORD=mypassword
+   export OS_DISCOVERY_ENDPOINT=https://idp.example.org/.well-known/openid-configuration
+   openstack federation project list
+   openstack federation domain list
+
 Use the CLI to authenticate with a SAML2.0 Identity Provider
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. FIXME(cmurphy): Include examples for OpenID Connect authentication with the CLI
 
 The ``python-openstackclient`` can be used to authenticate a federated user in a
 SAML Identity Provider to keystone.
