@@ -222,6 +222,8 @@ class _IdentityProvidersProtocolsResourceBase(_ResourceBase):
 
 
 class IDPProtocolsListResource(_IdentityProvidersProtocolsResourceBase):
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(schema.protocols_index_response_body)
     def get(self, idp_id):
         """List protocols for an IDP.
 
@@ -238,6 +240,8 @@ class IDPProtocolsListResource(_IdentityProvidersProtocolsResourceBase):
 
 
 class IDPProtocolsCRUDResource(_IdentityProvidersProtocolsResourceBase):
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(schema.protocol_show_response_body)
     def get(self, idp_id, protocol_id):
         """Get protocols for an IDP.
 
@@ -248,20 +252,23 @@ class IDPProtocolsCRUDResource(_IdentityProvidersProtocolsResourceBase):
         ref = PROVIDERS.federation_api.get_protocol(idp_id, protocol_id)
         return self.wrap_member(ref)
 
+    @validation.request_body_schema(schema.protocol_create_request_body)
+    @validation.response_body_schema(schema.protocol_show_response_body)
     def put(self, idp_id, protocol_id):
         """Create protocol for an IDP.
 
-        PUT /OS-Federation/identity_providers/{idp_id}/protocols/{protocol_id}
+        PUT /OS-FEDERATION/identity_providers/{idp_id}/protocols/{protocol_id}
         """
         ENFORCER.enforce_call(action='identity:create_protocol')
         protocol = self.request_body_json.get('protocol', {})
-        ks_validation.lazy_validate(schema.protocol_create, protocol)
         protocol = self._normalize_dict(protocol)
         ref = PROVIDERS.federation_api.create_protocol(
             idp_id, protocol_id, protocol
         )
         return self.wrap_member(ref), http.client.CREATED
 
+    @validation.request_body_schema(schema.protocol_update_request_body)
+    @validation.response_body_schema(schema.protocol_show_response_body)
     def patch(self, idp_id, protocol_id):
         """Update protocol for an IDP.
 
@@ -270,12 +277,13 @@ class IDPProtocolsCRUDResource(_IdentityProvidersProtocolsResourceBase):
         """
         ENFORCER.enforce_call(action='identity:update_protocol')
         protocol = self.request_body_json.get('protocol', {})
-        ks_validation.lazy_validate(schema.protocol_update, protocol)
         ref = PROVIDERS.federation_api.update_protocol(
             idp_id, protocol_id, protocol
         )
         return self.wrap_member(ref)
 
+    @validation.request_body_schema(None)
+    @validation.response_body_schema(None)
     def delete(self, idp_id, protocol_id):
         """Delete a protocol from an IDP.
 

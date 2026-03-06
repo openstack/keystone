@@ -15,7 +15,6 @@ from typing import Any
 from keystone.api.validation import parameter_types
 from keystone.api.validation import response_types
 from keystone.common import validation
-from keystone.common.validation import parameter_types as ks_parameter_types
 
 basic_property_id = {
     'type': 'object',
@@ -23,6 +22,8 @@ basic_property_id = {
     'required': ['id'],
     'additionalProperties': False,
 }
+
+remote_id = {"type": "string", "maxLength": 64}
 
 saml_create = {
     'type': 'object',
@@ -160,6 +161,7 @@ identity_provider_response_links: dict[str, Any] = {
         "protocols": {"type": "string", "format": "uri"},
     },
     "additionalProperties": False,
+    "readOnly": True,
 }
 
 _identity_provider_properties = {
@@ -184,7 +186,7 @@ _identity_provider_properties = {
     "remote_ids": {
         "type": ["array", "null"],
         "description": "List of the unique identity provider's remote IDs",
-        "items": {"type": "string"},
+        "items": remote_id,
         "uniqueItems": True,
     },
 }
@@ -255,10 +257,7 @@ identity_provider_create_request_body: dict[str, Any] = {
             "properties": {
                 **_identity_provider_properties,
                 "domain_id": {
-                    "type": ["string", "null"],
-                    "minLength": 1,
-                    "maxLength": 64,
-                    "pattern": r"^[a-zA-Z0-9-]+$",
+                    **validation.nullable(parameter_types.domain_id),
                     "description": (
                         "The ID of a domain that is associated with the "
                         "identity provider. Federated users that "
@@ -287,23 +286,120 @@ identity_provider_update_request_body: dict[str, Any] = {
     "required": ["identity_provider"],
 }
 
-_remote_id_attribute_properties = {'type': 'string', 'maxLength': 64}
+mapping_id: dict[str, Any] = {
+    "type": "string",
+    "minLength": 1,
+    "maxLength": 64,
+}
 
+protocol_id = {"type": "string", "minLength": 1, "maxLength": 64}
+
+protocol_response_links: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "self": {"type": "string", "format": "uri"},
+        "identity_provider": {"type": "string", "format": "uri"},
+    },
+    "additionalProperties": False,
+    "readOnly": True,
+}
+
+# NOTE(0weng): remote_id_attribute is only and always returned in
+# the list operation.
 _protocol_properties = {
-    'mapping_id': ks_parameter_types.mapping_id_string,
-    'remote_id_attribute': _remote_id_attribute_properties,
+    "mapping_id": mapping_id,
+    "remote_id_attribute": validation.nullable(remote_id),
 }
 
-protocol_create = {
-    'type': 'object',
-    'properties': _protocol_properties,
-    'required': ['mapping_id'],
-    'additionalProperties': False,
+# Common schema of `Federation Protocol` resource
+protocol_schema: dict[str, Any] = {
+    "type": "object",
+    "description": "A federation protocol object.",
+    "properties": {
+        "id": protocol_id,
+        "links": protocol_response_links,
+        "idp_id": identity_provider_schema["properties"]["id"],
+        **_protocol_properties,
+    },
+    "required": ["id", "idp_id", "mapping_id", "remote_id_attribute"],
+    "additionalProperties": False,
 }
 
-protocol_update = {
-    'type': 'object',
-    'properties': _protocol_properties,
-    'minProperties': 1,
-    'additionalProperties': False,
+# Short schema of `Federation Protocol` resource
+protocol_schema_short: dict[str, Any] = {
+    "type": "object",
+    "description": "A federation protocol object.",
+    "properties": {
+        "id": parameter_types.name,
+        "links": protocol_response_links,
+        "mapping_id": mapping_id,
+        "remote_id_attribute": remote_id,
+    },
+    "required": ["id", "mapping_id"],
+    "additionalProperties": False,
+}
+
+# Response body of the
+# `GET /OS-FEDERATION/identity_providers/{idp_id}/protocols` API operation
+# returning a list of federation protocols
+protocols_index_response_body: dict[str, Any] = {
+    "type": "object",
+    "properties": {
+        "links": response_types.links,
+        "protocols": {"type": "array", "items": protocol_schema},
+    },
+    "required": ["protocols"],
+    "additionalProperties": False,
+}
+
+# Response body of API operations returning a single federation protocol
+# `GET /OS-FEDERATION/identity_providers/{idp_id}/protocols/{protocol_id}`,
+# `PUT /OS-FEDERATION/identity_providers/{idp_id}/protocols/{protocol_id}`, and
+# `PATCH /OS-FEDERATION/identity_providers/{idp_id}/protocols/{protocol_id}`
+protocol_show_response_body: dict[str, Any] = {
+    "type": "object",
+    "properties": {"protocol": protocol_schema_short},
+    "required": ["protocol"],
+    "additionalProperties": False,
+}
+
+# Request body of the
+# `PUT /OS-FEDERATION/identity_providers/{idp_id}/protocols/{protocol_id}`
+# API operation
+protocol_create_request_body = {
+    "type": "object",
+    "properties": {
+        "protocol": {
+            "type": "object",
+            "properties": _protocol_properties,
+            "additionalProperties": False,
+            "required": ["mapping_id"],
+        }
+    },
+    "required": ["protocol"],
+    "additionalProperties": False,
+}
+
+# Request body of the
+# `PATCH /OS-FEDERATION/identity_providers/{idp_id}/protocols/{protocol_id}`
+# API operation
+protocol_update_request_body = {
+    "type": "object",
+    "properties": {
+        "protocol": {
+            "type": "object",
+            # As of now, all protocol properties can be updated;
+            # however, remote_id_attribute cannot be set to null
+            # (but the empty string is fine) or removed.
+            "properties": {
+                "mapping_id": mapping_id,
+                "remote_id_attribute": remote_id,
+            },
+            "additionalProperties": False,
+            "minProperties": 1,
+            "required": ["mapping_id"],
+        }
+    },
+    "required": ["protocol"],
+    "additionalProperties": False,
 }
