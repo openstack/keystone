@@ -5494,8 +5494,8 @@ class TestTrustChain(test_v3.RestfulTestCase):
     def test_trustor_roles_revoked(self):
         self.assert_user_authenticate(self.user_list[0])
 
-        PROVIDERS.assignment_api.remove_role_from_user_and_project(
-            self.user_id, self.project_id, self.role_id
+        PROVIDERS.assignment_api.delete_grant(
+            self.role_id, user_id=self.user_id, project_id=self.project_id
         )
 
         # Verify that users are not allowed to authenticate with trust
@@ -6420,13 +6420,17 @@ class ApplicationCredentialAuth(test_v3.RestfulTestCase):
         app_cred_ref = self.app_cred_api.create_application_credential(
             app_cred
         )
-        PROVIDERS.assignment_api.remove_role_from_user_and_project(
-            self.user['id'], self.project['id'], self.role_id
+        PROVIDERS.assignment_api.delete_grant(
+            self.role_id,
+            user_id=self.user['id'],
+            project_id=self.project['id'],
         )
         auth_data = self.build_authentication_request(
             app_cred_id=app_cred_ref['id'], secret=app_cred_ref['secret']
         )
-        self.v3_create_token(auth_data, expected_status=http.client.NOT_FOUND)
+        self.v3_create_token(
+            auth_data, expected_status=http.client.UNAUTHORIZED
+        )
 
     def test_application_credential_through_group_membership(self):
         user1 = unit.create_user(

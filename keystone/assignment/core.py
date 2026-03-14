@@ -278,38 +278,6 @@ class Manager(manager.Manager):
         )
         return PROVIDERS.resource_api.list_projects_from_ids(project_ids)
 
-    @notifications.role_assignment('deleted')
-    def _remove_role_from_user_and_project_adapter(
-        self,
-        role_id,
-        user_id=None,
-        group_id=None,
-        domain_id=None,
-        project_id=None,
-        inherited_to_projects=False,
-        context=None,
-    ):
-        # The parameters for this method must match the parameters for
-        # delete_grant so that the notifications.role_assignment decorator
-        # will work.
-
-        self.driver.remove_role_from_user_and_project(
-            user_id, project_id, role_id
-        )
-        payload = {'user_id': user_id, 'project_id': project_id}
-        notifications.Audit.internal(
-            notifications.REMOVE_APP_CREDS_FOR_USER, payload
-        )
-        self._invalidate_token_cache(
-            role_id, group_id, user_id, project_id, domain_id
-        )
-
-    def remove_role_from_user_and_project(self, user_id, project_id, role_id):
-        self._remove_role_from_user_and_project_adapter(
-            role_id, user_id=user_id, project_id=project_id
-        )
-        COMPUTED_ASSIGNMENTS_REGION.invalidate()
-
     def _invalidate_token_cache(
         self, role_id, group_id, user_id, project_id, domain_id
     ):
