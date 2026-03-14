@@ -209,31 +209,6 @@ class CatalogDriverBase(provider_api.ProviderAPIMixin, metaclass=abc.ABCMeta):
         """
         raise exception.NotImplemented()  # pragma: no cover
 
-    @abc.abstractmethod
-    def get_catalog(self, user_id, project_id):
-        """Retrieve and format the current service catalog.
-
-        Example::
-
-            { 'RegionOne':
-                {'compute': {
-                    'adminURL': u'http://host:8774/v1.1/project_id',
-                    'internalURL': u'http://host:8774/v1.1/project_id',
-                    'name': 'Compute Service',
-                    'publicURL': u'http://host:8774/v1.1/project_id'},
-                 'ec2': {
-                    'adminURL': 'http://host:8773/services/Admin',
-                    'internalURL': 'http://host:8773/services/Cloud',
-                    'name': 'EC2 Service',
-                    'publicURL': 'http://host:8773/services/Cloud'}}
-
-        :returns: A nested dict representing the service catalog or an
-                  empty dict.
-        :raises keystone.exception.NotFound: If the endpoint doesn't exist.
-
-        """
-        raise exception.NotImplemented()  # pragma: no cover
-
     def get_v3_catalog(self, user_id, project_id):
         """Retrieve and format the current V3 service catalog.
 
