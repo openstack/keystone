@@ -435,11 +435,25 @@ def get_assertion_params_from_env():
     for k, v in list(flask.request.environ.items()):
         if not k.startswith(prefix):
             continue
-        # These bytes may be decodable as ISO-8859-1 according to Section
-        # 3.2.4 of RFC 7230. Let's assume that our web server plugins are
-        # correctly encoding the data.
-        if not isinstance(v, str) and getattr(v, 'decode', False):
-            v = v.decode('ISO-8859-1')
+        if isinstance(v, str):
+            # Per Section 3.2.4 of RFC 7230, HTTP header field values use
+            # ISO-8859-1 encoding, and PEP 3333 requires WSGI environ
+            # values to be native strings decoded as Latin-1 accordingly.
+            # However, OIDC IdPs commonly send assertion values encoded as
+            # UTF-8 (e.g. non-ASCII characters like 'ñ' or 'å'). When
+            # mod_wsgi decodes those UTF-8 bytes as Latin-1, the result is
+            # mojibake. We reverse the Latin-1 decode and re-decode as
+            # UTF-8 to recover the original text. If that fails, the value
+            # was legitimately Latin-1 and is kept as-is.
+            try:
+                v = v.encode('ISO-8859-1').decode('utf-8')
+            except (UnicodeDecodeError, UnicodeEncodeError):
+                pass
+        elif getattr(v, 'decode', False):
+            try:
+                v = v.decode('utf-8')
+            except UnicodeDecodeError:
+                v = v.decode('ISO-8859-1')
         yield (k, v)
 
 
