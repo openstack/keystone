@@ -997,6 +997,77 @@ class TestUnicodeAssertionData(unit.BaseTestCase):
         self.assertEqual(full_name, user_name)
 
 
+class TestWsgiUtf8LatinRoundtrip(unit.BaseTestCase):
+    """Test that UTF-8 data mangled by WSGI Latin-1 decoding is recovered.
+
+    PEP 3333 requires WSGI environ values to be native strings decoded as
+    Latin-1. When an IdP sends UTF-8 encoded non-ASCII characters (e.g.
+    Spanish 'ñ' or Scandinavian 'å'), mod_wsgi decodes the raw UTF-8 bytes
+    as Latin-1, producing mojibake. The get_assertion_params_from_env()
+    function must reverse this by encoding back to Latin-1 and re-decoding
+    as UTF-8.
+
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.config_fixture = self.useFixture(config_fixture.Config(CONF))
+        self.config_fixture.config(group='federation', assertion_prefix='PFX')
+
+    def _get_assertion_via_wsgi(self, environ_overrides):
+        app = flask.Flask(__name__)
+        with app.test_request_context(
+            path='/path', environ_overrides=environ_overrides
+        ):
+            return dict(mapping_utils.get_assertion_params_from_env())
+
+    def test_utf8_latin1_roundtrip_recovers_unicode(self):
+        """Verify that double-encoded UTF-8 assertion values are recovered."""
+        assertion = self._get_assertion_via_wsgi(
+            mapping_fixtures.WSGI_LATIN1_UTF8_ASSERTION
+        )
+        self.assertEqual('Jon Kåre', assertion['PFX_FirstName'])
+        self.assertEqual('Hellån', assertion['PFX_LastName'])
+
+    def test_already_correct_unicode_is_preserved(self):
+        """Verify that properly decoded Unicode values are not corrupted."""
+        assertion = self._get_assertion_via_wsgi(
+            mapping_fixtures.UNICODE_NAME_ASSERTION
+        )
+        self.assertEqual('Jon Kåre', assertion['PFX_FirstName'])
+        self.assertEqual('Hellån', assertion['PFX_LastName'])
+
+    def test_ascii_values_are_unaffected(self):
+        """Verify that pure ASCII values pass through unchanged."""
+        assertion = self._get_assertion_via_wsgi(
+            mapping_fixtures.UNICODE_NAME_ASSERTION
+        )
+        self.assertEqual('jon@example.com', assertion['PFX_Email'])
+        self.assertEqual('jonkare', assertion['PFX_UserName'])
+
+    def test_oidc_groups_with_special_chars(self):
+        """Verify OIDC groups containing 'ñ' are correctly decoded."""
+        self.config_fixture.config(group='federation', assertion_prefix='OIDC')
+        assertion = self._get_assertion_via_wsgi(
+            mapping_fixtures.WSGI_LATIN1_UTF8_GROUPS_ASSERTION
+        )
+        groups_value = assertion['OIDC-groups']
+        self.assertIn('España', groups_value)
+        self.assertNotIn('\u00c3', groups_value)
+
+    def test_bytes_value_utf8(self):
+        """Verify that bytes values are decoded as UTF-8."""
+        environ = {'PFX_Name': 'Espa\u00f1a'.encode()}
+        assertion = self._get_assertion_via_wsgi(environ)
+        self.assertEqual('España', assertion['PFX_Name'])
+
+    def test_bytes_value_latin1_fallback(self):
+        """Verify that non-UTF-8 bytes fall back to ISO-8859-1 decoding."""
+        environ = {'PFX_Name': 'Espa\u00f1a'.encode('ISO-8859-1')}
+        assertion = self._get_assertion_via_wsgi(environ)
+        self.assertEqual('España', assertion['PFX_Name'])
+
+
 class TestMappingLocals(unit.BaseTestCase):
     mapping_split = {
         'rules': [
