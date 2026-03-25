@@ -3148,6 +3148,24 @@ class AllowRescopeScopedTokenDisabledTests(test_v3.RestfulTestCase):
             expected_status=http.client.FORBIDDEN,
         )
 
+    def test_rescoped_system_token_disabled(self):
+        PROVIDERS.assignment_api.create_system_grant_for_user(
+            self.user['id'], self.role['id']
+        )
+        system_token = self.get_requested_token(
+            self.build_authentication_request(
+                user_id=self.user['id'],
+                password=self.user['password'],
+                system=True,
+            )
+        )
+        # A system-scoped token should not be usable to create any new
+        # token when allow_rescope_scoped_token is disabled.
+        self.v3_create_token(
+            self.build_authentication_request(token=system_token),
+            expected_status=http.client.FORBIDDEN,
+        )
+
 
 class TestFernetTokenAPIs(
     test_v3.RestfulTestCase, TokenAPITests, TokenDataTests

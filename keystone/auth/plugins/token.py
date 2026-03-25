@@ -107,7 +107,11 @@ def token_authenticate(token: TokenModel) -> dict[str, ty.Any]:
 
         if not CONF.token.allow_rescope_scoped_token:
             # Do not allow conversion from scoped tokens.
-            if token.project_scoped or token.domain_scoped:
+            if (
+                token.project_scoped
+                or token.domain_scoped
+                or token.system_scoped
+            ):
                 raise exception.ForbiddenAction(
                     action=_('rescope a scoped token')
                 )
