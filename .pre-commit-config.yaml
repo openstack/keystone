@@ -39,6 +39,7 @@ repos:
       - id: hacking
         additional_dependencies:
           - flake8-import-order~=0.18.2
+          - setuptools<82
         exclude: '^(doc|releasenotes|tools|devstack)/.*$'
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.15.0
