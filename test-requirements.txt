@@ -24,5 +24,5 @@ tempest>=17.1.0 # Apache-2.0
 # Functional tests.
 requests>=2.14.2 # Apache-2.0
 
-bandit>=1.1.0 # Apache-2.0
+bandit>=1.1.0,<1.8.0 # Apache-2.0
 flake8<7.2.0 # MIT
