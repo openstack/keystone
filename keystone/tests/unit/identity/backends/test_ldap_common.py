@@ -12,23 +12,20 @@
 
 import os
 import tempfile
-from unittest import mock
 import uuid
+from unittest import mock
 
 import fixtures
 import ldap.dn
 from oslo_config import fixture as config_fixture
 
-from keystone.common import driver_hints
-from keystone.common import provider_api
 import keystone.conf
 from keystone import exception as ks_exception
+from keystone.common import driver_hints, provider_api
 from keystone.identity.backends.ldap import common as common_ldap
 from keystone.tests import unit
-from keystone.tests.unit import default_fixtures
-from keystone.tests.unit import fakeldap
-from keystone.tests.unit.ksfixtures import database
-from keystone.tests.unit.ksfixtures import ldapdb
+from keystone.tests.unit import default_fixtures, fakeldap
+from keystone.tests.unit.ksfixtures import database, ldapdb
 
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
@@ -693,4 +690,98 @@ class LDAPSizeLimitTest(unit.TestCase):
             conn.search_s,
             'dc=example,dc=test',
             ldap.SCOPE_SUBTREE,
+        )
+
+
+class LDAPPaginationTest(unit.TestCase):
+    """Test LDAP pagination with more than page_size results.
+
+    This test verifies the fix for issue #434 where Keystone could not list
+    more than 1000 users from AD without filters. The issue was that
+    _ldap_get_limited only fetched one page of results.
+
+    Similar to Nova bug #2122109, we verify that all results are fetched
+    when pagination is enabled, not just the first page.
+    """
+
+    def setUp(self):
+        super().setUp()
+
+        self.useFixture(ldapdb.LDAPDatabase())
+        self.useFixture(database.Database())
+
+        self.load_backends()
+        self.load_fixtures(default_fixtures)
+
+    def config_overrides(self):
+        super().config_overrides()
+        self.config_fixture.config(group='identity', driver='ldap')
+        # Set page_size to simulate pagination
+        self.config_fixture.config(group='ldap', page_size=100)
+
+    def config_files(self):
+        config_files = super().config_files()
+        config_files.append(unit.dirs.tests_conf('backend_ldap.conf'))
+        return config_files
+
+    def test_list_users_returns_all_entries_with_multiple_pages(self):
+        """Verify that listing users returns ALL results across multiple pages."""
+        user_count = 250
+        created_user_ids = []
+
+        for i in range(user_count):
+            user_ref = {
+                'name': f'test_user_{i:04d}',
+                'enabled': True,
+                'domain_id': 'default',
+            }
+            user = PROVIDERS.identity_api.create_user(user_ref)
+            created_user_ids.append(user['id'])
+
+        hints = driver_hints.Hints()
+        users = PROVIDERS.identity_api.list_users(hints=hints)
+        returned_user_ids = [u['id'] for u in users]
+
+        for user_id in created_user_ids:
+            self.assertIn(
+                user_id,
+                returned_user_ids,
+                f"User {user_id} not found in returned users. "
+                f"Only {len(returned_user_ids)} users returned, expected at least {user_count}"
+            )
+
+        self.assertGreater(
+            len(users),
+            100,
+            f"Expected more than 100 users (page_size), but got {len(users)}. "
+            "This suggests pagination is not working correctly."
+        )
+
+    def test_list_users_with_limit_hint_returns_all_pages(self):
+        """Verify that even with a limit hint, all pages are fetched."""
+        user_count = 150
+        created_user_ids = []
+
+        for i in range(user_count):
+            user_ref = {
+                'name': f'limit_test_user_{i:04d}',
+                'enabled': True,
+                'domain_id': 'default',
+            }
+            user = PROVIDERS.identity_api.create_user(user_ref)
+            created_user_ids.append(user['id'])
+
+        hints = driver_hints.Hints()
+        hints.set_limit(200)
+
+        users = PROVIDERS.identity_api.list_users(hints=hints)
+        returned_user_ids = [u['id'] for u in users]
+
+        found_count = sum(1 for uid in created_user_ids if uid in returned_user_ids)
+
+        self.assertGreater(
+            found_count,
+            100,
+            f"Expected more than 100 of our users (page_size), but only found {found_count}. "
+            "This suggests only one page was fetched."
         )
