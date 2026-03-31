@@ -460,6 +460,121 @@ class LDAPPagedResultsTest(unit.TestCase):
         attrlist = sorted([attr for attr in args[3] if attr])
         self.assertEqual(['mail', 'userPassword'], attrlist)
 
+    @mock.patch.object(fakeldap.FakeLdap, 'search_ext')
+    @mock.patch.object(fakeldap.FakeLdap, 'result3')
+    def test_paged_search_handles_none_from_result3(
+        self, mock_result3, mock_search_ext
+    ):
+        """Verify _paged_search_s tolerates None rdata/serverctrls from result3.
+
+        The python-ldap result3 docs do not exclude None as a possible value
+        for rdata or serverctrls.  The implementation must not crash on either.
+        """
+        mock_result3.return_value = ('', None, 1, None)
+
+        self.config_fixture.config(group='ldap', page_size=1)
+
+        conn = PROVIDERS.identity_api.user.get_connection()
+        result = conn._paged_search_s(
+            'dc=example,dc=test', ldap.SCOPE_SUBTREE, 'objectclass=*'
+        )
+        self.assertEqual([], result)
+
+    def test_list_users_returns_all_pages(self):
+        """Verify that list_users returns entries beyond a single page.
+
+        When the LDAP server enforces a page size limit (e.g. AD MaxPageSize),
+        _paged_search_s must loop through pages using the cookie and accumulate
+        all results.  This test uses page_size=2 with more users than that to
+        ensure all pages are fetched.
+        """
+        # Create extra users so total > page_size
+        extra_users = []
+        for _ in range(5):
+            user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
+            user = PROVIDERS.identity_api.create_user(user)
+            extra_users.append(user)
+
+        # page_size=2 forces multiple LDAP pages to be fetched.
+        self.config_fixture.config(group='ldap', page_size=2)
+        PROVIDERS.identity_api.user.page_size = 2
+
+        with mock.patch.object(
+            common_ldap.KeystoneLDAPHandler,
+            '_paged_search_s',
+            autospec=True,
+            side_effect=common_ldap.KeystoneLDAPHandler._paged_search_s,
+        ) as spy:
+            users = PROVIDERS.identity_api.list_users()
+            self.assertTrue(
+                spy.called,
+                '_paged_search_s was not called; pagination may be bypassed',
+            )
+
+        # All default fixture users plus the extra ones must be present
+        expected_count = len(default_fixtures.USERS) + len(extra_users)
+        self.assertEqual(expected_count, len(users))
+
+        extra_ids = {u['id'] for u in extra_users}
+        returned_ids = {u['id'] for u in users}
+        self.assertTrue(extra_ids.issubset(returned_ids))
+
+    def test_search_s_sizelimit_stops_pagination(self):
+        """Verify search_s stops fetching pages once sizelimit is reached.
+
+        When page_size is set and sizelimit is passed, _paged_search_s must
+        stop accumulating results after sizelimit entries even if the server
+        has more pages available.
+        """
+        for _ in range(5):
+            user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
+            PROVIDERS.identity_api.create_user(user)
+
+        sizelimit = 3
+        self.config_fixture.config(group='ldap', page_size=2)
+        PROVIDERS.identity_api.user.page_size = 2
+
+        user_api = PROVIDERS.identity_api.user
+        query = (
+            f'(&(objectClass={user_api.object_class})({user_api.id_attr}=*))'
+        )
+        conn = PROVIDERS.identity_api.user.get_connection()
+        res = conn.search_s(
+            user_api.tree_dn, user_api.LDAP_SCOPE, query, sizelimit=sizelimit
+        )
+        self.assertEqual(sizelimit, len(res))
+
+    def test_list_users_with_page_size_and_limit(self):
+        """Verify list_users truncates correctly when paging and a limit are set.
+
+        This covers the path where both conn.page_size and hints.limit are set,
+        e.g. page_size=1000 and list_limit=1500 against AD with MaxPageSize=1000.
+        """
+        for _ in range(10):
+            user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
+            PROVIDERS.identity_api.create_user(user)
+
+        list_limit = len(default_fixtures.USERS) + 2
+        self.config_fixture.config(group='ldap', page_size=2)
+        PROVIDERS.identity_api.user.page_size = 2
+
+        hints = driver_hints.Hints()
+        hints.set_limit(list_limit)
+
+        with mock.patch.object(
+            common_ldap.KeystoneLDAPHandler,
+            '_paged_search_s',
+            autospec=True,
+            side_effect=common_ldap.KeystoneLDAPHandler._paged_search_s,
+        ) as spy:
+            users = PROVIDERS.identity_api.list_users(hints=hints)
+            self.assertTrue(
+                spy.called,
+                '_paged_search_s was not called; pagination may be bypassed',
+            )
+
+        self.assertLessEqual(len(users), list_limit)
+
 
 class CommonLdapTestCase(unit.BaseTestCase):
     """These test cases call functions in keystone.common.ldap."""
@@ -694,3 +809,25 @@ class LDAPSizeLimitTest(unit.TestCase):
             'dc=example,dc=test',
             ldap.SCOPE_SUBTREE,
         )
+
+    def test_search_s_sizelimit_enforced_without_paging(self):
+        """Verify search_s trims results to sizelimit when page_size is unset.
+
+        When page_size is 0 (disabled), sizelimit must still be honoured by
+        slicing the raw result set before returning it.
+        """
+        for _ in range(5):
+            user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
+            PROVIDERS.identity_api.create_user(user)
+
+        sizelimit = 2
+        # page_size defaults to 0 via backend_ldap.conf - no paging path taken
+        user_api = PROVIDERS.identity_api.user
+        query = (
+            f'(&(objectClass={user_api.object_class})({user_api.id_attr}=*))'
+        )
+        conn = user_api.get_connection()
+        res = conn.search_s(
+            user_api.tree_dn, user_api.LDAP_SCOPE, query, sizelimit=sizelimit
+        )
+        self.assertEqual(sizelimit, len(res))
