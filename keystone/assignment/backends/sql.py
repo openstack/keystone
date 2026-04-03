@@ -183,20 +183,6 @@ class Assignment(base.AssignmentDriverBase):
             msg = f'User {user_id} already has role {role_id} in tenant {project_id}'
             raise exception.Conflict(type='role grant', details=msg)
 
-    def remove_role_from_user_and_project(self, user_id, project_id, role_id):
-        with sql.session_for_write() as session:
-            q = session.query(RoleAssignment)
-            q = q.filter_by(actor_id=user_id)
-            q = q.filter_by(target_id=project_id)
-            q = q.filter_by(role_id=role_id)
-            if q.delete() == 0:
-                raise exception.RoleNotFound(
-                    message=_(
-                        'Cannot remove role that has not been granted, %s'
-                    )
-                    % role_id
-                )
-
     def _get_user_assignment_types(self):
         return [AssignmentType.USER_PROJECT, AssignmentType.USER_DOMAIN]
 

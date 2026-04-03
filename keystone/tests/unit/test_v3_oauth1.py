@@ -975,8 +975,8 @@ class MaliciousOAuth1Tests(OAuth1Tests):
         credentials = _urllib_parse_qs_text_keys(content.result)
         request_key = credentials['oauth_token'][0]
 
-        PROVIDERS.assignment_api.remove_role_from_user_and_project(
-            self.user_id, self.project_id, new_role['id']
+        PROVIDERS.assignment_api.delete_grant(
+            new_role['id'], user_id=self.user_id, project_id=self.project_id
         )
         url = self._authorize_request_token(request_key)
         body = {'roles': [{'id': new_role['id']}]}

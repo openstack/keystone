@@ -1747,23 +1747,6 @@ class CadfNotificationsWrapperTestCase(test_v3.RestfulTestCase):
 
         self._assert_event(self.role_id, project=project_id, user=self.user_id)
 
-    def test_remove_role_from_user_and_project(self):
-        # A notification is sent when remove_role_from_user_and_project is
-        # called on the assignment manager.
-
-        PROVIDERS.assignment_api.remove_role_from_user_and_project(
-            self.user_id, self.project_id, self.role_id
-        )
-
-        self.assertTrue(self._notifications)
-        note = self._notifications[-1]
-        self.assertEqual('deleted.role_assignment', note['action'])
-        self.assertTrue(note['send_notification_called'])
-
-        self._assert_event(
-            self.role_id, project=self.project_id, user=self.user_id
-        )
-
 
 class TestCallbackRegistration(unit.BaseTestCase):
     def setUp(self):

@@ -492,10 +492,10 @@ class AssignmentTests(AssignmentTestHelperMixin):
         )
         self.assertIn(self.user_two['id'], user_ids)
 
-        PROVIDERS.assignment_api.remove_role_from_user_and_project(
-            project_id=self.project_bar['id'],
+        PROVIDERS.assignment_api.delete_grant(
+            self.role_other['id'],
             user_id=self.user_two['id'],
-            role_id=self.role_other['id'],
+            project_id=self.project_bar['id'],
         )
 
         user_ids = PROVIDERS.assignment_api.list_user_ids_for_project(
@@ -507,11 +507,11 @@ class AssignmentTests(AssignmentTestHelperMixin):
         # Expect failure if attempt to remove a role that was never assigned to
         # the user.
         self.assertRaises(
-            exception.RoleNotFound,
-            PROVIDERS.assignment_api.remove_role_from_user_and_project,
-            project_id=self.project_bar['id'],
+            exception.RoleAssignmentNotFound,
+            PROVIDERS.assignment_api.delete_grant,
+            self.role_other['id'],
             user_id=self.user_two['id'],
-            role_id=self.role_other['id'],
+            project_id=self.project_bar['id'],
         )
 
     def test_list_user_ids_for_project(self):
@@ -1004,10 +1004,10 @@ class AssignmentTests(AssignmentTestHelperMixin):
             self.project_bar['id'],
             default_fixtures.MEMBER_ROLE_ID,
         )
-        PROVIDERS.assignment_api.remove_role_from_user_and_project(
-            self.user_foo['id'],
-            self.project_bar['id'],
+        PROVIDERS.assignment_api.delete_grant(
             default_fixtures.MEMBER_ROLE_ID,
+            user_id=self.user_foo['id'],
+            project_id=self.project_bar['id'],
         )
         roles_ref = PROVIDERS.assignment_api.get_roles_for_user_and_project(
             self.user_foo['id'], self.project_bar['id']
@@ -1015,10 +1015,10 @@ class AssignmentTests(AssignmentTestHelperMixin):
         self.assertNotIn(default_fixtures.MEMBER_ROLE_ID, roles_ref)
         self.assertRaises(
             exception.NotFound,
-            PROVIDERS.assignment_api.remove_role_from_user_and_project,
-            self.user_foo['id'],
-            self.project_bar['id'],
+            PROVIDERS.assignment_api.delete_grant,
             default_fixtures.MEMBER_ROLE_ID,
+            user_id=self.user_foo['id'],
+            project_id=self.project_bar['id'],
         )
 
     def test_get_role_grant_by_user_and_project(self):
