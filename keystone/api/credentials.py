@@ -33,6 +33,16 @@ PROVIDERS = provider_api.ProviderAPIs
 ENFORCER = rbac_enforcer.RBACEnforcer
 
 
+def _check_unrestricted_application_credential(token):
+    if 'application_credential' in token.methods:
+        if not token.application_credential['unrestricted']:
+            action = _(
+                "Using method 'application_credential' is not "
+                "allowed for managing additional credentials."
+            )
+            raise exception.ForbiddenAction(action=action)
+
+
 def _build_target_enforcement():
     target = {}
     try:
@@ -187,13 +197,12 @@ class CredentialsResource(ks_flask.ResourceBase):
         ENFORCER.enforce_call(
             action='identity:create_credential', target_attr=target
         )
+        token = self.auth_context['token']
+        if credential.get('type', '').lower() == 'ec2':
+            _check_unrestricted_application_credential(token)
         trust_id = getattr(self.oslo_context, 'trust_id', None)
-        app_cred_id = getattr(
-            self.auth_context['token'], 'application_credential_id', None
-        )
-        access_token_id = getattr(
-            self.auth_context['token'], 'access_token_id', None
-        )
+        app_cred_id = getattr(token, 'application_credential_id', None)
+        access_token_id = getattr(token, 'access_token_id', None)
         ref = self._assign_unique_id(
             self._normalize_dict(credential),
             trust_id=trust_id,
