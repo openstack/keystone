@@ -292,6 +292,17 @@ class AuthorizeResource(_OAuth1ResourceBase):
             raise exception.Forbidden(
                 _('Cannot authorize a request token with a token issued via '
                   'delegation.'))
+        auth_context = flask.request.environ.get(
+            authorization.AUTH_CONTEXT_ENV, {}
+        )
+        token = auth_context.get('token')
+        if token and 'application_credential' in token.methods:
+            raise exception.Forbidden(
+                _(
+                    'Cannot authorize a request token with a token issued via '
+                    'delegation.'
+                )
+            )
 
         req_token = PROVIDERS.oauth_api.get_request_token(request_token_id)
 
