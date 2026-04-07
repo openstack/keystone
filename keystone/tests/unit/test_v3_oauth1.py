@@ -699,6 +699,30 @@ class AuthTokenTests:
         url = f'/users/{self.user_id}/OS-OAUTH1/access_tokens'
         self.get(url, token=trust_token, expected_status=http.client.FORBIDDEN)
 
+    def _create_app_cred_get_token(self):
+        ref = unit.new_application_credential_ref(roles=[{'id': self.role_id}])
+        del ref['id']
+        r = self.post(
+            f'/users/{self.user_id}/application_credentials',
+            body={'application_credential': ref},
+        )
+        app_cred = r.result['application_credential']
+        auth_data = self.build_authentication_request(
+            app_cred_id=app_cred['id'], secret=app_cred['secret']
+        )
+        return self.get_requested_token(auth_data)
+
+    def test_app_cred_token_cannot_authorize_request_token(self):
+        app_cred_token = self._create_app_cred_get_token()
+        url = self._approve_request_token_url()
+        body = {'roles': [{'id': self.role_id}]}
+        self.put(
+            url,
+            body=body,
+            token=app_cred_token,
+            expected_status=http.client.FORBIDDEN,
+        )
+
 
 class FernetAuthTokenTests(AuthTokenTests, OAuthFlowTests):
     def config_overrides(self):
