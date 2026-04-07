@@ -719,9 +719,11 @@ class TestCredentialAppCreds(CredentialBaseTestCase):
 
         Call ``POST /credentials``.
         """
-        # Create the app cred
+        # Create an unrestricted app cred (restricted app creds are
+        # blocked from creating EC2 credentials)
         ref = unit.new_application_credential_ref(roles=[{'id': self.role_id}])
         del ref['id']
+        ref['unrestricted'] = True
         r = self.post(
             f'/users/{self.user_id}/application_credentials',
             body={'application_credential': ref},
@@ -779,6 +781,41 @@ class TestCredentialAppCreds(CredentialBaseTestCase):
             body={'credential': ref},
             token=token_id,
             expected_status=http.client.CONFLICT,
+        )
+
+    def _get_app_cred_token(self, unrestricted=False):
+        """Create an application credential and return its token."""
+        ref = unit.new_application_credential_ref(roles=[{'id': self.role_id}])
+        del ref['id']
+        if unrestricted:
+            ref['unrestricted'] = True
+        r = self.post(
+            f'/users/{self.user_id}/application_credentials',
+            body={'application_credential': ref},
+        )
+        app_cred = r.result['application_credential']
+        auth_data = self.build_authentication_request(
+            app_cred_id=app_cred['id'], secret=app_cred['secret']
+        )
+        r = self.v3_create_token(auth_data)
+        return r.headers.get('X-Subject-Token')
+
+    def test_restricted_app_cred_cannot_create_ec2_credential(self):
+        """Test that a restricted app cred cannot create EC2 credentials.
+
+        A restricted application credential must not be allowed to
+        create EC2 credentials via POST /credentials either, as this
+        would bypass the guard on the OS-EC2 endpoint.
+        """
+        token_id = self._get_app_cred_token(unrestricted=False)
+        blob, ref = unit.new_ec2_credential(
+            user_id=self.user_id, project_id=self.project_id
+        )
+        self.post(
+            '/credentials',
+            body={'credential': ref},
+            token=token_id,
+            expected_status=http.client.FORBIDDEN,
         )
 
 
