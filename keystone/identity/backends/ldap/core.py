@@ -263,13 +263,17 @@ class UserApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
         self.enabled_default = conf.ldap.user_enabled_default
         self.enabled_invert = conf.ldap.user_enabled_invert
         self.enabled_emulation = conf.ldap.user_enabled_emulation
+        self.attribute_ignore = conf.ldap.user_attribute_ignore
 
     def _ldap_res_to_model(self, res):
         obj = super()._ldap_res_to_model(res)
         if self.enabled_mask != 0:
             enabled = int(obj.get('enabled', self.enabled_default))
             obj['enabled'] = (enabled & self.enabled_mask) != self.enabled_mask
-        elif self.enabled_invert and not self.enabled_emulation:
+        elif (
+            not self.enabled_emulation
+            and 'enabled' not in self.attribute_ignore
+        ):
             # This could be a bool or a string.  If it's a string,
             # we need to convert it so we can invert it properly.
             enabled = obj.get('enabled', self.enabled_default)
@@ -278,7 +282,10 @@ class UserApi(common_ldap.EnabledEmuMixIn, common_ldap.BaseLdap):
                     enabled = True
                 else:
                     enabled = False
-            obj['enabled'] = not enabled
+            if self.enabled_invert:
+                obj['enabled'] = not enabled
+            else:
+                obj['enabled'] = enabled
         obj['dn'] = res[0]
 
         return obj
