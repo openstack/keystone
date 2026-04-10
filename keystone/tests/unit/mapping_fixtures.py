@@ -1045,6 +1045,28 @@ UNICODE_NAME_ASSERTION = {
     'PFX_orgPersonType': 'Admin;Chief',
 }
 
+# Simulates what mod_wsgi does to UTF-8 data per PEP 3333: the raw UTF-8
+# bytes are decoded as Latin-1, producing mojibake. For example, 'ñ' (UTF-8:
+# \xc3\xb1) becomes 'Ã±' (Latin-1 interpretation of those two bytes).
+WSGI_LATIN1_UTF8_ASSERTION = {
+    'PFX_Email': 'jon@example.com',
+    'PFX_UserName': 'jonkare',
+    'PFX_FirstName': 'Jon K\u00c3\u00a5re',  # 'Jon Kåre' double-encoded
+    'PFX_LastName': 'Hell\u00c3\u00a5n',  # 'Hellån' double-encoded
+    'PFX_orgPersonType': 'Admin;Chief',
+}
+
+# Simulates OIDC groups assertion with non-ASCII characters (e.g. Spanish ñ)
+# arriving through WSGI with Latin-1 decoding of UTF-8 bytes.
+WSGI_LATIN1_UTF8_GROUPS_ASSERTION = {
+    'OIDC-upn': 'user@example.com',
+    'OIDC-groups': (
+        'Team_Espa\u00c3\u00b1a_1401_power_user'  # España double-encoded
+        ';federation-tests_power_user'
+    ),
+}
+
+
 GROUPS_ASSERTION_ONLY_ONE_GROUP = {
     'userEmail': 'jill@example.com',
     'UserName': 'jsmith',
