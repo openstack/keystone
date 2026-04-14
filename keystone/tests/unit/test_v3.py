@@ -89,7 +89,7 @@ class RestfulTestCase(
                             'name': {'type': 'string'},
                         },
                         'required': ['id', 'name'],
-                        'additonalProperties': False,
+                        'additionalProperties': False,
                     },
                     'password_expires_at': {
                         'type': ['string', 'null'],
