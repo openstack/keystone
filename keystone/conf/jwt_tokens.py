@@ -14,6 +14,37 @@ from oslo_config import cfg
 
 from keystone.conf import utils
 
+SUPPORTED_JWS_ALGORITHMS = ['ES256', 'ES384', 'ES512', 'EdDSA']
+
+jws_algorithm = cfg.StrOpt(
+    'jws_algorithm',
+    default='ES256',
+    choices=SUPPORTED_JWS_ALGORITHMS,
+    help=utils.fmt(
+        """
+The algorithm used to sign JWS tokens. Changing this value requires
+regenerating the JWS key pair via `keystone-manage create_jws_keypair` since
+each algorithm uses a different key type. Supported values: ES256 (ECDSA
+P-256, default), ES384 (ECDSA P-384), ES512 (ECDSA P-521), EdDSA (Ed25519).
+This option is only applicable when `keystone.conf [token] provider = jws`.
+"""
+    ),
+)
+
+jws_accepted_algorithms = cfg.ListOpt(
+    'jws_accepted_algorithms',
+    default=['ES256'],
+    help=utils.fmt(
+        """
+List of algorithms accepted when validating JWS token signatures. During an
+algorithm migration, this should include both the old and new algorithm so that
+tokens signed with the old algorithm remain valid until they expire. Each value
+must be one of: ES256, ES384, ES512, EdDSA. This option is only applicable
+when `keystone.conf [token] provider = jws`.
+"""
+    ),
+)
+
 jws_public_key_repository = cfg.StrOpt(
     'jws_public_key_repository',
     default='/etc/keystone/jws-keys/public',
@@ -49,7 +80,12 @@ issuing JWS tokens and setting `keystone.conf [token] provider = jws`.
 
 
 GROUP_NAME = __name__.split('.')[-1]
-ALL_OPTS = [jws_public_key_repository, jws_private_key_repository]
+ALL_OPTS = [
+    jws_algorithm,
+    jws_accepted_algorithms,
+    jws_public_key_repository,
+    jws_private_key_repository,
+]
 
 
 def register_opts(conf):

@@ -715,7 +715,11 @@ class CreateJWSKeyPair(BasePermissionsSetup):
                 % {'path': public_key_path}
             )
 
-        jwt_utils.create_jws_keypair(private_key_path, public_key_path)
+        jwt_utils.create_jws_keypair(
+            private_key_path,
+            public_key_path,
+            algorithm=CONF.jwt_tokens.jws_algorithm,
+        )
 
 
 class TokenSetup(BasePermissionsSetup):
