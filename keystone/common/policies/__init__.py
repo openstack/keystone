@@ -22,6 +22,7 @@ from keystone.common.policies import credential
 from keystone.common.policies import domain
 from keystone.common.policies import domain_config
 from keystone.common.policies import ec2_credential
+from keystone.common.policies import ec2tokens
 from keystone.common.policies import endpoint
 from keystone.common.policies import endpoint_group
 from keystone.common.policies import grant
@@ -40,6 +41,7 @@ from keystone.common.policies import registered_limit
 from keystone.common.policies import revoke_event
 from keystone.common.policies import role
 from keystone.common.policies import role_assignment
+from keystone.common.policies import s3tokens
 from keystone.common.policies import service
 from keystone.common.policies import service_provider
 from keystone.common.policies import token
@@ -78,6 +80,8 @@ def list_rules():
         revoke_event.list_rules(),
         role.list_rules(),
         role_assignment.list_rules(),
+        s3tokens.list_rules(),
+        ec2tokens.list_rules(),
         service.list_rules(),
         service_provider.list_rules(),
         token_revocation.list_rules(),

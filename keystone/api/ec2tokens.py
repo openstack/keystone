@@ -21,6 +21,7 @@ from oslo_serialization import jsonutils
 
 from keystone.api._shared import EC2_S3_Resource
 from keystone.api._shared import json_home_relations
+from keystone.common import rbac_enforcer
 from keystone.common import render_token
 from keystone.common import utils
 from keystone import exception
@@ -29,6 +30,9 @@ from keystone.server import flask as ks_flask
 
 
 CRED_TYPE_EC2 = 'ec2'
+
+
+ENFORCER = rbac_enforcer.RBACEnforcer
 
 
 class EC2TokensResource(EC2_S3_Resource.ResourceBase):
@@ -60,12 +64,14 @@ class EC2TokensResource(EC2_S3_Resource.ResourceBase):
             raise exception.Unauthorized(
                 _('EC2 signature not supplied.'))
 
-    @ks_flask.unenforced_api
     def post(self):
         """Authenticate ec2 token.
 
         POST /v3/ec2tokens
         """
+        # Enforce RBAC in the same way as S3 tokens
+        ENFORCER.enforce_call(action='identity:ec2tokens_validate')
+
         token = self.handle_authenticate()
         token_reference = render_token.render_token_response_from_model(token)
         resp_body = jsonutils.dumps(token_reference)
