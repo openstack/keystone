@@ -64,6 +64,10 @@ ADMIN_OR_CRED_OWNER = (
     '(' + RULE_ADMIN_REQUIRED + ') '
     'or user_id:%(target.credential.user_id)s'
 )
+ADMIN_OR_MEMBER_AND_CRED_OWNER = (
+    '(' + RULE_ADMIN_REQUIRED + ') or '
+    '(role:member and user_id:%(target.credential.user_id)s)'
+)
 
 rules = [
     policy.RuleDefault(
