@@ -1,0 +1,4 @@
+---
+fixes:
+  - |
+    Ldap identity backend did not interpret the enabled field as boolean.
