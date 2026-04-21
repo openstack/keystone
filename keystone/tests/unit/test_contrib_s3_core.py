@@ -39,6 +39,13 @@ class S3ContribCore(test_v3.RestfulTestCase):
         PROVIDERS.credential_api.create_credential(
             self.credential['id'], self.credential)
 
+    def test_http_get_method_not_allowed(self):
+        resp = self.get('/s3tokens',
+                        expected_status=http.client.METHOD_NOT_ALLOWED,
+                        convert=False)
+        self.assertEqual(http.client.METHOD_NOT_ALLOWED,
+                         resp.status_code)
+
     def test_good_response(self):
         sts = 'string to sign'  # opaque string from swift3
         sig = hmac.new(self.cred_blob['secret'].encode('ascii'),
