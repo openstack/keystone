@@ -818,6 +818,98 @@ class TestCredentialAppCreds(CredentialBaseTestCase):
             expected_status=http.client.FORBIDDEN,
         )
 
+    def test_app_cred_ec2_credential_cross_project_forbidden(self):
+        """EC2 credential project_id must match the app cred project.
+
+        An unrestricted app cred scoped to project A must not be used to
+        create an EC2 credential targeting a different project B.
+
+        Call ``POST /credentials``.
+        """
+        token_id = self._get_app_cred_token(unrestricted=True)
+
+        other_project = unit.new_project_ref(domain_id=self.domain_id)
+        PROVIDERS.resource_api.create_project(
+            other_project['id'], other_project
+        )
+
+        _, ec2_ref = unit.new_ec2_credential(
+            user_id=self.user_id, project_id=other_project['id']
+        )
+        self.post(
+            '/credentials',
+            body={'credential': ec2_ref},
+            token=token_id,
+            expected_status=http.client.FORBIDDEN,
+        )
+
+    def test_app_cred_ec2_auth_cross_project_rejected(self):
+        """EC2 auth is rejected when credential project differs from app cred.
+
+        A pre-existing EC2 credential whose project_id does not match the
+        linked application credential's project must be rejected at
+        authentication time, preventing cross-project lateral movement.
+
+        Call ``POST /ec2tokens``.
+        """
+        ref = unit.new_application_credential_ref(roles=[{'id': self.role_id}])
+        del ref['id']
+        r = self.post(
+            f'/users/{self.user_id}/application_credentials',
+            body={'application_credential': ref},
+        )
+        app_cred = r.result['application_credential']
+
+        other_project = unit.new_project_ref(domain_id=self.domain_id)
+        PROVIDERS.resource_api.create_project(
+            other_project['id'], other_project
+        )
+
+        # Bypass the API to plant a credential with a mismatched project_id.
+        # This simulates a credential that existed before the creation-time
+        # check was added, or one created via a direct DB write.
+        blob = {
+            'access': uuid.uuid4().hex,
+            'secret': uuid.uuid4().hex,
+            'trust_id': None,
+            'app_cred_id': app_cred['id'],
+        }
+        _, ec2_ref = unit.new_ec2_credential(
+            user_id=self.user_id, project_id=other_project['id'], blob=blob
+        )
+        PROVIDERS.credential_api.create_credential(ec2_ref['id'], ec2_ref)
+
+        signer = ec2_utils.Ec2Signer(blob['secret'])
+        params = {
+            'SignatureMethod': 'HmacSHA256',
+            'SignatureVersion': '2',
+            'AWSAccessKeyId': blob['access'],
+        }
+        request = {
+            'host': 'foo',
+            'verb': 'GET',
+            'path': '/bar',
+            'params': params,
+        }
+        sig_ref = {
+            'access': blob['access'],
+            'signature': signer.generate(request),
+            'host': 'foo',
+            'verb': 'GET',
+            'path': '/bar',
+            'params': params,
+        }
+        PROVIDERS.assignment_api.create_system_grant_for_user(
+            self.user_id, self.role_id
+        )
+        token = self.get_system_scoped_token()
+        self.post(
+            '/ec2tokens',
+            body={'ec2Credentials': sig_ref},
+            token=token,
+            expected_status=http.client.UNAUTHORIZED,
+        )
+
 
 class TestCredentialAccessToken(CredentialBaseTestCase):
     """Test credential with access token."""
