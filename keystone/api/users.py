@@ -94,6 +94,76 @@ def _check_unrestricted_application_credential(token):
             raise ks_exception.ForbiddenAction(action=action)
 
 
+def _is_delegated_token(oslo_context, token):
+    """Return True if the token is any form of delegation."""
+    trust_id = getattr(oslo_context, 'trust_id', None)
+    app_cred_id = getattr(token, 'application_credential_id', None)
+    access_token_id = getattr(token, 'access_token_id', None)
+    return bool(trust_id or app_cred_id or access_token_id)
+
+
+def _check_delegation_for_ec2(oslo_context, token, project_id):
+    """For delegated tokens raise unless project_id exactly matches scope.
+
+    Credentials with project_id=None (user-scoped secrets such as TOTP) are
+    treated as out-of-scope: a delegated token must not read or modify them.
+    """
+    if not _is_delegated_token(oslo_context, token):
+        return
+    if project_id != oslo_context.project_id:
+        raise ks_exception.ForbiddenAction(
+            action=_(
+                'EC2 credential project does not match the '
+                'project scope of the delegated token'
+            )
+        )
+
+
+def _block_delegated_token(oslo_context, token):
+    """Raise Forbidden if the token is any form of delegation."""
+    if oslo_context.is_delegated_auth:
+        raise ks_exception.Forbidden(
+            _(
+                'Cannot manage OAuth access tokens with a token '
+                'issued via delegation.'
+            )
+        )
+    if 'application_credential' in token.methods:
+        raise ks_exception.Forbidden(
+            _(
+                'Cannot manage OAuth access tokens with a token '
+                'issued via delegation.'
+            )
+        )
+
+
+def _block_delegated_token_app_creds(oslo_context, token):
+    """Raise Forbidden if the token is a trust or OAuth1 delegation.
+
+    Trust-scoped and OAuth1 access token-scoped tokens must not be used to
+    create, list, read, or delete application credentials or access rules.
+    Creating an application credential via such a token produces a persistent
+    credential that outlives the delegation's expiry or scope, providing a
+    backdoor that breaks the accountability model: the trust-scoped token
+    carries the full delegation chain enabling audit, but a derived application
+    credential does not.
+
+    Application credential tokens are intentionally excluded from this check.
+    The unrestricted/restricted distinction for application credentials is a
+    documented feature handled separately by
+    _check_unrestricted_application_credential.
+    """
+    trust_id = getattr(oslo_context, 'trust_id', None)
+    access_token_id = getattr(token, 'access_token_id', None)
+    if trust_id or access_token_id:
+        raise ks_exception.Forbidden(
+            _(
+                'Cannot manage application credentials with a token '
+                'issued via delegation.'
+            )
+        )
+
+
 def _build_user_target_enforcement():
     target = {}
     try:
@@ -408,9 +478,16 @@ class UserOSEC2CredentialsResourceListCreate(_UserOSEC2CredBaseResource):
         credential_refs = PROVIDERS.credential_api.list_credentials_for_user(
             user_id, type=CRED_TYPE_EC2
         )
-        collection_refs = [
-            _convert_v3_to_ec2_credential(cred) for cred in credential_refs
-        ]
+        token = self.auth_context['token']
+        collection_refs = []
+        for cred in credential_refs:
+            try:
+                _check_delegation_for_ec2(
+                    self.oslo_context, token, cred.get('project_id')
+                )
+            except (ks_exception.Forbidden, ks_exception.ForbiddenAction):
+                continue
+            collection_refs.append(_convert_v3_to_ec2_credential(cred))
         return self.wrap_collection(collection_refs)
 
     def post(self, user_id):
@@ -428,6 +505,7 @@ class UserOSEC2CredentialsResourceListCreate(_UserOSEC2CredBaseResource):
         PROVIDERS.identity_api.get_user(user_id)
         tenant_id = self.request_body_json.get('tenant_id')
         PROVIDERS.resource_api.get_project(tenant_id)
+        _check_delegation_for_ec2(self.oslo_context, token, tenant_id)
         blob = {
             'access': uuid.uuid4().hex,
             'secret': uuid.uuid4().hex,
@@ -448,13 +526,13 @@ class UserOSEC2CredentialsResourceListCreate(_UserOSEC2CredBaseResource):
 
 class UserOSEC2CredentialsResourceGetDelete(_UserOSEC2CredBaseResource):
     @staticmethod
-    def _get_cred_data(credential_id):
+    def _get_raw_cred(credential_id):
         cred = PROVIDERS.credential_api.get_credential(credential_id)
         if not cred or cred['type'] != CRED_TYPE_EC2:
             raise ks_exception.Unauthorized(
                 message=_('EC2 access key not found.')
             )
-        return _convert_v3_to_ec2_credential(cred)
+        return cred
 
     def get(self, user_id, credential_id):
         """Get a specific EC2 credential.
@@ -467,8 +545,13 @@ class UserOSEC2CredentialsResourceGetDelete(_UserOSEC2CredBaseResource):
         )
         PROVIDERS.identity_api.get_user(user_id)
         ec2_cred_id = utils.hash_access_key(credential_id)
-        cred_data = self._get_cred_data(ec2_cred_id)
-        return self.wrap_member(cred_data)
+        cred = self._get_raw_cred(ec2_cred_id)
+        _check_delegation_for_ec2(
+            self.oslo_context,
+            self.auth_context['token'],
+            cred.get('project_id'),
+        )
+        return self.wrap_member(_convert_v3_to_ec2_credential(cred))
 
     def delete(self, user_id, credential_id):
         """Delete a specific EC2 credential.
@@ -481,7 +564,12 @@ class UserOSEC2CredentialsResourceGetDelete(_UserOSEC2CredBaseResource):
         )
         PROVIDERS.identity_api.get_user(user_id)
         ec2_cred_id = utils.hash_access_key(credential_id)
-        self._get_cred_data(ec2_cred_id)
+        cred = self._get_raw_cred(ec2_cred_id)
+        _check_delegation_for_ec2(
+            self.oslo_context,
+            self.auth_context['token'],
+            cred.get('project_id'),
+        )
         PROVIDERS.credential_api.delete_credential(ec2_cred_id)
         return None, http.client.NO_CONTENT
 
@@ -510,13 +598,7 @@ class OAuth1ListAccessTokensResource(_OAuth1ResourceBase):
         GET /v3/users/{user_id}/OS-OAUTH1/access_tokens
         """
         ENFORCER.enforce_call(action='identity:list_access_tokens')
-        if self.oslo_context.is_delegated_auth:
-            raise ks_exception.Forbidden(
-                _(
-                    'Cannot list request tokens with a token '
-                    'issued via delegation.'
-                )
-            )
+        _block_delegated_token(self.oslo_context, self.auth_context['token'])
         refs = PROVIDERS.oauth_api.list_access_tokens(user_id)
         formatted_refs = [_format_token_entity(x) for x in refs]
         return self.wrap_collection(formatted_refs)
@@ -529,6 +611,7 @@ class OAuth1AccessTokenCRUDResource(_OAuth1ResourceBase):
         GET/HEAD /v3/users/{user_id}/OS-OAUTH1/access_tokens/{access_token_id}
         """
         ENFORCER.enforce_call(action='identity:get_access_token')
+        _block_delegated_token(self.oslo_context, self.auth_context['token'])
         access_token = PROVIDERS.oauth_api.get_access_token(access_token_id)
         if access_token['authorizing_user_id'] != user_id:
             raise ks_exception.NotFound()
@@ -544,6 +627,7 @@ class OAuth1AccessTokenCRUDResource(_OAuth1ResourceBase):
             action='identity:ec2_delete_credential',
             build_target=_build_enforcer_target_data_owner_and_user_id_match,
         )
+        _block_delegated_token(self.oslo_context, self.auth_context['token'])
         access_token = PROVIDERS.oauth_api.get_access_token(access_token_id)
         reason = (
             'Invalidating the token cache because an access token for '
@@ -694,6 +778,8 @@ class UserAppCredListCreateResource(ks_flask.ResourceBase):
         ENFORCER.enforce_call(
             action='identity:list_application_credentials', filters=filters
         )
+        token = self.auth_context['token']
+        _block_delegated_token_app_creds(self.oslo_context, token)
         app_cred_api = PROVIDERS.application_credential_api
         hints = self.build_driver_hints(filters)
         refs = app_cred_api.list_application_credentials(user_id, hints=hints)
@@ -715,6 +801,7 @@ class UserAppCredListCreateResource(ks_flask.ResourceBase):
             'application_credential', {}
         )
         token = self.auth_context['token']
+        _block_delegated_token_app_creds(self.oslo_context, token)
         _check_unrestricted_application_credential(token)
         if self.oslo_context.user_id != user_id:
             action = _(
@@ -779,6 +866,8 @@ class UserAppCredGetDeleteResource(ks_flask.ResourceBase):
         ENFORCER.enforce_call(
             action='identity:get_application_credential', target_attr=target
         )
+        token = self.auth_context['token']
+        _block_delegated_token_app_creds(self.oslo_context, token)
         ref = PROVIDERS.application_credential_api.get_application_credential(
             application_credential_id
         )
@@ -795,6 +884,7 @@ class UserAppCredGetDeleteResource(ks_flask.ResourceBase):
             action='identity:delete_application_credential', target_attr=target
         )
         token = self.auth_context['token']
+        _block_delegated_token_app_creds(self.oslo_context, token)
         _check_unrestricted_application_credential(token)
         PROVIDERS.application_credential_api.delete_application_credential(
             application_credential_id, initiator=self.audit_initiator
@@ -823,6 +913,8 @@ class UserAccessRuleListResource(ks_flask.ResourceBase):
             filters=filters,
             build_target=_build_user_target_enforcement,
         )
+        token = self.auth_context['token']
+        _block_delegated_token_app_creds(self.oslo_context, token)
         app_cred_api = PROVIDERS.application_credential_api
         hints = self.build_driver_hints(filters)
         refs = app_cred_api.list_access_rules_for_user(user_id, hints=hints)
@@ -849,6 +941,8 @@ class UserAccessRuleGetDeleteResource(ks_flask.ResourceBase):
             action='identity:get_access_rule',
             build_target=_build_user_target_enforcement,
         )
+        token = self.auth_context['token']
+        _block_delegated_token_app_creds(self.oslo_context, token)
         ref = PROVIDERS.application_credential_api.get_access_rule(
             access_rule_id
         )
@@ -865,6 +959,8 @@ class UserAccessRuleGetDeleteResource(ks_flask.ResourceBase):
             action='identity:delete_access_rule',
             build_target=_build_user_target_enforcement,
         )
+        token = self.auth_context['token']
+        _block_delegated_token_app_creds(self.oslo_context, token)
         PROVIDERS.application_credential_api.delete_access_rule(
             access_rule_id, initiator=self.audit_initiator
         )
