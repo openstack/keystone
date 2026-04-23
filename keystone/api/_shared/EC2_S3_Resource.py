@@ -178,6 +178,13 @@ class ResourceBase(ks_flask.ResourceBase):
                 cred_data['access_token_id']
             )
             roles = jsonutils.loads(access_token['role_ids'])
+            if cred_data['project_id'] != access_token['project_id']:
+                raise ks_exceptions.Unauthorized(
+                    _(
+                        'EC2 credential project does not match the '
+                        'OAuth1 access token project.'
+                    )
+                )
             auth_context = {'access_token_id': cred_data['access_token_id']}
         else:
             roles = PROVIDERS.assignment_api.get_roles_for_user_and_project(
