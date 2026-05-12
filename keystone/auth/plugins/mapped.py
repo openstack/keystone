@@ -110,6 +110,10 @@ def handle_scoped_token(token, federation_api, identity_api):
     response_data['group_ids'] = group_ids
     response_data[federation_constants.IDENTITY_PROVIDER] = identity_provider
     response_data[federation_constants.PROTOCOL] = protocol
+    # Preserve the original token's expiry to prevent users from
+    # indefinitely extending their session by repeatedly rescoping.
+    # The non-federated path in token.py does the same via setdefault().
+    response_data['expires_at'] = token.expires_at
 
     return response_data
 
