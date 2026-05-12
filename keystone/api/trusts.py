@@ -22,6 +22,7 @@ from oslo_log import log
 from oslo_policy import _checks as op_checks
 
 from keystone.api._shared import json_home_relations
+from keystone.common import authorization
 from keystone.common import context
 from keystone.common import json_home
 from keystone.common import provider_api
@@ -29,6 +30,7 @@ from keystone.common import rbac_enforcer
 from keystone.common.rbac_enforcer import policy
 from keystone.common import utils
 from keystone.common import validation
+import keystone.conf
 from keystone import exception
 from keystone.i18n import _
 from keystone.server import flask as ks_flask
@@ -36,6 +38,7 @@ from keystone.trust import schema
 
 
 LOG = log.getLogger(__name__)
+CONF = keystone.conf.CONF
 ENFORCER = rbac_enforcer.RBACEnforcer
 PROVIDERS = provider_api.ProviderAPIs
 
@@ -44,6 +47,30 @@ _build_parameter_relation = json_home_relations.os_trust_parameter_rel_func
 
 TRUST_ID_PARAMETER_RELATION = _build_parameter_relation(
     parameter_name='trust_id')
+
+
+def _check_application_credential():
+    """Block application credential tokens from all trust operations.
+
+    Application credentials are single-project delegation tokens. Allowing
+    them to read or manage trusts would permit a compromised application
+    credential to enumerate or manipulate the trust delegation chain,
+    expanding its effective scope beyond the single project it was issued for.
+    This applies regardless of the 'unrestricted' flag.
+    """
+    if CONF.security_compliance.allow_insecure_application_credential_trust_escalation:  # noqa
+        return
+    auth_context = flask.request.environ.get(
+        authorization.AUTH_CONTEXT_ENV, {}
+    )
+    token = auth_context.get('token')
+    if token and 'application_credential' in token.methods:
+        raise exception.ForbiddenAction(
+            action=_(
+                "Using method 'application_credential' is not "
+                "allowed for managing trusts."
+            )
+        )
 
 
 def _build_trust_target_enforcement():
@@ -101,14 +128,7 @@ class TrustResource(ks_flask.ResourceBase):
     json_home_parameter_rel_func = _build_parameter_relation
 
     def _check_unrestricted(self):
-        if self.oslo_context.is_admin:
-            return
-        token = self.auth_context['token']
-        if 'application_credential' in token.methods:
-            if not token.application_credential['unrestricted']:
-                action = _("Using method 'application_credential' is not "
-                           "allowed for managing trusts.")
-                raise exception.ForbiddenAction(action=action)
+        _check_application_credential()
 
     def _find_redelegated_trust(self):
         # Check if delegated via trust
@@ -166,6 +186,7 @@ class TrustResource(ks_flask.ResourceBase):
     def _get_trust(self, trust_id):
         ENFORCER.enforce_call(action='identity:get_trust',
                               build_target=_build_trust_target_enforcement)
+        _check_application_credential()
 
         # NOTE(cmurphy) look up trust before doing is_admin authorization - to
         # maintain the API contract, we expect a missing trust to raise a 404
@@ -214,6 +235,7 @@ class TrustResource(ks_flask.ResourceBase):
                                   target_attr=target)
         else:
             ENFORCER.enforce_call(action='identity:list_trusts')
+        _check_application_credential()
 
         trusts = []
 
@@ -361,6 +383,7 @@ class RolesForTrustListResource(flask_restful.Resource):
             # block access here
             raise exception.ForbiddenAction(
                 action=_('Requested user has no relation to this trust'))
+        _check_application_credential()
 
         trust = PROVIDERS.trust_api.get_trust(trust_id)
 
@@ -410,6 +433,7 @@ class RoleForTrustResource(flask_restful.Resource):
             # block access here
             raise exception.ForbiddenAction(
                 action=_('Requested user has no relation to this trust'))
+        _check_application_credential()
 
         trust = PROVIDERS.trust_api.get_trust(trust_id)
 
