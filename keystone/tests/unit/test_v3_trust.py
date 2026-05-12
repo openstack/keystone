@@ -648,6 +648,99 @@ class TrustsWithApplicationCredentials(test_v3.RestfulTestCase):
             expected_status=http.client.FORBIDDEN,
         )
 
+    def _get_app_cred_token(self, unrestricted=False):
+        app_cred = {
+            'id': uuid.uuid4().hex,
+            'user_id': self.user_id,
+            'project_id': self.project_id,
+            'name': uuid.uuid4().hex,
+            'roles': [{'id': self.role_id}],
+            'secret': uuid.uuid4().hex,
+        }
+        if unrestricted:
+            app_cred['unrestricted'] = True
+        PROVIDERS.application_credential_api.create_application_credential(
+            app_cred
+        )
+        auth_data = self.build_authentication_request(
+            app_cred_id=app_cred['id'], secret=app_cred['secret']
+        )
+        r = self.v3_create_token(
+            auth_data, expected_status=http.client.CREATED
+        )
+        return r.headers['x-subject-token']
+
+    def test_create_trust_with_unrestricted_application_credential(self):
+        """Unrestricted app cred must also be blocked from creating trusts."""
+        trust_body = unit.new_trust_ref(
+            trustor_user_id=self.user_id,
+            trustee_user_id=self.trustee_user_id,
+            project_id=self.project_id,
+            role_ids=[self.role_id],
+        )
+        self.post(
+            '/OS-TRUST/trusts',
+            body={'trust': trust_body},
+            token=self._get_app_cred_token(unrestricted=True),
+            expected_status=http.client.FORBIDDEN,
+        )
+
+    def test_list_trusts_with_application_credential(self):
+        """App cred token must not be able to list trusts."""
+        self.get(
+            '/OS-TRUST/trusts',
+            token=self._get_app_cred_token(),
+            expected_status=http.client.FORBIDDEN,
+        )
+
+    def test_get_trust_with_application_credential(self):
+        """App cred token must not be able to read a specific trust."""
+        ref = unit.new_trust_ref(
+            trustor_user_id=self.user_id,
+            trustee_user_id=self.trustee_user_id,
+            project_id=self.project_id,
+            role_ids=[self.role_id],
+        )
+        r = self.post('/OS-TRUST/trusts', body={'trust': ref})
+        trust_id = r.result['trust']['id']
+        self.get(
+            f'/OS-TRUST/trusts/{trust_id}',
+            token=self._get_app_cred_token(),
+            expected_status=http.client.FORBIDDEN,
+        )
+
+    def test_list_trust_roles_with_application_credential(self):
+        """App cred token must not be able to list roles for a trust."""
+        ref = unit.new_trust_ref(
+            trustor_user_id=self.user_id,
+            trustee_user_id=self.trustee_user_id,
+            project_id=self.project_id,
+            role_ids=[self.role_id],
+        )
+        r = self.post('/OS-TRUST/trusts', body={'trust': ref})
+        trust_id = r.result['trust']['id']
+        self.get(
+            f'/OS-TRUST/trusts/{trust_id}/roles',
+            token=self._get_app_cred_token(),
+            expected_status=http.client.FORBIDDEN,
+        )
+
+    def test_get_trust_role_with_application_credential(self):
+        """App cred token must not be able to get a specific trust role."""
+        ref = unit.new_trust_ref(
+            trustor_user_id=self.user_id,
+            trustee_user_id=self.trustee_user_id,
+            project_id=self.project_id,
+            role_ids=[self.role_id],
+        )
+        r = self.post('/OS-TRUST/trusts', body={'trust': ref})
+        trust_id = r.result['trust']['id']
+        self.get(
+            f'/OS-TRUST/trusts/{trust_id}/roles/{self.role_id}',
+            token=self._get_app_cred_token(),
+            expected_status=http.client.FORBIDDEN,
+        )
+
     def test_delete_trust_with_application_credential(self):
         ref = unit.new_trust_ref(
             trustor_user_id=self.user_id,
