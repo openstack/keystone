@@ -473,14 +473,21 @@ class RBACEnforcer:
 
             policy_dict['target'] = target_attr or build_target()
 
-        # Pull the data from the submitted json body to generate
-        # appropriate input/target attributes, we take an explicit copy here
-        # to ensure we're not somehow corrupting
+        # Pull the data from the submitted json body. We namespace it under
+        # 'request_body' to prevent user-controlled input from overwriting
+        # security-critical keys in the policy dict (e.g. 'target' populated
+        # by build_target/target_attr, or view_args like 'user_id').
         json_input = flask.request.get_json(force=True, silent=True) or {}
-        policy_dict.update(json_input.copy())
+        if json_input:
+            policy_dict['request_body'] = json_input.copy()
 
-        # Generate the filter_attr dataset.
-        policy_dict.update(cls._extract_filter_values(filters))
+        # Namespace query-string filter values under 'filter_attr' to prevent
+        # attacker-controlled query params from overwriting view_args (e.g.
+        # user_id from /v3/users/{user_id}/...) or other trusted keys in the
+        # policy dict via %(key)s substitutions in policy rules.
+        filter_values = cls._extract_filter_values(filters)
+        if filter_values:
+            policy_dict['filter_attr'] = filter_values
 
         flattened = utils.flatten_dict(policy_dict)
         if LOG.logger.getEffectiveLevel() <= log.DEBUG:
