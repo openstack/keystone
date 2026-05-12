@@ -23,6 +23,7 @@ from keystone.tests import unit
 from keystone.tests.unit import base_classes
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit.ksfixtures import temporaryfile
+from keystone.tests.unit import test_v3
 
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
@@ -2376,3 +2377,79 @@ class DomainAdminTests(
                 headers=self.headers,
                 expected_status_code=http.client.FORBIDDEN,
             )
+
+
+class TargetInjectionGrantTests(test_v3.RestfulTestCase):
+    """Test that JSON body injection cannot bypass grant RBAC.
+
+    Verifies CVE-2026-42999: the RBAC enforcer must not allow the JSON
+    request body to overwrite security-critical keys in the policy dict.
+    """
+
+    def setUp(self):
+        super().setUp()
+        policy_file = self.useFixture(temporaryfile.SecureTempFile())
+        self.useFixture(
+            ksfixtures.Policy(
+                self.config_fixture, policy_file=policy_file.file_name
+            )
+        )
+        with open(policy_file.file_name, 'w') as f:
+            overrides = {
+                'identity:create_grant': (
+                    '(role:admin and system_scope:all) or '
+                    '(role:admin and '
+                    'domain_id:%(target.user.domain_id)s and '
+                    'domain_id:%(target.domain.id)s) and '
+                    '(domain_id:%(target.role.domain_id)s or '
+                    'None:%(target.role.domain_id)s)'
+                )
+            }
+            f.write(jsonutils.dumps(overrides))
+
+    def test_inherited_grant_cannot_escalate_cross_domain(self):
+        """PUT OS-INHERIT grant must not allow cross-domain escalation.
+
+        A domain admin in domain A tries to create an inherited admin role
+        grant on domain B by injecting target data. Without the fix the
+        policy would see all domains matching the attacker's domain.
+        """
+        domain_a = unit.new_domain_ref()
+        PROVIDERS.resource_api.create_domain(domain_a['id'], domain_a)
+        attacker = unit.create_user(
+            PROVIDERS.identity_api, domain_id=domain_a['id']
+        )
+        admin_role = self.role
+        PROVIDERS.assignment_api.create_grant(
+            admin_role['id'], user_id=attacker['id'], domain_id=domain_a['id']
+        )
+
+        domain_b = unit.new_domain_ref()
+        PROVIDERS.resource_api.create_domain(domain_b['id'], domain_b)
+
+        attacker_auth = self.build_authentication_request(
+            user_id=attacker['id'],
+            password=attacker['password'],
+            domain_id=domain_a['id'],
+        )
+
+        inherit_url = (
+            '/OS-INHERIT/domains/{domain_id}/users/{user_id}'
+            '/roles/{role_id}/inherited_to_projects'
+        ).format(
+            domain_id=domain_b['id'],
+            user_id=attacker['id'],
+            role_id=admin_role['id'],
+        )
+        self.put(
+            inherit_url,
+            auth=attacker_auth,
+            body={
+                'target': {
+                    'user': {'domain_id': domain_a['id']},
+                    'domain': {'id': domain_a['id']},
+                    'role': {'domain_id': None, 'name': 'member'},
+                }
+            },
+            expected_status=http.client.FORBIDDEN,
+        )

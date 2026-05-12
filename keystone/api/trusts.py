@@ -279,8 +279,10 @@ class TrustsResource(TrustResourceBase):
 
         POST /v3/OS-TRUST/trusts
         """
-        ENFORCER.enforce_call(action='identity:create_trust')
         trust = self.request_body_json.get('trust', {})
+        ENFORCER.enforce_call(
+            action='identity:create_trust', target_attr={'trust': trust}
+        )
         self._check_unrestricted()
 
         if trust.get('project_id') and not trust.get('roles'):
