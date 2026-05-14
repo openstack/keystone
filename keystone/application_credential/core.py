@@ -179,14 +179,15 @@ class Manager(manager.Manager):
         return [self._process_app_cred(app_cred) for app_cred in app_cred_list]
 
     @MEMOIZE
-    def get_access_rule(self, access_rule_id):
+    def get_access_rule(self, access_rule_id, user_id=None):
         """Get access rule details.
 
         :param str access_rule_id: Access Rule ID
+        :param str user_id: If provided, the rule must belong to this user.
 
         :returns: an access rule
         """
-        return self.driver.get_access_rule(access_rule_id)
+        return self.driver.get_access_rule(access_rule_id, user_id=user_id)
 
     def list_access_rules_for_user(self, user_id, hints=None):
         """List access rules for user.
@@ -258,17 +259,18 @@ class Manager(manager.Manager):
         for app_cred in app_creds:
             self.get_application_credential.invalidate(self, app_cred['id'])
 
-    def delete_access_rule(self, access_rule_id, initiator=None):
+    def delete_access_rule(self, access_rule_id, initiator=None, user_id=None):
         """Delete an access rule.
 
         :param str: access_rule_id: Access Rule ID
         :param initiator: CADF initiator
+        :param str user_id: If provided, the rule must belong to this user.
 
         :raises keystone.exception.AccessRuleNotFound: If the access rule
             doesn't exist.
         """
-        self.driver.delete_access_rule(access_rule_id)
-        self.get_access_rule.invalidate(self, access_rule_id)
+        self.driver.delete_access_rule(access_rule_id, user_id=user_id)
+        self.get_access_rule.invalidate(self, access_rule_id, user_id)
         notifications.Audit.deleted(
             self._ACCESS_RULE, access_rule_id, initiator
         )
@@ -285,7 +287,7 @@ class Manager(manager.Manager):
         )
         self.driver.delete_access_rules_for_user(user_id)
         for rule in access_rules:
-            self.get_access_rule.invalidate(self, rule['id'])
+            self.get_access_rule.invalidate(self, rule['id'], user_id)
             notifications.Audit.deleted(
                 self._ACCESS_RULE, rule['id'], initiator
             )

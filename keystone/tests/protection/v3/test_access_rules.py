@@ -152,6 +152,152 @@ class _ProjectUsersTests:
                 expected_status_code=http.client.FORBIDDEN,
             )
 
+    def test_user_cannot_get_other_users_rule_via_own_user_id(self):
+        """BOLA regression: own user_id in path with victim's rule ID.
+
+        The policy check passes (requester matches path user_id) but the
+        rule belongs to a different user and must not be returned.
+        """
+        victim = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
+        victim = PROVIDERS.identity_api.create_user(victim)
+        project = unit.new_project_ref(
+            domain_id=CONF.identity.default_domain_id
+        )
+        project = PROVIDERS.resource_api.create_project(project['id'], project)
+        PROVIDERS.assignment_api.create_grant(
+            self.bootstrapper.member_role_id,
+            user_id=victim['id'],
+            project_id=project['id'],
+        )
+        victim_rule_id = uuid.uuid4().hex
+        app_cred = {
+            'id': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex,
+            'user_id': victim['id'],
+            'project_id': project['id'],
+            'secret': uuid.uuid4().hex,
+            'access_rules': [
+                {
+                    'id': victim_rule_id,
+                    'service': uuid.uuid4().hex,
+                    'path': uuid.uuid4().hex,
+                    'method': uuid.uuid4().hex[16:],
+                }
+            ],
+        }
+        PROVIDERS.application_credential_api.create_application_credential(
+            app_cred
+        )
+        with self.test_client() as c:
+            # Attacker uses their OWN user_id in the path but the victim's
+            # access_rule_id — the policy check passes, ownership must not.
+            path = f'/v3/users/{self.user_id}/access_rules/{victim_rule_id}'
+            c.get(
+                path,
+                headers=self.headers,
+                expected_status_code=http.client.NOT_FOUND,
+            )
+
+    def test_user_cannot_delete_other_users_rule_via_own_user_id(self):
+        """BOLA regression: own user_id in path with victim's rule ID.
+
+        The policy check passes (requester matches path user_id) but the
+        rule belongs to a different user and must not be deleted.
+        """
+        victim = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
+        victim = PROVIDERS.identity_api.create_user(victim)
+        project = unit.new_project_ref(
+            domain_id=CONF.identity.default_domain_id
+        )
+        project = PROVIDERS.resource_api.create_project(project['id'], project)
+        PROVIDERS.assignment_api.create_grant(
+            self.bootstrapper.member_role_id,
+            user_id=victim['id'],
+            project_id=project['id'],
+        )
+        victim_rule_id = uuid.uuid4().hex
+        victim_app_cred = {
+            'id': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex,
+            'user_id': victim['id'],
+            'project_id': project['id'],
+            'secret': uuid.uuid4().hex,
+            'access_rules': [
+                {
+                    'id': victim_rule_id,
+                    'service': uuid.uuid4().hex,
+                    'path': uuid.uuid4().hex,
+                    'method': uuid.uuid4().hex[16:],
+                }
+            ],
+        }
+        PROVIDERS.application_credential_api.create_application_credential(
+            victim_app_cred
+        )
+        PROVIDERS.application_credential_api.delete_application_credential(
+            victim_app_cred['id']
+        )
+        with self.test_client() as c:
+            path = f'/v3/users/{self.user_id}/access_rules/{victim_rule_id}'
+            c.delete(
+                path,
+                headers=self.headers,
+                expected_status_code=http.client.NOT_FOUND,
+            )
+
+    def test_user_cannot_reuse_other_users_access_rule_id(self):
+        """Cross-user reuse regression: referencing another user's rule by ID.
+
+        When creating an application credential with an existing access_rule
+        ID, the rule must belong to the creating user.
+        """
+        victim = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
+        victim = PROVIDERS.identity_api.create_user(victim)
+        victim_project = unit.new_project_ref(
+            domain_id=CONF.identity.default_domain_id
+        )
+        victim_project = PROVIDERS.resource_api.create_project(
+            victim_project['id'], victim_project
+        )
+        PROVIDERS.assignment_api.create_grant(
+            self.bootstrapper.member_role_id,
+            user_id=victim['id'],
+            project_id=victim_project['id'],
+        )
+        victim_rule_id = uuid.uuid4().hex
+        victim_app_cred = {
+            'id': uuid.uuid4().hex,
+            'name': uuid.uuid4().hex,
+            'user_id': victim['id'],
+            'project_id': victim_project['id'],
+            'secret': uuid.uuid4().hex,
+            'access_rules': [
+                {
+                    'id': victim_rule_id,
+                    'service': uuid.uuid4().hex,
+                    'path': uuid.uuid4().hex,
+                    'method': uuid.uuid4().hex[16:],
+                }
+            ],
+        }
+        PROVIDERS.application_credential_api.create_application_credential(
+            victim_app_cred
+        )
+        with self.test_client() as c:
+            path = f'/v3/users/{self.user_id}/application_credentials'
+            body = {
+                'application_credential': {
+                    'name': uuid.uuid4().hex,
+                    'access_rules': [{'id': victim_rule_id}],
+                }
+            }
+            c.post(
+                path,
+                json=body,
+                headers=self.headers,
+                expected_status_code=http.client.NOT_FOUND,
+            )
+
     def test_user_cannot_get_own_non_existent_access_rule_not_found(self):
         with self.test_client() as c:
             c.get(

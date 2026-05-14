@@ -850,7 +850,7 @@ class UserAccessRuleGetDeleteResource(ks_flask.ResourceBase):
             build_target=_build_user_target_enforcement,
         )
         ref = PROVIDERS.application_credential_api.get_access_rule(
-            access_rule_id
+            access_rule_id, user_id=user_id
         )
         return self.wrap_member(ref)
 
@@ -866,7 +866,7 @@ class UserAccessRuleGetDeleteResource(ks_flask.ResourceBase):
             build_target=_build_user_target_enforcement,
         )
         PROVIDERS.application_credential_api.delete_access_rule(
-            access_rule_id, initiator=self.audit_initiator
+            access_rule_id, initiator=self.audit_initiator, user_id=user_id
         )
         return None, http.client.NO_CONTENT
 
