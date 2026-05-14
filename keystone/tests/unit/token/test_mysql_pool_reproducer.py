@@ -122,7 +122,7 @@ class MySQLTokenValidationPoolExhaustion(
             f'Keystone left DB connections checked out: {pool.status()}\n{stacks}',
         )
 
-    def test_id_mapping_list_leaks_mysql_connection(self):
+    def test_id_mapping_list_returns_mysql_connections(self):
         local_entity = {
             'domain_id': default_fixtures.DEFAULT_DOMAIN_ID,
             'local_id': 'local-user',
@@ -135,15 +135,7 @@ class MySQLTokenValidationPoolExhaustion(
             default_fixtures.DEFAULT_DOMAIN_ID
         )
         list(mappings)
-
-        self.assertGreater(
-            self._pool().checkedout(),
-            0,
-            'Expected ID mapping list to leak a checked-out DB connection '
-            'on the buggy code path.',
-        )
-        del mappings
-        gc.collect()
+        self.assertNoConnectionsCheckedOut()
 
     def test_project_scoped_token_validation_returns_mysql_connections(self):
         token = PROVIDERS.token_provider_api.issue_token(
@@ -278,22 +270,15 @@ class MySQLWSGITokenValidationPoolExhaustion(
         self.assertNoConnectionsCheckedOut()
         return response
 
-    def test_wsgi_token_rendering_leaks_mysql_connection(self):
-        self.get_admin_token()
+    def test_wsgi_project_scoped_token_validation_returns_mysql_connections(
+        self,
+    ):
+        admin_token = self.get_admin_token()
+        self.assertNoConnectionsCheckedOut()
 
-        stacks = '\n\n'.join(self._checked_out.values())
-        self.assertGreater(
-            self._pool().checkedout(),
-            0,
-            'Expected WSGI token rendering to leak a checked-out DB '
-            'connection on the buggy code path.',
-        )
-        self.assertIn('get_enabled_service_providers', stacks)
+        for _i in range(5):
+            subject_token = self._create_project_scoped_token_over_wsgi()
+            self._validate_token_over_wsgi(subject_token, admin_token)
 
-        # Release the cached service-provider value that holds the lazy
-        # SQLAlchemy query alive so oslo.db can tear down the temporary MySQL
-        # database cleanly after this bug reproducer passes.
-        PROVIDERS.federation_api.get_enabled_service_providers.invalidate(
-            PROVIDERS.federation_api
-        )
-        gc.collect()
+        PROVIDERS.resource_api.get_project(self.project_id)
+        self.assertNoConnectionsCheckedOut()

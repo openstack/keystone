@@ -426,4 +426,4 @@ class Federation(base.FederationDriverBase):
         with sql.session_for_read() as session:
             service_providers = session.query(ServiceProviderModel)
             service_providers = service_providers.filter_by(enabled=True)
-            return service_providers
+            return service_providers.all()

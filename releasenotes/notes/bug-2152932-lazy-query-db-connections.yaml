@@ -1,0 +1,11 @@
+---
+security:
+  - |
+    [`bug 2152932 <https://bugs.launchpad.net/keystone/+bug/2152932>`_]
+    Fixed a database connection leak that could affect deployments using a
+    MySQL backend for federation service provider or identity mapping data.
+    Under sustained token validation or federation-related API activity,
+    keystone workers could retain database connections longer than intended
+    and eventually exhaust their local connection pools. Operators may have
+    observed intermittent API failures, request timeouts, or MySQL connection
+    exhaustion until affected worker processes were restarted.

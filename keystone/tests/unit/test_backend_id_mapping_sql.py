@@ -515,14 +515,13 @@ class SqlIDMapping(test_backend_sql.SqlTests):
         # issues especially in attribute mappers.
         with sql.session_for_read():
             # List group mappings for domainB. Given the data set, this should
-            # only return a single reference, so don't both iterating the query
-            # response.
+            # only return a single reference.
             domain_b_mappings_group = (
                 PROVIDERS.id_mapping_api.get_domain_mapping_list(
                     self.domainB['id'], entity_type=mapping.EntityType.GROUP
                 )
             )
-            domain_b_mappings_group = domain_b_mappings_group.first().to_dict()
+            domain_b_mappings_group = domain_b_mappings_group[0].to_dict()
         self.assertCountEqual(local_entities[2], domain_b_mappings_group)
 
     def _assert_repeated_create_id_mapping(self, use_bytes: bool):

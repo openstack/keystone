@@ -63,7 +63,7 @@ class Mapping(base.MappingDriverBase):
         if entity_type is not None:
             filters['entity_type'] = entity_type
         with sql.session_for_read() as session:
-            return session.query(IDMapping).filter_by(**filters)
+            return session.query(IDMapping).filter_by(**filters).all()
 
     def get_id_mapping(self, public_id):
         with sql.session_for_read() as session:
