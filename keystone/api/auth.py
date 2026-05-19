@@ -339,12 +339,21 @@ class AuthTokenResource(_AuthFederationWebSSOBase):
         """Revoke a token.
 
         DELETE /v3/auth/tokens
+
+        By default, all tokens derived from this token (via rescoping) are
+        also revoked. Pass ``?cascade=false`` to revoke only this specific
+        token without affecting its descendants.
         """
         ENFORCER.enforce_call(action='identity:revoke_token')
         token_id = flask.request.headers.get(
             authorization.SUBJECT_TOKEN_HEADER
         )
-        PROVIDERS.token_provider_api.revoke_token(token_id)
+        cascade = strutils.bool_from_string(
+            flask.request.args.get('cascade', 'true'), default=True
+        )
+        PROVIDERS.token_provider_api.revoke_token(
+            token_id, revoke_chain=cascade
+        )
         return None, http.client.NO_CONTENT
 
 

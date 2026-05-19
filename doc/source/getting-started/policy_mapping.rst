@@ -136,6 +136,7 @@ identity:check_token                                       HEAD /v3/auth/tokens
 identity:validate_token                                    GET /v3/auth/tokens
 identity:revocation_list                                   GET /v3/auth/tokens/OS-PKI/revoked
 identity:revoke_token                                      DELETE /v3/auth/tokens
+identity:revoke_tokens_for_user                            DELETE /v3/users/{user_id}/tokens
 identity:create_trust                                      POST /v3/OS-TRUST/trusts
 identity:list_trusts                                       GET /v3/OS-TRUST/trusts
 identity:list_trusts_for_trustor                           GET /v3/OS-TRUST/trusts?trustor_user_id={trustor_user_id}

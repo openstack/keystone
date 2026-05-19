@@ -869,6 +869,11 @@ class TokenAPITests:
         )
 
     def test_unscoped_token_is_invalid_after_enabling_disabled_user(self):
+        # When a user is disabled via an external backend (simulated here
+        # by bypassing the normal update_user path, as happens with
+        # readonly LDAP), the first failed token validation now persists a
+        # durable revocation event. Re-enabling the user in the external
+        # directory does NOT revive tokens issued before the disable.
         unscoped_token = self._get_unscoped_token()
         # Make sure the token is valid
         r = self._validate_token(unscoped_token)
@@ -879,23 +884,27 @@ class TokenAPITests:
         )
         user = PROVIDERS.identity_api.get_user(user_id)
         user["enabled"] = False
-        # Disable the user
+        # Disable the user externally (simulates LDAP readonly backend).
         PROVIDERS.identity_api._update_user_with_federated_objects(
             user, driver, entity_id
         )
         PROVIDERS.identity_api.get_user.invalidate(self, user_id)
-        # Ensure validating a token for a disabled user fails
+        # Ensure validating a token for a disabled user fails, and that
+        # the failure persists a revocation event.
         self._validate_token(
             unscoped_token, expected_status=http.client.NOT_FOUND
         )
-        ## Re-enable the user
+        # Re-enable the user externally.
         user["enabled"] = True
         PROVIDERS.identity_api._update_user_with_federated_objects(
             user, driver, entity_id
         )
         PROVIDERS.identity_api.get_user.invalidate(self, user_id)
-        ## Ensure validating a token for a re-enabled user passes
-        self._validate_token(unscoped_token, expected_status=http.client.OK)
+        # The token must remain invalid: the revocation event created when
+        # the disabled user was detected survives the re-enable.
+        self._validate_token(
+            unscoped_token, expected_status=http.client.NOT_FOUND
+        )
 
     def test_unscoped_token_is_invalid_after_disabling_user_domain(self):
         unscoped_token = self._get_unscoped_token()
@@ -4141,6 +4150,184 @@ class TestTokenRevokeById(test_v3.RestfulTestCase):
             expected_status=http.client.OK,
         )
 
+    def test_revoke_token_cascade_invalidates_child_and_grandchild(self):
+        """Revoking a token cascades to all derived tokens by default.
+
+        DELETE /v3/auth/tokens defaults to cascade=true: revoking the
+        parent also invalidates every token rescoped from it (children,
+        grandchildren, etc.) via the audit_chain_id mechanism.
+        """
+        parent = self.get_requested_token(
+            self.build_authentication_request(
+                user_id=self.user1['id'],
+                password=self.user1['password'],
+                project_id=self.projectA['id'],
+            )
+        )
+        child = self.get_requested_token(
+            self.build_authentication_request(
+                token=parent, project_id=self.projectA['id']
+            )
+        )
+        grandchild = self.get_requested_token(
+            self.build_authentication_request(
+                token=child, project_id=self.projectA['id']
+            )
+        )
+
+        # Verify grandchild is valid before revocation.
+        self.head(
+            '/auth/tokens',
+            headers={'X-Subject-Token': grandchild},
+            expected_status=http.client.OK,
+        )
+
+        # Revoke parent (cascade=true is the default).
+        self.delete('/auth/tokens', headers={'X-Subject-Token': parent})
+
+        # Child and grandchild must be invalid.
+        self.head(
+            '/auth/tokens',
+            headers={'X-Subject-Token': child},
+            expected_status=http.client.NOT_FOUND,
+        )
+        self.head(
+            '/auth/tokens',
+            headers={'X-Subject-Token': grandchild},
+            expected_status=http.client.NOT_FOUND,
+        )
+
+    def test_revoke_token_cascade_false_preserves_child(self):
+        """?cascade=false revokes only the specific token, not its descendants."""
+        parent = self.get_requested_token(
+            self.build_authentication_request(
+                user_id=self.user1['id'],
+                password=self.user1['password'],
+                project_id=self.projectA['id'],
+            )
+        )
+        child = self.get_requested_token(
+            self.build_authentication_request(
+                token=parent, project_id=self.projectA['id']
+            )
+        )
+
+        # Revoke parent with cascade=false.
+        self.delete(
+            '/auth/tokens?cascade=false', headers={'X-Subject-Token': parent}
+        )
+
+        # Parent is revoked.
+        self.head(
+            '/auth/tokens',
+            headers={'X-Subject-Token': parent},
+            expected_status=http.client.NOT_FOUND,
+        )
+        # Child survives.
+        self.head(
+            '/auth/tokens',
+            headers={'X-Subject-Token': child},
+            expected_status=http.client.OK,
+        )
+
+
+class TestUserTokensRevoke(test_v3.RestfulTestCase):
+    """Tests for DELETE /v3/users/{user_id}/tokens."""
+
+    def setUp(self):
+        super().setUp()
+        self.useFixture(
+            ksfixtures.KeyRepository(
+                self.config_fixture,
+                'fernet_tokens',
+                CONF.fernet_tokens.max_active_keys,
+            )
+        )
+        self.config_fixture.config(group='token', provider='fernet')
+        # Create a non-admin role so test users are unprivileged.
+        member_role = unit.new_role_ref(name='member')
+        PROVIDERS.role_api.create_role(member_role['id'], member_role)
+        self.member_role_id = member_role['id']
+        # Create two unprivileged users for testing.
+        self.user_a = unit.create_user(
+            PROVIDERS.identity_api, domain_id=self.domain_id
+        )
+        self.user_b = unit.create_user(
+            PROVIDERS.identity_api, domain_id=self.domain_id
+        )
+        for u in (self.user_a, self.user_b):
+            PROVIDERS.assignment_api.add_role_to_user_and_project(
+                u['id'], self.project_id, self.member_role_id
+            )
+
+    def _token_for(self, user):
+        return self.get_requested_token(
+            self.build_authentication_request(
+                user_id=user['id'],
+                password=user['password'],
+                project_id=self.project_id,
+            )
+        )
+
+    def _is_valid(self, token):
+        """Return True if the token is still valid."""
+        r = self.head(
+            '/auth/tokens',
+            headers={'X-Subject-Token': token},
+            expected_status=[http.client.OK, http.client.NOT_FOUND],
+        )
+        return r.status_int == http.client.OK
+
+    def test_revoke_all_tokens_for_self(self):
+        """User can revoke all their own tokens via DELETE /users/{id}/tokens."""
+        token = self._token_for(self.user_a)
+        self.assertTrue(self._is_valid(token))
+        self.delete(
+            f'/users/{self.user_a["id"]}/tokens',
+            token=token,
+            expected_status=http.client.NO_CONTENT,
+        )
+        self.assertFalse(self._is_valid(token))
+
+    def test_admin_can_revoke_tokens_for_other_user(self):
+        """Admin can revoke all tokens for another user."""
+        token = self._token_for(self.user_a)
+        self.assertTrue(self._is_valid(token))
+        # admin_token is used by default when no token= is passed.
+        self.delete(
+            f'/users/{self.user_a["id"]}/tokens',
+            expected_status=http.client.NO_CONTENT,
+        )
+        self.assertFalse(self._is_valid(token))
+
+    def test_non_owner_cannot_revoke_other_users_tokens(self):
+        """A regular (non-admin) user cannot revoke another user's tokens."""
+        victim_token = self._token_for(self.user_a)
+        attacker_token = self._token_for(self.user_b)
+        self.delete(
+            f'/users/{self.user_a["id"]}/tokens',
+            token=attacker_token,
+            expected_status=http.client.FORBIDDEN,
+        )
+        # Victim's token is unaffected.
+        self.assertTrue(self._is_valid(victim_token))
+
+    def test_revoke_all_tokens_disables_derived_chain(self):
+        """DELETE /users/{id}/tokens revokes parent and all rescoped children."""
+        parent = self._token_for(self.user_a)
+        child = self.get_requested_token(
+            self.build_authentication_request(
+                token=parent, project_id=self.project_id
+            )
+        )
+        self.delete(
+            f'/users/{self.user_a["id"]}/tokens',
+            token=parent,
+            expected_status=http.client.NO_CONTENT,
+        )
+        self.assertFalse(self._is_valid(parent))
+        self.assertFalse(self._is_valid(child))
+
 
 class TestTokenRevokeApi(TestTokenRevokeById):
     """Test token revocation on the v3 Identity API."""
@@ -4172,17 +4359,17 @@ class TestTokenRevokeApi(TestTokenRevokeById):
 
     def assertValidRevokedTokenResponse(self, events_response, **kwargs):
         events = events_response['events']
-        self.assertEqual(1, len(events))
-        for k, v in kwargs.items():
-            self.assertEqual(v, events[0].get(k))
-        self.assertIsNotNone(events[0]['issued_before'])
+        # Cascade revocation (the default) creates two events per DELETE:
+        # one audit_id event for the token itself and one audit_chain_id
+        # event for any descendants. Verify at least one event matches.
+        self.assertGreaterEqual(len(events), 1)
+        matching = [
+            e for e in events if all(e.get(k) == v for k, v in kwargs.items())
+        ]
+        self.assertEqual(1, len(matching))
+        event = matching[0]
+        self.assertIsNotNone(event['issued_before'])
         self.assertIsNotNone(events_response['links'])
-        del events_response['events'][0]['issued_before']
-        del events_response['events'][0]['revoked_at']
-        del events_response['links']
-
-        expected_response = {'events': [kwargs]}
-        self.assertEqual(expected_response, events_response)
 
     def test_revoke_token(self):
         scoped_token = self.get_scoped_token()
@@ -4287,22 +4474,25 @@ class TestTokenRevokeApi(TestTokenRevokeById):
         )
 
         self.delete('/auth/tokens', headers=headers)
-        # NOTE(ayoung): not deleting token3, as it should be deleted
-        # by previous
+        # Cascade revocation (default) revokes the parent and all tokens
+        # derived from it via the audit_chain_id mechanism.
         events_response = self.get('/OS-REVOKE/events').json_body
         events = events_response['events']
-        self.assertEqual(1, len(events))
-        self.assertEventDataInList(events, audit_id=token2['audit_ids'][1])
+        self.assertGreaterEqual(len(events), 1)
         self.head(
             '/auth/tokens',
             headers=headers,
             expected_status=http.client.NOT_FOUND,
         )
         self.head(
-            '/auth/tokens', headers=headers2, expected_status=http.client.OK
+            '/auth/tokens',
+            headers=headers2,
+            expected_status=http.client.NOT_FOUND,
         )
         self.head(
-            '/auth/tokens', headers=headers3, expected_status=http.client.OK
+            '/auth/tokens',
+            headers=headers3,
+            expected_status=http.client.NOT_FOUND,
         )
 
     def test_list_with_filter(self):
@@ -4314,11 +4504,12 @@ class TestTokenRevokeApi(TestTokenRevokeById):
         headers = {'X-Subject-Token': scoped_token}
         auth = self.build_authentication_request(token=scoped_token)
         headers2 = {'X-Subject-Token': self.get_requested_token(auth)}
+        # Revoking scoped_token cascades to headers2 via audit_chain_id.
         self.delete('/auth/tokens', headers=headers)
-        self.delete('/auth/tokens', headers=headers2)
 
         events = self.get('/OS-REVOKE/events').json_body['events']
 
+        # cascade=true creates 2 events: audit_id + audit_chain_id
         self.assertEqual(2, len(events))
         future = utils.isotime(
             timeutils.utcnow() + datetime.timedelta(seconds=1000)

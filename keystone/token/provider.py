@@ -219,25 +219,33 @@ class Manager(manager.Manager):
 
             # Token is not revoked, but maybe it should've been.
             if token.user_id:
-                # NOTE: in readonly backend drivers (the ones where the user
-                # can be deactivated remotely without involving Keystone)
-                # there is no token revocation event for the user deactivation.
-                # As such it is necessary to implement an additional check.
-                # Due to the caching of the `_validate_token` function it is
-                # not enough to have the validation in the token model itself.
-                # On the other side we cannot really use the same revocation
-                # strategy, since when the user gets re-enabled (i.e. it was
-                # accidentially disabled) it would not be able to login for a
-                # token TTL time (since we do not know when exactly the user
-                # was disabled/enabled (revocation to expire).
+                # In readonly backend drivers (LDAP, federated IdP) the user
+                # can be deactivated without involving Keystone, so no
+                # revocation event exists for that change. We check the live
+                # user status here and, if disabled, persist a durable
+                # revocation event. This means tokens issued before the
+                # disable are permanently revoked — even if the account is
+                # later re-enabled, the user must re-authenticate.
                 # See bug https://bugs.launchpad.net/keystone/+bug/2122615
                 user = PROVIDERS.identity_api.get_user(token.user_id)
 
                 if user and not user.get('enabled'):
                     LOG.warning(
-                        'Unable to validate token because user %s is deleted',
+                        'Unable to validate token because user %s is disabled',
                         token.user_id,
                     )
+                    # Persist a durable revocation event so that if the user
+                    # is later re-enabled in the external backend (LDAP etc.),
+                    # tokens issued before this point remain revoked. Without
+                    # this, re-enabling the account in the directory would
+                    # silently revive stolen tokens.
+                    PROVIDERS.revoke_api.revoke_by_user(token.user_id)
+                    # The revoke_by_user call above invalidates REVOKE_REGION,
+                    # but check_revocation_v3 is cached in TOKENS_REGION.
+                    # Invalidate TOKENS_REGION so that subsequent validation
+                    # requests re-evaluate the revocation list instead of
+                    # serving a stale "not revoked" result.
+                    TOKENS_REGION.invalidate()
                     raise exception.UserDisabled(user_id=token.user_id)
 
             # Token has not expired and has not been revoked.
@@ -374,20 +382,29 @@ class Manager(manager.Manager):
         token_values = self.revoke_api.model.build_token_values(token)
         self.check_revocation_v3.invalidate(self, token_values)
 
-    def revoke_token(self, token_id, revoke_chain=False):
+    def revoke_token(self, token_id, revoke_chain=True):
         token = self.validate_token(token_id)
 
-        project_id = token.project_id if token.project_scoped else None
-        domain_id = token.domain_id if token.domain_scoped else None
+        # Always revoke the specific token by its own audit_id.
+        PROVIDERS.revoke_api.revoke_by_audit_id(token.audit_id)
 
-        if revoke_chain:
-            PROVIDERS.revoke_api.revoke_by_audit_chain_id(
-                token.parent_audit_id,
-                project_id=project_id,
-                domain_id=domain_id,
-            )
-        else:
-            PROVIDERS.revoke_api.revoke_by_audit_id(token.audit_id)
+        if revoke_chain and token.audit_id:
+            # Revoke all tokens that share this token's audit_id as their
+            # chain root. Effective when the revoked token IS the chain root
+            # (the original unscoped token). For middle-of-chain tokens this
+            # is a no-op — descendants point to the root, not intermediates.
+            # The allow_rescope_scoped_token=False default limits chains to
+            # two levels (unscoped→scoped), making root revocation sufficient.
+            # Do not pass project_id/domain_id — descendant tokens may have
+            # been rescoped to a different project, and the SQL backend
+            # pre-filters events by these fields.
+            PROVIDERS.revoke_api.revoke_by_audit_chain_id(token.audit_id)
+            # Flush the entire token validation cache so that any cached
+            # "valid" results for descendant tokens are immediately evicted.
+            # Without this, descendants cached before the revocation would
+            # appear valid until their individual cache entries expire.
+            if CONF.token.cache_on_issue or CONF.token.caching:
+                TOKENS_REGION.invalidate()
 
         # FIXME(morganfainberg): Does this cache actually need to be
         # invalidated? We maintain a cached revocation list, which should be

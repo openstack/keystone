@@ -148,6 +148,20 @@ user_policies = [
         operations=[{'path': '/v3/users/{user_id}', 'method': 'DELETE'}],
         deprecated_rule=deprecated_delete_user,
     ),
+    policy.DocumentedRuleDefault(
+        name=base.IDENTITY % 'revoke_tokens_for_user',
+        check_str=base.RULE_ADMIN_OR_OWNER,
+        scope_types=['system', 'domain', 'project'],
+        description=(
+            'Revoke all tokens for a user. Users may revoke their own '
+            'tokens; admins may revoke tokens for any user. This is the '
+            'recommended self-service revocation path for users who cannot '
+            'change their password (LDAP, federated, OIDC).'
+        ),
+        operations=[
+            {'path': '/v3/users/{user_id}/tokens', 'method': 'DELETE'}
+        ],
+    ),
 ]
 
 
