@@ -203,6 +203,19 @@ class CredentialsResource(ks_flask.ResourceBase):
         trust_id = getattr(self.oslo_context, 'trust_id', None)
         app_cred_id = getattr(token, 'application_credential_id', None)
         access_token_id = getattr(token, 'access_token_id', None)
+        if (
+            app_cred_id is not None
+            and credential.get('type', '').lower() == 'ec2'
+        ):
+            ac_api = PROVIDERS.application_credential_api
+            app_cred = ac_api.get_application_credential(app_cred_id)
+            if credential.get('project_id') != app_cred['project_id']:
+                action = _(
+                    'EC2 credential project_id must match the '
+                    'project of the application credential used '
+                    'to authenticate'
+                )
+                raise exception.ForbiddenAction(action=action)
         ref = self._assign_unique_id(
             self._normalize_dict(credential),
             trust_id=trust_id,
