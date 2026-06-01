@@ -6588,3 +6588,78 @@ class ApplicationCredentialAuth(test_v3.RestfulTestCase):
         )
         token = resp.headers.get('X-Subject-Token')
         self._validate_token(token, expected_status=http.client.NOT_FOUND)
+
+    def test_app_cred_auth_with_injected_user_id_is_ignored(self):
+        """Caller-supplied user ID in app cred payload must be ignored.
+
+        When authenticating by application credential ID, the token must
+        always be attributed to the credential owner. An attacker-supplied
+        user ID must not override the credential owner's identity.
+        LP#2148477 -- user impersonation via app credential auth.
+        """
+        victim = unit.create_user(
+            PROVIDERS.identity_api, domain_id=self.domain_id
+        )
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
+            victim['id'], self.project_id, self.role_id
+        )
+
+        app_cred = self._make_app_cred()
+        app_cred_ref = self.app_cred_api.create_application_credential(
+            app_cred
+        )
+
+        auth_body = {
+            'auth': {
+                'identity': {
+                    'methods': ['application_credential'],
+                    'application_credential': {
+                        'id': app_cred_ref['id'],
+                        'secret': app_cred['secret'],
+                        'user': {'id': victim['id']},
+                    },
+                }
+            }
+        }
+        r = self.v3_create_token(auth_body)
+        token_data = r.result['token']
+        self.assertEqual(self.user['id'], token_data['user']['id'])
+        self.assertNotEqual(victim['id'], token_data['user']['id'])
+
+    def test_app_cred_auth_with_injected_username_is_ignored(self):
+        """Caller-supplied username in app cred payload must be ignored.
+
+        Same as the user ID variant but uses the victim's name and domain,
+        which are typically predictable. LP#2148477.
+        """
+        victim = unit.create_user(
+            PROVIDERS.identity_api, domain_id=self.domain_id
+        )
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
+            victim['id'], self.project_id, self.role_id
+        )
+
+        app_cred = self._make_app_cred()
+        app_cred_ref = self.app_cred_api.create_application_credential(
+            app_cred
+        )
+
+        auth_body = {
+            'auth': {
+                'identity': {
+                    'methods': ['application_credential'],
+                    'application_credential': {
+                        'id': app_cred_ref['id'],
+                        'secret': app_cred['secret'],
+                        'user': {
+                            'name': victim['name'],
+                            'domain': {'name': self.domain['name']},
+                        },
+                    },
+                }
+            }
+        }
+        r = self.v3_create_token(auth_body)
+        token_data = r.result['token']
+        self.assertEqual(self.user['id'], token_data['user']['id'])
+        self.assertNotEqual(victim['id'], token_data['user']['id'])
