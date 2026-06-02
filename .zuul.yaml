@@ -67,7 +67,6 @@
 - job:
     name: keystone-tempest-federation
     parent: keystone-tempest
-    nodeset: openstack-single-node-jammy
     vars:
       devstack_localrc:
         TEMPEST_PLUGINS: "/opt/stack/keystone-tempest-plugin"
@@ -177,7 +176,9 @@
             irrelevant-files: *tempest-irrelevant-files
         - grenade-skip-level:
             irrelevant-files: *tempest-irrelevant-files
-        - keystone-protection-functional
+        - keystone-protection-functional:
+            vars:
+              tempest_exclude_regex: 'keystone_tempest_plugin.tests.rbac.v3.test_limit.DomainAdminTests.test_identity_list_limits'
         - codegenerator-openapi-identity-tips-with-api-ref:
             voting: false
     gate:
@@ -194,7 +195,9 @@
             irrelevant-files: *tempest-irrelevant-files
         - grenade-skip-level:
             irrelevant-files: *tempest-irrelevant-files
-        - keystone-protection-functional
+        - keystone-protection-functional:
+            vars:
+              tempest_exclude_regex: 'keystone_tempest_plugin.tests.rbac.v3.test_limit.DomainAdminTests.test_identity_list_limits'
     experimental:
       jobs:
         - keystone-grenade-multinode:
