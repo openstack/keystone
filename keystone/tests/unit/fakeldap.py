@@ -626,21 +626,34 @@ class FakeLdap(common.LDAPHandler):
         # that's why we use only the first 5.
         results = self.search_s(*params[:5])
 
-        # extract limit from serverctrl
         serverctrls = params[5]
-        ctrl = serverctrls[0]
+        ctrl = serverctrls[0] if serverctrls else None
 
-        if ctrl.size:
-            rdata = results[: ctrl.size]
+        if ctrl and hasattr(ctrl, 'size') and ctrl.size:
+            cookie = self._get_paging_cookie(ctrl)
+            start_index = int(cookie) if cookie and cookie.isdigit() else 0
+            end_index = start_index + ctrl.size
+
+            rdata = results[start_index:end_index]
+
+            next_cookie = str(end_index) if end_index < len(results) else ''
+
+            response_ctrl = self._create_paging_control(ctrl.size, next_cookie)
+            serverctrls = [response_ctrl]
         else:
             rdata = results
+            serverctrls = []
 
-        # real result3 returns various service info -- rtype, rmsgid,
-        # serverctrls. Now this info is not used, so all this info is None
-        rtype = None
-        rmsgid = None
-        serverctrls = None
-        return (rtype, rdata, rmsgid, serverctrls)
+        # Return result tuple (rtype, rdata, rmsgid, serverctrls)
+        return (None, rdata, None, serverctrls)
+
+    def _get_paging_cookie(self, ctrl):
+        return ctrl.cookie
+
+    def _create_paging_control(self, page_size, cookie):
+        return ldap.controls.SimplePagedResultsControl(
+            criticality=False, size=page_size, cookie=cookie
+        )
 
 
 class FakeLdapPool(FakeLdap):
