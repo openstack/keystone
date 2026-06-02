@@ -66,6 +66,38 @@ class TestResourceManagerNoFixtures(unit.SQLDriverOverrides, unit.TestCase):
             {'name': project1['name'], 'id': project['id']},
         )
 
+    def test_update_project_name_conflict_without_id_in_payload(self):
+        # The PATCH /v3/projects/{id} API does not allow 'id' in the body
+        # (additionalProperties is False in the JSON schema), so the dict
+        # passed to update_project never contains 'id'. This test mirrors
+        # exactly that shape and asserts a Conflict is raised, not a
+        # KeyError.
+        domain_attrs = {
+            'id': CONF.identity.default_domain_id,
+            'name': uuid.uuid4().hex,
+            'description': uuid.uuid4().hex,
+        }
+        domain = PROVIDERS.resource_api.create_domain(
+            CONF.identity.default_domain_id, domain_attrs
+        )
+        project1 = unit.new_project_ref(
+            domain_id=domain['id'], name=uuid.uuid4().hex
+        )
+        PROVIDERS.resource_api.create_project(project1['id'], project1)
+        project2 = unit.new_project_ref(
+            domain_id=domain['id'], name=uuid.uuid4().hex
+        )
+        project = PROVIDERS.resource_api.create_project(
+            project2['id'], project2
+        )
+
+        self.assertRaises(
+            exception.Conflict,
+            PROVIDERS.resource_api.update_project,
+            project['id'],
+            {'name': project1['name']},
+        )
+
 
 class DomainConfigDriverTests:
     def _domain_config_crud(self, sensitive):

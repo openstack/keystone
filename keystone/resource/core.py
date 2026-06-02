@@ -195,7 +195,7 @@ class Manager(manager.Manager):
             }
         )
 
-    def _generate_project_name_conflict_msg(self, project):
+    def _generate_project_name_conflict_msg(self, project, project_id=None):
         if project['is_domain']:
             return (
                 _(
@@ -205,15 +205,15 @@ class Manager(manager.Manager):
                 % project['name']
             )
         else:
-            return (
-                _(
-                    'it is not permitted to have two projects '
-                    'with either the same name or same id in '
-                    'the same domain: '
-                    'name is %(name)s, project id %(id)s'
-                )
-                % project
-            )
+            return _(
+                'it is not permitted to have two projects '
+                'with either the same name or same id in '
+                'the same domain: '
+                'name is %(name)s, project id %(id)s'
+            ) % {
+                'name': project.get('name', ''),
+                'id': project.get('id') or project_id or '',
+            }
 
     def create_project(self, project_id, project, initiator=None):
         project = project.copy()
@@ -251,7 +251,9 @@ class Manager(manager.Manager):
         except exception.Conflict:
             raise exception.Conflict(
                 type='project',
-                details=self._generate_project_name_conflict_msg(project),
+                details=self._generate_project_name_conflict_msg(
+                    project, project_id
+                ),
             )
 
         if project.get('is_domain'):
@@ -437,7 +439,9 @@ class Manager(manager.Manager):
         except exception.Conflict:
             raise exception.Conflict(
                 type='project',
-                details=self._generate_project_name_conflict_msg(project),
+                details=self._generate_project_name_conflict_msg(
+                    project, project_id
+                ),
             )
 
         try:
