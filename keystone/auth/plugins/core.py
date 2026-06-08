@@ -244,9 +244,10 @@ class AppCredInfo(BaseUserInfo):
                 auth_payload['id']
             )
             self.user_id = app_cred['user_id']
-            if not auth_payload.get('user'):
-                auth_payload['user'] = {}
-                auth_payload['user']['id'] = self.user_id
+            # Always bind to the credential owner. Any user field supplied by
+            # the caller would allow impersonation of an arbitrary user
+            # (LP#2148477).
+            auth_payload['user'] = {'id': app_cred['user_id']}
             super()._validate_and_normalize_auth_data(auth_payload)
         elif auth_payload.get('name'):
             super()._validate_and_normalize_auth_data(auth_payload)
