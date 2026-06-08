@@ -424,6 +424,118 @@ class AccessTokenCRUDTests(OAuthFlowTests):
         self.assertEqual([], entities)
         self.assertValidListLinks(resp.result['links'])
 
+    def _get_app_cred_token(self):
+        app_cred = {
+            'id': uuid.uuid4().hex,
+            'user_id': self.user_id,
+            'project_id': self.project_id,
+            'name': uuid.uuid4().hex,
+            'roles': [{'id': self.role_id}],
+            'secret': uuid.uuid4().hex,
+        }
+        PROVIDERS.application_credential_api.create_application_credential(
+            app_cred
+        )
+        auth_data = self.build_authentication_request(
+            app_cred_id=app_cred['id'], secret=app_cred['secret']
+        )
+        r = self.v3_create_token(auth_data)
+        return r.headers['X-Subject-Token']
+
+    def test_list_access_tokens_with_app_cred_blocked(self):
+        """Application credential token must not list OAuth1 access tokens."""
+        self.test_oauth_flow()
+        token = self._get_app_cred_token()
+        self.get(
+            f'/users/{self.user_id}/OS-OAUTH1/access_tokens',
+            token=token,
+            expected_status=http.client.FORBIDDEN,
+        )
+
+    def test_get_access_token_with_app_cred_blocked(self):
+        """Application credential token must not get a specific access token."""
+        self.test_oauth_flow()
+        token = self._get_app_cred_token()
+        access_token_key = self.access_token.key.decode()
+        self.get(
+            f'/users/{self.user_id}/OS-OAUTH1/access_tokens/{access_token_key}',
+            token=token,
+            expected_status=http.client.FORBIDDEN,
+        )
+
+    def test_delete_access_token_with_app_cred_blocked(self):
+        """Application credential token must not delete an access token."""
+        self.test_oauth_flow()
+        token = self._get_app_cred_token()
+        access_token_key = self.access_token.key.decode()
+        self.delete(
+            f'/users/{self.user_id}/OS-OAUTH1/access_tokens/{access_token_key}',
+            token=token,
+            expected_status=http.client.FORBIDDEN,
+        )
+
+    def test_get_access_token_with_trust_token_blocked(self):
+        """Trust-scoped token must not get a specific access token."""
+        self.test_oauth_flow()
+        trustee = unit.new_user_ref(domain_id=self.domain_id)
+        password = trustee['password']
+        trustee = PROVIDERS.identity_api.create_user(trustee)
+        trustee['password'] = password
+        trust_ref = unit.new_trust_ref(
+            trustor_user_id=self.user_id,
+            trustee_user_id=trustee['id'],
+            project_id=self.project_id,
+            impersonation=True,
+            role_ids=[self.role_id],
+        )
+        del trust_ref['id']
+        r = self.post('/OS-TRUST/trusts', body={'trust': trust_ref})
+        trust_id = r.result['trust']['id']
+        auth_data = self.build_authentication_request(
+            user_id=trustee['id'],
+            password=trustee['password'],
+            trust_id=trust_id,
+        )
+        r = self.v3_create_token(auth_data)
+        trust_token = r.headers['X-Subject-Token']
+        access_token_key = self.access_token.key.decode()
+        self.get(
+            f'/users/{self.user_id}/OS-OAUTH1/access_tokens/{access_token_key}',
+            token=trust_token,
+            expected_status=http.client.FORBIDDEN,
+        )
+
+    def test_delete_access_token_with_trust_token_blocked(self):
+        """Trust-scoped token must not delete an access token."""
+        self.test_oauth_flow()
+        trustee = unit.new_user_ref(domain_id=self.domain_id)
+        password = trustee['password']
+        trustee = PROVIDERS.identity_api.create_user(trustee)
+        trustee['password'] = password
+        trust_ref = unit.new_trust_ref(
+            trustor_user_id=self.user_id,
+            trustee_user_id=trustee['id'],
+            project_id=self.project_id,
+            impersonation=True,
+            role_ids=[self.role_id],
+        )
+        del trust_ref['id']
+        r = self.post('/OS-TRUST/trusts', body={'trust': trust_ref})
+        trust_id = r.result['trust']['id']
+        auth_data = self.build_authentication_request(
+            user_id=trustee['id'],
+            password=trustee['password'],
+            trust_id=trust_id,
+        )
+        r = self.v3_create_token(auth_data)
+        trust_token = r.headers['X-Subject-Token']
+        access_token_key = self.access_token.key.decode()
+        self.delete(
+            f'/users/{self.user_id}/OS-OAUTH1/access_tokens/{access_token_key}',
+            token=trust_token,
+            expected_status=http.client.FORBIDDEN,
+        )
+
 
 class AuthTokenTests:
     def test_keystone_token_is_valid(self):
