@@ -174,7 +174,7 @@ class _TestRBACEnforcerBase(rest.RestfulTestCase):
             ),
             policy.RuleDefault(
                 name='example:with_filter',
-                check_str='user_id:%(user)s',
+                check_str='user_id:%(filter_attr.user)s',
                 scope_types=['project'],
             ),
             policy.RuleDefault(
@@ -450,6 +450,135 @@ class TestRBACEnforcerRest(_TestRBACEnforcerBase):
             ),
         )
 
+    def test_json_body_cannot_overwrite_build_target(self):
+        # Verify that a JSON request body cannot overwrite the target
+        # data populated by build_target. The enforcer must namespace
+        # user-controlled JSON input so it cannot collide with the
+        # trusted 'target' key set from the database.
+        assertIn = self.assertIn
+        assertEq = self.assertEqual
+
+        real_owner_id = uuid.uuid4().hex
+        attacker_id = uuid.uuid4().hex
+
+        def _enforce_mock_func(credentials, action, target, do_raise=True):
+            assertIn('target.credential.user_id', target)
+            assertEq(target['target.credential.user_id'], real_owner_id)
+
+        def _build_target():
+            return {'credential': {'user_id': real_owner_id}}
+
+        self.useFixture(
+            fixtures.MockPatchObject(
+                self.enforcer, '_enforce', _enforce_mock_func
+            )
+        )
+
+        with self.test_client() as c:
+            path = '/v3/auth/tokens'
+            body = self._auth_json()
+            r = c.post(
+                path,
+                json=body,
+                follow_redirects=True,
+                expected_status_code=201,
+            )
+            token_id = r.headers['X-Subject-Token']
+
+            # Send a request with a JSON body that attempts to
+            # overwrite the build_target-supplied credential owner.
+            c.get(
+                f'{self.restful_api_url_prefix}/argument/{uuid.uuid4().hex}',
+                headers={'X-Auth-Token': token_id},
+                json={'target': {'credential': {'user_id': attacker_id}}},
+            )
+            self.enforcer.enforce_call(
+                action='example:allowed', build_target=_build_target
+            )
+
+    def test_json_body_cannot_overwrite_target_attr(self):
+        # Verify that a JSON request body cannot overwrite the target
+        # data populated by target_attr. The enforcer must namespace
+        # user-controlled JSON input so it cannot collide with the
+        # trusted 'target' key set explicitly by the API handler.
+        assertIn = self.assertIn
+        assertEq = self.assertEqual
+
+        real_owner_id = uuid.uuid4().hex
+        attacker_id = uuid.uuid4().hex
+
+        def _enforce_mock_func(credentials, action, target, do_raise=True):
+            assertIn('target.credential.user_id', target)
+            assertEq(target['target.credential.user_id'], real_owner_id)
+
+        self.useFixture(
+            fixtures.MockPatchObject(
+                self.enforcer, '_enforce', _enforce_mock_func
+            )
+        )
+
+        with self.test_client() as c:
+            path = '/v3/auth/tokens'
+            body = self._auth_json()
+            r = c.post(
+                path,
+                json=body,
+                follow_redirects=True,
+                expected_status_code=201,
+            )
+            token_id = r.headers['X-Subject-Token']
+
+            c.get(
+                f'{self.restful_api_url_prefix}/argument/{uuid.uuid4().hex}',
+                headers={'X-Auth-Token': token_id},
+                json={'target': {'credential': {'user_id': attacker_id}}},
+            )
+            target_attr = {'credential': {'user_id': real_owner_id}}
+            self.enforcer.enforce_call(
+                action='example:allowed', target_attr=target_attr
+            )
+
+    def test_json_body_cannot_overwrite_view_args(self):
+        # Verify that a JSON request body cannot overwrite URL path
+        # parameters (view_args) in the policy dict. The enforcer must
+        # namespace user-controlled JSON input so it cannot collide
+        # with trusted view_args like 'user_id' or 'argument_id'.
+        assertIn = self.assertIn
+        assertEq = self.assertEqual
+
+        real_argument_id = uuid.uuid4().hex
+        injected_argument_id = uuid.uuid4().hex
+
+        def _enforce_mock_func(credentials, action, target, do_raise=True):
+            assertIn('argument_id', target)
+            assertEq(target['argument_id'], real_argument_id)
+
+        self.useFixture(
+            fixtures.MockPatchObject(
+                self.enforcer, '_enforce', _enforce_mock_func
+            )
+        )
+
+        with self.test_client() as c:
+            path = '/v3/auth/tokens'
+            body = self._auth_json()
+            r = c.post(
+                path,
+                json=body,
+                follow_redirects=True,
+                expected_status_code=201,
+            )
+            token_id = r.headers['X-Subject-Token']
+
+            # URL has argument_id=real_argument_id, but the JSON body
+            # tries to overwrite it.
+            c.get(
+                (f'{self.restful_api_url_prefix}/argument/{real_argument_id}'),
+                headers={'X-Auth-Token': token_id},
+                json={'argument_id': injected_argument_id},
+            )
+            self.enforcer.enforce_call(action='example:allowed')
+
     def test_call_build_enforcement_target(self):
         assertIn = self.assertIn
         assertEq = self.assertEqual
@@ -702,6 +831,50 @@ class TestRBACEnforcerRest(_TestRBACEnforcerBase):
                 self.enforcer.enforce_call,
                 action='example:with_filter',
             )
+
+    def test_query_filter_cannot_overwrite_view_args(self):
+        """Query-string filter values must not overwrite view_args in policy dict.
+
+        Before the fix, policy_dict.update(filter_values) ran after
+        policy_dict.update(view_args). If a filter key matched a view_arg key
+        (e.g. both named 'user_id'), a ?user_id=attacker query param would
+        overwrite the URL-path-sourced value used in %(user_id)s policy
+        substitutions, bypassing ownership checks such as
+        ADMIN_OR_SYSTEM_READER_OR_OWNER on /v3/users/{user_id}/... endpoints.
+        """
+        real_arg_id = uuid.uuid4().hex
+        injected_arg_id = uuid.uuid4().hex
+        seen = {}
+
+        def _capture_enforce(credentials, action, target, do_raise=True):
+            seen.update(target)
+
+        self.useFixture(
+            fixtures.MockPatchObject(
+                self.enforcer, '_enforce', _capture_enforce
+            )
+        )
+
+        with self.test_client() as c:
+            r = c.post(
+                '/v3/auth/tokens',
+                json=self._auth_json(),
+                expected_status_code=201,
+            )
+            token_id = r.headers['X-Subject-Token']
+            c.get(
+                f'{self.restful_api_url_prefix}/argument/{real_arg_id}'
+                f'?argument_id={injected_arg_id}',
+                headers={'X-Auth-Token': token_id},
+            )
+            self.enforcer.enforce_call(
+                action='example:allowed', filters=['argument_id']
+            )
+
+        # view_arg survives: argument_id at the top level is real_arg_id
+        self.assertEqual(real_arg_id, seen.get('argument_id'))
+        # filter value is namespaced, not overwriting view_arg
+        self.assertEqual(injected_arg_id, seen.get('filter_attr.argument_id'))
 
     def test_enforce_call_with_pre_instantiated_enforcer(self):
         token_path = '/v3/auth/tokens'
