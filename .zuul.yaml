@@ -45,9 +45,13 @@
     name: keystone-dsvm-py3-functional-federation-ubuntu-jammy
     parent: keystone-dsvm-functional
     nodeset: openstack-single-node-jammy
+    required-projects:
+      - name: openstack/tempest
+        override-checkout: 46.3.0
     vars:
       devstack_localrc:
         TEMPEST_PLUGINS: "/opt/stack/keystone-tempest-plugin"
+        TEMPEST_VENV_UPPER_CONSTRAINTS: '/opt/stack/requirements/upper-constraints.txt'
         USE_PYTHON3: True
       devstack_services:
         keystone-saml2-federation: true
@@ -155,9 +159,6 @@
         - keystone-dsvm-py3-functional-federation-ubuntu-jammy-k2k:
             voting: false
             irrelevant-files: *irrelevant-files
-            vars:
-              devstack_localrc:
-                TEMPEST_VENV_UPPER_CONSTRAINTS: "$DEST/requirements/upper-constraints.txt"
         - keystoneclient-devstack-functional:
             voting: false
             irrelevant-files: *irrelevant-files
@@ -174,9 +175,6 @@
               - ^setup.cfg$
         - tempest-full-py3:
             irrelevant-files: *tempest-irrelevant-files
-            vars:
-              devstack_localrc:
-                TEMPEST_VENV_UPPER_CONSTRAINTS: "$DEST/requirements/upper-constraints.txt"
         - grenade:
             voting: false
             irrelevant-files: *tempest-irrelevant-files
@@ -192,9 +190,6 @@
                   TEMPEST_VENV_UPPER_CONSTRAINTS: "$DEST/requirements/upper-constraints.txt"
         - tempest-ipv6-only:
             irrelevant-files: *tempest-irrelevant-files
-            vars:
-              devstack_localrc:
-                TEMPEST_VENV_UPPER_CONSTRAINTS: "$DEST/requirements/upper-constraints.txt"
         - keystone-protection-functional
         - codegenerator-openapi-identity-tips-with-api-ref:
             voting: false
@@ -205,17 +200,8 @@
       jobs:
         - keystone-dsvm-py3-functional:
             irrelevant-files: *irrelevant-files
-        - keystone-dsvm-py3-functional-federation-ubuntu-jammy-k2k:
-            voting: false
-            irrelevant-files: *irrelevant-files
-            vars:
-              devstack_localrc:
-                TEMPEST_VENV_UPPER_CONSTRAINTS: "$DEST/requirements/upper-constraints.txt"
         - tempest-full-py3:
             irrelevant-files: *tempest-irrelevant-files
-            vars:
-              devstack_localrc:
-                TEMPEST_VENV_UPPER_CONSTRAINTS: "$DEST/requirements/upper-constraints.txt"
         - grenade:
             voting: false
             irrelevant-files: *tempest-irrelevant-files
@@ -231,9 +217,6 @@
                   TEMPEST_VENV_UPPER_CONSTRAINTS: "$DEST/requirements/upper-constraints.txt"
         - tempest-ipv6-only:
             irrelevant-files: *tempest-irrelevant-files
-            vars:
-              devstack_localrc:
-                TEMPEST_VENV_UPPER_CONSTRAINTS: "$DEST/requirements/upper-constraints.txt"
         - keystone-protection-functional
     experimental:
       jobs:
