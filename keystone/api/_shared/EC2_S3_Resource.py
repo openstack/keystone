@@ -155,6 +155,13 @@ class ResourceBase(ks_flask.ResourceBase):
             app_cred = ac_client.get_application_credential(
                 cred_data['app_cred_id'])
             roles = [r['id'] for r in app_cred['roles']]
+            if cred_data['project_id'] != app_cred['project_id']:
+                raise ks_exceptions.Unauthorized(
+                    _(
+                        'EC2 credential project does not match the '
+                        'application credential project.'
+                    )
+                )
         elif cred_data['access_token_id']:
             access_token = PROVIDERS.oauth_api.get_access_token(
                 cred_data['access_token_id'])
