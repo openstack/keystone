@@ -20,7 +20,11 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from keystone.common import password_hashers
 from keystone import exception
 
-DEFAULT_ROUNDS: int = 25000
+# OWASP 2023 recommendation for PBKDF2-SHA512.
+# Grover's algorithm provides a quadratic speedup for brute-force over
+# quantum-safe PBKDF2, making a high iteration count important for
+# long-term security.  Operators may override via [identity] password_hash_rounds.
+DEFAULT_ROUNDS: int = 600000
 
 
 class Sha512(password_hashers.PasswordHasher):

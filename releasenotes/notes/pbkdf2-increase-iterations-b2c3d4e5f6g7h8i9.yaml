@@ -1,0 +1,11 @@
+---
+upgrade:
+  - |
+    The default PBKDF2-SHA512 iteration count for new password hashes has been
+    raised from 25,000 to 600,000, in line with the OWASP 2023 recommendation.
+    This strengthens resistance against brute-force attacks, including
+    quantum-accelerated search via Grover's algorithm.  Existing passwords are
+    transparently rehashed on the next successful authentication (see the
+    transparent rehash feature).  Operators should expect a modest increase in
+    authentication latency (typically 0.3-0.8 s per login on modern hardware).
+    The value can be tuned via ``[identity] password_hash_rounds``.
