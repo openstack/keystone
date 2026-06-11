@@ -165,10 +165,12 @@ class UnifiedLimit(base.UnifiedLimitDriverBase):
         # When updating or deleting a registered limit, we should ensure there
         # is no reference limit.
         with sql.session_for_read() as session:
-            limits = session.query(LimitModel).filter_by(
-                registered_limit_id=registered_limit['id']
+            limit = (
+                session.query(LimitModel)
+                .filter_by(registered_limit_id=registered_limit['id'])
+                .first()
             )
-        if limits.all():
+        if limit:
             raise exception.RegisteredLimitError(id=registered_limit.id)
 
     @sql.handle_conflicts(conflict_type='registered_limit')
@@ -251,7 +253,7 @@ class UnifiedLimit(base.UnifiedLimitDriverBase):
             registered_limits = sql.filter_limit_query(
                 RegisteredLimitModel, registered_limits, hints
             )
-        reg_limits = registered_limits.all()
+            reg_limits = registered_limits.all()
         if not reg_limits:
             raise exception.NoLimitReference
 
