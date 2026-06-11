@@ -17,6 +17,7 @@ import freezegun
 from oslo_utils import timeutils
 
 from keystone.common import password_hashers
+from keystone.common.password_hashers import pbkdf2
 from keystone.common import password_hashing
 from keystone.common import provider_api
 from keystone.common import resource_options
@@ -1083,3 +1084,180 @@ class ChangePasswordRequiredAfterFirstUse(test_backend_sql.SqlTests):
         user['password'] = admin_password
         PROVIDERS.identity_api.update_user(user['id'], user)
         self.assertPasswordIsExpired(user['id'], admin_password)
+
+
+class Pbkdf2Sha512RehashTests(test_backend_sql.SqlTests):
+    """Integration tests for transparent PBKDF2-SHA512 password rehashing."""
+
+    def config_overrides(self):
+        super().config_overrides()
+        self.config_fixture.config(
+            group='identity', password_hash_algorithm='pbkdf2_sha512'
+        )
+
+    def _create_pbkdf2_user(self, rounds):
+        """Create a user whose password is hashed with a specific round count."""
+        self.config_fixture.config(
+            group='identity', password_hash_rounds=rounds
+        )
+        password = uuid.uuid4().hex
+        user = PROVIDERS.identity_api.create_user(
+            {
+                'name': uuid.uuid4().hex,
+                'domain_id': CONF.identity.default_domain_id,
+                'enabled': True,
+                'password': password,
+            }
+        )
+        return user, password
+
+    def _get_stored_rounds(self, user_id):
+        with sql.session_for_read() as session:
+            user_ref = PROVIDERS.identity_api._get_user(session, user_id)
+            return int(user_ref.password.split('$')[2])
+
+    def test_authenticate_transparently_rehashes_low_iteration_password(self):
+        user, password = self._create_pbkdf2_user(rounds=10000)
+        self.assertEqual(10000, self._get_stored_rounds(user['id']))
+
+        self.config_fixture.config(
+            group='identity', password_hash_rounds=pbkdf2.DEFAULT_ROUNDS
+        )
+        with self.make_request():
+            PROVIDERS.identity_api.authenticate(
+                user_id=user['id'], password=password
+            )
+
+        self.assertEqual(
+            pbkdf2.DEFAULT_ROUNDS, self._get_stored_rounds(user['id'])
+        )
+
+    def test_authenticate_does_not_rehash_current_iteration_password(self):
+        user, password = self._create_pbkdf2_user(rounds=pbkdf2.DEFAULT_ROUNDS)
+
+        with sql.session_for_read() as session:
+            user_ref = PROVIDERS.identity_api._get_user(session, user['id'])
+            original_hash = user_ref.password
+
+        with self.make_request():
+            PROVIDERS.identity_api.authenticate(
+                user_id=user['id'], password=password
+            )
+
+        with sql.session_for_read() as session:
+            user_ref = PROVIDERS.identity_api._get_user(session, user['id'])
+            self.assertEqual(original_hash, user_ref.password)
+
+    def test_rehash_does_not_alter_password_metadata(self):
+        user, password = self._create_pbkdf2_user(rounds=10000)
+
+        with sql.session_for_read() as session:
+            user_ref = PROVIDERS.identity_api._get_user(session, user['id'])
+            created_at_before = user_ref.password_ref.created_at
+            expires_at_before = user_ref.password_ref.expires_at
+
+        self.config_fixture.config(
+            group='identity', password_hash_rounds=pbkdf2.DEFAULT_ROUNDS
+        )
+        with self.make_request():
+            PROVIDERS.identity_api.authenticate(
+                user_id=user['id'], password=password
+            )
+
+        with sql.session_for_read() as session:
+            user_ref = PROVIDERS.identity_api._get_user(session, user['id'])
+            self.assertEqual(1, len(user_ref.local_user.passwords))
+            self.assertEqual(
+                created_at_before, user_ref.password_ref.created_at
+            )
+            self.assertEqual(
+                expires_at_before, user_ref.password_ref.expires_at
+            )
+
+    def test_rehash_skipped_when_hash_changed_concurrently(self):
+        user, password = self._create_pbkdf2_user(rounds=10000)
+
+        with sql.session_for_read() as session:
+            user_ref = PROVIDERS.identity_api._get_user(session, user['id'])
+            original_hash = user_ref.password
+
+        admin_password = uuid.uuid4().hex
+        PROVIDERS.identity_api.update_user(
+            user['id'], {'password': admin_password}
+        )
+
+        with sql.session_for_read() as session:
+            user_ref = PROVIDERS.identity_api._get_user(session, user['id'])
+            admin_hash = user_ref.password
+
+        self.assertNotEqual(original_hash, admin_hash)
+
+        driver = PROVIDERS.identity_api.driver
+        driver._rehash_password(user['id'], password, original_hash)
+
+        with sql.session_for_read() as session:
+            user_ref = PROVIDERS.identity_api._get_user(session, user['id'])
+            self.assertEqual(admin_hash, user_ref.password)
+
+
+class BcryptRehashTests(test_backend_sql.SqlTests):
+    """Integration tests for transparent bcrypt password rehashing."""
+
+    def config_overrides(self):
+        super().config_overrides()
+        self.config_fixture.config(
+            group='identity', password_hash_algorithm='bcrypt'
+        )
+
+    def _create_bcrypt_user(self, rounds):
+        self.config_fixture.config(
+            group='identity', password_hash_rounds=rounds
+        )
+        password = uuid.uuid4().hex
+        user = PROVIDERS.identity_api.create_user(
+            {
+                'name': uuid.uuid4().hex,
+                'domain_id': CONF.identity.default_domain_id,
+                'enabled': True,
+                'password': password,
+            }
+        )
+        return user, password
+
+    def _get_stored_rounds(self, user_id):
+        with sql.session_for_read() as session:
+            user_ref = PROVIDERS.identity_api._get_user(session, user_id)
+            return int(user_ref.password.split('$')[2])
+
+    def test_authenticate_transparently_rehashes_low_cost_password(self):
+        user, password = self._create_bcrypt_user(rounds=4)
+        self.assertEqual(4, self._get_stored_rounds(user['id']))
+
+        self.config_fixture.config(group='identity', password_hash_rounds=12)
+        with self.make_request():
+            PROVIDERS.identity_api.authenticate(
+                user_id=user['id'], password=password
+            )
+
+        self.assertEqual(12, self._get_stored_rounds(user['id']))
+
+    def test_authenticate_migrates_hash_when_algorithm_changes(self):
+        user, password = self._create_bcrypt_user(rounds=4)
+        with sql.session_for_read() as session:
+            user_ref = PROVIDERS.identity_api._get_user(session, user['id'])
+            self.assertTrue(user_ref.password.startswith('$2'))
+
+        self.config_fixture.config(
+            group='identity', password_hash_algorithm='pbkdf2_sha512'
+        )
+        self.config_fixture.config(
+            group='identity', password_hash_rounds=pbkdf2.DEFAULT_ROUNDS
+        )
+        with self.make_request():
+            PROVIDERS.identity_api.authenticate(
+                user_id=user['id'], password=password
+            )
+
+        with sql.session_for_read() as session:
+            user_ref = PROVIDERS.identity_api._get_user(session, user['id'])
+            self.assertTrue(user_ref.password.startswith('$pbkdf2-sha512$'))

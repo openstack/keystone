@@ -144,6 +144,8 @@ password_hash_algorithm = cfg.StrOpt(
     help=utils.fmt(
         """
 The password hashing algorithm to use for passwords stored within keystone.
+Stored hashes that use a different algorithm are upgraded transparently on
+the next successful authentication (SQL identity backend).
 """
     ),
 )
@@ -153,10 +155,10 @@ password_hash_rounds = cfg.IntOpt(
     help=utils.fmt(
         """
 This option represents a trade off between security and performance. Higher
-values lead to slower performance, but higher security. Changing this option
-will only affect newly created passwords as existing password hashes already
-have a fixed number of rounds applied, so it is safe to tune this option in a
-running cluster.
+values lead to slower performance, but higher security. Existing password
+hashes that use a weaker work factor are upgraded transparently on the next
+successful authentication (SQL identity backend), so it is safe to raise this
+option in a running cluster. Lowering it does not downgrade existing hashes.
 
 The default for bcrypt is 12, must be between 4 and 31, inclusive.
 
