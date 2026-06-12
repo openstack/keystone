@@ -151,6 +151,71 @@ applicable with the `sql` backend for the `[identity] driver`.
 )
 
 
+allow_insecure_admin_trust_cross_project_credentials_access = cfg.BoolOpt(
+    'allow_insecure_admin_trust_cross_project_credentials_access',
+    default=False,
+    deprecated_for_removal=True,
+    deprecated_reason=utils.fmt(
+        """
+Migrate automated workflows that use admin-role trusts to access credentials
+across multiple projects (e.g. Mistral cron triggers) to use non-delegated
+service account credentials instead, then remove this option.
+"""
+    ),
+    deprecated_since='2026.1',
+    help=utils.fmt(
+        """
+INSECURE: When enabled, admin-role delegated tokens (trusts, application
+credentials, OAuth1 access tokens) are allowed to access credentials outside
+their project scope. By default (False), delegated tokens can only access
+credentials whose project_id matches the token's project scope, preventing
+cross-project lateral movement via a compromised delegation token.
+
+Enable this only if you have automated workflows (e.g. Mistral cron triggers)
+that use admin-role trusts to access credentials across multiple projects and
+cannot be migrated to use non-delegated service account credentials. Enabling
+this option weakens the isolation guarantee provided by the delegation boundary
+fix for LP#2150089. This option is deprecated and will be removed in a future
+release.
+"""
+    ),
+)
+
+
+allow_insecure_application_credential_trust_escalation = cfg.BoolOpt(
+    'allow_insecure_application_credential_trust_escalation',
+    default=False,
+    deprecated_for_removal=True,
+    deprecated_reason=utils.fmt(
+        """
+Migrate workflows where application credentials create trusts to use OIDC
+federation flows (v3oidcclientcredentials, v3oidcdeviceauthz) instead, then
+remove this option.
+"""
+    ),
+    deprecated_since='2026.1',
+    help=utils.fmt(
+        """
+INSECURE: When enabled, application credential tokens (including restricted
+ones) are allowed to create, delete, and list trusts. By default (False),
+application credential tokens are blocked from all trust operations regardless
+of the unrestricted flag, because allowing an application credential to
+bootstrap a trust creates a new delegation context. A trust-scoped token
+produced from that trust can then access authentication material (EC2
+credentials, TOTP seeds) and operate entirely outside the delegation chain,
+breaking the audit trail. The 'unrestricted' flag governs credential
+management, not trust management.
+
+Enable this only if you have workflows where application credentials must
+create trusts (e.g. Heat stacks authenticated via application credentials).
+Use OIDC federation flows (v3oidcclientcredentials, v3oidcdeviceauthz) as the
+proper long-term alternative. This option is deprecated and will be removed
+in a future release.
+"""
+    ),
+)
+
+
 GROUP_NAME = __name__.split('.')[-1]
 ALL_OPTS = [
     disable_user_account_days_inactive,
@@ -162,6 +227,8 @@ ALL_OPTS = [
     password_regex,
     password_regex_description,
     change_password_upon_first_use,
+    allow_insecure_admin_trust_cross_project_credentials_access,
+    allow_insecure_application_credential_trust_escalation,
 ]
 
 
