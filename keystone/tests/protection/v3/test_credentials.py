@@ -18,11 +18,13 @@ from oslo_serialization import jsonutils
 from keystone.common.policies import base as bp
 from keystone.common import provider_api
 import keystone.conf
+from keystone.credential.providers import fernet as credential_fernet
 from keystone.tests.common import auth as common_auth
 from keystone.tests import unit
 from keystone.tests.unit import base_classes
 from keystone.tests.unit import ksfixtures
 from keystone.tests.unit.ksfixtures import temporaryfile
+from keystone.tests.unit import test_v3
 
 CONF = keystone.conf.CONF
 PROVIDERS = provider_api.ProviderAPIs
@@ -1303,3 +1305,121 @@ class ProjectAdminTestsEnforceScopeFalse(
             r = c.post('/v3/auth/tokens', json=auth)
             self.token_id = r.headers['X-Subject-Token']
             self.headers = {'X-Auth-Token': self.token_id}
+
+
+class TargetInjectionCredentialTests(test_v3.RestfulTestCase):
+    """Test that JSON body injection cannot bypass credential RBAC.
+
+    Verifies CVE-2026-42999: the RBAC enforcer must not allow the JSON
+    request body to overwrite security-critical keys in the policy dict.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.useFixture(
+            ksfixtures.KeyRepository(
+                self.config_fixture,
+                'credential',
+                credential_fernet.MAX_ACTIVE_KEYS,
+            )
+        )
+
+    def _make_user_with_project(self, role_id=None):
+        user = unit.create_user(
+            PROVIDERS.identity_api, domain_id=self.domain_id
+        )
+        project = unit.new_project_ref(domain_id=self.domain_id)
+        PROVIDERS.resource_api.create_project(project['id'], project)
+        if role_id:
+            PROVIDERS.assignment_api.add_role_to_user_and_project(
+                user['id'], project['id'], role_id
+            )
+        return user, project
+
+    def test_list_credentials_cannot_read_other_users_secrets(self):
+        """GET /v3/credentials must not return other users' credentials.
+
+        An attacker injects their own user_id into target.credential.user_id
+        in the JSON body. Without the fix the per-item policy filter would
+        see the attacker's user_id and pass every credential through.
+        """
+        role = unit.new_role_ref()
+        PROVIDERS.role_api.create_role(role['id'], role)
+
+        victim, victim_project = self._make_user_with_project(role['id'])
+        attacker, attacker_project = self._make_user_with_project(role['id'])
+
+        victim_cred = unit.new_credential_ref(
+            user_id=victim['id'], project_id=victim_project['id']
+        )
+        PROVIDERS.credential_api.create_credential(
+            victim_cred['id'], victim_cred
+        )
+        attacker_cred = unit.new_credential_ref(
+            user_id=attacker['id'], project_id=attacker_project['id']
+        )
+        PROVIDERS.credential_api.create_credential(
+            attacker_cred['id'], attacker_cred
+        )
+
+        attacker_auth = self.build_authentication_request(
+            user_id=attacker['id'],
+            password=attacker['password'],
+            project_id=attacker_project['id'],
+        )
+        r = self.get(
+            '/credentials',
+            auth=attacker_auth,
+            body={'target': {'credential': {'user_id': attacker['id']}}},
+        )
+
+        cred_ids = [c['id'] for c in r.result['credentials']]
+        self.assertIn(attacker_cred['id'], cred_ids)
+        self.assertNotIn(victim_cred['id'], cred_ids)
+
+    def test_ec2_create_credential_cannot_create_for_other_user(self):
+        """EC2 credential creation must not allow impersonating other users.
+
+        POST /v3/users/{user_id}/credentials/OS-EC2: the attacker injects
+        target.credential.user_id to bypass the ownership check.
+        """
+        member_role = unit.new_role_ref(name='member')
+        PROVIDERS.role_api.create_role(member_role['id'], member_role)
+
+        victim, victim_project = self._make_user_with_project(
+            member_role['id']
+        )
+        attacker, attacker_project = self._make_user_with_project(
+            member_role['id']
+        )
+
+        attacker_auth = self.build_authentication_request(
+            user_id=attacker['id'],
+            password=attacker['password'],
+            project_id=attacker_project['id'],
+        )
+        ec2_uri = f'/users/{victim["id"]}/credentials/OS-EC2'
+
+        self.post(
+            ec2_uri,
+            auth=attacker_auth,
+            body={
+                'tenant_id': victim_project['id'],
+                'target': {'credential': {'user_id': attacker['id']}},
+            },
+            expected_status=http.client.FORBIDDEN,
+        )
+        self.post(
+            ec2_uri,
+            auth=attacker_auth,
+            body={
+                'tenant_id': victim_project['id'],
+                'target': {
+                    'credential': {
+                        'user_id': attacker['id'],
+                        'project_id': attacker_project['id'],
+                    }
+                },
+            },
+            expected_status=http.client.FORBIDDEN,
+        )
