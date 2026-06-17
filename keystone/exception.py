@@ -472,7 +472,7 @@ class InvalidImpliedRole(Forbidden):
 
 class DomainSpecificRoleMismatch(Forbidden):
     message_format = _(
-        "Project %(project_id)s must be in the same domain "
+        "%(target_type)s %(target_id)s must be in the same domain "
         "as the role %(role_id)s being assigned."
     )
 

@@ -308,6 +308,13 @@ class Manager(manager.Manager):
         role = PROVIDERS.role_api.get_role(role_id)
         if domain_id:
             PROVIDERS.resource_api.get_domain(domain_id)
+            # For domain-specific roles, the domain of the role and the target
+            # domain must match. This mirrors the equivalent check for project
+            # grants below.
+            if role['domain_id'] and role['domain_id'] != domain_id:
+                raise exception.DomainSpecificRoleMismatch(
+                    role_id=role_id, target_type='Domain', target_id=domain_id
+                )
         if project_id:
             project = PROVIDERS.resource_api.get_project(project_id)
 
@@ -315,7 +322,9 @@ class Manager(manager.Manager):
             # and role must match
             if role['domain_id'] and project['domain_id'] != role['domain_id']:
                 raise exception.DomainSpecificRoleMismatch(
-                    role_id=role_id, project_id=project_id
+                    role_id=role_id,
+                    target_type='Project',
+                    target_id=project_id,
                 )
 
         self.driver.create_grant(

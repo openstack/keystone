@@ -3600,6 +3600,21 @@ class DomainSpecificRoleTests(test_v3.RestfulTestCase, unit.TestCase):
             project_id=projectB['id'],
         )
 
+    def test_cross_domain_assignment_on_domain_invalid(self):
+        """Domain-specific role cannot be granted on a different domain."""
+        user = unit.create_user(
+            PROVIDERS.identity_api, domain_id=self.domainB['id']
+        )
+
+        # A role scoped to domainA must not be assignable on domainB.
+        self.assertRaises(
+            exception.DomainSpecificRoleMismatch,
+            PROVIDERS.assignment_api.create_grant,
+            self.domainA_role1['id'],
+            user_id=user['id'],
+            domain_id=self.domainB['id'],
+        )
+
     def test_cross_domain_implied_roles_authentication(self):
         # Create a user in domainB
         user = unit.create_user(
