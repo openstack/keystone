@@ -136,7 +136,6 @@ class SystemReaderTests(
         super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         system_reader = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
@@ -169,7 +168,6 @@ class SystemMemberTests(
         super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         system_member = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
@@ -200,7 +198,6 @@ class SystemAdminTests(
         super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         # Reuse the system administrator account created during
         # ``keystone-manage bootstrap``
@@ -317,7 +314,6 @@ class DomainUserTests(
         super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         domain = PROVIDERS.resource_api.create_domain(
             uuid.uuid4().hex, unit.new_domain_ref()
@@ -354,7 +350,6 @@ class ProjectUserTests(
         super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         # Reuse the system administrator account created during
         # ``keystone-manage bootstrap``
@@ -363,50 +358,6 @@ class ProjectUserTests(
             user_id=self.user_id,
             password=self.bootstrapper.admin_password,
             project_id=self.bootstrapper.project_id,
-        )
-
-        # Grab a token using the persona we're testing and prepare headers
-        # for requests we'll be making in the tests.
-        with self.test_client() as c:
-            r = c.post('/v3/auth/tokens', json=auth)
-            self.token_id = r.headers['X-Subject-Token']
-            self.headers = {'X-Auth-Token': self.token_id}
-
-
-class ProjectUserTestsWithoutEnforceScope(
-    base_classes.TestCaseWithBootstrap,
-    common_auth.AuthTestMixin,
-    _UserRegisteredLimitTests,
-):
-    def setUp(self):
-        super().setUp()
-        self.loadapp()
-        self.useFixture(ksfixtures.Policy(self.config_fixture))
-
-        # Explicityly set enforce_scope to False to make sure we maintain
-        # backwards compatibility with project users.
-        self.config_fixture.config(group='oslo_policy', enforce_scope=False)
-
-        domain = PROVIDERS.resource_api.create_domain(
-            uuid.uuid4().hex, unit.new_domain_ref()
-        )
-        user = unit.new_user_ref(domain_id=domain['id'])
-        self.user_id = PROVIDERS.identity_api.create_user(user)['id']
-
-        self.project_id = PROVIDERS.resource_api.create_project(
-            uuid.uuid4().hex, unit.new_project_ref(domain_id=domain['id'])
-        )['id']
-
-        PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.member_role_id,
-            user_id=self.user_id,
-            project_id=self.project_id,
-        )
-
-        auth = self.build_authentication_request(
-            user_id=self.user_id,
-            password=user['password'],
-            project_id=self.project_id,
         )
 
         # Grab a token using the persona we're testing and prepare headers

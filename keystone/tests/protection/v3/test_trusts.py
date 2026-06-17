@@ -317,7 +317,6 @@ class SystemReaderTests(TrustTests, _SystemReaderMemberTests):
 
     def setUp(self):
         super().setUp()
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         system_reader = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
@@ -346,7 +345,6 @@ class SystemMemberTests(TrustTests, _SystemReaderMemberTests):
 
     def setUp(self):
         super().setUp()
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         system_member = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
@@ -375,7 +373,6 @@ class SystemAdminTests(TrustTests, _AdminTestsMixin, _SystemUserTests):
 
     def setUp(self):
         super().setUp()
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         self.user_id = self.bootstrapper.admin_user_id
         auth = self.build_authentication_request(
@@ -948,7 +945,6 @@ class DomainUserTests(TrustTests):
 
     def setUp(self):
         super().setUp()
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
         domain_admin = unit.new_user_ref(domain_id=self.domain_id)
         self.user_id = PROVIDERS.identity_api.create_user(domain_admin)['id']
         PROVIDERS.assignment_api.create_grant(

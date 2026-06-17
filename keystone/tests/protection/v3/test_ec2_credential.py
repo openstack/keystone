@@ -266,7 +266,6 @@ class SystemReaderTests(
         super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         system_reader = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
@@ -301,7 +300,6 @@ class SystemMemberTests(
         super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         system_member = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
@@ -334,7 +332,6 @@ class SystemAdminTests(
         super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         # Reuse the system administrator account created during
         # ``keystone-manage bootstrap``
@@ -482,7 +479,6 @@ class ProjectAdminTests(
             )
         )
         self._override_policy()
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         # Reuse the system administrator account created during
         # ``keystone-manage bootstrap``

@@ -603,7 +603,6 @@ class SystemReaderTests(
         super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         system_reader = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
@@ -762,7 +761,6 @@ class SystemMemberTests(
         super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         system_member = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
@@ -1038,7 +1036,6 @@ class SystemAdminTests(
         super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         # Reuse the system administrator account created during
         # ``keystone-manage bootstrap``
@@ -1067,7 +1064,6 @@ class ProjectReaderTests(
         super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         project_reader = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
@@ -1109,7 +1105,6 @@ class ProjectMemberTests(
         super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         project_member = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
@@ -1159,7 +1154,6 @@ class ProjectAdminTests(
             )
         )
         self._override_policy()
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         # Reuse the system administrator account created during
         # ``keystone-manage bootstrap``
@@ -1195,119 +1189,6 @@ class ProjectAdminTests(
                 'identity:delete_credential': bp.ADMIN_OR_CRED_OWNER,
             }
             f.write(jsonutils.dumps(overridden_policies))
-
-
-class ProjectReaderTestsEnforceScopeFalse(
-    base_classes.TestCaseWithBootstrap,
-    common_auth.AuthTestMixin,
-    _UserCredentialTests,
-    _ProjectUsersTests,
-):
-    def setUp(self):
-        super().setUp()
-        self.loadapp()
-        self.useFixture(ksfixtures.Policy(self.config_fixture))
-        self.config_fixture.config(group='oslo_policy', enforce_scope=False)
-
-        project_reader = unit.new_user_ref(
-            domain_id=CONF.identity.default_domain_id
-        )
-        self.user_id = PROVIDERS.identity_api.create_user(project_reader)['id']
-        project = unit.new_project_ref(
-            domain_id=CONF.identity.default_domain_id
-        )
-        self.project_id = PROVIDERS.resource_api.create_project(
-            project['id'], project
-        )['id']
-        PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.reader_role_id,
-            user_id=self.user_id,
-            project_id=self.project_id,
-        )
-
-        auth = self.build_authentication_request(
-            user_id=self.user_id,
-            password=project_reader['password'],
-            project_id=self.project_id,
-        )
-
-        # Grab a token using the persona we're testing and prepare headers
-        # for requests we'll be making in the tests.
-        with self.test_client() as c:
-            r = c.post('/v3/auth/tokens', json=auth)
-            self.token_id = r.headers['X-Subject-Token']
-            self.headers = {'X-Auth-Token': self.token_id}
-
-
-class ProjectMemberTestsEnforceScopeFalse(
-    base_classes.TestCaseWithBootstrap,
-    common_auth.AuthTestMixin,
-    _UserCredentialTests,
-    _ProjectUsersTests,
-):
-    def setUp(self):
-        super().setUp()
-        self.loadapp()
-        self.useFixture(ksfixtures.Policy(self.config_fixture))
-        self.config_fixture.config(group='oslo_policy', enforce_scope=False)
-
-        project_member = unit.new_user_ref(
-            domain_id=CONF.identity.default_domain_id
-        )
-        self.user_id = PROVIDERS.identity_api.create_user(project_member)['id']
-        project = unit.new_project_ref(
-            domain_id=CONF.identity.default_domain_id
-        )
-        self.project_id = PROVIDERS.resource_api.create_project(
-            project['id'], project
-        )['id']
-        PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.member_role_id,
-            user_id=self.user_id,
-            project_id=self.project_id,
-        )
-
-        auth = self.build_authentication_request(
-            user_id=self.user_id,
-            password=project_member['password'],
-            project_id=self.project_id,
-        )
-
-        # Grab a token using the persona we're testing and prepare headers
-        # for requests we'll be making in the tests.
-        with self.test_client() as c:
-            r = c.post('/v3/auth/tokens', json=auth)
-            self.token_id = r.headers['X-Subject-Token']
-            self.headers = {'X-Auth-Token': self.token_id}
-
-
-class ProjectAdminTestsEnforceScopeFalse(
-    base_classes.TestCaseWithBootstrap,
-    common_auth.AuthTestMixin,
-    _UserCredentialTests,
-    _SystemUserCredentialTests,
-):
-    def setUp(self):
-        super().setUp()
-        self.loadapp()
-        self.useFixture(ksfixtures.Policy(self.config_fixture))
-        self.config_fixture.config(group='oslo_policy', enforce_scope=False)
-
-        # Reuse the system administrator account created during
-        # ``keystone-manage bootstrap``
-        self.user_id = self.bootstrapper.admin_user_id
-        auth = self.build_authentication_request(
-            user_id=self.user_id,
-            password=self.bootstrapper.admin_password,
-            project_id=self.bootstrapper.project_id,
-        )
-
-        # Grab a token using the persona we're testing and prepare headers
-        # for requests we'll be making in the tests.
-        with self.test_client() as c:
-            r = c.post('/v3/auth/tokens', json=auth)
-            self.token_id = r.headers['X-Subject-Token']
-            self.headers = {'X-Auth-Token': self.token_id}
 
 
 class TargetInjectionCredentialTests(test_v3.RestfulTestCase):
