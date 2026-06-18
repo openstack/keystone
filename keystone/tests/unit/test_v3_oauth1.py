@@ -28,6 +28,7 @@ from oslo_utils import timeutils
 from pycadf import cadftaxonomy
 
 from keystone.common import provider_api
+from keystone.common import utils
 import keystone.conf
 from keystone.credential.providers import fernet as credential_fernet
 from keystone import exception
@@ -854,6 +855,7 @@ class AuthTokenTests:
             'SignatureMethod': 'HmacSHA256',
             'SignatureVersion': '2',
             'AWSAccessKeyId': blob['access'],
+            'Timestamp': utils.isotime(timeutils.utcnow()),
         }
         request = {
             'host': 'foo',

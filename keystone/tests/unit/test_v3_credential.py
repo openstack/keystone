@@ -12,6 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+import base64
 import hashlib
 import http.client
 import json
@@ -21,6 +22,7 @@ import uuid
 
 from keystoneclient.contrib.ec2 import utils as ec2_utils
 from oslo_db import exception as oslo_db_exception
+from oslo_utils import timeutils
 from testtools import matchers
 
 from keystone.api import credentials as credentials_api
@@ -73,6 +75,7 @@ class CredentialBaseTestCase(test_v3.RestfulTestCase):
             'SignatureMethod': 'HmacSHA256',
             'SignatureVersion': '2',
             'AWSAccessKeyId': blob['access'],
+            'Timestamp': utils.isotime(timeutils.utcnow()),
         }
         return {
             'access': blob['access'],
@@ -97,6 +100,7 @@ class CredentialBaseTestCase(test_v3.RestfulTestCase):
             'SignatureMethod': 'HmacSHA256',
             'SignatureVersion': '2',
             'AWSAccessKeyId': access,
+            'Timestamp': utils.isotime(timeutils.utcnow()),
         }
         request = {
             'host': 'foo',
@@ -1507,6 +1511,93 @@ class TestCredentialEc2(CredentialBaseTestCase):
         cred_blob = json.loads(cred_json)
         self._test_get_token(
             access=cred_blob['access'], secret=cred_blob['secret']
+        )
+
+    def test_ec2_credential_no_timestamp_rejected(self):
+        """Requests without a timestamp must be rejected with 401."""
+        blob, ref = unit.new_ec2_credential(
+            user_id=self.user['id'], project_id=self.project_id
+        )
+        r = self.post('/credentials', body={'credential': ref})
+        cred_blob = json.loads(r.result['credential']['blob'])
+
+        signer = ec2_utils.Ec2Signer(cred_blob['secret'])
+        params = {
+            'SignatureMethod': 'HmacSHA256',
+            'SignatureVersion': '2',
+            'AWSAccessKeyId': cred_blob['access'],
+        }
+        sig_ref = {
+            'access': cred_blob['access'],
+            'signature': signer.generate(
+                {
+                    'host': 'foo',
+                    'verb': 'GET',
+                    'path': '/bar',
+                    'params': params,
+                }
+            ),
+            'host': 'foo',
+            'verb': 'GET',
+            'path': '/bar',
+            'params': params,
+        }
+        PROVIDERS.assignment_api.create_system_grant_for_user(
+            self.user_id, self.role_id
+        )
+        token = self.get_system_scoped_token()
+        self.post(
+            '/ec2tokens',
+            body={'ec2Credentials': sig_ref},
+            expected_status=http.client.UNAUTHORIZED,
+            token=token,
+        )
+
+    def test_ec2_credential_unsigned_token_cannot_bypass_ttl(self):
+        """An unsigned token field must not skip timestamp enforcement.
+
+        Ec2Signer only covers params/verb/host/path, so a client can add
+        an arbitrary token field. That must not open the old fail-open
+        path that skipped auth_ttl when credentials['token'] was set.
+        """
+        blob, ref = unit.new_ec2_credential(
+            user_id=self.user['id'], project_id=self.project_id
+        )
+        r = self.post('/credentials', body={'credential': ref})
+        cred_blob = json.loads(r.result['credential']['blob'])
+
+        signer = ec2_utils.Ec2Signer(cred_blob['secret'])
+        params = {
+            'SignatureMethod': 'HmacSHA256',
+            'SignatureVersion': '2',
+            'AWSAccessKeyId': cred_blob['access'],
+        }
+        sig_ref = {
+            'access': cred_blob['access'],
+            'signature': signer.generate(
+                {
+                    'host': 'foo',
+                    'verb': 'GET',
+                    'path': '/bar',
+                    'params': params,
+                }
+            ),
+            'host': 'foo',
+            'verb': 'GET',
+            'path': '/bar',
+            'params': params,
+            # Unsigned; not part of the EC2 signature.
+            'token': base64.b64encode(b'string to sign').decode('ascii'),
+        }
+        PROVIDERS.assignment_api.create_system_grant_for_user(
+            self.user_id, self.role_id
+        )
+        token = self.get_system_scoped_token()
+        self.post(
+            '/ec2tokens',
+            body={'ec2Credentials': sig_ref},
+            expected_status=http.client.UNAUTHORIZED,
+            token=token,
         )
 
     def _get_ec2_cred_uri(self):

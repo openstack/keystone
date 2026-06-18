@@ -13,6 +13,7 @@
 # Common base resource for EC2 and S3 Authentication
 
 import datetime
+from email.utils import parsedate_to_datetime
 
 from oslo_serialization import jsonutils
 from oslo_utils import timeutils
@@ -43,8 +44,8 @@ class ResourceBase(ks_flask.ResourceBase):
         raise NotImplementedError()
 
     @staticmethod
-    def _check_timestamp(credentials):
-        timestamp = (
+    def _timestamp_from_params_or_headers(credentials):
+        return (
             # AWS Signature v1/v2
             credentials.get('params', {}).get('Timestamp')
             or
@@ -52,21 +53,64 @@ class ResourceBase(ks_flask.ResourceBase):
             credentials.get('headers', {}).get('X-Amz-Date')
             or credentials.get('params', {}).get('X-Amz-Date')
         )
-        if not timestamp:
-            # If the signed payload doesn't include a timestamp then the signer
-            # must have intentionally left it off
-            return
-        try:
-            timestamp = timeutils.parse_isotime(timestamp)
-            timestamp = timeutils.normalize_time(timestamp)
-        except Exception as e:
-            raise ks_exceptions.Unauthorized(
-                _('Credential timestamp is invalid: %s') % e
-            )
+
+    @staticmethod
+    def _parse_timestamp(timestamp):
+        """Parse an EC2/S3 credential timestamp to naive UTC datetime.
+
+        Accepts ISO-8601 (including SigV4 basic form YYYYMMDDTHHMMSSZ),
+        RFC 1123 HTTP-date (SigV2 Date header), and Unix epoch seconds
+        (SigV2 query-auth Expires).
+        """
+        timestamp = timestamp.strip()
+        parsers = (
+            lambda value: timeutils.parse_isotime(value),
+            parsedate_to_datetime,
+        )
+        for parser in parsers:
+            try:
+                parsed = parser(timestamp)
+            except (TypeError, ValueError, IndexError):
+                continue
+            if parsed is not None:
+                return timeutils.normalize_time(parsed)
+        if timestamp.isdigit():
+            try:
+                parsed = datetime.datetime.fromtimestamp(
+                    int(timestamp), tz=datetime.timezone.utc
+                )
+            except (OverflowError, OSError, ValueError):
+                parsed = None
+            if parsed is not None:
+                return timeutils.normalize_time(parsed)
+        raise ks_exceptions.Unauthorized(
+            _('Credential timestamp is invalid: %s') % timestamp
+        )
+
+    @staticmethod
+    def _enforce_auth_ttl(timestamp):
         auth_ttl = datetime.timedelta(minutes=CONF.credential.auth_ttl)
         current_time = timeutils.normalize_time(timeutils.utcnow())
         if current_time > timestamp + auth_ttl:
             raise ks_exceptions.Unauthorized(_('Credential is expired'))
+
+    @staticmethod
+    def _check_timestamp(credentials):
+        # EC2 requests must carry an explicit timestamp. An unsigned
+        # 'token' field must not skip enforcement (it is not covered by
+        # Ec2Signer). S3Resource overrides this to extract the date from
+        # the signature-verified string-to-sign.
+        timestamp = ResourceBase._timestamp_from_params_or_headers(credentials)
+        if not timestamp:
+            raise ks_exceptions.Unauthorized(
+                _(
+                    'EC2/S3 signed requests must include a timestamp '
+                    '(Timestamp query parameter or X-Amz-Date).'
+                )
+            )
+        ResourceBase._enforce_auth_ttl(
+            ResourceBase._parse_timestamp(timestamp)
+        )
 
     def handle_authenticate(self):
         # Fail closed if the ec2credential marker method is not enabled:
