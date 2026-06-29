@@ -180,6 +180,3 @@ packages = [
 "etc/keystone" = [
     "etc/sso_callback_template.html",
 ]
-
-[tool.bandit]
-exclude_dirs = ['keystone/tests/*', 'devstack/*']

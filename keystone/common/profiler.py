@@ -19,7 +19,7 @@ CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
 
 
-def setup(name, host='0.0.0.0'):  # nosec
+def setup(name, host='0.0.0.0'):  # noqa: S104
     """Setup OSprofiler notifier and enable profiling.
 
     :param name: name of the service that will be profiled

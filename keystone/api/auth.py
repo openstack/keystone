@@ -138,7 +138,7 @@ class AuthProjectsResource(ks_flask.ResourceBase):
                 user_p_refs = PROVIDERS.assignment_api.list_projects_for_user(
                     user_id
                 )
-            except exception.UserNotFound:  # nosec
+            except exception.UserNotFound:
                 # federated users have an id but they don't link to anything
                 pass
 
@@ -172,7 +172,7 @@ class AuthDomainsResource(ks_flask.ResourceBase):
                 user_d_refs = PROVIDERS.assignment_api.list_domains_for_user(
                     user_id
                 )
-            except exception.UserNotFound:  # nosec
+            except exception.UserNotFound:
                 # federated users have an id but they don't link to anything
                 pass
 
@@ -205,7 +205,7 @@ class AuthSystemResource(_AuthFederationWebSSOBase):
                         user_id
                     )
                 )
-            except exception.UserNotFound:  # nosec
+            except exception.UserNotFound:
                 # federated users have an id but they don't link to anything
                 pass
 

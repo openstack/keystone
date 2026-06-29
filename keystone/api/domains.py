@@ -39,7 +39,7 @@ def _build_domain_enforcement_target():
         target['domain'] = PROVIDERS.resource_api.get_domain(
             flask.request.view_args.get('domain_id')
         )
-    except exception.NotFound:  # nosec
+    except exception.NotFound:
         # Defer existence in the event the domain doesn't exist, we'll
         # check this later anyway.
         pass
@@ -198,7 +198,7 @@ class DomainConfigBase(ks_flask.ResourceBase):
         config = {}
         try:
             PROVIDERS.resource_api.get_domain(domain_id)
-        except Exception as e:  # nosec
+        except Exception as e:
             # We don't raise out here, we raise out after enforcement, this
             # ensures we do not leak domain existance.
             err = e

@@ -92,7 +92,7 @@ def _build_target_enforcement():
         target['credential'] = PROVIDERS.credential_api.get_credential(
             flask.request.view_args.get('credential_id')
         )
-    except exception.NotFound:  # nosec
+    except exception.NotFound:
         # Defer existance in the event the credential doesn't exist, we'll
         # check this later anyway.
         pass

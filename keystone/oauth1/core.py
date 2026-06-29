@@ -124,8 +124,8 @@ class Manager(manager.Manager):
     driver_namespace = 'keystone.oauth1'
     _provides_api = 'oauth_api'
 
-    _ACCESS_TOKEN = "OS-OAUTH1:access_token"  # nosec
-    _REQUEST_TOKEN = "OS-OAUTH1:request_token"  # nosec
+    _ACCESS_TOKEN = "OS-OAUTH1:access_token"  # noqa: S105
+    _REQUEST_TOKEN = "OS-OAUTH1:request_token"  # noqa: S105
     _CONSUMER = "OS-OAUTH1:consumer"
 
     def __init__(self):
