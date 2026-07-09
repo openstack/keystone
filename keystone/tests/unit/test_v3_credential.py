@@ -169,6 +169,15 @@ class CredentialTestCase(CredentialBaseTestCase):
         r = self.get('/credentials')
         self.assertValidCredentialListResponse(r, ref=self.credential)
 
+    def test_list_credentials_does_not_fetch_each_credential(self):
+        with mock.patch.object(
+            PROVIDERS.credential_api, 'get_credential'
+        ) as get_credential_mock:
+            r = self.get('/credentials')
+
+        self.assertValidCredentialListResponse(r, ref=self.credential)
+        get_credential_mock.assert_not_called()
+
     def test_list_credentials_filtered_by_user_id(self):
         """Call ``GET  /credentials?user_id={user_id}``."""
         credential = unit.new_credential_ref(user_id=uuid.uuid4().hex)
