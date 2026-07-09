@@ -1441,3 +1441,25 @@ class UserFederatedAttributesTests(test_v3.RestfulTestCase):
             body={'user': user},
             expected_status=http.client.BAD_REQUEST,
         )
+
+    def test_list_users_without_filters_returns_federated_name(self):
+        """Call ``GET /users`` without federated attribute filters.
+
+        Verifies that when list_users is called without idp_id, protocol_id,
+        or unique_id filters, the federated user still appears with a non-null
+        name (from FederatedUser.display_name). This exercises the regular
+        SQL list_users query with outerjoin(LocalUser) and relies on eager
+        loading for federated_users.
+        """
+        r = self.get('/users', token=self.get_admin_token())
+        self.assertValidUserListResponse(r)
+        found = [
+            u for u in r.result['users'] if u['id'] == self.fed_user['id']
+        ]
+        self.assertEqual(
+            1, len(found), 'Federated user should appear in list_users'
+        )
+        self.assertIsNotNone(
+            found[0]['name'],
+            'list_users must not return None for federated user name',
+        )

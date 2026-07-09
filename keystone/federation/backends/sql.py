@@ -14,6 +14,7 @@
 
 from oslo_log import log
 from oslo_serialization import jsonutils
+from sqlalchemy import exists
 from sqlalchemy import orm
 
 from keystone.common import sql
@@ -21,6 +22,7 @@ import keystone.conf
 from keystone import exception
 from keystone.federation.backends import base
 from keystone.i18n import _
+from keystone.identity.backends import sql_model as identity_model
 
 CONF = keystone.conf.CONF
 LOG = log.getLogger(__name__)
@@ -222,11 +224,88 @@ class Federation(base.FederationDriverBase):
         except sql.DBDuplicateEntry as e:
             self._handle_idp_conflict(e)
 
+    @staticmethod
+    def _clean_orphaned_federated_users(session):
+        """Delete federated_user rows whose IDP or protocol no longer exists.
+
+        Some databases (SQLite) do not enforce FK CASCADE, so federated_user
+        records may remain after their parent IDP or protocol is deleted.
+        This method explicitly cleans up those orphaned records.
+        """
+        # Delete federated_user rows whose IDP no longer exists
+        session.query(identity_model.FederatedUser).filter(
+            identity_model.FederatedUser.idp_id.notin_(
+                session.query(IdentityProviderModel.id)
+            )
+        ).delete(synchronize_session=False)
+        # Delete federated_user rows whose protocol no longer exists
+        session.query(identity_model.FederatedUser).filter(
+            identity_model.FederatedUser.protocol_id.notin_(
+                session.query(FederationProtocolModel.id)
+            )
+        ).delete(synchronize_session=False)
+
+    def _delete_orphaned_users(self, session):
+        """Delete users that have no name source after IDP/protocol deletion.
+
+        :param session: SQLAlchemy session
+        """
+        self._clean_orphaned_federated_users(session)
+        # Step 1: collect orphaned user IDs
+        # (SQLAlchemy restricts Query.delete() when joins are used).
+        orphaned_ids = [
+            row[0]
+            for row in (
+                session.query(identity_model.User.id)
+                .outerjoin(
+                    identity_model.LocalUser,
+                    identity_model.User.id == identity_model.LocalUser.user_id,
+                )
+                .outerjoin(
+                    identity_model.NonLocalUser,
+                    identity_model.User.id
+                    == identity_model.NonLocalUser.user_id,
+                )
+                .outerjoin(
+                    identity_model.FederatedUser,
+                    identity_model.User.id
+                    == identity_model.FederatedUser.user_id,
+                )
+                .filter(
+                    identity_model.LocalUser.user_id.is_(None),
+                    identity_model.NonLocalUser.user_id.is_(None),
+                    identity_model.FederatedUser.user_id.is_(None),
+                )
+                .all()
+            )
+        ]
+        if orphaned_ids:
+            # Delete dependent rows with FK on user.id before deleting users.
+            # ExpiringUserGroupMembership.user_id and
+            # UserGroupMembership.user_id have FK on user.id WITHOUT
+            # ondelete='CASCADE', so we must clean up those rows first to
+            # avoid FK constraint violations.
+            session.query(identity_model.ExpiringUserGroupMembership).filter(
+                identity_model.ExpiringUserGroupMembership.user_id.in_(
+                    orphaned_ids
+                )
+            ).delete(synchronize_session=False)
+            session.query(identity_model.UserGroupMembership).filter(
+                identity_model.UserGroupMembership.user_id.in_(orphaned_ids)
+            ).delete(synchronize_session=False)
+
+            # Delete orphaned users
+            session.query(identity_model.User).filter(
+                identity_model.User.id.in_(orphaned_ids)
+            ).delete(synchronize_session=False)
+
     def delete_idp(self, idp_id):
         with sql.session_for_write() as session:
             self._delete_assigned_protocols(session, idp_id)
             idp_ref = self._get_idp(session, idp_id)
             session.delete(idp_ref)
+            session.flush()
+            self._delete_orphaned_users(session)
 
     def _get_idp(self, session, idp_id):
         idp_ref = session.get(IdentityProviderModel, idp_id)
@@ -318,6 +397,8 @@ class Federation(base.FederationDriverBase):
         with sql.session_for_write() as session:
             key_ref = self._get_protocol(session, idp_id, protocol_id)
             session.delete(key_ref)
+            session.flush()
+            self._delete_orphaned_users(session)
 
     def _delete_assigned_protocols(self, session, idp_id):
         query = session.query(FederationProtocolModel)
