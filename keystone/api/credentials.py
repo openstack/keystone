@@ -211,17 +211,16 @@ class CredentialsResource(ks_flask.ResourceBase):
         token = self.auth_context['token']
         filtered_refs = []
         for ref in refs:
-            # Check each credential again to make sure the user has access to
-            # it, either by owning it, being a project admin with
+            # Check each credential to make sure the user has access to it,
+            # either by owning it, being a project admin with
             # enforce_scope=false, being a system user, or having some other
             # custom policy that allows access.
             try:
-                cred = PROVIDERS.credential_api.get_credential(ref['id'])
                 ENFORCER.enforce_call(
                     action='identity:get_credential',
-                    target_attr={'credential': cred},
+                    target_attr={'credential': ref},
                 )
-                _check_credential_project_scope(token, self.oslo_context, cred)
+                _check_credential_project_scope(token, self.oslo_context, ref)
                 filtered_refs.append(ref)
             except (exception.Forbidden, exception.ForbiddenAction):
                 pass
