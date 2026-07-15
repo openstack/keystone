@@ -84,6 +84,7 @@ class Manager(manager.Manager):
     ):
         domain_id = payload['resource_info']
         self.driver.delete_domain_assignments(domain_id)
+        COMPUTED_ASSIGNMENTS_REGION.invalidate()
 
     def _get_group_ids_for_user_id(self, user_id):
         # TODO(morganfainberg): Implement a way to get only group_ids
@@ -1337,6 +1338,7 @@ class Manager(manager.Manager):
         self.driver.create_system_grant(
             role_id, user_id, target_id, assignment_type, inherited
         )
+        COMPUTED_ASSIGNMENTS_REGION.invalidate()
 
     def delete_system_grant_for_user(self, user_id, role_id):
         """Remove a system grant from a user.
@@ -1408,6 +1410,7 @@ class Manager(manager.Manager):
         self.driver.create_system_grant(
             role_id, group_id, target_id, assignment_type, inherited
         )
+        COMPUTED_ASSIGNMENTS_REGION.invalidate()
 
     def delete_system_grant_for_group(self, group_id, role_id):
         """Remove a system grant from a group.
