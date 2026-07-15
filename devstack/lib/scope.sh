@@ -12,8 +12,7 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-function configure_enforce_scope {
-    iniset $KEYSTONE_CONF oslo_policy enforce_scope true
+function configure_enforce_new_defaults {
     iniset $KEYSTONE_CONF oslo_policy enforce_new_defaults true
     iniset $KEYSTONE_CONF oslo_policy policy_file policy.yaml
     sudo systemctl restart devstack@keystone
