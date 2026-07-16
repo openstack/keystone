@@ -1676,7 +1676,6 @@ class SystemReaderTests(
         super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         system_reader = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
@@ -1710,7 +1709,6 @@ class SystemMemberTests(
         super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         system_member = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
@@ -1743,7 +1741,6 @@ class SystemAdminTests(
         super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         self.user_id = self.bootstrapper.admin_user_id
         auth = self.build_authentication_request(
@@ -2114,7 +2111,6 @@ class DomainReaderTests(
         super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         domain = PROVIDERS.resource_api.create_domain(
             uuid.uuid4().hex, unit.new_domain_ref()
@@ -2152,7 +2148,6 @@ class DomainMemberTests(
         super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
         domain = PROVIDERS.resource_api.create_domain(
             uuid.uuid4().hex, unit.new_domain_ref()
         )
@@ -2195,7 +2190,6 @@ class DomainAdminTests(
             )
         )
         self._override_policy()
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         domain = PROVIDERS.resource_api.create_domain(
             uuid.uuid4().hex, unit.new_domain_ref()

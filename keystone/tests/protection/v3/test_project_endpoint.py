@@ -244,7 +244,6 @@ class SystemReaderTests(
         super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         system_reader = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
@@ -278,7 +277,6 @@ class SystemMemberTests(
         super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         system_member = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
@@ -311,7 +309,6 @@ class SystemAdminTests(
         super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         # Reuse the system administrator account created during
         # ``keystone-manage bootstrap``
@@ -387,7 +384,6 @@ class DomainUserTests(
         super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         domain = PROVIDERS.resource_api.create_domain(
             uuid.uuid4().hex, unit.new_domain_ref()
@@ -425,83 +421,12 @@ class ProjectUserTests(
         super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         self.user_id = self.bootstrapper.admin_user_id
         auth = self.build_authentication_request(
             user_id=self.user_id,
             password=self.bootstrapper.admin_password,
             project_id=self.bootstrapper.project_id,
-        )
-
-        # Grab a token using the persona we're testing and prepare headers
-        # for requests we'll be making in the tests.
-        with self.test_client() as c:
-            r = c.post('/v3/auth/tokens', json=auth)
-            self.token_id = r.headers['X-Subject-Token']
-            self.headers = {'X-Auth-Token': self.token_id}
-
-
-class ProjectUserTestsWithoutEnforceScope(
-    base_classes.TestCaseWithBootstrap,
-    common_auth.AuthTestMixin,
-    _DomainAndProjectUserProjectEndpointTests,
-    _SystemReaderAndMemberProjectEndpointTests,
-):
-    def _override_policy(self):
-        # TODO(cmurphy): Remove this once the deprecated policies in
-        # keystone.common.policies.project_endpoint have been removed. This is
-        # only here to make sure we test the new policies instead of the
-        # deprecated ones. Oslo.policy will OR deprecated policies with new
-        # policies to maintain compatibility and give operators a chance to
-        # update permissions or update policies without breaking users. This
-        # will cause these specific tests to fail since we're trying to correct
-        # this broken behavior with better scope checking.
-        with open(self.policy_file_name, 'w') as f:
-            overridden_policies = {
-                'identity:list_projects_for_endpoint': bp.SYSTEM_READER,
-                'identity:add_endpoint_to_project': bp.SYSTEM_ADMIN,
-                'identity:check_endpoint_in_project': bp.SYSTEM_READER,
-                'identity:list_endpoints_for_project': bp.SYSTEM_READER,
-                'identity:remove_endpoint_from_project': bp.SYSTEM_ADMIN,
-            }
-            f.write(jsonutils.dumps(overridden_policies))
-
-    def setUp(self):
-        super().setUp()
-        self.loadapp()
-        self.policy_file = self.useFixture(temporaryfile.SecureTempFile())
-        self.policy_file_name = self.policy_file.file_name
-        self.useFixture(
-            ksfixtures.Policy(
-                self.config_fixture, policy_file=self.policy_file_name
-            )
-        )
-        self._override_policy()
-        # Explicity set enforce_scope to False to make sure we maintain
-        # backwards compatibility with project users.
-        self.config_fixture.config(group='oslo_policy', enforce_scope=False)
-
-        domain = PROVIDERS.resource_api.create_domain(
-            uuid.uuid4().hex, unit.new_domain_ref()
-        )
-        user = unit.new_user_ref(domain_id=domain['id'])
-        self.user_id = PROVIDERS.identity_api.create_user(user)['id']
-
-        self.project_id = PROVIDERS.resource_api.create_project(
-            uuid.uuid4().hex, unit.new_project_ref(domain_id=domain['id'])
-        )['id']
-
-        PROVIDERS.assignment_api.create_grant(
-            self.bootstrapper.admin_role_id,
-            user_id=self.user_id,
-            project_id=self.project_id,
-        )
-
-        auth = self.build_authentication_request(
-            user_id=self.user_id,
-            password=user['password'],
-            project_id=self.project_id,
         )
 
         # Grab a token using the persona we're testing and prepare headers

@@ -295,7 +295,6 @@ class SystemReaderTests(
         super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         system_reader = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
@@ -331,7 +330,6 @@ class SystemMemberTests(
         super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         system_member = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
@@ -367,7 +365,6 @@ class SystemAdminTests(
         super().setUp()
         self.loadapp()
         self.useFixture(ksfixtures.Policy(self.config_fixture))
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         self.user_id = self.bootstrapper.admin_user_id
         auth = self.build_authentication_request(
@@ -403,7 +400,6 @@ class OwnerTests(
         )
 
         self._override_policy()
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         # in this case app_cred_user_id and user_id are the same since we
         # are testing the owner
@@ -520,7 +516,6 @@ class DomainAdminTests(
         )
 
         self._override_policy()
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         domain_admin = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
@@ -562,7 +557,6 @@ class DomainReaderTests(
         )
 
         self._override_policy()
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         domain_admin = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
@@ -604,7 +598,6 @@ class DomainMemberTests(
         )
 
         self._override_policy()
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         domain_admin = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
@@ -646,7 +639,6 @@ class ProjectAdminTests(
         )
 
         self._override_policy()
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         project_admin = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
@@ -689,7 +681,6 @@ class ProjectReaderTests(
         )
 
         self._override_policy()
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         project_admin = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id
@@ -732,7 +723,6 @@ class ProjectMemberTests(
         )
 
         self._override_policy()
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
 
         project_admin = unit.new_user_ref(
             domain_id=CONF.identity.default_domain_id

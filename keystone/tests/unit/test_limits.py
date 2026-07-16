@@ -1158,7 +1158,6 @@ class LimitsTestCase(test_v3.RestfulTestCase):
 
     def test_list_limit_with_project_id_filter(self):
         # create two limit in different projects for test.
-        self.config_fixture.config(group='oslo_policy', enforce_scope=True)
         ref1 = unit.new_limit_ref(
             project_id=self.project_id,
             service_id=self.service_id,
