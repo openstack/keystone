@@ -19,6 +19,7 @@ import http.client
 from keystoneclient.contrib.ec2 import utils as ec2_utils
 from oslo_utils import timeutils
 
+from keystone.common import authorization
 from keystone.common import provider_api
 from keystone.common import utils
 from keystone.tests import unit
@@ -235,3 +236,84 @@ class EC2ContribCoreV3(test_v3.RestfulTestCase):
             body={'credentials': credentials},
             expected_status=http.client.UNAUTHORIZED,
         )
+
+    def test_valid_ec2_token_invalid_for_regular_endpoints(self, **kwargs):
+        signer = ec2_utils.Ec2Signer(self.cred_blob['secret'])
+        timestamp = utils.isotime(timeutils.utcnow())
+        credentials = {
+            'access': self.cred_blob['access'],
+            'secret': self.cred_blob['secret'],
+            'host': 'localhost',
+            'verb': 'GET',
+            'path': '/',
+            'params': {
+                'SignatureVersion': '2',
+                'Action': 'Test',
+                'Timestamp': timestamp,
+            },
+        }
+        credentials['signature'] = signer.generate(credentials)
+        # Authenticate as system admin by default unless overridden via kwargs
+        token = None
+        if 'noauth' in kwargs and kwargs['noauth']:
+            token = None
+        else:
+            PROVIDERS.assignment_api.create_system_grant_for_user(
+                self.user_id, self.role_id
+            )
+            token = self.get_system_scoped_token()
+
+        resp = self.post(
+            '/ec2tokens',
+            body={'credentials': credentials},
+            expected_status=http.client.OK,
+            token=token,
+            noauth=kwargs.get('noauth'),
+        )
+        self.assertValidProjectScopedTokenResponse(resp, self.user)
+
+        # Extract the EC2 credential token from the response - the password
+        # token used for POST /ec2tokens is NOT the EC2 token.
+        ec2_token = resp.headers['X-Subject-Token']
+        self.assertEqual(['ec2credential'], resp.json['token']['methods'])
+
+        # The EC2 token should be rejected by regular endpoints (check subset
+        # the user should normally be able to query).
+        self.get(
+            '/users', token=ec2_token, expected_status=http.client.FORBIDDEN
+        )
+        self.get(
+            f"/users/{self.user_id}",
+            token=ec2_token,
+            expected_status=http.client.FORBIDDEN,
+        )
+        self.get(
+            '/auth/projects',
+            token=ec2_token,
+            expected_status=http.client.FORBIDDEN,
+        )
+
+        # The EC2 token should be still validated.
+        self.get(
+            '/auth/tokens',
+            headers={"X-Subject-Token": ec2_token},
+            token=token,
+            expected_status=http.client.OK,
+        )
+        # Test reauth is also working
+        resp = self.post(
+            '/auth/tokens',
+            headers={"X-Subject-Token": ec2_token},
+            body={
+                "auth": {
+                    "identity": {
+                        "methods": ["token"],
+                        "token": {"id": ec2_token},
+                    }
+                }
+            },
+            token=token,
+            expected_status=http.client.CREATED,
+        )
+        ec2_token = resp.headers['X-Subject-Token']
+        self.assertIn('ec2credential', resp.json['token']['methods'])
