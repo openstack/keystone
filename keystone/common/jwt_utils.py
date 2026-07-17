@@ -10,19 +10,34 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import ec
+from cryptography.hazmat.primitives.asymmetric import ed25519
 from cryptography.hazmat.primitives import serialization
 
+_ALGORITHM_KEY_GENERATORS = {
+    'ES256': lambda: ec.generate_private_key(ec.SECP256R1()),
+    'ES384': lambda: ec.generate_private_key(ec.SECP384R1()),
+    'ES512': lambda: ec.generate_private_key(ec.SECP521R1()),
+    'EdDSA': lambda: ed25519.Ed25519PrivateKey.generate(),
+}
 
-def create_jws_keypair(private_key_path, public_key_path):
-    """Create an ECDSA key pair using an secp256r1, or NIST P-256, curve.
+
+def create_jws_keypair(private_key_path, public_key_path, algorithm='ES256'):
+    """Create an asymmetric key pair suitable for the given JWS algorithm.
 
     :param private_key_path: location to save the private key
     :param public_key_path: location to save the public key
+    :param algorithm: JWS algorithm name (ES256, ES384, ES512, EdDSA)
 
     """
-    private_key = ec.generate_private_key(ec.SECP256R1(), default_backend())
+    generator = _ALGORITHM_KEY_GENERATORS.get(algorithm)
+    if generator is None:
+        raise ValueError(
+            'Unsupported JWS algorithm: {}. Supported: {}'.format(
+                algorithm, ', '.join(sorted(_ALGORITHM_KEY_GENERATORS))
+            )
+        )
+    private_key = generator()
 
     with open(private_key_path, 'wb') as f:
         f.write(

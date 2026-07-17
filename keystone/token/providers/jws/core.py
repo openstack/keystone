@@ -91,10 +91,13 @@ class Provider(base.Provider):
 
 
 class JWSFormatter:
-    # NOTE(lbragstad): If in the future we expand support for different
-    # algorithms, make this configurable and validate it against a blessed list
-    # of supported algorithms.
-    algorithm = 'ES256'
+    @property
+    def algorithm(self):
+        return CONF.jwt_tokens.jws_algorithm
+
+    @property
+    def accepted_algorithms(self):
+        return CONF.jwt_tokens.jws_accepted_algorithms
 
     @property
     def private_key(self):
@@ -164,7 +167,7 @@ class JWSFormatter:
                 payload.pop(k)
 
         token_id = jwt.encode(
-            payload, self.private_key, algorithm=JWSFormatter.algorithm
+            payload, self.private_key, algorithm=self.algorithm
         )
         return token_id, issued_at
 
@@ -217,10 +220,15 @@ class JWSFormatter:
                 return jwt.decode(
                     token_id,
                     public_key,
-                    algorithms=JWSFormatter.algorithm,
+                    algorithms=self.accepted_algorithms,
                     options=options,
                 )
-            except (jwt.InvalidSignatureError, jwt.DecodeError):
+            except (
+                jwt.InvalidSignatureError,
+                jwt.DecodeError,
+                jwt.InvalidKeyError,
+                jwt.InvalidAlgorithmError,
+            ):
                 pass  # nosec: We want to exhaustively try all public keys
         raise exception.TokenNotFound(token_id=token_id)
 

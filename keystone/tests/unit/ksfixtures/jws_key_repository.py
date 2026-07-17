@@ -16,6 +16,9 @@ import fixtures
 
 from keystone.common import jwt_utils
 from keystone.common import utils
+import keystone.conf
+
+CONF = keystone.conf.CONF
 
 
 class JWSKeyRepository(fixtures.Fixture):
@@ -45,7 +48,11 @@ class JWSKeyRepository(fixtures.Fixture):
         utils.create_directory(private_key_directory)
         utils.create_directory(public_key_directory)
 
-        # create an asymmetric key pair for token signing and validation
+        # create an asymmetric key pair for token signing and validation,
+        # using the configured algorithm
+        algorithm = CONF.jwt_tokens.jws_algorithm
         private_key_path = os.path.join(private_key_directory, 'private.pem')
         public_key_path = os.path.join(public_key_directory, 'public.pem')
-        jwt_utils.create_jws_keypair(private_key_path, public_key_path)
+        jwt_utils.create_jws_keypair(
+            private_key_path, public_key_path, algorithm=algorithm
+        )

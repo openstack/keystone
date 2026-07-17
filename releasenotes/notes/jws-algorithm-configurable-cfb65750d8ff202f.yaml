@@ -1,0 +1,43 @@
+---
+features:
+  - |
+    The JWS token signing algorithm is now configurable via two new options
+    in ``[jwt_tokens]``:
+
+    * ``jws_algorithm`` selects the algorithm used when signing new tokens
+      (default ``ES256``, preserving backward compatibility). Supported
+      values are ``ES256``, ``ES384``, ``ES512``, and ``EdDSA``.
+    * ``jws_accepted_algorithms`` lists the algorithms accepted during
+      token validation. This allows operators to accept tokens signed
+      with a previous algorithm during a migration window.
+
+    Changing the signing algorithm requires regenerating the JWS key pair
+    via ``keystone-manage create_jws_keypair``, since each algorithm uses
+    a different key type.
+upgrade:
+  - |
+    Two new configuration options have been added to the ``[jwt_tokens]``
+    section: ``jws_algorithm`` and ``jws_accepted_algorithms``. The
+    defaults (``ES256`` and ``['ES256']``) preserve the previous
+    behavior, so no action is required for existing deployments.
+
+    To migrate to a new algorithm, operators should:
+
+    1. Add the new algorithm to ``jws_accepted_algorithms`` alongside the
+       current one.
+    2. Generate a new key pair with ``keystone-manage create_jws_keypair``.
+    3. Set ``jws_algorithm`` to the new algorithm.
+    4. After all tokens signed with the old algorithm have expired, remove
+       the old algorithm from ``jws_accepted_algorithms``.
+fixes:
+  - |
+    Fixed token validation to correctly handle mixed key types in the
+    public key repository. Previously, ``jwt.decode()`` could raise
+    ``InvalidKeyError`` or ``InvalidAlgorithmError`` when encountering
+    public keys of a different type than expected, causing token
+    validation to fail instead of trying the next available key. These
+    exceptions are now handled gracefully during the key iteration loop.
+  - |
+    Fixed ``jwt.decode()`` call in ``_decode_token_from_id`` to pass
+    ``algorithms`` as a list instead of a string. While PyJWT accepted
+    the string form, it was inconsistent with the documented API.
