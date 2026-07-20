@@ -1862,6 +1862,41 @@ class TokenAPITests:
                 trust_scoped_token, expected_status=http.client.NOT_FOUND
             )
 
+    def test_trust_scoped_token_expiry_is_capped_at_trust_expiry(self):
+        """A trust-scoped token must not outlive the trust it came from.
+
+        Regression test for LP#2156586, the trust equivalent of
+        CVE-2022-2447 (LP#1992183), which capped application credential
+        token expiry at the application credential's own expiry but did
+        not do the same for trusts. Without the cap, a trust granted for
+        a short window still issues a token valid for the full default
+        token duration, so the trustee keeps access long after the
+        trustor intended the delegation to end.
+        """
+        trustee_user = unit.create_user(
+            PROVIDERS.identity_api, domain_id=self.domain_id
+        )
+        ref = unit.new_trust_ref(
+            trustor_user_id=self.user_id,
+            trustee_user_id=trustee_user['id'],
+            project_id=self.project_id,
+            role_ids=[self.role_id],
+            expires={'seconds': 60},
+        )
+        r = self.post('/OS-TRUST/trusts', body={'trust': ref})
+        trust = self.assertValidTrustResponse(r)
+
+        trust_scoped_token_id = self._get_trust_scoped_token(
+            trustee_user, trust
+        )
+        r = self._validate_token(trust_scoped_token_id)
+        token_expires_at = timeutils.parse_isotime(
+            r.result['token']['expires_at']
+        )
+        trust_expires_at = timeutils.parse_isotime(trust['expires_at'])
+
+        self.assertLessEqual(token_expires_at, trust_expires_at)
+
     def test_validate_a_trust_scoped_token_impersonated(self):
         trustee_user, trust = self._create_trust(impersonation=True)
         trust_scoped_token = self._get_trust_scoped_token(trustee_user, trust)
