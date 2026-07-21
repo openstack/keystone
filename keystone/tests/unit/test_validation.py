@@ -1188,14 +1188,7 @@ class CredentialValidationTestCase(unit.BaseTestCase):
 
     def test_validate_credential_update_succeeds(self):
         """Test that a credential request is properly validated."""
-        request_to_validate = {
-            'credential': {
-                'blob': 'some string',
-                'project_id': uuid.uuid4().hex,
-                'type': 'ec2',
-                'user_id': uuid.uuid4().hex,
-            }
-        }
+        request_to_validate = {'credential': {'blob': 'some string'}}
         self.update_credential_validator.validate(request_to_validate)
 
     def test_validate_credential_update_without_parameters_fails(self):
@@ -1207,18 +1200,35 @@ class CredentialValidationTestCase(unit.BaseTestCase):
             request_to_validate,
         )
 
-    def test_validate_credential_update_with_extra_parameters_succeeds(self):
-        """Validate credential update with extra parameters."""
+    def test_validate_credential_update_rejects_non_blob_fields(self):
+        """PATCH only accepts `blob` (LP#2159643).
+
+        `type`, `project_id`, and `user_id` are immutable after creation.
+        """
         request_to_validate = {
             'credential': {
                 'blob': 'some string',
-                'extra': False,
                 'project_id': uuid.uuid4().hex,
                 'type': 'ec2',
                 'user_id': uuid.uuid4().hex,
             }
         }
-        self.update_credential_validator.validate(request_to_validate)
+        self.assertRaises(
+            exception.SchemaValidationError,
+            self.update_credential_validator.validate,
+            request_to_validate,
+        )
+
+    def test_validate_credential_update_with_extra_parameters_fails(self):
+        """Validate credential update rejects unknown extra parameters."""
+        request_to_validate = {
+            'credential': {'blob': 'some string', 'extra': False}
+        }
+        self.assertRaises(
+            exception.SchemaValidationError,
+            self.update_credential_validator.validate,
+            request_to_validate,
+        )
 
 
 class RegionValidationTestCase(unit.BaseTestCase):

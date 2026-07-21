@@ -18,6 +18,7 @@ import http.client
 import flask
 from oslo_serialization import jsonutils
 
+from keystone.api._shared import delegation
 from keystone.api import validation
 from keystone.common import json_home
 from keystone.common import provider_api
@@ -33,57 +34,37 @@ PROVIDERS = provider_api.ProviderAPIs
 ENFORCER = rbac_enforcer.RBACEnforcer
 
 
-def _check_unrestricted_application_credential(token):
-    if 'application_credential' in token.methods:
-        if not token.application_credential['unrestricted']:
-            action = _(
-                "Using method 'application_credential' is not "
-                "allowed for managing additional credentials."
-            )
-            raise exception.ForbiddenAction(action=action)
+def _require_primary_auth(token, oslo_context, credential_type):
+    """Reject delegated tokens from touching another credential at all.
 
+    Trust delegation is a scope, not a method -- a trust-scoped token's
+    methods list reflects whatever primary method was used to obtain it,
+    so it's checked separately via oslo_context.trust_id. This also drops
+    trust-scoped EC2 credential creation, never a deliberate feature (bug
+    1242597 / OSSA-2013-032).
 
-def _check_credential_project_scope(token, oslo_context, credential):
-    """Enforce project boundary for delegated tokens.
-
-    Non-delegated tokens (password, totp, etc.) are not restricted here --
-    an admin with a regular token can legitimately manage credentials across
-    projects. Delegated tokens (trusts, application credentials, OAuth1) are
-    always bound to a single project at delegation time; only credentials
-    whose project_id exactly matches the token's project scope are in bounds.
-
-    Credentials with project_id=None (e.g. TOTP/MFA bindings) are treated as
-    out-of-scope for any delegated token: they are user-level secrets with no
-    project anchor, and a delegated token should never be able to enumerate,
-    read, or mutate them -- doing so would allow a stolen delegation token to
-    exfiltrate or destroy a user's MFA binding.
+    allow_insecure_admin_trust_cross_project_credentials_access exempts
+    admin-role delegated tokens, but only for ec2-type credentials,
+    matching its one use case (LP#2150089 comment #57). See LP#2159643.
     """
     trust_id = getattr(oslo_context, 'trust_id', None)
-    app_cred_id = getattr(token, 'application_credential_id', None)
-    access_token_id = getattr(token, 'access_token_id', None)
-
-    if not (trust_id or app_cred_id or access_token_id):
+    if not (trust_id or delegation.is_delegated_method(token)):
         return
 
-    token_project_id = oslo_context.project_id
-    cred_project_id = credential.get('project_id')
-
-    insecure_cross_project = CONF.security_compliance.allow_insecure_admin_trust_cross_project_credentials_access
-    if cred_project_id != token_project_id:
-        if insecure_cross_project:
-            # When insecure cross-project access is enabled, still restrict to
-            # admin-role delegated tokens only. See LP#2150089.
-            try:
-                ENFORCER.enforce_call(action='admin_required')
-                return
-            except exception.ForbiddenAction:
-                pass
-        raise exception.ForbiddenAction(
-            action=_(
-                'Credential project does not match the '
-                'project scope of the delegated token'
-            )
-        )
+    insecure_cross_project = getattr(
+        CONF.security_compliance,
+        'allow_insecure_admin_trust_cross_project_credentials_access',
+    )
+    if insecure_cross_project and (credential_type or '').lower() == 'ec2':
+        # Still restrict to admin-role delegated tokens only. See LP#2150089.
+        try:
+            ENFORCER.enforce_call(action='admin_required')
+            return
+        except exception.ForbiddenAction:
+            pass
+    raise exception.ForbiddenAction(
+        action=_('Delegated tokens cannot access credentials directly')
+    )
 
 
 def _build_target_enforcement():
@@ -220,7 +201,9 @@ class CredentialsResource(ks_flask.ResourceBase):
                     action='identity:get_credential',
                     target_attr={'credential': ref},
                 )
-                _check_credential_project_scope(token, self.oslo_context, ref)
+                _require_primary_auth(
+                    token, self.oslo_context, ref.get('type')
+                )
                 filtered_refs.append(ref)
             except (exception.Forbidden, exception.ForbiddenAction):
                 pass
@@ -242,12 +225,10 @@ class CredentialsResource(ks_flask.ResourceBase):
             action='identity:create_credential', target_attr=target
         )
         token = self.auth_context['token']
-        if credential.get('type', '').lower() == 'ec2':
-            _check_unrestricted_application_credential(token)
         trust_id = getattr(self.oslo_context, 'trust_id', None)
         app_cred_id = getattr(token, 'application_credential_id', None)
         access_token_id = getattr(token, 'access_token_id', None)
-        _check_credential_project_scope(token, self.oslo_context, credential)
+        _require_primary_auth(token, self.oslo_context, credential.get('type'))
         ref = self._assign_unique_id(
             self._normalize_dict(credential),
             trust_id=trust_id,
@@ -293,8 +274,10 @@ class CredentialResource(ks_flask.ResourceBase):
             build_target=_build_target_enforcement,
         )
         credential = PROVIDERS.credential_api.get_credential(credential_id)
-        _check_credential_project_scope(
-            self.auth_context['token'], self.oslo_context, credential
+        _require_primary_auth(
+            self.auth_context['token'],
+            self.oslo_context,
+            credential.get('type'),
         )
         return self.wrap_member(_blob_to_json(credential))
 
@@ -310,8 +293,8 @@ class CredentialResource(ks_flask.ResourceBase):
             build_target=_build_target_enforcement,
         )
         current = PROVIDERS.credential_api.get_credential(credential_id)
-        _check_credential_project_scope(
-            self.auth_context['token'], self.oslo_context, current
+        _require_primary_auth(
+            self.auth_context['token'], self.oslo_context, current.get('type')
         )
         credential = self.request_body_json.get('credential', {})
         self._validate_blob_update_keys(current.copy(), credential.copy())
@@ -336,8 +319,10 @@ class CredentialResource(ks_flask.ResourceBase):
             build_target=_build_target_enforcement,
         )
         credential = PROVIDERS.credential_api.get_credential(credential_id)
-        _check_credential_project_scope(
-            self.auth_context['token'], self.oslo_context, credential
+        _require_primary_auth(
+            self.auth_context['token'],
+            self.oslo_context,
+            credential.get('type'),
         )
 
         return (

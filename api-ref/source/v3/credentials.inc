@@ -220,6 +220,10 @@ Update credential
 
 Updates a credential.
 
+Only ``blob`` may be updated. ``project_id``, ``type``, and ``user_id`` are
+immutable after creation; to change any of those, delete the credential and
+create a new one.
+
 Relationship: ``https://docs.openstack.org/api/openstack-identity/3/rel/credential``
 
 Request
@@ -232,10 +236,7 @@ Parameters
 
    - credential_id: credential_id_path
    - credential: credential
-   - project_id: project_id
-   - type: credential_type_not_required
    - blob: credential_blob_not_required
-   - user_id: credential_user_id_not_required
 
 Example
 ~~~~~~~

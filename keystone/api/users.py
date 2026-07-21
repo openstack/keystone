@@ -95,28 +95,17 @@ def _check_unrestricted_application_credential(token):
             raise ks_exception.ForbiddenAction(action=action)
 
 
-def _is_delegated_token(oslo_context, token):
-    """Return True if the token is any form of delegation."""
-    trust_id = getattr(oslo_context, 'trust_id', None)
-    app_cred_id = getattr(token, 'application_credential_id', None)
-    access_token_id = getattr(token, 'access_token_id', None)
-    return bool(trust_id or app_cred_id or access_token_id)
+def _require_primary_auth_for_ec2(oslo_context, token):
+    """Reject delegated tokens from the OS-EC2 compat endpoints entirely.
 
-
-def _check_delegation_for_ec2(oslo_context, token, project_id):
-    """For delegated tokens raise unless project_id exactly matches scope.
-
-    Credentials with project_id=None (user-scoped secrets such as TOTP) are
-    treated as out-of-scope: a delegated token must not read or modify them.
+    Matches keystone.api.credentials._require_primary_auth, without its
+    ec2-only escape hatch: no legitimate use case needs delegated access to
+    these endpoints. See LP#2159643.
     """
-    if not _is_delegated_token(oslo_context, token):
-        return
-    if project_id != oslo_context.project_id:
+    trust_id = getattr(oslo_context, 'trust_id', None)
+    if trust_id or delegation.is_delegated_method(token):
         raise ks_exception.ForbiddenAction(
-            action=_(
-                'EC2 credential project does not match the '
-                'project scope of the delegated token'
-            )
+            action=_('Delegated tokens cannot access credentials directly')
         )
 
 
@@ -470,20 +459,15 @@ class UserOSEC2CredentialsResourceListCreate(_UserOSEC2CredBaseResource):
         GET/HEAD /v3/users/{user_id}/credentials/OS-EC2
         """
         ENFORCER.enforce_call(action='identity:ec2_list_credentials')
+        token = self.auth_context['token']
+        _require_primary_auth_for_ec2(self.oslo_context, token)
         PROVIDERS.identity_api.get_user(user_id)
         credential_refs = PROVIDERS.credential_api.list_credentials_for_user(
             user_id, type=CRED_TYPE_EC2
         )
-        token = self.auth_context['token']
-        collection_refs = []
-        for cred in credential_refs:
-            try:
-                _check_delegation_for_ec2(
-                    self.oslo_context, token, cred.get('project_id')
-                )
-            except (ks_exception.Forbidden, ks_exception.ForbiddenAction):
-                continue
-            collection_refs.append(_convert_v3_to_ec2_credential(cred))
+        collection_refs = [
+            _convert_v3_to_ec2_credential(cred) for cred in credential_refs
+        ]
         return self.wrap_collection(collection_refs)
 
     def post(self, user_id):
@@ -497,11 +481,10 @@ class UserOSEC2CredentialsResourceListCreate(_UserOSEC2CredBaseResource):
             action='identity:ec2_create_credential', target_attr=target
         )
         token = self.auth_context['token']
-        _check_unrestricted_application_credential(token)
         PROVIDERS.identity_api.get_user(user_id)
         tenant_id = self.request_body_json.get('tenant_id')
         PROVIDERS.resource_api.get_project(tenant_id)
-        _check_delegation_for_ec2(self.oslo_context, token, tenant_id)
+        _require_primary_auth_for_ec2(self.oslo_context, token)
         blob = {
             'access': uuid.uuid4().hex,
             'secret': uuid.uuid4().hex,
@@ -542,10 +525,8 @@ class UserOSEC2CredentialsResourceGetDelete(_UserOSEC2CredBaseResource):
         PROVIDERS.identity_api.get_user(user_id)
         ec2_cred_id = utils.hash_access_key(credential_id)
         cred = self._get_raw_cred(ec2_cred_id)
-        _check_delegation_for_ec2(
-            self.oslo_context,
-            self.auth_context['token'],
-            cred.get('project_id'),
+        _require_primary_auth_for_ec2(
+            self.oslo_context, self.auth_context['token']
         )
         return self.wrap_member(_convert_v3_to_ec2_credential(cred))
 
@@ -560,11 +541,9 @@ class UserOSEC2CredentialsResourceGetDelete(_UserOSEC2CredBaseResource):
         )
         PROVIDERS.identity_api.get_user(user_id)
         ec2_cred_id = utils.hash_access_key(credential_id)
-        cred = self._get_raw_cred(ec2_cred_id)
-        _check_delegation_for_ec2(
-            self.oslo_context,
-            self.auth_context['token'],
-            cred.get('project_id'),
+        self._get_raw_cred(ec2_cred_id)
+        _require_primary_auth_for_ec2(
+            self.oslo_context, self.auth_context['token']
         )
         PROVIDERS.credential_api.delete_credential(ec2_cred_id)
         return None, http.client.NO_CONTENT

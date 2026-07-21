@@ -23,7 +23,9 @@ from keystoneclient.contrib.ec2 import utils as ec2_utils
 from oslo_db import exception as oslo_db_exception
 from testtools import matchers
 
+from keystone.api import credentials as credentials_api
 from keystone.api import ec2tokens
+from keystone.api import users as users_api
 from keystone.common import provider_api
 from keystone.common import utils
 from keystone.credential.providers import fernet as credential_fernet
@@ -276,52 +278,23 @@ class CredentialTestCase(CredentialBaseTestCase):
 
     def test_update_credential(self):
         """Call ``PATCH /credentials/{credential_id}``."""
-        ref = unit.new_credential_ref(
-            user_id=self.user['id'], project_id=self.project_id
-        )
-        del ref['id']
+        update_ref = {'blob': uuid.uuid4().hex}
         r = self.patch(
             '/credentials/{credential_id}'.format(
                 credential_id=self.credential['id']
             ),
-            body={'credential': ref},
-        )
-        self.assertValidCredentialResponse(r, ref)
-
-    def test_update_credential_to_ec2_type(self):
-        """Call ``PATCH /credentials/{credential_id}``."""
-        # Create a credential without providing a project_id
-        ref = unit.new_credential_ref(user_id=self.user['id'])
-        r = self.post('/credentials', body={'credential': ref})
-        self.assertValidCredentialResponse(r, ref)
-        credential_id = r.result.get('credential')['id']
-
-        # Updating the credential to ec2 requires a project_id
-        update_ref = {'type': 'ec2', 'project_id': self.project_id}
-        self.patch(
-            f'/credentials/{credential_id}', body={'credential': update_ref}
-        )
-
-    def test_update_credential_to_ec2_missing_project_id(self):
-        """Call ``PATCH /credentials/{credential_id}``."""
-        # Create a credential without providing a project_id
-        ref = unit.new_credential_ref(user_id=self.user['id'])
-        r = self.post('/credentials', body={'credential': ref})
-        self.assertValidCredentialResponse(r, ref)
-        credential_id = r.result.get('credential')['id']
-
-        # Updating such credential to ec2 type without providing a project_id
-        # will fail
-        update_ref = {'type': 'ec2'}
-        self.patch(
-            f'/credentials/{credential_id}',
             body={'credential': update_ref},
-            expected_status=http.client.BAD_REQUEST,
         )
+        expected = dict(self.credential, **update_ref)
+        self.assertValidCredentialResponse(r, expected)
 
-    def test_update_credential_to_ec2_with_previously_set_project_id(self):
-        """Call ``PATCH /credentials/{credential_id}``."""
-        # Create a credential providing a project_id
+    def test_update_credential_rejects_non_blob_fields(self):
+        """PATCH only accepts `blob` (LP#2159643).
+
+        `type`, `project_id`, and `user_id` are all immutable after
+        creation. The only way to change any of those is to delete the
+        credential and create a new one.
+        """
         ref = unit.new_credential_ref(
             user_id=self.user['id'], project_id=self.project_id
         )
@@ -329,12 +302,20 @@ class CredentialTestCase(CredentialBaseTestCase):
         self.assertValidCredentialResponse(r, ref)
         credential_id = r.result.get('credential')['id']
 
-        # Since the created credential above already has a project_id, the
-        # update request will not fail
-        update_ref = {'type': 'ec2'}
-        self.patch(
-            f'/credentials/{credential_id}', body={'credential': update_ref}
-        )
+        for update_ref in (
+            {'type': 'ec2', 'project_id': self.project_id},
+            {'project_id': self.project_id},
+            {'user_id': uuid.uuid4().hex},
+        ):
+            self.patch(
+                f'/credentials/{credential_id}',
+                body={'credential': update_ref},
+                expected_status=http.client.BAD_REQUEST,
+            )
+        stored = PROVIDERS.credential_api.get_credential(credential_id)
+        self.assertEqual(ref['type'], stored['type'])
+        self.assertEqual(self.project_id, stored['project_id'])
+        self.assertEqual(self.user['id'], stored['user_id'])
 
     def test_update_credential_non_owner(self):
         """Call ``PATCH /credentials/{credential_id}``."""
@@ -363,11 +344,12 @@ class CredentialTestCase(CredentialBaseTestCase):
         self.assertValidCredentialResponse(r, ref)
         credential_id = r.result.get('credential')['id']
 
-        # Cannot change the credential to be owned by another user
+        # Cannot change the credential to be owned by another user -- PATCH
+        # no longer accepts user_id/project_id at all. See LP#2159643.
         update_ref = {'user_id': self.user_id, 'project_id': self.project_id}
         self.patch(
             f'/credentials/{credential_id}',
-            expected_status=403,
+            expected_status=http.client.BAD_REQUEST,
             auth=auth,
             body={'credential': update_ref},
         )
@@ -479,6 +461,21 @@ class CredentialTestCase(CredentialBaseTestCase):
             body={'credential': update_ref},
             expected_status=http.client.BAD_REQUEST,
         )
+
+    def test_cannot_change_credential_type_via_patch(self):
+        """PATCH rejects a type change; only blob is mutable."""
+        ref = unit.new_credential_ref(
+            user_id=self.user_id, project_id=self.project_id
+        )
+        r = self.post('/credentials', body={'credential': ref})
+        credential_id = r.result['credential']['id']
+        self.patch(
+            f'/credentials/{credential_id}',
+            body={'credential': {'type': 'ec2'}},
+            expected_status=http.client.BAD_REQUEST,
+        )
+        stored = PROVIDERS.credential_api.get_credential(credential_id)
+        self.assertEqual(ref['type'], stored['type'])
 
     def test_delete_credential(self):
         """Call ``DELETE /credentials/{credential_id}``."""
@@ -658,12 +655,19 @@ class TestCredentialTrustScoped(CredentialBaseTestCase):
         super().config_overrides()
         self.config_fixture.config(group='trust')
 
-    def test_trust_scoped_ec2_credential(self):
-        """Test creating trust scoped ec2 credential.
+    def test_trust_scoped_token_cannot_create_ec2_credential(self):
+        """A trust-scoped token cannot create any credential (LP#2159643).
 
-        Call ``POST /credentials``.
+        Trust-scoped tokens creating EC2 credentials was never a
+        deliberately-designed feature: it dates back to bug 1242597 /
+        OSSA-2013-032, where trust tokens creating EC2 credentials already
+        existed generically and the ec2tokens exchange did not preserve
+        trust scoping, allowing privilege escalation to the trustor's
+        full role set. That bug's fix embedded trust_id in the blob
+        rather than removing the underlying capability. Delegated tokens
+        (trust included) are now rejected from /v3/credentials outright,
+        which removes this path rather than carving it out.
         """
-        # Create the trust
         ref = unit.new_trust_ref(
             trustor_user_id=self.user_id,
             trustee_user_id=self.trustee_user_id,
@@ -676,7 +680,6 @@ class TestCredentialTrustScoped(CredentialBaseTestCase):
         r = self.post('/OS-TRUST/trusts', body={'trust': ref})
         trust = self.assertValidTrustResponse(r)
 
-        # Get a trust scoped token
         auth_data = self.build_authentication_request(
             user_id=self.trustee_user['id'],
             password=self.trustee_user['password'],
@@ -684,53 +687,16 @@ class TestCredentialTrustScoped(CredentialBaseTestCase):
         )
         r = self.v3_create_token(auth_data)
         self.assertValidProjectScopedTokenResponse(r, self.user)
-        trust_id = r.result['token']['OS-TRUST:trust']['id']
         token_id = r.headers.get('X-Subject-Token')
 
-        # Create the credential with the trust scoped token
-        blob, ref = unit.new_ec2_credential(
+        _, ref = unit.new_ec2_credential(
             user_id=self.user_id, project_id=self.project_id
         )
-        r = self.post('/credentials', body={'credential': ref}, token=token_id)
-
-        # We expect the response blob to contain the trust_id
-        ret_ref = ref.copy()
-        ret_blob = blob.copy()
-        ret_blob['trust_id'] = trust_id
-        ret_ref['blob'] = json.dumps(ret_blob)
-        self.assertValidCredentialResponse(r, ref=ret_ref)
-
-        # Assert credential id is same as hash of access key id for
-        # ec2 credentials
-        access = blob['access'].encode('utf-8')
-        self.assertEqual(
-            hashlib.sha256(access).hexdigest(), r.result['credential']['id']
-        )
-
-        # Create a role assignment to ensure that it is ignored and only the
-        # trust-delegated roles are used
-        role = unit.new_role_ref(name='reader')
-        role_id = role['id']
-        PROVIDERS.role_api.create_role(role_id, role)
-        PROVIDERS.assignment_api.add_role_to_user_and_project(
-            self.user_id, self.project_id, role_id
-        )
-
-        ret_blob = json.loads(r.result['credential']['blob'])
-        ec2token = self._test_get_token(
-            access=ret_blob['access'], secret=ret_blob['secret']
-        )
-        ec2_roles = [role['id'] for role in ec2token['roles']]
-        self.assertIn(self.role_id, ec2_roles)
-        self.assertNotIn(role_id, ec2_roles)
-
-        # Create second ec2 credential with the same access key id and check
-        # for conflict.
         self.post(
             '/credentials',
             body={'credential': ref},
             token=token_id,
-            expected_status=http.client.CONFLICT,
+            expected_status=http.client.FORBIDDEN,
         )
 
     def _get_trust_token(self):
@@ -751,6 +717,38 @@ class TestCredentialTrustScoped(CredentialBaseTestCase):
         )
         r = self.v3_create_token(auth_data)
         return r.headers.get('X-Subject-Token')
+
+    def test_trust_token_cannot_rescope_credential_project(self):
+        """A credential's project_id can never be moved via PATCH.
+
+        Originally, the project-boundary check only validated the stored
+        (pre-image) project_id, not the requested one, so a delegated
+        token could PATCH an in-scope credential to move it to any other
+        project. PATCH no longer accepts project_id at all, for any
+        token, which closes this more generally. See LP#2159643.
+        """
+        other_project = unit.new_project_ref(domain_id=self.domain_id)
+        other_project = PROVIDERS.resource_api.create_project(
+            other_project['id'], other_project
+        )
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
+            self.user_id, other_project['id'], self.role_id
+        )
+        ref = unit.new_credential_ref(
+            user_id=self.user_id, project_id=self.project_id
+        )
+        r = self.post('/credentials', body={'credential': ref})
+        cred_id = r.result['credential']['id']
+
+        trust_token = self._get_trust_token()
+        self.patch(
+            f'/credentials/{cred_id}',
+            body={'credential': {'project_id': other_project['id']}},
+            token=trust_token,
+            expected_status=http.client.BAD_REQUEST,
+        )
+        stored = PROVIDERS.credential_api.get_credential(cred_id)
+        self.assertEqual(self.project_id, stored['project_id'])
 
     def test_trust_token_cannot_list_totp_credentials(self):
         """Trust-scoped token must not see TOTP/MFA credentials (project_id=None).
@@ -790,6 +788,89 @@ class TestCredentialTrustScoped(CredentialBaseTestCase):
             expected_status=http.client.FORBIDDEN,
         )
 
+    def test_escape_hatch_allows_admin_trust_token_to_read_ec2_credential(
+        self,
+    ):
+        """The escape hatch's one use case still works: admin trust + ec2."""
+        self.config_fixture.config(
+            group='security_compliance',
+            allow_insecure_admin_trust_cross_project_credentials_access=True,
+        )
+        blob, ref = unit.new_ec2_credential(
+            user_id=self.user_id, project_id=self.project_id
+        )
+        r = self.post('/credentials', body={'credential': ref})
+        ec2_id = r.result['credential']['id']
+
+        # _get_trust_token() grants self.role_id, which load_sample_data()
+        # creates as the "admin" role.
+        trust_token = self._get_trust_token()
+        r = self.get(f'/credentials/{ec2_id}', token=trust_token)
+        self.assertEqual(
+            blob['access'],
+            json.loads(r.result['credential']['blob'])['access'],
+        )
+
+    def test_escape_hatch_still_blocks_non_ec2_credential_regardless_of_role(
+        self,
+    ):
+        """The escape hatch never exempts non-ec2 credentials."""
+        self.config_fixture.config(
+            group='security_compliance',
+            allow_insecure_admin_trust_cross_project_credentials_access=True,
+        )
+        ref = unit.new_credential_ref(user_id=self.user_id)
+        r = self.post('/credentials', body={'credential': ref})
+        credential_id = r.result['credential']['id']
+
+        trust_token = self._get_trust_token()
+        self.get(
+            f'/credentials/{credential_id}',
+            token=trust_token,
+            expected_status=http.client.FORBIDDEN,
+        )
+
+    def test_escape_hatch_still_blocks_non_admin_trust_token(self):
+        """The insecure escape hatch does not exempt non-admin-role tokens."""
+        self.config_fixture.config(
+            group='security_compliance',
+            allow_insecure_admin_trust_cross_project_credentials_access=True,
+        )
+        _, ref = unit.new_ec2_credential(
+            user_id=self.user_id, project_id=self.project_id
+        )
+        r = self.post('/credentials', body={'credential': ref})
+        ec2_id = r.result['credential']['id']
+
+        member_role = unit.new_role_ref(name='member')
+        PROVIDERS.role_api.create_role(member_role['id'], member_role)
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
+            self.user_id, self.project_id, member_role['id']
+        )
+        trust_ref = unit.new_trust_ref(
+            trustor_user_id=self.user_id,
+            trustee_user_id=self.trustee_user_id,
+            project_id=self.project_id,
+            impersonation=True,
+            role_ids=[member_role['id']],
+        )
+        del trust_ref['id']
+        r = self.post('/OS-TRUST/trusts', body={'trust': trust_ref})
+        trust = r.result['trust']
+        auth_data = self.build_authentication_request(
+            user_id=self.trustee_user['id'],
+            password=self.trustee_user['password'],
+            trust_id=trust['id'],
+        )
+        r = self.v3_create_token(auth_data)
+        trust_token = r.headers.get('X-Subject-Token')
+
+        self.get(
+            f'/credentials/{ec2_id}',
+            token=trust_token,
+            expected_status=http.client.FORBIDDEN,
+        )
+
     def test_trust_token_cannot_update_totp_credential(self):
         """Trust-scoped token must not be able to update a TOTP credential blob."""
         totp_ref = {
@@ -804,7 +885,7 @@ class TestCredentialTrustScoped(CredentialBaseTestCase):
         self.patch(
             f'/credentials/{totp_id}',
             token=trust_token,
-            body={'credential': totp_ref},
+            body={'credential': {'blob': totp_ref['blob']}},
             expected_status=http.client.FORBIDDEN,
         )
 
@@ -893,13 +974,12 @@ class TestCredentialAppCreds(CredentialBaseTestCase):
             )
         )
 
-    def test_app_cred_ec2_credential(self):
-        """Test creating ec2 credential from an application credential.
+    def test_app_cred_cannot_create_ec2_credential(self):
+        """An application credential cannot create any credential (LP#2159643).
 
-        Call ``POST /credentials``.
+        Delegated tokens (application credentials included) are now
+        rejected from /v3/credentials outright.
         """
-        # Create an unrestricted app cred (restricted app creds are
-        # blocked from creating EC2 credentials)
         ref = unit.new_application_credential_ref(roles=[{'id': self.role_id}])
         del ref['id']
         ref['unrestricted'] = True
@@ -909,57 +989,20 @@ class TestCredentialAppCreds(CredentialBaseTestCase):
         )
         app_cred = r.result['application_credential']
 
-        # Get an application credential token
         auth_data = self.build_authentication_request(
             app_cred_id=app_cred['id'], secret=app_cred['secret']
         )
         r = self.v3_create_token(auth_data)
         token_id = r.headers.get('X-Subject-Token')
 
-        # Create the credential with the app cred token
-        blob, ref = unit.new_ec2_credential(
+        _, ref = unit.new_ec2_credential(
             user_id=self.user_id, project_id=self.project_id
         )
-        r = self.post('/credentials', body={'credential': ref}, token=token_id)
-
-        # We expect the response blob to contain the app_cred_id
-        ret_ref = ref.copy()
-        ret_blob = blob.copy()
-        ret_blob['app_cred_id'] = app_cred['id']
-        ret_ref['blob'] = json.dumps(ret_blob)
-        self.assertValidCredentialResponse(r, ref=ret_ref)
-
-        # Assert credential id is same as hash of access key id for
-        # ec2 credentials
-        access = blob['access'].encode('utf-8')
-        self.assertEqual(
-            hashlib.sha256(access).hexdigest(), r.result['credential']['id']
-        )
-
-        # Create a role assignment to ensure that it is ignored and only the
-        # roles in the app cred are used
-        role = unit.new_role_ref(name='reader')
-        role_id = role['id']
-        PROVIDERS.role_api.create_role(role_id, role)
-        PROVIDERS.assignment_api.add_role_to_user_and_project(
-            self.user_id, self.project_id, role_id
-        )
-
-        ret_blob = json.loads(r.result['credential']['blob'])
-        ec2token = self._test_get_token(
-            access=ret_blob['access'], secret=ret_blob['secret']
-        )
-        ec2_roles = [role['id'] for role in ec2token['roles']]
-        self.assertIn(self.role_id, ec2_roles)
-        self.assertNotIn(role_id, ec2_roles)
-
-        # Create second ec2 credential with the same access key id and check
-        # for conflict.
         self.post(
             '/credentials',
             body={'credential': ref},
             token=token_id,
-            expected_status=http.client.CONFLICT,
+            expected_status=http.client.FORBIDDEN,
         )
 
     def _get_app_cred_token(self, unrestricted=False):
@@ -978,6 +1021,64 @@ class TestCredentialAppCreds(CredentialBaseTestCase):
         )
         r = self.v3_create_token(auth_data)
         return r.headers.get('X-Subject-Token')
+
+    def test_app_cred_token_cannot_patch_credential(self):
+        """An application-credential token cannot PATCH /v3/credentials."""
+        token_id = self._get_app_cred_token(unrestricted=True)
+        ref = unit.new_credential_ref(
+            user_id=self.user_id, project_id=self.project_id
+        )
+        r = self.post('/credentials', body={'credential': ref})
+        credential_id = r.result['credential']['id']
+
+        self.patch(
+            f'/credentials/{credential_id}',
+            body={'credential': {'type': 'ec2'}},
+            token=token_id,
+            expected_status=http.client.BAD_REQUEST,
+        )
+        stored = PROVIDERS.credential_api.get_credential(credential_id)
+        self.assertEqual('cert', stored['type'])
+
+        self.patch(
+            f'/credentials/{credential_id}',
+            body={'credential': {'blob': 'rotated-blob'}},
+            token=token_id,
+            expected_status=http.client.FORBIDDEN,
+        )
+        stored = PROVIDERS.credential_api.get_credential(credential_id)
+        self.assertEqual('cert', stored['type'])
+        self.assertEqual(self.project_id, stored['project_id'])
+
+    def test_app_cred_token_cannot_move_credential_cross_project(self):
+        """PATCH must not let a caller rewrite project_id either (LP#2158931).
+
+        The pre-image project check alone wasn't enough: it validated
+        the credential's *current* project, never the *new* project_id
+        in the request body, so a delegated token scoped to project A
+        could rewrite a credential it already owned there to point at
+        an unrelated project B.
+        """
+        app_cred_token = self._get_app_cred_token(unrestricted=True)
+        ref = unit.new_credential_ref(
+            user_id=self.user_id, project_id=self.project_id
+        )
+        r = self.post('/credentials', body={'credential': ref})
+        credential_id = r.result['credential']['id']
+
+        other_project = unit.new_project_ref(domain_id=self.domain_id)
+        PROVIDERS.resource_api.create_project(
+            other_project['id'], other_project
+        )
+
+        self.patch(
+            f'/credentials/{credential_id}',
+            body={'credential': {'project_id': other_project['id']}},
+            token=app_cred_token,
+            expected_status=http.client.BAD_REQUEST,
+        )
+        stored = PROVIDERS.credential_api.get_credential(credential_id)
+        self.assertEqual(self.project_id, stored['project_id'])
 
     def test_restricted_app_cred_cannot_create_ec2_credential(self):
         """Test that a restricted app cred cannot create EC2 credentials.
@@ -1143,7 +1244,7 @@ class TestCredentialAppCreds(CredentialBaseTestCase):
         self.patch(
             f'/credentials/{totp_id}',
             token=app_cred_token,
-            body={'credential': totp_ref},
+            body={'credential': {'blob': totp_ref['blob']}},
             expected_status=http.client.FORBIDDEN,
         )
 
@@ -1283,49 +1384,52 @@ class TestCredentialAccessToken(CredentialBaseTestCase):
         content = self.post(url, headers=headers, body=body)
         return access_key, content.headers['X-Subject-Token']
 
-    def test_access_token_ec2_credential(self):
-        """Test creating ec2 credential from an oauth access token.
+    def test_access_token_cannot_create_ec2_credential(self):
+        """An OAuth1 access token cannot create any credential (LP#2159643).
 
-        Call ``POST /credentials``.
+        Same history as the trust-scoped case: this was never a
+        deliberate feature, just a side effect of access-token-derived
+        tokens being otherwise broadly capable. Delegated tokens
+        (OAuth1 access tokens included) are now rejected from
+        /v3/credentials outright.
         """
-        access_key, token_id = self._get_access_token()
+        _, token_id = self._get_access_token()
 
-        # Create the credential with the access token
-        blob, ref = unit.new_ec2_credential(
+        _, ref = unit.new_ec2_credential(
             user_id=self.user_id, project_id=self.project_id
         )
-        r = self.post('/credentials', body={'credential': ref}, token=token_id)
-
-        # We expect the response blob to contain the access_token_id
-        ret_ref = ref.copy()
-        ret_blob = blob.copy()
-        ret_blob['access_token_id'] = access_key.decode('utf-8')
-        ret_ref['blob'] = json.dumps(ret_blob)
-        self.assertValidCredentialResponse(r, ref=ret_ref)
-
-        # Assert credential id is same as hash of access key id for
-        # ec2 credentials
-        access = blob['access'].encode('utf-8')
-        self.assertEqual(
-            hashlib.sha256(access).hexdigest(), r.result['credential']['id']
+        self.post(
+            '/credentials',
+            body={'credential': ref},
+            token=token_id,
+            expected_status=http.client.FORBIDDEN,
         )
 
-        # Create a role assignment to ensure that it is ignored and only the
-        # roles in the access token are used
-        role = unit.new_role_ref(name='reader')
-        role_id = role['id']
-        PROVIDERS.role_api.create_role(role_id, role)
-        PROVIDERS.assignment_api.add_role_to_user_and_project(
-            self.user_id, self.project_id, role_id
+    def test_access_token_cannot_get_credential_via_os_ec2(self):
+        """An OAuth1 token cannot read an EC2 cred via OS-EC2 (LP#2159643)."""
+        uri = f'/users/{self.user_id}/credentials/OS-EC2'
+        ec2_cred = self.post(uri, body={'tenant_id': self.project_id}).result[
+            'credential'
+        ]
+        _, token_id = self._get_access_token()
+        self.get(
+            '/'.join([uri, ec2_cred['access']]),
+            token=token_id,
+            expected_status=http.client.FORBIDDEN,
         )
 
-        ret_blob = json.loads(r.result['credential']['blob'])
-        ec2token = self._test_get_token(
-            access=ret_blob['access'], secret=ret_blob['secret']
+    def test_access_token_cannot_delete_credential_via_os_ec2(self):
+        """An OAuth1 token cannot delete an EC2 cred via OS-EC2 (2159643)."""
+        uri = f'/users/{self.user_id}/credentials/OS-EC2'
+        ec2_cred = self.post(uri, body={'tenant_id': self.project_id}).result[
+            'credential'
+        ]
+        _, token_id = self._get_access_token()
+        cred_uri = '/'.join([uri, ec2_cred['access']])
+        self.delete(
+            cred_uri, token=token_id, expected_status=http.client.FORBIDDEN
         )
-        ec2_roles = [role['id'] for role in ec2token['roles']]
-        self.assertIn(self.role_id, ec2_roles)
-        self.assertNotIn(role_id, ec2_roles)
+        self.get(cred_uri, expected_status=http.client.OK)
 
     def test_ec2_auth_access_token_cross_project_blocked(self):
         """OAuth1 access-token-backed EC2 credential must not auth cross-project.
@@ -1432,6 +1536,72 @@ class TestCredentialEc2(CredentialBaseTestCase):
         self.assertDictEqual(ec2_cred, r.result['credential'])
         self.assertThat(ec2_cred['links']['self'], matchers.EndsWith(uri))
 
+    def _get_ec2_token_via_own_credential(self):
+        """Create an EC2 credential and exchange it for a token."""
+        ec2_cred = self._get_ec2_cred()
+        blob = {'access': ec2_cred['access'], 'secret': ec2_cred['secret']}
+        r = self.post(
+            '/ec2tokens',
+            body={'ec2Credentials': self._get_ec2_sig_ref(blob)},
+            expected_status=http.client.OK,
+        )
+        return ec2_cred, r.headers.get('X-Subject-Token')
+
+    def test_ec2_token_cannot_list_credentials_via_os_ec2(self):
+        """An ec2credential token must not list EC2 creds via OS-EC2.
+
+        The OS-EC2 compat endpoint has its own, separate delegation check
+        from /v3/credentials, and it never recognized ec2credential tokens
+        as delegated either -- so an ec2credential token could list every
+        EC2 credential (secrets included) belonging to the user.
+        """
+        _, ec2_token = self._get_ec2_token_via_own_credential()
+        self.get(
+            self._get_ec2_cred_uri(),
+            token=ec2_token,
+            expected_status=http.client.FORBIDDEN,
+        )
+
+    def test_ec2_token_cannot_get_credential_via_os_ec2(self):
+        """An ec2credential token must not read an EC2 cred via OS-EC2."""
+        ec2_cred, ec2_token = self._get_ec2_token_via_own_credential()
+        uri = '/'.join([self._get_ec2_cred_uri(), ec2_cred['access']])
+        self.get(uri, token=ec2_token, expected_status=http.client.FORBIDDEN)
+
+    def test_ec2_token_cannot_delete_credential_via_os_ec2(self):
+        """An ec2credential token must not delete an EC2 cred via OS-EC2."""
+        ec2_cred, ec2_token = self._get_ec2_token_via_own_credential()
+        uri = '/'.join([self._get_ec2_cred_uri(), ec2_cred['access']])
+        self.delete(
+            uri, token=ec2_token, expected_status=http.client.FORBIDDEN
+        )
+        # the credential must still exist afterwards
+        self.get(uri, expected_status=http.client.OK)
+
+    def test_ec2_token_cannot_patch_credential_via_credentials_api(self):
+        """An ec2credential token must not PATCH /v3/credentials."""
+        ref = unit.new_credential_ref(
+            user_id=self.user_id, project_id=self.project_id
+        )
+        r = self.post('/credentials', body={'credential': ref})
+        credential_id = r.result['credential']['id']
+        original_blob = r.result['credential']['blob']
+
+        _, ec2_token = self._get_ec2_token_via_own_credential()
+        self.patch(
+            f'/credentials/{credential_id}',
+            body={'credential': {'blob': 'rotated-blob'}},
+            token=ec2_token,
+            expected_status=http.client.FORBIDDEN,
+        )
+        self.get(
+            f'/credentials/{credential_id}',
+            token=ec2_token,
+            expected_status=http.client.FORBIDDEN,
+        )
+        stored = PROVIDERS.credential_api.get_credential(credential_id)
+        self.assertEqual(original_blob, stored['blob'])
+
     def test_ec2_cannot_get_non_ec2_credential(self):
         access_key = uuid.uuid4().hex
         cred_id = utils.hash_access_key(access_key)
@@ -1518,19 +1688,19 @@ class TestCredentialEc2(CredentialBaseTestCase):
             expected_status=http.client.FORBIDDEN,
         )
 
-    def test_ec2_create_credential_with_unrestricted_app_cred(self):
-        """Test that an unrestricted app cred can create EC2 credentials."""
+    def test_unrestricted_app_cred_cannot_create_ec2_credential(self):
+        """An unrestricted app cred cannot create EC2 creds either (LP#2159643).
+
+        "unrestricted" only ever governed app-cred management, not this.
+        """
         token_id = self._get_app_cred_token(unrestricted=True)
         uri = self._get_ec2_cred_uri()
-        r = self.post(
+        self.post(
             uri,
             body={'tenant_id': self.project_id},
             token=token_id,
-            expected_status=http.client.CREATED,
+            expected_status=http.client.FORBIDDEN,
         )
-        ec2_cred = r.result['credential']
-        self.assertEqual(self.user_id, ec2_cred['user_id'])
-        self.assertEqual(self.project_id, ec2_cred['tenant_id'])
 
     def _get_trust_token(self):
         """Create a trust and return a trust-scoped token for the trustee."""
@@ -1556,78 +1726,181 @@ class TestCredentialEc2(CredentialBaseTestCase):
         r = self.v3_create_token(auth_data)
         return r.headers.get('X-Subject-Token')
 
-    def test_ec2_create_credential_trust_cross_project_blocked(self):
-        """Trust-scoped token cannot create EC2 cred for a different project."""
-        other_project = unit.new_project_ref(domain_id=self.domain_id)
-        other_project = PROVIDERS.resource_api.create_project(
-            other_project['id'], other_project
-        )
+    def test_trust_scoped_token_cannot_create_ec2_credential(self):
+        """A trust-scoped token cannot create an EC2 cred via OS-EC2 (LP#2159643).
+
+        Previously only checked project scope, so same-project access
+        was allowed. Now rejected outright, regardless of project.
+        """
         trust_token = self._get_trust_token()
-        uri = f'/users/{self.user_id}/credentials/OS-EC2'
+        uri = self._get_ec2_cred_uri()
         self.post(
             uri,
-            body={'tenant_id': other_project['id']},
+            body={'tenant_id': self.project_id},
             token=trust_token,
             expected_status=http.client.FORBIDDEN,
         )
 
-    def test_ec2_create_credential_trust_same_project_allowed(self):
-        """Trust-scoped token can create EC2 cred for the trust project."""
-        trust_token = self._get_trust_token()
-        uri = self._get_ec2_cred_uri()
-        r = self.post(
-            uri,
-            body={'tenant_id': self.project_id},
-            token=trust_token,
-            expected_status=http.client.CREATED,
-        )
-        self.assertEqual(self.project_id, r.result['credential']['tenant_id'])
-
-    def test_ec2_get_credential_trust_cross_project_blocked(self):
-        """Trust-scoped token cannot get an EC2 cred from a different project."""
-        other_project = unit.new_project_ref(domain_id=self.domain_id)
-        other_project = PROVIDERS.resource_api.create_project(
-            other_project['id'], other_project
-        )
-        PROVIDERS.assignment_api.add_role_to_user_and_project(
-            self.user_id, other_project['id'], self.role_id
-        )
+    def test_trust_scoped_token_cannot_get_credential_via_os_ec2(self):
+        """A trust-scoped token cannot read an EC2 cred (LP#2159643)."""
         ec2_cred = self._get_ec2_cred()
-        # Change the credential's project to the other project directly
-        PROVIDERS.credential_api.update_credential(
-            next(
-                c['id']
-                for c in PROVIDERS.credential_api.list_credentials_for_user(
-                    self.user_id, type=CRED_TYPE_EC2
-                )
-            ),
-            {'project_id': other_project['id']},
-        )
         trust_token = self._get_trust_token()
         uri = '/'.join([self._get_ec2_cred_uri(), ec2_cred['access']])
         self.get(uri, token=trust_token, expected_status=http.client.FORBIDDEN)
 
-    def test_ec2_delete_credential_trust_cross_project_blocked(self):
-        """Trust-scoped token cannot delete EC2 cred from a different project."""
-        other_project = unit.new_project_ref(domain_id=self.domain_id)
-        other_project = PROVIDERS.resource_api.create_project(
-            other_project['id'], other_project
-        )
-        PROVIDERS.assignment_api.add_role_to_user_and_project(
-            self.user_id, other_project['id'], self.role_id
-        )
+    def test_trust_scoped_token_cannot_delete_credential_via_os_ec2(self):
+        """A trust-scoped token cannot delete an EC2 cred (LP#2159643)."""
         ec2_cred = self._get_ec2_cred()
-        PROVIDERS.credential_api.update_credential(
-            next(
-                c['id']
-                for c in PROVIDERS.credential_api.list_credentials_for_user(
-                    self.user_id, type=CRED_TYPE_EC2
-                )
-            ),
-            {'project_id': other_project['id']},
-        )
         trust_token = self._get_trust_token()
         uri = '/'.join([self._get_ec2_cred_uri(), ec2_cred['access']])
         self.delete(
             uri, token=trust_token, expected_status=http.client.FORBIDDEN
+        )
+        # the credential must still exist afterwards
+        self.get(uri, expected_status=http.client.OK)
+
+
+class TestPrimaryAuthGuards(unit.BaseTestCase):
+    """Unit-level tests for the delegated-token guards (LP#2159643).
+
+    Calls the guards directly with stub tokens, independent of HTTP/
+    middleware. Matters for ec2credential specifically: an unrelated,
+    already-landed fix bans ec2credential-method tokens at the auth
+    middleware layer before these guards ever run, so an HTTP-level test
+    would pass regardless of whether the guards recognize it as delegated.
+    """
+
+    def _token(self, methods):
+        token = mock.Mock()
+        token.methods = methods
+        return token
+
+    def _oslo_context(self, trust_id=None):
+        ctx = mock.Mock()
+        ctx.trust_id = trust_id
+        return ctx
+
+    def test_require_primary_auth_rejects_ec2credential_token(self):
+        self.assertRaises(
+            exception.ForbiddenAction,
+            credentials_api._require_primary_auth,
+            self._token(['ec2credential']),
+            self._oslo_context(),
+            'cert',
+        )
+
+    def test_require_primary_auth_allows_password_token(self):
+        credentials_api._require_primary_auth(
+            self._token(['password']), self._oslo_context(), 'cert'
+        )
+
+    def test_require_primary_auth_allows_custom_method_via_config(self):
+        """A custom auth plugin is not mistaken for a delegated credential.
+
+        Once listed in [auth] additional_primary_auth_methods.
+        """
+        credentials_api.CONF.set_override(
+            'additional_primary_auth_methods', ['sso'], group='auth'
+        )
+        self.addCleanup(
+            credentials_api.CONF.clear_override,
+            'additional_primary_auth_methods',
+            group='auth',
+        )
+        credentials_api._require_primary_auth(
+            self._token(['sso']), self._oslo_context(), 'cert'
+        )
+
+    def test_require_primary_auth_rejects_unlisted_custom_method(self):
+        self.assertRaises(
+            exception.ForbiddenAction,
+            credentials_api._require_primary_auth,
+            self._token(['sso']),
+            self._oslo_context(),
+            'cert',
+        )
+
+    def test_require_primary_auth_rejects_empty_methods(self):
+        """An empty method list must be treated as delegated, not allowed."""
+        self.assertRaises(
+            exception.ForbiddenAction,
+            credentials_api._require_primary_auth,
+            self._token([]),
+            self._oslo_context(),
+            'cert',
+        )
+
+    def test_require_primary_auth_rejects_empty_methods_with_trust_scope(self):
+        """Same, for a token that is additionally trust-scoped."""
+        self.assertRaises(
+            exception.ForbiddenAction,
+            credentials_api._require_primary_auth,
+            self._token([]),
+            self._oslo_context(trust_id=uuid.uuid4().hex),
+            'cert',
+        )
+
+    def test_require_primary_auth_rejects_trust_scoped_token(self):
+        self.assertRaises(
+            exception.ForbiddenAction,
+            credentials_api._require_primary_auth,
+            self._token(['password']),
+            self._oslo_context(trust_id=uuid.uuid4().hex),
+            'cert',
+        )
+
+    def test_require_primary_auth_escape_hatch_requires_ec2_type(self):
+        """The escape hatch is scoped to ec2-type credentials only."""
+        credentials_api.CONF.set_override(
+            'allow_insecure_admin_trust_cross_project_credentials_access',
+            True,
+            group='security_compliance',
+        )
+        self.addCleanup(
+            credentials_api.CONF.clear_override,
+            'allow_insecure_admin_trust_cross_project_credentials_access',
+            group='security_compliance',
+        )
+        with mock.patch.object(
+            credentials_api.ENFORCER, 'enforce_call', return_value=None
+        ):
+            credentials_api._require_primary_auth(
+                self._token(['ec2credential']), self._oslo_context(), 'ec2'
+            )
+            self.assertRaises(
+                exception.ForbiddenAction,
+                credentials_api._require_primary_auth,
+                self._token(['ec2credential']),
+                self._oslo_context(),
+                'cert',
+            )
+
+    def test_require_primary_auth_for_ec2_rejects_ec2credential_token(self):
+        self.assertRaises(
+            exception.ForbiddenAction,
+            users_api._require_primary_auth_for_ec2,
+            self._oslo_context(),
+            self._token(['ec2credential']),
+        )
+
+    def test_require_primary_auth_for_ec2_allows_password_token(self):
+        users_api._require_primary_auth_for_ec2(
+            self._oslo_context(), self._token(['password'])
+        )
+
+    def test_require_primary_auth_for_ec2_rejects_trust_scoped_token(self):
+        self.assertRaises(
+            exception.ForbiddenAction,
+            users_api._require_primary_auth_for_ec2,
+            self._oslo_context(trust_id=uuid.uuid4().hex),
+            self._token(['password']),
+        )
+
+    def test_require_primary_auth_for_ec2_rejects_empty_methods(self):
+        """Same fernet round-trip gap as _require_primary_auth."""
+        self.assertRaises(
+            exception.ForbiddenAction,
+            users_api._require_primary_auth_for_ec2,
+            self._oslo_context(),
+            self._token([]),
         )
