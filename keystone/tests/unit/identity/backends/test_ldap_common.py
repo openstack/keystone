@@ -575,6 +575,22 @@ class LDAPPagedResultsTest(unit.TestCase):
 
         self.assertLessEqual(len(users), list_limit)
 
+    def test_marker_ignored_for_ldap_domain(self):
+        """LDAP backends do not support marker pagination; markers are ignored.
+
+        LDAP has no native keyset pagination and the server-side paging cookie
+        cannot survive across stateless HTTP requests.  Client-side emulation
+        would require a full directory scan on every page request, which is
+        unacceptable at scale.  The correct behaviour is to ignore the marker
+        and return results from the beginning of the list, capped by
+        list_limit.  This test pins that behaviour so future developers do not
+        mistake it for a bug and attempt to "fix" it with an O(N) full fetch.
+        """
+        hints = driver_hints.Hints()
+        hints.set_marker(uuid.uuid4().hex)
+        users = PROVIDERS.identity_api.list_users(hints=hints)
+        self.assertEqual(len(default_fixtures.USERS), len(users))
+
 
 class CommonLdapTestCase(unit.BaseTestCase):
     """These test cases call functions in keystone.common.ldap."""

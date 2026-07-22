@@ -1834,7 +1834,13 @@ class BaseLdap:
                 + list(self.extra_attr_mapping.keys())
             )
         )
-        sizelimit = hints.limit['limit'] if hints and hints.limit else 0
+        # Always fetch the full result set from LDAP (sizelimit=0 means
+        # unlimited). Passing a sizelimit to _paged_search_s abandons the
+        # server-side cursor mid-page, poisoning the connection pool and
+        # making subsequent requests return empty results non-deterministically.
+        # Truncation to the requested limit is handled in Python by the
+        # @driver_hints.truncated decorator after the full set is returned.
+        sizelimit = 0
 
         with self.get_connection() as conn:
             try:
