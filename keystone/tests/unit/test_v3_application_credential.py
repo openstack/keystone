@@ -15,12 +15,15 @@ import http.client
 import unittest
 import uuid
 
+from keystoneclient.contrib.ec2 import utils as ec2_utils
 from oslo_utils import timeutils
 from testtools import matchers
 
 from keystone.common import provider_api
 import keystone.conf
+from keystone.credential.providers import fernet as credential_fernet
 from keystone.tests import unit
+from keystone.tests.unit import ksfixtures
 from keystone.tests.unit import test_v3
 
 CONF = keystone.conf.CONF
@@ -1015,3 +1018,103 @@ class ApplicationCredentialTestCase(test_v3.RestfulTestCase):
                 expected_status_code=http.client.NO_CONTENT,
                 headers={"X-Auth-Token": token},
             )
+
+
+class AppCredEc2GuardTests(ApplicationCredentialTestCase):
+    """EC2-derived tokens must not manage application credentials.
+
+    An ec2credential-scoped token has no delegation markers
+    (trust_id/access_token_id) that the pre-existing
+    _block_delegated_token_app_creds check looked for, so it slipped
+    through unblocked. See LP#2153453.
+    """
+
+    def setUp(self):
+        super().setUp()
+        self.useFixture(
+            ksfixtures.KeyRepository(
+                self.config_fixture,
+                'credential',
+                credential_fernet.MAX_ACTIVE_KEYS,
+            )
+        )
+
+    def _get_ec2_token_id(self):
+        blob, ref = unit.new_ec2_credential(
+            user_id=self.user_id, project_id=self.project_id
+        )
+        self.post('/credentials', body={'credential': ref})
+        signer = ec2_utils.Ec2Signer(blob['secret'])
+        params = {
+            'SignatureMethod': 'HmacSHA256',
+            'SignatureVersion': '2',
+            'AWSAccessKeyId': blob['access'],
+        }
+        request = {
+            'host': 'foo',
+            'verb': 'GET',
+            'path': '/bar',
+            'params': params,
+        }
+        sig_ref = {
+            'access': blob['access'],
+            'signature': signer.generate(request),
+            'host': 'foo',
+            'verb': 'GET',
+            'path': '/bar',
+            'params': params,
+        }
+        r = self.post(
+            '/ec2tokens',
+            body={'ec2Credentials': sig_ref},
+            expected_status=http.client.OK,
+        )
+        return r.headers.get('X-Subject-Token')
+
+    def test_ec2_token_cannot_create_application_credential(self):
+        ec2_token = self._get_ec2_token_id()
+        app_cred_body = self._app_cred_body(roles=[{'id': self.role_id}])
+        self.post(
+            f'/users/{self.user_id}/application_credentials',
+            body=app_cred_body,
+            token=ec2_token,
+            expected_status=http.client.FORBIDDEN,
+        )
+
+    def test_ec2_token_cannot_list_application_credentials(self):
+        ec2_token = self._get_ec2_token_id()
+        self.get(
+            f'/users/{self.user_id}/application_credentials',
+            token=ec2_token,
+            expected_status=http.client.FORBIDDEN,
+        )
+
+    def test_ec2_token_cannot_get_application_credential(self):
+        ec2_token = self._get_ec2_token_id()
+        app_cred_body = self._app_cred_body(roles=[{'id': self.role_id}])
+        r = self.post(
+            f'/users/{self.user_id}/application_credentials',
+            body=app_cred_body,
+        )
+        app_cred_id = r.result['application_credential']['id']
+        self.get(
+            MEMBER_PATH_FMT
+            % {'user_id': self.user_id, 'app_cred_id': app_cred_id},
+            token=ec2_token,
+            expected_status=http.client.FORBIDDEN,
+        )
+
+    def test_ec2_token_cannot_delete_application_credential(self):
+        ec2_token = self._get_ec2_token_id()
+        app_cred_body = self._app_cred_body(roles=[{'id': self.role_id}])
+        r = self.post(
+            f'/users/{self.user_id}/application_credentials',
+            body=app_cred_body,
+        )
+        app_cred_id = r.result['application_credential']['id']
+        self.delete(
+            MEMBER_PATH_FMT
+            % {'user_id': self.user_id, 'app_cred_id': app_cred_id},
+            token=ec2_token,
+            expected_status=http.client.FORBIDDEN,
+        )

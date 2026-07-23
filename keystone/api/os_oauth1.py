@@ -21,6 +21,7 @@ from oslo_log import log
 from oslo_utils import timeutils
 from werkzeug import exceptions
 
+from keystone.api._shared import delegation
 from keystone.api._shared import json_home_relations
 from keystone.common import authorization
 from keystone.common import context
@@ -40,6 +41,25 @@ LOG = log.getLogger(__name__)
 PROVIDERS = provider_api.ProviderAPIs
 ENFORCER = rbac_enforcer.RBACEnforcer
 CONF = keystone.conf.CONF
+
+
+def _check_can_authorize_request_token(ctx, token):
+    """Reject delegated tokens from authorizing OAuth1 request tokens.
+
+    Authorizing a request token mints a new, independent OAuth1 access
+    token delegation. Allowing a delegated token (application credential,
+    EC2 credential, another OAuth1 access token, or trust-scoped token) to
+    do this would let a narrower-scope grant bootstrap a broader,
+    independently-lived one.
+    """
+    trust_id = getattr(ctx, 'trust_id', None)
+    if trust_id or delegation.is_delegated_method(token):
+        raise exception.Forbidden(
+            _(
+                'Cannot authorize a request token with a token issued via '
+                'delegation.'
+            )
+        )
 
 
 _build_resource_relation = json_home_relations.os_oauth1_resource_rel_func
@@ -311,24 +331,11 @@ class AuthorizeResource(_OAuth1ResourceBase):
         )
         validation.lazy_validate(schema.request_token_authorize, roles)
         ctx = flask.request.environ[context.REQUEST_CONTEXT_ENV]
-        if ctx.is_delegated_auth:
-            raise exception.Forbidden(
-                _(
-                    'Cannot authorize a request token with a token issued via '
-                    'delegation.'
-                )
-            )
         auth_context = flask.request.environ.get(
             authorization.AUTH_CONTEXT_ENV, {}
         )
         token = auth_context.get('token')
-        if token and 'application_credential' in token.methods:
-            raise exception.Forbidden(
-                _(
-                    'Cannot authorize a request token with a token issued via '
-                    'delegation.'
-                )
-            )
+        _check_can_authorize_request_token(ctx, token)
 
         req_token = PROVIDERS.oauth_api.get_request_token(request_token_id)
 
