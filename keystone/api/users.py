@@ -21,6 +21,7 @@ import flask
 from oslo_serialization import jsonutils
 from werkzeug import exceptions
 
+from keystone.api._shared import delegation
 from keystone.api._shared import json_home_relations
 from keystone.api import validation
 from keystone.application_credential import schema as app_cred_schema
@@ -121,14 +122,8 @@ def _check_delegation_for_ec2(oslo_context, token, project_id):
 
 def _block_delegated_token(oslo_context, token):
     """Raise Forbidden if the token is any form of delegation."""
-    if oslo_context.is_delegated_auth:
-        raise ks_exception.Forbidden(
-            _(
-                'Cannot manage OAuth access tokens with a token '
-                'issued via delegation.'
-            )
-        )
-    if 'application_credential' in token.methods:
+    trust_id = getattr(oslo_context, 'trust_id', None)
+    if trust_id or delegation.is_delegated_method(token):
         raise ks_exception.Forbidden(
             _(
                 'Cannot manage OAuth access tokens with a token '
@@ -138,24 +133,25 @@ def _block_delegated_token(oslo_context, token):
 
 
 def _block_delegated_token_app_creds(oslo_context, token):
-    """Raise Forbidden if the token is a trust or OAuth1 delegation.
+    """Raise Forbidden if the token is a trust, OAuth1, or EC2 delegation.
 
-    Trust-scoped and OAuth1 access token-scoped tokens must not be used to
-    create, list, read, or delete application credentials or access rules.
-    Creating an application credential via such a token produces a persistent
-    credential that outlives the delegation's expiry or scope, providing a
-    backdoor that breaks the accountability model: the trust-scoped token
-    carries the full delegation chain enabling audit, but a derived application
-    credential does not.
+    Trust-scoped, OAuth1 access token-scoped, and EC2-derived tokens must
+    not be used to create, list, read, or delete application credentials or
+    access rules. Creating an application credential via such a token
+    produces a persistent credential that outlives the delegation's expiry
+    or scope, providing a backdoor that breaks the accountability model: the
+    trust-scoped token carries the full delegation chain enabling audit, but
+    a derived application credential does not.
 
     Application credential tokens are intentionally excluded from this check.
     The unrestricted/restricted distinction for application credentials is a
     documented feature handled separately by
     _check_unrestricted_application_credential.
     """
+    if 'application_credential' in token.methods:
+        return
     trust_id = getattr(oslo_context, 'trust_id', None)
-    access_token_id = getattr(token, 'access_token_id', None)
-    if trust_id or access_token_id:
+    if trust_id or delegation.is_delegated_method(token):
         raise ks_exception.Forbidden(
             _(
                 'Cannot manage application credentials with a token '
