@@ -20,6 +20,7 @@ import uuid
 
 import freezegun
 import http.client
+from keystoneclient.contrib.ec2 import utils as ec2_utils
 from oslo_serialization import jsonutils
 from pycadf import cadftaxonomy
 import urllib
@@ -27,6 +28,7 @@ from urllib import parse as urlparse
 
 from keystone.common import provider_api
 import keystone.conf
+from keystone.credential.providers import fernet as credential_fernet
 from keystone import exception
 from keystone import oauth1
 from keystone.oauth1.backends import base
@@ -786,6 +788,61 @@ class AuthTokenTests(object):
             token=app_cred_token,
             expected_status=http.client.FORBIDDEN,
         )
+
+    def _get_ec2_token_id(self):
+        self.useFixture(
+            ksfixtures.KeyRepository(
+                self.config_fixture,
+                'credential',
+                credential_fernet.MAX_ACTIVE_KEYS,
+            )
+        )
+        blob, ref = unit.new_ec2_credential(
+            user_id=self.user_id, project_id=self.project_id
+        )
+        self.post('/credentials', body={'credential': ref})
+        signer = ec2_utils.Ec2Signer(blob['secret'])
+        params = {
+            'SignatureMethod': 'HmacSHA256',
+            'SignatureVersion': '2',
+            'AWSAccessKeyId': blob['access'],
+        }
+        request = {
+            'host': 'foo',
+            'verb': 'GET',
+            'path': '/bar',
+            'params': params,
+        }
+        sig_ref = {
+            'access': blob['access'],
+            'signature': signer.generate(request),
+            'host': 'foo',
+            'verb': 'GET',
+            'path': '/bar',
+            'params': params,
+        }
+        r = self.post(
+            '/ec2tokens',
+            body={'ec2Credentials': sig_ref},
+            expected_status=http.client.OK,
+        )
+        return r.headers.get('X-Subject-Token')
+
+    def test_ec2_token_cannot_authorize_request_token(self):
+        ec2_token = self._get_ec2_token_id()
+        url = self._approve_request_token_url()
+        body = {'roles': [{'id': self.role_id}]}
+        self.put(
+            url,
+            body=body,
+            token=ec2_token,
+            expected_status=http.client.FORBIDDEN,
+        )
+
+    def test_ec2_token_cannot_list_access_tokens(self):
+        ec2_token = self._get_ec2_token_id()
+        url = f'/users/{self.user_id}/OS-OAUTH1/access_tokens'
+        self.get(url, token=ec2_token, expected_status=http.client.FORBIDDEN)
 
 
 class FernetAuthTokenTests(AuthTokenTests, OAuthFlowTests):
