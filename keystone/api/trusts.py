@@ -22,6 +22,7 @@ import flask_restful
 from oslo_log import log
 from oslo_policy import _checks as op_checks
 
+from keystone.api._shared import delegation
 from keystone.api._shared import json_home_relations
 from keystone.api import validation
 from keystone.common import authorization
@@ -50,28 +51,50 @@ TRUST_ID_PARAMETER_RELATION = _build_parameter_relation(
 )
 
 
-def _check_application_credential():
-    """Block application credential tokens from all trust operations.
+def _check_delegated_token():
+    """Block delegated tokens from all trust operations.
 
-    Application credentials are single-project delegation tokens. Allowing
-    them to read or manage trusts would permit a compromised application
-    credential to enumerate or manipulate the trust delegation chain,
-    expanding its effective scope beyond the single project it was issued for.
-    This applies regardless of the 'unrestricted' flag.
+    Delegated tokens (application credentials, OAuth1 access tokens, EC2
+    credentials) are narrower-scope grants than a normal user session.
+    Allowing them to read or manage trusts would permit a compromised
+    delegation to enumerate or manipulate the trust delegation chain -- or,
+    for creation, mint a new trust delegating roles the trustor holds but
+    the delegation itself was never scoped to, since trust role validation
+    checks the trustor's full role assignments, not the requesting token's
+    own scoped roles -- expanding its effective scope well beyond what it
+    was issued for.
+
+    Trust-scoped tokens are deliberately NOT blocked here: managing trusts
+    with a trust-scoped token is the redelegation feature working as
+    designed (a trustee creating a further, narrower trust from one they
+    were delegated), and trustee self-service reads of their own trusts.
+    A trust-scoped token whose underlying auth method is itself delegated
+    (e.g. an EC2 credential's blob embeds a trust_id -- see
+    keystone.api.credentials._assign_unique_id) is still caught below,
+    since token.methods reflects that underlying method regardless of the
+    trust scoping.
+
+    application_credential tokens have a documented, opt-in escape hatch
+    (allow_insecure_application_credential_trust_escalation, LP#2150089)
+    for workflows such as Heat that need it. OAuth1 and EC2 credentials
+    have no such use case and are blocked unconditionally, regardless of
+    that option.
     """
-    if CONF.security_compliance.allow_insecure_application_credential_trust_escalation:
-        return
-    auth_context = flask.request.environ.get(
-        authorization.AUTH_CONTEXT_ENV, {}
+    token = flask.request.environ.get(authorization.AUTH_CONTEXT_ENV, {}).get(
+        'token'
     )
-    token = auth_context.get('token')
-    if token and 'application_credential' in token.methods:
-        raise exception.ForbiddenAction(
-            action=_(
-                "Using method 'application_credential' is not "
-                "allowed for managing trusts."
-            )
-        )
+    if not token:
+        return
+    if not delegation.is_delegated_method(token):
+        return
+    if (
+        'application_credential' in token.methods
+        and CONF.security_compliance.allow_insecure_application_credential_trust_escalation
+    ):
+        return
+    raise exception.ForbiddenAction(
+        action=_('Delegated tokens cannot manage trusts.')
+    )
 
 
 def _build_trust_target_enforcement():
@@ -129,7 +152,7 @@ def _normalize_trust_roles(trust):
 
 class TrustResourceBase(ks_flask.ResourceBase):
     def _check_unrestricted(self):
-        _check_application_credential()
+        _check_delegated_token()
 
 
 class TrustsResource(TrustResourceBase):
@@ -218,7 +241,7 @@ class TrustsResource(TrustResourceBase):
             )
         else:
             ENFORCER.enforce_call(action='identity:list_trusts')
-        _check_application_credential()
+        _check_delegated_token()
 
         trusts = []
 
@@ -334,7 +357,7 @@ class TrustResource(TrustResourceBase):
             action='identity:get_trust',
             build_target=_build_trust_target_enforcement,
         )
-        _check_application_credential()
+        _check_delegated_token()
 
         # NOTE(cmurphy) look up trust before doing is_admin authorization - to
         # maintain the API contract, we expect a missing trust to raise a 404
@@ -438,7 +461,7 @@ class RolesForTrustListResource(flask_restful.Resource):
             raise exception.ForbiddenAction(
                 action=_('Requested user has no relation to this trust')
             )
-        _check_application_credential()
+        _check_delegated_token()
 
         trust = PROVIDERS.trust_api.get_trust(trust_id)
 
@@ -490,7 +513,7 @@ class RoleForTrustResource(flask_restful.Resource):
             raise exception.ForbiddenAction(
                 action=_('Requested user has no relation to this trust')
             )
-        _check_application_credential()
+        _check_delegated_token()
 
         trust = PROVIDERS.trust_api.get_trust(trust_id)
 
