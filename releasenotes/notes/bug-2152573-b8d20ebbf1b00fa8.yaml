@@ -1,0 +1,31 @@
+---
+security:
+  - |
+    [`bug 2152573 <https://launchpad.net/bugs/2152573>`_]
+    ``DELETE /v3/auth/tokens`` now revokes the entire token chain (all
+    tokens derived via rescoping) in addition to the specific token. This
+    closes an attack where an attacker who obtained a project-scoped token
+    could maintain access indefinitely by rescoping before expiry, even
+    after the victim revoked the parent token. Pass ``?cascade=false`` to
+    revert to the previous single-token revocation behaviour.
+  - |
+    [`bug 2152573 <https://launchpad.net/bugs/2152573>`_]
+    A new endpoint ``DELETE /v3/users/{user_id}/tokens`` revokes all
+    tokens for a user. Users may call it for their own account;
+    administrators may call it for any user. This provides a self-service
+    session-invalidation path for LDAP, federated, and OIDC users who
+    cannot change their Keystone password.
+  - |
+    [`bug 2152573 <https://launchpad.net/bugs/2152573>`_]
+    When token validation detects that a user has been disabled in an
+    external read-only backend (e.g. LDAP), Keystone now persists a
+    durable revocation event. Previously, re-enabling the account in the
+    external directory would silently revive all tokens that were valid
+    before the account was disabled, including tokens held by an attacker.
+upgrade:
+  - |
+    [`bug 2152573 <https://launchpad.net/bugs/2152573>`_]
+    The default behaviour of ``DELETE /v3/auth/tokens`` has changed:
+    revoking a token now also revokes all tokens derived from it. To
+    revoke only the specific token without affecting derived sessions, add
+    ``?cascade=false`` to the request.

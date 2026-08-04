@@ -967,6 +967,36 @@ class UserAccessRuleGetDeleteResource(ks_flask.ResourceBase):
         return None, http.client.NO_CONTENT
 
 
+class UserTokensResource(ks_flask.ResourceBase):
+    collection_key = 'tokens'
+    member_key = 'token'
+
+    def delete(self, user_id):
+        """Revoke all tokens for a user.
+
+        DELETE /v3/users/{user_id}/tokens
+
+        Revokes every token issued for the given user by creating a
+        revocation event scoped to user_id. This is the self-service
+        remedy for users who cannot change their password (LDAP,
+        federated, OIDC) and need to invalidate all active sessions.
+
+        Users may revoke their own tokens. Admins may revoke tokens for
+        any user.
+        """
+        ENFORCER.enforce_call(
+            action='identity:revoke_tokens_for_user',
+            build_target=_build_user_target_enforcement,
+        )
+        PROVIDERS.identity_api.get_user(user_id)
+        PROVIDERS.revoke_api.revoke_by_user(user_id)
+        notifications.invalidate_token_cache_notification(
+            f'Invalidating token cache because all tokens for user '
+            f'{user_id} were explicitly revoked.'
+        )
+        return None, http.client.NO_CONTENT
+
+
 class UserAPI(ks_flask.APIBase):
     _name = 'users'
     _import_name = __name__
@@ -1131,6 +1161,13 @@ class UserAPI(ks_flask.APIBase):
                 'user_id': json_home.Parameters.USER_ID,
                 'access_rule_id': json_home.Parameters.ACCESS_RULE_ID,
             },
+        ),
+        ks_flask.construct_resource_map(
+            resource=UserTokensResource,
+            url='/users/<string:user_id>/tokens',
+            resource_kwargs={},
+            rel='user_tokens',
+            path_vars={'user_id': json_home.Parameters.USER_ID},
         ),
     ]
 
