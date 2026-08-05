@@ -1257,6 +1257,37 @@ class KeystoneLDAPHandler(LDAPHandler):
             # Stop once we have accumulated enough results.
             if sizelimit and len(res) >= sizelimit:
                 res = res[:sizelimit]
+                # RFC 2696 §2.3: abandon the server-side cursor by sending a
+                # final search_ext with size=0 and the current cookie.  Without
+                # this the server holds the cursor open until it times out,
+                # which can exhaust the server's concurrent-cursor limit under
+                # connection pooling.
+                if pctrls:
+                    cookie = (
+                        pctrls[0].controlValue[1]
+                        if use_old_paging_api
+                        else pctrls[0].cookie
+                    )
+                    if cookie:
+                        if use_old_paging_api:
+                            lc.controlValue = (0, cookie)
+                        else:
+                            lc.size = 0
+                            lc.cookie = cookie
+                        try:
+                            msgid = self.conn.search_ext(
+                                base,
+                                scope,
+                                filterstr,
+                                attrlist,
+                                serverctrls=[lc],
+                            )
+                            self.conn.result3(msgid)
+                        except Exception:  # nosec(B110)
+                            LOG.debug(
+                                "Failed to abandon LDAP paged search cursor; "
+                                "the server will release it on timeout."
+                            )
                 break
 
             if pctrls:

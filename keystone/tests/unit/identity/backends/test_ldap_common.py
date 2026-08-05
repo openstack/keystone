@@ -465,7 +465,7 @@ class LDAPPagedResultsTest(unit.TestCase):
     def test_paged_search_handles_none_from_result3(
         self, mock_result3, mock_search_ext
     ):
-        """Verify _paged_search_s tolerates None rdata/serverctrls from result3.
+        """Verify _paged_search_s tolerates None rdata/serverctrls.
 
         The python-ldap result3 docs do not exclude None as a possible value
         for rdata or serverctrls.  The implementation must not crash on either.
@@ -544,11 +544,157 @@ class LDAPPagedResultsTest(unit.TestCase):
         )
         self.assertEqual(sizelimit, len(res))
 
+    def test_paged_search_abandons_cursor_on_sizelimit(self):
+        """Verify RFC 2696 cursor abandonment when sizelimit is reached.
+
+        When _paged_search_s stops early because sizelimit is reached while
+        the server still has more pages (non-empty cookie), it must send a
+        final search_ext with size=0 and the current cookie to release the
+        server-side cursor.  Without this the server holds the cursor open
+        until timeout, which can exhaust the concurrent-cursor limit under
+        connection pooling.
+        """
+        for _ in range(6):
+            user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
+            PROVIDERS.identity_api.create_user(user)
+
+        sizelimit = 3
+        self.config_fixture.config(group='ldap', page_size=2)
+        PROVIDERS.identity_api.user.page_size = 2
+
+        user_api = PROVIDERS.identity_api.user
+        query = (
+            f'(&(objectClass={user_api.object_class})({user_api.id_attr}=*))'
+        )
+
+        original_search_ext = fakeldap.FakeLdap.search_ext
+        search_ext_calls = []
+
+        def capturing_search_ext(
+            self_conn,
+            base,
+            scope,
+            filterstr,
+            attrlist=None,
+            attrsonly=0,
+            serverctrls=None,
+            **kwargs,
+        ):
+            search_ext_calls.append(serverctrls)
+            return original_search_ext(
+                self_conn,
+                base,
+                scope,
+                filterstr,
+                attrlist,
+                attrsonly,
+                serverctrls,
+                **kwargs,
+            )
+
+        with mock.patch.object(
+            fakeldap.FakeLdap, 'search_ext', capturing_search_ext
+        ):
+            conn = PROVIDERS.identity_api.user.get_connection()
+            conn.page_size = 2
+            res = conn._paged_search_s(
+                user_api.tree_dn,
+                user_api.LDAP_SCOPE,
+                query,
+                sizelimit=sizelimit,
+            )
+
+        self.assertEqual(sizelimit, len(res))
+
+        # At least one search_ext call must be the RFC 2696 abandonment:
+        # a SimplePagedResultsControl with size=0.
+        abandon_calls = [
+            ctrls
+            for ctrls in search_ext_calls
+            if ctrls and any(getattr(c, 'size', None) == 0 for c in ctrls)
+        ]
+        self.assertTrue(
+            abandon_calls,
+            'Expected a search_ext with size=0 to abandon the server cursor',
+        )
+
+    def test_paged_search_no_abandon_when_last_page(self):
+        """No RFC 2696 abandonment when sizelimit aligns with a page boundary.
+
+        If the server returns an empty cookie alongside the last batch of
+        results (no more data), there is no open cursor to abandon.
+        """
+        # Create exactly page_size users so pagination exhausts in one page.
+        for _ in range(2):
+            user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
+            PROVIDERS.identity_api.create_user(user)
+
+        total_users = len(default_fixtures.USERS) + 2
+        sizelimit = total_users
+        self.config_fixture.config(group='ldap', page_size=total_users)
+        PROVIDERS.identity_api.user.page_size = total_users
+
+        user_api = PROVIDERS.identity_api.user
+        query = (
+            f'(&(objectClass={user_api.object_class})({user_api.id_attr}=*))'
+        )
+
+        original_search_ext = fakeldap.FakeLdap.search_ext
+        search_ext_calls = []
+
+        def capturing_search_ext(
+            self_conn,
+            base,
+            scope,
+            filterstr,
+            attrlist=None,
+            attrsonly=0,
+            serverctrls=None,
+            **kwargs,
+        ):
+            search_ext_calls.append(serverctrls)
+            return original_search_ext(
+                self_conn,
+                base,
+                scope,
+                filterstr,
+                attrlist,
+                attrsonly,
+                serverctrls,
+                **kwargs,
+            )
+
+        with mock.patch.object(
+            fakeldap.FakeLdap, 'search_ext', capturing_search_ext
+        ):
+            conn = PROVIDERS.identity_api.user.get_connection()
+            conn.page_size = total_users
+            res = conn._paged_search_s(
+                user_api.tree_dn,
+                user_api.LDAP_SCOPE,
+                query,
+                sizelimit=sizelimit,
+            )
+
+        self.assertEqual(sizelimit, len(res))
+
+        # No call with size=0 — the cookie was empty so there was nothing
+        # to abandon.
+        abandon_calls = [
+            ctrls
+            for ctrls in search_ext_calls
+            if ctrls and any(getattr(c, 'size', None) == 0 for c in ctrls)
+        ]
+        self.assertFalse(
+            abandon_calls,
+            'Unexpected size=0 search_ext when no cursor was open',
+        )
+
     def test_list_users_with_page_size_and_limit(self):
-        """Verify list_users truncates correctly when paging and a limit are set.
+        """Verify list_users truncates correctly when paging with a limit.
 
         This covers the path where both conn.page_size and hints.limit are set,
-        e.g. page_size=1000 and list_limit=1500 against AD with MaxPageSize=1000.
+        e.g. page_size=1000 and list_limit=1500 against AD with MaxPageSize.
         """
         for _ in range(10):
             user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
