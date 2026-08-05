@@ -173,6 +173,12 @@ class ApplicationCredential(base.ApplicationCredentialDriverBase):
                         .filter_by(external_id=access_rule['id'])
                         .first()
                     )
+                    if access_rule_ref is not None and (
+                        access_rule_ref.user_id != app_cred['user_id']
+                    ):
+                        raise exception.AccessRuleNotFound(
+                            access_rule_id=access_rule['id']
+                        )
                     if not access_rule_ref:
                         query = session.query(AccessRuleModel)
                         access_rule_ref = query.filter_by(
@@ -270,11 +276,13 @@ class ApplicationCredential(base.ApplicationCredentialDriverBase):
             query = query.filter_by(project_id=project_id)
             query.delete()
 
-    def get_access_rule(self, access_rule_id):
+    def get_access_rule(self, access_rule_id, user_id=None):
         with sql.session_for_read() as session:
             query = session.query(AccessRuleModel).filter_by(
                 external_id=access_rule_id
             )
+            if user_id is not None:
+                query = query.filter_by(user_id=user_id)
             ref = query.first()
             if not ref:
                 raise exception.AccessRuleNotFound(
@@ -289,11 +297,15 @@ class ApplicationCredential(base.ApplicationCredentialDriverBase):
             refs = sql.filter_limit_query(AccessRuleModel, query, hints)
             return [self._access_rule_to_dict(ref) for ref in refs]
 
-    def delete_access_rule(self, access_rule_id):
+    def delete_access_rule(self, access_rule_id, user_id=None):
         try:
             with sql.session_for_write() as session:
-                query = session.query(AccessRuleModel)
-                ref = query.filter_by(external_id=access_rule_id).first()
+                query = session.query(AccessRuleModel).filter_by(
+                    external_id=access_rule_id
+                )
+                if user_id is not None:
+                    query = query.filter_by(user_id=user_id)
+                ref = query.first()
                 if not ref:
                     raise exception.AccessRuleNotFound(
                         access_rule_id=access_rule_id

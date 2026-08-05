@@ -944,7 +944,7 @@ class UserAccessRuleGetDeleteResource(ks_flask.ResourceBase):
         token = self.auth_context['token']
         _block_delegated_token_app_creds(self.oslo_context, token)
         ref = PROVIDERS.application_credential_api.get_access_rule(
-            access_rule_id
+            access_rule_id, user_id=user_id
         )
         return self.wrap_member(ref)
 
@@ -962,7 +962,7 @@ class UserAccessRuleGetDeleteResource(ks_flask.ResourceBase):
         token = self.auth_context['token']
         _block_delegated_token_app_creds(self.oslo_context, token)
         PROVIDERS.application_credential_api.delete_access_rule(
-            access_rule_id, initiator=self.audit_initiator
+            access_rule_id, initiator=self.audit_initiator, user_id=user_id
         )
         return None, http.client.NO_CONTENT
 

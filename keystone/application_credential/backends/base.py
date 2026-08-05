@@ -94,10 +94,13 @@ class ApplicationCredentialDriverBase(metaclass=abc.ABCMeta):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def get_access_rule(self, access_rule_id):
+    def get_access_rule(self, access_rule_id, user_id=None):
         """Get an access rule by its ID.
 
         :param str access_rule_id: Access Rule ID
+        :param str user_id: If provided, the rule must belong to this user.
+            Returns AccessRuleNotFound if the rule exists but belongs to a
+            different user, preventing cross-user BOLA/IDOR.
         """
         raise exception.NotImplemented()  # pragma: no cover
 
@@ -113,10 +116,13 @@ class ApplicationCredentialDriverBase(metaclass=abc.ABCMeta):
         raise exception.NotImplemented()  # pragma: no cover
 
     @abc.abstractmethod
-    def delete_access_rule(self, access_rule_id):
+    def delete_access_rule(self, access_rule_id, user_id=None):
         """Delete one access rule.
 
         :param str access_rule_id: Access Rule ID
+        :param str user_id: If provided, the rule must belong to this user.
+            Returns AccessRuleNotFound if the rule exists but belongs to a
+            different user, preventing cross-user BOLA/IDOR.
         """
         raise exception.NotImplemented()  # pragma: no cover
 
