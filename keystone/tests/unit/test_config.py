@@ -13,6 +13,7 @@
 #    under the License.
 
 import os
+from unittest import mock
 
 from oslo_config import generator
 
@@ -34,7 +35,11 @@ class ConfigTestCase(unit.TestCase):
             unit.dirs.etc(sample_file),
         ]
 
-        generator.main(args=args)
+        with mock.patch(
+            'oslo_config.generator.importlib.metadata.version',
+            return_value='0.0.0',
+        ):
+            generator.main(args=args)
         config_files.insert(0, unit.dirs.etc(sample_file))
         self.addCleanup(os.remove, unit.dirs.etc(sample_file))
         return config_files
