@@ -16,6 +16,7 @@ import flask
 from oslo_log import log
 import typing as ty
 
+from keystone.api._shared import delegation
 from keystone.auth.plugins import base
 from keystone.auth.plugins import mapped
 from keystone.common import provider_api
@@ -57,7 +58,7 @@ class Token(base.AuthMethodHandler):
 
 
 def token_authenticate(token: TokenModel) -> dict[str, ty.Any]:
-    response_data = {}
+    response_data: dict[str, ty.Any] = {}
     try:
         # Do not allow tokens used for delegation to
         # create another token, or perform any changes of
@@ -90,19 +91,17 @@ def token_authenticate(token: TokenModel) -> dict[str, ty.Any]:
                     'or domain-scoped token is not allowed.'
                 )
             )
-        elif token.application_credential:
-            # NOTE(gtema): when getting token from token (initially issued by
-            # application credential) it is necessary to ensure scope is not
-            # requested.
-            if requested_scope:
-                raise exception.ForbiddenAction(
-                    action=_(
-                        "Using an application credential token to create a "
-                        "scoped token is not allowed."
-                    )
+        elif delegation.is_delegated_method(token):
+            # A token derived from a deliberately narrow-scope credential
+            # (application_credential, OAuth1 access token, ec2credential,
+            # or any other non-primary method, including a future one)
+            # must not be exchanged for a token with a different,
+            # potentially broader, scope.
+            raise exception.ForbiddenAction(
+                action=_(
+                    'Using a delegated token to create another token is '
+                    'not allowed.'
                 )
-            response_data["application_credential_id"] = (
-                token.application_credential["id"]
             )
 
         if not CONF.token.allow_rescope_scoped_token:

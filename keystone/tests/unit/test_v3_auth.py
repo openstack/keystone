@@ -24,7 +24,9 @@ import uuid
 
 from cryptography.hazmat.primitives.serialization import Encoding
 import fixtures
+import flask
 import freezegun
+from keystoneclient.contrib.ec2 import utils as ec2_utils
 from oslo_serialization import jsonutils as json
 from oslo_utils import fixture
 from oslo_utils import timeutils
@@ -32,6 +34,7 @@ from testtools import matchers
 from testtools import testcase
 
 from keystone import auth
+from keystone.auth.plugins import token as token_auth_plugin
 from keystone.auth.plugins import totp
 from keystone.common import authorization
 from keystone.common import provider_api
@@ -6735,6 +6738,46 @@ class ApplicationCredentialAuth(test_v3.RestfulTestCase):
             rescope_auth, expected_status=http.client.FORBIDDEN
         )
 
+    def test_application_credential_token_cannot_rescope_via_token_method(
+        self,
+    ):
+        """An app-cred token must not be exchanged for any other token (LP#2158538).
+
+        Previously, omitting `scope` on a token-method reauth request let
+        the new token fall through to the user's default-project scoping,
+        escaping the application credential's own project binding entirely.
+        """
+        other_project_ref = unit.new_project_ref(domain_id=self.domain_id)
+        other_project = PROVIDERS.resource_api.create_project(
+            other_project_ref['id'], other_project_ref
+        )
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
+            self.user['id'], other_project['id'], self.role_id
+        )
+        self.patch(
+            f'/users/{self.user["id"]}',
+            body={'user': {'default_project_id': other_project['id']}},
+        )
+
+        app_cred = self._make_app_cred()
+        app_cred_ref = self.app_cred_api.create_application_credential(
+            app_cred
+        )
+        auth_data = self.build_authentication_request(
+            app_cred_id=app_cred_ref['id'], secret=app_cred_ref['secret']
+        )
+        resp = self.v3_create_token(
+            auth_data, expected_status=http.client.CREATED
+        )
+        app_cred_token = resp.headers.get('X-Subject-Token')
+
+        # No explicit scope requested -- this must not silently default to
+        # the user's default project.
+        rescope_auth = self.build_authentication_request(token=app_cred_token)
+        self.v3_create_token(
+            rescope_auth, expected_status=http.client.FORBIDDEN
+        )
+
     def test_application_credential_with_access_rules(self):
         access_rules = [
             {
@@ -6854,3 +6897,138 @@ class ApplicationCredentialAuth(test_v3.RestfulTestCase):
         token_data = r.result['token']
         self.assertEqual(self.user['id'], token_data['user']['id'])
         self.assertNotEqual(victim['id'], token_data['user']['id'])
+
+
+class Ec2CredentialTokenRescopeAuth(test_v3.RestfulTestCase):
+    """Ec2credential tokens rescoping via the token method (LP#2158538)."""
+
+    def setUp(self):
+        super().setUp()
+        self.useFixture(
+            ksfixtures.KeyRepository(
+                self.config_fixture,
+                'credential',
+                credential_fernet.MAX_ACTIVE_KEYS,
+            )
+        )
+
+    def _get_ec2_sig_ref(self, blob):
+        signer = ec2_utils.Ec2Signer(blob['secret'])
+        params = {
+            'SignatureMethod': 'HmacSHA256',
+            'SignatureVersion': '2',
+            'AWSAccessKeyId': blob['access'],
+        }
+        return {
+            'access': blob['access'],
+            'signature': signer.generate(
+                {
+                    'host': 'foo',
+                    'verb': 'GET',
+                    'path': '/bar',
+                    'params': params,
+                }
+            ),
+            'host': 'foo',
+            'verb': 'GET',
+            'path': '/bar',
+            'params': params,
+        }
+
+    def test_ec2credential_token_cannot_rescope_to_arbitrary_project(self):
+        """An ec2credential token must not be exchanged for another token.
+
+        Unlike application_credential and trust/OAuth1, a plain
+        ec2credential-derived token carries no delegation marker that
+        token_authenticate() recognized, so it could previously be
+        exchanged via the token method for a token scoped to any project
+        the underlying user has a role on -- not just the project the EC2
+        credential itself was bound to.
+        """
+        other_project_ref = unit.new_project_ref(domain_id=self.domain_id)
+        other_project = PROVIDERS.resource_api.create_project(
+            other_project_ref['id'], other_project_ref
+        )
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
+            self.user_id, other_project['id'], self.role_id
+        )
+
+        r = self.post(
+            f'/users/{self.user_id}/credentials/OS-EC2',
+            body={'tenant_id': self.project_id},
+        )
+        ec2_cred = r.result['credential']
+        blob = {'access': ec2_cred['access'], 'secret': ec2_cred['secret']}
+        r = self.post(
+            '/ec2tokens',
+            body={'ec2Credentials': self._get_ec2_sig_ref(blob)},
+            expected_status=http.client.OK,
+        )
+        ec2_token = r.headers.get('X-Subject-Token')
+
+        rescope_auth = self.build_authentication_request(
+            token=ec2_token, project_id=other_project['id']
+        )
+        self.v3_create_token(
+            rescope_auth, expected_status=http.client.FORBIDDEN
+        )
+
+
+class TokenAuthenticateGuardUnit(unit.BaseTestCase):
+    """Unit-level tests for token_authenticate's delegation guard.
+
+    Calls token_authenticate directly with a mocked token, independent of
+    HTTP request handling. Mirrors
+    keystone.tests.unit.test_v3_trust.TestTrustGuardUnit -- same
+    _PRIMARY_AUTH_METHODS.issuperset([]) == True gap, different call site.
+    """
+
+    def _check(self, methods):
+        token = mock.Mock()
+        token.oauth_scoped = False
+        token.trust_scoped = False
+        token.system_scoped = False
+        token.application_credential = None
+        token.methods = methods
+        app = flask.Flask('test-token-authenticate-guard')
+        with app.test_request_context('/', json={'auth': {}}):
+            token_auth_plugin.token_authenticate(token)
+
+    def test_rejects_empty_methods(self):
+        """An empty method list must be treated as delegated, not allowed.
+
+        The fernet round-trip case: ec2credential/oauth2_credential have no
+        bit in the method bitmask, so a token carrying only one of those
+        decodes back to an empty list on any cache miss. Since
+        issuperset([]) is True, such a token used to pass this guard
+        entirely, allowing it to rescope via the token method.
+        """
+        self.assertRaises(exception.ForbiddenAction, self._check, [])
+
+    def test_rejects_ec2credential_token(self):
+        self.assertRaises(
+            exception.ForbiddenAction, self._check, ['ec2credential']
+        )
+
+    def test_allows_password_token(self):
+        self._check(['password'])
+
+    def test_allows_custom_primary_method_via_config(self):
+        """A custom auth plugin can rescope via the token method.
+
+        E.g. a site-specific SSO integration, once listed in
+        [auth] additional_primary_auth_methods -- it is not permanently
+        treated as delegated just because it isn't a keystone built-in.
+        """
+        CONF.set_override(
+            'additional_primary_auth_methods', ['sso'], group='auth'
+        )
+        self.addCleanup(
+            CONF.clear_override,
+            'additional_primary_auth_methods',
+            group='auth',
+        )
+        self._check(['sso'])
+
+    def test_unlisted_custom_method_still_rejected_by_default(self):
+        self.assertRaises(exception.ForbiddenAction, self._check, ['sso'])

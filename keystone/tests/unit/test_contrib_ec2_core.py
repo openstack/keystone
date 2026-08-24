@@ -300,8 +300,10 @@ class EC2ContribCoreV3(test_v3.RestfulTestCase):
             token=token,
             expected_status=http.client.OK,
         )
-        # Test reauth is also working
-        resp = self.post(
+        # Test reauth via the token method is rejected for EC2 credentialed
+        # tokens since they are delegated and must not be exchanged for another
+        # token with a different scope.
+        self.post(
             '/auth/tokens',
             headers={"X-Subject-Token": ec2_token},
             body={
@@ -313,7 +315,5 @@ class EC2ContribCoreV3(test_v3.RestfulTestCase):
                 }
             },
             token=token,
-            expected_status=http.client.CREATED,
+            expected_status=http.client.FORBIDDEN,
         )
-        ec2_token = resp.headers['X-Subject-Token']
-        self.assertIn('ec2credential', resp.json['token']['methods'])
