@@ -1,0 +1,25 @@
+---
+security:
+  - |
+    `LP#2158538 <https://bugs.launchpad.net/keystone/+bug/2158538>`_:
+    Tokens issued via delegated credentials (application credentials and
+    EC2 credentials) could be exchanged for a broader-scoped token using
+    the token authentication method.
+
+    An application credential token could omit the ``scope`` parameter
+    during token-method reauthentication, causing the new token to fall
+    through to the user's default project, escaping the application
+    credential's project binding. EC2 credential tokens had no such guard
+    and could be re-scoped to any project the underlying user has a role
+    on, not just the project the EC2 credential was bound to.
+
+upgrade:
+  - |
+    `LP#2158538 <https://bugs.launchpad.net/keystone/+bug/2158538>`_:
+    Authenticating with the token method using an application credential
+    or EC2 credential token is now rejected with HTTP 403 (Forbidden).
+    Previously, application credential tokens without an explicit scope
+    would fall through to the user's default project, and EC2 credential
+    tokens could be re-scoped to any project. Callers that relied on
+    exchanging an application credential token via the token method must
+    authenticate with the application credential directly instead.

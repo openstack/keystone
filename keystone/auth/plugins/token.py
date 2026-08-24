@@ -15,6 +15,7 @@
 import flask
 from oslo_log import log
 
+from keystone.api._shared import delegation
 from keystone.auth.plugins import base
 from keystone.auth.plugins import mapped
 from keystone.common import provider_api
@@ -90,6 +91,18 @@ def token_authenticate(token):
                 action=_(
                     'Using a system-scoped token to create a project-scoped '
                     'or domain-scoped token is not allowed.'
+                )
+            )
+        elif delegation.is_delegated_method(token):
+            # A token derived from a deliberately narrow-scope credential
+            # (application_credential, OAuth1 access token, ec2credential,
+            # or any other non-primary method, including a future one)
+            # must not be exchanged for a token with a different,
+            # potentially broader, scope.
+            raise exception.ForbiddenAction(
+                action=_(
+                    'Using a delegated token to create another token is '
+                    'not allowed.'
                 )
             )
 
