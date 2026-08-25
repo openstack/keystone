@@ -1,0 +1,35 @@
+---
+security:
+  - |
+    [`bug 2150089 <https://launchpad.net/bugs/2150089>`_]
+    Delegated tokens (trusts, application credentials, OAuth1 access tokens)
+    are now restricted to credentials whose ``project_id`` matches the token's
+    project scope. This closes a cross-project lateral movement vector where a
+    delegated token could read, modify, or delete credentials belonging to a
+    different project, including EC2 keys and TOTP/MFA seed bindings.
+
+    Application credential tokens are now blocked from all trust operations
+    (create, delete, list, get). Allowing an application credential to bootstrap
+    a trust creates a new delegation context whose token can access
+    authentication material outside the delegation chain, breaking the audit
+    trail. The ``unrestricted`` flag governs credential management, not trust
+    management.
+upgrade:
+  - |
+    [`bug 2150089 <https://launchpad.net/bugs/2150089>`_]
+    Two new ``[security_compliance]`` options control opt-in insecure behaviour
+    for operators with workflows that break after this upgrade:
+
+    ``allow_insecure_admin_trust_cross_project_credentials_access`` (default
+    ``False``): set to ``True`` if admin-role trusts or application credentials
+    need to access credentials across multiple projects (e.g. Mistral cron
+    triggers syncing EC2 credentials system-wide).
+
+    ``allow_insecure_application_credential_trust_escalation`` (default
+    ``False``): set to ``True`` if application credentials must create or manage
+    trusts (e.g. Heat stacks authenticated via application credentials). Use
+    OIDC federation flows (``v3oidcclientcredentials``, ``v3oidcdeviceauthz``)
+    as the proper long-term alternative.
+
+    Both options are intentionally named to signal that enabling them is
+    insecure. Migrate affected workflows away from these options.
