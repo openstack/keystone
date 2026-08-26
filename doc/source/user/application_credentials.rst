@@ -142,9 +142,9 @@ You can provide an expiration date for application credentials:
    +--------------+----------------------------------------------------------------------------------------+
 
 By default, application credentials are restricted from creating or deleting
-other application credentials and from creating or deleting trusts. If your
-application needs to be able to perform these actions and you accept the risks
-involved, you can disable this protection:
+other application credentials. If your application needs to be able to perform
+these actions and you accept the risks involved, you can disable this
+protection:
 
 .. warning::
 
