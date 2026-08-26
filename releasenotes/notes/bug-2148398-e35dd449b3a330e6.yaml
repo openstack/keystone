@@ -1,0 +1,40 @@
+---
+critical:
+  - |
+    [`bug 2148398 <https://bugs.launchpad.net/keystone/+bug/2148398>`_]
+    The RBAC enforcer unconditionally merged the raw JSON request body into
+    the policy enforcement dictionary after trusted target data had been set
+    from the database. An attacker could include a ``target`` key in the JSON
+    body to overwrite database-sourced RBAC target attributes, causing all
+    ``%(target.*)s`` policy substitutions to evaluate against
+    attacker-controlled values. This affected 88 endpoint/method combinations
+    across all Keystone API resource areas. Any authenticated user could
+    exploit this to read every credential secret in the deployment, create
+    EC2 credentials for arbitrary users, or revoke other users' tokens. A
+    domain administrator could escalate to full cloud admin by creating
+    inherited role grants on other domains. The vulnerability has been present
+    since the Rocky release (14.0.0).
+security:
+  - |
+    [`bug 2148398 <https://bugs.launchpad.net/keystone/+bug/2148398>`_]
+    The RBAC policy enforcer now namespaces JSON request body data under a
+    ``request_body`` key in the policy dictionary instead of merging it at
+    the top level. This prevents user-controlled input from overwriting
+    security-critical keys such as ``target`` (populated from the database
+    by ``build_target`` or ``target_attr``) and URL path parameters like
+    ``user_id``. All upstream policy rules are unaffected by this change.
+    Deployments with custom policy rules that reference JSON body fields
+    directly via ``%(field_name)s`` substitutions (not under ``target.``)
+    will need to update those references to ``%(request_body.field_name)s``.
+upgrade:
+  - |
+    [`bug 2148398 <https://bugs.launchpad.net/keystone/+bug/2148398>`_]
+    The ``identity:create_trust`` policy rule now uses
+    ``%(target.trust.trustor_user_id)s`` instead of
+    ``%(trust.trustor_user_id)s``. The trust data from the request body is
+    now passed explicitly via ``target_attr`` rather than relying on the
+    JSON body merge. This aligns ``create_trust`` with all other trust
+    policy rules which already use the ``target.trust.*`` prefix.
+    Deployments that override the ``identity:create_trust`` policy and
+    reference ``%(trust.trustor_user_id)s`` must update to
+    ``%(target.trust.trustor_user_id)s``.
