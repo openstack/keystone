@@ -1207,6 +1207,34 @@ class _ProjectUserTests:
 
 
 class _ProjectReaderMemberTests:
+    def test_user_cannot_list_assignments_for_tree_using_domain_id(self):
+        # Regression test for LP#2154645: a project-scoped user must not be
+        # able to bypass domain isolation by passing a domain ID in the
+        # scope.project.id parameter of the include_subtree API.  The policy
+        # rule for list_role_assignments_for_tree uses
+        # domain_id:%(target.domain_id)s where target.domain_id is derived
+        # from the referenced project's domain_id field.  For a domain project
+        # (is_domain=True) that field is NULL, which previously matched the
+        # NULL domain_id of any project-scoped token, granting unintended
+        # access to the entire domain's role assignments.
+        other_domain = PROVIDERS.resource_api.create_domain(
+            uuid.uuid4().hex, unit.new_domain_ref()
+        )
+        # Confirm the domain's "project" record has a null domain_id, which
+        # is the prerequisite for the bypass.
+        domain_project = PROVIDERS.resource_api.get_project(other_domain['id'])
+        self.assertIsNone(domain_project['domain_id'])
+
+        with self.test_client() as c:
+            c.get(
+                '/v3/role_assignments'
+                '?scope.project.id={}&include_subtree'.format(
+                    other_domain['id']
+                ),
+                headers=self.headers,
+                expected_status_code=http.client.FORBIDDEN,
+            )
+
     def test_user_cannot_list_assignments_for_subtree(self):
         user = PROVIDERS.identity_api.create_user(
             unit.new_user_ref(domain_id=self.domain_id)

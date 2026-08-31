@@ -17,7 +17,8 @@ from keystone.common.policies import base
 
 SYSTEM_READER_OR_DOMAIN_READER = (
     '(' + base.SYSTEM_READER + ') or '
-    '(role:reader and domain_id:%(target.domain_id)s)'
+    '(role:reader and domain_id:%(target.domain_id)s and '
+    'not None:%(target.domain_id)s)'
 )
 ADMIN_OR_SYSTEM_READER_OR_DOMAIN_READER = (
     '(' + base.RULE_ADMIN_REQUIRED + ') or ' + SYSTEM_READER_OR_DOMAIN_READER
