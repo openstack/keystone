@@ -125,6 +125,22 @@ rejected from those actions by default.
     ),
 )
 
+ban_ec2credential_tokens = cfg.BoolOpt(
+    'ban_ec2credential_tokens',
+    default=True,
+    help=utils.fmt(
+        """
+EC2 credentials are supported by keystone only to allow Swift to implement
+the S3 protocol against keystone identities. When enabled (the default), a
+token issued via EC2 credential authentication (ec2credential) is rejected
+by the auth middleware for every keystone API operation except validating
+the token, which Swift's S3 support needs. Disable only if a deployment
+has an existing, legitimate dependency on using EC2-derived tokens
+directly against the keystone API.
+"""
+    ),
+)
+
 
 GROUP_NAME = __name__.split('.')[-1]
 ALL_OPTS = [
@@ -136,6 +152,7 @@ ALL_OPTS = [
     mapped,
     application_credential,
     additional_primary_auth_methods,
+    ban_ec2credential_tokens,
 ]
 
 
