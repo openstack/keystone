@@ -1,0 +1,27 @@
+---
+security:
+  - |
+    `LP#2154645 <https://bugs.launchpad.net/keystone/+bug/2154645>`_:
+    Any user holding ``role:reader`` on any project could list all role
+    assignments under any domain by passing a domain ID as
+    ``scope.project.id`` to ``GET /v3/role_assignments?include_subtree``.
+    Domain projects store ``domain_id=null``, which matched the ``null``
+    ``domain_id`` of any project-scoped token in the oslo.policy string
+    comparison, bypassing the domain-reader restriction.
+    An explicit ``not None:%(target.domain_id)s`` guard has been added
+    to the affected policy rules.
+upgrade:
+  - |
+    `LP#2154645 <https://bugs.launchpad.net/keystone/+bug/2154645>`_:
+    If you have overridden ``identity:list_role_assignments`` or
+    ``identity:list_role_assignments_for_tree`` in ``policy.yaml``,
+    add ``not None:%(target.domain_id)s`` to any branch that contains
+    ``domain_id:%(target.domain_id)s``, for example::
+
+      identity:list_role_assignments_for_tree: >-
+        (rule:admin_required) or
+        (role:reader and system_scope:all) or
+        (role:reader and domain_id:%(target.domain_id)s and
+         not None:%(target.domain_id)s)
+
+    Deployments using the default policies are protected automatically.
