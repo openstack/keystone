@@ -1,0 +1,14 @@
+---
+fixes:
+  - |
+    [`bug 2161103 <https://bugs.launchpad.net/keystone/+bug/2161103>`_]
+    LDAP-backed domains do not support marker-based (keyset) pagination.
+    LDAP has no native keyset pagination, and the session cookie required
+    for native LDAP paging cannot survive across stateless HTTP requests in
+    a multi-node deployment.  Attempting client-side emulation (fetching all
+    entries to find the marker position) would incur a full directory scan
+    on every page request, which is unacceptable for large directories.
+
+    The ``list_limit`` setting continues to cap the number of entries
+    returned per request.  Callers should not rely on ``next`` link markers
+    for LDAP-backed domains.
