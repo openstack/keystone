@@ -356,6 +356,27 @@ class Manager(manager.Manager):
                     token.expires_at,
                 )
 
+        # NOTE(xek): If this token is being issued from a trust and the
+        # trust expires before the token, cap the token expiration at the
+        # trust's expiration. Same rationale as the application credential
+        # cap above (CVE-2022-2447), applied to trusts. See LP#2156586.
+        if trust_id is not None:
+            trust_api = PROVIDERS.trust_api
+            trust = trust_api.get_trust(trust_id)
+            token_time = timeutils.normalize_time(
+                timeutils.parse_isotime(token.expires_at)
+            )
+            if (trust['expires_at'] is not None) and (
+                token_time > trust['expires_at']
+            ):
+                token.expires_at = utils.isotime(
+                    trust['expires_at'], subsecond=True
+                )
+                LOG.debug(
+                    'Resetting token expiration to the trust expiration: %s',
+                    token.expires_at,
+                )
+
         token_id, issued_at = self.driver.generate_id_and_issued_at(token)
         token.mint(token_id, issued_at)
 
