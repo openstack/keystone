@@ -127,15 +127,19 @@ create_request_body: dict[str, Any] = {
 }
 
 # Request body of the `PATCH /credentials/{credential_id}` operation
+#
+# Only `blob` may be updated in place. `id`, `type`, `user_id`, and
+# `project_id` are immutable after creation. To change any of those,
+# delete the credential and create a new one.
 update_request_body: dict[str, Any] = {
     "type": "object",
     "description": "A credential object.",
     "properties": {
         "credential": {
             "type": "object",
-            "properties": _credential_properties,
-            "additionalProperties": True,
-            "minProperties": 1,
+            "properties": {"blob": _credential_properties["blob"]},
+            "additionalProperties": False,
+            "required": ["blob"],
         }
     },
     "required": ["credential"],

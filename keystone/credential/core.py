@@ -143,23 +143,19 @@ class Manager(manager.Manager):
         notifications.Audit.created(self._CRED, credential_id, initiator)
         return ref
 
-    def _validate_credential_update(self, credential_id, credential):
-        # ec2 credentials require a "project_id" to be functional. Before we
-        # update, check the case where a non-ec2 credential changes its type
-        # to be "ec2", but has no associated "project_id", either in the
-        # request or already set in the database
-        if credential.get('type', '').lower() == 'ec2' and not credential.get(
-            'project_id'
-        ):
-            existing_cred = self.get_credential(credential_id)
-            if not existing_cred['project_id']:
-                raise exception.ValidationError(
-                    attribute='project_id', target='credential'
-                )
-
     def update_credential(self, credential_id, credential):
-        """Update an existing credential."""
-        self._validate_credential_update(credential_id, credential)
+        """Update an existing credential.
+
+        Only `blob` is accepted here: the API layer's PATCH schema enforces
+        this (see LP#2159643 -- retyping, rescoping, or reassigning a
+        credential in place was a repeated source of security issues), so
+        `type`, `user_id`, and `project_id` are never present in
+        `credential`. There is currently no other caller of this method
+        that passes those fields either (keystone-manage credential_migrate
+        only ever passes `blob`). Do not reintroduce type/project_id/
+        user_id-specific validation here without also reintroducing a way
+        for a caller to actually change them.
+        """
         if 'blob' in credential:
             credential_copy = self._encrypt_credential(credential)
         else:

@@ -238,18 +238,17 @@ service account credentials instead, then remove this option.
     deprecated_since='2026.1',
     help=utils.fmt(
         """
-INSECURE: When enabled, admin-role delegated tokens (trusts, application
-credentials, OAuth1 access tokens) are allowed to access credentials outside
-their project scope. By default (False), delegated tokens can only access
-credentials whose project_id matches the token's project scope, preventing
-cross-project lateral movement via a compromised delegation token.
+INSECURE: By default (False), delegated tokens (trusts, application
+credentials, OAuth1 access tokens, EC2 credentials) cannot access
+/v3/credentials or the OS-EC2 compat endpoints at all -- see LP#2159643.
+When enabled, admin-role delegated tokens are exempted for ec2-type
+credentials only, including across projects; every other type stays
+blocked regardless of role.
 
-Enable this only if you have automated workflows (e.g. Mistral cron triggers)
-that use admin-role trusts to access credentials across multiple projects and
-cannot be migrated to use non-delegated service account credentials. Enabling
-this option weakens the isolation guarantee provided by the delegation boundary
-fix for LP#2150089. This option is deprecated and will be removed in a future
-release.
+Enable this only for automated workflows (e.g. Mistral cron triggers) that
+use admin-role trusts to list/sync EC2 credentials across projects and
+cannot migrate to non-delegated service account credentials. Weakens the
+isolation from LP#2150089 and LP#2159643. Deprecated for removal.
 """
     ),
 )

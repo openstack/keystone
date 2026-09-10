@@ -1,0 +1,55 @@
+---
+security:
+  - |
+    [`bug 2159643 <https://launchpad.net/bugs/2159643>`_]
+    Delegated tokens (trusts, application credentials, OAuth1 access
+    tokens, and EC2 credentials, which were not previously recognized
+    as delegated by this check) can no longer access
+    ``/v3/credentials`` or the ``/v3/users/{user_id}/credentials/OS-EC2``
+    compat endpoints at all, superseding the project-scope comparison
+    introduced by `bug 2150089
+    <https://launchpad.net/bugs/2150089>`_. Trust-scoped and OAuth1
+    access-token-scoped tokens creating EC2 credentials is also removed;
+    this was never a deliberate feature (see `bug 1242597
+    <https://launchpad.net/bugs/1242597>`_ / OSSA-2013-032).
+
+    ``PATCH /v3/credentials/{credential_id}`` now only accepts ``blob``.
+    ``type``, ``user_id``, and ``project_id`` are immutable after
+    creation. Delete and re-create the credential to change any of
+    those fields. This also fixes `bug 2158931
+    <https://launchpad.net/bugs/2158931>`_: the previous guard only
+    validated a PATCH request's stored (pre-image) ``project_id``,
+    never the new ``project_id`` in the request body, so a delegated
+    token scoped to one project could rewrite a credential it already
+    owned there to point at a different project.
+
+    This closes the API-level creation path only. It does not
+    retroactively affect ``type=ec2`` credentials that were already
+    bound to a trust or OAuth1 access token before this fix (for
+    example, created directly through the provider API or
+    ``keystone-manage`` rather than through this guarded endpoint). To
+    fully mitigate the risk this change addresses, operators should
+    also audit their existing EC2 credentials for a ``trust_id`` or
+    ``access_token_id`` in their stored ``blob`` and delete and
+    re-create any that have one, so that no EC2 credential remains
+    tied to a delegation that can independently expire, be revoked, or
+    otherwise change state out from under it.
+upgrade:
+  - |
+    [`bug 2159643 <https://launchpad.net/bugs/2159643>`_]
+    ``PATCH /v3/credentials/{credential_id}`` requests that include
+    ``type``, ``user_id``, or ``project_id`` now fail with ``400 Bad
+    Request``. Update any client or automation that PATCHes credentials
+    to send ``blob`` only; delete and re-create the credential for any
+    other field change.
+
+    The existing, opt-in, deprecated
+    ``[security_compliance] allow_insecure_admin_trust_cross_project_credentials_access``
+    option (see `bug 2150089 <https://launchpad.net/bugs/2150089>`_) is
+    now scoped to EC2 credentials only, matching its one documented use
+    case (an admin-role trust driving automated tooling that lists or
+    syncs EC2 credentials with a third-party system). Enabling the
+    option no longer grants access to any credential type other than
+    EC2. Operators relying on this option should migrate the underlying
+    automated workflow away from delegated tokens; it will be removed
+    in a future release.
