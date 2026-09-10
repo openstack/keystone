@@ -105,6 +105,24 @@ authentication plugin.
     ),
 )
 
+ec2credential = cfg.StrOpt(
+    'ec2credential',
+    help=utils.fmt(
+        """
+Entry point for the ec2credential auth plugin module in the
+`keystone.auth.ec2credential` namespace. This method is a marker for tokens
+minted from an EC2 or S3 credential via the /v3/ec2tokens or /v3/s3tokens
+endpoints; it cannot be used to authenticate via /v3/auth/tokens. You do
+not need to set this unless you are overriding keystone's own
+`ec2credential` authentication plugin. Do not remove `ec2credential` from
+the `methods` option: if it is missing from `methods`, the /v3/ec2tokens
+and /v3/s3tokens endpoints refuse to issue any tokens (HTTP 503), because
+a token minted without the method marker would not be recognized as
+delegated-credential derived on a token payload round-trip.
+"""
+    ),
+)
+
 additional_primary_auth_methods = cfg.ListOpt(
     'additional_primary_auth_methods',
     default=[],
@@ -120,7 +138,9 @@ access token, EC2 credential) by the guards that block delegated tokens
 from managing trusts, application credentials, OAuth1 access tokens,
 credentials, or exchanging a token for another token. Without this, a
 token issued via an unlisted custom method is treated as delegated and
-rejected from those actions by default.
+rejected from those actions by default. Note that listing a marker
+method such as ec2credential has no effect: tokens minted from an EC2
+or S3 credential exchange are always treated as delegated.
 """
     ),
 )
@@ -135,6 +155,7 @@ ALL_OPTS = [
     oauth1,
     mapped,
     application_credential,
+    ec2credential,
     additional_primary_auth_methods,
 ]
 

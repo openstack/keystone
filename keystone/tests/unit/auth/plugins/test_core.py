@@ -39,6 +39,36 @@ class TestPluginCore(unit.TestCase):
         method_map = plugins.construct_method_map_from_config()
         self.assertDictEqual(expected_method_map, method_map)
 
+    def test_default_method_map_preserves_legacy_bits(self):
+        """The bit assigned to each default method must never change.
+
+        The fernet token payload encodes ``methods`` as a bitmask built
+        from ``[auth] methods`` in list order. Existing tokens were
+        encoded with the pre-ec2credential layout, so new methods must be
+        appended to the end of the default list (bit 64), never inserted,
+        which would shift the bits of every method after it and corrupt
+        the decoding of all existing tokens.
+        """
+        method_map = plugins.construct_method_map_from_config()
+        self.assertDictEqual(
+            {
+                1: 'external',
+                2: 'password',
+                4: 'token',
+                8: 'oauth1',
+                16: 'mapped',
+                32: 'application_credential',
+                64: 'ec2credential',
+            },
+            method_map,
+        )
+        self.assertEqual(
+            ['ec2credential'], plugins.convert_integer_to_method_list(64)
+        )
+        self.assertEqual(
+            64, plugins.convert_method_list_to_integer(['ec2credential'])
+        )
+
     def test_convert_methods_to_integer(self):
         auth_methods = ['password', 'token', 'totp']
         self.config_fixture.config(group='auth', methods=auth_methods)

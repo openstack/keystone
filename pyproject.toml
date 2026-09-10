@@ -37,6 +37,9 @@ sql = "keystone.assignment.backends.sql:Assignment"
 [project.entry-points."keystone.auth.application_credential"]
 default = "keystone.auth.plugins.application_credential:ApplicationCredential"
 
+[project.entry-points."keystone.auth.ec2credential"]
+default = "keystone.auth.plugins.ec2credential:Plugin"
+
 [project.entry-points."keystone.auth.external"]
 default = "keystone.auth.plugins.external:DefaultDomain"
 DefaultDomain = "keystone.auth.plugins.external:DefaultDomain"

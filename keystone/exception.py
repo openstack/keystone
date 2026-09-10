@@ -708,6 +708,15 @@ class Gone(Error):
     title = http.client.responses[http.client.GONE]
 
 
+class ServiceUnavailable(Error):
+    message_format = _(
+        "The server is currently unable to handle the request "
+        "due to misconfiguration or maintenance."
+    )
+    code = int(http.client.SERVICE_UNAVAILABLE)
+    title = http.client.responses[http.client.SERVICE_UNAVAILABLE]
+
+
 class ConfigFileNotFound(UnexpectedError):
     debug_message_format = _(
         "The Keystone configuration file %(config_file)s could not be found."

@@ -69,6 +69,22 @@ class ResourceBase(ks_flask.ResourceBase):
             raise ks_exceptions.Unauthorized(_('Credential is expired'))
 
     def handle_authenticate(self):
+        # Fail closed if the ec2credential marker method is not enabled:
+        # a token minted without a marker that survives the token payload
+        # round-trip (fernet encodes methods as a bitmask of [auth]
+        # methods) would not be recognized as delegated-credential derived
+        # by the guards that reject such tokens. Refusing to issue a token
+        # is safer than issuing one that re-opens the vulnerability
+        # (LP#2153453).
+        if 'ec2credential' not in CONF.auth.methods:
+            raise ks_exceptions.ServiceUnavailable(
+                _(
+                    'Cannot mint a token from an EC2 or S3 credential: the '
+                    'ec2credential auth method is not enabled. Add '
+                    'ec2credential to the [auth] methods configuration '
+                    'option.'
+                )
+            )
         # TODO(morgan): convert this dirty check to JSON Schema validation
         # this mirrors the previous behavior of the webob system where an
         # empty request body for s3 and ec2 tokens would result in a BAD
@@ -198,6 +214,10 @@ class ResourceBase(ks_flask.ResourceBase):
             # Assert all roles exist.
             PROVIDERS.role_api.get_role(r_id)
 
+        # NOTE: ec2credential is a registered (marker) auth method, so it
+        # has a bit in the fernet methods bitmask and survives the token
+        # payload round-trip (LP#2153453). See the
+        # keystone.auth.ec2credential plugin.
         method_names = ['ec2credential']
 
         if trustee_user_id:

@@ -121,6 +121,22 @@ class TestJWSProvider(unit.TestCase):
         # validate the token
         self.provider.validate_token(token_id)
 
+    def test_ec2credential_method_preserved(self):
+        """JWS stores methods verbatim; the marker survives round-trips."""
+        token = token_model.TokenModel()
+        token.methods = ['ec2credential']
+        token.user_id = uuid.uuid4().hex
+        token.audit_id = provider.random_urlsafe_str()
+        token.expires_at = utils.isotime(
+            provider.default_expire_time(), subsecond=True
+        )
+        token_id, issued_at = self.provider.generate_id_and_issued_at(token)
+
+        (user_id, methods, audit_ids, *_) = self.provider.validate_token(
+            token_id
+        )
+        self.assertEqual(['ec2credential'], methods)
+
 
 class TestCreateJWSKeypair(unit.TestCase):
     """Tests for jwt_utils.create_jws_keypair key generation per algorithm."""

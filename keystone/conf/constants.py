@@ -23,6 +23,7 @@ _DEFAULT_AUTH_METHODS = [
     'oauth1',
     'mapped',
     'application_credential',
+    'ec2credential',
 ]
 
 _CERTFILE = '/etc/keystone/ssl/certs/signing_cert.pem'

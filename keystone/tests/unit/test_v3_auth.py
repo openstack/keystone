@@ -6973,12 +6973,14 @@ class Ec2CredentialTokenRescopeAuth(test_v3.RestfulTestCase):
     def test_ec2credential_token_cannot_rescope_to_arbitrary_project(self):
         """An ec2credential token must not be exchanged for another token.
 
-        Unlike application_credential and trust/OAuth1, a plain
-        ec2credential-derived token carries no delegation marker that
-        token_authenticate() recognized, so it could previously be
-        exchanged via the token method for a token scoped to any project
-        the underlying user has a role on -- not just the project the EC2
-        credential itself was bound to.
+        Before the ec2credential auth method was registered, the
+        EC2-derived method marker had no bit in the fernet method bitmask
+        and decoded to an empty list on a cache miss, so the token could
+        be exchanged via the token method for a token scoped to any
+        project the underlying user has a role on -- not just the project
+        the EC2 credential itself was bound to. The marker now survives
+        the fernet round trip and is_delegated_method() recognizes it
+        explicitly.
         """
         other_project_ref = unit.new_project_ref(domain_id=self.domain_id)
         other_project = PROVIDERS.resource_api.create_project(
@@ -7032,11 +7034,12 @@ class TokenAuthenticateGuardUnit(unit.BaseTestCase):
     def test_rejects_empty_methods(self):
         """An empty method list must be treated as delegated, not allowed.
 
-        The fernet round-trip case: ec2credential/oauth2_credential have no
-        bit in the method bitmask, so a token carrying only one of those
-        decodes back to an empty list on any cache miss. Since
-        issuperset([]) is True, such a token used to pass this guard
-        entirely, allowing it to rescope via the token method.
+        The fernet round-trip case: a token whose method was lost on a
+        fernet round-trip (e.g. minted before the ec2credential method was
+        registered, or carrying an unregistered method such as
+        oauth2_credential) decodes back to an empty list on any cache
+        miss. Since issuperset([]) is True, such a token used to pass this
+        guard entirely, allowing it to rescope via the token method.
         """
         self.assertRaises(exception.ForbiddenAction, self._check, [])
 
