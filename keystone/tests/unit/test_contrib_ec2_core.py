@@ -83,6 +83,7 @@ class EC2ContribCoreV3(test_v3.RestfulTestCase):
         )
         if expected_status == http.client.OK:
             self.assertValidProjectScopedTokenResponse(resp, self.user)
+        return resp
 
     def test_valid_authentication_response_with_proper_secret(self):
         self._test_valid_authentication_response_with_proper_secret()
@@ -316,4 +317,91 @@ class EC2ContribCoreV3(test_v3.RestfulTestCase):
             },
             token=token,
             expected_status=http.client.FORBIDDEN,
+        )
+
+    def test_ec2_token_method_survives_fernet_round_trip(self):
+        """The ec2credential marker must survive the fernet payload.
+
+        The fernet provider encodes ``methods`` as a bitmask built from
+        ``[auth] methods``; a method name that is not a registered auth
+        method encodes to 0 and decodes back to an empty list, so the
+        token silently loses the information that it was minted from an
+        EC2 credential exchange (LP#2153453). Since ``ec2credential`` is
+        a registered (dummy) auth method, the marker must be present on
+        validation.
+        """
+        # Force validation through the fernet payload instead of the
+        # in-process token cache, which would mask the round-trip.
+        self.config_fixture.config(
+            group='token', caching=False, cache_on_issue=False
+        )
+        resp = self._test_valid_authentication_response_with_proper_secret()
+        ec2_token = resp.headers['X-Subject-Token']
+        validated = PROVIDERS.token_provider_api.validate_token(ec2_token)
+        self.assertEqual(['ec2credential'], validated.methods)
+
+    def test_ec2_token_rejected_for_authorization_after_round_trip(self):
+        """An EC2 token must not authorize regular requests.
+
+        GET /v3/projects is allowed for this token's user (admin role on
+        the project scope), so a 403 can only come from the
+        ec2credential method marker being enforced by the auth context
+        middleware -- not from policy (LP#2153453). Token caching is
+        disabled so the marker comes from the fernet payload, not the
+        in-process cache.
+        """
+        self.config_fixture.config(
+            group='token', caching=False, cache_on_issue=False
+        )
+        resp = self._test_valid_authentication_response_with_proper_secret()
+        ec2_token = resp.headers['X-Subject-Token']
+        self.get(
+            '/projects', token=ec2_token, expected_status=http.client.FORBIDDEN
+        )
+
+        # Sanity check: the same request with a regular project-scoped
+        # token is allowed, proving policy alone would not reject it.
+        self.get(
+            '/projects',
+            token=self.get_scoped_token(),
+            expected_status=http.client.OK,
+        )
+
+    def test_ec2credential_method_not_accepted_via_auth_tokens(self):
+        """The dummy plugin must never authenticate via /v3/auth/tokens."""
+        self.post(
+            '/auth/tokens',
+            body={
+                'auth': {
+                    'identity': {
+                        'methods': ['ec2credential'],
+                        'ec2credential': {},
+                    },
+                    'scope': {'project': {'id': self.project_id}},
+                }
+            },
+            expected_status=http.client.UNAUTHORIZED,
+        )
+
+    def test_disabled_method_refuses_to_issue_token(self):
+        """Removing ec2credential from [auth] methods fails the endpoint.
+
+        A token minted while the marker method is disabled would carry no
+        marker through the fernet payload round-trip and re-open the
+        vulnerability the marker exists to close (LP#2153453), so the
+        endpoint fails closed instead of issuing such a token.
+        """
+        self.config_fixture.config(
+            group='auth',
+            methods=[
+                'external',
+                'password',
+                'token',
+                'oauth1',
+                'mapped',
+                'application_credential',
+            ],
+        )
+        self._test_valid_authentication_response_with_proper_secret(
+            expected_status=http.client.SERVICE_UNAVAILABLE
         )

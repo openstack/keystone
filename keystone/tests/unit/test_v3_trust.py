@@ -1205,11 +1205,11 @@ class TestSharedDelegationGuardUnit(unit.BaseTestCase):
         return token
 
     def test_rejects_empty_methods(self):
-        """Cover the fernet round-trip gap.
+        """Cover the fernet round-trip gap for pre-upgrade tokens.
 
-        ec2credential/oauth2_credential have no bit in the method
-        bitmask, so a token carrying only one of those decodes back to
-        an empty list on any cache miss.
+        Tokens minted before the ec2credential method was registered (or
+        carrying an unregistered method) have no bit in the method bitmask,
+        so they decode back to an empty list on any cache miss.
         """
         self.assertTrue(delegation.is_delegated_method(self._token([])))
 
@@ -1252,6 +1252,26 @@ class TestSharedDelegationGuardUnit(unit.BaseTestCase):
             group='auth',
         )
         self.assertFalse(delegation.is_delegated_method(self._token(['sso'])))
+
+    def test_additional_primary_auth_methods_cannot_allow_ec2credential(self):
+        """The ec2credential marker method can never be reclassified.
+
+        Tokens carrying it are always minted from an EC2 or S3 credential
+        exchange, so listing the method in [auth]
+        additional_primary_auth_methods must not demote them to primary
+        and re-open the rescope path the guards block.
+        """
+        CONF.set_override(
+            'additional_primary_auth_methods', ['ec2credential'], group='auth'
+        )
+        self.addCleanup(
+            CONF.clear_override,
+            'additional_primary_auth_methods',
+            group='auth',
+        )
+        self.assertTrue(
+            delegation.is_delegated_method(self._token(['ec2credential']))
+        )
 
     def test_unlisted_custom_plugin_still_denied_by_default(self):
         """An unlisted custom method is still denied without opt-in.

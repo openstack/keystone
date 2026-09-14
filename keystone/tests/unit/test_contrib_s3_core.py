@@ -16,6 +16,7 @@ import base64
 import hashlib
 import hmac
 import http.client
+from unittest import mock
 import uuid
 
 from keystone.api import s3tokens
@@ -80,6 +81,7 @@ class S3ContribCore(test_v3.RestfulTestCase):
             )
         else:
             self.assertValidErrorResponse(resp)
+        return resp
 
     def test_good_response(self):
         self._test_good_response()
@@ -87,6 +89,88 @@ class S3ContribCore(test_v3.RestfulTestCase):
     def test_good_response_noauth(self):
         # s3tokens now requires service/admin auth; unauthenticated should be denied
         self._test_good_response(http.client.UNAUTHORIZED, noauth=True)
+
+    def _post_s3_token_capturing_id(self, expected_status=http.client.OK):
+        """Post an S3 token and return (response, token_id).
+
+        The /v3/s3tokens response intentionally carries no token id
+        (neither as a header nor in the body), so wrap
+        issue_token to capture the minted id for validation.
+        """
+        original = PROVIDERS.token_provider_api.issue_token
+        captured = {}
+
+        def issue_token_and_capture(*args, **kwargs):
+            token = original(*args, **kwargs)
+            captured['id'] = token.id
+            return token
+
+        with mock.patch.object(
+            PROVIDERS.token_provider_api,
+            'issue_token',
+            issue_token_and_capture,
+        ):
+            resp = self._test_good_response(expected_status=expected_status)
+        self.assertEqual(1, len(captured))
+        return resp, captured['id']
+
+    def test_s3_token_method_survives_fernet_round_trip(self):
+        """The ec2credential marker must survive the fernet payload.
+
+        S3 tokens are the same class of delegated-credential token as EC2
+        tokens and record the registered ec2credential auth method, which
+        has a bit in the fernet methods bitmask and therefore survives the
+        token payload round-trip (LP#2153453).
+        """
+        self.config_fixture.config(
+            group='token', caching=False, cache_on_issue=False
+        )
+        resp, s3_token = self._post_s3_token_capturing_id()
+        # The API response records the marker as well.
+        self.assertEqual(['ec2credential'], resp.result['token']['methods'])
+        # Token caching is disabled so the marker below comes from the
+        # fernet payload, not the in-process cache.
+        validated = PROVIDERS.token_provider_api.validate_token(s3_token)
+        self.assertEqual(['ec2credential'], validated.methods)
+
+    def test_s3_token_rejected_for_authorization_after_round_trip(self):
+        """An S3 token must not authorize regular requests.
+
+        GET /v3/projects is allowed for this token's user (admin role on
+        the project scope), so a 403 can only come from the
+        ec2credential method marker being enforced by the auth context
+        middleware -- not from policy (LP#2153453). Token caching is
+        disabled so the marker comes from the fernet payload, not the
+        in-process cache.
+        """
+        self.config_fixture.config(
+            group='token', caching=False, cache_on_issue=False
+        )
+        _, s3_token = self._post_s3_token_capturing_id()
+        self.get(
+            '/projects', token=s3_token, expected_status=http.client.FORBIDDEN
+        )
+
+    def test_disabled_method_refuses_to_issue_token(self):
+        """Removing ec2credential from [auth] methods fails the endpoint.
+
+        A token minted while the marker method is disabled would carry no
+        marker through the fernet payload round-trip and re-open the
+        vulnerability the marker exists to close (LP#2153453), so the
+        endpoint fails closed instead of issuing such a token.
+        """
+        self.config_fixture.config(
+            group='auth',
+            methods=[
+                'external',
+                'password',
+                'token',
+                'oauth1',
+                'mapped',
+                'application_credential',
+            ],
+        )
+        self._test_good_response(http.client.SERVICE_UNAVAILABLE)
 
     def test_bad_request(self):
         self.post(

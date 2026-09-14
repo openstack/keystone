@@ -456,6 +456,9 @@ class AuthContextMiddleware(
                 'token': self.token,
             }
             auth_context.update(additional)
+            # ec2credential is a registered auth method, so the marker
+            # survives the fernet methods bitmask round-trip (LP#2153453);
+            # JWS tokens store method names verbatim.
             if 'ec2credential' in self.token.methods:
                 raise exception.Forbidden(
                     _(

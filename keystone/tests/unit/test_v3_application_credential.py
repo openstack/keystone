@@ -1040,6 +1040,15 @@ class AppCredEc2GuardTests(ApplicationCredentialTestCase):
             )
         )
 
+    def config_overrides(self):
+        super().config_overrides()
+        # Minting an EC2 token requires the ec2credential marker method to
+        # be enabled, on top of the base class's restricted methods list.
+        self.config_fixture.config(
+            group='auth',
+            methods='password,application_credential,ec2credential',
+        )
+
     def _get_ec2_token_id(self):
         blob, ref = unit.new_ec2_credential(
             user_id=self.user_id, project_id=self.project_id

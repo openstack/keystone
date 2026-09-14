@@ -44,6 +44,13 @@ _BUILTIN_PRIMARY_AUTH_METHODS = frozenset(
     }
 )
 
+# Marker methods recorded on tokens minted from a delegated credential
+# exchange (/v3/ec2tokens, /v3/s3tokens). They never authenticate a user
+# directly, so they are always treated as delegated even if listed in
+# [auth] additional_primary_auth_methods: reclassifying one as primary
+# would silently re-open the rescope path the guards block (LP#2153453).
+_ALWAYS_DELEGATED_AUTH_METHODS = frozenset({'ec2credential'})
+
 
 def primary_auth_methods():
     """The effective set of primary (non-delegated) auth methods.
@@ -54,18 +61,21 @@ def primary_auth_methods():
     are not mistaken for a delegated credential by the guards in this
     module's callers.
     """
-    return _BUILTIN_PRIMARY_AUTH_METHODS | frozenset(
-        CONF.auth.additional_primary_auth_methods
-    )
+    return (
+        _BUILTIN_PRIMARY_AUTH_METHODS
+        | frozenset(CONF.auth.additional_primary_auth_methods)
+    ) - _ALWAYS_DELEGATED_AUTH_METHODS
 
 
 def is_delegated_method(token):
     """Return True if token.methods indicates a delegated credential.
 
     An empty methods list is treated as delegated, not allowed: a token
-    whose methods were lost on a fernet round-trip (e.g.
-    ec2credential/oauth2_credential decoding to []) must not be treated
-    as if it had no delegated methods at all -- issuperset([]) is True.
+    whose methods were lost on a fernet round-trip (e.g. tokens minted
+    before the ec2credential method was registered, or tokens carrying an
+    unregistered method such as oauth2_credential, decoding to []) must
+    not be treated as if it had no delegated methods at all --
+    issuperset([]) is True.
     """
     return bool(token) and (
         not token.methods
