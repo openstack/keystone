@@ -15,6 +15,7 @@
 """Notifications module for OpenStack Identity Service resources."""
 
 import collections
+import datetime
 import functools
 import inspect
 import socket
@@ -31,6 +32,8 @@ from pycadf import eventfactory
 from pycadf import host
 from pycadf import reason
 from pycadf import resource
+import pycadf.timestamp
+import pytz
 
 from keystone.common import context
 from keystone.common import provider_api
@@ -38,6 +41,21 @@ from keystone.common import utils
 import keystone.conf
 from keystone import exception
 from keystone.i18n import _
+
+
+# Monkey-patch pycadf timestamp to produce RFC3339-compliant +HH:MM offset
+# (Python strftime %z gives +HHMM without colon; isoformat() gives the colon form)
+def _patched_get_utc_now(timezone=None):
+    utc_datetime = datetime.datetime.now(datetime.timezone.utc)
+    if timezone is not None:
+        try:
+            utc_datetime = utc_datetime.astimezone(pytz.timezone(timezone))
+        except Exception:
+            pass
+    return utc_datetime.isoformat()
+
+
+pycadf.timestamp.get_utc_now = _patched_get_utc_now
 
 
 _CATALOG_HELPER_OBJ = None
@@ -98,7 +116,6 @@ def build_audit_initiator():
     oslo_context = flask.request.environ.get(context.REQUEST_CONTEXT_ENV)
     if oslo_context.user_id:
         initiator.id = utils.resource_uuid(oslo_context.user_id)
-        initiator.user_id = oslo_context.user_id
 
     if oslo_context.project_id:
         initiator.project_id = oslo_context.project_id
@@ -536,7 +553,6 @@ def _get_request_audit_info(context, user_id=None):
     initiator = resource.Resource(typeURI=taxonomy.ACCOUNT_USER, host=host)
 
     if user_id:
-        initiator.user_id = user_id
         initiator.id = utils.resource_uuid(user_id)
         initiator = _add_username_to_initiator(initiator)
 
@@ -574,7 +590,6 @@ class CadfNotificationWrapper(object):
             """Will always send a notification."""
             target = resource.Resource(typeURI=taxonomy.ACCOUNT_USER)
             initiator = build_audit_initiator()
-            initiator.user_id = user_id
             initiator = _add_username_to_initiator(initiator)
             initiator.id = utils.resource_uuid(user_id)
             try:
@@ -795,6 +810,12 @@ def _send_audit_notification(action, initiator, outcome, target,
 
     context = {}
     payload = event.as_dict()
+    _ids = []
+    if getattr(initiator, 'project_id', None):
+        _ids.append(initiator.project_id)
+    if getattr(target, 'project_id', None) and target.project_id not in _ids:
+        _ids.append(target.project_id)
+    payload['tenant_ids'] = _ids if _ids else ['Default']
     notifier = _get_notifier()
 
     if notifier:

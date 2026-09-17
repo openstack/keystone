@@ -1497,3 +1497,205 @@ class CADFNotificationsDataTestCase(test_v3.RestfulTestCase):
                             break
 
         self.assertEqual(ref['id'], observer['id'])
+
+
+class CadfEventFieldsTest(unit.BaseTestCase):
+    """Tests for the 3 CADF fixes applied to keystone/notifications.py.
+
+    Fix 1: pycadf.timestamp.get_utc_now monkey-patched to produce "+HH:MM"
+            (with colon) eventTime, not "+HHMM" without colon.
+    Fix 2: initiator.user_id field removed from build_audit_initiator()
+            (was a duplicate of initiator.id).
+    Fix 3: tenant_ids list injected into every CADF event payload before
+            notifier.info() call.
+    """
+
+    def setUp(self):
+        # macOS python-ldap raises ValueError for OPT_X_TLS_* options in both
+        # get_option and the set_option cleanup callbacks registered by super().
+        import ldap as _ldap
+        _tls_opts = {
+            _ldap.OPT_X_TLS_CACERTFILE,
+            _ldap.OPT_X_TLS_CACERTDIR,
+            _ldap.OPT_X_TLS_REQUIRE_CERT,
+        }
+        _orig_get = _ldap.get_option
+        _orig_set = _ldap.set_option
+
+        def _safe_get(opt):
+            if opt in _tls_opts:
+                return ''
+            return _orig_get(opt)
+
+        def _safe_set(opt, val):
+            if opt in _tls_opts:
+                return
+            return _orig_set(opt, val)
+
+        with mock.patch('ldap.get_option', side_effect=_safe_get), \
+                mock.patch('ldap.set_option', side_effect=_safe_set):
+            super(CadfEventFieldsTest, self).setUp()
+
+        self.config_fixture = self.useFixture(config_fixture.Config(CONF))
+        # ccloud: configure a valid transport so _get_notifier() can construct
+        oslo_messaging.get_notification_transport(CONF, url='rabbit://')
+        self.config_fixture.config(
+            group='oslo_messaging_notifications', transport_url='rabbit://'
+        )
+
+    # ------------------------------------------------------------------
+    # Fix 1: eventTime uses "+HH:MM" (RFC 3339) not "+HHMM"
+    # ------------------------------------------------------------------
+
+    def test_eventtime_has_colon_in_utc_offset(self):
+        """_patched_get_utc_now() must return an ISO-8601 string whose UTC
+        offset contains a colon, e.g. "+00:00" rather than "+0000".
+        """
+        import re
+        result = notifications._patched_get_utc_now()
+        pattern = r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}[+-]\d{2}:\d{2}$'
+        self.assertRegex(
+            result, pattern,
+            'eventTime "%s" does not match RFC3339 +HH:MM format' % result)
+
+    # ------------------------------------------------------------------
+    # Fix 2: build_audit_initiator() must NOT expose user_id as a field
+    # ------------------------------------------------------------------
+
+    def test_initiator_has_no_user_id_field(self):
+        """build_audit_initiator() must not set user_id on the initiator
+        resource (it was a duplicate of initiator.id and must be removed).
+        The initiator.id field must still be populated from the context.
+        """
+        import flask
+        from keystone.common import context as keystone_context
+
+        user_id = uuid.uuid4().hex
+        project_id = uuid.uuid4().hex
+
+        oslo_ctx = mock.Mock()
+        oslo_ctx.user_id = user_id
+        oslo_ctx.project_id = project_id
+        oslo_ctx.domain_id = None
+        oslo_ctx.request_id = uuid.uuid4().hex
+        oslo_ctx.global_request_id = None
+
+        environ = {
+            keystone_context.REQUEST_CONTEXT_ENV: oslo_ctx,
+            'keystone.token_info': {},
+        }
+
+        app = flask.Flask(__name__)
+        with app.test_request_context(path='/', environ_overrides=environ):
+            # Stub out flask.request.user_agent / remote_addr
+            flask.request.environ.setdefault('REMOTE_ADDR', '127.0.0.1')
+            flask.request.environ.setdefault('HTTP_USER_AGENT', 'test-agent')
+            initiator = notifications.build_audit_initiator()
+
+        # initiator.id must be set (derived from user_id via resource_uuid)
+        self.assertIsNotNone(getattr(initiator, 'id', None),
+                             'initiator.id should be populated')
+        # user_id must NOT be set (the duplicate field was removed)
+        self.assertIsNone(getattr(initiator, 'user_id', None),
+                          'initiator.user_id should not be present (was a '
+                          'duplicate of initiator.id)')
+
+    # ------------------------------------------------------------------
+    # Fix 3: tenant_ids is injected into every CADF payload
+    # ------------------------------------------------------------------
+
+    def test_tenant_ids_injected_into_payload(self):
+        """_send_audit_notification() must inject tenant_ids containing the
+        initiator's project_id into the payload passed to notifier.info().
+        """
+        from pycadf import resource as cadfresource
+
+        project_id = uuid.uuid4().hex
+        initiator = cadfresource.Resource(typeURI=cadftaxonomy.ACCOUNT_USER)
+        initiator.project_id = project_id
+        initiator.id = uuid.uuid4().hex
+
+        target = cadfresource.Resource(typeURI=cadftaxonomy.ACCOUNT_USER)
+        action = 'authenticate'
+        outcome = cadftaxonomy.OUTCOME_SUCCESS
+        event_type = 'identity.authenticate'
+
+        captured_payloads = []
+
+        def _fake_notifier_info(context, evt_type, payload):
+            captured_payloads.append(payload)
+
+        with mock.patch(
+                'keystone.notifications._check_notification_opt_out',
+                return_value=False), \
+             mock.patch(
+                'keystone.notifications._CATALOG_HELPER_OBJ',
+                new=mock.Mock(
+                    catalog_api=mock.Mock(list_services=mock.Mock(
+                        return_value=[])))), \
+             mock.patch(
+                'keystone.notifications._add_username_to_initiator',
+                side_effect=lambda i: i), \
+             mock.patch.object(
+                notifications._get_notifier(), 'info',
+                side_effect=_fake_notifier_info):
+
+            notifications._send_audit_notification(
+                action, initiator, outcome, target, event_type)
+
+        self.assertEqual(1, len(captured_payloads),
+                         'notifier.info() should have been called once')
+        payload = captured_payloads[0]
+        self.assertIn('tenant_ids', payload,
+                      'payload must contain tenant_ids key')
+        self.assertIn(project_id, payload['tenant_ids'],
+                      'project_id must appear in tenant_ids')
+
+    def test_tenant_ids_default_when_no_project(self):
+        """When neither initiator nor target carries a project_id, tenant_ids
+        must default to ['Default'].
+        """
+        from pycadf import resource as cadfresource
+
+        initiator = cadfresource.Resource(typeURI=cadftaxonomy.ACCOUNT_USER)
+        initiator.id = uuid.uuid4().hex
+        # no project_id on initiator
+
+        target = cadfresource.Resource(typeURI=cadftaxonomy.ACCOUNT_USER)
+        # no project_id on target
+
+        action = 'authenticate'
+        outcome = cadftaxonomy.OUTCOME_SUCCESS
+        event_type = 'identity.authenticate'
+
+        captured_payloads = []
+
+        def _fake_notifier_info(context, evt_type, payload):
+            captured_payloads.append(payload)
+
+        with mock.patch(
+                'keystone.notifications._check_notification_opt_out',
+                return_value=False), \
+             mock.patch(
+                'keystone.notifications._CATALOG_HELPER_OBJ',
+                new=mock.Mock(
+                    catalog_api=mock.Mock(list_services=mock.Mock(
+                        return_value=[])))), \
+             mock.patch(
+                'keystone.notifications._add_username_to_initiator',
+                side_effect=lambda i: i), \
+             mock.patch.object(
+                notifications._get_notifier(), 'info',
+                side_effect=_fake_notifier_info):
+
+            notifications._send_audit_notification(
+                action, initiator, outcome, target, event_type)
+
+        self.assertEqual(1, len(captured_payloads),
+                         'notifier.info() should have been called once')
+        payload = captured_payloads[0]
+        self.assertIn('tenant_ids', payload,
+                      'payload must contain tenant_ids key')
+        self.assertEqual(['Default'], payload['tenant_ids'],
+                         "tenant_ids must be ['Default'] when no project_id "
+                         "is present on initiator or target")
