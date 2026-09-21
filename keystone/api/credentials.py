@@ -150,19 +150,22 @@ class CredentialsResource(ks_flask.ResourceBase):
             ref['id'] = hashlib.sha256(
                 blob['access'].encode('utf8')
             ).hexdigest()
-            # update the blob with the trust_id or app_cred_id, so credentials
-            # created with a trust- or app cred-scoped token will result in
-            # trust- or app cred-scoped tokens when authentication via
-            # ec2tokens happens
+            # trust_id / app_cred_id / access_token_id are server-managed.
+            # Strip any client-supplied values, then stamp only from the
+            # caller's auth context. Otherwise a primary-auth user can forge
+            # an unrelated impersonation trust_id into their own EC2 blob and
+            # later mint a trustor token via /ec2tokens or /s3tokens
+            # (LP#2165281).
+            blob.pop('trust_id', None)
+            blob.pop('app_cred_id', None)
+            blob.pop('access_token_id', None)
             if trust_id is not None:
                 blob['trust_id'] = trust_id
-                ref['blob'] = jsonutils.dumps(blob)
             if app_cred_id is not None:
                 blob['app_cred_id'] = app_cred_id
-                ref['blob'] = jsonutils.dumps(blob)
             if access_token_id is not None:
                 blob['access_token_id'] = access_token_id
-                ref['blob'] = jsonutils.dumps(blob)
+            ref['blob'] = jsonutils.dumps(blob)
             return ref
         else:
             return super()._assign_unique_id(ref)
