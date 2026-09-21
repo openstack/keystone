@@ -403,11 +403,9 @@ def new_cert_credential(user_id, project_id=None, blob=None, **kwargs):
 
 def new_ec2_credential(user_id, project_id=None, blob=None, **kwargs):
     if blob is None:
-        blob = {
-            'access': uuid.uuid4().hex,
-            'secret': uuid.uuid4().hex,
-            'trust_id': None,
-        }
+        # trust_id is server-managed (LP#2165281). Do not plant a null
+        # placeholder; POST /credentials strips client-supplied values.
+        blob = {'access': uuid.uuid4().hex, 'secret': uuid.uuid4().hex}
 
     if 'id' not in kwargs:
         access = blob['access'].encode('utf-8')
