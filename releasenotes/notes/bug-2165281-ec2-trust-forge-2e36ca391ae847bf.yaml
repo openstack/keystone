@@ -1,0 +1,19 @@
+---
+security:
+  - |
+    [`bug 2165281 <https://launchpad.net/bugs/2165281>`_]
+    ``POST /v3/credentials`` no longer persists client-supplied
+    ``trust_id``, ``app_cred_id``, or ``access_token_id`` values in an
+    EC2 credential blob. Those fields are server-managed: they are
+    stripped from the request and only stamped from the caller's auth
+    context when present. Previously a primary-auth user who learned an
+    unrelated impersonation ``trust_id`` could forge it into their own
+    EC2 blob and later exchange it via ``POST /v3/ec2tokens`` or
+    ``POST /v3/s3tokens`` for a project-scoped token as the trustor.
+
+    Independently, the EC2/S3 authentication path now requires the
+    credential's ``user_id`` to be a party to the referenced trust
+    (trustor or trustee), and to match the owning user of a referenced
+    application credential or OAuth1 access token. This closes the
+    auth-time gap for any EC2 credentials that already carry a forged
+    delegation id in their blob.
