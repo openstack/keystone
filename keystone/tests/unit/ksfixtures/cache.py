@@ -15,12 +15,15 @@ import fixtures
 
 from keystone import catalog
 from keystone.common import cache
+from keystone.identity import core as identity_core
 from keystone import revoke
+
 
 CACHE_REGIONS = (
     cache.CACHE_REGION,
     catalog.COMPUTED_CATALOG_REGION,
     revoke.REVOKE_REGION,
+    identity_core.ID_MAPPING_REGION,
 )
 
 
