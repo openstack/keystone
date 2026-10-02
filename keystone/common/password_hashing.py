@@ -120,6 +120,51 @@ def verify_length_and_trunc_password(password) -> bytes:
         raise exception.ValidationError(attribute='string', target='password')
 
 
+def _hasher_work_params(hasher) -> dict:
+    """Return the work-factor kwargs currently configured for hasher."""
+    if hasher is scrypt.Scrypt:
+        return {
+            "n": CONF.identity.password_hash_rounds or 16,
+            "r": CONF.identity.scrypt_block_size or 8,
+            "p": CONF.identity.scrypt_parallelism or 1,
+        }
+    if hasher is pbkdf2.Sha512:
+        return {
+            "rounds": (
+                CONF.identity.password_hash_rounds or pbkdf2.DEFAULT_ROUNDS
+            )
+        }
+    if hasher in (bcrypt.Bcrypt, bcrypt.Bcrypt_sha256):
+        return {"rounds": CONF.identity.password_hash_rounds or 12}
+    return {}
+
+
+def needs_rehash(hashed: str) -> bool:
+    """Return True if the stored password hash should be upgraded.
+
+    A rehash is needed when the stored hash uses a different algorithm
+    than the currently configured one, or when the stored hash was
+    computed with a weaker work factor than the currently configured
+    (or default) value. This applies to bcrypt, bcrypt_sha256, scrypt,
+    and PBKDF2-SHA512.
+
+    Callers should rehash transparently on the next successful
+    authentication.
+    """
+    if not hashed:
+        return False
+    try:
+        hasher = _get_hasher_from_ident(hashed)
+    except ValueError:
+        return True
+
+    conf_hasher = _HASHER_NAME_MAP.get(CONF.identity.password_hash_algorithm)
+    if hasher is not conf_hasher:
+        return True
+
+    return hasher.needs_rehash(hashed, **_hasher_work_params(hasher))
+
+
 def check_password(password: str, hashed: str) -> bool:
     """Check that a plaintext password matches hashed.
 
@@ -159,7 +204,8 @@ def hash_password(password: str) -> str:
     if CONF.identity.password_hash_rounds:
         params['rounds'] = CONF.identity.password_hash_rounds
     if hasher is scrypt.Scrypt:
-        params["n"] = 16
+        # password_hash_rounds is logN for scrypt (conf default 16).
+        params["n"] = params.pop("rounds", 16)
         if CONF.identity.scrypt_block_size:
             params["r"] = CONF.identity.scrypt_block_size
         if CONF.identity.scrypt_parallelism:

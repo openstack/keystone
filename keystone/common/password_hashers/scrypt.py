@@ -63,6 +63,36 @@ class Scrypt(password_hashers.PasswordHasher):
         return f"$scrypt$ln={n},r={r},p={p}${salt_str}${digest_str}"
 
     @staticmethod
+    def needs_rehash(
+        hashed: str, n: int = 16, r: int = 8, p: int = 1, **kwargs
+    ) -> bool:
+        """Return True if hashed used a weaker scrypt work factor.
+
+        :param str hashed: Stored password hash.
+        :param int n: Target logN cost factor (defaults to 16).
+        :param int r: Target block size (defaults to 8).
+        :param int p: Target parallelism (defaults to 1).
+        :returns: True when the hash should be upgraded on next login.
+        """
+        parts = hashed[1:].split("$")
+        if len(parts) != 4:
+            return True
+        stored_n = stored_r = stored_p = None
+        try:
+            for param in parts[1].split(","):
+                if param.startswith("ln="):
+                    stored_n = int(param[3:])
+                elif param.startswith("r="):
+                    stored_r = int(param[2:])
+                elif param.startswith("p="):
+                    stored_p = int(param[2:])
+        except ValueError:
+            return True
+        if stored_n is None or stored_r is None or stored_p is None:
+            return True
+        return stored_n < n or stored_r < r or stored_p < p
+
+    @staticmethod
     def verify(password: bytes, hashed: str) -> bool:
         """Verify hashing password would be equal to the `hashed` value
 

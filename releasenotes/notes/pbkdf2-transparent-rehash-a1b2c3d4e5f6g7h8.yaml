@@ -1,0 +1,12 @@
+---
+features:
+  - |
+    Keystone now transparently upgrades stored password hashes on successful
+    authentication when the stored hash uses a different algorithm than
+    ``[identity] password_hash_algorithm``, or a weaker work factor than the
+    currently configured value. This applies to bcrypt, bcrypt_sha256, scrypt,
+    and PBKDF2-SHA512. Operators can raise ``password_hash_rounds`` or change
+    algorithm without requiring users to reset their passwords. The rehash
+    preserves password metadata (created_at, expires_at, history) and only
+    updates the hash itself. See the administrator guide on password hashing
+    for details.

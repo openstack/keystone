@@ -43,3 +43,13 @@ class PasswordHasher(abc.ABC):
 
     name: str
     ident: ty.Optional[str]
+
+    @staticmethod
+    def needs_rehash(hashed: str, **params) -> bool:
+        """Return True if the stored hash should be upgraded.
+
+        Subclasses compare ``hashed`` against the current work-factor
+        parameters. The default returns False: only an algorithm mismatch
+        (handled by the caller) would trigger a rehash.
+        """
+        return False

@@ -16,6 +16,9 @@ import string
 
 from oslo_config import fixture as config_fixture
 
+from keystone.common.password_hashers import bcrypt
+from keystone.common.password_hashers import pbkdf2
+from keystone.common.password_hashers import scrypt
 from keystone.common import password_hashing
 import keystone.conf
 from keystone.tests import unit
@@ -90,6 +93,124 @@ class TestPasswordHashing(unit.BaseTestCase):
             )
             hashed = password_hashing.hash_password(password)
             self.assertTrue(password_hashing.check_password(password, hashed))
+
+    def test_pbkdf2_sha512_needs_rehash_low_iterations(self):
+        old_hash = pbkdf2.Sha512.hash(b"password", rounds=10000)
+        self.assertTrue(pbkdf2.Sha512.needs_rehash(old_hash))
+
+    def test_pbkdf2_sha512_needs_rehash_current_iterations(self):
+        current_hash = pbkdf2.Sha512.hash(
+            b"password", rounds=pbkdf2.DEFAULT_ROUNDS
+        )
+        self.assertFalse(pbkdf2.Sha512.needs_rehash(current_hash))
+
+    def test_needs_rehash_pbkdf2_low_iterations(self):
+        self.config_fixture.config(
+            group="identity", password_hash_algorithm="pbkdf2_sha512"
+        )
+        old_hash = pbkdf2.Sha512.hash(b"password", rounds=10000)
+        self.assertTrue(password_hashing.needs_rehash(old_hash))
+
+    def test_needs_rehash_pbkdf2_current_iterations(self):
+        self.config_fixture.config(
+            group="identity", password_hash_algorithm="pbkdf2_sha512"
+        )
+        current_hash = pbkdf2.Sha512.hash(
+            b"password", rounds=pbkdf2.DEFAULT_ROUNDS
+        )
+        self.assertFalse(password_hashing.needs_rehash(current_hash))
+
+    def test_needs_rehash_algorithm_mismatch(self):
+        self.config_fixture.config(group="identity", max_password_length="72")
+        self.config_fixture.config(
+            group="identity", password_hash_algorithm="bcrypt"
+        )
+        bcrypt_hash = password_hashing.hash_password("testpassword")
+        self.config_fixture.config(
+            group="identity", password_hash_algorithm="pbkdf2_sha512"
+        )
+        self.assertTrue(password_hashing.needs_rehash(bcrypt_hash))
+
+    def test_needs_rehash_none_returns_false(self):
+        self.assertFalse(password_hashing.needs_rehash(None))
+
+    def test_needs_rehash_empty_string_returns_false(self):
+        self.assertFalse(password_hashing.needs_rehash(""))
+
+    def test_bcrypt_needs_rehash_low_rounds(self):
+        old_hash = bcrypt.Bcrypt.hash(b"password", rounds=4)
+        self.assertTrue(bcrypt.Bcrypt.needs_rehash(old_hash, rounds=12))
+
+    def test_bcrypt_needs_rehash_current_rounds(self):
+        current_hash = bcrypt.Bcrypt.hash(b"password", rounds=12)
+        self.assertFalse(bcrypt.Bcrypt.needs_rehash(current_hash, rounds=12))
+
+    def test_bcrypt_needs_rehash_malformed_returns_true(self):
+        self.assertTrue(bcrypt.Bcrypt.needs_rehash("not-a-bcrypt-hash"))
+
+    def test_needs_rehash_bcrypt_low_rounds(self):
+        self.config_fixture.config(
+            group="identity", password_hash_algorithm="bcrypt"
+        )
+        self.config_fixture.config(group="identity", password_hash_rounds=12)
+        old_hash = bcrypt.Bcrypt.hash(b"password", rounds=4)
+        self.assertTrue(password_hashing.needs_rehash(old_hash))
+
+    def test_needs_rehash_bcrypt_current_rounds(self):
+        self.config_fixture.config(
+            group="identity", password_hash_algorithm="bcrypt"
+        )
+        self.config_fixture.config(group="identity", password_hash_rounds=12)
+        current_hash = bcrypt.Bcrypt.hash(b"password", rounds=12)
+        self.assertFalse(password_hashing.needs_rehash(current_hash))
+
+    def test_bcrypt_sha256_needs_rehash_low_rounds(self):
+        old_hash = bcrypt.Bcrypt_sha256.hash(b"password", rounds=4)
+        self.assertTrue(bcrypt.Bcrypt_sha256.needs_rehash(old_hash, rounds=12))
+
+    def test_bcrypt_sha256_needs_rehash_current_rounds(self):
+        current_hash = bcrypt.Bcrypt_sha256.hash(b"password", rounds=12)
+        self.assertFalse(
+            bcrypt.Bcrypt_sha256.needs_rehash(current_hash, rounds=12)
+        )
+
+    def test_needs_rehash_bcrypt_sha256_low_rounds(self):
+        self.config_fixture.config(
+            group="identity", password_hash_algorithm="bcrypt_sha256"
+        )
+        self.config_fixture.config(group="identity", password_hash_rounds=12)
+        old_hash = bcrypt.Bcrypt_sha256.hash(b"password", rounds=4)
+        self.assertTrue(password_hashing.needs_rehash(old_hash))
+
+    def test_scrypt_needs_rehash_low_cost(self):
+        old_hash = scrypt.Scrypt.hash(b"password", n=8, r=8, p=1)
+        self.assertTrue(scrypt.Scrypt.needs_rehash(old_hash, n=16, r=8, p=1))
+
+    def test_scrypt_needs_rehash_low_block_size(self):
+        old_hash = scrypt.Scrypt.hash(b"password", n=16, r=4, p=1)
+        self.assertTrue(scrypt.Scrypt.needs_rehash(old_hash, n=16, r=8, p=1))
+
+    def test_scrypt_needs_rehash_current_params(self):
+        current_hash = scrypt.Scrypt.hash(b"password", n=16, r=8, p=1)
+        self.assertFalse(
+            scrypt.Scrypt.needs_rehash(current_hash, n=16, r=8, p=1)
+        )
+
+    def test_needs_rehash_scrypt_low_cost(self):
+        self.config_fixture.config(
+            group="identity", password_hash_algorithm="scrypt"
+        )
+        self.config_fixture.config(group="identity", password_hash_rounds=16)
+        old_hash = scrypt.Scrypt.hash(b"password", n=8, r=8, p=1)
+        self.assertTrue(password_hashing.needs_rehash(old_hash))
+
+    def test_needs_rehash_scrypt_current_params(self):
+        self.config_fixture.config(
+            group="identity", password_hash_algorithm="scrypt"
+        )
+        self.config_fixture.config(group="identity", password_hash_rounds=16)
+        current_hash = scrypt.Scrypt.hash(b"password", n=16, r=8, p=1)
+        self.assertFalse(password_hashing.needs_rehash(current_hash))
 
 
 class TestGeneratePartialPasswordHash(unit.BaseTestCase):

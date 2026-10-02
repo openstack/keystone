@@ -79,7 +79,33 @@ class Identity(base.IdentityDriverBase):
         # successful auth, reset failed count if present
         if user_ref.local_user.failed_auth_count:
             self._reset_failed_auth(user_id)
+        # Transparently upgrade hashes that use outdated parameters so
+        # that existing passwords become more secure over time without
+        # requiring a forced password reset.
+        if password_hashing.needs_rehash(user_ref.password):
+            self._rehash_password(user_id, password, user_ref.password)
         return user_dict
+
+    def _rehash_password(self, user_id, password, old_hash):
+        """Rehash the stored password using the current algorithm and params.
+
+        Updates the password_hash field of the current Password record in
+        place, deliberately bypassing the User.password setter so that
+        password-history, expiry, and created_at metadata are left untouched.
+
+        Uses compare-and-swap: the write is skipped if the stored hash
+        no longer matches old_hash, which means another session (e.g. an
+        admin password reset) changed it after the authentication read.
+        """
+        new_hash = password_hashing.hash_password(password)
+        with sql.session_for_write() as session:
+            user_ref = session.get(model.User, user_id)
+            if (
+                user_ref is not None
+                and user_ref.password_ref is not None
+                and user_ref.password_ref.password_hash == old_hash
+            ):
+                user_ref.password_ref.password_hash = new_hash
 
     def _is_account_locked(self, user_id, user_ref):
         """Check if the user account is locked.

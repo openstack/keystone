@@ -20,6 +20,8 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from keystone.common import password_hashers
 from keystone import exception
 
+DEFAULT_ROUNDS: int = 25000
+
 
 class Sha512(password_hashers.PasswordHasher):
     """passlib transition class for PBKDF2 Sha512 password hashing"""
@@ -29,21 +31,22 @@ class Sha512(password_hashers.PasswordHasher):
     hash_algo = hashes.SHA512()
 
     @staticmethod
-    def hash(password: bytes, salt_size: int = 16, rounds: int = 25000) -> str:
-        """Generate password hash string with ident and params
+    def hash(
+        password: bytes, salt_size: int = 16, rounds: int = DEFAULT_ROUNDS
+    ) -> str:
+        """Generate password hash string with ident and params.
 
         https://cryptography.io/en/stable/hazmat/primitives/key-derivation-functions/#pbkdf2
 
         :param bytes password: Password to be hashed.
-        :param bytes salt: Salt.
-        :param int iterations: Iterations count
+        :param int salt_size: Number of random bytes to use as salt.
+        :param int rounds: PBKDF2 iteration count.
 
-        :returns: String in format
-            `$pbkdf2-sha512$ln=logN,r=R,p=P$salt$checksum`
+        :returns: String in format ``$pbkdf2-sha512$<rounds>$<salt>$<digest>``
         """
         salt: bytes = os.urandom(salt_size)
 
-        # Prepave the kdf function with params
+        # Prepare the kdf function with params
         kdf = PBKDF2HMAC(
             algorithm=Sha512.hash_algo, length=64, salt=salt, iterations=rounds
         )
@@ -60,7 +63,27 @@ class Sha512(password_hashers.PasswordHasher):
             binascii.b2a_base64(salt).rstrip(b"=\n").decode("ascii")
         )
 
-        return f"$pbkdf2-sha512${rounds}${salt_str}${digest_str}"
+        return f"{Sha512.ident}{rounds}${salt_str}${digest_str}"
+
+    @staticmethod
+    def needs_rehash(
+        hashed: str, rounds: int = DEFAULT_ROUNDS, **kwargs
+    ) -> bool:
+        """Return True if hashed used fewer rounds than ``rounds``.
+
+        :param str hashed: Stored password hash.
+        :param int rounds: Target iteration count (defaults to
+            DEFAULT_ROUNDS; callers should pass the operator-configured value).
+        :returns: True when the hash should be upgraded on next login.
+        """
+        parts = hashed[1:].split('$')
+        if len(parts) == 4:
+            _, rounds_str, _, _ = parts
+            try:
+                return int(rounds_str) < rounds
+            except ValueError:
+                pass
+        return True
 
     @staticmethod
     def verify(password: bytes, hashed: str) -> bool:
@@ -92,7 +115,7 @@ class Sha512(password_hashers.PasswordHasher):
         else:
             raise exception.PasswordValidationError("malformed password hash")
 
-        # Prepave the kdf function with params
+        # Prepare the kdf function with params
         kdf = PBKDF2HMAC(
             algorithm=Sha512.hash_algo, length=64, salt=salt, iterations=rounds
         )

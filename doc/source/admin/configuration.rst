@@ -13,6 +13,7 @@ complete keystone configuration documentation and sample config files.
 .. include:: integrate-with-ldap.inc
 .. include:: caching-layer.inc
 .. include:: security-compliance.inc
+.. include:: password-hashing.inc
 .. include:: performance.inc
 .. include:: url-safe-naming.inc
 .. include:: limit-list-size.inc

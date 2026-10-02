@@ -41,6 +41,22 @@ class Bcrypt(password_hashers.PasswordHasher):
         return digest.decode("ascii")
 
     @staticmethod
+    def needs_rehash(hashed: str, rounds: int = 12, **kwargs) -> bool:
+        """Return True if hashed used a lower cost than ``rounds``.
+
+        :param str hashed: Stored password hash (modular crypt format).
+        :param int rounds: Target bcrypt cost (defaults to 12).
+        :returns: True when the hash should be upgraded on next login.
+        """
+        parts = hashed.split("$")
+        if len(parts) >= 4:
+            try:
+                return int(parts[2]) < rounds
+            except ValueError:
+                pass
+        return True
+
+    @staticmethod
     def verify(password: bytes, hashed: str) -> bool:
         """Verify hashing password would be equal to the `hashed` value
 
@@ -96,6 +112,27 @@ class Bcrypt_sha256(password_hashers.PasswordHasher):
 
         # Construct `passlib` compatible format of the bcrypt-sha256 hash
         return f"{Bcrypt_sha256.prefix}v=2,t=2b,r={rounds}${salt_str}${digest}"
+
+    @staticmethod
+    def needs_rehash(hashed: str, rounds: int = 12, **kwargs) -> bool:
+        """Return True if hashed used a lower cost than ``rounds``.
+
+        :param str hashed: Stored password hash.
+        :param int rounds: Target bcrypt cost (defaults to 12).
+        :returns: True when the hash should be upgraded on next login.
+        """
+        data = hashed
+        if hashed.startswith(Bcrypt_sha256.prefix):
+            data = hashed[len(Bcrypt_sha256.prefix) :]
+        parts = data.split("$")
+        if parts:
+            for param in parts[0].split(","):
+                if param.startswith("r="):
+                    try:
+                        return int(param[2:]) < rounds
+                    except ValueError:
+                        return True
+        return True
 
     @staticmethod
     def verify(password: bytes, hashed: str) -> bool:
