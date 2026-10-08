@@ -1,0 +1,8 @@
+---
+fixes:
+  - |
+    Fixed identity provider remote_ids JSON schema validation rejecting
+    values longer than 64 characters. The database column allows 255
+    characters; the incorrect limit was introduced when federation protocol
+    schema validation reused a 64-character string type for IdP remote IDs.
+    Typical OIDC issuer URLs often exceed 64 characters.

@@ -23,7 +23,11 @@ basic_property_id = {
     'additionalProperties': False,
 }
 
-remote_id = {"type": "string", "maxLength": 64}
+# idp_remote_ids.remote_id is String(255) in SQL.
+idp_remote_id = {"type": "string", "maxLength": 255}
+
+# federation_protocol.remote_id_attribute is String(64) in SQL.
+remote_id_attribute = {"type": "string", "maxLength": 64}
 
 saml_create = {
     'type': 'object',
@@ -186,7 +190,7 @@ _identity_provider_properties = {
     "remote_ids": {
         "type": ["array", "null"],
         "description": "List of the unique identity provider's remote IDs",
-        "items": remote_id,
+        "items": idp_remote_id,
         "uniqueItems": True,
     },
 }
@@ -308,7 +312,7 @@ protocol_response_links: dict[str, Any] = {
 # the list operation.
 _protocol_properties = {
     "mapping_id": mapping_id,
-    "remote_id_attribute": validation.nullable(remote_id),
+    "remote_id_attribute": validation.nullable(remote_id_attribute),
 }
 
 # Common schema of `Federation Protocol` resource
@@ -333,7 +337,7 @@ protocol_schema_short: dict[str, Any] = {
         "id": parameter_types.name,
         "links": protocol_response_links,
         "mapping_id": mapping_id,
-        "remote_id_attribute": remote_id,
+        "remote_id_attribute": remote_id_attribute,
     },
     "required": ["id", "mapping_id"],
     "additionalProperties": False,
@@ -393,7 +397,7 @@ protocol_update_request_body = {
             # (but the empty string is fine) or removed.
             "properties": {
                 "mapping_id": mapping_id,
-                "remote_id_attribute": remote_id,
+                "remote_id_attribute": remote_id_attribute,
             },
             "additionalProperties": False,
             "minProperties": 1,

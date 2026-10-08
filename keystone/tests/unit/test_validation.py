@@ -2964,6 +2964,41 @@ class IdentityProviderValidationTestCase(unit.BaseTestCase):
         self.create_idp_validator.validate(request_to_validate)
         self.update_idp_validator.validate(request_to_validate)
 
+    def test_validate_idp_request_with_long_remote_id(self):
+        """IdP remote_ids may be up to 255 characters (SQL column width).
+
+        Change I0c4fd741069f162706b5ba06fd2335efc6dbade4 incorrectly capped
+        these at 64 characters, which broke typical OIDC issuer URLs.
+        """
+        # Example OIDC issuer URL longer than 64 characters.
+        long_remote_id = (
+            'https://idp.example.com/realms/example-organization/'
+            'protocol/openid-connect'
+        )
+        self.assertGreater(len(long_remote_id), 64)
+        self.assertLessEqual(len(long_remote_id), 255)
+        request_to_validate = {
+            'identity_provider': {'remote_ids': [long_remote_id]}
+        }
+        self.create_idp_validator.validate(request_to_validate)
+        self.update_idp_validator.validate(request_to_validate)
+
+    def test_validate_idp_request_with_too_long_remote_id_fails(self):
+        """Exception is raised when a remote_id exceeds 255 characters."""
+        request_to_validate = {
+            'identity_provider': {'remote_ids': ['a' * 256]}
+        }
+        self.assertRaises(
+            exception.SchemaValidationError,
+            self.create_idp_validator.validate,
+            request_to_validate,
+        )
+        self.assertRaises(
+            exception.SchemaValidationError,
+            self.update_idp_validator.validate,
+            request_to_validate,
+        )
+
 
 class FederationProtocolValidationTestCase(unit.BaseTestCase):
     """Test for V3 Federation Protocol API validation."""
