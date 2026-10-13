@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    Fixed federation protocol PATCH JSON schema incorrectly requiring
+    ``mapping_id`` on every update. PATCH now accepts a body that changes
+    only ``remote_id_attribute``, matching the API behavior before federation
+    protocol request validation was tightened.
