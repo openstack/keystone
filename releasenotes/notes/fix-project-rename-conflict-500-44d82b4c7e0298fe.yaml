@@ -1,0 +1,12 @@
+---
+fixes:
+  - |
+    [`bug 2154808 <https://bugs.launchpad.net/keystone/+bug/2154808>`_]
+    Fixed an issue where renaming a project to a name already in use
+    within the same domain via ``PATCH /v3/projects/{project_id}``
+    returned ``HTTP 500`` instead of the documented ``HTTP 409 Conflict``.
+    The conflict-message helper assumed the project payload always
+    carried an ``id`` key, which is never the case for the update API
+    (the schema forbids ``id`` in the request body). The helper now
+    derives the project id from the surrounding context, and the
+    correct ``409 Conflict`` response is returned.
