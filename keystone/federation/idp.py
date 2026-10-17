@@ -444,7 +444,8 @@ def _verify_assertion_binary_is_installed():
         # (hence the name). We don't really care about where the location of
         # the binary exists, though. We just want to make sure it's actually
         # installed and if an `CalledProcessError` isn't thrown, it is.
-        subprocess.check_output(  # nosec : The contents of this command are
+        subprocess.check_output(  # noqa: S603
+            # The contents of this command are
             # coming from either the default
             # configuration value for
             # CONF.saml.xmlsec1_binary or an operator
@@ -525,8 +526,8 @@ def _sign_assertion(assertion):
             )
         )
         command_list.append(file_path)
-        stdout = subprocess.check_output(
-            command_list,  # nosec : The contents
+        stdout = subprocess.check_output(  # noqa: S603
+            command_list,  # The contents
             # of the command list are coming from
             # a trusted source because the
             # executable and arguments all either

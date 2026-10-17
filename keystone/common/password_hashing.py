@@ -93,7 +93,7 @@ def verify_length_and_trunc_password(password) -> bytes:
     # https://passlib.readthedocs.io/en/stable/lib/passlib.hash.bcrypt.html#security-issues
     BCRYPT_MAX_LENGTH = 72
     if (
-        CONF.identity.password_hash_algorithm == 'bcrypt'  # nosec: B105
+        CONF.identity.password_hash_algorithm == 'bcrypt'  # noqa: S105
         and CONF.identity.max_password_length > BCRYPT_MAX_LENGTH
     ):
         msg = (

@@ -66,7 +66,7 @@ def diagnose():
             # passing a string here. Also, we include a line break here to
             # visually separate the symptom's description from any other
             # checks -- it provides a better user experience.
-            print(_('\nWARNING: %s') % _(symptom.__doc__))  # noqa: See comment above.
+            print(_('\nWARNING: %s') % _(symptom.__doc__))  # noqa: H701
 
     return symptoms_found
 

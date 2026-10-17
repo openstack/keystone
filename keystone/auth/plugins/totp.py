@@ -73,7 +73,7 @@ def _generate_totp_passcodes(secret, included_previous_windows=0):
     totp = crypto_totp.TOTP(
         decoded,
         PASSCODE_LENGTH,
-        hashes.SHA1(),  # nosec
+        hashes.SHA1(),  # noqa: S303
         PASSCODE_TIME_PERIOD,
         backend=default_backend(),
     )

@@ -282,7 +282,7 @@ class User(sql.ModelBase, sql.ModelDictMixinWithExtras):
         new_dict = user_dict.copy()
         resource_options = {}
         options = new_dict.pop('options', {})
-        password_expires_at_key = 'password_expires_at'  # nosec
+        password_expires_at_key = 'password_expires_at'  # noqa: S105
         if password_expires_at_key in user_dict:
             del new_dict[password_expires_at_key]
         for opt in cls.resource_options_registry.options:

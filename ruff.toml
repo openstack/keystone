@@ -5,8 +5,13 @@ target-version = "py38"
 # enable the following rule classes:
 #
 # C4: https://docs.astral.sh/ruff/rules/#flake8-comprehensions-c4
+# S: https://docs.astral.sh/ruff/rules/#flake8-bandit-s
 # UP: https://docs.astral.sh/ruff/rules/#pyupgrade-up
-select = ["C4", "UP"]
+select = ["C4", "S", "UP"]
+
+[lint.per-file-ignores]
+"keystone/tests/*" = ["S"]
+"devstack/*" = ["S"]
 
 [format]
 quote-style = "preserve"

@@ -173,7 +173,7 @@ def _assert_rbac_enforcement_called(resp):
     if flask.request.method != 'OPTIONS' and resp.status_code not in [
         http.client.BAD_REQUEST
     ]:
-        assert getattr(  # nosec
+        assert getattr(  # noqa: S101
             g, enforcer._ENFORCEMENT_CHECK_ATTR, False
         ), msg  # nosec
     return resp
@@ -327,8 +327,8 @@ class APIBase(metaclass=abc.ABCMeta):
         # Assert is intended to ensure code works as expected in development,
         # it is fine to optimize out with python -O
         msg = '%s_request functions not registered'
-        assert self.__before_request_functions_added, msg % 'before'  # nosec
-        assert self.__after_request_functions_added, msg % 'after'  # nosec
+        assert self.__before_request_functions_added, msg % 'before'  # noqa: S101
+        assert self.__after_request_functions_added, msg % 'after'  # noqa: S101
 
     def _add_resources(self):
         # Add resources that are standardized. Each resource implements a
@@ -563,7 +563,7 @@ class APIBase(metaclass=abc.ABCMeta):
         # Assert is intended to ensure code works as expected in development,
         # it is fine to optimize out with python -O
         msg = 'before_request functions already registered'
-        assert not self.__before_request_functions_added, msg  # nosec
+        assert not self.__before_request_functions_added, msg  # noqa: S101
         # register global before request functions
         # e.g. self.__blueprint.before_request(function)
         self.__blueprint.before_request(_initialize_rbac_enforcement_check)
@@ -594,7 +594,7 @@ class APIBase(metaclass=abc.ABCMeta):
         # Assert is intended to ensure code works as expected in development,
         # it is fine to optimize out with python -O
         msg = 'after_request functions already registered'
-        assert not self.__after_request_functions_added, msg  # nosec
+        assert not self.__after_request_functions_added, msg  # noqa: S101
         # register global after request functions
         # e.g. self.__blueprint.after_request(function)
         self.__blueprint.after_request(_assert_rbac_enforcement_called)
