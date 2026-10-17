@@ -81,19 +81,6 @@ class HackingCode(fixtures.Fixture):
         ],
     }
 
-    # NOTE(browne): This is gross, but in Python 3.4 and earlier, the ast
-    # module returns the incorrect col_offset for two of the defined functions
-    # in the code sample above.
-    if sys.version_info < (3, 5):
-        mutable_default_args['expected_errors'][12] = (28, 27, 'K001')
-        mutable_default_args['expected_errors'][14] = (32, 11, 'K001')
-
-    # NOTE(gmann): Python version < 3.8.2 (before Ubuntu Focal) returns
-    # the incorrect col_offset for below function defined in above code sample
-    # def f(foo, bad=[], more_bad=[x for x in range(3)]):
-    if sys.version_info < (3, 8, 2):
-        mutable_default_args['expected_errors'][2] = (10, 29, 'K001')  # type: ignore[index]
-
     comments_begin_with_space = {
         'code': """
             # This is a good comment
