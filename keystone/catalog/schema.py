@@ -96,7 +96,7 @@ region_create_request_body = {
         }
     },
     "required": ["region"],
-    "additonalProperties": False,
+    "additionalProperties": False,
 }
 
 # Request body of the `PATCH /regions/{region_id}` operation
