@@ -166,6 +166,17 @@ class ResourceBase(ks_flask.ResourceBase):
         auth_context = None
         if cred_data['trust_id']:
             trust = PROVIDERS.trust_api.get_trust(cred_data['trust_id'])
+            # Credential owner must be a party to the trust. Without this,
+            # anyone who learns a trust_id can forge it into their own EC2
+            # blob and, for impersonation trusts, mint a trustor token
+            # (LP#2165281). The TokenModel trustee check is not sufficient:
+            # for impersonation we set user_id to trustee_user_id below, so
+            # that check compares the trust to itself.
+            parties = {trust['trustor_user_id'], trust['trustee_user_id']}
+            if cred_data['user_id'] not in parties:
+                raise ks_exceptions.Unauthorized(
+                    _('EC2 credential user is not a party to the trust')
+                )
             roles = [r['id'] for r in trust['roles']]
             # NOTE(cmurphy): if this credential was created using a
             # trust-scoped token with impersonation, the user_id will be for
@@ -181,6 +192,13 @@ class ResourceBase(ks_flask.ResourceBase):
             app_cred = ac_client.get_application_credential(
                 cred_data['app_cred_id']
             )
+            if cred_data['user_id'] != app_cred['user_id']:
+                raise ks_exceptions.Unauthorized(
+                    _(
+                        'EC2 credential user does not match the '
+                        'application credential user.'
+                    )
+                )
             roles = [r['id'] for r in app_cred['roles']]
             if cred_data['project_id'] != app_cred['project_id']:
                 raise ks_exceptions.Unauthorized(
@@ -193,6 +211,13 @@ class ResourceBase(ks_flask.ResourceBase):
             access_token = PROVIDERS.oauth_api.get_access_token(
                 cred_data['access_token_id']
             )
+            if cred_data['user_id'] != access_token['authorizing_user_id']:
+                raise ks_exceptions.Unauthorized(
+                    _(
+                        'EC2 credential user does not match the '
+                        'OAuth1 access token authorizing user.'
+                    )
+                )
             roles = jsonutils.loads(access_token['role_ids'])
             if cred_data['project_id'] != access_token['project_id']:
                 raise ks_exceptions.Unauthorized(
