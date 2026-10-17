@@ -401,7 +401,6 @@ protocol_update_request_body = {
             },
             "additionalProperties": False,
             "minProperties": 1,
-            "required": ["mapping_id"],
         }
     },
     "required": ["protocol"],

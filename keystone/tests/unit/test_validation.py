@@ -3081,12 +3081,30 @@ class FederationProtocolValidationTestCase(unit.BaseTestCase):
     def test_validate_update_protocol_with_no_parameters_fails(self):
         """Test that updating a protocol requires at least one attribute."""
         request_to_validate = {}
-        # 'mapping_id' is required.
         self.assertRaises(
             exception.SchemaValidationError,
             self.update_protocol_validator.validate,
             request_to_validate,
         )
+        request_to_validate = {"protocol": {}}
+        self.assertRaises(
+            exception.SchemaValidationError,
+            self.update_protocol_validator.validate,
+            request_to_validate,
+        )
+
+    def test_validate_update_protocol_succeeds_with_only_remote_id_attribute(
+        self,
+    ):
+        """PATCH may update remote_id_attribute without resending mapping_id.
+
+        protocol_update_request_body must not require mapping_id on PATCH;
+        minProperties alone enforces at least one mutable field.
+        """
+        request_to_validate = {
+            "protocol": {"remote_id_attribute": uuid.uuid4().hex}
+        }
+        self.update_protocol_validator.validate(request_to_validate)
 
     def test_validate_update_protocol_request_fails_with_invalid_id(self):
         """Test that updating a protocol with a non-string mapping_id fail."""
