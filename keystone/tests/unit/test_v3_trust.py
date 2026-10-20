@@ -25,6 +25,7 @@ from keystone.api import trusts as trusts_api
 from keystone.common import authorization
 from keystone.common import context
 from keystone.common import provider_api
+from keystone.common import utils
 import keystone.conf
 from keystone.credential.providers import fernet as credential_fernet
 from keystone import exception
@@ -831,6 +832,7 @@ class TrustsWithOtherDelegatedTokens(test_v3.RestfulTestCase):
             'SignatureMethod': 'HmacSHA256',
             'SignatureVersion': '2',
             'AWSAccessKeyId': blob['access'],
+            'Timestamp': utils.isotime(timeutils.utcnow()),
         }
         request = {
             'host': 'foo',

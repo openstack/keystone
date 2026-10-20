@@ -1,0 +1,28 @@
+---
+security:
+  - |
+    EC2 and S3 signed token requests now require a timestamp. Previously,
+    requests that omitted the timestamp field bypassed the
+    ``[credential] auth_ttl`` replay-protection window entirely. Keystone now
+    enforces that every signed EC2/S3 request carries a verifiable timestamp
+    and rejects those that do not with HTTP 401 Unauthorized.
+
+    For requests forwarded by Swift's s3token middleware the timestamp is
+    extracted from the signature-verified string-to-sign (SigV2 Date /
+    ``x-amz-date`` / Expires, or SigV4 ``X-Amz-Date``), using the same
+    urlsafe-base64 decoding as signature verification. Extraction failures
+    fail closed.
+
+upgrade:
+  - |
+    EC2 and S3 token requests that omit a timestamp (``Timestamp`` query
+    parameter, ``X-Amz-Date``, or the date embedded in the string-to-sign)
+    are now rejected with HTTP 401. All AWS-compliant clients include a
+    timestamp by default; only non-standard or hand-crafted requests are
+    affected.
+
+    The ``[credential] auth_ttl`` configuration option (default 15 minutes)
+    is now reliably applied to all EC2/S3 authentication requests. Previously
+    it was silently ignored for requests that did not include an explicit
+    timestamp field. Operators who have set a custom ``auth_ttl`` value will
+    see it take effect as documented.

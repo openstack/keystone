@@ -13,11 +13,14 @@
 # under the License.
 
 import base64
+import datetime
 import hashlib
 import hmac
 import http.client
 from unittest import mock
 import uuid
+
+from oslo_utils import timeutils
 
 from keystone.api import s3tokens
 from keystone.common import provider_api
@@ -56,22 +59,83 @@ class S3ContribCore(test_v3.RestfulTestCase):
         )
         self.assertEqual(http.client.METHOD_NOT_ALLOWED, resp.status_code)
 
+    def _sigv2_credentials(self, date_line, path='/bucket/object'):
+        """Build Swift-style SigV2 s3token credentials."""
+        sts = f'GET\n\n\n{date_line}\n{path}'
+        sts_bytes = sts.encode('utf-8')
+        sig = (
+            base64.b64encode(
+                hmac.new(
+                    self.cred_blob['secret'].encode('ascii'),
+                    sts_bytes,
+                    hashlib.sha1,
+                ).digest()
+            )
+            .decode('ascii')
+            .strip()
+        )
+        return {
+            'access': self.cred_blob['access'],
+            'signature': sig,
+            'token': base64.urlsafe_b64encode(sts_bytes).decode('ascii'),
+        }
+
+    def _sigv2_x_amz_date_credentials(self, amz_date, path='/bucket/object'):
+        """SigV2 with empty Date line and x-amz-date amz-header."""
+        sts = f'GET\n\n\n\nx-amz-date:{amz_date}\n{path}'
+        sts_bytes = sts.encode('utf-8')
+        sig = (
+            base64.b64encode(
+                hmac.new(
+                    self.cred_blob['secret'].encode('ascii'),
+                    sts_bytes,
+                    hashlib.sha1,
+                ).digest()
+            )
+            .decode('ascii')
+            .strip()
+        )
+        return {
+            'access': self.cred_blob['access'],
+            'signature': sig,
+            'token': base64.urlsafe_b64encode(sts_bytes).decode('ascii'),
+        }
+
+    def _sigv4_credentials(self, amz_date):
+        """Build Swift-style SigV4 s3token credentials."""
+        date_stamp = amz_date[:8]
+        sts = (
+            f'AWS4-HMAC-SHA256\n'
+            f'{amz_date}\n'
+            f'{date_stamp}/us-east-1/s3/aws4_request\n'
+            f'{"0" * 64}'
+        )
+        sts_bytes = sts.encode('utf-8')
+        # Match keystone.api.s3tokens._calculate_signature_v4
+        scope = [date_stamp.encode(), b'us-east-1', b's3', b'aws4_request']
+
+        def _sign(key, msg):
+            return hmac.new(key, msg, hashlib.sha256).digest()
+
+        key = _sign(
+            ('AWS4' + self.cred_blob['secret']).encode('utf-8'), scope[0]
+        )
+        key = _sign(key, scope[1])
+        key = _sign(key, scope[2])
+        key = _sign(key, scope[3])
+        signature = hmac.new(key, sts_bytes, hashlib.sha256).hexdigest()
+        return {
+            'access': self.cred_blob['access'],
+            'signature': signature,
+            'token': base64.urlsafe_b64encode(sts_bytes).decode('ascii'),
+        }
+
     def _test_good_response(self, expected_status=http.client.OK, **kwargs):
-        sts = 'string to sign'  # opaque string from swift3
-        sig = hmac.new(
-            self.cred_blob['secret'].encode('ascii'),
-            sts.encode('ascii'),
-            hashlib.sha1,
-        ).digest()
+        now = timeutils.utcnow()
+        date_line = now.strftime('%a, %d %b %Y %H:%M:%S +0000')
         resp = self.post(
             '/s3tokens',
-            body={
-                'credentials': {
-                    'access': self.cred_blob['access'],
-                    'signature': base64.b64encode(sig).strip(),
-                    'token': base64.b64encode(sts.encode('ascii')).strip(),
-                }
-            },
+            body={'credentials': self._sigv2_credentials(date_line)},
             expected_status=expected_status,
             **kwargs,
         )
@@ -89,6 +153,73 @@ class S3ContribCore(test_v3.RestfulTestCase):
     def test_good_response_noauth(self):
         # s3tokens now requires service/admin auth; unauthenticated should be denied
         self._test_good_response(http.client.UNAUTHORIZED, noauth=True)
+
+    def test_sigv2_date_header_fresh(self):
+        now = timeutils.utcnow()
+        date_line = now.strftime('%a, %d %b %Y %H:%M:%S +0000')
+        self.post(
+            '/s3tokens',
+            body={'credentials': self._sigv2_credentials(date_line)},
+            expected_status=http.client.OK,
+        )
+
+    def test_sigv2_date_header_expired(self):
+        self.config_fixture.config(group='credential', auth_ttl=5)
+        past = timeutils.utcnow() - datetime.timedelta(hours=2)
+        date_line = past.strftime('%a, %d %b %Y %H:%M:%S +0000')
+        self.post(
+            '/s3tokens',
+            body={'credentials': self._sigv2_credentials(date_line)},
+            expected_status=http.client.UNAUTHORIZED,
+        )
+
+    def test_sigv2_x_amz_date_fresh(self):
+        amz_date = timeutils.utcnow().strftime('%Y%m%dT%H%M%SZ')
+        self.post(
+            '/s3tokens',
+            body={'credentials': self._sigv2_x_amz_date_credentials(amz_date)},
+            expected_status=http.client.OK,
+        )
+
+    def test_sigv4_fresh(self):
+        amz_date = timeutils.utcnow().strftime('%Y%m%dT%H%M%SZ')
+        self.post(
+            '/s3tokens',
+            body={'credentials': self._sigv4_credentials(amz_date)},
+            expected_status=http.client.OK,
+        )
+
+    def test_sigv4_expired(self):
+        self.config_fixture.config(group='credential', auth_ttl=5)
+        past = timeutils.utcnow() - datetime.timedelta(hours=2)
+        amz_date = past.strftime('%Y%m%dT%H%M%SZ')
+        self.post(
+            '/s3tokens',
+            body={'credentials': self._sigv4_credentials(amz_date)},
+            expected_status=http.client.UNAUTHORIZED,
+        )
+
+    def test_opaque_sts_without_timestamp_rejected(self):
+        """Opaque STS with no extractable date must fail closed."""
+        sts = 'string to sign'
+        sig = hmac.new(
+            self.cred_blob['secret'].encode('ascii'),
+            sts.encode('ascii'),
+            hashlib.sha1,
+        ).digest()
+        self.post(
+            '/s3tokens',
+            body={
+                'credentials': {
+                    'access': self.cred_blob['access'],
+                    'signature': base64.b64encode(sig).decode('ascii').strip(),
+                    'token': base64.urlsafe_b64encode(
+                        sts.encode('ascii')
+                    ).decode('ascii'),
+                }
+            },
+            expected_status=http.client.UNAUTHORIZED,
+        )
 
     def _post_s3_token_capturing_id(self, expected_status=http.client.OK):
         """Post an S3 token and return (response, token_id).

@@ -99,6 +99,61 @@ class S3Resource(EC2_S3_Resource.ResourceBase):
                 message=_('Credential signature mismatch')
             )
 
+    @staticmethod
+    def _extract_timestamp_from_token(token):
+        """Extract the request date from a Swift s3token string-to-sign.
+
+        The token field is the urlsafe-base64 encoding of the string-to-sign
+        that ``_check_signature`` already verified. Layouts:
+
+        * SigV4: line 0 is ``AWS4-HMAC-SHA256``, line 1 is
+          ``YYYYMMDDTHHMMSSZ``.
+        * SigV2 header auth with ``Date``: line 3 is the RFC 1123 date.
+        * SigV2 header auth with ``x-amz-date``: line 3 is empty and the
+          date appears as an ``x-amz-date:`` amz-header line.
+        * SigV2 query auth: line 3 is Unix epoch ``Expires``.
+        """
+        try:
+            sts = base64.urlsafe_b64decode(str(token)).decode('utf-8')
+        except (ValueError, UnicodeDecodeError):
+            return None
+
+        lines = sts.split('\n')
+        if not lines:
+            return None
+
+        if lines[0] == 'AWS4-HMAC-SHA256':
+            if len(lines) < 2:
+                return None
+            date_field = lines[1].strip()
+            return date_field or None
+
+        # SigV2: Verb\nContent-MD5\nContent-Type\nDate|Expires\n...
+        if len(lines) > 3 and lines[3].strip():
+            return lines[3].strip()
+
+        for line in lines[4:]:
+            if line.lower().startswith('x-amz-date:'):
+                return line.split(':', 1)[1].strip() or None
+        return None
+
+    @staticmethod
+    def _check_timestamp(credentials):
+        base = EC2_S3_Resource.ResourceBase
+        timestamp = base._timestamp_from_params_or_headers(credentials)
+        if not timestamp:
+            timestamp = S3Resource._extract_timestamp_from_token(
+                credentials.get('token')
+            )
+        if not timestamp:
+            raise exception.Unauthorized(
+                _(
+                    'EC2/S3 signed requests must include a timestamp '
+                    '(Timestamp query parameter or X-Amz-Date).'
+                )
+            )
+        base._enforce_auth_ttl(base._parse_timestamp(timestamp))
+
     def post(self):
         """Authenticate s3token.
 

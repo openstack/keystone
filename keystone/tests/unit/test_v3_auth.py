@@ -6953,6 +6953,7 @@ class Ec2CredentialTokenRescopeAuth(test_v3.RestfulTestCase):
             'SignatureMethod': 'HmacSHA256',
             'SignatureVersion': '2',
             'AWSAccessKeyId': blob['access'],
+            'Timestamp': utils.isotime(timeutils.utcnow()),
         }
         return {
             'access': blob['access'],
