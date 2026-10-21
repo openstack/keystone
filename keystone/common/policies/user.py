@@ -109,7 +109,7 @@ user_policies = [
         description=(
             'List all projects a user has access to via role assignments.'
         ),
-        operations=[{'path': ' /v3/auth/projects', 'method': 'GET'}],
+        operations=[{'path': '/v3/auth/projects', 'method': 'GET'}],
     ),
     policy.DocumentedRuleDefault(
         name=base.IDENTITY % 'list_domains_for_user',
