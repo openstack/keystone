@@ -9,11 +9,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Keystone Release Notes\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2026-04-09 17:28+0000\n"
+"POT-Creation-Date: 2026-10-21 08:03+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2026-02-28 01:50+0000\n"
+"PO-Revision-Date: 2026-09-24 07:40+0000\n"
 "Last-Translator: Andi Chandler <andi@gowling.com>\n"
 "Language-Team: English (United Kingdom)\n"
 "Language: en_GB\n"
@@ -166,6 +166,9 @@ msgstr "2023.1 Series Release Notes"
 msgid "2023.1-eom"
 msgstr "2023.1-eom"
 
+msgid "2023.1-eom-7"
+msgstr "2023.1-eom-7"
+
 msgid "2023.2 Series Release Notes"
 msgstr "2023.2 Series Release Notes"
 
@@ -174,6 +177,15 @@ msgstr "2023.2-eol"
 
 msgid "2024.1 Series Release Notes"
 msgstr "2024.1 Series Release Notes"
+
+msgid "2024.1-eom"
+msgstr "2024.1-eom"
+
+msgid "2024.1-eom-15"
+msgstr "2024.1-eom-15"
+
+msgid "2024.2-eol"
+msgstr "2024.2-eol"
 
 msgid "21.0.0"
 msgstr "21.0.0"
@@ -201,6 +213,9 @@ msgstr "23.0.2"
 
 msgid "24.0.0"
 msgstr "24.0.0"
+
+msgid "24.1.0"
+msgstr "24.1.0"
 
 msgid "25.0.0"
 msgstr "25.0.0"
@@ -2027,6 +2042,18 @@ msgstr ""
 "deleting a shadow user, the related cache info is not invalidated so that "
 "Keystone will raise 404 UserNotFound error when authenticating with the "
 "previous federation info. This bug has been fixed now."
+
+msgid ""
+"`[DEFAULT] crypt_strength` is deprecated in favor of `[identity] "
+"password_hash_rounds`. Note that `[DEFAULT] crypt_strength` is still used "
+"when `[identity] rolling_upgrade_password_hash_compat` is set to `True`."
+msgstr ""
+"`[DEFAULT] crypt_strength` is deprecated in favour of `[identity] "
+"password_hash_rounds`. Note that `[DEFAULT] crypt_strength` is still used "
+"when `[identity] rolling_upgrade_password_hash_compat` is set to `True`."
+
+msgid "``[eventlet_server] public_admin_host``"
+msgstr "``[eventlet_server] public_admin_host``"
 
 msgid "``[eventlet_server] public_bind_host``"
 msgstr "``[eventlet_server] public_bind_host``"

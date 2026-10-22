@@ -16,11 +16,11 @@ msgid ""
 msgstr ""
 "Project-Id-Version: keystone VERSION\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2026-04-09 17:35+0000\n"
+"POT-Creation-Date: 2026-10-21 08:09+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2026-02-21 04:49+0000\n"
+"PO-Revision-Date: 2026-09-24 07:39+0000\n"
 "Last-Translator: Andi Chandler <andi@gowling.com>\n"
 "Language: en_GB\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
@@ -277,8 +277,13 @@ msgstr "Cannot enable project %s since it has disabled parents"
 msgid "Cannot list assignments sourced from groups and filtered by user ID."
 msgstr "Cannot list assignments sourced from groups and filtered by user ID."
 
-msgid "Cannot list request tokens with a token issued via delegation."
-msgstr "Cannot list request tokens with a token issued via delegation."
+msgid "Cannot manage OAuth access tokens with a token issued via delegation."
+msgstr "Cannot manage OAuth access tokens with a token issued via delegation."
+
+msgid ""
+"Cannot manage application credentials with a token issued via delegation."
+msgstr ""
+"Cannot manage application credentials with a token issued via delegation."
 
 #, python-format
 msgid "Cannot open certificate %(cert_file)s.Reason: %(reason)s"
@@ -531,6 +536,12 @@ msgstr "Credential signature mismatch"
 msgid "DN attribute %(dn)s not found in LDAP"
 msgstr "DN attribute %(dn)s not found in LDAP"
 
+msgid "Delegated tokens cannot access credentials directly"
+msgstr "Delegated tokens cannot access credentials directly"
+
+msgid "Delegated tokens cannot manage trusts."
+msgstr "Delegated tokens cannot manage trusts."
+
 msgid ""
 "Disabling an entity where the 'enable' attribute is ignored by configuration."
 msgstr ""
@@ -601,6 +612,9 @@ msgstr "Duplicate remote ID: %s"
 
 msgid "EC2 access key not found."
 msgstr "EC2 access key not found."
+
+msgid "EC2 credential tokens cannot be used for authorization."
+msgstr "EC2 credential tokens cannot be used for authorisation."
 
 msgid "EC2 signature not supplied."
 msgstr "EC2 signature not supplied."
@@ -1066,14 +1080,6 @@ msgstr "Programming Error: Invalid arguments supplied to build scope."
 msgid "Programming Error: value to be stored must be a datetime object."
 msgstr "Programming Error: value to be stored must be a datetime object."
 
-#, python-format
-msgid ""
-"Project %(project_id)s must be in the same domain as the role %(role_id)s "
-"being assigned."
-msgstr ""
-"Project %(project_id)s must be in the same domain as the role %(role_id)s "
-"being assigned."
-
 msgid "Project field is required and cannot be empty."
 msgstr "Project field is required and cannot be empty."
 
@@ -1248,6 +1254,13 @@ msgstr "The authenticated user should match the trustor"
 msgid "The certificate content is not PEM format."
 msgstr "The certificate content is not PEM format."
 
+msgid ""
+"The ec2credential method cannot be used to authenticate via /v3/auth/tokens. "
+"Exchange your EC2 credentials at /v3/ec2tokens instead."
+msgstr ""
+"The ec2credential method cannot be used to authenticate via /v3/auth/tokens. "
+"Exchange your EC2 credentials at /v3/ec2tokens instead."
+
 #, python-format
 msgid ""
 "The given operator %(_op)s is not valid. It must be one of the following: "
@@ -1309,6 +1322,13 @@ msgid ""
 msgstr ""
 "The revoke call must not have both domain_id and project_id. This is a bug "
 "in the Keystone server. The current request is aborted."
+
+msgid ""
+"The server is currently unable to handle the request due to misconfiguration "
+"or maintenance."
+msgstr ""
+"The server is currently unable to handle the request due to misconfiguration "
+"or maintenance."
 
 msgid "The service you have requested is no longer available on this server."
 msgstr "The service you have requested is no longer available on this server."
@@ -1632,6 +1652,9 @@ msgstr ""
 "Using OAuth-scoped token to create another token. Create a new OAuth-scoped "
 "token instead"
 
+msgid "Using a delegated token to create another token is not allowed."
+msgstr "Using a delegated token to create another token is not allowed."
+
 msgid ""
 "Using a system-scoped token to create a project-scoped or domain-scoped "
 "token is not allowed."
@@ -1645,11 +1668,6 @@ msgid ""
 msgstr ""
 "Using method 'application_credential' is not allowed for managing additional "
 "application credentials."
-
-msgid ""
-"Using method 'application_credential' is not allowed for managing trusts."
-msgstr ""
-"Using method 'application_credential' is not allowed for managing trusts."
 
 msgid ""
 "Using trust-scoped token to create another token. Create a new trust-scoped "
