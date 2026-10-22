@@ -16,7 +16,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: keystone VERSION\n"
 "Report-Msgid-Bugs-To: https://bugs.launchpad.net/openstack-i18n/\n"
-"POT-Creation-Date: 2026-04-09 17:35+0000\n"
+"POT-Creation-Date: 2026-10-21 08:09+0000\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -153,9 +153,6 @@ msgstr "无法启用项目 %s，因为它具有已禁用的父代"
 
 msgid "Cannot list assignments sourced from groups and filtered by user ID."
 msgstr "无法列示源自若干组并按用户标识过滤的分配。"
-
-msgid "Cannot list request tokens with a token issued via delegation."
-msgstr "无法列示带有通过代理发出的令牌的请求令牌。"
 
 msgid ""
 "Cannot truncate a driver call without hints list as first parameter after "
