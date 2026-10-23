@@ -6273,14 +6273,14 @@ class TestAuthTOTP(test_v3.RestfulTestCase):
         creds = self._make_credentials('totp')
         secret = creds[-1]['blob']
 
-        auth_data = self._make_auth_data_by_id(
-            totp._generate_totp_passcodes(secret)[0]
-        )
-
         # Stop the clock otherwise there is a chance of auth failure due to
         # getting a different TOTP between the call here and the call in the
         # auth plugin.
         self.useFixture(fixture.TimeFixture())
+
+        auth_data = self._make_auth_data_by_id(
+            totp._generate_totp_passcodes(secret)[0]
+        )
 
         self.v3_create_token(auth_data, expected_status=http.client.CREATED)
 
@@ -6289,16 +6289,17 @@ class TestAuthTOTP(test_v3.RestfulTestCase):
         creds = self._make_credentials('totp')
         secret = creds[-1]['blob']
 
-        past = timeutils.utcnow() - datetime.timedelta(seconds=30)
+        now = timeutils.utcnow()
+        past = now - datetime.timedelta(seconds=30)
         with freezegun.freeze_time(past):
             auth_data = self._make_auth_data_by_id(
                 totp._generate_totp_passcodes(secret)[0]
             )
 
-        # Stop the clock otherwise there is a chance of auth failure due to
-        # getting a different TOTP between the call here and the call in the
-        # auth plugin.
-        self.useFixture(fixture.TimeFixture())
+        # Stop the clock at the time ``past`` was derived from, otherwise
+        # there is a chance of auth failure due to getting a different TOTP
+        # window between the call here and the call in the auth plugin.
+        self.useFixture(fixture.TimeFixture(now))
 
         self.v3_create_token(auth_data, expected_status=http.client.CREATED)
 
@@ -6307,16 +6308,17 @@ class TestAuthTOTP(test_v3.RestfulTestCase):
         creds = self._make_credentials('totp')
         secret = creds[-1]['blob']
 
-        past = timeutils.utcnow() - datetime.timedelta(minutes=2)
+        now = timeutils.utcnow()
+        past = now - datetime.timedelta(minutes=2)
         self.useFixture(fixture.TimeFixture(past))
         auth_data = self._make_auth_data_by_id(
             totp._generate_totp_passcodes(secret)[0]
         )
 
-        # Stop the clock otherwise there is a chance of auth failure due to
-        # getting a different TOTP between the call here and the call in the
-        # auth plugin.
-        self.useFixture(fixture.TimeFixture())
+        # Stop the clock at the time ``past`` was derived from, otherwise
+        # there is a chance of auth failure due to getting a different TOTP
+        # window between the call here and the call in the auth plugin.
+        self.useFixture(fixture.TimeFixture(now))
 
         self.v3_create_token(auth_data, expected_status=http.client.CREATED)
 
