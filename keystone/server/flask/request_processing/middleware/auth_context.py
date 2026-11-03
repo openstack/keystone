@@ -24,6 +24,7 @@ import webob.dec
 import webob.exc
 
 from keystone.common import authorization
+from keystone.common import cache
 from keystone.common import context
 from keystone.common import provider_api
 from keystone.common import render_token
@@ -343,6 +344,14 @@ class AuthContextMiddleware(
     @middleware_exceptions
     def process_request(self, request):
         context_env = request.environ.get(CONTEXT_ENV, {})
+
+        # NOTE(xek): The request local cache stores its values on the
+        # current request context, which is still the context of the
+        # previous request on this thread until fill_context() below builds
+        # a new one. Reset it here so that the token validation below can
+        # never be answered from a previous request's cache (for example an
+        # already revoked token).
+        cache.clear_request_local_cache()
 
         # NOTE(notmorgan): This code is merged over from the admin token
         # middleware and now emits the security warning when the
