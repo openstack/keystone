@@ -1,0 +1,23 @@
+---
+security:
+  - |
+    [`bug 2171986 <https://launchpad.net/bugs/2171986>`_]
+    Keystone's request local cache is now discarded at the start of every
+    request. That cache keeps its entries as attributes of the current
+    thread's request context, and a request only builds its own context
+    after the caller's token has been validated, so the entries cached by
+    the previous request on the same thread were still readable while that
+    validation ran.
+
+    This allowed a revoked token to be accepted once more by every worker
+    that had just validated it. Revoking a token invalidates the shared
+    cache, but the copy stored on the worker's request context survived,
+    and the next request served by that thread answered "valid" from it
+    instead of consulting the revocation backend. The user enabled check,
+    the roles and access rules of an application credential, and the
+    service catalog could be satisfied from the same stale copy. Reusing
+    it requires the same worker thread to have validated the token
+    immediately before, so at most one request per thread is affected.
+
+    No configuration change is required, and deployments no longer need
+    to restart Keystone for a revocation to take effect.

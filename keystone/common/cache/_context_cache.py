@@ -28,8 +28,34 @@ def _register_model_handler(handler_class):
     _registry.frozen = True
 
 
+# Prefix of every attribute used to store a value in the request local cache.
+_REQUEST_CACHE_KEY_PREFIX = '_request_cache_'
+
+
+def clear_request_local_cache():
+    """Discard everything cached in the current request's local cache.
+
+    The request local cache keeps values as attributes of the current
+    ``oslo_context`` request context. That context is a thread local, and
+    it is only replaced once a request has progressed far enough to build
+    its own, so values cached by a previous request on the same thread stay
+    readable until then. Clearing them when a request starts keeps the
+    cache scoped to a single request.
+    """
+    ctx = oslo_context.get_current()
+    if ctx is None:
+        return
+
+    for key in [
+        attr
+        for attr in vars(ctx)
+        if attr.startswith(_REQUEST_CACHE_KEY_PREFIX)
+    ]:
+        delattr(ctx, key)
+
+
 class _ResponseCacheProxy(proxy.ProxyBackend):
-    __key_pfx = '_request_cache_%s'
+    __key_pfx = _REQUEST_CACHE_KEY_PREFIX + '%s'
 
     def _get_request_context(self):
         # Return the current context or a new/empty context.

@@ -10,11 +10,13 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+from unittest import mock
 import uuid
 
 from dogpile.cache import api as dogpile
 from dogpile.cache.backends import memory
 from oslo_config import fixture as config_fixture
+from oslo_context import context as oslo_context
 
 from keystone.common import cache
 import keystone.conf
@@ -196,3 +198,22 @@ class TestCacheRegion(unit.BaseTestCase):
         # test invalidation
         cache.CACHE_INVALIDATION_REGION.delete(region_key)
         self.assertIsInstance(self.region0.get(key), dogpile.NoValue)
+
+
+class TestRequestLocalCache(unit.BaseTestCase):
+    def test_clear_request_local_cache(self):
+        ctx = oslo_context.RequestContext(overwrite=True)
+        setattr(ctx, '_request_cache_one', b'cached value')
+        setattr(ctx, '_request_cache_two', b'cached value')
+        setattr(ctx, 'unrelated', 'kept')
+
+        cache.clear_request_local_cache()
+
+        self.assertFalse(hasattr(ctx, '_request_cache_one'))
+        self.assertFalse(hasattr(ctx, '_request_cache_two'))
+        self.assertEqual('kept', ctx.unrelated)
+
+    def test_clear_request_local_cache_without_context(self):
+        with mock.patch.object(oslo_context, 'get_current', return_value=None):
+            # Nothing to clear is not an error.
+            cache.clear_request_local_cache()

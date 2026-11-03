@@ -110,6 +110,7 @@ CACHE_REGION = create_region(name='shared default')
 CACHE_INVALIDATION_REGION = create_region(name='invalidation region')
 
 register_model_handler = _context_cache._register_model_handler
+clear_request_local_cache = _context_cache.clear_request_local_cache
 
 
 def configure_cache(region=None):
