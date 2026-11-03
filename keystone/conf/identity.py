@@ -164,7 +164,12 @@ The default for bcrypt is 12, must be between 4 and 31, inclusive.
 
 The default for scrypt is 16, must be within `range(1,32)`.
 
-The default for pbkdf_sha512 is 60000, must be within `range(1,1<<32)`
+The default for pbkdf2_sha512 is 600,000 (OWASP 2023 recommendation),
+must be within `range(1, 1<<32)`. This default provides strong resistance
+against brute-force attacks, including those using quantum-accelerated
+search (Grover's algorithm). Operators should benchmark authentication
+latency on their hardware; a single hash at 600,000 iterations typically
+takes 0.3-0.8 s on modern CPUs.
 
 WARNING: If using scrypt, increasing this value increases BOTH time AND
 memory requirements to hash a password.
