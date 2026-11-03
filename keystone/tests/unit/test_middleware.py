@@ -20,6 +20,7 @@ from unittest import mock
 import uuid
 
 import fixtures
+from oslo_context import context as oslo_context
 import webtest
 
 from keystone.auth import core as auth_core
@@ -784,3 +785,48 @@ class AuthContextMiddlewareTest(
                 path='/v3/projects', method='get', headers=headers
             )
             token_mock.assert_called_once()
+
+    def test_revoked_token_is_not_reused_from_request_cache(self):
+        # A token validated by an earlier request on this worker thread must
+        # not be accepted from that request's local cache once it has been
+        # revoked elsewhere.
+        context = auth_core.AuthContext(
+            user_id=self.user['id'], methods=['password']
+        )
+        token = PROVIDERS.token_provider_api.issue_token(
+            context['user_id'],
+            context['methods'],
+            project_id=self.project_id,
+            auth_context=context,
+        )
+        headers = {authorization.AUTH_TOKEN_HEADER: token.id}
+
+        # The token is accepted while it is valid.
+        middleware = self.MIDDLEWARE_CLASS(self._application())
+        self._generate_app_response(middleware, headers=headers)
+        self.assertIsNotNone(middleware.token)
+
+        # The earlier request validated the token, which is what fills the
+        # request local cache of the context current on this thread.
+        armed_context = oslo_context.RequestContext(overwrite=True)
+        PROVIDERS.token_provider_api.validate_token(token.id)
+        cached = [
+            attr
+            for attr in vars(armed_context)
+            if attr.startswith('_request_cache_')
+        ]
+        self.assertTrue(cached, 'the earlier request cached no values')
+
+        # Revoke it the way another worker would: the shared cache is
+        # invalidated, the copy cached on this thread's context is not.
+        oslo_context.RequestContext(overwrite=True)
+        PROVIDERS.token_provider_api.revoke_token(token.id)
+        armed_context.update_store()
+
+        # The revoked token must not be accepted from the stale cache.
+        middleware = self.MIDDLEWARE_CLASS(self._application())
+        self._generate_app_response(middleware, headers=headers)
+        self.assertIsNone(
+            middleware.token,
+            'the revoked token was accepted from a stale request cache',
+        )
