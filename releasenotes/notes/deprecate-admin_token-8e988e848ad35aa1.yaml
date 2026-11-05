@@ -1,0 +1,5 @@
+---
+deprecations:
+  - |
+    The ``[DEFAULT] admin_token`` option is now formally deprecated. This
+    has been discouraged since the bootstrap feature was introduced.
