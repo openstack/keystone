@@ -1,0 +1,7 @@
+---
+fixes:
+  - |
+    The TOTP unit tests for previous passcode windows no longer fail
+    intermittently when a 30 second TOTP window boundary passes while a
+    test runs. This only affects the keystone unit tests, there is no end
+    user impact.
