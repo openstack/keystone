@@ -16,6 +16,11 @@ from keystone.conf import utils
 
 admin_token = cfg.StrOpt(
     'admin_token',
+    deprecated_for_removal=True,
+    deprecated_reason=utils.fmt(
+        "Using static admin token has not been recommended. "
+        "Use bootstrap instead."
+    ),
     secret=True,
     help=utils.fmt(
         """
@@ -24,7 +29,7 @@ bootstrap` command. The value of this option is treated as a "shared secret"
 that can be used to bootstrap Keystone through the API. This "token" does not
 represent a user (it has no identity), and carries no explicit authorization
 (it effectively bypasses most authorization checks). If set to `None`, the
-value is ignored and the `admin_token` middleware is effectively disabled.
+value is ignored.
 """
     ),
 )
