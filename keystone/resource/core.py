@@ -420,10 +420,6 @@ class Manager(manager.Manager):
             notifications.Audit.disabled(
                 self._PROJECT, project_id, public=False
             )
-            # Drop the computed assignments if the project is being disabled.
-            # This ensures an accurate list of projects is returned when
-            # listing projects/domains for a user based on role assignments.
-            assignment.COMPUTED_ASSIGNMENTS_REGION.invalidate()
 
         if cascade:
             self._only_allow_enabled_to_update_cascade(
@@ -437,6 +433,8 @@ class Manager(manager.Manager):
             )
             ret = self.driver.update_project(project_id, project)
         except exception.Conflict:
+            # A cascade above may already have written the subtree.
+            assignment.COMPUTED_ASSIGNMENTS_REGION.invalidate()
             raise exception.Conflict(
                 type='project',
                 details=self._generate_project_name_conflict_msg(
@@ -449,14 +447,8 @@ class Manager(manager.Manager):
             self.get_project_by_name.invalidate(
                 self, original_project['name'], original_project['domain_id']
             )
-            if (
-                'domain_id' in project
-                and project['domain_id'] != original_project['domain_id']
-            ):
-                # If the project's domain_id has been updated, invalidate user
-                # role assignments cache region, as it may be caching inherited
-                # assignments from the old domain to the specified project
-                assignment.COMPUTED_ASSIGNMENTS_REGION.invalidate()
+            # list_projects_for_user and list_domains_for_user cache whole refs
+            assignment.COMPUTED_ASSIGNMENTS_REGION.invalidate()
         finally:
             # attempt to send audit event even if the cache invalidation raises
             notifications.Audit.updated(self._PROJECT, project_id, initiator)
