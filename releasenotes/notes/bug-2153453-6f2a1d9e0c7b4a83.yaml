@@ -1,0 +1,40 @@
+---
+security:
+  - |
+    [`bug 2153453 <https://launchpad.net/bugs/2153453>`_]
+    EC2-derived tokens (``methods: ['ec2credential']``) could still create,
+    list, read, or delete trusts (``/v3/OS-TRUST/trusts``), create, list,
+    read, or delete application credentials
+    (``/v3/users/{user_id}/application_credentials``), and authorize OAuth1
+    request tokens (``PUT
+    /v3/OS-OAUTH1/authorize/{request_token_id}``), because none of the
+    delegation guards on those endpoints recognized ``ec2credential`` as a
+    delegated method. OAuth1 access-token-scoped tokens had the same gap
+    for trust management. A stolen EC2 access/secret key pair or OAuth1
+    access token could therefore bootstrap a trust, application credential,
+    or OAuth1 access token delegation that outlives revocation of the
+    original credential.
+
+    These endpoints now use the same primary-auth-method allowlist already
+    used by ``/v3/credentials`` and the ``OS-EC2`` compat endpoints: any
+    token whose methods aren't entirely primary (interactive) auth methods,
+    or that carries a ``trust_id``, is rejected. Application credential
+    tokens keep their existing, documented behavior on each endpoint
+    (the opt-in trust-escalation escape hatch, and the
+    unrestricted/restricted distinction for creating further application
+    credentials); OAuth1 and EC2 credentials have no such use case and are
+    blocked unconditionally.
+
+upgrade:
+  - |
+    `bug 2153453 <https://launchpad.net/bugs/2153453>`_: A token issued via
+    a custom, third-party auth plugin (for example a site-specific SSO
+    integration) is now treated as a delegated credential by default and
+    rejected from managing trusts, application credentials, and OAuth1
+    access tokens, unless its method name is listed in the new
+    ``[auth] additional_primary_auth_methods`` option. Deployments that
+    run a custom auth plugin beyond keystone's own built-in methods
+    (``password``, ``totp``, ``mapped``, ``saml2``, ``openid``,
+    ``external``, ``kerberos``, ``x509``, ``token``) must add its method
+    name to this option to avoid regressing self-service workflows for
+    users authenticated through it, such as switching active project.
