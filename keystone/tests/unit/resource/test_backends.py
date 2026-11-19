@@ -1629,6 +1629,82 @@ class ResourceTests:
             domain['id'],
         )
 
+    def test_project_update_invalidates_list_projects_for_user_cache(self):
+        project = unit.new_project_ref(
+            domain_id=CONF.identity.default_domain_id
+        )
+        PROVIDERS.resource_api.create_project(project['id'], project)
+        user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
+        user = PROVIDERS.identity_api.create_user(user)
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
+            user['id'], project['id'], default_fixtures.MEMBER_ROLE_ID
+        )
+        listed = PROVIDERS.assignment_api.list_projects_for_user(user['id'])
+        self.assertEqual([project['name']], [p['name'] for p in listed])
+
+        project['name'] = uuid.uuid4().hex
+        project['description'] = uuid.uuid4().hex
+        PROVIDERS.resource_api.update_project(project['id'], project)
+
+        listed = PROVIDERS.assignment_api.list_projects_for_user(user['id'])
+        self.assertEqual([project['name']], [p['name'] for p in listed])
+        self.assertEqual(
+            [project['description']], [p['description'] for p in listed]
+        )
+
+    def test_cascade_conflict_invalidates_list_projects_for_user_cache(self):
+        parent, child = self._create_projects_hierarchy(hierarchy_size=2)
+        user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
+        user = PROVIDERS.identity_api.create_user(user)
+        PROVIDERS.assignment_api.add_role_to_user_and_project(
+            user['id'], child['id'], default_fixtures.MEMBER_ROLE_ID
+        )
+        listed = PROVIDERS.assignment_api.list_projects_for_user(user['id'])
+        self.assertEqual([True], [p['enabled'] for p in listed])
+
+        driver = PROVIDERS.resource_api.driver
+        real_update = driver.update_project
+
+        def conflict_on_parent(project_id, project):
+            if project_id == parent['id']:
+                raise exception.Conflict(type='project', details='')
+            return real_update(project_id, project)
+
+        parent['enabled'] = False
+        with mock.patch.object(
+            driver, 'update_project', side_effect=conflict_on_parent
+        ):
+            self.assertRaises(
+                exception.Conflict,
+                PROVIDERS.resource_api.update_project,
+                parent['id'],
+                parent,
+                cascade=True,
+            )
+
+        listed = PROVIDERS.assignment_api.list_projects_for_user(user['id'])
+        self.assertEqual([False], [p['enabled'] for p in listed])
+
+    @unit.skip_if_no_multiple_domains_support
+    def test_domain_update_invalidates_list_domains_for_user_cache(self):
+        domain = unit.new_domain_ref()
+        PROVIDERS.resource_api.create_domain(domain['id'], domain)
+        user = unit.new_user_ref(domain_id=CONF.identity.default_domain_id)
+        user = PROVIDERS.identity_api.create_user(user)
+        PROVIDERS.assignment_api.create_grant(
+            default_fixtures.MEMBER_ROLE_ID,
+            user_id=user['id'],
+            domain_id=domain['id'],
+        )
+        listed = PROVIDERS.assignment_api.list_domains_for_user(user['id'])
+        self.assertEqual([domain['name']], [d['name'] for d in listed])
+
+        domain['name'] = uuid.uuid4().hex
+        PROVIDERS.resource_api.update_domain(domain['id'], domain)
+
+        listed = PROVIDERS.assignment_api.list_domains_for_user(user['id'])
+        self.assertEqual([domain['name']], [d['name'] for d in listed])
+
     @unit.skip_if_cache_disabled('resource')
     @unit.skip_if_no_multiple_domains_support
     def test_cache_layer_project_crud(self):

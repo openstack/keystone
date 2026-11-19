@@ -1,0 +1,8 @@
+---
+fixes:
+  - |
+    [`bug 2173898 <https://bugs.launchpad.net/keystone/+bug/2173898>`_]
+    Updating a project or a domain now invalidates the computed assignments
+    cache. Previously, ``GET /v3/users/{user_id}/projects``,
+    ``GET /v3/auth/projects`` and ``GET /v3/auth/domains`` kept returning
+    the old name and description until the cache entry expired.
