@@ -14,6 +14,7 @@
 
 import copy
 import http.client
+from unittest import mock
 import uuid
 
 from testtools import matchers
@@ -557,6 +558,44 @@ class EndpointFilterTokenRequestTestCase(EndpointFilterTestCase):
         )
         self.assertEqual(
             self.project['id'], r.result['token']['project']['id']
+        )
+
+    def test_stale_endpoint_project_association(self):
+        """Verify a stale association does not break token issuance."""
+        self.put(
+            '/OS-EP-FILTER/projects/{project_id}'
+            '/endpoints/{endpoint_id}'.format(
+                project_id=self.project['id'], endpoint_id=self.endpoint_id
+            )
+        )
+
+        # Create an association to a non-existent endpoint directly through
+        # the driver, bypassing the notification based cleanup, as happens
+        # when an endpoint is removed but its association is left behind.
+        stale_endpoint_id = uuid.uuid4().hex
+        PROVIDERS.catalog_api.driver.add_endpoint_to_project(
+            stale_endpoint_id, self.project['id']
+        )
+
+        auth_data = self.build_authentication_request(
+            user_id=self.user['id'],
+            password=self.user['password'],
+            project_id=self.project['id'],
+        )
+        with mock.patch('keystone.catalog.core.LOG') as mock_log:
+            r = self.post('/auth/tokens', body=auth_data)
+        self.assertValidProjectScopedTokenResponse(
+            r, require_catalog=True, endpoint_filter=True, ep_filter_assoc=1
+        )
+        endpoints = r.result['token']['catalog'][0]['endpoints']
+        self.assertEqual([self.endpoint_id], [ep['id'] for ep in endpoints])
+        mock_log.warning.assert_called_once()
+        self.assertEqual(
+            {
+                'endpoint_id': stale_endpoint_id,
+                'project_id': self.project['id'],
+            },
+            mock_log.warning.call_args[0][1],
         )
 
     def test_disabled_endpoint(self):

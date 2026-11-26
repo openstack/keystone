@@ -15,6 +15,8 @@
 
 """Main entry point into the Catalog service."""
 
+from oslo_log import log
+
 from keystone.common import cache
 from keystone.common import driver_hints
 from keystone.common import manager
@@ -25,6 +27,7 @@ from keystone.i18n import _
 from keystone import notifications
 
 CONF = keystone.conf.CONF
+LOG = log.getLogger(__name__)
 PROVIDERS = provider_api.ProviderAPIs
 
 
@@ -321,9 +324,21 @@ class Manager(manager.Manager):
                 endpoint = self.get_endpoint(ref['endpoint_id'])
                 filtered_endpoints.update({ref['endpoint_id']: endpoint})
             except exception.EndpointNotFound:
-                # remove bad reference from association
-                self.remove_endpoint_from_project(
-                    ref['endpoint_id'], project_id
+                # NOTE(amorin): Do not remove the stale association here:
+                # this may be called from within a reader transaction (e.g.
+                # when building the catalog in get_v3_catalog), and oslo.db
+                # refuses to upgrade it to a writer, which would break token
+                # issuance.
+                # So instead, warn, so operator may be able to run a cleanup
+                # on their side.
+                LOG.warning(
+                    'Endpoint %(endpoint_id)s associated with project '
+                    '%(project_id)s does not exist, ignoring stale '
+                    'endpoint-project association.',
+                    {
+                        'endpoint_id': ref['endpoint_id'],
+                        'project_id': project_id,
+                    },
                 )
 
         # need to recover endpoint_groups associated with project
